@@ -68,7 +68,7 @@ namespace Test.ADAL.WinRT.Unit
         {
             Sts sts = new AadSts();
             AuthenticationContextProxy context = new AuthenticationContextProxy(sts.Authority);
-            AuthenticationResultProxy result = await context.AcquireTokenAsync(sts.ValidScope, sts.ValidClientId,
+            AuthenticationResultProxy result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId,
                 new Uri("ms-app://s-1-15-2-2097830667-3131301884-2920402518-3338703368-1480782779-4157212157-3811015497/"), 
                 new PlatformParameters(PromptBehavior.Auto, false));
 
@@ -76,7 +76,7 @@ namespace Test.ADAL.WinRT.Unit
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);
 
             Uri uri = WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
-            result = await context.AcquireTokenAsync(sts.ValidScope, sts.ValidClientId, uri, new PlatformParameters(PromptBehavior.Auto, false));
+            result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, uri, new PlatformParameters(PromptBehavior.Auto, false));
 
             Verify.IsNotNullOrEmptyString(result.Error);
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);

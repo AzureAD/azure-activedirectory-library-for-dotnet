@@ -295,6 +295,7 @@ namespace Test.ADAL.NET
             await AdalTests.ConfidentialClientWithX509TestAsync(Sts);
         }
 
+/*
         [TestMethod]
         [Description("Test for Client credential")]
         [TestCategory("AdalDotNetMock")]
@@ -330,6 +331,7 @@ namespace Test.ADAL.NET
         {
             await AdalTests.ClientAssertionWithSelfSignedJwtTestAsync(Sts);
         }
+*/
 
         [TestMethod]
         [Description("Positive Test for Confidential Client")]
@@ -348,7 +350,7 @@ namespace Test.ADAL.NET
         {
             await AdalTests.AcquireTokenWithPromptBehaviorNeverTestAsync(Sts);
         }
-
+/*
         [TestMethod]
         [Description("Positive Test for AcquireTokenOnBehalf with client credential")]
         [TestCategory("AdalDotNetMock")]
@@ -374,7 +376,7 @@ namespace Test.ADAL.NET
         public async Task AcquireTokenOnBehalfAndClientAssertionTest()
         {
             await AdalTests.AcquireTokenOnBehalfAndClientAssertionTestAsync(Sts);
-        }
+        }*/
 
         [TestMethod]
         [Description("Positive Test for AcquireToken from cache only")]
@@ -412,6 +414,7 @@ namespace Test.ADAL.NET
             await AdalTests.CacheExpirationMarginTestAsync(Sts);
         }
 
+/*
         [TestMethod]
         [Description("Test for client assertion in multi threaded scenario")]
         [TestCategory("AdalDotNet")]
@@ -420,6 +423,7 @@ namespace Test.ADAL.NET
         {
             await AdalTests.MultiThreadedClientAssertionWithX509TestAsync(Sts);
         }
+*/
 
         [TestMethod]
         [Description("Test for token cache usage in AcquireTokenByAuthorizationCode")]
@@ -457,6 +461,7 @@ namespace Test.ADAL.NET
             await AdalTests.GetAuthorizationRequestURLTestAsync(Sts);
         }
 
+/*
         [TestMethod]
         [Description("Test for logging in ADAL")]
         [TestCategory("AdalDotNetMock")]
@@ -465,15 +470,8 @@ namespace Test.ADAL.NET
         {
             await AdalTests.LoggerTestAsync(Sts);
         }
+*/
 
-        [TestMethod]
-        [Description("Test for non-interactive federation with MSA")]
-        [TestCategory("AdalDotNet")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "AAD", DataAccessMethod.Sequential)]
-        public async Task MsaTest()
-        {
-            await AdalTests.MsaTestAsync();
-        }
 
     }
 }

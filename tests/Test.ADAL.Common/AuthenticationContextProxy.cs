@@ -55,6 +55,11 @@ namespace Test.ADAL.Common
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientCertificate, userId));
         }
 
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientCredential credential, string[] scope)
+        {
+            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential, scope));
+        }
+
         public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate certificate, string[] scope)
         {
             return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, certificate, scope));

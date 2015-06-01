@@ -253,7 +253,7 @@ namespace Test.ADAL.Common
             this.Authority = "https://aadadfs.info/adfs";
             this.InvalidAuthority = "https://invalid_address.com/adfs";
             this.InvalidClientId = "DE25CE3A-B772-4E6A-B431-96DCB5E7E558";
-            this.InvalidScope = "urn:msft:ad:test:oauth:teamdashboardx";
+            this.InvalidScope = new []{"urn:msft:ad:test:oauth:teamdashboardx"};
             this.ValidConfidentialClientSecret = "client_secret";
             this.Type = StsType.ADFS;
             this.ValidateAuthority = false;

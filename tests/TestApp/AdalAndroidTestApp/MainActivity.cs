@@ -43,12 +43,6 @@ namespace AdalAndroidTestApp
             Button acquireTokenInteractiveButton = FindViewById<Button>(Resource.Id.acquireTokenInteractiveButton);
             acquireTokenInteractiveButton.Click += acquireTokenInteractiveButton_Click;
 
-            Button acquireTokenUPButton = FindViewById<Button>(Resource.Id.acquireTokenUPButton);
-            acquireTokenUPButton.Click += acquireTokenUPButton_Click;
-
-            Button acquireTokenWithClientCredentialButton = FindViewById<Button>(Resource.Id.acquireTokenClientCredButton);
-            acquireTokenWithClientCredentialButton.Click += acquireTokenWithClientCredentialButton_Click;
-
             this.accessTokenTextView = FindViewById<TextView>(Resource.Id.accessTokenTextView);
         }
 
@@ -59,13 +53,6 @@ namespace AdalAndroidTestApp
             base.OnActivityResult(requestCode, resultCode, data);
         }
 
-        private async void acquireTokenUPButton_Click(object sender, EventArgs e)
-        {
-            this.accessTokenTextView.Text = string.Empty;
-            TokenBroker tokenBroker = new TokenBroker();
-            string token = await tokenBroker.GetTokenWithUsernamePasswordAsync();
-            this.accessTokenTextView.Text = token;
-        }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
@@ -75,13 +62,6 @@ namespace AdalAndroidTestApp
             this.accessTokenTextView.Text = token;
         }
 
-        private async void acquireTokenWithClientCredentialButton_Click(object sender, EventArgs e)
-        {
-            this.accessTokenTextView.Text = string.Empty;
-            TokenBroker tokenBroker = new TokenBroker();
-            string token = await tokenBroker.GetTokenWithClientCredentialAsync();
-            this.accessTokenTextView.Text = token;
-        }
     }
 }
 

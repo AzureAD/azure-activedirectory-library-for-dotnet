@@ -42,7 +42,7 @@ namespace Test.ADAL.WinPhone.Unit
 
             AuthenticationResultProxy result = null;
 
-            result = await context.AcquireTokenAsync(sts.ValidScope, sts.ValidClientId, new Uri("ms-app://test/"), null);
+            result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, new Uri("ms-app://test/"), null);
 
             Verify.IsNotNullOrEmptyString(result.Error);
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);            
@@ -58,12 +58,12 @@ namespace Test.ADAL.WinPhone.Unit
                 Verify.IsTrue(ex.Message.Contains("hostname"));
             }
 
-            result = await context.AcquireTokenAsync(sts.ValidScope, sts.ValidClientId, null, null);
+            result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, null);
             Verify.AreEqual(result.Error, "need_to_set_callback_uri_as_local_setting");
 
             // Incorrect ms-app
             ApplicationData.Current.LocalSettings.Values["CurrentApplicationCallbackUri"] = "ms-app://s-1-15-2-2097830667-3131301884-2920402518-3338703368-1480782779-4157212157-3811015497/";
-            result = await context.AcquireTokenAsync(sts.ValidScope, sts.ValidClientId, null, null);
+            result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, null);
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);
         }
     }
