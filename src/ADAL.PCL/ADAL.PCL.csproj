@@ -63,6 +63,7 @@
     <Compile Include="AcquireTokenSilentHandler.cs" />
     <Compile Include="AdalException.cs" />
     <Compile Include="AdalIdHelper.cs" />
+    <Compile Include="ADALScopeHelper.cs" />
     <Compile Include="AdalServiceException.cs" />
     <Compile Include="AdalSilentTokenAcquisitionException.cs" />
     <Compile Include="AdalUserMismatchException.cs" />

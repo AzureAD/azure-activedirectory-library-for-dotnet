@@ -46,14 +46,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                return (!string.IsNullOrWhiteSpace(this.RefreshToken) && !string.IsNullOrWhiteSpace(this.ResourceInResponse));
+                return (!string.IsNullOrWhiteSpace(this.RefreshToken) && !ADALScopeHelper.IsNullOrEmpty(ScopeInResponse));
             }            
         }
 
         // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
         // to get it from the STS response.
         [DataMember]
-        internal string ResourceInResponse { get; set; }
+        internal string[] ScopeInResponse { get; set; }
 
 
         /// <summary>

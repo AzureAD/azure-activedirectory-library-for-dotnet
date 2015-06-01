@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -38,8 +39,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private readonly UserIdentifier userId;
 
-        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters, IWebUI webUI)
-            : base(authenticator, tokenCache, resource, new ClientKey(clientId), TokenSubjectType.User)
+        private readonly string[] additionalScope;
+
+        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters, IWebUI webUI)
+            : base(authenticator, tokenCache, scope, new ClientKey(clientId), TokenSubjectType.User)
         {
             this.redirectUri = PlatformPlugin.PlatformInformation.ValidateRedirectUri(redirectUri, this.CallState);
 
@@ -49,6 +52,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationParameters = parameters;
+            if (ADALScopeHelper.IsNullOrEmpty(additionalScope))
+            {
+                this.additionalScope = additionalScope;
+            }
+            else
+            {
+                this.additionalScope = new string[]{};
+            }
 
             this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
 
@@ -74,7 +85,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.LoadFromCache = (tokenCache != null && parameters != null && PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
 
-            this.SupportADFS = true;
+            this.SupportADFS = false;
         }
 
         protected override async Task PreTokenRequest()
@@ -145,7 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Concat(additionalScope).ToArray(), this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
 
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;

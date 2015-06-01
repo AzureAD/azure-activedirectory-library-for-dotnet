@@ -24,28 +24,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal abstract class AcquireTokenHandlerBase
     {
-        protected const string NullResource = "null_resource_as_optional";
         protected readonly static Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
 
-        protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string resource, ClientKey clientKey, TokenSubjectType subjectType)
+        protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string[] scope, ClientKey clientKey, TokenSubjectType subjectType)
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
             PlatformPlugin.Logger.Information(this.CallState,
                 string.Format("=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
-                authenticator.Authority, resource, clientKey.ClientId,
+                authenticator.Authority, scope, clientKey.ClientId,
                 (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count) : "null",
                 subjectType));
 
             this.tokenCache = tokenCache;
 
-            if (string.IsNullOrWhiteSpace(resource))
+            if (ADALScopeHelper.IsNullOrEmpty(scope))
             {
-                throw new ArgumentNullException("resource");
+                throw new ArgumentNullException("scope");
             }
 
-            this.Resource = (resource != NullResource) ? resource : null;
             this.ClientKey = clientKey;
             this.TokenSubjectType = subjectType;
 
@@ -60,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected Authenticator Authenticator { get; private set; }
 
-        protected string Resource { get; set; }
+        protected string[] Scope { get; set; }
 
         protected ClientKey ClientKey { get; private set; }
 
@@ -85,18 +83,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 await this.PreRunAsync();
 
                 AuthenticationResultEx resultEx = null;
+                
                 if (this.LoadFromCache)
                 {
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 
-                    resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
+                    resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
                     if (resultEx != null && resultEx.Result.AccessToken == null && resultEx.RefreshToken != null)
                     {
                         resultEx = await this.RefreshAccessTokenAsync(resultEx);
                         if (resultEx != null)
                         {
-                            this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                            //TODO Validate this logic. instead of this.scope we should use result.scope
+                            this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                         }
                     }
                 }
@@ -115,7 +115,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             notifiedBeforeAccessCache = true;
                         }
 
-                        this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                        this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }
                 }
 
@@ -169,14 +169,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected virtual async Task<AuthenticationResultEx> SendTokenRequestAsync()
         {
-            var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            var requestParameters = new DictionaryRequestParameters(this.Scope, this.ClientKey);
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters);
         }
 
         protected async Task<AuthenticationResultEx> SendTokenRequestByRefreshTokenAsync(string refreshToken)
         {
-            var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            var requestParameters = new DictionaryRequestParameters(this.Scope, this.ClientKey);
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
             AuthenticationResultEx result = await this.SendHttpMessageAsync(requestParameters);
@@ -194,7 +194,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             AuthenticationResultEx newResultEx = null;
 
-            if (this.Resource != null)
+            if (!ADALScopeHelper.IsNullOrEmpty(this.Scope))
             {
                 PlatformPlugin.Logger.Verbose(this.CallState, "Refreshing access token...");
 
@@ -241,7 +241,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs
             {
                 TokenCache = this.tokenCache,
-                Resource = this.Resource,
+                Scope = this.Scope,
                 ClientId = this.ClientKey.ClientId,
                 UniqueId = this.UniqueId,
                 DisplayableId = this.DisplayableId
@@ -253,7 +253,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.tokenCache.OnAfterAccess(new TokenCacheNotificationArgs
             {
                 TokenCache = this.tokenCache,
-                Resource = this.Resource,
+                Scope = this.Scope,
                 ClientId = this.ClientKey.ClientId,
                 UniqueId = this.UniqueId,
                 DisplayableId = this.DisplayableId

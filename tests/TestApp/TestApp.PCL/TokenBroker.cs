@@ -43,7 +43,7 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, sts.ValidNonExistingRedirectUri, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
+                var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidNonExistingRedirectUri, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
                 return result.AccessToken;
             }
@@ -57,35 +57,7 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, null, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
-
-                return result.AccessToken;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-        }
-
-        public async Task<string> GetTokenWithUsernamePasswordAsync()
-        {
-            try
-            {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, new UserCredential(sts.ValidUserName, sts.ValidPassword));
-
-                return result.AccessToken;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-        }
-
-        public async Task<string> GetTokenWithClientCredentialAsync()
-        {
-            try
-            {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret));
+                var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
                 return result.AccessToken;
             }

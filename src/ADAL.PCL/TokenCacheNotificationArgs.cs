@@ -36,7 +36,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets the Resource.
         /// </summary>
-        public string Resource { get; internal set; }
+        public string[] Scope { get; internal set; }
 
         /// <summary>
         /// Gets the user's unique Id.

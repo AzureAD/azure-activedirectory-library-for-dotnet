@@ -30,90 +30,40 @@ namespace Test.ADAL.Common
         private const string FixedCorrelationId = "2ddbba59-1a04-43fb-b363-7fb0ae785030";
         private readonly AuthenticationContext context;
 
-
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientCredential credential)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, string clientId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, credential));
+            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientAssertionCertificate certificate)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, string clientId, UserIdentifier userId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, certificate));
+            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientId, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientAssertion credential)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, ClientCredential clientCredential, UserIdentifier userId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, credential));
+            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientCredential, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, UserCredentialProxy credential)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, ClientAssertion clientAssertion, UserIdentifier userId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientId,
-                (credential.Password == null) ?
-                new UserCredential(credential.UserId) :
-                new UserCredential(credential.UserId, credential.Password)));
+            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientAssertion, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string resource, string clientId)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[]scope, ClientAssertionCertificate clientCertificate, UserIdentifier userId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(resource, clientId));
+            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientCertificate, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string resource, string clientId, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate certificate, string[] scope)
         {
-            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(resource, clientId, userId));
+            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, certificate, scope));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string resource, ClientCredential clientCredential, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertion credential, string[] scope)
         {
-            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(resource, clientCredential, userId));
+            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential, scope));
         }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string resource, ClientAssertion clientAssertion, UserIdentifier userId)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(resource, clientAssertion, userId));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string resource, ClientAssertionCertificate clientCertificate, UserIdentifier userId)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenSilentAsync(resource, clientCertificate, userId));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientCredential credential)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate certificate)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, certificate));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate certificate, string resource)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, certificate, resource));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertion credential, string resource)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential, resource));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientCredential clientCredential, string userAssertion)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientCredential, (userAssertion == null) ? null : new UserAssertion(userAssertion)));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientAssertionCertificate clientCertificate, string userAssertion)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientCertificate, (userAssertion == null) ? null : new UserAssertion(userAssertion)));
-        }
-
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, ClientAssertion clientAssertion, string userAssertion)
-        {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientAssertion, (userAssertion == null) ? null : new UserAssertion(userAssertion)));
-        }
-
 
         internal void VerifySingleItemInCache(AuthenticationResultProxy result, StsType stsType)
         {

@@ -31,7 +31,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal TokenCacheItem(TokenCacheKey key, AuthenticationResult result)
         {
             this.Authority = key.Authority;
-            this.Resource = key.Resource;
+            this.Scope = key.Scope;
             this.ClientId = key.ClientId;
             this.TokenSubjectType = key.TokenSubjectType;
             this.UniqueId = key.UniqueId;
@@ -82,7 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets the Resource.
         /// </summary>
-        public string Resource { get; internal set; }
+        public string[] Scope { get; internal set; }
 
         /// <summary>
         /// Gets the TenantId.
@@ -113,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool Match(TokenCacheKey key)
         {
-            return (key.Authority == this.Authority && key.ResourceEquals(this.Resource) && key.ClientIdEquals(this.ClientId)
+            return (key.Authority == this.Authority && key.ScopeEquals(this.Scope) && key.ClientIdEquals(this.ClientId)
                     && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId && key.DisplayableIdEquals(this.DisplayableId));
         }
     }

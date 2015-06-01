@@ -76,19 +76,19 @@ namespace Test.ADAL.Common
         {
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientId, redirectUri, parameters));
+            return await RunTaskAsync(this.context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, parameters));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId));
+            return await RunTaskAsync(this.context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, parameters, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
         {
-            return await RunTaskAsync(this.context.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId, extraQueryParameters));
+            return await RunTaskAsync(this.context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, parameters, userId, extraQueryParameters));
         }
 
         private async Task<AuthenticationResultProxy> RunTaskAsync(Task<AuthenticationResult> task)

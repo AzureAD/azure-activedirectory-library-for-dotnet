@@ -27,8 +27,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     [DataContract]
     internal class AuthenticatorTemplate
     {
-        private const string AuthorizeEndpointTemplate = "https://{host}/{tenant}/oauth2/authorize";
-        private const string MetadataTemplate = "{\"Host\":\"{host}\", \"Authority\":\"https://{host}/{tenant}/\", \"InstanceDiscoveryEndpoint\":\"https://{host}/common/discovery/instance\", \"AuthorizeEndpoint\":\"" + AuthorizeEndpointTemplate + "\", \"TokenEndpoint\":\"https://{host}/{tenant}/oauth2/token\", \"UserRealmEndpoint\":\"https://{host}/common/UserRealm\"}";
+        private const string AuthorizeEndpointTemplate = "https://{host}/{tenant}/oauth2/v2.0/authorize";
+        private const string MetadataTemplate = "{\"Host\":\"{host}\", \"Authority\":\"https://{host}/{tenant}/\", \"InstanceDiscoveryEndpoint\":\"https://{host}/common/discovery/instance\", \"AuthorizeEndpoint\":\"" + AuthorizeEndpointTemplate + "\", \"TokenEndpoint\":\"https://{host}/{tenant}/oauth2/v2.0/token\", \"UserRealmEndpoint\":\"https://{host}/common/v2.0/UserRealm\"}";
 
         public static AuthenticatorTemplate CreateFromHost(string host)
         {

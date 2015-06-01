@@ -87,11 +87,11 @@ namespace Test.ADAL.Common
 
         public string TenantlessAuthority { get; protected set; }
 
-        public string ValidResource { get; protected set; }
+        public string[] ValidScope { get; protected set; }
 
-        public string ValidResource2 { get; protected set; }
+        public string[] ValidScope2 { get; protected set; }
 
-        public string ValidResource3 { get; protected set; }
+        public string[] ValidScope3 { get; protected set; }
 
         public string ValidClientId { get; set; }
 
@@ -145,7 +145,7 @@ namespace Test.ADAL.Common
 
         public string ValidPassword3 { get; set; }
 
-        public string InvalidResource { get; protected set; }
+        public string[] InvalidScope { get; protected set; }
 
         public string InvalidClientId { get; protected set; }
 
@@ -188,7 +188,7 @@ namespace Test.ADAL.Common
         {
             this.InvalidAuthority = "https://invalid_address.com/path";
             this.InvalidClientId = "87002806-c87a-41cd-896b-84ca5690d29e";
-            this.InvalidResource = "00000003-0000-0ff1-ce00-000000000001";
+            this.InvalidScope = new []{"00000003-0000-0ff1-ce00-000000000001"};
             this.ValidateAuthority = true;
             this.ValidExistingRedirectUri = new Uri("https://login.live.com/");
             this.ValidExpiresIn = 28800;
@@ -216,9 +216,9 @@ namespace Test.ADAL.Common
             this.ValidPassword = "<REPLACE>";
             this.ValidPassword2 = "<REPLACE>";
             this.ValidPassword3 = "<REPLACE>";
-            this.ValidResource = "http://testwebapp.com";
-            this.ValidResource2 = "http://testwebapp2.com";
-            this.ValidResource3 = "http://testwebapp3.com";
+            this.ValidScope = new []{"http://testwebapp.com"};
+            this.ValidScope2 = new []{"http://testwebapp2.com"};
+            this.ValidScope3 = new []{"http://testwebapp3.com"};
 
             this.MsaUserName = "adaltest@outlook.com";
             this.MsaPassword = "<REPLACE>";
@@ -253,7 +253,7 @@ namespace Test.ADAL.Common
             this.Authority = "https://aadadfs.info/adfs";
             this.InvalidAuthority = "https://invalid_address.com/adfs";
             this.InvalidClientId = "DE25CE3A-B772-4E6A-B431-96DCB5E7E558";
-            this.InvalidResource = "urn:msft:ad:test:oauth:teamdashboardx";
+            this.InvalidScope = "urn:msft:ad:test:oauth:teamdashboardx";
             this.ValidConfidentialClientSecret = "client_secret";
             this.Type = StsType.ADFS;
             this.ValidateAuthority = false;
@@ -269,8 +269,8 @@ namespace Test.ADAL.Common
             this.ValidConfidentialClientId = this.ValidClientId;
             this.ValidRedirectUriForConfidentialClient = this.ValidExistingRedirectUri;
             this.ValidPassword = "<REPLACE>";
-            this.ValidResource = "urn:msft:ad:test:oauth:test";
-            this.ValidResource2 = "urn:msft:ad:test:oauth:test2";
+            this.ValidScope = new []{"urn:msft:ad:test:oauth:test"};
+            this.ValidScope2 = new []{"urn:msft:ad:test:oauth:test2"};
         }
     }
 }

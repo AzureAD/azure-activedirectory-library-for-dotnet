@@ -23,8 +23,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class AcquireTokenSilentHandler : AcquireTokenHandlerBase
     {
-        public AcquireTokenSilentHandler(Authenticator authenticator, TokenCache tokenCache, string resource, ClientKey clientKey, UserIdentifier userId)
-            : base(authenticator, tokenCache, resource, clientKey, clientKey.HasCredential ? TokenSubjectType.UserPlusClient : TokenSubjectType.User)
+        public AcquireTokenSilentHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope, ClientKey clientKey, UserIdentifier userId)
+            : base(authenticator, tokenCache, scope, clientKey, clientKey.HasCredential ? TokenSubjectType.UserPlusClient : TokenSubjectType.User)
         {
             if (userId == null)
             {
@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
 
-            this.SupportADFS = true;
+            this.SupportADFS = false;
         }
 
         protected override Task<AuthenticationResultEx> SendTokenRequestAsync()
