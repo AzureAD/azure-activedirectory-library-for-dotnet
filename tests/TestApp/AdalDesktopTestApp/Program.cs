@@ -42,10 +42,6 @@ namespace AdalDesktopTestApp
             TokenBroker tokenBroker = new TokenBroker();
             string token = await tokenBroker.GetTokenInteractiveAsync(new PlatformParameters(PromptBehavior.Auto, null));
             Console.WriteLine(token + "\n");
-            token = await tokenBroker.GetTokenWithUsernamePasswordAsync();
-            Console.WriteLine(token + "\n");
-            token = await tokenBroker.GetTokenWithClientCredentialAsync();
-            Console.WriteLine(token);
         }
     }
 }

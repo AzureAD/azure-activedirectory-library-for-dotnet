@@ -30,7 +30,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string TokenType = "token_type";
         public const string AccessToken = "access_token";
         public const string RefreshToken = "refresh_token";
-        public const string Resource = "resource";
+        public const string Scope = "scope";
         public const string IdToken = "id_token";
         public const string CreatedOn = "created_on";
         public const string ExpiresOn = "expires_on";
@@ -54,8 +54,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = TokenResponseClaim.RefreshToken, IsRequired = false)]
         public string RefreshToken { get; set; }
 
-        [DataMember(Name = TokenResponseClaim.Resource, IsRequired = false)]
-        public string Resource { get; set; }
+        [DataMember(Name = TokenResponseClaim.Scope, IsRequired = false)]
+        public string[] Scope { get; set; }
 
         [DataMember(Name = TokenResponseClaim.IdToken, IsRequired = false)]
         public string IdTokenString { get; set; }
@@ -187,7 +187,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     RefreshToken = this.RefreshToken,
                     // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
                     // to get it from the STS response.
-                    ResourceInResponse = this.Resource                    
+                    ScopeInResponse = this.Scope
                 };
             }
             else if (this.Error != null)

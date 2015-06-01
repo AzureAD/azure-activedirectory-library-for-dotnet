@@ -216,7 +216,7 @@ namespace Test.ADAL.NET.Unit
                                    AccessToken = "access_token",
                                    RefreshToken = "refresh_token",
                                    CorrelationId = Guid.NewGuid().ToString(),
-                                   Resource = "my-resource",
+                                   Scope = new []{"my-resource"},
                                    TokenType = "Bearer",
                                    ExpiresIn = 3899,
                                    ExpiresOn = 1400545595

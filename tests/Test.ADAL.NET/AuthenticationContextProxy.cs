@@ -126,19 +126,19 @@ namespace Test.ADAL.Common
             this.context.CorrelationId = correlationId;
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser, null);
+            return await RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters, UserIdentifier.AnyUser, null);
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, userId, null);
+            return await RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters, userId, null);
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, userId, extraQueryParameters);
+            return await RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters, userId, extraQueryParameters);
         }
 
         private async Task<AuthenticationResultProxy> RunTaskAsync(Task<AuthenticationResult> task)
@@ -158,7 +158,7 @@ namespace Test.ADAL.Common
             return resultProxy;
         }
 
-        private async Task<AuthenticationResultProxy> RunTaskInteractiveAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters authorizationParameters, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
+        private async Task<AuthenticationResultProxy> RunTaskInteractiveAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters authorizationParameters, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
         {
             AuthenticationResultProxy resultProxy;
             bool exceptionOccured = false;
@@ -184,17 +184,17 @@ namespace Test.ADAL.Common
 
                         if (userId != null && !ReferenceEquals(userId, UserIdentifier.AnyUser) && userId.Id == NotSpecified)
                         {
-                            result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null));
+                            result = await context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, new PlatformParameters(promptBehavior, null));
                         }
                         else
                         {
                             if (extraQueryParameters == NotSpecified)
                             {
-                                result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId);
+                                result = await context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId);
                             }
                             else
                             {
-                                result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId, extraQueryParameters);
+                                result = await context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId, extraQueryParameters);
                             }
                         }
 
@@ -218,13 +218,13 @@ namespace Test.ADAL.Common
 
             if (exceptionOccured)
             {
-                return await RunTaskInteractiveAsync(resource, clientId, redirectUri, authorizationParameters, userId, extraQueryParameters, retryCount + 1);                
+                return await RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, authorizationParameters, userId, extraQueryParameters, retryCount + 1);                
             }
 
             return resultProxy;
         }
 
-        private async Task<AuthenticationResultProxy> AcquireAccessCodeAsync(string resource, string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
+        private async Task<AuthenticationResultProxy> AcquireAccessCodeAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
         {
             AuthenticationResultProxy resultProxy;
             bool exceptionOccured = false;
@@ -245,7 +245,7 @@ namespace Test.ADAL.Common
                         uiSupply.Start();
                         abortTest.Start();
 
-                        string authorizationCode = await AdalFriend.AcquireAccessCodeAsync(this.context, resource, clientId,
+                        string authorizationCode = await AdalFriend.AcquireAccessCodeAsync(this.context, scope, additionalScope, clientId,
                             redirectUri, userId);
                         return new AuthenticationResultProxy() { AccessToken = authorizationCode };
                     }
@@ -264,15 +264,15 @@ namespace Test.ADAL.Common
 
             if (exceptionOccured)
             {
-                return await AcquireAccessCodeAsync(resource, clientId, redirectUri, userId, extraQueryParameters, retryCount + 1);
+                return await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId, extraQueryParameters, retryCount + 1);
             }
 
             return resultProxy;
         }
 
-        public async Task<string> AcquireAccessCodeAsync(string resource, string clientId, Uri redirectUri, UserIdentifier userId)
+        public async Task<string> AcquireAccessCodeAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, UserIdentifier userId)
         {
-            AuthenticationResultProxy result = await AcquireAccessCodeAsync(resource, clientId, redirectUri, userId, null);
+            AuthenticationResultProxy result = await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId, null);
             return result.AccessToken;
         }
 

@@ -242,24 +242,6 @@ namespace Test.ADAL.NET
         }
 
         [TestMethod]
-        [Description("Positive Test for AcquireToken non-interactive for managed user")]
-        [TestCategory("AdalDotNetMock")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "MockAAD", DataAccessMethod.Sequential)]
-        public async Task AcquireTokenNonInteractiveManagedPositiveTest()
-        {
-            await AdalTests.AcquireTokenNonInteractivePositiveTestAsync(Sts);
-        }
-
-        [TestMethod]
-        [Description("Positive Test for AcquireToken non-interactive")]
-        [TestCategory("AdalDotNet")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "AADFederatedWithADFS3", DataAccessMethod.Sequential)]
-        public async Task AcquireTokenNonInteractiveFederatedPositiveTest()
-        {
-            await AdalTests.AcquireTokenNonInteractivePositiveTestAsync(Sts);
-        }
-
-        [TestMethod]
         [Description("Positive Test for AcquireToken using federated tenant and then refreshing the session")]
         [TestCategory("AdalDotNet")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "AAD", DataAccessMethod.Sequential)]
@@ -493,13 +475,5 @@ namespace Test.ADAL.NET
             await AdalTests.MsaTestAsync();
         }
 
-        [TestMethod]
-        [Description("Test for mixed case username and cache")]
-        [TestCategory("AdalDotNetMock")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "MockAAD", DataAccessMethod.Sequential)]
-        public async Task MixedCaseUserNameTest()
-        {
-            await AdalTests.MixedCaseUserNameTestAsync(Sts);
-        }
     }
 }
