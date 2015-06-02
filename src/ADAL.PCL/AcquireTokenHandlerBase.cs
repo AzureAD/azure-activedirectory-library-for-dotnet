@@ -44,6 +44,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new ArgumentNullException("scope");
             }
 
+            if (!ADALScopeHelper.CreateSetFromArray(scope).Contains("openid"))
+            {
+                throw new ArgumentException("scope list does not contain openid");
+            }
+
+            this.Scope = scope;
             this.ClientKey = clientKey;
             this.TokenSubjectType = subjectType;
 

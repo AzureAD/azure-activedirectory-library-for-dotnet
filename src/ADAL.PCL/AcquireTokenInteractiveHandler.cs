@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationParameters = parameters;
-            if (ADALScopeHelper.IsNullOrEmpty(additionalScope))
+            if (!ADALScopeHelper.IsNullOrEmpty(additionalScope))
             {
                 this.additionalScope = additionalScope;
             }
@@ -156,7 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Concat(additionalScope).ToArray(), this.ClientKey);
+            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Concat(this.additionalScope).ToArray(), this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
 
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;

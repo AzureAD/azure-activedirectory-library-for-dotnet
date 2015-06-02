@@ -39,9 +39,13 @@ namespace AdalDesktopTestApp
 
         private static async Task AcquireTokenAsync()
         {
-            TokenBroker tokenBroker = new TokenBroker();
-            string token = await tokenBroker.GetTokenInteractiveAsync(new PlatformParameters(PromptBehavior.Auto, null));
-            Console.WriteLine(token + "\n");
+            Environment.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common/", true);
+            IPlatformParameters param = new PlatformParameters(PromptBehavior.Auto, null);
+            AuthenticationResult result = await context.AcquireTokenAsync(new[] {"openid", "https://outlook.office.com/Mail.Read"}, null,
+                "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"), param,
+                UserIdentifier.AnyUser, "slice=testslice&nux=1&msaproxy=true");
+            Console.WriteLine(result.AccessToken + "\n");
         }
     }
 }
