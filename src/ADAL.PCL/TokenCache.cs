@@ -297,7 +297,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (tokenNearExpiry)
                 {
-                    resultEx.Result.AccessToken = null;
+                    resultEx.Result.Token = null;
                     PlatformPlugin.Logger.Verbose(callState, "An expired or near expiry token was found in the cache");
                 }
                 else if (!cacheKey.ScopeContains(scope))
@@ -312,7 +312,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         ScopeInResponse = resultEx.ScopeInResponse
                     };
 
-                    newResultEx.Result.UpdateTenantAndUserInfo(resultEx.Result.TenantId, resultEx.Result.IdToken, resultEx.Result.UserInfo);
+                    newResultEx.Result.UpdateTenantAndUserInfo(resultEx.Result.TenantId, resultEx.Result.ProfileInfo, resultEx.Result.UserInfo);
                     resultEx = newResultEx;
                 }
                 else
@@ -320,7 +320,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     PlatformPlugin.Logger.Verbose(callState, string.Format("{0} minutes left until token in cache expires", (resultEx.Result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
                 }                
 
-                if (resultEx.Result.AccessToken == null && resultEx.RefreshToken == null)
+                if (resultEx.Result.Token == null && resultEx.RefreshToken == null)
                 {
                     this.tokenCacheDictionary.Remove(cacheKey);
                     PlatformPlugin.Logger.Information(callState, "An old item was removed from the cache");

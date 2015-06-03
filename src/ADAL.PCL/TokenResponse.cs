@@ -142,47 +142,47 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 var result = new AuthenticationResult(this.TokenType, this.AccessToken, expiresOn);
 
-                IdToken idToken = IdToken.Parse(this.IdTokenString);
-                if (idToken != null)
+                ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
+                if (profileInfo != null)
                 {
-                    string tenantId = idToken.TenantId;
+                    string tenantId = profileInfo.TenantId;
                     string uniqueId = null;
                     string displayableId = null;
 
-                    if (!string.IsNullOrWhiteSpace(idToken.ObjectId))
+                    if (!string.IsNullOrWhiteSpace(profileInfo.ObjectId))
                     {
-                        uniqueId = idToken.ObjectId;
+                        uniqueId = profileInfo.ObjectId;
                     }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Subject))
+                    else if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
                     {
-                        uniqueId = idToken.Subject;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(idToken.UPN))
-                    {
-                        displayableId = idToken.UPN;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Email))
-                    {
-                        displayableId = idToken.Email;
+                        uniqueId = profileInfo.Subject;
                     }
 
-                    string givenName = idToken.GivenName;
-                    string familyName = idToken.FamilyName;
-                    string identityProvider = idToken.IdentityProvider ?? idToken.Issuer;
+                    if (!string.IsNullOrWhiteSpace(profileInfo.UPN))
+                    {
+                        displayableId = profileInfo.UPN;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(profileInfo.Email))
+                    {
+                        displayableId = profileInfo.Email;
+                    }
+
+                    string givenName = profileInfo.GivenName;
+                    string familyName = profileInfo.FamilyName;
+                    string identityProvider = profileInfo.IdentityProvider ?? profileInfo.Issuer;
                     DateTimeOffset? passwordExpiresOffest = null;
-                    if (idToken.PasswordExpiration > 0)
+                    if (profileInfo.PasswordExpiration > 0)
                     {
-                        passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(idToken.PasswordExpiration);
+                        passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(profileInfo.PasswordExpiration);
                     }
 
                     Uri changePasswordUri = null;
-                    if (!string.IsNullOrEmpty(idToken.PasswordChangeUrl))
+                    if (!string.IsNullOrEmpty(profileInfo.PasswordChangeUrl))
                     {
-                        changePasswordUri = new Uri(idToken.PasswordChangeUrl);
+                        changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
                     }
 
-                    result.UpdateTenantAndUserInfo(tenantId, this.IdTokenString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
+                    result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
                 }
 
                 resultEx = new AuthenticationResultEx

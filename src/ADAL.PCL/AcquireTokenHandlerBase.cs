@@ -91,7 +91,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
-                    if (resultEx != null && resultEx.Result.AccessToken == null && resultEx.RefreshToken != null)
+                    if (resultEx != null && resultEx.Result.Token == null && resultEx.RefreshToken != null)
                     {
                         resultEx = await this.RefreshAccessTokenAsync(resultEx);
                         if (resultEx != null)
@@ -204,10 +204,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     newResultEx = await this.SendTokenRequestByRefreshTokenAsync(result.RefreshToken);
                     this.Authenticator.UpdateTenantId(result.Result.TenantId);
 
-                    if (newResultEx.Result.IdToken == null)
+                    if (newResultEx.Result.ProfileInfo == null)
                     {
                         // If Id token is not returned by token endpoint when refresh token is redeemed, we should copy tenant and user information from the cached token.
-                        newResultEx.Result.UpdateTenantAndUserInfo(result.Result.TenantId, result.Result.IdToken, result.Result.UserInfo);
+                        newResultEx.Result.UpdateTenantAndUserInfo(result.Result.TenantId, result.Result.ProfileInfo, result.Result.UserInfo);
                     }
                 }
                 catch (AdalException ex)
@@ -263,9 +263,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void LogReturnedToken(AuthenticationResult result)
         {
-            if (result.AccessToken != null)
+            if (result.Token != null)
             {
-                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.AccessToken);
+                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.Token);
 
                 PlatformPlugin.Logger.Information(this.CallState, string.Format("=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
                     accessTokenHash,

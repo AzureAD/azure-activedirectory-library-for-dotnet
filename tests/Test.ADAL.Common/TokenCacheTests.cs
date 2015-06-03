@@ -447,7 +447,7 @@ namespace Test.ADAL.Common.Unit
                 Verify.AreEqual(tokenCache.Count, tokenCache2.Count);
                 foreach (TokenCacheItem item in tokenCache.ReadItems())
                 {
-                    var item2 = tokenCache2.ReadItems().FirstOrDefault(it => it.AccessToken == item.AccessToken);
+                    var item2 = tokenCache2.ReadItems().FirstOrDefault(it => it.Token == item.Token);
                     Verify.IsNotNull(item2);
                     double diff = Math.Abs((item.ExpiresOn - item2.ExpiresOn).TotalSeconds);
                     Verify.IsLessThanOrEqual(diff, 1.0);
@@ -565,9 +565,9 @@ namespace Test.ADAL.Common.Unit
 
         private static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
-            return (AreStringsEqual(result1.AccessToken, result2.AccessToken)
-                    && AreStringsEqual(result1.AccessTokenType, result2.AccessTokenType)
-                    && AreStringsEqual(result1.IdToken, result2.IdToken)
+            return (AreStringsEqual(result1.Token, result2.Token)
+                    && AreStringsEqual(result1.TokenType, result2.TokenType)
+                    && AreStringsEqual(result1.ProfileInfo, result2.ProfileInfo)
                     && AreStringsEqual(result1.TenantId, result2.TenantId)
                     && (result1.UserInfo == null || result2.UserInfo == null ||
                         (AreStringsEqual(result1.UserInfo.DisplayableId, result2.UserInfo.DisplayableId)

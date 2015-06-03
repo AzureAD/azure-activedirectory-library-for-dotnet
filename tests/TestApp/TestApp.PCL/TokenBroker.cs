@@ -45,7 +45,7 @@ namespace TestApp.PCL
             {
                 var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidNonExistingRedirectUri, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
-                return result.AccessToken;
+                return result.Token;
             }
             catch (Exception ex)
             {
@@ -59,7 +59,7 @@ namespace TestApp.PCL
             {
                 var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
-                return result.AccessToken;
+                return result.Token;
             }
             catch (Exception ex)
             {

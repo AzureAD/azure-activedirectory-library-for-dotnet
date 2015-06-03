@@ -52,13 +52,13 @@ namespace Test.ADAL.Common
     internal class AuthenticationResultProxy
     {
         [DataMember]
-        public string AccessTokenType { get; set; }
+        public string TokenType { get; set; }
 
         [DataMember]
-        public string AccessToken { get; set; }
+        public string Token { get; set; }
 
         [DataMember]
-        public string IdToken { get; set; }
+        public string ProfileInfo { get; set; }
 
         [DataMember]
         public DateTimeOffset ExpiresOn { get; set; }
