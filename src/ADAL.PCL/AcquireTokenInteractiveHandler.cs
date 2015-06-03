@@ -61,30 +61,51 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.additionalScope = new string[]{};
             }
 
-            this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
+            ISet<string> collapsedSet = ADALScopeHelper.CreateSetFromArray(scope.Union(additionalScope).ToArray());
+            //make sure developer does not pass openid scope.
+            if (collapsedSet.Contains("openid"))
+            {
+                throw new ArgumentException("API does not accept openid as a user-provided scope");
+            }
 
+            //make sure developer does not pass offline_access scope.
+            if (collapsedSet.Contains("offline_access"))
+            {
+                throw new ArgumentException("API does not accept offline_access as a user-provided scope");
+            }
+
+            //check if scope or additional scope contains client ID.
+            if (collapsedSet.Contains(clientId))
+            {
+                if (collapsedSet.Count > 1)
+                {
+                    throw new ArgumentException("Client Id can only be provided as a single scope");
+                }
+                else
+                {
+                    //there is only one scopr provided. overwrite it with openid
+                    this.Scope[0] = "openid";
+                }
+            }
+
+            this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
             if (userId == null)
             {
                 throw new ArgumentNullException("userId", AdalErrorMessage.SpecifyAnyUser);
             }
 
             this.userId = userId;
-
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
             {
                 extraQueryParameters = extraQueryParameters.Substring(1);
             }
 
             this.extraQueryParameters = extraQueryParameters;
-
             this.webUi = webUI;
-
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
-
             this.LoadFromCache = (tokenCache != null && parameters != null && PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
-
             this.SupportADFS = false;
         }
 
@@ -156,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Concat(this.additionalScope).ToArray(), this.ClientKey);
+            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Union(this.additionalScope).ToArray(), this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
 
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
