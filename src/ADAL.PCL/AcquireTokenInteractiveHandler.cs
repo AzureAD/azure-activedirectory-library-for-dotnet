@@ -61,7 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.additionalScope = new string[]{};
             }
 
-            ValidateScopeInput(scope.Union(additionalScope).ToArray());
+            ValidateScopeInput(scope.Union(this.additionalScope).ToArray());
             this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
             if (userId == null)
             {

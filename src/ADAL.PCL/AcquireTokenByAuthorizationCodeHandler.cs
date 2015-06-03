@@ -35,16 +35,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationCode = authorizationCode;
-
             if (redirectUri == null)
             {
                 throw new ArgumentNullException("redirectUri");
             }
 
             this.redirectUri = redirectUri;
-
             this.LoadFromCache = false;
-
             this.SupportADFS = false;
         }
 
