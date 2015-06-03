@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -38,20 +39,51 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 subjectType));
 
             this.tokenCache = tokenCache;
-
-            if (ADALScopeHelper.IsNullOrEmpty(scope))
-            {
-                throw new ArgumentNullException("scope");
-            }
-
-            this.Scope = scope;
             this.ClientKey = clientKey;
             this.TokenSubjectType = subjectType;
 
             this.LoadFromCache = (tokenCache != null);
             this.StoreToCache = (tokenCache != null);
             this.SupportADFS = false;
+            if (ADALScopeHelper.IsNullOrEmpty(scope))
+            {
+                throw new ArgumentNullException("scope");
+            }
+
+            this.Scope = scope;
+            ValidateScopeInput(scope);
         }
+
+        protected void ValidateScopeInput(string[] scopeInput)
+        {
+            ISet<string> set = ADALScopeHelper.CreateSetFromArray(scopeInput);
+            //make sure developer does not pass openid scope.
+            if (set.Contains("openid"))
+            {
+                throw new ArgumentException("API does not accept openid as a user-provided scope");
+            }
+
+            //make sure developer does not pass offline_access scope.
+            if (set.Contains("offline_access"))
+            {
+                throw new ArgumentException("API does not accept offline_access as a user-provided scope");
+            }
+
+            //check if scope or additional scope contains client ID.
+            if (set.Contains(this.ClientKey.ClientId))
+            {
+                if (set.Count > 1)
+                {
+                    throw new ArgumentException("Client Id can only be provided as a single scope");
+                }
+                else
+                {
+                    //there is only one scopr provided. overwrite it with openid
+                    this.Scope[0] = "openid";
+                }
+            }
+        }
+
 
         internal CallState CallState { get; set; }
 

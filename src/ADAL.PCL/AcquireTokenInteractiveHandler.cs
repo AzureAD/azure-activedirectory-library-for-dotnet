@@ -61,33 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.additionalScope = new string[]{};
             }
 
-            ISet<string> collapsedSet = ADALScopeHelper.CreateSetFromArray(scope.Union(additionalScope).ToArray());
-            //make sure developer does not pass openid scope.
-            if (collapsedSet.Contains("openid"))
-            {
-                throw new ArgumentException("API does not accept openid as a user-provided scope");
-            }
-
-            //make sure developer does not pass offline_access scope.
-            if (collapsedSet.Contains("offline_access"))
-            {
-                throw new ArgumentException("API does not accept offline_access as a user-provided scope");
-            }
-
-            //check if scope or additional scope contains client ID.
-            if (collapsedSet.Contains(clientId))
-            {
-                if (collapsedSet.Count > 1)
-                {
-                    throw new ArgumentException("Client Id can only be provided as a single scope");
-                }
-                else
-                {
-                    //there is only one scopr provided. overwrite it with openid
-                    this.Scope[0] = "openid";
-                }
-            }
-
+            ValidateScopeInput(scope.Union(additionalScope).ToArray());
             this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
             if (userId == null)
             {
