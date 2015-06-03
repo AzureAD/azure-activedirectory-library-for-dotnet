@@ -32,6 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RefreshToken = "refresh_token";
         public const string Scope = "scope";
         public const string IdToken = "id_token";
+        public const string ProfileInfo = "profile_info";
         public const string CreatedOn = "created_on";
         public const string ExpiresOn = "expires_on";
         public const string ExpiresIn = "expires_in";
@@ -56,6 +57,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         [DataMember(Name = TokenResponseClaim.Scope, IsRequired = false)]
         public string[] Scope { get; set; }
+
+        [DataMember(Name = TokenResponseClaim.ProfileInfo, IsRequired = false)]
+        public string ProfileInfoString { get; set; }
 
         [DataMember(Name = TokenResponseClaim.IdToken, IsRequired = false)]
         public string IdTokenString { get; set; }
