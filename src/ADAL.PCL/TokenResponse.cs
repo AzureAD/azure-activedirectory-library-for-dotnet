@@ -139,8 +139,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (this.AccessToken != null)
             {
                 DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
+                var token = this.AccessToken;
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = this.IdTokenString;
+                }
 
-                var result = new AuthenticationResult(this.TokenType, this.AccessToken, expiresOn);
+                var result = new AuthenticationResult(this.TokenType, token, expiresOn);
 
                 ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
                 if (profileInfo != null)
