@@ -28,9 +28,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// Additional parameters used in acquiring user's authorization
     /// </summary>
-    public class PlatformParameters : IPlatformParameters
+    public class PlatformParameters : BasePlatformParameters
     {
-        public PlatformParameters(UIViewController callerViewController)
+        public PlatformParameters(UIViewController callerViewController) : this(callerViewController, false)
+        {
+            
+        }
+
+        public PlatformParameters(UIViewController callerViewController, bool disableOfflineAccess)
+            : base(disableOfflineAccess)
         {
             this.CallerViewController = callerViewController;
         }

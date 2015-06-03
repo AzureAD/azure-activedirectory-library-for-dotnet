@@ -21,9 +21,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// Additional parameters used in acquiring user's authorization
     /// </summary>
-    public class PlatformParameters : IPlatformParameters
+    public class PlatformParameters : BasePlatformParameters
     {
         public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
+            : this(promptBehavior, ownerWindow, false)
+        {
+            
+        }
+
+        public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow, bool disableOfflineAccess)
+            : base(disableOfflineAccess)
         {
             this.PromptBehavior = promptBehavior;
             this.OwnerWindow = ownerWindow;

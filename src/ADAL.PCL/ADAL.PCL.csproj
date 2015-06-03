@@ -75,6 +75,7 @@
     <Compile Include="AuthenticatorTemplateList.cs" />
     <Compile Include="AuthorizationResult.cs" />
     <Compile Include="Base64UrlEncoder.cs" />
+    <Compile Include="BasePlatformParameters.cs" />
     <Compile Include="CallState.cs" />
     <Compile Include="ClientAssertion.cs" />
     <Compile Include="ClientAssertionCertificate.cs" />
