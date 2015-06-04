@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
@@ -56,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string RefreshToken { get; set; }
 
         [DataMember(Name = TokenResponseClaim.Scope, IsRequired = false)]
-        public string[] Scope { get; set; }
+        public string Scope { get; set; }
 
         [DataMember(Name = TokenResponseClaim.ProfileInfo, IsRequired = false)]
         public string ProfileInfoString { get; set; }
@@ -196,7 +197,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     RefreshToken = this.RefreshToken,
                     // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
                     // to get it from the STS response.
-                    ScopeInResponse = this.Scope
+                    ScopeInResponse = ADALScopeHelper.CreateArrayFromSingleString(this.Scope)
                 };
             }
             else if (this.Error != null)

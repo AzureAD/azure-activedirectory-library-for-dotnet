@@ -79,15 +79,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             ProfileInfo profileInfoBody = null;
             if (!string.IsNullOrWhiteSpace(profileInfo))
             {
-                string[] profileInfoSegments = profileInfo.Split(new[] { '.' });
-
-                // If Id token format is invalid, we silently ignore the id token
-                if (profileInfoSegments.Length == 3)
-                {
                     try
                     {
-                        byte[] idTokenBytes = Base64UrlEncoder.DecodeBytes(profileInfoSegments[1]);
-                        using (var stream = new MemoryStream(idTokenBytes))
+                        byte[] profileInfoBytes = Base64UrlEncoder.DecodeBytes(profileInfo);
+                        using (var stream = new MemoryStream(profileInfoBytes))
                         {
                             var serializer = new DataContractJsonSerializer(typeof(ProfileInfo));
                             profileInfoBody = (ProfileInfo)serializer.ReadObject(stream);
@@ -101,7 +96,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         // Again, we silently ignore the id token if exception occurs.   
                     }
-                }
             }
 
             return profileInfoBody;
