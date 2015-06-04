@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -52,6 +53,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.Scope = scope;
             ValidateScopeInput(scope);
+            UpdateScope();
+        }
+
+
+        protected void UpdateScope()
+        {
+            ISet<string> set = ADALScopeHelper.CreateSetFromArray(this.Scope);
+            set.Add("openid");
+            //set.Add("offline_access");
+            this.Scope = set.ToArray();
         }
 
         protected void ValidateScopeInput(string[] scopeInput)
@@ -72,13 +83,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             //check if scope or additional scope contains client ID.
             if (set.Contains(this.ClientKey.ClientId))
             {
-                if (set.Count > 1)
+                if (this.Scope.Length > 1)
                 {
                     throw new ArgumentException("Client Id can only be provided as a single scope");
                 }
                 else
                 {
-                    //there is only one scopr provided. overwrite it with openid
+                    //there is only one scope provided. overwrite it with openid
                     this.Scope[0] = "openid";
                 }
             }
