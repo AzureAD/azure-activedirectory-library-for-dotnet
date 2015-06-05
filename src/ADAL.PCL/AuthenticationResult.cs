@@ -17,7 +17,10 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.IO;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -52,13 +55,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets the Access accessToken requested.
         /// </summary>
         [DataMember]
-        internal string IdToken { get; set; }
+        public string IdToken { get; internal set; }
 
         /// <summary>
         /// Gets the Access accessToken requested.
         /// </summary>
         [DataMember]
-        internal string AccessToken { get; set; }
+        public string AccessToken { get; internal set; }
 
         /// <summary>
         /// Gets the point in time in which the Access accessToken returned in the accessToken property ceases to be valid.
@@ -91,12 +94,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>Created authorization header</returns>
         public string CreateAuthorizationHeader()
         {
-            if (!string.IsNullOrEmpty(this.AccessToken))
-            {
-                return Oauth2AuthorizationHeader + this.AccessToken;
-            }
-
-            return Oauth2AuthorizationHeader + this.IdToken;
+            return Oauth2AuthorizationHeader + this.Token;
         }
 
         /// <summary>
