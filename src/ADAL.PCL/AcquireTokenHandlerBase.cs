@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
             PlatformPlugin.Logger.Information(this.CallState,
-                string.Format("=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                string.Format("=== accessToken Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
                 authenticator.Authority, scope, clientKey.ClientId,
                 (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count) : "null",
                 subjectType));
@@ -53,16 +53,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.Scope = scope;
             ValidateScopeInput(scope);
-            UpdateScope();
         }
 
 
-        protected void UpdateScope()
+        protected string[] GetDecoratedScope(string[] inputScope)
         {
-            ISet<string> set = ADALScopeHelper.CreateSetFromArray(this.Scope);
+            ISet<string> set = ADALScopeHelper.CreateSetFromArray(inputScope);
+            set.Remove(ClientKey.ClientId); //remove client id if it exists
             set.Add("openid");
             //set.Add("offline_access");
-            this.Scope = set.ToArray();
+            return set.ToArray();
         }
 
         protected void ValidateScopeInput(string[] scopeInput)
@@ -86,11 +86,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (this.Scope.Length > 1)
                 {
                     throw new ArgumentException("Client Id can only be provided as a single scope");
-                }
-                else
-                {
-                    //there is only one scope provided. overwrite it with openid
-                    this.Scope[0] = "openid";
                 }
             }
         }
@@ -134,7 +129,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
-                    if (resultEx != null && resultEx.Result.Token == null && resultEx.RefreshToken != null)
+                    if (resultEx != null && resultEx.Result.AccessToken == null && resultEx.RefreshToken != null)
                     {
                         resultEx = await this.RefreshAccessTokenAsync(resultEx);
                         if (resultEx != null)
@@ -161,6 +156,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                         this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }
+                }
+
+                //if the scope contained client id then do not return access token
+                if (ADALScopeHelper.CreateSetFromArray(this.Scope).Contains(ClientKey.ClientId))
+                {
+                    resultEx.Result.AccessToken = null;
+                }
+                else
+                {
+                    //if the scope did not contain client id then do not return id token
+                    resultEx.Result.IdToken= null;
                 }
 
                 await this.PostRunAsync(resultEx.Result);
@@ -213,7 +219,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected virtual async Task<AuthenticationResultEx> SendTokenRequestAsync()
         {
-            var requestParameters = new DictionaryRequestParameters(this.Scope, this.ClientKey);
+            var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters);
         }
@@ -306,11 +312,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void LogReturnedToken(AuthenticationResult result)
         {
-            if (result.Token != null)
+            if (result.AccessToken != null)
             {
-                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.Token);
+                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.AccessToken);
 
-                PlatformPlugin.Logger.Information(this.CallState, string.Format("=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
+                PlatformPlugin.Logger.Information(this.CallState, string.Format("=== accessToken Acquisition finished successfully. An access token was retuned:\n\tAccess accessToken Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
                     accessTokenHash,
                     result.ExpiresOn,                    
                     result.UserInfo != null ? PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId) : "null"));

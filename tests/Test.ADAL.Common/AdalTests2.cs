@@ -50,7 +50,7 @@ namespace Test.ADAL.Common
 
             context.SetCorrelationId(Guid.Empty);
             AuthenticationResultProxy result2 = await context.AcquireTokenSilentAsync(sts.ValidScope, sts.ValidClientId);
-            Verify.IsNotNullOrEmptyString(result2.Token);
+            Verify.IsNotNullOrEmptyString(result2.AccessToken);
             Verify.IsFalse(eventListener.TraceBuffer.Contains(correlationId.ToString()));
         }
 
@@ -116,7 +116,7 @@ namespace Test.ADAL.Common
         {
 
             // Verify the token content confirms the user in AuthenticationResult.UserInfo
-            var token = new System.IdentityModel.Tokens.JwtSecurityToken(result.Token);
+            var token = new System.IdentityModel.Tokens.JwtSecurityToken(result.AccessToken);
             foreach (var claim in token.Claims)
             {
                 if (claim.Type == "oid")

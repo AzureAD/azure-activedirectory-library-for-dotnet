@@ -17,15 +17,12 @@
 //----------------------------------------------------------------------
 
 using System;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Contains the results of one token acquisition operation. 
+    /// Contains the results of one accessToken acquisition operation. 
     /// </summary>
     [DataContract]
     public sealed class AuthenticationResult
@@ -33,39 +30,45 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string Oauth2AuthorizationHeader = "Bearer ";
 
         /// <summary>
-        /// Creates result returned from AcquireToken. Except in advanced scenarios related to token caching, you do not need to create any instance of AuthenticationResult.
+        /// Creates result returned from AcquireToken. Except in advanced scenarios related to accessToken caching, you do not need to create any instance of AuthenticationResult.
         /// </summary>
-        /// <param name="tokenType">Type of the Access Token returned</param>
-        /// <param name="token">The Access Token requested</param>
-        /// <param name="expiresOn">The point in time in which the Access Token returned in the Token property ceases to be valid</param>
-        internal AuthenticationResult(string tokenType, string token, DateTimeOffset expiresOn)
+        /// <param name="tokenType">Type of the Access accessToken returned</param>
+        /// <param name="accessToken">The Access accessToken requested</param>
+        /// <param name="expiresOn">The point in time in which the Access accessToken returned in the accessToken property ceases to be valid</param>
+        internal AuthenticationResult(string tokenType, string accessToken, DateTimeOffset expiresOn)
         {
             this.TokenType = tokenType;
-            this.Token = token;
+            this.AccessToken = accessToken;
             this.ExpiresOn = DateTime.SpecifyKind(expiresOn.DateTime, DateTimeKind.Utc);
         }
 
         /// <summary>
-        /// Gets the type of the Access Token returned. 
+        /// Gets the type of the Access accessToken returned. 
         /// </summary>
         [DataMember]
         public string TokenType { get; private set; }
 
         /// <summary>
-        /// Gets the Access Token requested.
+        /// Gets the Access accessToken requested.
         /// </summary>
         [DataMember]
-        public string Token { get; internal set; }
+        internal string IdToken { get; set; }
 
         /// <summary>
-        /// Gets the point in time in which the Access Token returned in the Token property ceases to be valid.
+        /// Gets the Access accessToken requested.
+        /// </summary>
+        [DataMember]
+        internal string AccessToken { get; set; }
+
+        /// <summary>
+        /// Gets the point in time in which the Access accessToken returned in the accessToken property ceases to be valid.
         /// This value is calculated based on current UTC time measured locally and the value expiresIn received from the service.
         /// </summary>
         [DataMember]
         public DateTimeOffset ExpiresOn { get; internal set; }
 
         /// <summary>
-        /// Gets an identifier for the tenant the token was acquired from. This property will be null if tenant information is not returned by the service.
+        /// Gets an identifier for the tenant the accessToken was acquired from. This property will be null if tenant information is not returned by the service.
         /// </summary>
         [DataMember]
         public string TenantId { get; private set; }
@@ -77,7 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public UserInfo UserInfo { get; internal set; }
 
         /// <summary>
-        /// Gets the entire Id Token if returned by the service or null if no Id Token is returned.
+        /// Gets the entire profile info if returned by the service or null if no profile info is returned.
         /// </summary>
         [DataMember]
         public string ProfileInfo { get; internal set; }
@@ -88,7 +91,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>Created authorization header</returns>
         public string CreateAuthorizationHeader()
         {
-            return Oauth2AuthorizationHeader + this.Token;
+            if (!string.IsNullOrEmpty(this.AccessToken))
+            {
+                return Oauth2AuthorizationHeader + this.AccessToken;
+            }
+
+            return Oauth2AuthorizationHeader + this.IdToken;
+        }
+
+        /// <summary>
+        /// Returns the acess token. If Access token is nil then id token is returned.
+        /// </summary>
+        public string Token {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.AccessToken))
+                {
+                    return this.AccessToken;
+                }
+                else
+                {
+                    return this.IdToken;
+                }
+            }
         }
 
         internal void UpdateTenantAndUserInfo(string tenantId, string profileInfo, UserInfo userInfo)

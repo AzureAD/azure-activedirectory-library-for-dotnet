@@ -67,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Using this constructor will turn ON validation of the authority URL by default if validation is supported for the authority address.
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
-        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        /// <param name="tokenCache">accessToken cache used to lookup cached tokens on calls to AcquireToken</param>
         public AuthenticationContext(string authority, TokenCache tokenCache)
             : this(authority, AuthorityValidationType.NotProvided, tokenCache)
         {
@@ -79,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
-        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        /// <param name="tokenCache">accessToken cache used to lookup cached tokens on calls to AcquireToken</param>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache)
             : this(authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False, tokenCache)
         {
@@ -147,7 +147,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="clientCredential">The credential to use for token acquisition.</param>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token. It can be null if provided earlier to acquire authorizationCode.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientCredential clientCredential, string[] scope)
         {
             return await this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri, new ClientKey(clientCredential), scope);
@@ -161,7 +161,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token. It can be null if provided earlier to acquire authorizationCode.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertion clientAssertion, string[] scope)
         {
             return await this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri, new ClientKey(clientAssertion), scope);
@@ -175,7 +175,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token. It can be null if provided earlier to acquire authorizationCode.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate clientCertificate, string[] scope)
         {
             return await this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri, new ClientKey(clientCertificate, this.Authenticator), scope);
@@ -186,7 +186,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, string clientId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientId), UserIdentifier.AnyUser);
@@ -198,7 +198,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, string clientId, UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientId), userId);
@@ -210,7 +210,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCredential">The client credential to use for token acquisition.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, ClientCredential clientCredential, UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientCredential), userId);
@@ -222,7 +222,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, ClientAssertionCertificate clientCertificate, UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientCertificate, this.Authenticator), userId);
@@ -234,7 +234,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, ClientAssertion clientAssertion, UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientAssertion), userId);
@@ -262,7 +262,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters)
         {
             return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, UserIdentifier.AnyUser);
@@ -277,7 +277,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
         /// <param name="userId">Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to pre-populate the username field in the authentication form. Please note that the end user can still edit the username field and authenticate as a different user. 
         /// If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
             return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, userId);
@@ -293,7 +293,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <param name="parameters">Parameters needed for interactive flow requesting authorization code. Pass an instance of PlatformParameters.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
-        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
         {
             return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, userId, extraQueryParameters);

@@ -38,8 +38,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.DisplayableId = key.DisplayableId;
             this.TenantId = result.TenantId;
             this.ExpiresOn = result.ExpiresOn;
-            this.Token = result.Token;
+            this.AccessToken = result.AccessToken;
             this.ProfileInfo = result.ProfileInfo;
+            this.IdToken = result.IdToken;
 
             if (result.UserInfo != null)
             {
@@ -102,10 +103,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets the Access Token requested.
         /// </summary>
-        public string Token { get; internal set; }
+        public string AccessToken { get; internal set; }
 
         /// <summary>
-        /// Gets the entire Id Token if returned by the service or null if no Id Token is returned.
+        /// Gets the Id Token requested.
+        /// </summary>
+        public string IdToken { get; internal set; }
+
+        /// <summary>
+        /// Gets the entire Profile Info if returned by the service or null if no Id Token is returned.
         /// </summary>
         public string ProfileInfo { get; internal set; }
 

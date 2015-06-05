@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Token cache class used by <see cref="AuthenticationContext"/> to store access and refresh tokens.
+    /// accessToken cache class used by <see cref="AuthenticationContext"/> to store access and refresh tokens.
     /// </summary>
     public class TokenCache
     {
@@ -297,7 +297,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (tokenNearExpiry)
                 {
-                    resultEx.Result.Token = null;
+                    resultEx.Result.AccessToken = null;
                     PlatformPlugin.Logger.Verbose(callState, "An expired or near expiry token was found in the cache");
                 }
                 else if (!cacheKey.ScopeContains(scope))
@@ -320,7 +320,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     PlatformPlugin.Logger.Verbose(callState, string.Format("{0} minutes left until token in cache expires", (resultEx.Result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
                 }                
 
-                if (resultEx.Result.Token == null && resultEx.RefreshToken == null)
+                if (resultEx.Result.AccessToken == null && resultEx.RefreshToken == null)
                 {
                     this.tokenCacheDictionary.Remove(cacheKey);
                     PlatformPlugin.Logger.Information(callState, "An old item was removed from the cache");
@@ -426,7 +426,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (mrrtItems.Any())
                     {
                         returnValue = mrrtItems.First();
-                        PlatformPlugin.Logger.Information(callState, "A Multi Resource Refresh Token for a different resource was found which can be used");
+                        PlatformPlugin.Logger.Information(callState, "A Multi Resource Refresh accessToken for a different resource was found which can be used");
                     }
                 }
                     break;

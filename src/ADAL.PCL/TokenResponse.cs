@@ -137,16 +137,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             AuthenticationResultEx resultEx;
 
-            if (this.AccessToken != null)
+            if (this.AccessToken != null || this.IdTokenString != null)
             {
                 DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
                 var token = this.AccessToken;
-                if (string.IsNullOrEmpty(token))
-                {
-                    token = this.IdTokenString;
-                }
-
                 var result = new AuthenticationResult(this.TokenType, token, expiresOn);
+
+                if (!string.IsNullOrEmpty(this.IdTokenString))
+                {
+                    result.IdToken = this.IdTokenString;
+                    this.Scope += " openid";
+                }
 
                 ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
                 if (profileInfo != null)

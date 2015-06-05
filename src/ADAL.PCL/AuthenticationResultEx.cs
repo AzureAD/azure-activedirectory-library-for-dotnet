@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AuthenticationResult Result { get; set; }
 
         /// <summary>
-        /// Gets the Refresh Token associated with the requested Access Token. Note: not all operations will return a Refresh Token.
+        /// Gets the Refresh accessToken associated with the requested Access accessToken. Note: not all operations will return a Refresh accessToken.
         /// </summary>
         [DataMember]
         public string RefreshToken { get; set; }

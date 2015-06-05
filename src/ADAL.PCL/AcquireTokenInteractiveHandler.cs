@@ -145,15 +145,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             IRequestParameters requestParameters = this.CreateAuthorizationRequest(loginHint);
-
             return  new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
         }
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(Scope.Union(this.additionalScope).ToArray(), this.ClientKey);
+            var authorizationRequestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(Scope.Union(this.additionalScope).ToArray()), this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
-
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
 
             if (!string.IsNullOrWhiteSpace(loginHint))

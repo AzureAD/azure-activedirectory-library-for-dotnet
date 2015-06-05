@@ -303,7 +303,7 @@ namespace Test.ADAL.Common
 
             AuthenticationContextProxy.SetCredentials(null, null);
             result2 = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri, PlatformParameters);
-            Verify.AreEqual(result.Token, result2.Token);
+            Verify.AreEqual(result.AccessToken, result2.AccessToken);
 
             SetCredential(sts);
             result2 = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri, PlatformParameters, sts.ValidUserId, ThirdCallExtraQueryParameter);
@@ -567,7 +567,7 @@ namespace Test.ADAL.Common
             }
 
             Verify.AreEqual(AuthenticationStatusProxy.Success, result.Status, "AuthenticationResult.Status");
-            Verify.IsNotNullOrEmptyString(result.Token, "AuthenticationResult.Token");
+            Verify.IsNotNullOrEmptyString(result.AccessToken, "AuthenticationResult.accessToken");
 
             Verify.IsNullOrEmptyString(result.Error, "AuthenticationResult.Error");
             Verify.IsNullOrEmptyString(result.ErrorDescription, "AuthenticationResult.ErrorDescription");
@@ -603,14 +603,14 @@ namespace Test.ADAL.Common
 
             long expiresIn = (long)(result.ExpiresOn - DateTime.UtcNow).TotalSeconds;
             Log.Comment("Verifying token expiration...");
-            Verify.IsGreaterThanOrEqual(expiresIn, (long)0, "Token ExpiresOn");
+            Verify.IsGreaterThanOrEqual(expiresIn, (long)0, "accessToken ExpiresOn");
         }
 
         public static void VerifyErrorResult(AuthenticationResultProxy result, string error, string errorDescriptionKeyword, int statusCode = 0, string serviceErrorCode = null)
         {
             Log.Comment(string.Format("Verifying error result '{0}':'{1}'...", result.Error, result.ErrorDescription));
             Verify.AreNotEqual(AuthenticationStatusProxy.Success, result.Status);
-            Verify.IsNullOrEmptyString(result.Token);
+            Verify.IsNullOrEmptyString(result.AccessToken);
             Verify.IsNotNullOrEmptyString(result.Error);
             Verify.IsNotNullOrEmptyString(result.ErrorDescription);
             Verify.IsFalse(result.ErrorDescription.Contains("+"), "Error description should not be in URL form encoding!");
@@ -641,7 +641,7 @@ namespace Test.ADAL.Common
         {
             List<AuthenticationResultProxy> results = await AcquireTokenPositiveWithCacheAsync(sts, context);
 
-            Verify.AreEqual(results[0].Token, results[1].Token, "AuthenticationResult.Token");
+            Verify.AreEqual(results[0].AccessToken, results[1].AccessToken, "AuthenticationResult.accessToken");
             Log.Comment(string.Format("First ExpiresOn: {0}", results[0].ExpiresOn));
             Log.Comment(string.Format("Second ExpiresOn: {0}", results[1].ExpiresOn));
             return results;
@@ -655,7 +655,7 @@ namespace Test.ADAL.Common
 
         private static void ValidateAuthenticationResultsAreEqual(AuthenticationResultProxy result, AuthenticationResultProxy result2)
         {
-            Verify.AreEqual(result.Token, result2.Token, "AuthenticationResult.Token");
+            Verify.AreEqual(result.AccessToken, result2.AccessToken, "AuthenticationResult.accessToken");
             Verify.AreEqual(result.UserInfo.UniqueId, result2.UserInfo.UniqueId);
             Verify.AreEqual(result.UserInfo.DisplayableId, result2.UserInfo.DisplayableId);
             Verify.AreEqual(result.UserInfo.GivenName, result2.UserInfo.GivenName);
