@@ -45,7 +45,7 @@ namespace AdalDesktopTestApp
             AuthenticationResult result = await context.AcquireTokenAsync(new[] {"https://outlook.office.com/Mail.Read"}, null,
                 "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"), param,
 new UserIdentifier("e2e@adalobjc.onmicrosoft.com", UserIdentifierType.RequiredDisplayableId), "slice=testslice&nux=1&msaproxy=true");
-            Console.WriteLine(result.AccessToken + "\n");
+            Console.WriteLine(result.Token + "\n");
         }
     }
 }
