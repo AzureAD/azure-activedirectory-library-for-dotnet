@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -38,7 +39,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.SupportADFS = false;
         }
 
-        protected override Task<AuthenticationResultEx> SendTokenRequestAsync()
+        protected override Task<List<AuthenticationResultEx>> SendTokenRequestAsync()
         {
             PlatformPlugin.Logger.Verbose(this.CallState, "No token matching arguments found in the cache");
             throw new AdalSilentTokenAcquisitionException();

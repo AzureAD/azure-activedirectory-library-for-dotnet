@@ -129,13 +129,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
-                    if (resultEx != null && resultEx.Result.AccessToken == null && resultEx.RefreshToken != null)
+                    if (resultEx != null && resultEx.Result.Token == null && resultEx.RefreshToken != null)
                     {
-                        resultEx = await this.RefreshAccessTokenAsync(resultEx);
-                        if (resultEx != null)
+                        List<AuthenticationResultEx> resultList = await this.RefreshAccessTokenAsync(resultEx);
+
+                        if (resultList != null)
                         {
-                            //TODO Validate this logic. instead of this.scope we should use result.scope
-                            this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                            foreach (var resultItem in resultList)
+                            {
+                                this.tokenCache.StoreToCache(resultItem, this.Authenticator.Authority, resultItem.ScopeInResponse, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                            }
+
+                            resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
                         }
                     }
                 }
@@ -143,32 +148,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (resultEx == null)
                 {
                     await this.PreTokenRequest();
-                    resultEx = await this.SendTokenRequestAsync();
-                    this.PostTokenRequest(resultEx);
-
-                    if (this.StoreToCache)
+                    List<AuthenticationResultEx> resultList = await this.SendTokenRequestAsync();
+                    foreach (var resultItem in resultList)
                     {
-                        if (!notifiedBeforeAccessCache)
+                        this.PostTokenRequest(resultItem);
+
+                        if (this.StoreToCache)
                         {
-                            this.NotifyBeforeAccessCache();
-                            notifiedBeforeAccessCache = true;
+                            if (!notifiedBeforeAccessCache)
+                            {
+                                this.NotifyBeforeAccessCache();
+                                notifiedBeforeAccessCache = true;
+                            }
+
+                            this.tokenCache.StoreToCache(resultItem, this.Authenticator.Authority,
+                                resultItem.ScopeInResponse, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                         }
-
-                        this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                        else
+                        {
+                            resultEx = resultItem;
+                        }
                     }
+                    resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
                 }
-
-                //if the scope contained client id then do not return access token
-                if (ADALScopeHelper.CreateSetFromArray(this.Scope).Contains(ClientKey.ClientId))
-                {
-                    resultEx.Result.AccessToken = null;
-                }
-                else
-                {
-                    //if the scope did not contain client id then do not return id token
-                    resultEx.Result.IdToken= null;
-                }
-
+                
                 await this.PostRunAsync(resultEx.Result);
                 return resultEx.Result;
             }
@@ -217,32 +220,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected abstract void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters);
 
-        protected virtual async Task<AuthenticationResultEx> SendTokenRequestAsync()
+        protected virtual async Task<List<AuthenticationResultEx>> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters);
         }
 
-        protected async Task<AuthenticationResultEx> SendTokenRequestByRefreshTokenAsync(string refreshToken)
+        protected async Task<List<AuthenticationResultEx>> SendTokenRequestByRefreshTokenAsync(string refreshToken)
         {
-            var requestParameters = new DictionaryRequestParameters(this.Scope, this.ClientKey);
+            var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
-            AuthenticationResultEx result = await this.SendHttpMessageAsync(requestParameters);
+            List<AuthenticationResultEx> results = await this.SendHttpMessageAsync(requestParameters);
 
-            if (result.RefreshToken == null)
+            foreach (var result in results)
             {
-                result.RefreshToken = refreshToken;
-                PlatformPlugin.Logger.Verbose(this.CallState, "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
+                if (result.RefreshToken == null)
+                {
+                    result.RefreshToken = refreshToken;
+                    PlatformPlugin.Logger.Verbose(this.CallState, "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
+                }   
             }
 
-            return result;
+            return results;
         }
 
-        private async Task<AuthenticationResultEx> RefreshAccessTokenAsync(AuthenticationResultEx result)
+        private async Task<List<AuthenticationResultEx>> RefreshAccessTokenAsync(AuthenticationResultEx result)
         {
-            AuthenticationResultEx newResultEx = null;
+            List<AuthenticationResultEx> newResultExList = null;
 
             if (!ADALScopeHelper.IsNullOrEmpty(this.Scope))
             {
@@ -250,13 +256,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 try
                 {
-                    newResultEx = await this.SendTokenRequestByRefreshTokenAsync(result.RefreshToken);
+                    newResultExList = await this.SendTokenRequestByRefreshTokenAsync(result.RefreshToken);
                     this.Authenticator.UpdateTenantId(result.Result.TenantId);
-
-                    if (newResultEx.Result.ProfileInfo == null)
+                    foreach (var newResultEx in newResultExList)
                     {
-                        // If Id token is not returned by token endpoint when refresh token is redeemed, we should copy tenant and user information from the cached token.
-                        newResultEx.Result.UpdateTenantAndUserInfo(result.Result.TenantId, result.Result.ProfileInfo, result.Result.UserInfo);
+                        if (newResultEx.Result.ProfileInfo == null)
+                        {
+                            // If Id token is not returned by token endpoint when refresh token is redeemed, we should copy tenant and user information from the cached token.
+                            newResultEx.Result.UpdateTenantAndUserInfo(result.Result.TenantId, result.Result.ProfileInfo, result.Result.UserInfo);
+                        }
                     }
                 }
                 catch (AdalException ex)
@@ -271,19 +279,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             serviceException.InnerException);
                     }
 
-                    newResultEx = null;
+                    newResultExList = null;
                 }
             }
 
-            return newResultEx;
+            return newResultExList;
         }
 
-        private async Task<AuthenticationResultEx> SendHttpMessageAsync(IRequestParameters requestParameters)
+        private async Task<List<AuthenticationResultEx>> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
             var client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState) { Client = { BodyParameters = requestParameters } };
             TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
 
-            return tokenResponse.GetResult();
+            return tokenResponse.GetResults();
         }
 
         private void NotifyBeforeAccessCache()
@@ -312,11 +320,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void LogReturnedToken(AuthenticationResult result)
         {
-            if (result.AccessToken != null)
+            if (result.Token != null)
             {
-                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.AccessToken);
+                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.Token);
 
-                PlatformPlugin.Logger.Information(this.CallState, string.Format("=== accessToken Acquisition finished successfully. An access token was retuned:\n\tAccess accessToken Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
+                PlatformPlugin.Logger.Information(this.CallState, string.Format("=== token Acquisition finished successfully. An access token was retuned:\n\tToken Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
                     accessTokenHash,
                     result.ExpiresOn,                    
                     result.UserInfo != null ? PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId) : "null"));

@@ -247,7 +247,7 @@ namespace Test.ADAL.Common
 
                         string authorizationCode = await AdalFriend.AcquireAccessCodeAsync(this.context, scope, additionalScope, clientId,
                             redirectUri, userId);
-                        return new AuthenticationResultProxy() { AccessToken = authorizationCode };
+                        return new AuthenticationResultProxy() { Token = authorizationCode };
                     }
                 }
             }
@@ -273,7 +273,7 @@ namespace Test.ADAL.Common
         public async Task<string> AcquireAccessCodeAsync(string[] scope, string[] additionalScope, string clientId, Uri redirectUri, UserIdentifier userId)
         {
             AuthenticationResultProxy result = await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId, null);
-            return result.AccessToken;
+            return result.Token;
         }
 
         public delegate void UiSupplyDelegate(WindowsFormsWebAuthenticationDialog dialog);

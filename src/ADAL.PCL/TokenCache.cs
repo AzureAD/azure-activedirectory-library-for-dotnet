@@ -283,6 +283,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal AuthenticationResultEx LoadFromCache(string authority, string[] scope, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");
+            if (ADALScopeHelper.CreateSetFromArray(scope).Contains(clientId))
+            {
+                PlatformPlugin.Logger.Verbose(callState, "Looking for id token...");
+            }
 
             AuthenticationResultEx resultEx = null;
 
@@ -297,7 +301,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (tokenNearExpiry)
                 {
-                    resultEx.Result.AccessToken = null;
+                    resultEx.Result.Token = null;
                     PlatformPlugin.Logger.Verbose(callState, "An expired or near expiry token was found in the cache");
                 }
                 else if (!cacheKey.ScopeContains(scope))
@@ -318,9 +322,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 else
                 {
                     PlatformPlugin.Logger.Verbose(callState, string.Format("{0} minutes left until token in cache expires", (resultEx.Result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
-                }                
+                }
 
-                if (resultEx.Result.AccessToken == null && resultEx.RefreshToken == null)
+                if (resultEx.Result.Token == null && resultEx.RefreshToken == null)
                 {
                     this.tokenCacheDictionary.Remove(cacheKey);
                     PlatformPlugin.Logger.Information(callState, "An old item was removed from the cache");
@@ -344,6 +348,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal void StoreToCache(AuthenticationResultEx result, string authority, string[] scope, string clientId, TokenSubjectType subjectType, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Storing token in the cache...");
+
+            if (ADALScopeHelper.IsNullOrEmpty(scope) || ADALScopeHelper.CreateSetFromArray(scope).Contains("openid"))
+            {
+                scope = new[] {clientId};
+            }
 
             string uniqueId = (result.Result.UserInfo != null) ? result.Result.UserInfo.UniqueId : null;
             string displayableId = (result.Result.UserInfo != null) ? result.Result.UserInfo.DisplayableId : null;

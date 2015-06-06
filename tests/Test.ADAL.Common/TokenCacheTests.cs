@@ -213,6 +213,22 @@ namespace Test.ADAL.Common.Unit
 
         }
 
+        internal static void TokenCacheLookupTest()
+        {
+            var tokenCache = new TokenCache();
+            var cacheDictionary = tokenCache.tokenCacheDictionary;
+            tokenCache.Clear();
+
+            TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts", new[] { "resource1_1", "resource1_2", "resource1_3" }, "client1", TokenSubjectType.User, null, "user1");
+            AuthenticationResultEx value = CreateCacheValue(null, "user1");
+            AddToDictionary(tokenCache, key, value);
+
+            AuthenticationResultEx resultEx = tokenCache.LoadFromCache("https://localhost/MockSts", new[] {"resource1_1","resource1_3"}, "client1",
+                                                TokenSubjectType.User, null, "user1", new CallState(Guid.NewGuid()));
+            Verify.IsNotNull(resultEx);
+        }
+
+
         internal static void TokenCacheOperationsTest()
         {
             var tokenCache = new TokenCache();
@@ -447,7 +463,7 @@ namespace Test.ADAL.Common.Unit
                 Verify.AreEqual(tokenCache.Count, tokenCache2.Count);
                 foreach (TokenCacheItem item in tokenCache.ReadItems())
                 {
-                    var item2 = tokenCache2.ReadItems().FirstOrDefault(it => it.AccessToken == item.AccessToken);
+                    var item2 = tokenCache2.ReadItems().FirstOrDefault(it => it.Token == item.Token);
                     Verify.IsNotNull(item2);
                     double diff = Math.Abs((item.ExpiresOn - item2.ExpiresOn).TotalSeconds);
                     Verify.IsLessThanOrEqual(diff, 1.0);
@@ -460,7 +476,8 @@ namespace Test.ADAL.Common.Unit
             string refreshToken = string.Format("RefreshToken{0}", Rand.Next());
             var result = new AuthenticationResult(null, ValidAccessToken, new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)))
                 {
-                    UserInfo = new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
+                    UserInfo = new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId },
+                    Token = Guid.NewGuid().ToString()
                 };
 
             return new AuthenticationResultEx
@@ -565,7 +582,7 @@ namespace Test.ADAL.Common.Unit
 
         private static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
-            return (AreStringsEqual(result1.AccessToken, result2.AccessToken)
+            return (AreStringsEqual(result1.Token, result2.Token)
                     && AreStringsEqual(result1.TokenType, result2.TokenType)
                     && AreStringsEqual(result1.ProfileInfo, result2.ProfileInfo)
                     && AreStringsEqual(result1.TenantId, result2.TenantId)

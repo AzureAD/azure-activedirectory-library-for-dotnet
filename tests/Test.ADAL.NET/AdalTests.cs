@@ -268,7 +268,7 @@ namespace Test.ADAL.Common
 
             result2 = await context.AcquireTokenAsync(sts.ValidScope, null , sts.ValidClientId, sts.ValidDefaultRedirectUri, PlatformParameters, userId);
             VerifySuccessResult(sts, result2);
-            Verify.AreNotEqual(result.AccessToken, result2.AccessToken);
+            Verify.AreNotEqual(result.Token, result2.Token);
         }
 
         internal static async Task AcquireTokenByAuthorizationCodeWithCacheTestAsync(Sts sts)
@@ -343,13 +343,13 @@ namespace Test.ADAL.Common
             AuthenticationResultProxy result2 = await context.AcquireTokenAsync(sts.ValidScope, null , sts.ValidClientId, sts.ValidDefaultRedirectUri, PlatformParameters,
                 (sts.Type == StsType.ADFS) ? null : sts.ValidUserId);
             VerifySuccessResult(sts, result2);
-            Verify.AreEqual(result2.AccessToken, result.AccessToken);
+            Verify.AreEqual(result2.Token, result.Token);
 
             AuthenticationContextProxy.SetCredentials(sts.ValidUserName, sts.ValidPassword);
             var neverAuthorizationParameters = new PlatformParameters(PromptBehavior.Always, null);
             result = await context.AcquireTokenAsync(sts.ValidScope, null , sts.ValidClientId, sts.ValidDefaultRedirectUri, neverAuthorizationParameters);
             VerifySuccessResult(sts, result);
-            Verify.AreNotEqual(result2.AccessToken, result.AccessToken);
+            Verify.AreNotEqual(result2.Token, result.Token);
         }
 
         internal static async Task AcquireTokenWithPromptBehaviorNeverTestAsync(Sts sts)
@@ -426,7 +426,7 @@ namespace Test.ADAL.Common
             var refreshSessionAuthorizationParameters = new PlatformParameters(PromptBehavior.RefreshSession, null);
             AuthenticationResultProxy result2 = await context.AcquireTokenAsync(sts.ValidScope, null , sts.ValidClientId, sts.ValidDefaultRedirectUri, refreshSessionAuthorizationParameters, userId);
             VerifySuccessResult(sts, result2);
-            Verify.AreNotEqual(result.AccessToken, result2.AccessToken);
+            Verify.AreNotEqual(result.Token, result2.Token);
         }
 
         internal static async Task TokenSubjectTypeTestAsync(Sts sts)
@@ -490,7 +490,7 @@ namespace Test.ADAL.Common
             Log.Comment("Verifying success result...");
 
             Verify.IsNotNull(result);
-            Verify.IsNotNullOrEmptyString(result.AccessToken, "AuthenticationResult.accessToken");
+            Verify.IsNotNullOrEmptyString(result.Token, "AuthenticationResult.Token");
             long expiresIn = (long)(result.ExpiresOn - DateTime.UtcNow).TotalSeconds;
             Log.Comment("Verifying token expiration...");
             Verify.IsGreaterThanOrEqual(expiresIn, (long)0, "accessToken Expiration");

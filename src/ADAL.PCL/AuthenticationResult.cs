@@ -17,15 +17,12 @@
 //----------------------------------------------------------------------
 
 using System;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Contains the results of one accessToken acquisition operation. 
+    /// Contains the results of one Token acquisition operation. 
     /// </summary>
     [DataContract]
     public sealed class AuthenticationResult
@@ -33,45 +30,39 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string Oauth2AuthorizationHeader = "Bearer ";
 
         /// <summary>
-        /// Creates result returned from AcquireToken. Except in advanced scenarios related to accessToken caching, you do not need to create any instance of AuthenticationResult.
+        /// Creates result returned from AcquireToken. Except in advanced scenarios related to Token caching, you do not need to create any instance of AuthenticationResult.
         /// </summary>
-        /// <param name="tokenType">Type of the Access accessToken returned</param>
-        /// <param name="accessToken">The Access accessToken requested</param>
-        /// <param name="expiresOn">The point in time in which the Access accessToken returned in the accessToken property ceases to be valid</param>
-        internal AuthenticationResult(string tokenType, string accessToken, DateTimeOffset expiresOn)
+        /// <param name="tokenType">Type of the Access Token returned</param>
+        /// <param name="tokensToken">The Access Token requested</param>
+        /// <param name="expiresOn">The point in time in which the Access Token returned in the Token property ceases to be valid</param>
+        internal AuthenticationResult(string tokenType, string token, DateTimeOffset expiresOn)
         {
             this.TokenType = tokenType;
-            this.AccessToken = accessToken;
+            this.Token = token;
             this.ExpiresOn = DateTime.SpecifyKind(expiresOn.DateTime, DateTimeKind.Utc);
         }
 
         /// <summary>
-        /// Gets the type of the Access accessToken returned. 
+        /// Gets the type of the Token returned. 
         /// </summary>
         [DataMember]
         public string TokenType { get; private set; }
 
         /// <summary>
-        /// Gets the Access accessToken requested.
+        /// Gets the Token requested.
         /// </summary>
         [DataMember]
-        public string IdToken { get; internal set; }
+        public string Token { get; internal set; }
 
         /// <summary>
-        /// Gets the Access accessToken requested.
-        /// </summary>
-        [DataMember]
-        public string AccessToken { get; internal set; }
-
-        /// <summary>
-        /// Gets the point in time in which the Access accessToken returned in the accessToken property ceases to be valid.
+        /// Gets the point in time in which the Access Token returned in the Token property ceases to be valid.
         /// This value is calculated based on current UTC time measured locally and the value expiresIn received from the service.
         /// </summary>
         [DataMember]
         public DateTimeOffset ExpiresOn { get; internal set; }
 
         /// <summary>
-        /// Gets an identifier for the tenant the accessToken was acquired from. This property will be null if tenant information is not returned by the service.
+        /// Gets an identifier for the tenant the Token was acquired from. This property will be null if tenant information is not returned by the service.
         /// </summary>
         [DataMember]
         public string TenantId { get; private set; }
@@ -95,23 +86,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string CreateAuthorizationHeader()
         {
             return Oauth2AuthorizationHeader + this.Token;
-        }
-
-        /// <summary>
-        /// Returns the acess token. If Access token is nil then id token is returned.
-        /// </summary>
-        public string Token {
-            get
-            {
-                if (!string.IsNullOrEmpty(this.AccessToken))
-                {
-                    return this.AccessToken;
-                }
-                else
-                {
-                    return this.IdToken;
-                }
-            }
         }
 
         internal void UpdateTenantAndUserInfo(string tenantId, string profileInfo, UserInfo userInfo)

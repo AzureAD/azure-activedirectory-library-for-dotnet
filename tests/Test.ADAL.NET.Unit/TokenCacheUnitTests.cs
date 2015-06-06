@@ -51,6 +51,14 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Test for Token Cache Lookup")]
+        [TestCategory("AdalDotNetUnit")]
+        public void TokenCacheLookupTest()
+        {
+            TokenCacheTests.TokenCacheLookupTest();
+        }
+
+        [TestMethod]
         [Description("Test for Token Cache Capacity")]
         [TestCategory("AdalDotNetUnit")]
         public void TokenCacheCapacityTest()

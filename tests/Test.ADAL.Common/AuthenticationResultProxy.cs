@@ -55,10 +55,7 @@ namespace Test.ADAL.Common
         public string TokenType { get; set; }
 
         [DataMember]
-        public string AccessToken { get; set; }
-
-        [DataMember]
-        public string IdToken { get; set; }
+        public string Token { get; set; }
 
         [DataMember]
         public string ProfileInfo { get; set; }

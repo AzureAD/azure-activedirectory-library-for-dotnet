@@ -133,73 +133,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return tokenResponse;
         }
 
-        public AuthenticationResultEx GetResult()
+        public List<AuthenticationResultEx> GetResults()
         {
-            AuthenticationResultEx resultEx;
+            List<AuthenticationResultEx> results = new List<AuthenticationResultEx>();
 
             if (this.AccessToken != null || this.IdTokenString != null)
             {
-                DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
-                var token = this.AccessToken;
-                var result = new AuthenticationResult(this.TokenType, token, expiresOn);
+                if (!string.IsNullOrEmpty(this.AccessToken))
+                {
+                    results.Add(this.GetResult(this.AccessToken, this.Scope));
+                }
 
                 if (!string.IsNullOrEmpty(this.IdTokenString))
                 {
-                    result.IdToken = this.IdTokenString;
-                    this.Scope += " openid";
+                    results.Add(this.GetResult(this.IdTokenString, "openid"));
                 }
 
-                ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
-                if (profileInfo != null)
-                {
-                    string tenantId = profileInfo.TenantId;
-                    string uniqueId = null;
-                    string displayableId = null;
-
-                    if (!string.IsNullOrWhiteSpace(profileInfo.ObjectId))
-                    {
-                        uniqueId = profileInfo.ObjectId;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
-                    {
-                        uniqueId = profileInfo.Subject;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(profileInfo.UPN))
-                    {
-                        displayableId = profileInfo.UPN;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(profileInfo.Email))
-                    {
-                        displayableId = profileInfo.Email;
-                    }
-
-                    string givenName = profileInfo.GivenName;
-                    string familyName = profileInfo.FamilyName;
-                    string identityProvider = profileInfo.IdentityProvider ?? profileInfo.Issuer;
-                    DateTimeOffset? passwordExpiresOffest = null;
-                    if (profileInfo.PasswordExpiration > 0)
-                    {
-                        passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(profileInfo.PasswordExpiration);
-                    }
-
-                    Uri changePasswordUri = null;
-                    if (!string.IsNullOrEmpty(profileInfo.PasswordChangeUrl))
-                    {
-                        changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
-                    }
-
-                    result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
-                }
-
-                resultEx = new AuthenticationResultEx
-                {
-                    Result = result,
-                    RefreshToken = this.RefreshToken,
-                    // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
-                    // to get it from the STS response.
-                    ScopeInResponse = ADALScopeHelper.CreateArrayFromSingleString(this.Scope)
-                };
             }
             else if (this.Error != null)
             {
@@ -210,7 +159,65 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new AdalServiceException(AdalError.Unknown, AdalErrorMessage.Unknown);
             }
 
-            return resultEx;
+            return results;
+        }
+
+        private AuthenticationResultEx GetResult(string token, string scope)
+        {
+            DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
+            var result = new AuthenticationResult(this.TokenType, token, expiresOn);
+
+            ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
+            if (profileInfo != null)
+            {
+                string tenantId = profileInfo.TenantId;
+                string uniqueId = null;
+                string displayableId = null;
+
+                if (!string.IsNullOrWhiteSpace(profileInfo.ObjectId))
+                {
+                    uniqueId = profileInfo.ObjectId;
+                }
+                else if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
+                {
+                    uniqueId = profileInfo.Subject;
+                }
+
+                if (!string.IsNullOrWhiteSpace(profileInfo.UPN))
+                {
+                    displayableId = profileInfo.UPN;
+                }
+                else if (!string.IsNullOrWhiteSpace(profileInfo.Email))
+                {
+                    displayableId = profileInfo.Email;
+                }
+
+                string givenName = profileInfo.GivenName;
+                string familyName = profileInfo.FamilyName;
+                string identityProvider = profileInfo.IdentityProvider ?? profileInfo.Issuer;
+                DateTimeOffset? passwordExpiresOffest = null;
+                if (profileInfo.PasswordExpiration > 0)
+                {
+                    passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(profileInfo.PasswordExpiration);
+                }
+
+                Uri changePasswordUri = null;
+                if (!string.IsNullOrEmpty(profileInfo.PasswordChangeUrl))
+                {
+                    changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
+                }
+
+                result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
+            }
+
+            return new AuthenticationResultEx
+            {
+                Result = result,
+                RefreshToken = this.RefreshToken,
+                // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
+                // to get it from the STS response.
+                ScopeInResponse = ADALScopeHelper.CreateArrayFromSingleString(scope)
+            };
         }
 
         private static string ReadStreamContent(Stream stream)

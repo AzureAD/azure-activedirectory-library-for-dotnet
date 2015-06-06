@@ -74,8 +74,7 @@ namespace Test.ADAL.Common
         {
             List<TokenCacheItem> items = this.context.TokenCache.ReadItems().ToList();
             Verify.AreEqual(1, items.Count);
-            Verify.AreEqual(result.AccessToken, items[0].AccessToken);
-            Verify.AreEqual(result.IdToken, items[0].IdToken);
+            Verify.AreEqual(result.Token, items[0].Token);
             Verify.AreEqual(result.ProfileInfo ?? string.Empty, items[0].ProfileInfo ?? string.Empty);
             Verify.IsTrue(stsType == StsType.ADFS || items[0].ProfileInfo != null);
         }
@@ -85,8 +84,7 @@ namespace Test.ADAL.Common
             return new AuthenticationResultProxy
             {
                 Status = AuthenticationStatusProxy.Success,
-                AccessToken = result.AccessToken,
-                IdToken = result.IdToken,
+                Token = result.Token,
                 TokenType = result.TokenType,
                 ExpiresOn = result.ExpiresOn,
                 ProfileInfo = result.ProfileInfo,
