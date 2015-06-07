@@ -16,14 +16,10 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -34,20 +30,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AuthenticationResult Result { get; set; }
 
         /// <summary>
-        /// Gets the Refresh accessToken associated with the requested Access accessToken. Note: not all operations will return a Refresh accessToken.
+        ///     Gets the Refresh accessToken associated with the requested Access accessToken. Note: not all operations will return
+        ///     a Refresh accessToken.
         /// </summary>
         [DataMember]
         public string RefreshToken { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the refresh token can be used for requesting access token for other resources.
+        ///     Gets a value indicating whether the refresh token can be used for requesting access token for other resources.
         /// </summary>
         internal bool IsMultipleResourceRefreshToken
         {
             get
             {
                 return (!string.IsNullOrWhiteSpace(this.RefreshToken) && !ADALScopeHelper.IsNullOrEmpty(ScopeInResponse));
-            }            
+            }
         }
 
         // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
@@ -55,36 +52,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember]
         internal string[] ScopeInResponse { get; set; }
 
-
         /// <summary>
-        /// Serializes the object to a JSON string
+        ///     Serializes the object to a JSON string
         /// </summary>
         /// <returns>Deserialized authentication result</returns>
         public static AuthenticationResultEx Deserialize(string serializedObject)
         {
             AuthenticationResultEx resultEx;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultEx));
+            var serializer = new DataContractJsonSerializer(typeof (AuthenticationResultEx));
             byte[] serializedObjectBytes = Encoding.UTF8.GetBytes(serializedObject);
             using (var stream = new MemoryStream(serializedObjectBytes))
             {
-                resultEx = (AuthenticationResultEx)serializer.ReadObject(stream);
+                resultEx = (AuthenticationResultEx) serializer.ReadObject(stream);
             }
 
             return resultEx;
         }
 
         /// <summary>
-        /// Serializes the object to a JSON string
+        ///     Serializes the object to a JSON string
         /// </summary>
         /// <returns>Serialized authentication result</returns>
         public string Serialize()
         {
             string serializedObject;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultEx));
+            var serializer = new DataContractJsonSerializer(typeof (AuthenticationResultEx));
             using (MemoryStream stream = new MemoryStream())
             {
                 serializer.WriteObject(stream, this);
-                serializedObject = Encoding.UTF8.GetString(stream.ToArray(), 0, (int)stream.Position);
+                serializedObject = Encoding.UTF8.GetString(stream.ToArray(), 0, (int) stream.Position);
             }
 
             return serializedObject;

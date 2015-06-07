@@ -16,19 +16,17 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Threading.Tasks;
-
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Test.ADAL.Common;
 
 namespace TestApp.PCL
 {
     public class TokenBroker
     {
-        private AuthenticationContext context;
-
-        private Sts sts;
+        private readonly AuthenticationContext context;
+        private readonly Sts sts;
 
         public TokenBroker()
         {
@@ -40,7 +38,11 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidNonExistingRedirectUri, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
+                var result =
+                    await
+                        context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId,
+                            sts.ValidNonExistingRedirectUri, parameters,
+                            new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
                 return result.Token;
             }
@@ -54,7 +56,10 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
+                var result =
+                    await
+                        context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, parameters,
+                            new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
                 return result.Token;
             }

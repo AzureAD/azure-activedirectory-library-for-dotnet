@@ -112,8 +112,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(TokenResponse));
-                tokenResponse = ((TokenResponse)serializer.ReadObject(responseStream));
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (TokenResponse));
+                tokenResponse = ((TokenResponse) serializer.ReadObject(responseStream));
 
                 // Reset stream position to make it possible for application to read HttpRequestException body again
                 responseStream.Position = 0;
@@ -123,9 +123,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 responseStream.Position = 0;
                 tokenResponse = new TokenResponse
                 {
-                    Error = (webResponse.StatusCode == HttpStatusCode.ServiceUnavailable) ?
-                        AdalError.ServiceUnavailable :
-                        AdalError.Unknown,
+                    Error = (webResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+                        ? AdalError.ServiceUnavailable
+                        : AdalError.Unknown,
                     ErrorDescription = ReadStreamContent(responseStream)
                 };
             }
@@ -148,7 +148,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     results.Add(this.GetResult(this.IdTokenString, "openid"));
                 }
-
             }
             else if (this.Error != null)
             {
@@ -207,7 +206,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
                 }
 
-                result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
+                result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString,
+                    new UserInfo
+                    {
+                        UniqueId = uniqueId,
+                        DisplayableId = displayableId,
+                        GivenName = givenName,
+                        FamilyName = familyName,
+                        IdentityProvider = identityProvider,
+                        PasswordExpiresOn = passwordExpiresOffest,
+                        PasswordChangeUrl = changePasswordUri
+                    });
             }
 
             return new AuthenticationResultEx
@@ -228,5 +237,4 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
     }
-
 }

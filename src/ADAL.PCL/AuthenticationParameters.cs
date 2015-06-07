@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Contains authentication parameters based on unauthorized response from resource server.
+    ///     Contains authentication parameters based on unauthorized response from resource server.
     /// </summary>
     public sealed class AuthenticationParameters
     {
@@ -36,18 +36,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string ResourceKey = "resource_id";
 
         /// <summary>
-        /// Gets or sets the address of the authority to issue token.
+        ///     Gets or sets the address of the authority to issue token.
         /// </summary>
         public string Authority { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
+        ///     Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
         public string Resource { get; set; }
 
         /// <summary>
-        /// Creates authentication parameters from address of the resource. This method expects the resource server to return unauthorized response
-        /// with WWW-Authenticate header containing authentication parameters.
+        ///     Creates authentication parameters from address of the resource. This method expects the resource server to return
+        ///     unauthorized response
+        ///     with WWW-Authenticate header containing authentication parameters.
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
@@ -57,18 +58,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Creates authentication parameters from the response received from the response received from the resource. This method expects the response to have unauthorized status and
-        /// WWW-Authenticate header containing authentication parameters.</summary>
+        ///     Creates authentication parameters from the response received from the response received from the resource. This
+        ///     method expects the response to have unauthorized status and
+        ///     WWW-Authenticate header containing authentication parameters.
+        /// </summary>
         /// <param name="responseMessage">Response received from the resource (e.g. via an http call using HttpClient).</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
-
-        public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(HttpResponseMessage responseMessage)
+        public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
+            HttpResponseMessage responseMessage)
         {
             return CreateFromUnauthorizedResponseCommon(await HttpClientWrapper.CreateResponseAsync(responseMessage));
         }
 
         /// <summary>
-        /// Creates authentication parameters from the WWW-Authenticate header in response received from resource. This method expects the header to contain authentication parameters.
+        ///     Creates authentication parameters from the WWW-Authenticate header in response received from resource. This method
+        ///     expects the header to contain authentication parameters.
         /// </summary>
         /// <param name="authenticateHeader">Content of header WWW-Authenticate header</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
@@ -93,7 +97,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             authenticateHeader = authenticateHeader.Substring(Bearer.Length).Trim();
 
-            Dictionary<string, string> authenticateHeaderItems = EncodingHelper.ParseKeyValueList(authenticateHeader, ',', false, null);
+            Dictionary<string, string> authenticateHeaderItems = EncodingHelper.ParseKeyValueList(authenticateHeader,
+                ',', false, null);
 
             var authParams = new AuthenticationParameters();
             string param;
@@ -121,7 +126,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
                     PlatformPlugin.Logger.Error(null, ex);
-                    throw ex;                    
+                    throw ex;
                 }
             }
             catch (HttpRequestWrapperException ex)

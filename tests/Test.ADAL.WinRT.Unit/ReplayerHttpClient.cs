@@ -38,17 +38,13 @@ namespace Test.ADAL.WinRT.Unit
             this.CallState = callState;
         }
 
+        public CallState CallState { get; set; }
+
         public IRequestParameters BodyParameters
         {
-            set
-            {
-                this.internalHttpCilent.BodyParameters = value;
-            }
+            set { this.internalHttpCilent.BodyParameters = value; }
 
-            get
-            {
-                return this.internalHttpCilent.BodyParameters;
-            }
+            get { return this.internalHttpCilent.BodyParameters; }
         }
 
         public string Accept
@@ -71,21 +67,13 @@ namespace Test.ADAL.WinRT.Unit
 
         public bool UseDefaultCredentials
         {
-            set
-            {
-                this.keyElements["UseDefaultCredentials"] = value.ToString();
-            }
+            set { this.keyElements["UseDefaultCredentials"] = value.ToString(); }
         }
 
         public Dictionary<string, string> Headers
         {
-            get
-            {
-                return this.internalHttpCilent.Headers;
-            }
+            get { return this.internalHttpCilent.Headers; }
         }
-
-        public CallState CallState { get; set; }
 
         public async Task<IHttpWebResponse> GetResponseAsync()
         {
@@ -101,7 +89,7 @@ namespace Test.ADAL.WinRT.Unit
 
             if (this.internalHttpCilent.BodyParameters is DictionaryRequestParameters)
             {
-                foreach (var kvp in (DictionaryRequestParameters)this.internalHttpCilent.BodyParameters)
+                foreach (var kvp in (DictionaryRequestParameters) this.internalHttpCilent.BodyParameters)
                 {
                     string value = (kvp.Key == "password") ? "PASSWORD" : kvp.Value;
                     this.keyElements["Body-" + kvp.Key] = value;

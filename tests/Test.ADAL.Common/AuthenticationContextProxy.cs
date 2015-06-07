@@ -20,11 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common
-{    
+{
     internal partial class AuthenticationContextProxy
     {
         private const string FixedCorrelationId = "2ddbba59-1a04-43fb-b363-7fb0ae785030";
@@ -35,39 +34,55 @@ namespace Test.ADAL.Common
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, string clientId, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, string clientId,
+            UserIdentifier userId)
         {
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientId, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, ClientCredential clientCredential, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope,
+            ClientCredential clientCredential, UserIdentifier userId)
         {
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientCredential, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope, ClientAssertion clientAssertion, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope,
+            ClientAssertion clientAssertion, UserIdentifier userId)
         {
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientAssertion, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[]scope, ClientAssertionCertificate clientCertificate, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenSilentAsync(string[] scope,
+            ClientAssertionCertificate clientCertificate, UserIdentifier userId)
         {
             return await RunTaskAsync(this.context.AcquireTokenSilentAsync(scope, clientCertificate, userId));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientCredential credential, string[] scope)
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, ClientCredential credential, string[] scope)
         {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential, scope));
+            return
+                await
+                    RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri,
+                        credential, scope));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertionCertificate certificate, string[] scope)
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, ClientAssertionCertificate certificate, string[] scope)
         {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, certificate, scope));
+            return
+                await
+                    RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri,
+                        certificate, scope));
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, Uri redirectUri, ClientAssertion credential, string[] scope)
+        public async Task<AuthenticationResultProxy> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, ClientAssertion credential, string[] scope)
         {
-            return await RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri, credential, scope));
+            return
+                await
+                    RunTaskAsync(this.context.AcquireTokenByAuthorizationCodeAsync(authorizationCode, redirectUri,
+                        credential, scope));
         }
 
         internal void VerifySingleItemInCache(AuthenticationResultProxy result, StsType stsType)
@@ -111,14 +126,14 @@ namespace Test.ADAL.Common
             }
             else if (ex is AdalServiceException)
             {
-                output.Error = ((AdalServiceException)ex).ErrorCode;
-                output.ExceptionStatusCode = ((AdalServiceException)ex).StatusCode;
-                output.ExceptionServiceErrorCodes = ((AdalServiceException)ex).ServiceErrorCodes;
+                output.Error = ((AdalServiceException) ex).ErrorCode;
+                output.ExceptionStatusCode = ((AdalServiceException) ex).StatusCode;
+                output.ExceptionServiceErrorCodes = ((AdalServiceException) ex).ServiceErrorCodes;
                 output.Status = AuthenticationStatusProxy.ServiceError;
             }
             else if (ex is AdalException)
             {
-                output.Error = ((AdalException)ex).ErrorCode;
+                output.Error = ((AdalException) ex).ErrorCode;
             }
             else
             {

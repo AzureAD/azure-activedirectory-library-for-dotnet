@@ -21,12 +21,12 @@ using System;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Token cache item
+    ///     Token cache item
     /// </summary>
     public sealed class TokenCacheItem
     {
         /// <summary>
-        /// Default constructor.
+        ///     Default constructor.
         /// </summary>
         internal TokenCacheItem(TokenCacheKey key, AuthenticationResult result)
         {
@@ -50,62 +50,62 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Gets the Authority.
+        ///     Gets the Authority.
         /// </summary>
         public string Authority { get; private set; }
 
         /// <summary>
-        /// Gets the ClientId.
+        ///     Gets the ClientId.
         /// </summary>
         public string ClientId { get; internal set; }
 
         /// <summary>
-        /// Gets the Expiration.
+        ///     Gets the Expiration.
         /// </summary>
         public DateTimeOffset ExpiresOn { get; internal set; }
 
         /// <summary>
-        /// Gets the FamilyName.
+        ///     Gets the FamilyName.
         /// </summary>
         public string FamilyName { get; internal set; }
 
         /// <summary>
-        /// Gets the GivenName.
+        ///     Gets the GivenName.
         /// </summary>
         public string GivenName { get; internal set; }
 
         /// <summary>
-        /// Gets the IdentityProviderName.
+        ///     Gets the IdentityProviderName.
         /// </summary>
         public string IdentityProvider { get; internal set; }
 
         /// <summary>
-        /// Gets the Resource.
+        ///     Gets the Resource.
         /// </summary>
         public string[] Scope { get; internal set; }
 
         /// <summary>
-        /// Gets the TenantId.
+        ///     Gets the TenantId.
         /// </summary>
         public string TenantId { get; internal set; }
 
         /// <summary>
-        /// Gets the user's unique Id.
+        ///     Gets the user's unique Id.
         /// </summary>
         public string UniqueId { get; internal set; }
 
         /// <summary>
-        /// Gets the user's displayable Id.
+        ///     Gets the user's displayable Id.
         /// </summary>
         public string DisplayableId { get; internal set; }
 
         /// <summary>
-        /// Gets the Access Token requested.
+        ///     Gets the Access Token requested.
         /// </summary>
         public string Token { get; internal set; }
 
         /// <summary>
-        /// Gets the entire Profile Info if returned by the service or null if no Id Token is returned.
+        ///     Gets the entire Profile Info if returned by the service or null if no Id Token is returned.
         /// </summary>
         public string ProfileInfo { get; internal set; }
 
@@ -114,7 +114,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal bool Match(TokenCacheKey key)
         {
             return (key.Authority == this.Authority && key.ScopeEquals(this.Scope) && key.ClientIdEquals(this.ClientId)
-                    && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId && key.DisplayableIdEquals(this.DisplayableId));
+                    && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId &&
+                    key.DisplayableIdEquals(this.DisplayableId));
         }
     }
 }

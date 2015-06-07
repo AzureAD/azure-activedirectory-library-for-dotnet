@@ -19,12 +19,11 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-
 using Test.ADAL.WinRT.Unit;
 
 namespace Test.ADAL.WinPhone.Unit
 {
-    class ReplayerWebUI : ReplayerBase, IWebUI
+    internal class ReplayerWebUI : ReplayerBase, IWebUI
     {
         private const string Delimiter = ":::";
 
@@ -32,7 +31,8 @@ namespace Test.ADAL.WinPhone.Unit
         {
         }
 
-        public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
+        public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
+            CallState callState)
         {
             string key = authorizationUri.AbsoluteUri + redirectUri.OriginalString;
 
@@ -42,14 +42,19 @@ namespace Test.ADAL.WinPhone.Unit
                 if (value[0] == 'P')
                 {
                     value = value.Substring(1);
-                    string[] valueSegments = value.Split(new string[] { "::" }, StringSplitOptions.None);
-                    return new AuthorizationResult((AuthorizationStatus)Enum.Parse(typeof(AuthorizationStatus), valueSegments[0]), valueSegments[1]);
+                    string[] valueSegments = value.Split(new string[] {"::"}, StringSplitOptions.None);
+                    return
+                        new AuthorizationResult(
+                            (AuthorizationStatus) Enum.Parse(typeof (AuthorizationStatus), valueSegments[0]),
+                            valueSegments[1]);
                 }
 
                 if (value[0] == 'A')
                 {
-                    string[] segments = value.Substring(1).Split(new[] { Delimiter }, StringSplitOptions.RemoveEmptyEntries);
-                    return new AuthorizationResult(AuthorizationStatus.Success, string.Format("https://dummy?error={0}&error_description={1}", segments[0], segments[1]));
+                    string[] segments = value.Substring(1)
+                        .Split(new[] {Delimiter}, StringSplitOptions.RemoveEmptyEntries);
+                    return new AuthorizationResult(AuthorizationStatus.Success,
+                        string.Format("https://dummy?error={0}&error_description={1}", segments[0], segments[1]));
                 }
             }
 
