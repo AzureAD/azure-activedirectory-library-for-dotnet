@@ -73,7 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected string[] GetDecoratedScope(string[] inputScope)
         {
-            ISet<string> set = AdalStringHelper.CreateSetFromArray(inputScope);
+            ISet<string> set = inputScope.CreateSetFromArray();
             set.Remove(ClientKey.ClientId); //remove client id if it exists
             set.Add("openid");
             //set.Add("offline_access");
@@ -82,7 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected void ValidateScopeInput(string[] scopeInput)
         {
-            ISet<string> set = AdalStringHelper.CreateSetFromArray(scopeInput);
+            ISet<string> set = scopeInput.CreateSetFromArray();
             //make sure developer does not pass openid scope.
             if (set.Contains("openid"))
             {
@@ -252,7 +252,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             List<AuthenticationResultEx> newResultExList = null;
 
-            if (!AdalStringHelper.IsNullOrEmpty(this.Scope))
+            if (!AdalScopeHelper.IsNullOrEmpty(this.Scope))
             {
                 PlatformPlugin.Logger.Verbose(this.CallState, "Refreshing access token...");
 
