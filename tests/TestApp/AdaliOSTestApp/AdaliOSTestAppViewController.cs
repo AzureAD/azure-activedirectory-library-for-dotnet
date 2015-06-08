@@ -87,36 +87,6 @@ namespace AdaliOSTestApp
             }
         }
 
-        async partial void UIButton16_TouchUpInside(UIButton sender)
-        {
-            try
-            {
-                ReportLabel.Text = string.Empty;
-                TokenBroker tokenBroker = new TokenBroker();
-                string token = await tokenBroker.GetTokenWithUsernamePasswordAsync();
-                ReportLabel.Text = token;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        async partial void UIButton25_TouchUpInside(UIButton sender)
-        {
-            try
-            {
-                ReportLabel.Text = string.Empty;
-                TokenBroker tokenBroker = new TokenBroker();
-                string token = await tokenBroker.GetTokenWithClientCredentialAsync();
-                ReportLabel.Text = token;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         partial void UIButton30_TouchUpInside(UIButton sender)
         {
             TokenBroker tokenBroker = new TokenBroker();

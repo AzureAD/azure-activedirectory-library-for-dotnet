@@ -25,6 +25,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public class PlatformParameters : IPlatformParameters
     {
+
         public PlatformParameters(Activity callerActivity)
         {
             this.CallerActivity = callerActivity;

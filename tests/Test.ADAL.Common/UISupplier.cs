@@ -16,6 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Test.ADAL.Common
@@ -26,9 +27,10 @@ namespace Test.ADAL.Common
         static string[] errorObjectIDs = new string[] { "cta_error_message_text", "cta_client_error_text", "errorDetails", "login_no_cookie_error_text", "cannot_locate_resource", "service_exception_message", "errorMessage" };
 
         static string[] expandLinkIDs = new string[] { "switch_user_link" };
-        static string[] usernameIDs = new string[] { "cred_userid_inputtext", "txtBoxMobileEmail", "txtBoxEmail", "userNameInput" };
-        static string[] passwordIDs = new string[] { "cred_password_inputtext", "txtBoxMobilePassword", "txtBoxPassword", "passwordInput" };
-        static string[] signInIDs = new string[] { "cred_sign_in_button", "btnSignInMobile", "btnSignin", "submitButton" };
+        static string[] usernameIDs = new string[] { "cred-userid-inputtext", "cred_userid_inputtext", "txtBoxMobileEmail", "txtBoxEmail", "userNameInput" };
+        static string[] passwordIDs = new string[] { "cred-password-inputtext", "cred_password_inputtext", "txtBoxMobilePassword", "txtBoxPassword", "passwordInput" };
+        static string[] signInIDs = new string[] { "submit-button", "cred_sign_in_button", "btnSignInMobile", "btnSignin", "submitButton" };
+        private static string[] consentIDs = new[] { "cred_accept_button" };
 
         public enum Results
         {
@@ -74,6 +76,13 @@ namespace Test.ADAL.Common
                     uid.SetValue(login);
 
                 button.MakeClick();
+            }
+
+            Thread.Sleep(3000);
+            HtmlElement consentButton = webBrowser.GetFirstOf(UISupplier.consentIDs);
+            if (consentButton != null)
+            {
+                consentButton.MakeClick();
             }
 
             return Results.Continue;

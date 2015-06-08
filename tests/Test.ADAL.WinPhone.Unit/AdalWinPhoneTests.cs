@@ -16,12 +16,9 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using System;
 using System.Threading.Tasks;
-
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-
 using Test.ADAL.Common;
 using Test.ADAL.WinRT.Unit;
 
@@ -159,7 +156,7 @@ namespace Test.ADAL.WinPhone.Unit
         [TestCategory("AdalWinPhoneMock")]
         [DataRow("AAD")]
         [DataRow("ADFS")]
-        [Ignore]    // Enable once the test bug is fixed.
+        [Ignore] // Enable once the test bug is fixed.
         public async Task AcquireTokenPositiveWithNullCacheTest(string stsType)
         {
             await AdalTests.AcquireTokenPositiveWithNullCacheTestAsync(SetupStsService(GetStsType(stsType)));
@@ -209,12 +206,13 @@ namespace Test.ADAL.WinPhone.Unit
             PlatformPlugin.HttpClientFactory = new ReplayerHttpClientFactory();
         }
 
-        class TestPlatformInformation : PlatformInformation
+        private class TestPlatformInformation : PlatformInformation
         {
-            public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
+            public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters,
+                DictionaryRequestParameters authorizationRequestParameters)
             {
                 // Do not add prompt=login to the query to be able to use the mock dictionary created by Test.ADAL.NET.
-            }            
+            }
         }
     }
 }

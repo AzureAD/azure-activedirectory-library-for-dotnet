@@ -30,22 +30,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal static AdalEventSource AdalEventSource { get; private set; }
 
-        internal override void Error(CallState callState, Exception ex, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+        internal override void Error(CallState callState, Exception ex,
+            [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
             AdalEventSource.Error(PrepareLogMessage(callState, GetCallerFilename(callerFilePath), ex.ToString()));
         }
 
-        internal override void Verbose(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+        internal override void Verbose(CallState callState, string message,
+            [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
             AdalEventSource.Verbose(PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message));
         }
 
-        internal override void Information(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+        internal override void Information(CallState callState, string message,
+            [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
             AdalEventSource.Information(PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message));
         }
 
-        internal override void Warning(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
+        internal override void Warning(CallState callState, string message,
+            [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
             AdalEventSource.Warning(PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message));
         }
@@ -58,7 +62,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal static string PrepareLogMessage(CallState callState, string classOrComponent, string message)
         {
             string correlationId = (callState != null) ? callState.CorrelationId.ToString() : string.Empty;
-            return string.Format(CultureInfo.CurrentCulture, "{0}: {1} - {2}: {3}", DateTime.UtcNow, correlationId, classOrComponent, message);
+            return string.Format(CultureInfo.CurrentCulture, "{0}: {1} - {2}: {3}", DateTime.UtcNow, correlationId,
+                classOrComponent, message);
         }
     }
 }

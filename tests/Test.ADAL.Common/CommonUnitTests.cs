@@ -16,8 +16,6 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using System;
-
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common

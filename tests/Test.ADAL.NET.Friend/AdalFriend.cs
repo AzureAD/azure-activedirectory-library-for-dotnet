@@ -34,9 +34,9 @@ namespace Test.ADAL.NET.Friend
             return jwtToken.Sign(certificate);
         }
 
-        public async static Task<string> AcquireAccessCodeAsync(AuthenticationContext context, string resource, string clientId, Uri redirectUri, UserIdentifier userId)
+        public async static Task<string> AcquireAccessCodeAsync(AuthenticationContext context, string[] scope, string[] additionalScope, string clientId, Uri redirectUri, UserIdentifier userId)
         {
-            var handler = new AcquireTokenInteractiveHandler(context.Authenticator, context.TokenCache, resource, clientId, redirectUri, new PlatformParameters(PromptBehavior.Auto, null), userId, null,
+            var handler = new AcquireTokenInteractiveHandler(context.Authenticator, context.TokenCache, scope, additionalScope, clientId, redirectUri, new PlatformParameters(PromptBehavior.Auto, null), userId, null,
                 context.CreateWebAuthenticationDialog(new PlatformParameters(PromptBehavior.Auto, null)));
             handler.CallState = null;
             context.Authenticator.AuthorizationUri = context.Authority + "oauth2/authorize";

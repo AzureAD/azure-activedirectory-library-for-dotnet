@@ -20,11 +20,10 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Net;
 using System.Threading.Tasks;
-using Windows.Storage;
+using Windows.Security.Authentication.Web;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Test.ADAL.Common;
-using Windows.Security.Authentication.Web;
 
 namespace Test.ADAL.WinRT.Unit
 {
@@ -46,7 +45,7 @@ namespace Test.ADAL.WinRT.Unit
         {
             CommonUnitTests.AdalIdTest();
         }
-        
+
         [TestMethod]
         [TestCategory("AdalWinRTUnit")]
         public void AdalTraceTest()
@@ -68,15 +67,19 @@ namespace Test.ADAL.WinRT.Unit
         {
             Sts sts = new AadSts();
             AuthenticationContextProxy context = new AuthenticationContextProxy(sts.Authority);
-            AuthenticationResultProxy result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId,
-                new Uri("ms-app://s-1-15-2-2097830667-3131301884-2920402518-3338703368-1480782779-4157212157-3811015497/"), 
+            AuthenticationResultProxy result = await context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId,
+                new Uri(
+                    "ms-app://s-1-15-2-2097830667-3131301884-2920402518-3338703368-1480782779-4157212157-3811015497/"),
                 new PlatformParameters(PromptBehavior.Auto, false));
 
             Verify.IsNotNullOrEmptyString(result.Error);
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);
 
             Uri uri = WebAuthenticationBroker.GetCurrentApplicationCallbackUri();
-            result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, uri, new PlatformParameters(PromptBehavior.Auto, false));
+            result =
+                await
+                    context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, uri,
+                        new PlatformParameters(PromptBehavior.Auto, false));
 
             Verify.IsNotNullOrEmptyString(result.Error);
             Verify.AreEqual(result.Error, Sts.AuthenticationUiFailedError);
@@ -84,35 +87,45 @@ namespace Test.ADAL.WinRT.Unit
 
         [TestMethod]
         [TestCategory("AdalWinRTUnit")]
-        [Ignore]    // This test requires TestService to run in a non-WinRT app. The code can be found in tests\Test.ADAL.NET.Unit\UnitTests.cs
+        [Ignore]
+        // This test requires TestService to run in a non-WinRT app. The code can be found in tests\Test.ADAL.NET.Unit\UnitTests.cs
         public async Task TimeoutTest()
         {
             const string TestServiceUrl = "http://localhost:8080";
-            HttpClientWrapper webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=0&response_code=200", null) { TimeoutInMilliSeconds = 10000 };
+            HttpClientWrapper webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=0&response_code=200", null)
+            {
+                TimeoutInMilliSeconds = 10000
+            };
             await webRequest.GetResponseAsync();
 
             try
             {
-                webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=0&response_code=400", null) { TimeoutInMilliSeconds = 10000 };
+                webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=0&response_code=400", null)
+                {
+                    TimeoutInMilliSeconds = 10000
+                };
                 await webRequest.GetResponseAsync();
             }
             catch (WebException ex)
             {
-                Verify.AreEqual((int)(ex.Status), 7);   // ProtocolError
+                Verify.AreEqual((int) (ex.Status), 7); // ProtocolError
             }
 
             try
             {
-                webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=10000&response_code=200", null) { TimeoutInMilliSeconds = 500 };
+                webRequest = new HttpClientWrapper(TestServiceUrl + "?delay=10000&response_code=200", null)
+                {
+                    TimeoutInMilliSeconds = 500
+                };
                 await webRequest.GetResponseAsync();
             }
             catch (WebException ex)
             {
-                Verify.AreEqual((int)(ex.Status), 6);   // RequestCanceled
+                Verify.AreEqual((int) (ex.Status), 6); // RequestCanceled
             }
         }
 
-        class SampleEventListener : EventListener
+        private class SampleEventListener : EventListener
         {
             public string TraceBuffer { get; set; }
 

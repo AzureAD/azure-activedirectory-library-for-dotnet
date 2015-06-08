@@ -17,7 +17,6 @@
 //----------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Threading;
@@ -42,13 +41,15 @@ namespace Test.ADAL.Common
 
     internal partial class AuthenticationContextProxy
     {
+        public delegate void UiSupplyDelegate(WindowsFormsWebAuthenticationDialog dialog);
+
         private const string NotSpecified = "NotSpecified";
-
-        private readonly UserIdentifier NotSpecifiedUserId = new UserIdentifier(NotSpecified, UserIdentifierType.UniqueId);
-
         private static string userName;
         private static string password;
         private static SecureString securePassword;
+
+        private readonly UserIdentifier NotSpecifiedUserId = new UserIdentifier(NotSpecified,
+            UserIdentifierType.UniqueId);
 
         public AuthenticationContextProxy(string authority)
         {
@@ -102,7 +103,6 @@ namespace Test.ADAL.Common
             securePassword = passwordIn;
         }
 
-
         public static SecureString convertToSecureString(string strPassword)
         {
             var secureStr = new SecureString();
@@ -126,19 +126,30 @@ namespace Test.ADAL.Common
             this.context.CorrelationId = correlationId;
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser, null);
+            return
+                await
+                    RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters,
+                        UserIdentifier.AnyUser, null);
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, userId, null);
+            return
+                await RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters, userId, null);
         }
 
-        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
+        public async Task<AuthenticationResultProxy> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId,
+            string extraQueryParameters)
         {
-            return await RunTaskInteractiveAsync(resource, clientId, redirectUri, parameters, userId, extraQueryParameters);
+            return
+                await
+                    RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, parameters, userId,
+                        extraQueryParameters);
         }
 
         private async Task<AuthenticationResultProxy> RunTaskAsync(Task<AuthenticationResult> task)
@@ -152,13 +163,15 @@ namespace Test.ADAL.Common
             }
             catch (Exception ex)
             {
-                resultProxy = GetAuthenticationResultProxy(ex);            
+                resultProxy = GetAuthenticationResultProxy(ex);
             }
 
             return resultProxy;
         }
 
-        private async Task<AuthenticationResultProxy> RunTaskInteractiveAsync(string resource, string clientId, Uri redirectUri, IPlatformParameters authorizationParameters, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
+        private async Task<AuthenticationResultProxy> RunTaskInteractiveAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters authorizationParameters, UserIdentifier userId,
+            string extraQueryParameters, int retryCount = 0)
         {
             AuthenticationResultProxy resultProxy;
             bool exceptionOccured = false;
@@ -168,7 +181,7 @@ namespace Test.ADAL.Common
             try
             {
                 AuthenticationResult result = null;
-                using (Timer abortTest = new Timer(10 * 1000)) // 10 seconds for test execution
+                using (Timer abortTest = new Timer(10*1000)) // 10 seconds for test execution
                 {
                     using (Timer uiSupply = new Timer(1500))
                     {
@@ -182,19 +195,29 @@ namespace Test.ADAL.Common
                         uiSupply.Start();
                         abortTest.Start();
 
-                        if (userId != null && !ReferenceEquals(userId, UserIdentifier.AnyUser) && userId.Id == NotSpecified)
+                        if (userId != null && !ReferenceEquals(userId, UserIdentifier.AnyUser) &&
+                            userId.Id == NotSpecified)
                         {
-                            result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null));
+                            result =
+                                await
+                                    context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri,
+                                        new PlatformParameters(promptBehavior, null));
                         }
                         else
                         {
                             if (extraQueryParameters == NotSpecified)
                             {
-                                result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId);
+                                result =
+                                    await
+                                        context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri,
+                                            new PlatformParameters(promptBehavior, null), userId);
                             }
                             else
                             {
-                                result = await context.AcquireTokenAsync(resource, clientId, redirectUri, new PlatformParameters(promptBehavior, null), userId, extraQueryParameters);
+                                result =
+                                    await
+                                        context.AcquireTokenAsync(scope, additionalScope, clientId, redirectUri,
+                                            new PlatformParameters(promptBehavior, null), userId, extraQueryParameters);
                             }
                         }
 
@@ -218,20 +241,24 @@ namespace Test.ADAL.Common
 
             if (exceptionOccured)
             {
-                return await RunTaskInteractiveAsync(resource, clientId, redirectUri, authorizationParameters, userId, extraQueryParameters, retryCount + 1);                
+                return
+                    await
+                        RunTaskInteractiveAsync(scope, additionalScope, clientId, redirectUri, authorizationParameters,
+                            userId, extraQueryParameters, retryCount + 1);
             }
 
             return resultProxy;
         }
 
-        private async Task<AuthenticationResultProxy> AcquireAccessCodeAsync(string resource, string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
+        private async Task<AuthenticationResultProxy> AcquireAccessCodeAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
         {
             AuthenticationResultProxy resultProxy;
             bool exceptionOccured = false;
 
             try
             {
-                using (Timer abortTest = new Timer(10 * 1000)) // 10 seconds for test execution
+                using (Timer abortTest = new Timer(10*1000)) // 10 seconds for test execution
                 {
                     using (Timer uiSupply = new Timer(1500))
                     {
@@ -245,9 +272,10 @@ namespace Test.ADAL.Common
                         uiSupply.Start();
                         abortTest.Start();
 
-                        string authorizationCode = await AdalFriend.AcquireAccessCodeAsync(this.context, resource, clientId,
-                            redirectUri, userId);
-                        return new AuthenticationResultProxy() { AccessToken = authorizationCode };
+                        string authorizationCode =
+                            await AdalFriend.AcquireAccessCodeAsync(this.context, scope, additionalScope, clientId,
+                                redirectUri, userId);
+                        return new AuthenticationResultProxy() {Token = authorizationCode};
                     }
                 }
             }
@@ -264,19 +292,22 @@ namespace Test.ADAL.Common
 
             if (exceptionOccured)
             {
-                return await AcquireAccessCodeAsync(resource, clientId, redirectUri, userId, extraQueryParameters, retryCount + 1);
+                return
+                    await
+                        AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId,
+                            extraQueryParameters, retryCount + 1);
             }
 
             return resultProxy;
         }
 
-        public async Task<string> AcquireAccessCodeAsync(string resource, string clientId, Uri redirectUri, UserIdentifier userId)
+        public async Task<string> AcquireAccessCodeAsync(string[] scope, string[] additionalScope, string clientId,
+            Uri redirectUri, UserIdentifier userId)
         {
-            AuthenticationResultProxy result = await AcquireAccessCodeAsync(resource, clientId, redirectUri, userId, null);
-            return result.AccessToken;
+            AuthenticationResultProxy result =
+                await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId, null);
+            return result.Token;
         }
-
-        public delegate void UiSupplyDelegate(WindowsFormsWebAuthenticationDialog dialog);
 
         private void UiSupplyEventHandler(object sender, ElapsedEventArgs e)
         {
@@ -288,7 +319,7 @@ namespace Test.ADAL.Common
         {
             if (webAuthenticationDialog != null)
             {
-                WebBrowser webBrowser = ((WindowsFormsWebAuthenticationDialog)webAuthenticationDialog).WebBrowser;
+                WebBrowser webBrowser = ((WindowsFormsWebAuthenticationDialog) webAuthenticationDialog).WebBrowser;
                 DialogHandler handler = new DialogHandler();
                 handler.EnterInput(userName, password);
 
@@ -296,7 +327,7 @@ namespace Test.ADAL.Common
                 UISupplier.Results result = supplier.SupplyUIStep(webBrowser, userName, password);
                 if (result == UISupplier.Results.Error)
                 {
-                    ((Form)webBrowser.Parent.Parent).Close();
+                    ((Form) webBrowser.Parent.Parent).Close();
                 }
             }
         }
@@ -307,7 +338,7 @@ namespace Test.ADAL.Common
             WindowsFormsWebAuthenticationDialog webAuthenticationDialog = this.GetWebAuthenticationDialog(1000);
             if (webAuthenticationDialog != null)
             {
-                ((Form)(webAuthenticationDialog).WebBrowser.Parent.Parent).Close();
+                ((Form) (webAuthenticationDialog).WebBrowser.Parent.Parent).Close();
             }
 
             uiSupply.Stop();
@@ -321,7 +352,8 @@ namespace Test.ADAL.Common
             {
                 try
                 {
-                    webAuthenticationDialog = Enumerable.OfType<WindowsFormsWebAuthenticationDialog>(Application.OpenForms).Single();
+                    webAuthenticationDialog =
+                        Enumerable.OfType<WindowsFormsWebAuthenticationDialog>(Application.OpenForms).Single();
                 }
                 catch (InvalidOperationException)
                 {
@@ -333,8 +365,7 @@ namespace Test.ADAL.Common
                     Thread.Sleep(EachWaitMilliseconds);
                     totalWaitMilliseconds -= EachWaitMilliseconds;
                 }
-            }
-            while (totalWaitMilliseconds > 0 && webAuthenticationDialog == null);
+            } while (totalWaitMilliseconds > 0 && webAuthenticationDialog == null);
 
             return webAuthenticationDialog;
         }

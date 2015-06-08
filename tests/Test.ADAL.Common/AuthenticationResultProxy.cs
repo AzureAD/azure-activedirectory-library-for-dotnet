@@ -52,13 +52,13 @@ namespace Test.ADAL.Common
     internal class AuthenticationResultProxy
     {
         [DataMember]
-        public string AccessTokenType { get; set; }
+        public string TokenType { get; set; }
 
         [DataMember]
-        public string AccessToken { get; set; }
+        public string Token { get; set; }
 
         [DataMember]
-        public string IdToken { get; set; }
+        public string ProfileInfo { get; set; }
 
         [DataMember]
         public DateTimeOffset ExpiresOn { get; set; }
@@ -85,19 +85,17 @@ namespace Test.ADAL.Common
         public string AuthenticationParametersResource { get; internal set; }
 
         public Exception Exception { get; set; }
-
         public int ExceptionStatusCode { get; set; }
-
         public string[] ExceptionServiceErrorCodes { get; set; }
 
         internal static AuthenticationResultProxy Deserialize(string obj)
         {
             AuthenticationResultProxy output = null;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultProxy));
+            var serializer = new DataContractJsonSerializer(typeof (AuthenticationResultProxy));
             byte[] serializedObjectBytes = Encoding.UTF8.GetBytes(obj);
             using (var stream = new MemoryStream(serializedObjectBytes))
             {
-                output = (AuthenticationResultProxy)serializer.ReadObject(stream);
+                output = (AuthenticationResultProxy) serializer.ReadObject(stream);
             }
 
             return output;
@@ -106,7 +104,7 @@ namespace Test.ADAL.Common
         internal string Serialize()
         {
             string output = string.Empty;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultProxy));
+            var serializer = new DataContractJsonSerializer(typeof (AuthenticationResultProxy));
             using (var stream = new MemoryStream())
             {
                 serializer.WriteObject(stream, this);

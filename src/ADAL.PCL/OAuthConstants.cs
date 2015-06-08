@@ -28,7 +28,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string ClientAssertionType = "client_assertion_type";
         public const string RefreshToken = "refresh_token";
         public const string RedirectUri = "redirect_uri";
-        public const string Resource = "resource";
         public const string Code = "code";
         public const string Scope = "scope";
         public const string Assertion = "assertion";

@@ -16,22 +16,17 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Test.ADAL.Common;
 
 namespace TestApp.PCL
 {
     public class TokenBroker
     {
-        private AuthenticationContext context;
-
-        private Sts sts;
+        private readonly AuthenticationContext context;
+        private readonly Sts sts;
 
         public TokenBroker()
         {
@@ -43,9 +38,13 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, sts.ValidNonExistingRedirectUri, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
+                var result =
+                    await
+                        context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId,
+                            sts.ValidNonExistingRedirectUri, parameters,
+                            new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
-                return result.AccessToken;
+                return result.Token;
             }
             catch (Exception ex)
             {
@@ -57,37 +56,12 @@ namespace TestApp.PCL
         {
             try
             {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, null, parameters, new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
+                var result =
+                    await
+                        context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, null, parameters,
+                            new UserIdentifier(sts.ValidUserName, UserIdentifierType.OptionalDisplayableId));
 
-                return result.AccessToken;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-        }
-
-        public async Task<string> GetTokenWithUsernamePasswordAsync()
-        {
-            try
-            {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, sts.ValidClientId, new UserCredential(sts.ValidUserName, sts.ValidPassword));
-
-                return result.AccessToken;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-        }
-
-        public async Task<string> GetTokenWithClientCredentialAsync()
-        {
-            try
-            {
-                var result = await context.AcquireTokenAsync(sts.ValidResource, new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret));
-
-                return result.AccessToken;
+                return result.Token;
             }
             catch (Exception ex)
             {

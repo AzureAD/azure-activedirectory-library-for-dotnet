@@ -23,7 +23,7 @@ using System.Runtime.Serialization.Json;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class IdTokenClaim
+    internal class ProfileInfoClaim
     {
         public const string ObjectId = "oid";
         public const string Subject = "sub";
@@ -39,58 +39,53 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     }
 
     [DataContract]
-    internal class IdToken
+    internal class ProfileInfo
     {
-        [DataMember(Name = IdTokenClaim.ObjectId, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.ObjectId, IsRequired = false)]
         public string ObjectId { get; set; }
 
-        [DataMember(Name = IdTokenClaim.Subject, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.Subject, IsRequired = false)]
         public string Subject { get; set; }
 
-        [DataMember(Name = IdTokenClaim.TenantId, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.TenantId, IsRequired = false)]
         public string TenantId { get; set; }
 
-        [DataMember(Name = IdTokenClaim.UPN, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.UPN, IsRequired = false)]
         public string UPN { get; set; }
 
-        [DataMember(Name = IdTokenClaim.GivenName, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.GivenName, IsRequired = false)]
         public string GivenName { get; set; }
 
-        [DataMember(Name = IdTokenClaim.FamilyName, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.FamilyName, IsRequired = false)]
         public string FamilyName { get; set; }
 
-        [DataMember(Name = IdTokenClaim.Email, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.Email, IsRequired = false)]
         public string Email { get; set; }
 
-        [DataMember(Name = IdTokenClaim.PasswordExpiration, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.PasswordExpiration, IsRequired = false)]
         public long PasswordExpiration { get; set; }
 
-        [DataMember(Name = IdTokenClaim.PasswordChangeUrl, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.PasswordChangeUrl, IsRequired = false)]
         public string PasswordChangeUrl { get; set; }
 
-        [DataMember(Name = IdTokenClaim.IdentityProvider, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.IdentityProvider, IsRequired = false)]
         public string IdentityProvider { get; set; }
 
-        [DataMember(Name = IdTokenClaim.Issuer, IsRequired = false)]
+        [DataMember(Name = ProfileInfoClaim.Issuer, IsRequired = false)]
         public string Issuer { get; set; }
 
-        public static IdToken Parse(string idToken)
+        public static ProfileInfo Parse(string profileInfo)
         {
-            IdToken idTokenBody = null;
-            if (!string.IsNullOrWhiteSpace(idToken))
+            ProfileInfo profileInfoBody = null;
+            if (!string.IsNullOrWhiteSpace(profileInfo))
             {
-                string[] idTokenSegments = idToken.Split(new[] { '.' });
-
-                // If Id token format is invalid, we silently ignore the id token
-                if (idTokenSegments.Length == 3)
-                {
                     try
                     {
-                        byte[] idTokenBytes = Base64UrlEncoder.DecodeBytes(idTokenSegments[1]);
-                        using (var stream = new MemoryStream(idTokenBytes))
+                        byte[] profileInfoBytes = Base64UrlEncoder.DecodeBytes(profileInfo);
+                        using (var stream = new MemoryStream(profileInfoBytes))
                         {
-                            var serializer = new DataContractJsonSerializer(typeof(IdToken));
-                            idTokenBody = (IdToken)serializer.ReadObject(stream);
+                            var serializer = new DataContractJsonSerializer(typeof(ProfileInfo));
+                            profileInfoBody = (ProfileInfo)serializer.ReadObject(stream);
                         }
                     }
                     catch (SerializationException)
@@ -101,10 +96,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         // Again, we silently ignore the id token if exception occurs.   
                     }
-                }
             }
 
-            return idTokenBody;
+            return profileInfoBody;
         }
     }
 }

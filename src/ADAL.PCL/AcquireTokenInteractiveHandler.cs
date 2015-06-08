@@ -18,28 +18,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class AcquireTokenInteractiveHandler : AcquireTokenHandlerBase
     {
+        private readonly string[] additionalScope;
+        private readonly IPlatformParameters authorizationParameters;
+        private readonly string extraQueryParameters;
+        private readonly Uri redirectUri;
+        private readonly string redirectUriRequestParameter;
+        private readonly UserIdentifier userId;
+        private readonly IWebUI webUi;
         internal AuthorizationResult authorizationResult;
 
-        private readonly Uri redirectUri;
-
-        private readonly string redirectUriRequestParameter;
-
-        private readonly IPlatformParameters authorizationParameters;
-
-        private readonly string extraQueryParameters;
-
-        private readonly IWebUI webUi;
-
-        private readonly UserIdentifier userId;
-
-        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters, IWebUI webUI)
-            : base(authenticator, tokenCache, resource, new ClientKey(clientId), TokenSubjectType.User)
+        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope,
+            string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters,
+            UserIdentifier userId, string extraQueryParameters, IWebUI webUI)
+            : base(authenticator, tokenCache, scope, new ClientKey(clientId), TokenSubjectType.User)
         {
             this.redirectUri = PlatformPlugin.PlatformInformation.ValidateRedirectUri(redirectUri, this.CallState);
 
@@ -49,32 +47,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationParameters = parameters;
+            if (!AdalStringHelper.IsNullOrEmpty(additionalScope))
+            {
+                this.additionalScope = additionalScope;
+            }
+            else
+            {
+                this.additionalScope = new string[] {};
+            }
 
-            this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
-
+            ValidateScopeInput(scope.Union(this.additionalScope).ToArray());
+            this.redirectUriRequestParameter =
+                PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
             if (userId == null)
             {
                 throw new ArgumentNullException("userId", AdalErrorMessage.SpecifyAnyUser);
             }
 
             this.userId = userId;
-
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
             {
                 extraQueryParameters = extraQueryParameters.Substring(1);
             }
 
             this.extraQueryParameters = extraQueryParameters;
-
             this.webUi = webUI;
-
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
-
-            this.LoadFromCache = (tokenCache != null && parameters != null && PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
-
-            this.SupportADFS = true;
+            this.LoadFromCache = (tokenCache != null && parameters != null &&
+                                  PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
+            this.SupportADFS = false;
         }
 
         protected override async Task PreTokenRequest()
@@ -89,7 +92,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal async Task AcquireAuthorizationAsync()
         {
             Uri authorizationUri = this.CreateAuthorizationUri();
-            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, this.CallState);
+            this.authorizationResult =
+                await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, this.CallState);
         }
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)
@@ -98,6 +102,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             await this.Authenticator.UpdateFromTemplateAsync(this.CallState);
             return this.CreateAuthorizationUri();
         }
+
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
@@ -108,20 +113,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected override void PostTokenRequest(AuthenticationResultEx resultEx)
         {
             base.PostTokenRequest(resultEx);
-            if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
+            if ((this.DisplayableId == null && this.UniqueId == null) ||
+                this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
             {
                 return;
             }
 
-            string uniqueId = (resultEx.Result.UserInfo != null && resultEx.Result.UserInfo.UniqueId != null) ? resultEx.Result.UserInfo.UniqueId : "NULL";
+            string uniqueId = (resultEx.Result.UserInfo != null && resultEx.Result.UserInfo.UniqueId != null)
+                ? resultEx.Result.UserInfo.UniqueId
+                : "NULL";
             string displayableId = (resultEx.Result.UserInfo != null) ? resultEx.Result.UserInfo.DisplayableId : "NULL";
 
-            if (this.UserIdentifierType == UserIdentifierType.UniqueId && string.Compare(uniqueId, this.UniqueId, StringComparison.Ordinal) != 0)
+            if (this.UserIdentifierType == UserIdentifierType.UniqueId &&
+                string.Compare(uniqueId, this.UniqueId, StringComparison.Ordinal) != 0)
             {
                 throw new AdalUserMismatchException(this.UniqueId, uniqueId);
             }
 
-            if (this.UserIdentifierType == UserIdentifierType.RequiredDisplayableId && string.Compare(displayableId, this.DisplayableId, StringComparison.OrdinalIgnoreCase) != 0)
+            if (this.UserIdentifierType == UserIdentifierType.RequiredDisplayableId &&
+                string.Compare(displayableId, this.DisplayableId, StringComparison.OrdinalIgnoreCase) != 0)
             {
                 throw new AdalUserMismatchException(this.DisplayableId, displayableId);
             }
@@ -139,15 +149,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             IRequestParameters requestParameters = this.CreateAuthorizationRequest(loginHint);
-
-            return  new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
+            return new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
         }
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            var authorizationRequestParameters =
+                new DictionaryRequestParameters(this.GetDecoratedScope(Scope.Union(this.additionalScope).ToArray()),
+                    this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
-
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
 
             if (!string.IsNullOrWhiteSpace(loginHint))
@@ -162,7 +172,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (this.authorizationParameters != null)
             {
-                PlatformPlugin.PlatformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
+                PlatformPlugin.PlatformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters,
+                    authorizationRequestParameters);
             }
 
             if (PlatformPlugin.HttpClientFactory.AddAdditionalHeaders)
@@ -177,12 +188,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (!string.IsNullOrWhiteSpace(extraQueryParameters))
             {
                 // Checks for extraQueryParameters duplicating standard parameters
-                Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(extraQueryParameters, '&', false, this.CallState);
+                Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(extraQueryParameters, '&', false,
+                    this.CallState);
                 foreach (KeyValuePair<string, string> kvp in kvps)
                 {
                     if (authorizationRequestParameters.ContainsKey(kvp.Key))
                     {
-                        throw new AdalException(AdalError.DuplicateQueryParameter, string.Format(AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
+                        throw new AdalException(AdalError.DuplicateQueryParameter,
+                            string.Format(AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
                     }
                 }
 

@@ -26,8 +26,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private readonly Uri redirectUri;
 
-        public AcquireTokenByAuthorizationCodeHandler(Authenticator authenticator, TokenCache tokenCache, string resource, ClientKey clientKey, string authorizationCode, Uri redirectUri)
-            : base(authenticator, tokenCache, resource ?? NullResource, clientKey, TokenSubjectType.UserPlusClient)
+        public AcquireTokenByAuthorizationCodeHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope, ClientKey clientKey, string authorizationCode, Uri redirectUri)
+            : base(authenticator, tokenCache, scope, clientKey, TokenSubjectType.UserPlusClient)
         {
             if (string.IsNullOrWhiteSpace(authorizationCode))
             {
@@ -35,17 +35,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationCode = authorizationCode;
-
             if (redirectUri == null)
             {
                 throw new ArgumentNullException("redirectUri");
             }
 
             this.redirectUri = redirectUri;
-
             this.LoadFromCache = false;
-
-            this.SupportADFS = true;
+            this.SupportADFS = false;
         }
 
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
@@ -61,16 +58,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             UserInfo userInfo = resultEx.Result.UserInfo;
             this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
             this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;
-            if (resultEx.ResourceInResponse != null)
+            if (!AdalStringHelper.IsNullOrEmpty(resultEx.ScopeInResponse))
             {
-                this.Resource = resultEx.ResourceInResponse;
+                this.Scope = resultEx.ScopeInResponse;
                 PlatformPlugin.Logger.Verbose(this.CallState, "Resource value in the token response was used for storing tokens in the cache");
             }
 
             // If resource is not passed as an argument and is not returned by STS either, 
             // we cannot store the token in the cache with null resource.
             // TODO: Store refresh token though if STS supports MRRT.
-            this.StoreToCache = this.StoreToCache && (this.Resource != null);
+            this.StoreToCache = this.StoreToCache && (!AdalStringHelper.IsNullOrEmpty(this.Scope));
         }
     }
 }

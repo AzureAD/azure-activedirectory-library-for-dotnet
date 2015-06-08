@@ -28,7 +28,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         public Guid CorrelationId { get; set; }
-
         public AuthorityType AuthorityType { get; internal set; }
     }
 }

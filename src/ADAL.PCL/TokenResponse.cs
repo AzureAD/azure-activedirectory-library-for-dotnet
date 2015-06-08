@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
@@ -30,8 +31,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string TokenType = "token_type";
         public const string AccessToken = "access_token";
         public const string RefreshToken = "refresh_token";
-        public const string Resource = "resource";
+        public const string Scope = "scope";
         public const string IdToken = "id_token";
+        public const string ProfileInfo = "profile_info";
         public const string CreatedOn = "created_on";
         public const string ExpiresOn = "expires_on";
         public const string ExpiresIn = "expires_in";
@@ -54,8 +56,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = TokenResponseClaim.RefreshToken, IsRequired = false)]
         public string RefreshToken { get; set; }
 
-        [DataMember(Name = TokenResponseClaim.Resource, IsRequired = false)]
-        public string Resource { get; set; }
+        [DataMember(Name = TokenResponseClaim.Scope, IsRequired = false)]
+        public string Scope { get; set; }
+
+        [DataMember(Name = TokenResponseClaim.ProfileInfo, IsRequired = false)]
+        public string ProfileInfoString { get; set; }
 
         [DataMember(Name = TokenResponseClaim.IdToken, IsRequired = false)]
         public string IdTokenString { get; set; }
@@ -107,8 +112,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(TokenResponse));
-                tokenResponse = ((TokenResponse)serializer.ReadObject(responseStream));
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (TokenResponse));
+                tokenResponse = ((TokenResponse) serializer.ReadObject(responseStream));
 
                 // Reset stream position to make it possible for application to read HttpRequestException body again
                 responseStream.Position = 0;
@@ -118,9 +123,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 responseStream.Position = 0;
                 tokenResponse = new TokenResponse
                 {
-                    Error = (webResponse.StatusCode == HttpStatusCode.ServiceUnavailable) ?
-                        AdalError.ServiceUnavailable :
-                        AdalError.Unknown,
+                    Error = (webResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+                        ? AdalError.ServiceUnavailable
+                        : AdalError.Unknown,
                     ErrorDescription = ReadStreamContent(responseStream)
                 };
             }
@@ -128,67 +133,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return tokenResponse;
         }
 
-        public AuthenticationResultEx GetResult()
+        public List<AuthenticationResultEx> GetResults()
         {
-            AuthenticationResultEx resultEx;
+            List<AuthenticationResultEx> results = new List<AuthenticationResultEx>();
 
-            if (this.AccessToken != null)
+            if (this.AccessToken != null || this.IdTokenString != null)
             {
-                DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
-
-                var result = new AuthenticationResult(this.TokenType, this.AccessToken, expiresOn);
-
-                IdToken idToken = IdToken.Parse(this.IdTokenString);
-                if (idToken != null)
+                if (!string.IsNullOrEmpty(this.AccessToken))
                 {
-                    string tenantId = idToken.TenantId;
-                    string uniqueId = null;
-                    string displayableId = null;
-
-                    if (!string.IsNullOrWhiteSpace(idToken.ObjectId))
-                    {
-                        uniqueId = idToken.ObjectId;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Subject))
-                    {
-                        uniqueId = idToken.Subject;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(idToken.UPN))
-                    {
-                        displayableId = idToken.UPN;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Email))
-                    {
-                        displayableId = idToken.Email;
-                    }
-
-                    string givenName = idToken.GivenName;
-                    string familyName = idToken.FamilyName;
-                    string identityProvider = idToken.IdentityProvider ?? idToken.Issuer;
-                    DateTimeOffset? passwordExpiresOffest = null;
-                    if (idToken.PasswordExpiration > 0)
-                    {
-                        passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(idToken.PasswordExpiration);
-                    }
-
-                    Uri changePasswordUri = null;
-                    if (!string.IsNullOrEmpty(idToken.PasswordChangeUrl))
-                    {
-                        changePasswordUri = new Uri(idToken.PasswordChangeUrl);
-                    }
-
-                    result.UpdateTenantAndUserInfo(tenantId, this.IdTokenString, new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId, GivenName = givenName, FamilyName = familyName, IdentityProvider = identityProvider, PasswordExpiresOn = passwordExpiresOffest, PasswordChangeUrl = changePasswordUri });
+                    results.Add(this.GetResult(this.AccessToken, this.Scope));
                 }
 
-                resultEx = new AuthenticationResultEx
+                if (!string.IsNullOrEmpty(this.IdTokenString))
                 {
-                    Result = result,
-                    RefreshToken = this.RefreshToken,
-                    // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
-                    // to get it from the STS response.
-                    ResourceInResponse = this.Resource                    
-                };
+                    results.Add(this.GetResult(this.IdTokenString, "openid"));
+                }
             }
             else if (this.Error != null)
             {
@@ -199,7 +158,75 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new AdalServiceException(AdalError.Unknown, AdalErrorMessage.Unknown);
             }
 
-            return resultEx;
+            return results;
+        }
+
+        private AuthenticationResultEx GetResult(string token, string scope)
+        {
+            DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
+            var result = new AuthenticationResult(this.TokenType, token, expiresOn);
+
+            ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
+            if (profileInfo != null)
+            {
+                string tenantId = profileInfo.TenantId;
+                string uniqueId = null;
+                string displayableId = null;
+
+                if (!string.IsNullOrWhiteSpace(profileInfo.ObjectId))
+                {
+                    uniqueId = profileInfo.ObjectId;
+                }
+                else if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
+                {
+                    uniqueId = profileInfo.Subject;
+                }
+
+                if (!string.IsNullOrWhiteSpace(profileInfo.UPN))
+                {
+                    displayableId = profileInfo.UPN;
+                }
+                else if (!string.IsNullOrWhiteSpace(profileInfo.Email))
+                {
+                    displayableId = profileInfo.Email;
+                }
+
+                string givenName = profileInfo.GivenName;
+                string familyName = profileInfo.FamilyName;
+                string identityProvider = profileInfo.IdentityProvider ?? profileInfo.Issuer;
+                DateTimeOffset? passwordExpiresOffest = null;
+                if (profileInfo.PasswordExpiration > 0)
+                {
+                    passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(profileInfo.PasswordExpiration);
+                }
+
+                Uri changePasswordUri = null;
+                if (!string.IsNullOrEmpty(profileInfo.PasswordChangeUrl))
+                {
+                    changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
+                }
+
+                result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString,
+                    new UserInfo
+                    {
+                        UniqueId = uniqueId,
+                        DisplayableId = displayableId,
+                        GivenName = givenName,
+                        FamilyName = familyName,
+                        IdentityProvider = identityProvider,
+                        PasswordExpiresOn = passwordExpiresOffest,
+                        PasswordChangeUrl = changePasswordUri
+                    });
+            }
+
+            return new AuthenticationResultEx
+            {
+                Result = result,
+                RefreshToken = this.RefreshToken,
+                // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
+                // to get it from the STS response.
+                ScopeInResponse = AdalStringHelper.CreateArrayFromSingleString(scope)
+            };
         }
 
         private static string ReadStreamContent(Stream stream)
@@ -210,5 +237,4 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
     }
-
 }

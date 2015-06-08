@@ -46,13 +46,6 @@ namespace AdalUniversalTestApp
             this.AccessToken.Text = token;
         }
 
-        private async void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            this.AccessToken.Text = string.Empty;
-            string token = await tokenBroker.GetTokenWithUsernamePasswordAsync();
-            this.AccessToken.Text = token;
-        }
-
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             this.AccessToken.Text = string.Empty;
@@ -60,11 +53,5 @@ namespace AdalUniversalTestApp
             this.AccessToken.Text = token;
         }
 
-        private async void Button_Click_3(object sender, RoutedEventArgs e)
-        {
-            this.AccessToken.Text = string.Empty;
-            string token = await tokenBroker.GetTokenWithClientCredentialAsync();
-            this.AccessToken.Text = token;
-        }
     }
 }

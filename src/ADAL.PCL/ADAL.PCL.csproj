@@ -63,6 +63,7 @@
     <Compile Include="AcquireTokenSilentHandler.cs" />
     <Compile Include="AdalException.cs" />
     <Compile Include="AdalIdHelper.cs" />
+    <Compile Include="AdalStringHelper.cs" />
     <Compile Include="AdalServiceException.cs" />
     <Compile Include="AdalSilentTokenAcquisitionException.cs" />
     <Compile Include="AdalUserMismatchException.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="HttpWebResponseWrapper.cs" />
     <Compile Include="IPlatformParameters.cs" />
     <Compile Include="ICryptographyHelper.cs" />
-    <Compile Include="IdToken.cs" />
+    <Compile Include="ProfileInfo.cs" />
     <Compile Include="IHttpClient.cs" />
     <Compile Include="IHttpClientFactory.cs" />
     <Compile Include="IHttpWebResponse.cs" />
