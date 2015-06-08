@@ -115,7 +115,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             const string Delimiter = ":::";
             return (this.Authority + Delimiter 
-                + ADALScopeHelper.CreateSingleStringFromArray(this.Scope).ToLower() + Delimiter
+                + AdalStringHelper.CreateSingleStringFromArray(this.Scope).ToLower() + Delimiter
                 + this.ClientId.ToLower() + Delimiter
                 + this.UniqueId + Delimiter
                 + ((this.DisplayableId != null) ? this.DisplayableId.ToLower() : null) + Delimiter
@@ -124,8 +124,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool ScopeContains(string[] otherScope)
         {
-            ISet<string> self = ADALScopeHelper.CreateSetFromArray(this.Scope);
-            ISet<string> other = ADALScopeHelper.CreateSetFromArray(otherScope);
+            ISet<string> self = AdalStringHelper.CreateSetFromArray(this.Scope);
+            ISet<string> other = AdalStringHelper.CreateSetFromArray(otherScope);
 
             foreach (string otherString in other)
             {
@@ -140,8 +140,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool ScopeEquals(string[] otherScope)
         {
-            ISet<string> self = ADALScopeHelper.CreateSetFromArray(this.Scope);
-            ISet<string> other = ADALScopeHelper.CreateSetFromArray(otherScope);
+            ISet<string> self = AdalStringHelper.CreateSetFromArray(this.Scope);
+            ISet<string> other = AdalStringHelper.CreateSetFromArray(otherScope);
 
             if (self.Count == other.Count)
             {

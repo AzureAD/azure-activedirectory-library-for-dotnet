@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             UserInfo userInfo = resultEx.Result.UserInfo;
             this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
             this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;
-            if (!ADALScopeHelper.IsNullOrEmpty(resultEx.ScopeInResponse))
+            if (!AdalStringHelper.IsNullOrEmpty(resultEx.ScopeInResponse))
             {
                 this.Scope = resultEx.ScopeInResponse;
                 PlatformPlugin.Logger.Verbose(this.CallState, "Resource value in the token response was used for storing tokens in the cache");
@@ -67,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // If resource is not passed as an argument and is not returned by STS either, 
             // we cannot store the token in the cache with null resource.
             // TODO: Store refresh token though if STS supports MRRT.
-            this.StoreToCache = this.StoreToCache && (!ADALScopeHelper.IsNullOrEmpty(this.Scope));
+            this.StoreToCache = this.StoreToCache && (!AdalStringHelper.IsNullOrEmpty(this.Scope));
         }
     }
 }

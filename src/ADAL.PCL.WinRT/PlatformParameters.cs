@@ -21,15 +21,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// Additional parameters used in acquiring user's authorization
     /// </summary>
-    public class PlatformParameters : BasePlatformParameters
+    public class PlatformParameters : IPlatformParameters
     {
         public PlatformParameters(PromptBehavior promptBehavior, bool useCorporateNetwork)
-            : this(promptBehavior, useCorporateNetwork, false)
-        {
-            
-        }
-
-        public PlatformParameters(PromptBehavior promptBehavior, bool useCorporateNetwork, bool disableOfflineAccess):base(disableOfflineAccess)
         {
             this.PromptBehavior = promptBehavior;
             this.UseCorporateNetwork = useCorporateNetwork;

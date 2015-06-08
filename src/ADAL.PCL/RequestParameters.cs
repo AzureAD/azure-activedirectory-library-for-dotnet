@@ -29,9 +29,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         public DictionaryRequestParameters(string[] scope, ClientKey clientKey)
         {
-            if (!ADALScopeHelper.IsNullOrEmpty(scope))
+            if (!AdalStringHelper.IsNullOrEmpty(scope))
             {
-                this[OAuthParameter.Scope] = ADALScopeHelper.CreateSingleStringFromArray(scope);
+                this[OAuthParameter.Scope] = AdalStringHelper.CreateSingleStringFromArray(scope);
             }
 
             clientKey.AddToParameters(this);    

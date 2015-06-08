@@ -17,9 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -30,22 +28,44 @@ namespace AdalDesktopTestApp
 {
     class Program
     {
+        private TokenCache cache = null;
+
         [STAThread]
         static void Main(string[] args)
         {
-            AcquireTokenAsync().Wait();
+            Program program = new Program();
+            program.AcquireTokenAsync().Wait();
             Console.ReadKey();
         }
 
-        private static async Task AcquireTokenAsync()
+        private async Task AcquireTokenAsync()
         {
             Environment.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common/", true);
+            cache = new TokenCache(this.ReadCacheFile());
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/81690286-5054-4f97-b708-541654cd921a/", true, cache);
+
             IPlatformParameters param = new PlatformParameters(PromptBehavior.Auto, null);
-            AuthenticationResult result = await context.AcquireTokenAsync(new[] {"https://outlook.office.com/Mail.Read"}, null,
+            AuthenticationResult result = await context.AcquireTokenAsync(new[] { "https://outlook.office.com/Mail.Read" }, null,
                 "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"), param,
 new UserIdentifier("e2e@adalobjc.onmicrosoft.com", UserIdentifierType.RequiredDisplayableId), "slice=testslice&nux=1&msaproxy=true");
             Console.WriteLine(result.Token + "\n");
+            this.WriteCacheFile(cache.Serialize());
+        }
+
+        private byte[] ReadCacheFile()
+        {
+            string path = "c:\\git\\cache.txt";
+            if (File.Exists(path))
+            {
+                return File.ReadAllBytes(path);
+            }
+
+            return null;
+        }
+        private void WriteCacheFile(byte[] cacheData)
+        {
+            string path = "c:\\git\\cache.txt";
+            File.WriteAllBytes(path, cacheData);
         }
     }
 }

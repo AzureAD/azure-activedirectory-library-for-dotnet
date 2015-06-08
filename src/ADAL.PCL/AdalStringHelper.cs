@@ -22,9 +22,9 @@ using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal static class ADALScopeHelper
+    internal static class AdalStringHelper
     {
-        internal static string[] CreateArrayFromSingleString(string singleString)
+        internal static string[] CreateArrayFromSingleString(this string singleString)
         {
             if (string.IsNullOrWhiteSpace(singleString))
             {
@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return singleString.Split(new[] {" "}, StringSplitOptions.None);
         }
 
-        internal static string CreateSingleStringFromArray(string[] arrayStrings)
+        internal static string CreateSingleStringFromArray(this string[] arrayStrings)
         {
             if (arrayStrings == null || arrayStrings.Length == 0)
             {
@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return sb.ToString();
         }
 
-        internal static ISet<string> CreateSetFromArray(string[] arrayStrings)
+        internal static ISet<string> CreateSetFromArray(this string[] arrayStrings)
         {
             ISet<string> set = new HashSet<string>();
             if (arrayStrings == null || arrayStrings.Length == 0)

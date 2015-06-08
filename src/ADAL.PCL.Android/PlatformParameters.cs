@@ -23,15 +23,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// Additional parameters used in acquiring user's authorization
     /// </summary>
-    public class PlatformParameters : BasePlatformParameters
+    public class PlatformParameters : IPlatformParameters
     {
 
-        public PlatformParameters(Activity callerActivity):this(callerActivity,false)
-        {
-        }
-
-        public PlatformParameters(Activity callerActivity, bool disableOfflineAccess)
-            : base(disableOfflineAccess)
+        public PlatformParameters(Activity callerActivity)
         {
             this.CallerActivity = callerActivity;
         }

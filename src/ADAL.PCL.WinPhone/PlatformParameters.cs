@@ -21,16 +21,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// Additional parameters used in acquiring user's authorization
     /// </summary>
-    public class PlatformParameters : BasePlatformParameters
+    public class PlatformParameters : IPlatformParameters
     {
-        public PlatformParameters()
-            : base(false)
-        {
-
-        }
-
-        public PlatformParameters(bool disableOfflineAccess) : base(disableOfflineAccess)
-        {
-        }
     }
 }

@@ -47,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.authorizationParameters = parameters;
-            if (!ADALScopeHelper.IsNullOrEmpty(additionalScope))
+            if (!AdalStringHelper.IsNullOrEmpty(additionalScope))
             {
                 this.additionalScope = additionalScope;
             }

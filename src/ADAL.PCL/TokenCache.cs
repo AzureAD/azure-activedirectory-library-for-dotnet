@@ -129,7 +129,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> kvp in this.tokenCacheDictionary)
                 {
                     writer.Write(string.Format("{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
-                        ADALScopeHelper.CreateSingleStringFromArray(kvp.Key.Scope), kvp.Key.ClientId,
+                        AdalStringHelper.CreateSingleStringFromArray(kvp.Key.Scope), kvp.Key.ClientId,
                         (int) kvp.Key.TokenSubjectType));
                     writer.Write(kvp.Value.Serialize());
                 }
@@ -178,7 +178,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     string[] kvpElements = keyString.Split(new[] {Delimiter}, StringSplitOptions.None);
                     AuthenticationResultEx resultEx = AuthenticationResultEx.Deserialize(reader.ReadString());
                     TokenCacheKey key = new TokenCacheKey(kvpElements[0],
-                        ADALScopeHelper.CreateArrayFromSingleString(kvpElements[1]), kvpElements[2],
+                        AdalStringHelper.CreateArrayFromSingleString(kvpElements[1]), kvpElements[2],
                         (TokenSubjectType) int.Parse(kvpElements[3]), resultEx.Result.UserInfo);
 
                     this.tokenCacheDictionary.Add(key, resultEx);
@@ -280,7 +280,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");
-            if (ADALScopeHelper.CreateSetFromArray(scope).Contains(clientId))
+            if (AdalStringHelper.CreateSetFromArray(scope).Contains(clientId))
             {
                 PlatformPlugin.Logger.Verbose(callState, "Looking for id token...");
             }
@@ -308,8 +308,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     //requested scope are not a subset.
                     PlatformPlugin.Logger.Verbose(callState,
                         string.Format("Refresh token for scope '{0}' will be used to acquire token for '{1}'",
-                            ADALScopeHelper.CreateSingleStringFromArray(cacheKey.Scope),
-                            ADALScopeHelper.CreateSingleStringFromArray(scope)));
+                            AdalStringHelper.CreateSingleStringFromArray(cacheKey.Scope),
+                            AdalStringHelper.CreateSingleStringFromArray(scope)));
                     var newResultEx = new AuthenticationResultEx
                     {
                         Result = new AuthenticationResult(null, null, DateTimeOffset.MinValue),
@@ -355,7 +355,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             PlatformPlugin.Logger.Verbose(callState, "Storing token in the cache...");
 
-            if (ADALScopeHelper.IsNullOrEmpty(scope) || ADALScopeHelper.CreateSetFromArray(scope).Contains("openid"))
+            if (AdalStringHelper.IsNullOrEmpty(scope) || AdalStringHelper.CreateSetFromArray(scope).Contains("openid"))
             {
                 scope = new[] {clientId};
             }

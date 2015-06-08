@@ -135,7 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             // To request id_token in response
-            requestParameters[OAuthParameter.Scope] = ADALScopeHelper.CreateSingleStringFromArray(Scope);
+            requestParameters[OAuthParameter.Scope] = AdalStringHelper.CreateSingleStringFromArray(Scope);
         }
     }
 }

@@ -67,6 +67,7 @@ namespace Test.ADAL.Common
             //webbrowserhost is the parent for security dialog
 
             NativeWindowCalls.SetForegroundWindow(SecurityWindow);
+            
             // #32770 for security dialog
             if (securityWindow != IntPtr.Zero)
             {

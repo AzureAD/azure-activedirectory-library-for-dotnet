@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                return (!string.IsNullOrWhiteSpace(this.RefreshToken) && !ADALScopeHelper.IsNullOrEmpty(ScopeInResponse));
+                return (!string.IsNullOrWhiteSpace(this.RefreshToken) && !AdalStringHelper.IsNullOrEmpty(ScopeInResponse));
             }
         }
 

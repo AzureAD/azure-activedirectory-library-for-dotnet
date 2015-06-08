@@ -45,7 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             requestParameters[OAuthParameter.RequestedTokenUse] = OAuthRequestedTokenUse.OnBehalfOf;
 
             // To request id_token in response
-            requestParameters[OAuthParameter.Scope] = ADALScopeHelper.CreateSingleStringFromArray(Scope);
+            requestParameters[OAuthParameter.Scope] = AdalStringHelper.CreateSingleStringFromArray(Scope);
         }
     }
 }
