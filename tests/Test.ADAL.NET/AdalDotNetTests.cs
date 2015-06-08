@@ -68,6 +68,13 @@ namespace Test.ADAL.NET
             AdalTests.PlatformParameters = new PlatformParameters(PromptBehavior.Auto, null);
         }
 
+        [TestCleanup]
+        public void TestMethodCleanup()
+        {
+            Environment.SetEnvironmentVariable("ExtraQueryParameter", "");
+        }
+
+
         [TestMethod]
         [Description("Positive Test for AcquireToken")]
         [TestCategory("AdalDotNet")]
