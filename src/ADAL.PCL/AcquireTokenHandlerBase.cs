@@ -50,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.LoadFromCache = (tokenCache != null);
             this.StoreToCache = (tokenCache != null);
             this.SupportADFS = false;
-            if (scope.IsNullOrEmpty())
+            if (AdalStringHelper.IsNullOrEmpty(scope))
             {
                 throw new ArgumentNullException("scope");
             }
@@ -252,7 +252,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             List<AuthenticationResultEx> newResultExList = null;
 
-            if (!AdalScopeHelper.IsNullOrEmpty(this.Scope))
+            if (!AdalStringHelper.IsNullOrEmpty(this.Scope))
             {
                 PlatformPlugin.Logger.Verbose(this.CallState, "Refreshing access token...");
 
