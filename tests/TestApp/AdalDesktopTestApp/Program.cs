@@ -18,11 +18,11 @@
 
 using System;
 using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-
-using TestApp.PCL;
 
 namespace AdalDesktopTestApp
 {
@@ -34,7 +34,14 @@ namespace AdalDesktopTestApp
         static void Main(string[] args)
         {
             Program program = new Program();
-            program.AcquireTokenAsync().Wait();
+            try
+            {
+                program.AcquireTokenAsync().Wait();
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc.Message);
+            }
             Console.ReadKey();
         }
 
@@ -42,15 +49,50 @@ namespace AdalDesktopTestApp
         {
             Environment.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
             cache = new TokenCache(this.ReadCacheFile());
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/81690286-5054-4f97-b708-541654cd921a/", true, cache);
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common/", true, cache);
 
             IPlatformParameters param = new PlatformParameters(PromptBehavior.Auto, null);
             AuthenticationResult result = await context.AcquireTokenAsync(new[] { "https://outlook.office.com/Mail.Read" }, null,
                 "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"), param,
-new UserIdentifier("e2e@adalobjc.onmicrosoft.com", UserIdentifierType.RequiredDisplayableId), "slice=testslice&nux=1&msaproxy=true");
-            Console.WriteLine(result.Token + "\n");
+new UserIdentifier("<ENTER USER ID HERE>", UserIdentifierType.RequiredDisplayableId), "slice=testslice&nux=1&msaproxy=true");
+            //Console.WriteLine(result.Token + "\n");
+            MakeRequest(result.CreateAuthorizationHeader());
+
+
+
             this.WriteCacheFile(cache.Serialize());
         }
+
+        public static void MakeRequest(string token)
+        {
+            try
+            {
+                HttpWebRequest request = WebRequest.Create("https://outlook.office365.com/api/v1.0/me/messages") as HttpWebRequest;
+                request.Headers.Add("Authorization", token);
+                request.Headers.Add("X-ClientService-ClientTag", "Office 365 API Tools 1.1.0612");
+                //request.Headers.Add("Accept", "*/*");
+                request.Headers.Add("Accept-Charset", "UTF-8");
+
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response.StatusCode != HttpStatusCode.OK)
+                        throw new Exception(String.Format(
+                        "Server error (HTTP {0}: {1}).",
+                        response.StatusCode,
+                        response.StatusDescription));
+                    using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                    {
+                        string responseText = reader.ReadToEnd();
+                        Console.WriteLine(responseText);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
 
         private byte[] ReadCacheFile()
         {

@@ -127,7 +127,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         List<AuthenticationResultEx> resultList = await this.RefreshAccessTokenAsync(resultEx);
 
-                        if (resultList != null)
+                        if (resultList != null && resultList.Count > 0)
                         {
                             foreach (var resultItem in resultList)
                             {
@@ -139,6 +139,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
                                 this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
                                 this.CallState);
+                        }
+                        else
+                        {
+                            resultEx = null;
                         }
                     }
                 }

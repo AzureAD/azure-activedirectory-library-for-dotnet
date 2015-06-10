@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -45,13 +46,20 @@ namespace Test.ADAL.Common
 
         public static async Task AcquireTokenPositiveTestAsync(Sts sts)
         {
-            SetCredential(sts);
-            var context = new AuthenticationContextProxy(sts.Authority, sts.ValidateAuthority);
+            Environment.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
+            var context = new AuthenticationContextProxy("https://login.microsoftonline.com/common/", sts.ValidateAuthority);
             AuthenticationResultProxy result =
                 await
-                    context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri,
-                        PlatformParameters, sts.ValidUserId);
+                    context.AcquireTokenAsync(new[] { "https://outlook.office.com/Mail.Read" }, null,
+                "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"),
+                        PlatformParameters, UserIdentifier.AnyUser, "slice=testslice&nux=1&msaproxy=true");
             VerifySuccessResult(sts, result);
+
+            AuthenticationResultProxy idTokenResult =
+                await
+                    context.AcquireTokenSilentAsync(new[] {"e1eb8a8d-7b0c-4a14-9313-3f2c25c82929"},
+                        "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", UserIdentifier.AnyUser);
+            Verify.AreNotEqual(result.Token, idTokenResult.Token);
         }
 
         public static async Task AcquireTokenPositiveWithoutRedirectUriOrUserIdTestAsync(Sts sts)
@@ -786,7 +794,7 @@ namespace Test.ADAL.Common
                 ValidateUserInfo(result.TenantId, "tenant id", true);
                 ValidateUserInfo(result.UserInfo.UniqueId, "user unique id", true);
                 ValidateUserInfo(result.UserInfo.DisplayableId, "user displayable id", true);
-                ValidateUserInfo(result.UserInfo.IdentityProvider, "identity provider", true);
+                //ValidateUserInfo(result.UserInfo.IdentityProvider, "identity provider", true);
                 ValidateUserInfo(result.UserInfo.GivenName, "given name", false);
                 ValidateUserInfo(result.UserInfo.FamilyName, "family name", false);
             }
