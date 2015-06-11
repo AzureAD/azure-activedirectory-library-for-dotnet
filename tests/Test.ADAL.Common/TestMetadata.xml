@@ -3,24 +3,13 @@
   <Sts>
     <StsType>AAD</StsType>
   </Sts>
-  <Sts>
-    <StsType>ADFS</StsType>
-  </Sts>
 
   <AAD>
     <StsType>AAD</StsType>
   </AAD>
-
-  <ADFS>
-    <StsType>ADFS</StsType>
-  </ADFS>  
   
   <MockSts>
     <StsType>AAD</StsType>
-    <Mock>true</Mock>
-  </MockSts>
-  <MockSts>
-    <StsType>ADFS</StsType>
     <Mock>true</Mock>
   </MockSts>
 

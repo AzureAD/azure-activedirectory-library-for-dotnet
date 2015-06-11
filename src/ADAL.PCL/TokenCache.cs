@@ -443,6 +443,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 case 0:
                 {
                     // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                    
                     List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> mrrtItems =
                         items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
 
