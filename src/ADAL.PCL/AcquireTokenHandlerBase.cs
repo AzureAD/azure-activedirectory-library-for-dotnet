@@ -30,7 +30,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly TokenCache tokenCache;
 
         protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string[] scope,
-            ClientKey clientKey, TokenSubjectType subjectType)
+            ClientKey clientKey, TokenSubjectType subjectType, string policy)
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
@@ -57,6 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.Scope = scope;
             ValidateScopeInput(scope);
+            this.Policy = policy;
         }
 
         internal CallState CallState { get; set; }
@@ -70,6 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected UserIdentifierType UserIdentifierType { get; set; }
         protected bool LoadFromCache { get; set; }
         protected bool StoreToCache { get; set; }
+        protected string Policy { get; set; }
 
         protected string[] GetDecoratedScope(string[] inputScope)
         {
