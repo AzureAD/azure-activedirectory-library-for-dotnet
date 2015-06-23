@@ -430,7 +430,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         userId, policy);
         }
 
-
         /// <summary>
         ///     Acquires security token without asking for user credential.
         /// </summary>
@@ -535,7 +534,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return
                 await
                     this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters,
-                        UserIdentifier.AnyUser);
+                    null, UserIdentifier.AnyUser);
         }
 
         /// <summary>
@@ -556,7 +555,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return
                 await
                     this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters,
-                        UserIdentifier.AnyUser, policy);
+                    policy, UserIdentifier.AnyUser);
         }
 
 
@@ -581,7 +580,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope,
             string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
-            return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, userId);
+            return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, null, userId);
         }
 
         /// <summary>

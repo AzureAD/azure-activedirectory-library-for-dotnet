@@ -46,12 +46,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     internal sealed class TokenCacheKey
     {
-        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, UserInfo userInfo)
-            : this(authority, scope, clientId, tokenSubjectType, (userInfo != null) ? userInfo.UniqueId : null, (userInfo != null) ? userInfo.DisplayableId : null)
+        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, UserInfo userInfo, string policy)
+            : this(authority, scope, clientId, tokenSubjectType, (userInfo != null) ? userInfo.UniqueId : null, (userInfo != null) ? userInfo.DisplayableId : null, policy)
         {
         }
 
-        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, string uniqueId, string displayableId)
+        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, string uniqueId, string displayableId, string policy)
         {
             this.Authority = authority;
             this.Scope = scope;
@@ -59,6 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.TokenSubjectType = tokenSubjectType;
             this.UniqueId = uniqueId;
             this.DisplayableId = displayableId;
+            this.Policy = policy;
         }
 
         public string Authority { get; private set; }
@@ -70,6 +71,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string UniqueId { get; private set; }
 
         public string DisplayableId { get; private set; }
+
+        public string Policy { get; private set; }
 
         public TokenSubjectType TokenSubjectType { get; private set; }
 
@@ -102,6 +105,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                && this.ClientIdEquals(other.ClientId)
                && (other.UniqueId == this.UniqueId)
                && this.DisplayableIdEquals(other.DisplayableId)
+               && this.PolicyEquals(other.Policy)
                && (other.TokenSubjectType == this.TokenSubjectType));
         }
 
@@ -119,6 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 + this.ClientId.ToLower() + Delimiter
                 + this.UniqueId + Delimiter
                 + ((this.DisplayableId != null) ? this.DisplayableId.ToLower() : null) + Delimiter
+                + ((this.Policy != null) ? this.Policy.ToLower() : null) + Delimiter
                 + (int)this.TokenSubjectType).GetHashCode();
         }
 
@@ -154,6 +159,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public bool ScopeIntersects(string[] otherScope)
         {
             return this.Scope.Intersect(otherScope).ToArray().Length > 0;
+        }
+
+        internal bool PolicyEquals(string otherPolicy)
+        {
+            if (string.IsNullOrEmpty(this.Policy) && string.IsNullOrEmpty(otherPolicy))
+            {
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(this.Policy) || string.IsNullOrEmpty(otherPolicy))
+            {
+                return false;
+            }
+
+
+            return (string.Compare(otherPolicy, this.Policy, StringComparison.OrdinalIgnoreCase) == 0);
         }
 
         internal bool ClientIdEquals(string otherClientId)

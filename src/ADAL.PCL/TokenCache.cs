@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="args">Arguments related to the cache item impacted</param>
         public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
 
-        private const int SchemaVersion = 3;
+        private const int SchemaVersion = 4;
         private const string Delimiter = ":::";
         // We do not want to return near expiry tokens, this is why we use this hard coded setting to refresh tokens which are close to expiration.
         private const int ExpirationMarginInMinutes = 5;
@@ -128,9 +128,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 writer.Write(this.tokenCacheDictionary.Count);
                 foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> kvp in this.tokenCacheDictionary)
                 {
-                    writer.Write(string.Format("{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
+                    writer.Write(string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}", Delimiter, kvp.Key.Authority,
                         kvp.Key.Scope.CreateSingleStringFromArray(), kvp.Key.ClientId,
-                        (int) kvp.Key.TokenSubjectType));
+                        (int) kvp.Key.TokenSubjectType, kvp.Key.Policy));
                     writer.Write(kvp.Value.Serialize());
                 }
 
@@ -179,7 +179,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     AuthenticationResultEx resultEx = AuthenticationResultEx.Deserialize(reader.ReadString());
                     TokenCacheKey key = new TokenCacheKey(kvpElements[0],
                         kvpElements[1].CreateArrayFromSingleString(), kvpElements[2],
-                        (TokenSubjectType) int.Parse(kvpElements[3]), resultEx.Result.UserInfo);
+                        (TokenSubjectType)int.Parse(kvpElements[3]), resultEx.Result.UserInfo, kvpElements[4]);
 
                     this.tokenCacheDictionary.Add(key, resultEx);
                 }
@@ -222,7 +222,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Scope = item.Scope,
                 ClientId = item.ClientId,
                 UniqueId = item.UniqueId,
-                DisplayableId = item.DisplayableId
+                DisplayableId = item.DisplayableId,
+                Policy = item.Policy
             };
 
             this.OnBeforeAccess(args);
@@ -277,7 +278,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         internal AuthenticationResultEx LoadFromCache(string authority, string[] scope, string clientId,
-            TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
+            TokenSubjectType subjectType, string uniqueId, string displayableId, string policy, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");
             if (scope.CreateSetFromArray().Contains(clientId))
@@ -289,7 +290,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             //get either a matching token or an MRRT supported RT
             KeyValuePair<TokenCacheKey, AuthenticationResultEx>? kvp = this.LoadSingleItemFromCache(authority, scope,
-                clientId, subjectType, uniqueId, displayableId, callState);
+                clientId, subjectType, uniqueId, displayableId, policy, callState);
 
             if (kvp.HasValue)
             {
@@ -351,7 +352,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         internal void StoreToCache(AuthenticationResultEx result, string authority, string[] scope, string clientId,
-            TokenSubjectType subjectType, CallState callState)
+            TokenSubjectType subjectType, string policy, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Storing token in the cache...");
 
@@ -368,14 +369,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Scope = scope,
                 ClientId = clientId,
                 UniqueId = uniqueId,
-                DisplayableId = displayableId
+                DisplayableId = displayableId,
+                Policy = policy
             });
 
             TokenCacheKey tokenCacheKey = new TokenCacheKey(authority, scope, clientId, subjectType,
-                result.Result.UserInfo);
+                result.Result.UserInfo, policy);
             // First identify all potential tokens.
             List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> items = this.QueryCache(authority, clientId,
-                subjectType, uniqueId, displayableId);
+                subjectType, uniqueId, displayableId, policy);
             List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> itemsToRemove =
                 items.Where(p => p.Key.ScopeIntersects(scope)).ToList();
 
@@ -397,18 +399,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 PlatformPlugin.Logger.Verbose(callState, "An item was updated in the cache");
             }
 
-            this.UpdateCachedMrrtRefreshTokens(result, authority, clientId, subjectType);
+            this.UpdateCachedMrrtRefreshTokens(result, authority, clientId, subjectType, policy);
             this.HasStateChanged = true;
         }
 
         private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string authority, string clientId,
-            TokenSubjectType subjectType)
+            TokenSubjectType subjectType, string policy)
         {
             if (result.Result.UserInfo != null && result.IsMultipleResourceRefreshToken)
             {
                 List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> mrrtItems =
                     this.QueryCache(authority, clientId, subjectType, result.Result.UserInfo.UniqueId,
-                        result.Result.UserInfo.DisplayableId)
+                        result.Result.UserInfo.DisplayableId, policy)
                         .Where(p => p.Value.IsMultipleResourceRefreshToken)
                         .ToList();
 
@@ -421,11 +423,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private KeyValuePair<TokenCacheKey, AuthenticationResultEx>? LoadSingleItemFromCache(string authority,
             string[] scope, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId,
-            CallState callState)
+            string policy, CallState callState)
         {
             // First identify all potential tokens.
             List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> items = this.QueryCache(authority, clientId,
-                subjectType, uniqueId, displayableId);
+                subjectType, uniqueId, displayableId, policy);
 
             //using ScopeContains because user could be accessing a subset of the scope.
             List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> resourceSpecificItems =
@@ -466,8 +468,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         ///     authority value that this AuthorizationContext was created with.  In every case passing
         ///     null results in a wildcard evaluation.
         /// </summary>
-        private List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> QueryCache(string authority, string clientId,
-            TokenSubjectType subjectType, string uniqueId, string displayableId)
+        private List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> QueryCache(string authority, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId, string policy)
         {
             return this.tokenCacheDictionary.Where(
                 p =>
@@ -475,6 +476,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
                     && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
                     && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
+                    && (string.IsNullOrWhiteSpace(policy) || p.Key.DisplayableIdEquals(policy))
                     && p.Key.TokenSubjectType == subjectType).ToList();
         }
     }

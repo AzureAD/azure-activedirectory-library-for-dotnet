@@ -159,6 +159,7 @@ namespace Test.ADAL.Common.Unit
             string tenantId = Guid.NewGuid().ToString();
             string uniqueId = Guid.NewGuid().ToString();
             string displayableId = Guid.NewGuid().ToString();
+            string policy = Guid.NewGuid().ToString();
             Uri redirectUri = new Uri("https://www.GetJwt.com");
 
             var authenticationResult = CreateCacheValue(uniqueId, displayableId);
@@ -170,7 +171,7 @@ namespace Test.ADAL.Common.Unit
 
             // @Resource, Credential
             TokenCacheKey tokenCacheKey = new TokenCacheKey(authority, scope, clientId, TokenSubjectType.User, uniqueId,
-                displayableId);
+                displayableId, policy);
             AddToDictionary(localCache, tokenCacheKey, authenticationResult);
             AuthenticationContext acWithLocalCache = new AuthenticationContext(authority, false, localCache);
 
@@ -202,11 +203,12 @@ namespace Test.ADAL.Common.Unit
             localCache.Clear();
             scope = new[] {Guid.NewGuid().ToString()};
             clientId = Guid.NewGuid().ToString();
+            policy = Guid.NewGuid().ToString();
             uniqueId = Guid.NewGuid().ToString();
             displayableId = Guid.NewGuid().ToString();
             cacheValue = CreateCacheValue(uniqueId, displayableId);
             AddToDictionary(localCache,
-                new TokenCacheKey(authority, scope, clientId, TokenSubjectType.User, uniqueId, displayableId),
+                new TokenCacheKey(authority, scope, clientId, TokenSubjectType.User, uniqueId, displayableId, policy),
                 cacheValue);
 
             var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
@@ -229,13 +231,13 @@ namespace Test.ADAL.Common.Unit
             tokenCache.Clear();
 
             TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts",
-                new[] {"resource1_1", "resource1_2", "resource1_3"}, "client1", TokenSubjectType.User, null, "user1");
+                new[] {"resource1_1", "resource1_2", "resource1_3"}, "client1", TokenSubjectType.User, null, "user1", "policy");
             AuthenticationResultEx value = CreateCacheValue(null, "user1");
             AddToDictionary(tokenCache, key, value);
 
             AuthenticationResultEx resultEx = tokenCache.LoadFromCache("https://localhost/MockSts",
                 new[] {"resource1_1", "resource1_3"}, "client1",
-                TokenSubjectType.User, null, "user1", new CallState(Guid.NewGuid()));
+                TokenSubjectType.User, null, "user1", "policy", new CallState(Guid.NewGuid()));
             Verify.IsNotNull(resultEx);
         }
 
@@ -247,12 +249,15 @@ namespace Test.ADAL.Common.Unit
             tokenCache.Clear();
 
             TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts", new[] {"resource1"}, "client1",
-                TokenSubjectType.User, null, "user1");
+                TokenSubjectType.User, null, "user1", "");
             TokenCacheKey key2 = new TokenCacheKey("https://localhost/MockSts", new[] {"resource1"}, "client1",
-                TokenSubjectType.User, null, "user2");
+                TokenSubjectType.User, null, "user2", "");
             TokenCacheKey key3 = new TokenCacheKey("https://localhost/MockSts", new[] {"resource1"}, "client1",
-                TokenSubjectType.UserPlusClient, null, "user1");
+                TokenSubjectType.UserPlusClient, null, "user1", "");
+            TokenCacheKey key4 = new TokenCacheKey("https://localhost/MockSts", new[] { "resource1" }, "client1",
+                TokenSubjectType.UserPlusClient, null, "user1", "p");
             Verify.AreNotEqual(key, key3);
+            Verify.AreNotEqual(key3, key4);
 
             var value = CreateCacheValue(null, "user1");
             AuthenticationResultEx value2;
@@ -504,13 +509,14 @@ namespace Test.ADAL.Common.Unit
         public static void CheckPublicGetSets()
         {
             TokenCacheKey tokenCacheKey = new TokenCacheKey("Authority", new[] {"Resource"}, "ClientId",
-                TokenSubjectType.User, "UniqueId", "DisplayableId");
+                TokenSubjectType.User, "UniqueId", "DisplayableId", "Policy");
 
             Verify.IsTrue(tokenCacheKey.Authority == "Authority");
             Verify.IsTrue(tokenCacheKey.ClientId == "ClientId");
             Verify.IsTrue(tokenCacheKey.Scope.SequenceEqual(new[] {"Resource"}));
             Verify.IsTrue(tokenCacheKey.UniqueId == "UniqueId");
             Verify.IsTrue(tokenCacheKey.DisplayableId == "DisplayableId");
+            Verify.IsTrue(tokenCacheKey.Policy == "Policy");
             Verify.IsTrue(tokenCacheKey.TokenSubjectType == TokenSubjectType.User);
         }
 
@@ -647,6 +653,7 @@ namespace Test.ADAL.Common.Unit
                 new[] {GenerateRandomString(maxFieldSize)},
                 GenerateRandomString(maxFieldSize),
                 TokenSubjectType.User,
+                GenerateRandomString(maxFieldSize),
                 GenerateRandomString(maxFieldSize),
                 GenerateRandomString(maxFieldSize));
         }
