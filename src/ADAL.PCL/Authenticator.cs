@@ -42,9 +42,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.AuthorityType = DetectAuthorityType(this.Authority);
 
-            if (this.AuthorityType != AuthorityType.AAD && validateAuthority)
+            if (this.AuthorityType != AuthorityType.AAD)
             {
-                throw new ArgumentException(AdalErrorMessage.UnsupportedAuthorityValidation, "validateAuthority");
+                throw new ArgumentException(AdalErrorMessage.AuthorityNotInValidList);
             }
 
             this.ValidateAuthority = validateAuthority;

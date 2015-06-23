@@ -24,7 +24,7 @@ namespace Test.ADAL.Common
     public enum StsType
     {
         Unknown,
-        ADFS,
+        //ADFS,
         AAD,
         AADFederatedWithADFS3
     }
@@ -36,9 +36,9 @@ namespace Test.ADAL.Common
             Sts sts;
             switch (stsType)
             {
-                case StsType.ADFS:
+/*                case StsType.ADFS:
                     sts = new AdfsSts();
-                    break;
+                    break;*/
                 case StsType.AADFederatedWithADFS3:
                     sts = new AadFederatedWithAdfs3Sts();
                     break;
@@ -192,7 +192,7 @@ namespace Test.ADAL.Common
             this.InvalidClientId = "87002806-c87a-41cd-896b-84ca5690d29e";
             this.InvalidScope = new []{"00000003-0000-0ff1-ce00-000000000001"};
             this.ValidateAuthority = true;
-            this.ValidExistingRedirectUri = new Uri("https://login.live.com/");
+            this.ValidExistingRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");
             this.ValidExpiresIn = 28800;
             this.ValidNonExistingRedirectUri = new Uri("http://foobar.com");
             this.ValidLoggedInFederatedUserName = "dummy\\dummy";
@@ -203,7 +203,7 @@ namespace Test.ADAL.Common
             this.Authority = string.Format("https://login.windows.net/{0}", this.TenantName);
             this.TenantlessAuthority = "https://login.windows.net/Common";
             this.Type = StsType.AAD;
-            this.ValidClientId = "4b8d1b32-ee16-4b30-9b5d-e374c43deb31";
+            this.ValidClientId = "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929";
             this.ValidNonExistentRedirectUriClientId = this.ValidClientId;
             this.ValidClientIdWithExistingRedirectUri = this.ValidClientId;
             this.ValidConfidentialClientId = "91ce6b56-776c-4e07-83c3-ebbb11726999";
@@ -215,15 +215,15 @@ namespace Test.ADAL.Common
             this.ValidDefaultRedirectUri = new Uri("https://login.live.com/");
             this.ValidExistingRedirectUri = new Uri("https://login.live.com/");
             this.ValidRedirectUriForConfidentialClient = new Uri("https://confidential.foobar.com");
-            this.ValidPassword = "<REPLACE>";
-            this.ValidPassword2 = "<REPLACE>";
-            this.ValidPassword3 = "<REPLACE>";
+            this.ValidPassword = "p@ssword1";
+            this.ValidPassword2 = "p@ssword2";
+            this.ValidPassword3 = "p@ssword3";
             this.ValidScope = new []{"http://testwebapp.com"};
             this.ValidScope2 = new []{"http://testwebapp2.com"};
             this.ValidScope3 = new []{"http://testwebapp3.com"};
 
             this.MsaUserName = "adaltest@outlook.com";
-            this.MsaPassword = "<REPLACE>";
+            this.MsaPassword = "SoMuch2Do";
         }
 
         public string TenantName { get; protected set; }
@@ -248,7 +248,7 @@ namespace Test.ADAL.Common
         public string ValidFederatedPassword { get; protected set; }
     }
 
-    class AdfsSts : Sts
+/*    class AdfsSts : Sts
     {
         public AdfsSts()
         {
@@ -274,5 +274,5 @@ namespace Test.ADAL.Common
             this.ValidScope = new []{"urn:msft:ad:test:oauth:test"};
             this.ValidScope2 = new []{"urn:msft:ad:test:oauth:test2"};
         }
-    }
+    }*/
 }

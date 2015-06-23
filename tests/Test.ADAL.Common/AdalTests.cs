@@ -47,11 +47,13 @@ namespace Test.ADAL.Common
         public static async Task AcquireTokenPositiveTestAsync(Sts sts)
         {
             AuthenticationContextProxy.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
+            SetCredential(sts);
+
             var context = new AuthenticationContextProxy("https://login.microsoftonline.com/common/", sts.ValidateAuthority);
             AuthenticationResultProxy result =
                 await
                     context.AcquireTokenAsync(new[] { "https://outlook.office.com/Mail.Read" }, null,
-                "e1eb8a8d-7b0c-4a14-9313-3f2c25c82929", new Uri("urn:ietf:wg:oauth:2.0:oob"),
+                sts.ValidClientId, new Uri("urn:ietf:wg:oauth:2.0:oob"),
                         PlatformParameters, UserIdentifier.AnyUser, "slice=testslice&nux=1&msaproxy=true");
             VerifySuccessResult(sts, result);
 
@@ -95,7 +97,7 @@ namespace Test.ADAL.Common
             try
             {
                 context = new AuthenticationContextProxy(sts.InvalidAuthority, true);
-                Verify.AreNotEqual(sts.Type, StsType.ADFS);
+                //Verify.AreNotEqual(sts.Type, StsType.ADFS);
                 result =
                     await
                         context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri,
@@ -104,13 +106,13 @@ namespace Test.ADAL.Common
             }
             catch (ArgumentException ex)
             {
-                Verify.AreEqual(sts.Type, StsType.ADFS);
+               // Verify.AreEqual(sts.Type, StsType.ADFS);
                 Verify.AreEqual(ex.ParamName, "validateAuthority");
             }
 #if TEST_ADAL_WINPHONE_UNIT
             catch (AdalServiceException ex)
             {
-                Verify.AreNotEqual(sts.Type, StsType.ADFS);
+                //Verify.AreNotEqual(sts.Type, StsType.ADFS);
                 Verify.AreEqual(ex.ErrorCode, Sts.AuthorityNotInValidList);
                 Verify.IsTrue(ex.Message.Contains("authority"));
             }
@@ -129,20 +131,17 @@ namespace Test.ADAL.Common
                         PlatformParameters, sts.ValidUserId);
             VerifySuccessResult(sts, result);
 
-            if (sts.Type != StsType.ADFS)
-            {
                 context = new AuthenticationContextProxy(sts.Authority, true);
                 result =
                     await
                         context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri,
                             PlatformParameters, sts.ValidUserId);
                 VerifySuccessResult(sts, result);
-            }
 
             try
             {
                 context = new AuthenticationContextProxy(sts.InvalidAuthority);
-                Verify.AreNotEqual(sts.Type, StsType.ADFS);
+                //Verify.AreNotEqual(sts.Type, StsType.ADFS);
                 result =
                     await
                         context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri,
@@ -151,13 +150,13 @@ namespace Test.ADAL.Common
             }
             catch (ArgumentException ex)
             {
-                Verify.AreEqual(sts.Type, StsType.ADFS);
+               // Verify.AreEqual(sts.Type, StsType.ADFS);
                 Verify.AreEqual(ex.ParamName, "validateAuthority");
             }
 #if TEST_ADAL_WINPHONE_UNIT
             catch (AdalServiceException ex)
             {
-                Verify.AreNotEqual(sts.Type, StsType.ADFS);
+               // Verify.AreNotEqual(sts.Type, StsType.ADFS);
                 Verify.AreEqual(ex.ErrorCode, Sts.AuthorityNotInValidList);
                 Verify.IsTrue(ex.Message.Contains("authority"));
             }
@@ -244,8 +243,6 @@ namespace Test.ADAL.Common
                         PlatformParameters, sts.ValidUserId);
             VerifyErrorResult(result, Sts.AuthenticationUiFailedError, null);
 
-            if (sts.Type != StsType.ADFS)
-            {
                 Uri uri = new Uri(sts.Authority);
                 context =
                     new AuthenticationContextProxy(string.Format("{0}://{1}/non_existing_tenant", uri.Scheme,
@@ -255,7 +252,6 @@ namespace Test.ADAL.Common
                         context.AcquireTokenAsync(sts.ValidScope, null, sts.ValidClientId, sts.ValidDefaultRedirectUri,
                             PlatformParameters, sts.ValidUserId);
                 VerifyErrorResult(result, Sts.AuthenticationCanceledError, null);
-            }
         }
 
         public static async Task AcquireTokenWithInvalidResourceTestAsync(Sts sts)
@@ -514,7 +510,7 @@ namespace Test.ADAL.Common
 #if TEST_ADAL_WINPHONE_UNIT
             catch (AdalServiceException ex)
             {
-                Verify.AreNotEqual(sts.Type, StsType.ADFS);
+                //Verify.AreNotEqual(sts.Type, StsType.ADFS);
                 Verify.AreEqual(ex.ErrorCode, Sts.AuthorityNotInValidList);
                 Verify.IsTrue(ex.Message.Contains("authority"));
             }
@@ -770,7 +766,7 @@ namespace Test.ADAL.Common
             Verify.IsNullOrEmptyString(result.Error, "AuthenticationResult.Error");
             Verify.IsNullOrEmptyString(result.ErrorDescription, "AuthenticationResult.ErrorDescription");
 
-            if (sts.Type != StsType.ADFS && supportUserInfo)
+            if (/*sts.Type != StsType.ADFS && */supportUserInfo)
             {
                 Action<string, string, bool> ValidateUserInfo = (string field, string caption, bool required) =>
                 {
@@ -867,7 +863,7 @@ namespace Test.ADAL.Common
 
         private static void SetCredential(Sts sts)
         {
-            AuthenticationContextProxy.SetCredentials(sts.Type == StsType.ADFS ? sts.ValidUserName : null,
+            AuthenticationContextProxy.SetCredentials(/*sts.Type == StsType.ADFS ? sts.ValidUserName : null*/sts.ValidUserName,
                 sts.ValidPassword);
         }
 

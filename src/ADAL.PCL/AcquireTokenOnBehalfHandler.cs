@@ -1,4 +1,5 @@
-﻿//----------------------------------------------------------------------
+﻿/*
+//----------------------------------------------------------------------
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
 // Apache License 2.0
@@ -49,3 +50,4 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
     }
 }
+*/

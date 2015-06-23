@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿/*//----------------------------------------------------------------------
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
 // Apache License 2.0
@@ -34,7 +34,7 @@ namespace Test.ADAL.NET.Unit
         // Switch this to false to run test against actual service
         private const bool MockService = true;
 
-        [TestMethod]
+/*        [TestMethod]
         [Description("User Realm Discovery Test")]
         [TestCategory("AdalDotNet")]
         public async Task UserRealmDiscoveryTest()
@@ -223,7 +223,7 @@ namespace Test.ADAL.NET.Unit
                 Verify.IsNotNull(ex.ErrorCode, AdalError.FederatedServiceReturnedError);
                 Verify.IsNotNull(ex.InnerException);
             }
-        }
+        }#1#
 
         private static void VerifyUserRealmResponse(UserRealmDiscoveryResponse userRealmResponse,
             string expectedAccountType)
@@ -253,7 +253,7 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
-        private static async Task<XDocument> FecthMexAsync(string metadataUrl)
+/*        private static async Task<XDocument> FecthMexAsync(string metadataUrl)
         {
             if (MockService)
             {
@@ -271,6 +271,6 @@ namespace Test.ADAL.NET.Unit
             {
                 return await MexParser.FetchMexAsync(metadataUrl, null);
             }
-        }
+        }#1#
     }
-}
+}*/
