@@ -46,8 +46,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     internal sealed class TokenCacheKey
     {
-        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, UserInfo userInfo, string policy)
+        internal TokenCacheKey(string authority, string[] scope, string policy, string clientId, TokenSubjectType tokenSubjectType, UserInfo userInfo)
             : this(authority, scope, clientId, tokenSubjectType, (userInfo != null) ? userInfo.UniqueId : null, (userInfo != null) ? userInfo.DisplayableId : null, policy)
+        {
+        }
+
+        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, UserInfo userInfo)
+            : this(authority, scope, clientId, tokenSubjectType, (userInfo != null) ? userInfo.UniqueId : null, (userInfo != null) ? userInfo.DisplayableId : null, "")
+        {
+        }
+
+        internal TokenCacheKey(string authority, string[] scope, string clientId, TokenSubjectType tokenSubjectType, string uniqueId, string displayableId)
+            : this(authority, scope, clientId, tokenSubjectType, uniqueId, displayableId, "")
         {
         }
 

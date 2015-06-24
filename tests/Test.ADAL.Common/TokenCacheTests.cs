@@ -217,6 +217,9 @@ namespace Test.ADAL.Common.Unit
             authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(scope, clientId, userId);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(scope, clientId, userId, policy);
+            VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
+
             authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(scope, clientId, userIdUpper);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 

@@ -177,9 +177,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     string[] kvpElements = keyString.Split(new[] {Delimiter}, StringSplitOptions.None);
                     AuthenticationResultEx resultEx = AuthenticationResultEx.Deserialize(reader.ReadString());
+
                     TokenCacheKey key = new TokenCacheKey(kvpElements[0],
-                        kvpElements[1].CreateArrayFromSingleString(), kvpElements[2],
-                        (TokenSubjectType)int.Parse(kvpElements[3]), resultEx.Result.UserInfo, kvpElements[4]);
+                        kvpElements[1].CreateArrayFromSingleString(), kvpElements[4], kvpElements[2],
+                        (TokenSubjectType)int.Parse(kvpElements[3]), resultEx.Result.UserInfo);
 
                     this.tokenCacheDictionary.Add(key, resultEx);
                 }
@@ -373,8 +374,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Policy = policy
             });
 
-            TokenCacheKey tokenCacheKey = new TokenCacheKey(authority, scope, clientId, subjectType,
-                result.Result.UserInfo, policy);
+            TokenCacheKey tokenCacheKey = new TokenCacheKey(authority, scope, policy, clientId, subjectType,
+                result.Result.UserInfo);
             // First identify all potential tokens.
             List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> items = this.QueryCache(authority, clientId,
                 subjectType, uniqueId, displayableId, policy);
@@ -477,7 +478,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
                     && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
                     && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
-                    && (string.IsNullOrWhiteSpace(policy) || p.Key.DisplayableIdEquals(policy))
+                    && (string.IsNullOrWhiteSpace(policy) || p.Key.PolicyEquals(policy))
                     && p.Key.TokenSubjectType == subjectType).ToList();
         }
     }
