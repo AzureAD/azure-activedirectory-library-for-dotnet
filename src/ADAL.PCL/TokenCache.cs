@@ -278,7 +278,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal AuthenticationResultEx LoadFromCache(string authority, string[] scope, string clientId,
+        internal virtual AuthenticationResultEx LoadFromCache(string authority, string[] scope, string clientId,
             TokenSubjectType subjectType, string uniqueId, string displayableId, string policy, CallState callState)
         {
             PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");

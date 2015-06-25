@@ -25,19 +25,39 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     class AdalHttpClient
     {
+        public IRequestParameters BodyParameters;
+
+        public AdalHttpClient()
+        {
+            this.Client = null;
+            this.CallState = null;
+        }
+
+        public AdalHttpClient(CallState callState)
+        {
+            this.Client = null;
+            this.CallState = callState;
+        }
+
         public AdalHttpClient(string uri, CallState callState)
         {
+            this.EndpointUri = uri;
             this.Client = PlatformPlugin.HttpClientFactory.Create(CheckForExtraQueryParameter(uri), callState);
             this.CallState = callState;
         }
 
+        public string EndpointUri { get; set; }
         public IHttpClient Client { get; private set; }
 
         public CallState CallState { get; private set; }
 
-        public async Task<T> GetResponseAsync<T>(string endpointType)
+        public virtual async Task<T> GetResponseAsync<T>(string endpointType)
         {
             T typedResponse;
+
+            // dont reuse
+            this.Client = PlatformPlugin.HttpClientFactory.Create(CheckForExtraQueryParameter(this.EndpointUri), this.CallState);
+            this.Client.BodyParameters = BodyParameters;
             ClientMetrics clientMetrics = new ClientMetrics();
 
             try

@@ -28,12 +28,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         protected static readonly Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
+        
 
         protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string[] scope,
             ClientKey clientKey, TokenSubjectType subjectType, string policy)
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
+            httpClient = new AdalHttpClient(this.CallState);
             PlatformPlugin.Logger.Information(this.CallState,
                 string.Format(
                     "=== accessToken Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\tPolicy: {5}\n\t",
@@ -73,6 +75,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected bool LoadFromCache { get; set; }
         protected bool StoreToCache { get; set; }
         protected string Policy { get; set; }
+        public AdalHttpClient httpClient;
 
         protected string[] GetDecoratedScope(string[] inputScope)
         {
@@ -309,11 +312,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private async Task<List<AuthenticationResultEx>> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            var client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
-            {
-                Client = {BodyParameters = requestParameters}
-            };
-            TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
+            httpClient.EndpointUri = this.Authenticator.TokenUri;
+            httpClient.BodyParameters = requestParameters;
+            TokenResponse tokenResponse = await httpClient.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
 
             return tokenResponse.GetResults();
         }

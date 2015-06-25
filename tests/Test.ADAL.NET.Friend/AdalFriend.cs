@@ -39,7 +39,7 @@ namespace Test.ADAL.NET.Friend
             var handler = new AcquireTokenInteractiveHandler(context.Authenticator, context.TokenCache, scope, additionalScope, clientId, redirectUri, new PlatformParameters(PromptBehavior.Auto, null), userId, null,
                 context.CreateWebAuthenticationDialog(new PlatformParameters(PromptBehavior.Auto, null)), policy);
             handler.CallState = null;
-            context.Authenticator.AuthorizationUri = context.Authority + "oauth2/authorize";
+            context.Authenticator.AuthorizationUri = context.Authority + "oauth2/v2.0/authorize";
             await handler.AcquireAuthorizationAsync();
             return handler.authorizationResult.Code;
         }
