@@ -46,10 +46,9 @@ namespace Test.ADAL.Common
 
         public static async Task AcquireTokenPositiveTestAsync(Sts sts)
         {
-#if TEST_ADAL_NET
-            Environment.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
-#endif
+            AuthenticationContextProxy.SetEnvironmentVariable("ExtraQueryParameter", "slice=testslice&nux=1&msaproxy=true");
             SetCredential(sts);
+
             var context = new AuthenticationContextProxy("https://login.microsoftonline.com/common/", sts.ValidateAuthority);
             AuthenticationResultProxy result =
                 await

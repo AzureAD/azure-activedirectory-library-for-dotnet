@@ -119,6 +119,8 @@ namespace Test.ADAL.Common
 
         public string ValidUserName { get; protected set; }
 
+        public string Policy { get; set; }
+
         public UserIdentifier ValidUserId
         {
             get

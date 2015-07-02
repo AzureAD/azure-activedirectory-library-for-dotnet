@@ -133,7 +133,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return tokenResponse;
         }
 
-        public List<AuthenticationResultEx> GetResults()
+        public virtual List<AuthenticationResultEx> GetResults()
         {
             List<AuthenticationResultEx> results = new List<AuthenticationResultEx>();
 

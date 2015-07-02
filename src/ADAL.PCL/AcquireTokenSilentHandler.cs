@@ -25,10 +25,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     internal class AcquireTokenSilentHandler : AcquireTokenHandlerBase
     {
         public AcquireTokenSilentHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope,
-            ClientKey clientKey, UserIdentifier userId)
+            ClientKey clientKey, UserIdentifier userId, string policy)
             : base(
                 authenticator, tokenCache, scope, clientKey,
-                clientKey.HasCredential ? TokenSubjectType.UserPlusClient : TokenSubjectType.User)
+                clientKey.HasCredential ? TokenSubjectType.UserPlusClient : TokenSubjectType.User, policy)
         {
             if (userId == null)
             {

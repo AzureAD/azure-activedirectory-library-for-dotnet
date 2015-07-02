@@ -26,7 +26,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly UserAssertion userAssertion;
 
         public AcquireTokenOnBehalfHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope, ClientKey clientKey, UserAssertion userAssertion)
-            : base(authenticator, tokenCache, scope, clientKey, TokenSubjectType.UserPlusClient)
+            : base(authenticator, tokenCache, scope, clientKey, TokenSubjectType.UserPlusClient, null)
         {
             if (userAssertion == null)
             {

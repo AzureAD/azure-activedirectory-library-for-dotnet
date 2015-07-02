@@ -34,7 +34,7 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
 
             var credential = new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret);
 
@@ -98,7 +98,7 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
             var certificate = new ClientAssertionCertificate(sts.ValidConfidentialClientId,
                 ExportX509Certificate(sts.ConfidentialClientCertificateName, sts.ConfidentialClientCertificatePassword),
                 sts.ConfidentialClientCertificatePassword);
@@ -213,7 +213,7 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
             RecorderJwtId.JwtIdIndex = 9;
             ClientAssertion assertion = CreateClientAssertion(sts.Authority, sts.ValidConfidentialClientId,
                 sts.ConfidentialClientCertificateName, sts.ConfidentialClientCertificatePassword);
@@ -365,13 +365,13 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
             EndBrowserDialogSession();
             AuthenticationContextProxy.SetCredentials(sts.ValidUserName2, sts.ValidPassword2);
             string authorizationCode2 =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidRequiredUserId2);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidRequiredUserId2, sts.Policy);
 
             var credential = new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret);
 
@@ -411,7 +411,7 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
 
             var credential = new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret);
 
@@ -593,7 +593,7 @@ namespace Test.ADAL.Common
             string authorizationCode =
                 await
                     context.AcquireAccessCodeAsync(sts.ValidScope, null, sts.ValidConfidentialClientId,
-                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId);
+                        sts.ValidRedirectUriForConfidentialClient, sts.ValidUserId, sts.Policy);
 
             var credential = new ClientCredential(sts.ValidConfidentialClientId, sts.ValidConfidentialClientSecret);
 

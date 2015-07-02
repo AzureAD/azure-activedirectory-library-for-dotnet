@@ -168,6 +168,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         ///     such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)" />.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="clientCredential">The credential to use for token acquisition.</param>
+        /// <param name="scope">
+        ///     Identifier of the target resource that is the recipient of the requested token. It can be null if
+        ///     provided earlier to acquire authorizationCode.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy. </param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+           Uri redirectUri, ClientCredential clientCredential, string[] scope, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
+                        new ClientKey(clientCredential), scope);
+        }
+
+        /// <summary>
+        ///     Acquires security token from the authority using an authorization code previously received.
+        ///     This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods
+        ///     such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)" />.
+        /// </summary>
+        /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <param name="scope">
@@ -183,6 +206,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
                         new ClientKey(clientAssertion), scope);
         }
+
+
+        /// <summary>
+        ///     Acquires security token from the authority using an authorization code previously received.
+        ///     This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods
+        ///     such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)" />.
+        /// </summary>
+        /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
+        /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
+        /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
+        /// <param name="scope">
+        ///     Identifier of the target resource that is the recipient of the requested token. It can be null if
+        ///     provided earlier to acquire authorizationCode.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy. </param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, ClientAssertion clientAssertion, string[] scope, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
+                        new ClientKey(clientAssertion), scope, policy);
+        }
+
 
         /// <summary>
         ///     Acquires security token from the authority using an authorization code previously received.
@@ -207,6 +255,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
+        ///     Acquires security token from the authority using an authorization code previously received.
+        ///     This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods
+        ///     such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)" />.
+        /// </summary>
+        /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
+        /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="scope">
+        ///     Identifier of the target resource that is the recipient of the requested token. It can be null if
+        ///     provided earlier to acquire authorizationCode.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, ClientAssertionCertificate clientCertificate, string[] scope, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
+                        new ClientKey(clientCertificate, this.Authenticator), scope, policy);
+        }
+
+        /// <summary>
         ///     Acquires security token without asking for user credential.
         /// </summary>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
@@ -219,6 +290,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientId), UserIdentifier.AnyUser);
         }
+
+        /// <summary>
+        ///     Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>
+        ///     It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring
+        ///     token without user credential is not possible, the method throws AdalException.
+        /// </returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, string clientId, string policy)
+        {
+            return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientId), UserIdentifier.AnyUser, policy);
+        }
+
 
         /// <summary>
         ///     Acquires security token without asking for user credential.
@@ -243,6 +330,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         ///     Acquires security token without asking for user credential.
         /// </summary>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
+        ///     .Any.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>
+        ///     It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring
+        ///     token without user credential is not possible, the method throws AdalException.
+        /// </returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, string clientId,
+            UserIdentifier userId, string policy)
+        {
+            return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientId), userId);
+        }
+        
+        /// <summary>
+        ///     Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCredential">The client credential to use for token acquisition.</param>
         /// <param name="userId">
         ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
@@ -256,6 +363,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             ClientCredential clientCredential, UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientCredential), userId);
+        }
+
+        /// <summary>
+        ///     Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCredential">The client credential to use for token acquisition.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
+        ///     .Any.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy. </param>
+        /// <returns>
+        ///     It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring
+        ///     token without user credential is not possible, the method throws AdalException.
+        /// </returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope,
+            ClientCredential clientCredential, UserIdentifier userId, string policy)
+        {
+            return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientCredential), userId, policy);
         }
 
         /// <summary>
@@ -284,6 +411,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         ///     Acquires security token without asking for user credential.
         /// </summary>
         /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
+        ///     .Any.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>
+        ///     It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring
+        ///     token without user credential is not possible, the method throws AdalException.
+        /// </returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope,
+            ClientAssertionCertificate clientCertificate, UserIdentifier userId, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientCertificate, this.Authenticator),
+                        userId, policy);
+        }
+
+        /// <summary>
+        ///     Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <param name="userId">
         ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
@@ -297,6 +447,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             UserIdentifier userId)
         {
             return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientAssertion), userId);
+        }
+
+        /// <summary>
+        ///     Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
+        ///     .Any.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>
+        ///     It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time. If acquiring
+        ///     token without user credential is not possible, the method throws AdalException.
+        /// </returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scope, ClientAssertion clientAssertion,
+            UserIdentifier userId, string policy)
+        {
+            return await this.AcquireTokenSilentCommonAsync(scope, new ClientKey(clientAssertion), userId, policy);
         }
 
         /// <summary>
@@ -318,9 +488,34 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             Uri redirectUri, UserIdentifier userId, string extraQueryParameters)
         {
             var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache, scope, additionalScope,
-                clientId, redirectUri, null, userId, extraQueryParameters, null);
+                clientId, redirectUri, null, userId, extraQueryParameters, null, policy:null);
             return await handler.CreateAuthorizationUriAsync(this.CorrelationId);
         }
+
+        /// <summary>
+        ///     Gets URL of the authorize endpoint including the query parameters.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier" />
+        ///     .Any.
+        /// </param>
+        /// <param name="extraQueryParameters">
+        ///     This parameter will be appended as is to the query string in the HTTP authentication
+        ///     request to the authority. The parameter can be null.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>URL of the authorize endpoint including the query parameters.</returns>
+        public async Task<Uri> GetAuthorizationRequestUrlAsync(string[] scope, string[] additionalScope, string clientId,
+            Uri redirectUri, UserIdentifier userId, string extraQueryParameters, string policy)
+        {
+            var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache, scope, additionalScope,
+                clientId, redirectUri, null, userId, extraQueryParameters, null, policy);
+            return await handler.CreateAuthorizationUriAsync(this.CorrelationId);
+        }
+
 
         /// <summary>
         ///     Acquires security token from the authority.
@@ -339,8 +534,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return
                 await
                     this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters,
-                        UserIdentifier.AnyUser);
+                    null, UserIdentifier.AnyUser);
         }
+
+        /// <summary>
+        ///     Acquires security token from the authority.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="parameters">
+        ///     An object of type PlatformParameters which may pass additional parameters used for
+        ///     authorization.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters,
+                    policy, UserIdentifier.AnyUser);
+        }
+
 
         /// <summary>
         ///     Acquires security token from the authority.
@@ -363,8 +580,34 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope,
             string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId)
         {
-            return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, userId);
+            return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, null, userId);
         }
+
+        /// <summary>
+        ///     Acquires security token from the authority.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="parameters">
+        ///     An object of type PlatformParameters which may pass additional parameters used for
+        ///     authorization.
+        /// </param>
+        /// <param name="policy">Identifier of the target policy.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to
+        ///     pre-populate the username field in the authentication form. Please note that the end user can still edit the
+        ///     username field and authenticate as a different user.
+        ///     If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId.
+        ///     This parameter can be <see cref="UserIdentifier" />.Any.
+        /// </param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, string policy, UserIdentifier userId)
+        {
+            return await this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, policy, userId);
+        }
+
 
         /// <summary>
         ///     Acquires security token from the authority.
@@ -394,15 +637,48 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return
                 await
-                    this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, userId,
+                    this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, null, userId,
+                        extraQueryParameters);
+        }
+
+        /// <summary>
+        ///     Acquires security token from the authority.
+        /// </summary>
+        /// <param name="scope">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="userId">
+        ///     Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to
+        ///     pre-populate the username field in the authentication form. Please note that the end user can still edit the
+        ///     username field and authenticate as a different user.
+        ///     If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId.
+        ///     This parameter can be <see cref="UserIdentifier" />.Any.
+        /// </param>
+        /// <param name="parameters">
+        ///     Parameters needed for interactive flow requesting authorization code. Pass an instance of
+        ///     PlatformParameters.
+        /// </param>
+        /// <param name="extraQueryParameters">
+        ///     This parameter will be appended as is to the query string in the HTTP authentication
+        ///     request to the authority. The parameter can be null.
+        /// </param>
+        ///  <param name="policy">Identifier of the target policy.</param>
+        /// <returns>It contains Access accessToken, Refresh accessToken and the Access accessToken's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenAsync(string[] scope, string[] additionalScope,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId,
+            string extraQueryParameters, string policy)
+        {
+            return
+                await
+                    this.AcquireTokenCommonAsync(scope, additionalScope, clientId, redirectUri, parameters, policy, userId,
                         extraQueryParameters);
         }
 
         private async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeCommonAsync(string authorizationCode,
-            Uri redirectUri, ClientKey clientKey, string[] scope)
+            Uri redirectUri, ClientKey clientKey, string[] scope, string policy=null)
         {
             var handler = new AcquireTokenByAuthorizationCodeHandler(this.Authenticator, this.TokenCache, scope,
-                clientKey, authorizationCode, redirectUri);
+                clientKey, authorizationCode, redirectUri, policy);
             return await handler.RunAsync();
         }
 
@@ -412,19 +688,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         private async Task<AuthenticationResult> AcquireTokenCommonAsync(string[] scope, string[] additionalScope,
-            string clientId, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId,
+            string clientId, Uri redirectUri, IPlatformParameters parameters, string policy, UserIdentifier userId,
             string extraQueryParameters = null)
         {
             var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache, scope, additionalScope,
                 clientId, redirectUri, parameters, userId, extraQueryParameters,
-                this.CreateWebAuthenticationDialog(parameters));
+                this.CreateWebAuthenticationDialog(parameters), policy);
             return await handler.RunAsync();
         }
 
         private async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(string[] scope, ClientKey clientKey,
-            UserIdentifier userId)
+            UserIdentifier userId, string policy=null)
         {
-            var handler = new AcquireTokenSilentHandler(this.Authenticator, this.TokenCache, scope, clientKey, userId);
+            var handler = new AcquireTokenSilentHandler(this.Authenticator, this.TokenCache, scope, clientKey, userId, policy);
             return await handler.RunAsync();
         }
     }

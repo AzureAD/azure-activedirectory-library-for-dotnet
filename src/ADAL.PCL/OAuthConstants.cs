@@ -30,6 +30,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RedirectUri = "redirect_uri";
         public const string Code = "code";
         public const string Scope = "scope";
+        public const string Policy = "p";
         public const string Assertion = "assertion";
         public const string RequestedTokenUse = "requested_token_use";
         public const string Username = "username";

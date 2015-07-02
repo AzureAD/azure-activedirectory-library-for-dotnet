@@ -47,5 +47,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets the user's displayable Id.
         /// </summary>
         public string DisplayableId { get; internal set; }
+
+        /// <summary>
+        /// Gets the policy.
+        /// </summary>
+        public string Policy { get; internal set; }
     }
 }

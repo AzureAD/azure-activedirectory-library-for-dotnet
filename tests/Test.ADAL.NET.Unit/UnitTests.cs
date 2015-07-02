@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -26,6 +27,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Owin.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Owin;
 using Test.ADAL.Common;
 
@@ -304,6 +306,61 @@ namespace Test.ADAL.NET.Unit
                     Verify.AreEqual(serviceException.StatusCode, (int) HttpStatusCode.RequestTimeout);
                 }
             }
+        }
+
+        [TestMethod]
+        [TestCategory("AdalDotNetUnit")]
+        public async Task AcquireTokenWithPolicyTest()
+        {
+            var mockCache = new Moq.Mock<TokenCache>();
+            var authenticator = new Authenticator("https://login.windows.net/common", false);
+            var httpClient = new Moq.Mock<AdalHttpClient>();
+            var mocktokenResponse = new Mock<TokenResponse>();
+            string[] scope = new string[1] {"scope"};
+            string authCode = "code123";
+            string redirectUri = "http://hello";
+            string policy = "signup";
+            var clientKey = new ClientKey("w123");
+            var authResult = CreateCacheValue("", "", "token123");
+            List<AuthenticationResultEx> tokenResultList = new List<AuthenticationResultEx>();
+            tokenResultList.Add(authResult);
+            mocktokenResponse.Setup(a => a.GetResults()).Returns(tokenResultList);
+            httpClient.Setup(a => a.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token))
+                .Returns(Task.FromResult(mocktokenResponse.Object));
+
+            AuthenticationResultEx resultex = CreateCacheValue("test", "test", "token");
+            mockCache.Setup(
+                a =>
+                    a.LoadFromCache(authenticator.Authority, scope, clientKey.ClientId, It.IsAny<TokenSubjectType>(),
+                        It.IsAny<string>(), It.IsAny<string>()
+                        , policy, It.IsAny<CallState>())).Returns(resultex);
+            
+           
+            var handler = new AcquireTokenByAuthorizationCodeHandler(authenticator, mockCache.Object, scope,
+                clientKey, authCode, new Uri("http://hello"), policy);
+            handler.httpClient = httpClient.Object;
+            var result = await handler.RunAsync();
+            
+            mocktokenResponse.Verify(a=>a.GetResults(), Times.AtLeastOnce);
+            var requestParam = (DictionaryRequestParameters)httpClient.Object.BodyParameters;
+            Assert.IsTrue(requestParam.ContainsKey("p") && requestParam["p"].Equals(policy));
+        }
+
+        static AuthenticationResultEx CreateCacheValue(string uniqueId, string displayableId, string token )
+        {
+            string refreshToken = string.Format("RefreshToken{0}", Guid.NewGuid().ToString());
+            var result = new AuthenticationResult(null, token,
+                new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(30000)))
+            {
+                UserInfo = new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId },
+                Token = Guid.NewGuid().ToString()
+            };
+
+            return new AuthenticationResultEx
+            {
+                Result = result,
+                RefreshToken = refreshToken
+            };
         }
 
         private static void RunAuthenticationParametersPositive(string authenticateHeader, string expectedAuthority,

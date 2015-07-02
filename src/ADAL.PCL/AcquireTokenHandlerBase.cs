@@ -28,20 +28,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         protected static readonly Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
+        
 
         protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string[] scope,
-            ClientKey clientKey, TokenSubjectType subjectType)
+            ClientKey clientKey, TokenSubjectType subjectType, string policy)
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
+            httpClient = new AdalHttpClient(this.CallState);
             PlatformPlugin.Logger.Information(this.CallState,
                 string.Format(
-                    "=== accessToken Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                    "=== accessToken Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\tPolicy: {5}\n\t",
                     authenticator.Authority, scope, clientKey.ClientId,
                     (tokenCache != null)
                         ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count)
                         : "null",
-                    subjectType));
+                    subjectType,
+                    policy));
 
             this.tokenCache = tokenCache;
             this.ClientKey = clientKey;
@@ -57,6 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.Scope = scope;
             ValidateScopeInput(scope);
+            this.Policy = policy;
         }
 
         internal CallState CallState { get; set; }
@@ -70,6 +74,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected UserIdentifierType UserIdentifierType { get; set; }
         protected bool LoadFromCache { get; set; }
         protected bool StoreToCache { get; set; }
+        protected string Policy { get; set; }
+        public AdalHttpClient httpClient;
 
         protected string[] GetDecoratedScope(string[] inputScope)
         {
@@ -121,8 +127,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
-                        this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
-                        this.CallState);
+                        this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, 
+                        this.Policy, this.CallState);
                     if (resultEx != null && resultEx.Result.Token == null && resultEx.RefreshToken != null)
                     {
                         List<AuthenticationResultEx> resultList = await this.RefreshAccessTokenAsync(resultEx);
@@ -133,12 +139,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             {
                                 this.tokenCache.StoreToCache(resultItem, this.Authenticator.Authority,
                                     resultItem.ScopeInResponse, this.ClientKey.ClientId, this.TokenSubjectType,
-                                    this.CallState);
+                                    this.Policy, this.CallState);
                             }
 
                             resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
                                 this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
-                                this.CallState);
+                                this.Policy, this.CallState);
                         }
                         else
                         {
@@ -165,7 +171,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                             this.tokenCache.StoreToCache(resultItem, this.Authenticator.Authority,
                                 resultItem.ScopeInResponse, this.ClientKey.ClientId, this.TokenSubjectType,
-                                this.CallState);
+                                this.Policy, this.CallState);
                         }
                         else
                         {
@@ -174,7 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                     resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
                         this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
-                        this.CallState);
+                        this.Policy, this.CallState);
                 }
 
                 await this.PostRunAsync(resultEx.Result);
@@ -228,6 +234,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected virtual async Task<List<AuthenticationResultEx>> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
+            if (!string.IsNullOrEmpty(this.Policy))
+            {
+                requestParameters[OAuthParameter.Policy] = this.Policy;
+            }
+
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters);
         }
@@ -237,6 +248,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
+
+            if (!string.IsNullOrEmpty(this.Policy))
+            {
+                requestParameters[OAuthParameter.Policy] = this.Policy;
+            }
+
             List<AuthenticationResultEx> results = await this.SendHttpMessageAsync(requestParameters);
 
             foreach (var result in results)
@@ -295,11 +312,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private async Task<List<AuthenticationResultEx>> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            var client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
-            {
-                Client = {BodyParameters = requestParameters}
-            };
-            TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
+            httpClient.EndpointUri = this.Authenticator.TokenUri;
+            httpClient.BodyParameters = requestParameters;
+            TokenResponse tokenResponse = await httpClient.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
 
             return tokenResponse.GetResults();
         }
