@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+/*//----------------------------------------------------------------------
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
 // Apache License 2.0
@@ -50,4 +50,4 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await client.GetResponseAsync<UserRealmDiscoveryResponse>(ClientMetricsEndpointType.UserRealmDiscovery);
         }
     }
-}
+}*/

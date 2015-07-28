@@ -1,4 +1,5 @@
-﻿//----------------------------------------------------------------------
+﻿/*
+//----------------------------------------------------------------------
 // Copyright (c) Microsoft Open Technologies, Inc.
 // All Rights Reserved
 // Apache License 2.0
@@ -25,7 +26,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly UserAssertion userAssertion;
 
         public AcquireTokenOnBehalfHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope, ClientKey clientKey, UserAssertion userAssertion)
-            : base(authenticator, tokenCache, scope, clientKey, TokenSubjectType.UserPlusClient)
+            : base(authenticator, tokenCache, scope, clientKey, TokenSubjectType.UserPlusClient, null)
         {
             if (userAssertion == null)
             {
@@ -49,3 +50,4 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
     }
 }
+*/

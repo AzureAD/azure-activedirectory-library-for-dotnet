@@ -181,7 +181,7 @@ namespace Test.ADAL.Common
             try
             {
                 AuthenticationResult result = null;
-                using (Timer abortTest = new Timer(10*1000)) // 10 seconds for test execution
+                using (Timer abortTest = new Timer(90*1000)) // 10 seconds for test execution
                 {
                     using (Timer uiSupply = new Timer(1500))
                     {
@@ -251,7 +251,7 @@ namespace Test.ADAL.Common
         }
 
         private async Task<AuthenticationResultProxy> AcquireAccessCodeAsync(string[] scope, string[] additionalScope,
-            string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
+            string clientId, Uri redirectUri, string policy, UserIdentifier userId, string extraQueryParameters, int retryCount = 0)
         {
             AuthenticationResultProxy resultProxy;
             bool exceptionOccured = false;
@@ -274,7 +274,7 @@ namespace Test.ADAL.Common
 
                         string authorizationCode =
                             await AdalFriend.AcquireAccessCodeAsync(this.context, scope, additionalScope, clientId,
-                                redirectUri, userId);
+                                redirectUri, userId, policy);
                         return new AuthenticationResultProxy() {Token = authorizationCode};
                     }
                 }
@@ -294,7 +294,7 @@ namespace Test.ADAL.Common
             {
                 return
                     await
-                        AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId,
+                        AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, policy, userId,
                             extraQueryParameters, retryCount + 1);
             }
 
@@ -302,10 +302,10 @@ namespace Test.ADAL.Common
         }
 
         public async Task<string> AcquireAccessCodeAsync(string[] scope, string[] additionalScope, string clientId,
-            Uri redirectUri, UserIdentifier userId)
+            Uri redirectUri, UserIdentifier userId, string policy)
         {
             AuthenticationResultProxy result =
-                await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, userId, null);
+                await AcquireAccessCodeAsync(scope, additionalScope, clientId, redirectUri, policy, userId, null);
             return result.Token;
         }
 

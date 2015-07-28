@@ -40,6 +40,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.ExpiresOn = result.ExpiresOn;
             this.Token = result.Token;
             this.ProfileInfo = result.ProfileInfo;
+            this.Policy = key.Policy;
 
             if (result.UserInfo != null)
             {
@@ -80,9 +81,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string IdentityProvider { get; internal set; }
 
         /// <summary>
-        ///     Gets the Resource.
+        ///     Gets the Scope.
         /// </summary>
         public string[] Scope { get; internal set; }
+
+        /// <summary>
+        ///     Gets the Policy.
+        /// </summary>
+        public string Policy { get; internal set; }
 
         /// <summary>
         ///     Gets the TenantId.
@@ -115,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return (key.Authority == this.Authority && key.ScopeEquals(this.Scope) && key.ClientIdEquals(this.ClientId)
                     && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId &&
-                    key.DisplayableIdEquals(this.DisplayableId));
+                    key.DisplayableIdEquals(this.DisplayableId) && key.PolicyEquals(this.Policy));
         }
     }
 }

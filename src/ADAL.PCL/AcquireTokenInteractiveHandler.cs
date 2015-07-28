@@ -36,8 +36,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string[] scope,
             string[] additionalScope, string clientId, Uri redirectUri, IPlatformParameters parameters,
-            UserIdentifier userId, string extraQueryParameters, IWebUI webUI)
-            : base(authenticator, tokenCache, scope, new ClientKey(clientId), TokenSubjectType.User)
+            UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string policy)
+            : base(authenticator, tokenCache, scope, new ClientKey(clientId), TokenSubjectType.User, policy)
         {
             this.redirectUri = PlatformPlugin.PlatformInformation.ValidateRedirectUri(redirectUri, this.CallState);
 
@@ -159,6 +159,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
+
+            if (!string.IsNullOrWhiteSpace(Policy))
+            {
+                authorizationRequestParameters[OAuthParameter.Policy] = Policy;
+            }
 
             if (!string.IsNullOrWhiteSpace(loginHint))
             {

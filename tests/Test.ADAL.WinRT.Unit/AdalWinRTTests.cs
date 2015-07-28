@@ -52,7 +52,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Positive Test for AcquireToken")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenPositiveTest(string stsType)
         {
             await AdalTests.AcquireTokenPositiveTestAsync(SetupStsService(GetStsType(stsType)));
@@ -62,7 +61,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Test for autority validation to AuthenticationContext")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AuthenticationContextAuthorityValidationTest(string stsType)
         {
             await AdalTests.AuthenticationContextAuthorityValidationTestAsync(SetupStsService(GetStsType(stsType)));
@@ -72,7 +70,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Negative Test for AcquireToken with invalid authority")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenWithInvalidAuthorityTest(string stsType)
         {
             await AdalTests.AcquireTokenWithInvalidAuthorityTestAsync(SetupStsService(GetStsType(stsType)));
@@ -82,7 +79,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Negative Test for AcquireToken with invalid resource")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenWithInvalidResourceTest(string stsType)
         {
             await AdalTests.AcquireTokenWithInvalidResourceTestAsync(SetupStsService(GetStsType(stsType)));
@@ -92,7 +88,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Negative Test for AcquireToken with invalid client id")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenWithInvalidClientIdTest(string stsType)
         {
             await AdalTests.AcquireTokenWithInvalidClientIdTestAsync(SetupStsService(GetStsType(stsType)));
@@ -102,7 +97,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Negative Test for AcquireToken with incorrect user credential")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenWithIncorrectUserCredentialTest(string stsType)
         {
             await AdalTests.AcquireTokenWithIncorrectUserCredentialTestAsync(SetupStsService(GetStsType(stsType)));
@@ -112,7 +106,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Positive Test for AcquireToken")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task ExtraQueryParametersTest(string stsType)
         {
             await AdalTests.ExtraQueryParametersTestAsync(SetupStsService(GetStsType(stsType)));
@@ -122,7 +115,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Negative Test for AcquireToken with user canceling authentication")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenWithAuthenticationCanceledTest(string stsType)
         {
             // ADFS security dialog hang up
@@ -133,7 +125,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Positive Test for AcquireToken testing default token cache")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenPositiveWithDefaultCacheTest(string stsType)
         {
             await AdalTests.AcquireTokenPositiveWithDefaultCacheTestAsync(SetupStsService(GetStsType(stsType)));
@@ -143,7 +134,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Positive Test for AcquireToken testing custom in memory token cache")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task AcquireTokenPositiveWithInMemoryCacheTest(string stsType)
         {
             await AdalTests.AcquireTokenPositiveWithInMemoryCacheTestAsync(SetupStsService(GetStsType(stsType)));
@@ -153,7 +143,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Positive Test for AcquireToken testing default token cache")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         [Ignore]    // Enable once the test bug is fixed.
         public async Task AcquireTokenPositiveWithNullCacheTest(string stsType)
         {
@@ -164,7 +153,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Test for UserInfo")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task UserInfoTest(string stsType)
         {
             await AdalTests.UserInfoTestAsync(SetupStsService(GetStsType(stsType)));
@@ -174,7 +162,6 @@ namespace Test.ADAL.WinRT.Unit
         //[Description("Test for multi resource refresh token")]
         [TestCategory("AdalWinRTMock")]
         [DataRow("AAD")]
-        [DataRow("ADFS")]
         public async Task MultiResourceRefreshTokenTest(string stsType)
         {
             await AdalTests.MultiResourceRefreshTokenTestAsync(SetupStsService(GetStsType(stsType)));
