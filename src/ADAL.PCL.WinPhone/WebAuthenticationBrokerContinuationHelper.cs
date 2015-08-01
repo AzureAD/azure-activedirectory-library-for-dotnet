@@ -18,7 +18,7 @@
 
 using Windows.ApplicationModel.Activation;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     public static class WebAuthenticationBrokerContinuationHelper
     {

@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class SilentWebUIDoneEventArgs : EventArgs
     {

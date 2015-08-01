@@ -18,7 +18,7 @@
 
 using System.Xml.Linq;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Error code returned as a property in AdalException
@@ -116,7 +116,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string IdentityProtocolMismatch = "identity_protocol_mismatch";
 
         /// <summary>
-        /// Email address suffix mismatch.
+        /// PreferredUsername address suffix mismatch.
         /// </summary>
         public const string EmailAddressSuffixMismatch = "email_address_suffix_mismatch";
 

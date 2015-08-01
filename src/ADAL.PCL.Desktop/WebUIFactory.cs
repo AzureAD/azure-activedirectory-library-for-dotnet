@@ -17,9 +17,9 @@
 //----------------------------------------------------------------------
 
 using System;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Internal;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class WebUIFactory : IWebUIFactory
     {

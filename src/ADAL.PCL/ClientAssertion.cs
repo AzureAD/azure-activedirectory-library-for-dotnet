@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Credential type containing an assertion of type "urn:ietf:params:oauth:token-type:jwt".

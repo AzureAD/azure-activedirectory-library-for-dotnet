@@ -22,7 +22,7 @@ using System.Linq;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common
 {
@@ -379,8 +379,8 @@ namespace Test.ADAL.Common
             {
                 Verify.AreEqual(sts.ValidUserName, result.UserInfo.DisplayableId);
                 Verify.IsNotNullOrEmptyString(result.UserInfo.UniqueId);
-                Verify.IsNotNullOrEmptyString(result.UserInfo.GivenName);
-                Verify.IsNotNullOrEmptyString(result.UserInfo.FamilyName);
+                Verify.IsNotNullOrEmptyString(result.UserInfo.Name);
+                Verify.IsNotNullOrEmptyString(result.UserInfo.Version);
 
                 EndBrowserDialogSession();
                 Log.Comment("Waiting 2 seconds before next token request...");
@@ -791,8 +791,8 @@ namespace Test.ADAL.Common
                 ValidateUserInfo(result.UserInfo.UniqueId, "user unique id", true);
                 ValidateUserInfo(result.UserInfo.DisplayableId, "user displayable id", true);
                 //ValidateUserInfo(result.UserInfo.IdentityProvider, "identity provider", true);
-                ValidateUserInfo(result.UserInfo.GivenName, "given name", false);
-                ValidateUserInfo(result.UserInfo.FamilyName, "family name", false);
+                ValidateUserInfo(result.UserInfo.Name, "given name", false);
+                ValidateUserInfo(result.UserInfo.Version, "family name", false);
             }
 
             long expiresIn = (long) (result.ExpiresOn - DateTime.UtcNow).TotalSeconds;
@@ -856,8 +856,8 @@ namespace Test.ADAL.Common
             Verify.AreEqual(result.Token, result2.Token, "AuthenticationResult.Token");
             Verify.AreEqual(result.UserInfo.UniqueId, result2.UserInfo.UniqueId);
             Verify.AreEqual(result.UserInfo.DisplayableId, result2.UserInfo.DisplayableId);
-            Verify.AreEqual(result.UserInfo.GivenName, result2.UserInfo.GivenName);
-            Verify.AreEqual(result.UserInfo.FamilyName, result2.UserInfo.FamilyName);
+            Verify.AreEqual(result.UserInfo.Name, result2.UserInfo.Name);
+            Verify.AreEqual(result.UserInfo.Version, result2.UserInfo.Version);
             Verify.AreEqual(result.TenantId, result2.TenantId);
         }
 

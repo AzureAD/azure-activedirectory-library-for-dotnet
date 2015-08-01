@@ -23,7 +23,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class CryptographyHelper : ICryptographyHelper
     {

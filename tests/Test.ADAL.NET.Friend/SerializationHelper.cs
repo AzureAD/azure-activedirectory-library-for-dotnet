@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common
 {

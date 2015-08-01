@@ -21,7 +21,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     class AdalHttpClient
     {

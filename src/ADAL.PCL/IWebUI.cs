@@ -19,7 +19,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     interface IWebUI
     {

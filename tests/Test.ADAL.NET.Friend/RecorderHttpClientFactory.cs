@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Friend
 {

@@ -18,7 +18,7 @@
 
 using System.Diagnostics.Tracing;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     public static class AdalOption
     {

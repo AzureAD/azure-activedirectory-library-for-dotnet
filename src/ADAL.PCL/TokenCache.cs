@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     ///     accessToken cache class used by <see cref="AuthenticationContext" /> to store access and refresh tokens.

@@ -23,8 +23,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Internal;
 using Test.ADAL.NET.Friend;
 using Timer = System.Timers.Timer;
 

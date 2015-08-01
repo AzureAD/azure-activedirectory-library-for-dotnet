@@ -24,7 +24,7 @@ using Windows.Security.Cryptography.Core;
 using Windows.Security.Cryptography.DataProtection;
 using Windows.Storage.Streams;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class CryptographyHelper : ICryptographyHelper
     {

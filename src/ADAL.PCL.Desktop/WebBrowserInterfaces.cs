@@ -20,7 +20,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class NativeWrapper
     {

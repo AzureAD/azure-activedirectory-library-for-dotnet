@@ -21,7 +21,7 @@ using System.Diagnostics.Tracing;
 using System.Net;
 using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Test.ADAL.Common;
 

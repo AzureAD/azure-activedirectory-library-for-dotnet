@@ -128,7 +128,7 @@ namespace AdalUniversalTestApp
 #if WINDOWS_PHONE_APP
             if (args is IWebAuthenticationBrokerContinuationEventArgs)
             {
-                Microsoft.IdentityModel.Clients.ActiveDirectory.WebAuthenticationBrokerContinuationHelper.SetWebAuthenticationBrokerContinuationEventArgs(args as IWebAuthenticationBrokerContinuationEventArgs);
+                Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.WebAuthenticationBrokerContinuationHelper.SetWebAuthenticationBrokerContinuationEventArgs(args as IWebAuthenticationBrokerContinuationEventArgs);
             }
 #endif
             

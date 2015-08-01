@@ -19,7 +19,7 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Test.ADAL.NET.Friend;
 
 namespace Test.ADAL.Common

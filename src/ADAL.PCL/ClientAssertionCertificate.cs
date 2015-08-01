@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Containing certificate used to create client assertion.

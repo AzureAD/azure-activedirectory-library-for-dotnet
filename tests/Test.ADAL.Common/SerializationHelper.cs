@@ -22,7 +22,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common
 {

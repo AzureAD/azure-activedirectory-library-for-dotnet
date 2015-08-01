@@ -23,7 +23,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class TokenResponseClaim
     {
@@ -33,6 +33,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RefreshToken = "refresh_token";
         public const string Scope = "scope";
         public const string IdToken = "id_token";
+        public const string IdTokenExpiresIn = "id_token_expires_in";
         public const string ProfileInfo = "profile_info";
         public const string CreatedOn = "created_on";
         public const string ExpiresOn = "expires_on";
@@ -173,49 +174,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 string uniqueId = null;
                 string displayableId = null;
 
-                if (!string.IsNullOrWhiteSpace(profileInfo.ObjectId))
-                {
-                    uniqueId = profileInfo.ObjectId;
-                }
-                else if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
+                if (!string.IsNullOrWhiteSpace(profileInfo.Subject))
                 {
                     uniqueId = profileInfo.Subject;
                 }
 
-                if (!string.IsNullOrWhiteSpace(profileInfo.UPN))
+                if (!string.IsNullOrWhiteSpace(profileInfo.PreferredUsername))
                 {
-                    displayableId = profileInfo.UPN;
-                }
-                else if (!string.IsNullOrWhiteSpace(profileInfo.Email))
-                {
-                    displayableId = profileInfo.Email;
+                    displayableId = profileInfo.PreferredUsername;
                 }
 
-                string givenName = profileInfo.GivenName;
-                string familyName = profileInfo.FamilyName;
-                string identityProvider = profileInfo.IdentityProvider ?? profileInfo.Issuer;
-                DateTimeOffset? passwordExpiresOffest = null;
-                if (profileInfo.PasswordExpiration > 0)
-                {
-                    passwordExpiresOffest = DateTime.UtcNow + TimeSpan.FromSeconds(profileInfo.PasswordExpiration);
-                }
-
-                Uri changePasswordUri = null;
-                if (!string.IsNullOrEmpty(profileInfo.PasswordChangeUrl))
-                {
-                    changePasswordUri = new Uri(profileInfo.PasswordChangeUrl);
-                }
 
                 result.UpdateTenantAndUserInfo(tenantId, this.ProfileInfoString,
                     new UserInfo
                     {
                         UniqueId = uniqueId,
                         DisplayableId = displayableId,
-                        GivenName = givenName,
-                        FamilyName = familyName,
-                        IdentityProvider = identityProvider,
-                        PasswordExpiresOn = passwordExpiresOffest,
-                        PasswordChangeUrl = changePasswordUri
+                        Name = profileInfo.Name,
+                        Version = profileInfo.Version
                     });
             }
 
@@ -225,7 +201,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RefreshToken = this.RefreshToken,
                 // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
                 // to get it from the STS response.
-                ScopeInResponse = AdalStringHelper.CreateArrayFromSingleString(scope)
+                ScopeInResponse = scope.CreateArrayFromSingleString()
             };
         }
 
