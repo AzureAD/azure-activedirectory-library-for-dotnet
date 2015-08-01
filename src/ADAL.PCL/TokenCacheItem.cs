@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     ///     Token cache item
@@ -44,9 +44,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (result.UserInfo != null)
             {
-                this.FamilyName = result.UserInfo.FamilyName;
-                this.GivenName = result.UserInfo.GivenName;
-                this.IdentityProvider = result.UserInfo.IdentityProvider;
+                this.Name = result.UserInfo.Name;
             }
         }
 
@@ -66,14 +64,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public DateTimeOffset ExpiresOn { get; internal set; }
 
         /// <summary>
-        ///     Gets the FamilyName.
+        ///     Gets the Version.
         /// </summary>
         public string FamilyName { get; internal set; }
 
         /// <summary>
-        ///     Gets the GivenName.
+        ///     Gets the Name.
         /// </summary>
-        public string GivenName { get; internal set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         ///     Gets the IdentityProviderName.

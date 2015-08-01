@@ -18,7 +18,7 @@
 
 using System;
 using System.IO;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.ADAL.NET.Friend

@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Friend
 {

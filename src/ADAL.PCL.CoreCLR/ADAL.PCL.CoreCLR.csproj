@@ -8,8 +8,8 @@
     <ProjectGuid>{75D27855-D189-44AE-9FA9-10E729C573F4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.IdentityModel.Clients.ActiveDirectory</RootNamespace>
-    <AssemblyName>Microsoft.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
+    <RootNamespace>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory</RootNamespace>
+    <AssemblyName>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

@@ -9,8 +9,8 @@
     <ProjectGuid>{28E56F9E-F264-4DA5-800E-3E5CCB05DEC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.IdentityModel.Clients.ActiveDirectory</RootNamespace>
-    <AssemblyName>Microsoft.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
+    <RootNamespace>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory</RootNamespace>
+    <AssemblyName>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>

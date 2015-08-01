@@ -16,7 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
 using System.Linq;

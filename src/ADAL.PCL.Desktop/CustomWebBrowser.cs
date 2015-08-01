@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal partial class CustomWebBrowser : WebBrowser
     {

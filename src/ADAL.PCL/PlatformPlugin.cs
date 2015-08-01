@@ -21,7 +21,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal static class PlatformPluginSwitch
     {
@@ -55,7 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static void InitializeByAssemblyDynamicLinking()
         {
             Assembly assembly = LoadPlatformSpecificAssembly();
-            const string Namespace = "Microsoft.IdentityModel.Clients.ActiveDirectory.";
+            const string Namespace = "Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.";
             InjectDependecies(
                 (IWebUIFactory)Activator.CreateInstance(assembly.GetType(Namespace + "WebUIFactory")),
                 (ITokenCachePlugin)Activator.CreateInstance(assembly.GetType(Namespace + "TokenCachePlugin")),
@@ -77,7 +77,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private static Assembly LoadPlatformSpecificAssembly()
         {
             // For security reasons, it is important to have PublicKeyToken mentioned referencing the assembly.
-            const string PlatformSpecificAssemblyNameTemplate = "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform, Version={0}, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+            const string PlatformSpecificAssemblyNameTemplate = "Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform, Version={0}, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
 
             string platformSpecificAssemblyName = string.Format(PlatformSpecificAssemblyNameTemplate, AdalIdHelper.GetAdalVersion());
 

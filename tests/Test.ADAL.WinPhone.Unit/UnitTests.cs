@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
 using Windows.Storage;
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
 using Test.ADAL.Common;

@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common
 {
@@ -83,15 +83,15 @@ namespace Test.ADAL.Common
 
         public bool ValidateAuthority { get; protected set; }
 
-        public string Authority { get; protected set; }
+        public string Authority { get; set; }
 
         public string TenantlessAuthority { get; protected set; }
 
-        public string[] ValidScope { get; protected set; }
+        public string[] ValidScope { get; set; }
 
-        public string[] ValidScope2 { get; protected set; }
+        public string[] ValidScope2 { get; set; }
 
-        public string[] ValidScope3 { get; protected set; }
+        public string[] ValidScope3 { get; set; }
 
         public string ValidClientId { get; set; }
 
@@ -117,7 +117,7 @@ namespace Test.ADAL.Common
 
         public Uri ValidRedirectUriForConfidentialClient { get; set; }
 
-        public string ValidUserName { get; protected set; }
+        public string ValidUserName { get; set; }
 
         public string Policy { get; set; }
 

@@ -23,7 +23,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class WsTrustResponse
     {

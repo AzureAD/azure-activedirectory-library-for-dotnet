@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal abstract class AcquireTokenHandlerBase
     {
@@ -38,8 +38,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             httpClient = new AdalHttpClient(this.CallState);
             PlatformPlugin.Logger.Information(this.CallState,
                 string.Format(
-                    "=== accessToken Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\tPolicy: {5}\n\t",
-                    authenticator.Authority, scope, clientKey.ClientId,
+                    "=== accessToken Acquisition started:\n\tAuthority: {0}\n\tScope: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\tPolicy: {5}\n\t",
+                    authenticator.Authority, scope.CreateSingleStringFromArray(), clientKey.ClientId,
                     (tokenCache != null)
                         ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count)
                         : "null",
@@ -82,7 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             ISet<string> set = inputScope.CreateSetFromArray();
             set.Remove(ClientKey.ClientId); //remove client id if it exists
             set.Add("openid");
-            //set.Add("offline_access");
+            set.Add("offline_access");
             return set.ToArray();
         }
 
@@ -178,9 +178,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             resultEx = resultItem;
                         }
                     }
-                    resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
-                        this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
-                        this.Policy, this.CallState);
+
+                    if (resultEx == null)
+                    {
+                        resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Scope,
+                            this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
+                            this.Policy, this.CallState);
+                    }
                 }
 
                 await this.PostRunAsync(resultEx.Result);

@@ -19,7 +19,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     ///     Contains the results of one Token acquisition operation.

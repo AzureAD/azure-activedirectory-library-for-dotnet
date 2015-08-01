@@ -17,7 +17,7 @@
 //----------------------------------------------------------------------
 
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Test.ADAL.Common;
 using Test.ADAL.WinRT.Unit;

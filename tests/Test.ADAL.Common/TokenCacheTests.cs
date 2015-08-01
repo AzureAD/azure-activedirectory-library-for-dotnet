@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.Common.Unit
 {
@@ -617,11 +617,8 @@ namespace Test.ADAL.Common.Unit
                     && AreStringsEqual(result1.TenantId, result2.TenantId)
                     && (result1.UserInfo == null || result2.UserInfo == null ||
                         (AreStringsEqual(result1.UserInfo.DisplayableId, result2.UserInfo.DisplayableId)
-                         && AreStringsEqual(result1.UserInfo.FamilyName, result2.UserInfo.FamilyName)
-                         && AreStringsEqual(result1.UserInfo.GivenName, result2.UserInfo.GivenName)
-                         && AreStringsEqual(result1.UserInfo.IdentityProvider, result2.UserInfo.IdentityProvider)
-                         && result1.UserInfo.PasswordChangeUrl == result2.UserInfo.PasswordChangeUrl
-                         && result1.UserInfo.PasswordExpiresOn == result2.UserInfo.PasswordExpiresOn
+                         && AreStringsEqual(result1.UserInfo.Version, result2.UserInfo.Version)
+                         && AreStringsEqual(result1.UserInfo.Name, result2.UserInfo.Name)
                          && result1.UserInfo.UniqueId == result2.UserInfo.UniqueId)));
         }
 

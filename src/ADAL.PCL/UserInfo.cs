@@ -19,7 +19,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Contains information of a single user. This information is used for token cache lookup. Also if created with userId, userId is sent to the service when login_hint is accepted.
@@ -35,11 +35,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             this.UniqueId = other.UniqueId;
             this.DisplayableId = other.DisplayableId;
-            this.GivenName = other.GivenName;
-            this.FamilyName = other.FamilyName;
-            this.IdentityProvider = other.IdentityProvider;
-            this.PasswordChangeUrl = other.PasswordChangeUrl;
-            this.PasswordExpiresOn = other.PasswordExpiresOn;
+            this.Name = other.Name;
+            this.Version = other.Version;
         }
 
         /// <summary>
@@ -58,30 +55,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets given name of the user if provided by the service. If not, the value is null. 
         /// </summary>
         [DataMember]
-        public string GivenName { get; internal set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         /// Gets family name of the user if provided by the service. If not, the value is null. 
         /// </summary>
         [DataMember]
-        public string FamilyName { get; internal set; }
+        public string Version { get; internal set; }
 
-        /// <summary>
-        /// Gets the time when the password expires. Default value is 0.
-        /// </summary>
-        [DataMember]
-        public DateTimeOffset? PasswordExpiresOn { get; internal set; }
-
-        /// <summary>
-        /// Gets the url where the user can change the expiring password. The value can be null.
-        /// </summary>
-        [DataMember]
-        public Uri PasswordChangeUrl { get; internal set; }
-
-        /// <summary>
-        /// Gets identity provider if returned by the service. If not, the value is null. 
-        /// </summary>
-        [DataMember]
-        public string IdentityProvider { get; internal set; }
     }
 }

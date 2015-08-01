@@ -21,28 +21,23 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class ProfileInfoClaim
     {
-        public const string ObjectId = "oid";
+        public const string Version = "version";
         public const string Subject = "sub";
         public const string TenantId = "tid";
-        public const string UPN = "upn";
-        public const string Email = "email";
-        public const string GivenName = "given_name";
-        public const string FamilyName = "family_name";
-        public const string IdentityProvider = "idp";
-        public const string Issuer = "iss";
-        public const string PasswordExpiration = "pwd_exp";
-        public const string PasswordChangeUrl = "pwd_url";
+        public const string PreferredUsername = "preferred_username";
+        public const string Name = "name";
     }
 
     [DataContract]
     internal class ProfileInfo
     {
-        [DataMember(Name = ProfileInfoClaim.ObjectId, IsRequired = false)]
-        public string ObjectId { get; set; }
+
+        [DataMember(Name = ProfileInfoClaim.Version, IsRequired = false)]
+        public string Version { get; set; }
 
         [DataMember(Name = ProfileInfoClaim.Subject, IsRequired = false)]
         public string Subject { get; set; }
@@ -50,29 +45,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = ProfileInfoClaim.TenantId, IsRequired = false)]
         public string TenantId { get; set; }
 
-        [DataMember(Name = ProfileInfoClaim.UPN, IsRequired = false)]
-        public string UPN { get; set; }
+        [DataMember(Name = ProfileInfoClaim.Name, IsRequired = false)]
+        public string Name { get; set; }
 
-        [DataMember(Name = ProfileInfoClaim.GivenName, IsRequired = false)]
-        public string GivenName { get; set; }
+        [DataMember(Name = ProfileInfoClaim.PreferredUsername, IsRequired = false)]
+        public string PreferredUsername { get; set; }
 
-        [DataMember(Name = ProfileInfoClaim.FamilyName, IsRequired = false)]
-        public string FamilyName { get; set; }
-
-        [DataMember(Name = ProfileInfoClaim.Email, IsRequired = false)]
-        public string Email { get; set; }
-
-        [DataMember(Name = ProfileInfoClaim.PasswordExpiration, IsRequired = false)]
-        public long PasswordExpiration { get; set; }
-
-        [DataMember(Name = ProfileInfoClaim.PasswordChangeUrl, IsRequired = false)]
-        public string PasswordChangeUrl { get; set; }
-
-        [DataMember(Name = ProfileInfoClaim.IdentityProvider, IsRequired = false)]
-        public string IdentityProvider { get; set; }
-
-        [DataMember(Name = ProfileInfoClaim.Issuer, IsRequired = false)]
-        public string Issuer { get; set; }
 
         public static ProfileInfo Parse(string profileInfo)
         {

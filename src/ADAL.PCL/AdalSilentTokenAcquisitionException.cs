@@ -16,7 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// The exception type thrown when a token cannot be acquired silently.

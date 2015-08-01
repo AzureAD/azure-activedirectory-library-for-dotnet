@@ -8,9 +8,9 @@
     <ProjectGuid>{2F80E14C-B186-4AEE-92BC-0DE3B6FDB107}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.IdentityModel.Clients.ActiveDirectory</RootNamespace>
+    <RootNamespace>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>Microsoft.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
+    <AssemblyName>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <DocumentationFile>bin\iPhone\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.XML</DocumentationFile>
+    <DocumentationFile>bin\iPhone\Release\Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ADAL.Common\CommonAssemblyInfo.cs">

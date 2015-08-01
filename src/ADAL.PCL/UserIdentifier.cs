@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Indicates the type of <see cref=" UserIdentifier"/>

@@ -20,7 +20,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal static class Base64UrlEncoder
     {
