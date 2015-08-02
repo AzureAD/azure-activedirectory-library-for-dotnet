@@ -21,7 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class WebUI : IWebUI
     {

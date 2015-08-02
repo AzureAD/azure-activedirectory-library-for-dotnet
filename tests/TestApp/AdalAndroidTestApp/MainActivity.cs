@@ -22,7 +22,7 @@ using Android.Content;
 using Android.Widget;
 using Android.OS;
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 using TestApp.PCL;
 

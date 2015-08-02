@@ -19,7 +19,7 @@
 using System;
 using System.Diagnostics.Tracing;
 ﻿
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class Logger : LoggerBase
     {

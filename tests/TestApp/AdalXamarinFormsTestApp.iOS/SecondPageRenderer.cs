@@ -10,7 +10,7 @@ using Xamarin.Forms;
 using AdalXamarinFormsTestApp;
 using AdalXamarinFormsTestApp.iOS;
 using System.Drawing;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 [assembly: ExportRenderer(typeof(SecondPage), typeof(SecondPageRenderer))]
 namespace AdalXamarinFormsTestApp.iOS

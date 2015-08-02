@@ -5,7 +5,7 @@ using CoreFoundation;
 using UIKit;
 using Foundation;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     [Foundation.Register("UniversalView")]
     public class UniversalView : UIView

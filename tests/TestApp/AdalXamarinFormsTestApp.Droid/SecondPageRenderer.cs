@@ -13,7 +13,7 @@ using AdalXamarinFormsTestApp.Droid;
 using AdalXamarinFormsTestApp;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 [assembly: ExportRenderer(typeof(SecondPage), typeof(SecondPageRenderer))]
 namespace AdalXamarinFormsTestApp.Droid
