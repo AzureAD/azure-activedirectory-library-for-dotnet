@@ -1,11 +1,11 @@
 bin/
 packages/
 src/ADAL.NET/obj/
-src/ADAL.NET/Microsoft.IdentityModel.Clients.ActiveDirectory.XML
+src/ADAL.NET/Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.XML
 src/ADAL.NET.WindowsForms/obj/
 src/ADAL.WinRT/obj/
 src/ADAL.WinPhoneSL/obj/
-src/ADAL.WinRT/Microsoft.IdentityModel.Clients.ActiveDirectory.XML
+src/ADAL.WinRT/Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.XML
 tests/Test.ADAL.NET.Friend/obj/
 tests/Test.ADAL.NET.Unit/obj/
 tests/Test.ADAL.NET.WindowsForms/obj/
@@ -20,10 +20,10 @@ TestResults/
 !.nuget/NuGet.exe
 winphone/src/ADAL.WinPhone/obj/
 winphone/tests/Test.ADAL.WinPhone.UnitTest/obj/
-winphone/src/ADAL.WinPhone/Microsoft.IdentityModel.Clients.ActiveDirectory.XML
+winphone/src/ADAL.WinPhone/Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.XML
 src/ADAL.WinPhone/obj/
 tests/Test.ADAL.WinPhone.Dashboard/obj/
-src/ADAL.WinPhone/Microsoft.IdentityModel.Clients.ActiveDirectory.XML
+src/ADAL.WinPhone/Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.XML
 tests/Test.ADAL.WinPhone.Unit/obj/
 src/ADAL.PCL.Android/obj/
 src/ADAL.PCL.Desktop/obj/
@@ -40,7 +40,7 @@ tests/TestApp/AdaliOSTestApp/obj/
 tests/TestApp/AdalUniversalTestApp/AdalUniversalTestApp.Windows/obj/
 tests/TestApp/AdalUniversalTestApp/AdalUniversalTestApp.WindowsPhone/obj/
 tests/TestApp/TestApp.PCL/obj/
-tests/TestApp/AdalXamarinFormsTestApp.Droid/obj/
-tests/TestApp/AdalXamarinFormsTestApp.iOS/obj/
-tests/TestApp/AdalXamarinFormsTestApp/obj/
+tests/TestApp/XFormsApp.Droid/obj/
+tests/TestApp/XFormsApp.iOS/obj/
+tests/TestApp/XFormsApp/obj/
 *.suo
