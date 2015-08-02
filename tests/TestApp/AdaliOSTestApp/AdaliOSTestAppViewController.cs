@@ -18,7 +18,7 @@
 
 using System;
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 using UIKit;
 
