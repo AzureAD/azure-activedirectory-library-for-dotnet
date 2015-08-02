@@ -8,8 +8,8 @@
     <ProjectGuid>{856EA096-2283-49B6-B2CD-5C603551D150}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AdalXamarinFormsTestApp</RootNamespace>
-    <AssemblyName>AdalXamarinFormsTestApp</AssemblyName>
+    <RootNamespace>XFormsApp</RootNamespace>
+    <AssemblyName>XFormsApp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
