@@ -112,9 +112,9 @@
       <Project>{94569420-69b5-4031-a975-f5791e3f2f17}</Project>
       <Name>ADAL.PCL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AdalXamarinFormsTestApp\AdalXamarinFormsTestApp.csproj">
+    <ProjectReference Include="..\AdalXamarinFormsTestApp\XFormsApp.csproj">
       <Project>{856ea096-2283-49b6-b2cd-5c603551d150}</Project>
-      <Name>AdalXamarinFormsTestApp</Name>
+      <Name>XFormsApp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

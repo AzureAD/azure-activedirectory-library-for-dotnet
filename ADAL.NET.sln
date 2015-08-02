@@ -77,11 +77,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdalUniversalTestApp.Window
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamarinForms", "XamarinForms", "{71800365-14EA-4DC0-9B1F-115C55F28575}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdalXamarinFormsTestApp", "tests\TestApp\AdalXamarinFormsTestApp\AdalXamarinFormsTestApp.csproj", "{856EA096-2283-49B6-B2CD-5C603551D150}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XFormsApp", "tests\TestApp\AdalXamarinFormsTestApp\XFormsApp.csproj", "{856EA096-2283-49B6-B2CD-5C603551D150}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdalXamarinFormsTestApp.Droid", "tests\TestApp\AdalXamarinFormsTestApp.Droid\AdalXamarinFormsTestApp.Droid.csproj", "{FA4CAEEC-DA6A-493B-90B7-E17A20A61600}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XFormsApp.Droid", "tests\TestApp\AdalXamarinFormsTestApp.Droid\XFormsApp.Droid.csproj", "{FA4CAEEC-DA6A-493B-90B7-E17A20A61600}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdalXamarinFormsTestApp.iOS", "tests\TestApp\AdalXamarinFormsTestApp.iOS\AdalXamarinFormsTestApp.iOS.csproj", "{FDED3627-94FD-4886-A540-3AC05380095B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XFormsApp.iOS", "tests\TestApp\AdalXamarinFormsTestApp.iOS\XFormsApp.iOS.csproj", "{FDED3627-94FD-4886-A540-3AC05380095B}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
