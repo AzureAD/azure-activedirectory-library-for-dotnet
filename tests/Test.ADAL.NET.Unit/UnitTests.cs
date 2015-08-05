@@ -304,6 +304,7 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
+
         [TestMethod]
         [TestCategory("AdalDotNetUnit")]
         public async Task AcquireTokenWithPolicyTest()
@@ -312,7 +313,7 @@ namespace Test.ADAL.NET.Unit
             var authenticator = new Authenticator("https://login.windows.net/common", false);
             var httpClient = new Moq.Mock<AdalHttpClient>();
             var mocktokenResponse = new Mock<TokenResponse>();
-            string[] scope = new string[1] {"scope"};
+            string[] scope = new string[1] { "scope" };
             string authCode = "code123";
             string redirectUri = "http://hello";
             string policy = "signup";
@@ -330,16 +331,51 @@ namespace Test.ADAL.NET.Unit
                     a.LoadFromCache(authenticator.Authority, scope, clientKey.ClientId, It.IsAny<TokenSubjectType>(),
                         It.IsAny<string>(), It.IsAny<string>()
                         , policy, It.IsAny<CallState>())).Returns(resultex);
-            
-           
+
+
             var handler = new AcquireTokenByAuthorizationCodeHandler(authenticator, mockCache.Object, scope,
                 clientKey, authCode, new Uri("http://hello"), policy);
             handler.httpClient = httpClient.Object;
             var result = await handler.RunAsync();
-            
-            mocktokenResponse.Verify(a=>a.GetResults(), Times.AtLeastOnce);
+
+            mocktokenResponse.Verify(a => a.GetResults(), Times.AtLeastOnce);
             var requestParam = (DictionaryRequestParameters)httpClient.Object.BodyParameters;
             Assert.IsTrue(requestParam.ContainsKey("p") && requestParam["p"].Equals(policy));
+        }
+
+        [TestMethod]
+        [TestCategory("AdalDotNetUnit")]
+        public async Task AcquireTokenIdTokenTest()
+        {
+            var httpClient = new Moq.Mock<AdalHttpClient>();
+            var tokenResponse = new TokenResponse();
+            tokenResponse.IdTokenString =
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik1uQ19WWmNBVGZNNXBPWWlKSE1iYTlnb0VLWSIsImtpZCI" +
+                "6Ik1uQ19WWmNBVGZNNXBPWWlKSE1iYTlnb0VLWSJ9.eyJhdWQiOiJiZDcxOWY5NC1kZWM0LTRiM2MtYTJkNi03NDk5MmI" +
+                "3NzdlODAiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vYjk0MTAzMTgtMDlhZi00OWMyLW" +
+                "IwYzMtNjUzYWRjMWYzNzZlL3YyLjAvIiwiaWF0IjoxNDM4NzMxMzM4LCJuYmYiOjE0Mzg3MzEzMzgsImV4cCI6MTQzODc" +
+                "zNTIzOCwidmVyIjoiMi4wIiwidGlkIjoiYjk0MTAzMTgtMDlhZi00OWMyLWIwYzMtNjUzYWRjMWYzNzZlIiwib2lkIjoi" +
+                "YTFlYmRkZTgtZTRmOS00NTcxLWFkOTMtMzA1OWUzNzUwZDIzIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2FtcGxlLmFkbW" +
+                "luQHN0cm9ja2lzZGV2Lm9ubWljcm9zb2Z0LmNvbSIsInN1YiI6IkdmRU9IUTFQeGRZb3hScDZQSmdZUmFKVGFhSzJDYk4xe" +
+                "EhtalBDcTFhd0UiLCJuYW1lIjoiU2FtcGxlIEFkbWluIiwibm9uY2UiOiI2MzU3NDMyODQyMzc2ODY4MzIuT0RFMU56TmlPV" +
+                "E10WmpJeU1DMDBOR05oTFRrMFl6TXRaV0l5WldZNU9EYzRaRE00TWpGaVpXUmlaalF0TVdNeFlTMDBObUprTFdFM1l6Y3RaR" +
+                "EEyWXpjeFltWTJaRFZrIn0.kRVxW86ST5vtkUehU8Sqv75ip4qiQ2DsRvnX9srBBs28sW9zN-T9OXio_Il9iACE4F6Ou4XgBc" +
+                "qsdNk9kiIHMjjUTp6AsXRqtZ_R79jrBQx22PI569US5PWOXi07kBHlUMhBHOoKJtFbx2NZMBiXyiPyi805xDWW0iAhPEQQ9-Qm" +
+                "izg12hrKGPMVw7KUENoyU2uYkSbqDCGeBcN99Audtw0z2B3BTpy1zKCuXzlxZaU0oZFZHjt6bxnfNf5WFA8BzVL1t7gVhzgYQA7" +
+                "Q3hKhasB6dTHhCuB4kAPobLuZ0Q7_sQZ819q6BNJJhrSrYGM_z3XtvF56FY3-HyFLqwJlNQ";
+            tokenResponse.RefreshToken = "some-refresh-token";
+            tokenResponse.IdTokenExpiresIn = 3599;
+
+            string redirectUri = "http://hello";
+            httpClient.Setup(a => a.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token))
+                .Returns(Task.FromResult(tokenResponse));
+
+            var authenticator = new Authenticator("https://login.windows.net/common", false);
+            var handler = new AcquireTokenByAuthorizationCodeHandler(authenticator, TokenCache.DefaultShared, new[] { "clientId" }, 
+                new ClientKey(new ClientCredential("clientId", "secret")),"code", new Uri(redirectUri), null);
+            handler.httpClient = httpClient.Object;
+            var result = await handler.RunAsync();
+            Verify.IsNotNull(result);
         }
 
         static AuthenticationResultEx CreateCacheValue(string uniqueId, string displayableId, string token )

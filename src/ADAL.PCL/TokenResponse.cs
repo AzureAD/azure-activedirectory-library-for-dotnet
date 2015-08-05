@@ -72,6 +72,9 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = TokenResponseClaim.ExpiresOn, IsRequired = false)]
         public long ExpiresOn { get; set; }
 
+        [DataMember(Name = TokenResponseClaim.IdTokenExpiresIn, IsRequired = false)]
+        public long IdTokenExpiresIn { get; set; }
+
         [DataMember(Name = TokenResponseClaim.ExpiresIn, IsRequired = false)]
         public long ExpiresIn { get; set; }
 
@@ -147,7 +150,7 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 
                 if (!string.IsNullOrEmpty(this.IdTokenString))
                 {
-                    results.Add(this.GetResult(this.IdTokenString, "openid"));
+                    results.Add(this.GetResult(this.IdTokenString, "openid", this.IdTokenExpiresIn));
                 }
             }
             else if (this.Error != null)
@@ -162,9 +165,15 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
             return results;
         }
 
+
         private AuthenticationResultEx GetResult(string token, string scope)
         {
-            DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn);
+            return this.GetResult(token, scope, this.ExpiresIn);
+        }
+
+        private AuthenticationResultEx GetResult(string token, string scope, long expiresIn)
+        {
+            DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(expiresIn);
             var result = new AuthenticationResult(this.TokenType, token, expiresOn);
 
             ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
