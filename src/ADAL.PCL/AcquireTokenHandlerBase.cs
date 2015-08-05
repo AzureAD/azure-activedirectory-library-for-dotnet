@@ -238,11 +238,6 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
         protected virtual async Task<List<AuthenticationResultEx>> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
-            if (!string.IsNullOrEmpty(this.Policy))
-            {
-                requestParameters[OAuthParameter.Policy] = this.Policy;
-            }
-
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters);
         }
@@ -252,11 +247,6 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
             var requestParameters = new DictionaryRequestParameters(this.GetDecoratedScope(this.Scope), this.ClientKey);
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
-
-            if (!string.IsNullOrEmpty(this.Policy))
-            {
-                requestParameters[OAuthParameter.Policy] = this.Policy;
-            }
 
             List<AuthenticationResultEx> results = await this.SendHttpMessageAsync(requestParameters);
 
@@ -317,6 +307,14 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
         private async Task<List<AuthenticationResultEx>> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
             httpClient.EndpointUri = this.Authenticator.TokenUri;
+
+            if (!string.IsNullOrEmpty(this.Policy))
+            {
+                UriBuilder uriBuilder = new UriBuilder(this.Authenticator.TokenUri);
+                uriBuilder.Query += string.Format("&p={0}", this.Policy);
+                httpClient.EndpointUri = uriBuilder.ToString();
+            }
+
             httpClient.BodyParameters = requestParameters;
             TokenResponse tokenResponse = await httpClient.GetResponseAsync<TokenResponse>(ClientMetricsEndpointType.Token);
 
