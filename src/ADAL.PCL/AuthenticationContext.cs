@@ -182,7 +182,7 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
             return
                 await
                     this.AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
-                        new ClientKey(clientCredential), scope);
+                        new ClientKey(clientCredential), scope, policy);
         }
 
         /// <summary>
