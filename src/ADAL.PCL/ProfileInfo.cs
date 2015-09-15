@@ -25,7 +25,7 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
 {
     internal class ProfileInfoClaim
     {
-        public const string Version = "version";
+        public const string Version = "ver";
         public const string Subject = "sub";
         public const string TenantId = "tid";
         public const string PreferredUsername = "preferred_username";
