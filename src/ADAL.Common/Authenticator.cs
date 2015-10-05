@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private static readonly AuthenticatorTemplateList AuthenticatorTemplateList = new AuthenticatorTemplateList();
 
-        private bool updatedFromTemplate; 
+        private bool updatedFromTemplate;
 
         public Authenticator(string authority, bool validateAuthority)
         {
@@ -116,14 +116,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new ArgumentException(AdalErrorMessage.AuthorityUriInsecure, "authority");
             }
 
-            string path = authorityUri.AbsolutePath.Substring(1);
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException(AdalErrorMessage.AuthorityUriInvalidPath, "authority");
-            }
+            const string AdfsFirstPathMatch = "adfs";
+            AuthorityType authorityType = AuthorityType.AAD;
 
-            string firstPath = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
-            AuthorityType authorityType = IsAdfsAuthority(firstPath) ? AuthorityType.ADFS : AuthorityType.AAD;
+            if (authorityUri.AbsolutePath.Length > 0
+                && authorityUri.AbsolutePath[0] == '/'
+                && authorityUri.AbsolutePath.Length > 1
+                && String.Compare(authorityUri.AbsolutePath, 1, AdfsFirstPathMatch, 0, AdfsFirstPathMatch.Length, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                authorityType = AuthorityType.ADFS;
+            }
 
             return authorityType;
         }
@@ -142,11 +144,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             var regex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase);
             return regex.Replace(authority, tenantId, 1);
-        }
-
-        private static bool IsAdfsAuthority(string firstPath)
-        {
-            return string.Compare(firstPath, "adfs", StringComparison.OrdinalIgnoreCase) == 0;
         }
     }
 }
