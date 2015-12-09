@@ -8,8 +8,8 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Button Content="Acquire Token Interactive" HorizontalAlignment="Center" Margin="0,100,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Button Content="Acquire Token Interactive with ms-app" HorizontalAlignment="Center" Margin="537,170,539,0" VerticalAlignment="Top" Click="Button_Click_2"/>
+        <Button Content="Acquire Token - Interactive" HorizontalAlignment="Center" Margin="0,100,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Content="Acquire Token Interactive with ms-app url" HorizontalAlignment="Center" Margin="537,170,539,0" VerticalAlignment="Top" Click="Button_Click_2"/>
         <TextBlock HorizontalAlignment="Center" Margin="0,350,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" TextAlignment="Center" Width="500" Name="AccessToken"/>
     </Grid>
 </Page>
