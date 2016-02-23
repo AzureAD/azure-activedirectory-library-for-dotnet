@@ -137,6 +137,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (brokerPayload.ContainsKey("silent_broker_flow"))
                 {
                     throw new AdalSilentTokenAcquisitionException();
+
                 }
 
                 // onActivityResult will receive the response
