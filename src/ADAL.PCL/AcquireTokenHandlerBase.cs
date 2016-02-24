@@ -274,7 +274,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             AdalError.FailedToRefreshToken,
                             AdalErrorMessage.FailedToRefreshToken + ". " + serviceException.Message,
                             serviceException.ServiceErrorCodes,
-                            serviceException.InnerException);
+                            serviceException.
+                            );
                     }
 
                     newResultEx = new AuthenticationResultEx {Exception = ex};

@@ -321,7 +321,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string IdentityProtocolMismatch = "No identity provider matches the requested protocol";
 
         public const string IdentityProviderRequestFailed =
-            "Token request to identity provider failed. Check InnerException for more details";
+            "Token request to identity provider failed. Check InnerException" +
+            " for more details";
 
         public const string InvalidArgumentLength = "Parameter has invalid length";
         public const string InvalidAuthenticateHeaderFormat = "Invalid authenticate header format";
