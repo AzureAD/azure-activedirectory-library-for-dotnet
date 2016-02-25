@@ -299,9 +299,11 @@ namespace Test.ADAL.NET
         [Description("Test for reading WebException as inner exception")]
         [TestCategory("AdalDotNetMock")]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "MockAAD", DataAccessMethod.Sequential)]
-        public async Task InnerExceptionAccessTest()
+        public async Task 
+            AccessTest()
         {
-            await AdalTests.InnerExceptionAccessTestAsync(Sts);
+            await AdalTests.
+                AccessTestAsync(Sts);
         }
 
         [TestMethod]

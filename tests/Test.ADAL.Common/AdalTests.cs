@@ -431,7 +431,8 @@ namespace Test.ADAL.Common
             VerifyExpiresOnAreEqual(result, result2);
         }
 
-        public static async Task InnerExceptionAccessTestAsync(Sts sts)
+        public static async Task 
+            AccessTestAsync(Sts sts)
         {
             SetCredential(sts);
             var context = new AuthenticationContextProxy(sts.Authority, sts.ValidateAuthority);

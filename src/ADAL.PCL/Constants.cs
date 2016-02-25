@@ -314,14 +314,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             "No identity provider email address suffix matches the provided address";
 
         public const string EncodedTokenTooLong = "Encoded token size is beyond the upper limit";
-        public const string FailedToAcquireTokenSilently = "Failed to acquire token silently. Call method AcquireToken";
+        public const string FailedToAcquireTokenSilently = "Failed to acquire token silently as no token was found in the cache. Call method AcquireToken";
         public const string FailedToRefreshToken = "Failed to refresh token";
         public const string FederatedServiceReturnedErrorTemplate = "Federated service at {0} returned error: {1}";
         public const string IdentityProtocolLoginUrlNull = "The LoginUrl property in identityProvider cannot be null";
         public const string IdentityProtocolMismatch = "No identity provider matches the requested protocol";
 
         public const string IdentityProviderRequestFailed =
-            "Token request to identity provider failed. Check InnerException for more details";
+            "Token request to identity provider failed. Check InnerException" +
+            " for more details";
 
         public const string InvalidArgumentLength = "Parameter has invalid length";
         public const string InvalidAuthenticateHeaderFormat = "Invalid authenticate header format";

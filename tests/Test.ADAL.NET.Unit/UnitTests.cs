@@ -275,7 +275,8 @@ namespace Test.ADAL.NET.Unit
                 }
                 catch (HttpRequestWrapperException ex)
                 {
-                    Verify.IsTrue(ex.InnerException is TaskCanceledException);
+                    Verify.IsTrue(ex
+                        is TaskCanceledException);
                     var serviceException = new AdalServiceException(AdalError.Unknown, ex);
                     Verify.AreEqual(serviceException.StatusCode, (int)HttpStatusCode.RequestTimeout);
                 }

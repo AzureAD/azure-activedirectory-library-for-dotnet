@@ -65,6 +65,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             brokerParameters["correlation_id"] = this.CallState.CorrelationId.ToString();
             brokerParameters["client_version"] = AdalIdHelper.GetAdalVersion();
 
+            this.ResultEx = null;
         }
 
         internal CallState CallState { get; set; }
@@ -85,6 +86,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected UserIdentifierType UserIdentifierType { get; set; }
 
+        protected AuthenticationResultEx ResultEx { get; set; }
+
         protected bool LoadFromCache { get; set; }
         
         protected bool StoreToCache { get; set; }
@@ -97,30 +100,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 await this.PreRunAsync();
 
-                AuthenticationResultEx resultEx = null;
                 if (this.LoadFromCache)
                 {
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 
-                    resultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
-                    resultEx = this.ValidateResult(resultEx);
+                    ResultEx = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId, this.CallState);
+                    this.ValidateResult();
 
-                    if (resultEx != null && resultEx.Result.AccessToken == null && resultEx.RefreshToken != null)
+                    if (ResultEx != null && ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null)
                     {
-                        resultEx = await this.RefreshAccessTokenAsync(resultEx);
-                        if (resultEx != null)
+                        ResultEx = await this.RefreshAccessTokenAsync(ResultEx);
+                        if (ResultEx != null && ResultEx.Exception == null)
                         {
-                            this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                            this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                         }
                     }
                 }
 
-                if (resultEx == null)
+                if (ResultEx == null || ResultEx.Exception!=null)
                 {
                     if (PlatformPlugin.BrokerHelper.CanInvokeBroker)
                     {
-                        resultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters);
+                        ResultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters);
                     }
                     else
                     {
@@ -129,21 +131,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         // check if broker app installation is required for authentication.
                         if (this.BrokerInvocationRequired())
                         {
-                            resultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters);
+                            ResultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters);
                         }
                         else
                         {
-                            resultEx = await this.SendTokenRequestAsync();
+                            ResultEx = await this.SendTokenRequestAsync();
                         }
                     }
 
                     //broker token acquisition failed
-                    if (resultEx != null && resultEx.Exception != null)
+                    if (ResultEx != null && ResultEx.Exception != null)
                     {
-                        throw resultEx.Exception;
+                        throw ResultEx.Exception;
                     }
 
-                    this.PostTokenRequest(resultEx);
+                    this.PostTokenRequest(ResultEx);
                     if (this.StoreToCache)
                     {
                         if (!notifiedBeforeAccessCache)
@@ -152,12 +154,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             notifiedBeforeAccessCache = true;
                         }
 
-                        this.tokenCache.StoreToCache(resultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                        this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource, this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }
                 }
 
-                await this.PostRunAsync(resultEx.Result);
-                return resultEx.Result;
+                await this.PostRunAsync(ResultEx.Result);
+                return ResultEx.Result;
             }
             catch (Exception ex)
             {
@@ -174,9 +176,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
 
-        protected virtual AuthenticationResultEx ValidateResult(AuthenticationResultEx resultEx)
+        protected virtual void ValidateResult()
         {
-            return resultEx;
         }
 
         protected virtual void UpdateBrokerParameters(IDictionary<string, string> parameters)
@@ -273,10 +274,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             AdalError.FailedToRefreshToken,
                             AdalErrorMessage.FailedToRefreshToken + ". " + serviceException.Message,
                             serviceException.ServiceErrorCodes,
-                            serviceException.InnerException);
+                            serviceException
+                            );
                     }
 
-                    newResultEx = null;
+                    newResultEx = new AuthenticationResultEx {Exception = ex};
                 }
             }
 
