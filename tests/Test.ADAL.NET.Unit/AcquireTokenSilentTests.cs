@@ -36,9 +36,8 @@ namespace Test.ADAL.NET.Unit
             catch (AdalSilentTokenAcquisitionException ex)
             {
                 Verify.AreEqual(AdalError.FailedToAcquireTokenSilently, ex.ErrorCode);
-                //ex.InnerException.Message.Equals("");
                 Verify.IsNotNull(ex.InnerException);
-                Verify.AreEqual(ex.InnerException.Message,"invalid_grant");
+                Verify.AreEqual(((AdalException)ex.InnerException).ErrorCode,"invalid_grant");
             }
             catch
             {
