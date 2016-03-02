@@ -40,7 +40,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Constructor to create credential with client id and secret
+        /// Constructor to create user  credential. Using this constructor would imply integrated authentication with logged in user
+        /// and it can only be used in domain joined scenarios.
         /// </summary>
         /// <param name="userName">Identifier of the user application requests token on behalf.</param>
         public UserCredential(string userName)

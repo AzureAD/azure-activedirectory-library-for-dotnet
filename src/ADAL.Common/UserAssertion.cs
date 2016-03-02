@@ -41,7 +41,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Constructor to create credential with client id, assertion and assertionType
+        /// Constructor to create credential with assertion and assertionType
         /// </summary>
         /// <param name="assertion">Assertion representing the user.</param>
         /// <param name="assertionType">Type of the assertion representing the user.</param>
@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Constructor to create credential with client id, assertion, assertionType and userId
+        /// Constructor to create credential with assertion, assertionType and userId
         /// </summary>
         /// <param name="assertion">Assertion representing the user.</param>
         /// <param name="assertionType">Type of the assertion representing the user.</param>
