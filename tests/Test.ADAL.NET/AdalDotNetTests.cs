@@ -87,7 +87,17 @@ namespace Test.ADAL.NET
         [TestMethod]
         [Description("Positive Test for AcquireToken")]
         [TestCategory("AdalDotNetMock")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "MockSts", DataAccessMethod.Sequential)]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", @"TestMetadata.xml", "MockSts",
+            DataAccessMethod.Sequential)]
+        public void NonHttpsRedirect()
+        {
+            AdalTests.NonHttpsURLNegativeTest(Sts);
+        }
+
+        [TestMethod]
+        [Description("Positive Test for AcquireToken")]
+        [TestCategory("AdalDotNet")]
+
         public void AcquireTokenPositiveTest()
         {
             AdalTests.AcquireTokenPositiveTest(Sts);
