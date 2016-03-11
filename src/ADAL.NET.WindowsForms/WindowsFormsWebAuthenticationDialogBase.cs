@@ -177,17 +177,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private bool CheckForClosingUrl(Uri url)
         {
+            bool canClose = false;
             if (url.Authority.Equals(this.desiredCallbackUri.Authority, StringComparison.OrdinalIgnoreCase) && url.AbsolutePath.Equals(this.desiredCallbackUri.AbsolutePath))
             {
                 this.authenticationResult = url.AbsoluteUri;
-                this.StopWebBrowser();
-
-                // in this handler object could be already disposed, so it should be the last method
-                this.OnClosingUrl();
-                return true;
+                canClose = true;
+            }
+            
+            if (!canClose && !url.Scheme.Equals("https"))
+            {
+                UriBuilder localUri = new UriBuilder(this.desiredCallbackUri);
+                localUri.Query = string.Format("error={0}&error_description={1}", AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
+                this.authenticationResult = localUri.ToString();
+                canClose = true;
             }
 
-            return false;
+            if (canClose)
+            {
+                this.StopWebBrowser();
+                // in this handler object could be already disposed, so it should be the last method
+                this.OnClosingUrl();
+            }
+
+            return canClose;
         }
 
         private void StopWebBrowser()

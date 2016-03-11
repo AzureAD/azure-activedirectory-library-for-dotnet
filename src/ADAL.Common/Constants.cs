@@ -50,6 +50,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string AuthenticationFailed = "authentication_failed";
 
         /// <summary>
+        /// non https redirect failed.
+        /// </summary>
+        public const string NonHttpsRedirectNotSupported = "non_https_redirect_failed";
+
+        /// <summary>
         /// Authentication canceled.
         /// </summary>
         public const string AuthenticationCanceled = "authentication_canceled";
@@ -286,6 +291,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string MissingAuthenticateHeader = "WWW-Authenticate header was expected in the response";
         public const string MultipleTokensMatched = "The cache contains multiple tokens satisfying the requirements. Call AcquireToken again providing more requirements (e.g. UserId)";
         public const string NetworkIsNotAvailable = "The network is down so authentication cannot proceed";
+        public const string NonHttpsRedirectNotSupported = "Non-HTTPS url redirect is not supported in webview";
         public const string NoDataFromSTS = "No data received from security token service";
         public const string NullParameterTemplate = "Parameter '{0}' cannot be null";
         public const string ParsingMetadataDocumentFailed = "Parsing WS metadata exchange failed";
