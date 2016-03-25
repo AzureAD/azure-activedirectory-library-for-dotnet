@@ -332,6 +332,7 @@ Global
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|Mixed Platforms.Deploy.0 = Debug|Any CPU
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{94569420-69B5-4031-A975-F5791E3F2F17}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -421,8 +422,8 @@ Global
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Win32.ActiveCfg = Debug|x86
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|Win32.Build.0 = Debug|x86
 		{826D90F4-CA79-4788-918C-B66AA5CC6DF0}.Debug|x64.ActiveCfg = Debug|x64
@@ -950,6 +951,7 @@ Global
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|Mixed Platforms.ActiveCfg = Debug|iPhone
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|Mixed Platforms.Build.0 = Debug|iPhone
+		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|Mixed Platforms.Deploy.0 = Debug|iPhone
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|Win32.ActiveCfg = Debug|iPhone
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|x64.ActiveCfg = Debug|iPhone
 		{FDED3627-94FD-4886-A540-3AC05380095B}.Debug|x86.ActiveCfg = Debug|iPhone

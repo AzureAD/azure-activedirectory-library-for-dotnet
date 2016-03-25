@@ -688,5 +688,15 @@ namespace Test.ADAL.Common.Unit
                 Verify.IsNull(value.UserAssertionHash);
             }
         }
+        public static async Task ParallelStorePositiveTest(byte[] oldcache)
+        {
+            TokenCache cache = new TokenCache();
+            cache.Deserialize(oldcache);
+
+            Task taskA = Task.Run(() => cache.Deserialize(oldcache));
+            Task taskB = Task.Run(() => cache.Deserialize(oldcache));
+            taskA.Wait();
+            taskB.Wait();
+        }
     }
 }
