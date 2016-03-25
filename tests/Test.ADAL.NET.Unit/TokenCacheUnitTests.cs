@@ -87,9 +87,9 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("Positive Test for Parallel stores on cache")]
         [TestCategory("AdalDotNet.Unit")]
-        public async Task ParallelStoreTest()
+        public void ParallelStoreTest()
         {
-            await TokenCacheTests.ParallelStorePositiveTest(File.ReadAllBytes("oldcache.txt"));
+            TokenCacheTests.ParallelStorePositiveTest(File.ReadAllBytes("oldcache.txt"));
         }
 
     }
