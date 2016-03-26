@@ -700,43 +700,19 @@ namespace Test.ADAL.Common.Unit
                 Task writeTask = Task.Run(() => cache.Clear());
                 readTask.Wait();
                 writeTask.Wait();
-                _parallelCount = 0;
-            }
-
-            for (int i = 0; i < 100; i++)
-            {
-                TokenCache cache = new TokenCache(oldcache);
-                cache.BeforeAccess = DoBefore;
-                cache.AfterAccess = DoAfterBlock;
-                Task readTask = Task.Run(() => cache.ReadItems());
-                Task readTask2 = Task.Run(() => cache.ReadItems());
-                readTask.Wait();
-                readTask2.Wait();
-                _parallelCount = 0;
-            }
-            
+            } 
         }
 
         private static int _count = 0;
-        private static int _parallelCount = 0;
 
         private static void DoBefore(TokenCacheNotificationArgs args)
         {
-            _parallelCount++;
             _count++;
         }
 
         private static void DoAfter(TokenCacheNotificationArgs args)
         {
             Verify.AreEqual(1, _count);
-            _count--;
-        }
-        
-        private static void DoAfterBlock(TokenCacheNotificationArgs args)
-        {
-            while (_parallelCount != 2)
-            {
-            }
             _count--;
         }
     }
