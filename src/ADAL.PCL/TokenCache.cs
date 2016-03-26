@@ -48,7 +48,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private volatile bool hasStateChanged;
 
-        public ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+        public Object cacheLock = new Object();
 
         static TokenCache()
         {
@@ -104,17 +104,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public bool HasStateChanged
         {
-            get { return this.hasStateChanged; }
+            get
+            {
+                return this.hasStateChanged;
+            }
 
-            set { this.hasStateChanged = value; }
+            set
+            {
+                this.hasStateChanged = value;
+            }
         }
 
         /// <summary>
-        /// Gets the nunmber of items in the cache.
+        /// Gets the number of items in the cache.
         /// </summary>
         public int Count
         {
-            get { return this.tokenCacheDictionary.Count; }
+            get
+            {
+                lock (cacheLock)
+                {
+                    return this.tokenCacheDictionary.Count;
+                }
+            }
         }
 
         /// <summary>
@@ -124,8 +136,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>Current state of the cache as a blob</returns>
         public byte[] Serialize()
         {
-            cacheLock.EnterReadLock();
-            try
+            lock(cacheLock)
             {
                 using (Stream stream = new MemoryStream())
                 {
@@ -147,11 +158,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     return reader.ReadBytes(length);
                 }
             }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
-
         }
 
         /// <summary>
@@ -160,8 +166,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="state">State of the cache as a blob</param>
         public void Deserialize(byte[] state)
         {
-            cacheLock.EnterWriteLock();
-            try
+            lock (cacheLock)
             {
                 if (state == null)
                 {
@@ -180,8 +185,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     int schemaVersion = reader.ReadInt32();
                     if (schemaVersion != SchemaVersion)
                     {
-                        PlatformPlugin.Logger.Warning(null,
-                            "The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
+                        PlatformPlugin.Logger.Warning(null, "The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
                         return;
                     }
 
@@ -199,15 +203,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         this.tokenCacheDictionary.Add(key, resultEx);
                     }
 
-                    PlatformPlugin.Logger.Information(null,
-                        string.Format("Deserialized {0} items to token cache.", count));
+                    PlatformPlugin.Logger.Information(null, string.Format("Deserialized {0} items to token cache.", count));
                 }
             }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            }
-
         }
 
         /// <summary>
@@ -216,8 +214,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>The items in the cache</returns>
         public virtual IEnumerable<TokenCacheItem> ReadItems()
         {
-            cacheLock.EnterReadLock();
-            try
+            lock(cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
@@ -230,11 +227,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 return items;
 
             }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
-
         }
 
         /// <summary>
@@ -243,8 +235,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="item">The item to delete from the cache</param>
         public virtual void DeleteItem(TokenCacheItem item)
         {
-            cacheLock.EnterWriteLock();
-            try
+            lock(cacheLock)
             {
                 if (item == null)
                 {
@@ -277,10 +268,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.HasStateChanged = true;
                 this.OnAfterAccess(args);
             }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            }
         }
 
         /// <summary>
@@ -289,8 +276,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public virtual void Clear()
         {
-            cacheLock.EnterWriteLock();
-            try
+            lock(cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
@@ -302,11 +288,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.HasStateChanged = true;
                 this.OnAfterAccess(args);
             }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            }
-
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)
@@ -336,8 +317,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal AuthenticationResultEx LoadFromCache(string authority, string resource, string clientId,
             TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
         {
-            cacheLock.EnterReadLock();
-            try
+            lock(cacheLock)
             {
                 PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");
 
@@ -356,8 +336,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (tokenNearExpiry)
                     {
                         resultEx.Result.AccessToken = null;
-                        PlatformPlugin.Logger.Verbose(callState,
-                            "An expired or near expiry token was found in the cache");
+                        PlatformPlugin.Logger.Verbose(callState,"An expired or near expiry token was found in the cache");
                     }
                     else if (!cacheKey.ResourceEquals(resource))
                     {
@@ -404,17 +383,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 return resultEx;
             }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
         }
 
         internal void StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId,
             TokenSubjectType subjectType, CallState callState)
         {
-            cacheLock.EnterWriteLock();
-            try
+            lock(cacheLock)
             {
                 PlatformPlugin.Logger.Verbose(callState, "Storing token in the cache...");
 
@@ -437,18 +411,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 this.HasStateChanged = true;
             }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            }
         }
 
         private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string clientId,
             TokenSubjectType subjectType)
         {
-            cacheLock.EnterReadLock();
-            try
-            {
                 if (result.Result.UserInfo != null && result.IsMultipleResourceRefreshToken)
                 {
                     //pass null for authority to update the token for all the tenants
@@ -463,20 +430,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         mrrtItem.Value.RefreshToken = result.RefreshToken;
                     }
                 }
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
         }
 
         private KeyValuePair<TokenCacheKey, AuthenticationResultEx>? LoadSingleItemFromCache(string authority,
             string resource, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId,
             CallState callState)
         {
-            cacheLock.EnterReadLock();
-            try
-            {
                 // First identify all potential tokens.
                 List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> items = this.QueryCache(authority, clientId,
                     subjectType, uniqueId, displayableId);
@@ -533,13 +492,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         returnValue = null;
                     }
                 }
-
                 return returnValue;
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
         }
 
         /// <summary>
@@ -550,9 +503,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> QueryCache(string authority, string clientId,
             TokenSubjectType subjectType, string uniqueId, string displayableId)
         {
-            cacheLock.EnterReadLock();
-            try
-            {
                 return this.tokenCacheDictionary.Where(
                     p =>
                         (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
@@ -560,11 +510,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
                         && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
                         && p.Key.TokenSubjectType == subjectType).ToList();
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
         }
     }
 
