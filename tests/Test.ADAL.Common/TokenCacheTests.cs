@@ -668,8 +668,6 @@ internal static void TokenCacheValueSplitTest()
 
         public static void ParallelStorePositiveTest(byte[] oldcache)
         {
-            for (int i = 0; i < 100; i++)
-            {
                 TokenCache cache = new TokenCache(oldcache);
                 cache.BeforeAccess = DoBefore;
                 cache.AfterAccess = DoAfter;
@@ -677,7 +675,6 @@ internal static void TokenCacheValueSplitTest()
                 Task writeTask = Task.Run(() => cache.Clear());
                 readTask.Wait();
                 writeTask.Wait();
-            }
         }
 
         private static int _count = 0;
