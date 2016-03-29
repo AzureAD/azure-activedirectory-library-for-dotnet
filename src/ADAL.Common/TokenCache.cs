@@ -448,51 +448,60 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void UpdateCachedMrrtRefreshTokens(AuthenticationResult result, string authority, string clientId, TokenSubjectType subjectType)
         {
-            if (result.UserInfo != null && result.IsMultipleResourceRefreshToken)
+            lock (cacheLock)
             {
-                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> mrrtItems =
-                    this.QueryCache(authority, clientId, subjectType, result.UserInfo.UniqueId, result.UserInfo.DisplayableId).Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
-
-                foreach (KeyValuePair<TokenCacheKey, AuthenticationResult> mrrtItem in mrrtItems)
+                if (result.UserInfo != null && result.IsMultipleResourceRefreshToken)
                 {
-                    mrrtItem.Value.RefreshToken = result.RefreshToken;
+                    List<KeyValuePair<TokenCacheKey, AuthenticationResult>> mrrtItems =
+                        this.QueryCache(authority, clientId, subjectType, result.UserInfo.UniqueId,
+                            result.UserInfo.DisplayableId).Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+
+                    foreach (KeyValuePair<TokenCacheKey, AuthenticationResult> mrrtItem in mrrtItems)
+                    {
+                        mrrtItem.Value.RefreshToken = result.RefreshToken;
+                    }
                 }
             }
         }
 
         private KeyValuePair<TokenCacheKey, AuthenticationResult>? LoadSingleItemFromCache(string authority, string resource, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
         {
-            // First identify all potential tokens.
-            List<KeyValuePair<TokenCacheKey, AuthenticationResult>> items = this.QueryCache(authority, clientId, subjectType, uniqueId, displayableId);
-
-            List<KeyValuePair<TokenCacheKey, AuthenticationResult>> resourceSpecificItems =
-                items.Where(p => p.Key.ResourceEquals(resource)).ToList();
-
-            int resourceValuesCount = resourceSpecificItems.Count();
-            KeyValuePair<TokenCacheKey, AuthenticationResult>? returnValue = null;
-            if (resourceValuesCount == 1)
+            lock (cacheLock)
             {
-                Logger.Information(callState, "An item matching the requested resource was found in the cache");
-                returnValue = resourceSpecificItems.First();
-            }
-            else if (resourceValuesCount == 0)
-            {
-                // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
-                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> mrrtItems =
-                    items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+                // First identify all potential tokens.
+                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> items = this.QueryCache(authority, clientId,
+                    subjectType, uniqueId, displayableId);
 
-                if (mrrtItems.Any())
+                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> resourceSpecificItems =
+                    items.Where(p => p.Key.ResourceEquals(resource)).ToList();
+
+                int resourceValuesCount = resourceSpecificItems.Count();
+                KeyValuePair<TokenCacheKey, AuthenticationResult>? returnValue = null;
+                if (resourceValuesCount == 1)
                 {
-                    returnValue = mrrtItems.First();
-                    Logger.Information(callState, "A Multi Resource Refresh Token for a different resource was found which can be used");
+                    Logger.Information(callState, "An item matching the requested resource was found in the cache");
+                    returnValue = resourceSpecificItems.First();
                 }
-            }
-            else
-            {
-                throw new AdalException(AdalError.MultipleTokensMatched);
-            }
+                else if (resourceValuesCount == 0)
+                {
+                    // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                    List<KeyValuePair<TokenCacheKey, AuthenticationResult>> mrrtItems =
+                        items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
 
-            return returnValue;
+                    if (mrrtItems.Any())
+                    {
+                        returnValue = mrrtItems.First();
+                        Logger.Information(callState,
+                            "A Multi Resource Refresh Token for a different resource was found which can be used");
+                    }
+                }
+                else
+                {
+                    throw new AdalException(AdalError.MultipleTokensMatched);
+                }
+
+                return returnValue;
+            }
         }
 
         /// <summary>
@@ -500,15 +509,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// authority value that this AuthorizationContext was created with.  In every case passing
         /// null results in a wildcard evaluation.
         /// </summary>
-        private List<KeyValuePair<TokenCacheKey, AuthenticationResult>> QueryCache(string authority, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId)
+        private List<KeyValuePair<TokenCacheKey, AuthenticationResult>> QueryCache(string authority, string clientId,
+            TokenSubjectType subjectType, string uniqueId, string displayableId)
         {
-            return this.tokenCacheDictionary.Where(
+            lock (cacheLock)
+            {
+                return this.tokenCacheDictionary.Where(
                     p =>
                         p.Key.Authority == authority
                         && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
                         && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
                         && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
                         && p.Key.TokenSubjectType == subjectType).ToList();
+            }
         }
     }
 }
