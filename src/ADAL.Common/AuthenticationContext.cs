@@ -173,6 +173,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync();
         }
 
+        private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, string clientSecret, UserCredential userCredential, bool callSync = false)
+        {
+            var handler = new AcquireTokenNonInteractiveHandler(this.Authenticator, this.TokenCache, resource, clientId, clientSecret, userCredential, callSync);
+            return await handler.RunAsync();
+        }
+
         private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, UserAssertion userAssertion, bool callSync = false)
         {
             var handler = new AcquireTokenNonInteractiveHandler(this.Authenticator, this.TokenCache, resource, clientId, userAssertion, callSync);
