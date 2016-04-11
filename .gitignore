@@ -42,3 +42,4 @@ src/ADAL.WinPhone/Microsoft.IdentityModel.Clients.ActiveDirectory.XML
 tests/Test.ADAL.WinPhone.Unit/obj/
 src/ADAL.WinPhoneSL/obj/
 tests/Test.ADAL.WinPhoneSL.Dashboard/obj/
+.vs/

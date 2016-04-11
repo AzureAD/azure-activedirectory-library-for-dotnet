@@ -184,7 +184,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 canClose = true;
             }
             
-            if (!canClose && !url.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+            if (!canClose && !url.AbsoluteUri.Equals("about:blank", StringComparison.CurrentCultureIgnoreCase) && !url.Scheme.Equals("https", StringComparison.CurrentCultureIgnoreCase))
             {
                 UriBuilder localUri = new UriBuilder(this.desiredCallbackUri);
                 localUri.Query = string.Format("error={0}&error_description={1}", AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
