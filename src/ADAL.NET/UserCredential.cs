@@ -23,7 +23,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public sealed partial class UserCredential
     {
         /// <summary>
-        /// Constructor to create credential with client id and secret
+        /// Constructor to create credential with username and password
         /// </summary>
         /// <param name="userName">Identifier of the user application requests token on behalf.</param>
         /// <param name="password">User password.</param>
@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Constructor to create credential with client id and secret
+        /// Constructor to create credential with username and password
         /// </summary>
         /// <param name="userName">Identifier of the user application requests token on behalf.</param>
         /// <param name="securePassword">User password.</param>
