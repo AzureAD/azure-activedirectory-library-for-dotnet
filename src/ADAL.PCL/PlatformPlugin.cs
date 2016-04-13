@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
     }
 
-    internal static class PlatformPlugin
+    public static class PlatformPlugin
     {
         static PlatformPlugin()
         {
@@ -55,15 +55,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         public static IWebUIFactory WebUIFactory { get; set; }
-        public static IHttpClientFactory HttpClientFactory { get; set; }
-        public static ITokenCachePlugin TokenCachePlugin { get; set; }
-        public static LoggerBase Logger { get; set; }
-        public static PlatformInformationBase PlatformInformation { get; set; }
-        public static ICryptographyHelper CryptographyHelper { get; set; }
-        public static IDeviceAuthHelper DeviceAuthHelper { get; set; }
-        public static IBrokerHelper BrokerHelper { get; set; }
+        internal static IHttpClientFactory HttpClientFactory { get; set; }
+        internal static ITokenCachePlugin TokenCachePlugin { get; set; }
+        internal static LoggerBase Logger { get; set; }
+        internal static PlatformInformationBase PlatformInformation { get; set; }
+        internal static ICryptographyHelper CryptographyHelper { get; set; }
+        internal static IDeviceAuthHelper DeviceAuthHelper { get; set; }
+        internal static IBrokerHelper BrokerHelper { get; set; }
 
-        public static void InitializeByAssemblyDynamicLinking()
+        internal static void InitializeByAssemblyDynamicLinking()
         {
             Assembly assembly = LoadPlatformSpecificAssembly();
             const string Namespace = "Microsoft.IdentityModel.Clients.ActiveDirectory.";
@@ -78,7 +78,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             );
         }
 
-        public static void InjectDependecies(IWebUIFactory webUIFactory, ITokenCachePlugin tokenCachePlugin, LoggerBase logger, 
+        internal static void InjectDependecies(IWebUIFactory webUIFactory, ITokenCachePlugin tokenCachePlugin, LoggerBase logger, 
             PlatformInformationBase platformInformation, ICryptographyHelper cryptographyHelper,
             IDeviceAuthHelper deviceAuthHelper, IBrokerHelper brokerHelper)
         {

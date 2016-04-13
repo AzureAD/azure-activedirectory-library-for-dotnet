@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal enum AuthorityType
+    public enum AuthorityType
     {
         AAD,
         ADFS

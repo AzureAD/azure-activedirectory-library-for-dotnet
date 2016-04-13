@@ -31,7 +31,7 @@ using System.Windows.Forms;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    internal class SilentWebUI : WebUI, IDisposable
+    public class SilentWebUI : WebUI, IDisposable
     {
         /// <summary>
         /// This is how long we allow between completed navigations.

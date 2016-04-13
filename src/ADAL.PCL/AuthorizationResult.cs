@@ -31,7 +31,7 @@ using System.Runtime.Serialization;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal enum AuthorizationStatus
+    public enum AuthorizationStatus
     {
         Success,
         ErrorHttp,
@@ -41,14 +41,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     }
 
     [DataContract]
-    internal class AuthorizationResult
+    public class AuthorizationResult
     {
-        internal AuthorizationResult(AuthorizationStatus status)
+        public AuthorizationResult(AuthorizationStatus status)
         {
             this.Status = status;
         }
 
-        internal AuthorizationResult(AuthorizationStatus status, string returnedUriInput) :this(status)
+        public AuthorizationResult(AuthorizationStatus status, string returnedUriInput) :this(status)
         {
             if (this.Status == AuthorizationStatus.UserCancel)
             {
