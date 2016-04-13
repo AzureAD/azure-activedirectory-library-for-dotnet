@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    internal abstract class WebUI : IWebUI
+    public abstract class WebUI : IWebUI
     {
         protected Uri RequestUri { get; private set; }
 
