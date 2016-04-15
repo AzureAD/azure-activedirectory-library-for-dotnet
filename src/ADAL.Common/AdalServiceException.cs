@@ -16,6 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
+using System.Globalization;
 using System.Net;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -91,7 +92,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString()
         {
-            return base.ToString() + string.Format("\n\tStatusCode: {0}", this.StatusCode);
+            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tStatusCode: {0}", this.StatusCode);
         }
 
 #if ADAL_NET

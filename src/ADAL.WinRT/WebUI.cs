@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
@@ -89,7 +90,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     result = OAuth2Response.ParseAuthorizeResponse(webAuthenticationResult.ResponseData, callState);
                     break;
                 case WebAuthenticationStatus.ErrorHttp:
-                    result = new AuthorizationResult(AdalError.AuthenticationFailed, webAuthenticationResult.ResponseErrorDetail.ToString());
+                    result = new AuthorizationResult(AdalError.AuthenticationFailed, webAuthenticationResult.ResponseErrorDetail.ToString(CultureInfo.CurrentCulture));
                     break;
                 case WebAuthenticationStatus.UserCancel:
                     result = new AuthorizationResult(AdalError.AuthenticationCanceled, AdalErrorMessage.AuthenticationCanceled);

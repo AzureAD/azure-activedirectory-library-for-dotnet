@@ -35,9 +35,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId, callSync);
             Logger.Information(this.CallState, 
-                string.Format("=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                string.Format(CultureInfo.CurrentCulture, "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
                 authenticator.Authority, resource, clientKey.ClientId,
-                (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count) : "null",
+                (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count) : "null",
                 subjectType));
 
             this.tokenCache = tokenCache;

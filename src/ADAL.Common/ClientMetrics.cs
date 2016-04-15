@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
@@ -94,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     headers[ClientMetricsHeaderLastRequest] = pendingClientMetrics.lastCorrelationId.ToString();
-                    headers[ClientMetricsHeaderLastResponseTime] = pendingClientMetrics.lastResponseTime.ToString();
+                    headers[ClientMetricsHeaderLastResponseTime] = pendingClientMetrics.lastResponseTime.ToString(CultureInfo.CurrentCulture);
                     headers[ClientMetricsHeaderLastEndpoint] = pendingClientMetrics.lastEndpoint;
 
                     HttpHelper.AddHeadersToRequest(request, headers);

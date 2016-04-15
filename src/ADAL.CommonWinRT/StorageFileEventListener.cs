@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -89,7 +90,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             var lines = new List<string>();
 
-            var newFormatedLine = string.Format(format, DateTime.Now, eventData.Level, eventData.EventId, eventData.Payload[0]);
+            var newFormatedLine = string.Format(CultureInfo.CurrentCulture, format, DateTime.Now, eventData.Level, eventData.EventId, eventData.Payload[0]);
 
             Debug.WriteLine(newFormatedLine);
 
