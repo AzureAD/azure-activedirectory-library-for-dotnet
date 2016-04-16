@@ -27,9 +27,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         internal static string PrepareLogMessage(CallState callState, string classOrComponent, string format, params object[] args)
         {
-            string message = string.Format(CultureInfo.CurrentCulture, format, args);
+            string message = string.Format(CultureInfo.InvariantCulture, format, args);
             string correlationId = (callState != null) ? callState.CorrelationId.ToString() : string.Empty;
-            return string.Format(CultureInfo.CurrentCulture, "{0}: {1} - {2}: {3}", DateTime.UtcNow, correlationId, classOrComponent, message);
+            return string.Format(CultureInfo.InvariantCulture, "{0}: {1} - {2}: {3}", DateTime.UtcNow, correlationId, classOrComponent, message);
         }
     }
 }

@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
@@ -34,19 +35,19 @@ namespace Test.ADAL.NET.Unit
             const string Authority = "https://login.windows.net/aadadfs.onmicrosoft.com/oauth2/authorize";
             const string Resource = "test_resource";
 
-            AuthenticationParameters authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(@"Bearer authorization_uri=""{0}"",resource_id=""{1}""", Authority, Resource));
+            AuthenticationParameters authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", Authority, Resource));
             Verify.AreEqual(Authority, authParams.Authority);
             Verify.AreEqual(Resource, authParams.Resource);
 
-            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(@"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", Authority, Resource));
+            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", Authority, Resource));
             Verify.AreEqual(Authority, authParams.Authority);
             Verify.AreEqual(Resource, authParams.Resource);
 
-            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(@"Bearer authorization_uri=""{0}""", Authority));
+            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", Authority));
             Verify.AreEqual(Authority, authParams.Authority);
             Verify.IsNull(authParams.Resource);
 
-            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(@"Bearer resource_id=""{0}""", Resource));
+            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer resource_id=""{0}""", Resource));
             Verify.AreEqual(Resource, authParams.Resource);
             Verify.IsNull(authParams.Authority);
 
@@ -61,7 +62,7 @@ namespace Test.ADAL.NET.Unit
 
             try
             {
-                AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(@"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource));
+                AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource));
             }
             catch (ArgumentException ex)
             {

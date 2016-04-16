@@ -177,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     if (authorizationRequestParameters.ContainsKey(kvp.Key))
                     {
-                        throw new AdalException(AdalError.DuplicateQueryParameter, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
+                        throw new AdalException(AdalError.DuplicateQueryParameter, string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
                     }
                 }
 

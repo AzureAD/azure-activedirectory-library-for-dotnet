@@ -38,7 +38,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public AdalUserMismatchException(string requestedUser, string returnedUser)
             : base(AdalError.UserMismatch, 
-                   string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.UserMismatch, returnedUser, requestedUser))
+                   string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.UserMismatch, returnedUser, requestedUser))
         {
             this.RequestedUser = requestedUser;
             this.ReturnedUser = returnedUser;
@@ -60,7 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString()
         {
-            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tRequestedUser: {0}\n\tReturnedUser: {1}", this.RequestedUser, this.ReturnedUser);
+            return base.ToString() + string.Format(CultureInfo.InvariantCulture, "\n\tRequestedUser: {0}\n\tReturnedUser: {1}", this.RequestedUser, this.ReturnedUser);
         }
 
 #if ADAL_NET

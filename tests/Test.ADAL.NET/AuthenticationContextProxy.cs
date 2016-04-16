@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Threading;
@@ -457,7 +458,7 @@ namespace Test.ADAL.Common
                 if (resultProxy.ExceptionStatusCode == 503 && retryCount < 5)
                 {
                     Thread.Sleep(3000);
-                    Log.Comment(string.Format("Retry #{0}...", retryCount + 1));
+                    Log.Comment(string.Format(CultureInfo.InvariantCulture, "Retry #{0}...", retryCount + 1));
                     return RunTaskInteractive(resource, clientId, redirectUri, promptBehaviorProxy, userId, extraQueryParameters, retryCount + 1);
                 }
             }

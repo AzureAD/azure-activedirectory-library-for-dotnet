@@ -23,7 +23,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Test.ADAL.WinRT.Unit
 {
-    class ReplayerWebUI : ReplayerBase, IWebUI
+    internal class ReplayerWebUI : ReplayerBase, IWebUI
     {
         private const string Delimiter = ":::";
 
@@ -31,26 +31,31 @@ namespace Test.ADAL.WinRT.Unit
         {
         }
 
-        public async Task<AuthorizationResult> AuthenticateAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
+        public async Task<AuthorizationResult> AuthenticateAsync(Uri authorizationUri, Uri redirectUri,
+            CallState callState)
         {
-            string key = authorizationUri.AbsoluteUri + redirectUri.AbsoluteUri;
-
-            if (IOMap.ContainsKey(key))
+            return await Task<AuthorizationResult>.Factory.StartNew(() =>
             {
-                string value = IOMap[key];
-                if (value[0] == 'P')
-                {
-                    return OAuth2Response.ParseAuthorizeResponse(value.Substring(1), callState);
-                }
-                
-                if (value[0] == 'A')
-                {
-                    string []segments = value.Substring(1).Split(new [] { Delimiter }, StringSplitOptions.RemoveEmptyEntries);
-                    return new AuthorizationResult(error: segments[0], errorDescription: segments[1]);
-                }
-            }
+                string key = authorizationUri.AbsoluteUri + redirectUri.AbsoluteUri;
 
-            return null;
+                if (IOMap.ContainsKey(key))
+                {
+                    string value = IOMap[key];
+                    if (value[0] == 'P')
+                    {
+                        return OAuth2Response.ParseAuthorizeResponse(value.Substring(1), callState);
+                    }
+
+                    if (value[0] == 'A')
+                    {
+                        string[] segments = value.Substring(1)
+                            .Split(new[] {Delimiter}, StringSplitOptions.RemoveEmptyEntries);
+                            return new AuthorizationResult(error: segments[0], errorDescription: segments[1]);
+                    }
+                }
+
+                return null;
+            });
         }
     }
 }

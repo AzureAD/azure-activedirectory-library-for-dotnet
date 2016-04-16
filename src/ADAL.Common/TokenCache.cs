@@ -166,7 +166,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     writer.Write(this.tokenCacheDictionary.Count);
                     foreach (KeyValuePair<TokenCacheKey, AuthenticationResult> kvp in this.tokenCacheDictionary)
                     {
-                        writer.Write(string.Format(CultureInfo.CurrentCulture, "{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
+                        writer.Write(string.Format(CultureInfo.InvariantCulture, "{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
                             kvp.Key.Resource, kvp.Key.ClientId, (int) kvp.Key.TokenSubjectType));
                         writer.Write(kvp.Value.Serialize());
                     }
@@ -315,7 +315,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
                 this.OnBeforeWrite(args);
-                Logger.Information(null, String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", this.Count));
+                Logger.Information(null, String.Format(CultureInfo.InvariantCulture, "Clearing Cache :- {0} items to be removed", this.Count));
                 this.tokenCacheDictionary.Clear();
                 Logger.Information(null, "Successfully Cleared Cache");
                 this.HasStateChanged = true;
@@ -382,7 +382,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else if (!cacheKey.ResourceEquals(resource))
                     {
                         Logger.Verbose(callState,
-                            string.Format(CultureInfo.CurrentCulture,
+                            string.Format(CultureInfo.InvariantCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
                                 cacheKey.Resource, resource));
                         var newResult = new AuthenticationResult(null, null, result.RefreshToken,
@@ -393,7 +393,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else
                     {
                         Logger.Verbose(callState,
-                            string.Format(CultureInfo.CurrentCulture, "{0} minutes left until token in cache expires",
+                            string.Format(CultureInfo.InvariantCulture, "{0} minutes left until token in cache expires",
                                 (result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
                     }
 

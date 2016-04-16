@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -75,7 +76,7 @@ namespace Test.ADAL.NET.Unit
             const string ClientId = "client_id";
             const string AdditionalParameter = "additional_parameter";
             const string AdditionalParameter2 = "additional_parameter2";
-            string expectedString = string.Format("client_id=client_id&{0}={1}&{2}={3}", AdditionalParameter, EncodingHelper.UrlEncode(ComplexString), AdditionalParameter2, EncodingHelper.UrlEncode(ComplexString2));
+            string expectedString = string.Format(CultureInfo.InvariantCulture, "client_id=client_id&{0}={1}&{2}={3}", AdditionalParameter, EncodingHelper.UrlEncode(ComplexString), AdditionalParameter2, EncodingHelper.UrlEncode(ComplexString2));
 
             RequestParameters param = new RequestParameters(null, new ClientKey(ClientId));
             param[AdditionalParameter] = ComplexString;
@@ -254,8 +255,7 @@ namespace Test.ADAL.NET.Unit
                 X509Certificate2 x509Certificate = new X509Certificate2(certs[i], "password");
                 byte[] signature = CryptographyHelper.SignWithCertificate(Message, x509Certificate);
                 Verify.IsNotNull(signature);
-
-                GC.Collect();
+                
                 GC.WaitForPendingFinalizers();
 
                 signature = CryptographyHelper.SignWithCertificate(Message, x509Certificate);
@@ -395,14 +395,14 @@ namespace Test.ADAL.NET.Unit
             {
                 app.Run(ctx =>
                 {
-                    int delay = int.Parse(ctx.Request.Query["delay"]);
+                    int delay = int.Parse(ctx.Request.Query["delay"], CultureInfo.InvariantCulture);
                     if (delay > 0)
                     {
                         Thread.Sleep(delay);
                     }
 
                     var response = ctx.Response;
-                    response.StatusCode = int.Parse(ctx.Request.Query["response_code"]);
+                    response.StatusCode = int.Parse(ctx.Request.Query["response_code"], CultureInfo.InvariantCulture);
                     return response.WriteAsync("dummy");
                 });
             }

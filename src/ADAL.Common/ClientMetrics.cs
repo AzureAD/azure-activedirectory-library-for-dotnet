@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     headers[ClientMetricsHeaderLastRequest] = pendingClientMetrics.lastCorrelationId.ToString();
-                    headers[ClientMetricsHeaderLastResponseTime] = pendingClientMetrics.lastResponseTime.ToString(CultureInfo.CurrentCulture);
+                    headers[ClientMetricsHeaderLastResponseTime] = pendingClientMetrics.lastResponseTime.ToString(CultureInfo.InvariantCulture);
                     headers[ClientMetricsHeaderLastEndpoint] = pendingClientMetrics.lastEndpoint;
 
                     HttpHelper.AddHeadersToRequest(request, headers);
