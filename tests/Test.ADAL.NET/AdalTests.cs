@@ -699,7 +699,7 @@ namespace Test.ADAL.Common
             string audience = authority.Replace("login", "sts");
 
             // Test fails with out this
-            if (!audience.EndsWith(@"/"))
+            if (!audience.EndsWith(@"/", StringComparison.CurrentCultureIgnoreCase))
             {
                 audience += @"/";
             }

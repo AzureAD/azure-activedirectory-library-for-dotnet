@@ -23,6 +23,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -165,7 +166,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     writer.Write(this.tokenCacheDictionary.Count);
                     foreach (KeyValuePair<TokenCacheKey, AuthenticationResult> kvp in this.tokenCacheDictionary)
                     {
-                        writer.Write(string.Format("{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
+                        writer.Write(string.Format(CultureInfo.InvariantCulture, "{1}{0}{2}{0}{3}{0}{4}", Delimiter, kvp.Key.Authority,
                             kvp.Key.Resource, kvp.Key.ClientId, (int) kvp.Key.TokenSubjectType));
                         writer.Write(kvp.Value.Serialize());
                     }
@@ -217,7 +218,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         string[] kvpElements = keyString.Split(new[] {Delimiter}, StringSplitOptions.None);
                         AuthenticationResult result = AuthenticationResult.Deserialize(reader.ReadString());
                         TokenCacheKey key = new TokenCacheKey(kvpElements[0], kvpElements[1], kvpElements[2],
-                            (TokenSubjectType) int.Parse(kvpElements[3]), result.UserInfo);
+                            (TokenSubjectType) int.Parse(kvpElements[3], CultureInfo.InvariantCulture), result.UserInfo);
 
                         this.tokenCacheDictionary.Add(key, result);
                     }
@@ -314,9 +315,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
                 this.OnBeforeWrite(args);
-                Logger.Information(null, String.Format("Clearing Cache :- {0} items to be removed", this.Count));
+                Logger.Information(null, String.Format(CultureInfo.InvariantCulture, "Clearing Cache :- {0} items to be removed", this.Count));
                 this.tokenCacheDictionary.Clear();
-                Logger.Information(null, String.Format("Successfully Cleared Cache"));
+                Logger.Information(null, "Successfully Cleared Cache");
                 this.HasStateChanged = true;
                 this.OnAfterAccess(args);
             }
@@ -381,7 +382,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else if (!cacheKey.ResourceEquals(resource))
                     {
                         Logger.Verbose(callState,
-                            string.Format(
+                            string.Format(CultureInfo.InvariantCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
                                 cacheKey.Resource, resource));
                         var newResult = new AuthenticationResult(null, null, result.RefreshToken,
@@ -392,7 +393,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else
                     {
                         Logger.Verbose(callState,
-                            string.Format("{0} minutes left until token in cache expires",
+                            string.Format(CultureInfo.InvariantCulture, "{0} minutes left until token in cache expires",
                                 (result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
                     }
 

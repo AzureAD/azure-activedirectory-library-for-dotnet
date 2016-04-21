@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
@@ -57,7 +58,7 @@ namespace Test.ADAL.NET.Friend
                     string []segments = value.Substring(1).Split(new [] { Delimiter }, StringSplitOptions.RemoveEmptyEntries);
                     throw new AdalServiceException(errorCode: segments[0], message: segments[1])
                           {
-                              StatusCode = int.Parse(segments[2])
+                              StatusCode = int.Parse(segments[2], CultureInfo.InvariantCulture)
                           };
                 }
             }
@@ -77,7 +78,7 @@ namespace Test.ADAL.NET.Friend
                 }
                 else
                 {
-                    value = 'A' + string.Format("{0}{1}{2}{3}{4}", ex.ErrorCode, Delimiter, ex.Message, Delimiter, 
+                    value = 'A' + string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}{3}{4}", ex.ErrorCode, Delimiter, ex.Message, Delimiter, 
                         (serviceException != null) ? serviceException.StatusCode : 0);
                 }
                 

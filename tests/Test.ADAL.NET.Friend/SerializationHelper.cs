@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -55,7 +56,7 @@ namespace Test.ADAL.Common
         public static string SerializeWebException(WebException ex)
         {
             var dictionary = new Dictionary<string, string>();
-            dictionary["StatusCode"] = ((int)((HttpWebResponse)(ex.Response)).StatusCode).ToString();
+            dictionary["StatusCode"] = ((int)((HttpWebResponse)(ex.Response)).StatusCode).ToString(CultureInfo.InvariantCulture);
             Stream responseStream = ex.Response.GetResponseStream();
             if (responseStream != null)
             {
