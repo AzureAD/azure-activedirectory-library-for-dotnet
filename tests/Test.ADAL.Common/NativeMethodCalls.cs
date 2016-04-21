@@ -213,7 +213,7 @@ namespace Test.ADAL.Common
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool EnumThreadWindows(int threadId, EnumChildWindowsProc lpEnumFunc, IntPtr lParam);
                 
-        [DllImport("user32", EntryPoint = "GetClassNameA", CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
+        [DllImport("user32", EntryPoint = "GetClassNameA", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         internal static extern int GetClassName(IntPtr handleToWindow, StringBuilder className, int maxClassNameLength);
 
         [DllImport("Kernel32", ExactSpelling = true)]
