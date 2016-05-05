@@ -36,6 +36,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             this.userCredential = userCredential;
+            this.SupportADFS = true;
         }
 
         public AcquireTokenNonInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, UserAssertion userAssertion, bool callSync)
