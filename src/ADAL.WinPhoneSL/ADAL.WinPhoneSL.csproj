@@ -168,6 +168,9 @@
     <Compile Include="..\ADAL.Common\CallState.cs">
       <Link>Common\CallState.cs</Link>
     </Compile>
+    <Compile Include="..\ADAL.Common\CacheQueryData.cs">
+      <Link>Common\CacheQueryData.cs</Link>
+    </Compile>
     <Compile Include="..\ADAL.Common\ClientKey.cs">
       <Link>Common\ClientKey.cs</Link>
     </Compile>
