@@ -356,7 +356,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal AuthenticationResult LoadFromCache(string authority, string resource, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
+        internal AuthenticationResult LoadFromCache(CacheQueryData cacheQueryData, CallState callState)
         {
             lock (cacheLock)
             {
@@ -364,8 +364,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 AuthenticationResult result = null;
 
-                KeyValuePair<TokenCacheKey, AuthenticationResult>? kvp = this.LoadSingleItemFromCache(authority,
-                    resource, clientId, subjectType, uniqueId, displayableId, callState);
+                KeyValuePair<TokenCacheKey, AuthenticationResult>? kvp = this.LoadSingleItemFromCache(cacheQueryData, callState);
 
                 if (kvp.HasValue)
                 {
@@ -379,12 +378,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         result.AccessToken = null;
                         Logger.Verbose(callState, "An expired or near expiry token was found in the cache");
                     }
-                    else if (!cacheKey.ResourceEquals(resource))
+                    else if (!cacheKey.ResourceEquals(cacheQueryData.Resource))
                     {
                         Logger.Verbose(callState,
                             string.Format(CultureInfo.InvariantCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
-                                cacheKey.Resource, resource));
+                                cacheKey.Resource, cacheQueryData.Resource));
                         var newResult = new AuthenticationResult(null, null, result.RefreshToken,
                             DateTimeOffset.MinValue);
                         newResult.UpdateTenantAndUserInfo(result.TenantId, result.IdToken, result.UserInfo);
@@ -465,18 +464,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private KeyValuePair<TokenCacheKey, AuthenticationResult>? LoadSingleItemFromCache(string authority, string resource, string clientId, TokenSubjectType subjectType, string uniqueId, string displayableId, CallState callState)
+        private KeyValuePair<TokenCacheKey, AuthenticationResult>? LoadSingleItemFromCache(CacheQueryData cacheQueryData, CallState callState)
         {
             lock (cacheLock)
             {
                 // First identify all potential tokens.
-                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> items = this.QueryCache(authority, clientId,
-                    subjectType, uniqueId, displayableId);
+                List<KeyValuePair<TokenCacheKey, AuthenticationResult>> items = this.QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType, cacheQueryData.UniqueId, cacheQueryData.DisplayableId);
 
                 List<KeyValuePair<TokenCacheKey, AuthenticationResult>> resourceSpecificItems =
-                    items.Where(p => p.Key.ResourceEquals(resource)).ToList();
+                    items.Where(p => p.Key.ResourceEquals(cacheQueryData.Resource)).ToList();
 
                 int resourceValuesCount = resourceSpecificItems.Count();
+
+                //multiple tokens matched. scope down the results to the matching userAssertion Hash, if provided
+                if (resourceValuesCount > 1 && cacheQueryData.AssertionHash != null)
+                {
+                    resourceSpecificItems =
+                        resourceSpecificItems.Where(p => p.Value.UserAssertionHash.Equals(cacheQueryData.AssertionHash))
+                            .ToList();
+                    resourceValuesCount = resourceSpecificItems.Count();
+                }
+
                 KeyValuePair<TokenCacheKey, AuthenticationResult>? returnValue = null;
                 if (resourceValuesCount == 1)
                 {

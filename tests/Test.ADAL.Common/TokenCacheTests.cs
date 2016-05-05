@@ -457,16 +457,6 @@ namespace Test.ADAL.Common.Unit
             tokenCache.Clear();
         }
 
-        public static void TokenCacheBackCompatTest(byte[] oldcache)
-         {
-             TokenCache cache = new TokenCache(oldcache);
-             Verify.IsNotNull(cache);
-             foreach (var value in cache.tokenCacheDictionary.Values)
-             {
-                 Verify.IsNull(value.UserAssertionHash);
-             }
-         }
-
 internal static void TokenCacheValueSplitTest()
         {
             var tokenCache = new TokenCache();
@@ -587,22 +577,27 @@ internal static void TokenCacheValueSplitTest()
             return item.Match(key);
         }
 
-        private static void VerifyAuthenticationResultsAreEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static void VerifyAuthenticationResultsAreEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
             Verify.IsTrue(AreAuthenticationResultsEqual(result1, result2));
         }
 
-        private static void VerifyAuthenticationResultsAreNotEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static void VerifyAuthenticationResultsAreNotEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
             Verify.IsFalse(AreAuthenticationResultsEqual(result1, result2));
         }
 
-        private static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
+#if TEST_ADAL_NET            
+            if(result1.UserAssertionHash != result2.UserAssertionHash)
+            {
+                return false;
+            }
+#endif
             return (AreStringsEqual(result1.AccessToken, result2.AccessToken)
                     && AreStringsEqual(result1.AccessTokenType, result2.AccessTokenType)
                     && AreStringsEqual(result1.IdToken, result2.IdToken)
-                    && result1.UserAssertionHash == result2.UserAssertionHash
                     && result1.IsMultipleResourceRefreshToken == result2.IsMultipleResourceRefreshToken
                     && AreStringsEqual(result1.RefreshToken, result2.RefreshToken)
                     && AreStringsEqual(result1.TenantId, result2.TenantId)
