@@ -27,6 +27,9 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <DocumentationFile>Microsoft.IdentityModel.Clients.ActiveDirectory.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>Sdl7.0.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +39,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>Microsoft.IdentityModel.Clients.ActiveDirectory.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>Sdl7.0.ruleset</CodeAnalysisRuleSet>
+    
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ADAL.CommonWinRT\AdalEventSource.cs">
@@ -145,6 +152,9 @@
     </Compile>
     <Compile Include="..\ADAL.Common\ClientMetrics.cs">
       <Link>Common\ClientMetrics.cs</Link>
+    </Compile>
+    <Compile Include="..\ADAL.Common\CacheQueryData.cs">
+      <Link>Common\CacheQueryData.cs</Link>
     </Compile>
     <Compile Include="..\ADAL.Common\Constants.cs">
       <Link>Common\Constants.cs</Link>

@@ -29,15 +29,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected readonly static Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
         protected Exception RefreshException;
+        protected readonly CacheQueryData CacheQueryData;
 
         protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string resource, ClientKey clientKey, TokenSubjectType subjectType, bool callSync)
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId, callSync);
             Logger.Information(this.CallState, 
-                string.Format("=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                string.Format(CultureInfo.InvariantCulture, "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
                 authenticator.Authority, resource, clientKey.ClientId,
-                (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(" ({0} items)", tokenCache.Count) : "null",
+                (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(CultureInfo.InvariantCulture, " ({0} items)", tokenCache.Count) : "null",
                 subjectType));
 
             this.tokenCache = tokenCache;
@@ -56,6 +57,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.LoadFromCache = (tokenCache != null);
             this.StoreToCache = (tokenCache != null);
             this.SupportADFS = false;
+
+            CacheQueryData = new CacheQueryData();
+            CacheQueryData.Authority = Authenticator.Authority;
+            CacheQueryData.Resource = this.Resource;
+            CacheQueryData.ClientId = this.ClientKey.ClientId;
+            CacheQueryData.SubjectType = this.TokenSubjectType;
+            CacheQueryData.UniqueId = this.UniqueId;
+            CacheQueryData.DisplayableId = this.DisplayableId;
         }
 
         internal CallState CallState { get; set; }
@@ -94,9 +103,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 
-                    result = this.tokenCache.LoadFromCache(this.Authenticator.Authority, this.Resource,
-                        this.ClientKey.ClientId, this.TokenSubjectType, this.UniqueId, this.DisplayableId,
-                        this.CallState);
+                    result = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
                     result = this.ValidateResult(result);
 
                     if (result != null && result.AccessToken == null && result.RefreshToken != null)

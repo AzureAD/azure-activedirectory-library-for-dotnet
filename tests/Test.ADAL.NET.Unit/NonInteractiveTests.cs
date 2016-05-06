@@ -109,7 +109,7 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("WS-Trust Address Extraction Test")]
         [TestCategory("AdalDotNet")]
-        public async Task WsTrust2005AddressExtractionTest()
+        public void WsTrust2005AddressExtractionTest()
         {
             XDocument mexDocument = null;
             using (Stream stream = new FileStream("TestMex2005.xml", FileMode.Open))
@@ -129,7 +129,7 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("WS-Trust Address Extraction Test")]
         [TestCategory("AdalDotNet")]
-        public async Task WsTrustPolicyExtraction()
+        public void WsTrustPolicyExtraction()
         {
             XDocument mexDocument = null;
             using (Stream stream = new FileStream("TestMex2005.xml", FileMode.Open))
@@ -245,16 +245,22 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("WS-Trust Request Xml Format Test")]
         [TestCategory("AdalDotNet")]
-        public async Task WsTrustRequestXmlFormatTest()
+        public void WsTrustRequestXmlFormatTest()
         {
             UserCredential cred = new UserCredential("user", "pass&<>\"'");
             StringBuilder sb = WsTrustRequest.BuildMessage("https://appliesto", new WsTrustAddress { Uri = new Uri("resource") }, cred);
             try
             {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml("<?xml version=\"1.0\"?>" + sb.ToString());
+                XmlDocument document = new XmlDocument();
+                document.XmlResolver = null;
+                document.PreserveWhitespace = false;
+                using (var xmlReader = new XmlTextReader(new StringReader("<?xml version=\"1.0\"?>" + sb)))
+                {
+                    xmlReader.Settings.DtdProcessing = DtdProcessing.Ignore;
+                    document.Load(xmlReader);
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Verify.Fail("Not expected");
             }
@@ -289,22 +295,17 @@ namespace Test.ADAL.NET.Unit
 
         private async static Task<XDocument> FecthMexAsync(string metadataUrl)
         {
-            if (MockService)
+
+           return await Task.Factory.StartNew(() =>
             {
                 if (metadataUrl.EndsWith("xx"))
                 {
                     throw new AdalException(AdalError.AccessingWsMetadataExchangeFailed);
                 }
 
-                using(Stream stream = new FileStream("TestMex.xml", FileMode.Open))
-                {
+                using (Stream stream = new FileStream("TestMex.xml", FileMode.Open))
                     return XDocument.Load(stream);
-                }
-            }
-            else
-            {
-                return await MexParser.FetchMexAsync(metadataUrl, null);
-            }
+            });
         }
     }
 }

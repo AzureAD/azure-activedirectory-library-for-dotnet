@@ -121,7 +121,8 @@ namespace Test.ADAL.WinRT.Unit
                 if (value[0] == 'P')
                 {
                     value = value.Substring(1);
-                    return new ReplayerHttpWebResponse(value, HttpStatusCode.OK);
+                    await Task.Factory.StartNew(() =>
+                    { return new ReplayerHttpWebResponse(value, HttpStatusCode.OK); });
                 }
                 else
                 {

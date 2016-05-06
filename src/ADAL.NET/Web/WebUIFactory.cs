@@ -61,7 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             const string WebAuthenticationDialogClassName = "Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.BrowserDialogFactory";
             const string FactoryMethodName = "CreateAuthenticationDialog";
 
-            string webAuthenticationDialogAssemblyName = string.Format(WebAuthenticationDialogAssemblyNameTemplate, AdalIdHelper.GetAdalVersion());
+            string webAuthenticationDialogAssemblyName = string.Format(CultureInfo.InvariantCulture, WebAuthenticationDialogAssemblyNameTemplate, AdalIdHelper.GetAdalVersion());
 
             try
             {

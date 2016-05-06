@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.WinRT.Unit
@@ -39,7 +40,7 @@ namespace Test.ADAL.WinRT.Unit
             const string JsonWebTokenValidFrom = "JsonWebTokenValidFrom";
             if (IOMap.ContainsKey(JsonWebTokenValidFrom))
             {
-                return new DateTime(long.Parse(IOMap[JsonWebTokenValidFrom]));
+                return new DateTime(long.Parse(IOMap[JsonWebTokenValidFrom],CultureInfo.InvariantCulture));
             }
 
             throw new InvalidOperationException("Unexpected missing dictionary key");

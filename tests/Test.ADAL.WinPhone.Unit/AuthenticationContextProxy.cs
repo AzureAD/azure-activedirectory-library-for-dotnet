@@ -183,7 +183,9 @@ namespace Test.ADAL.Common
         public async Task<AuthenticationResultProxy> AcquireTokenAsync(string validResource, string validClientId, UserCredentialProxy credential)
         {
             // Unsupported feature in ADAL.WinPhone
-            throw new NotImplementedException();
+            return await Task<AuthenticationResultProxy>.Factory.StartNew(() => {
+                     throw new NotImplementedException();
+            });
         }
 
         private async Task<AuthenticationResult> ContinueAcquireTokenAsync()

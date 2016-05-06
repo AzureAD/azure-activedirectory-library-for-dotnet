@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -56,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (ex is ArgumentNullException)
             {
                 this.Error = AdalError.InvalidArgument;
-                this.ErrorDescription = string.Format(AdalErrorMessage.NullParameterTemplate, ((ArgumentNullException)ex).ParamName);
+                this.ErrorDescription = string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.NullParameterTemplate, ((ArgumentNullException)ex).ParamName);
             }
             else if (ex is ArgumentException)
             {

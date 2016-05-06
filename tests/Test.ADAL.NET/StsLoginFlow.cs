@@ -68,8 +68,13 @@ namespace Test.ADAL.Common
         private static string GetTokenFromResponse(string returnedToken)
         {
             XmlDocument document = new XmlDocument();
+            document.XmlResolver = null;
             document.PreserveWhitespace = false;
-            document.LoadXml(returnedToken);
+            using (var xmlReader = new XmlTextReader(new StringReader(returnedToken)))
+            {
+                xmlReader.Settings.DtdProcessing = DtdProcessing.Ignore;
+                document.Load(xmlReader);
+            }
 
             XmlNamespaceManager nsXml = new XmlNamespaceManager(document.NameTable);
             nsXml.AddNamespace("S", "http://www.w3.org/2003/05/soap-envelope");

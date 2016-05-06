@@ -149,6 +149,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         [DataMember]
-        internal String UserAssertionHash { get; set; }
+        internal string UserAssertionHash { get; set; }
     }
 }

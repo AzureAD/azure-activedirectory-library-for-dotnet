@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -52,16 +53,16 @@ namespace Test.ADAL.Common.Unit
             Log.Comment("====== Creating a set of keys and values for the test...");
             TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts", ValidResource, ValidClientId, TokenSubjectType.User, null, DisplayableId);
             var value = CreateCacheValue(key.UniqueId, key.DisplayableId);
-            Log.Comment(string.Format("Cache Key (with User): {0}", key));
-            Log.Comment(string.Format("Cache Value 1: {0}", value));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Key (with User): {0}", key));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Value 1: {0}", value));
             TokenCacheKey key2 = new TokenCacheKey("https://localhost/MockSts", InvalidResource, ValidClientId, TokenSubjectType.User, null, DisplayableId);
             var value2 = CreateCacheValue(null, DisplayableId);
-            Log.Comment(string.Format("Cache Key (with User): {0}", key));
-            Log.Comment(string.Format("Cache Value 2: {0}", value2));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Key (with User): {0}", key));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Value 2: {0}", value2));
             TokenCacheKey userlessKey = new TokenCacheKey("https://localhost/MockSts", ValidResource, ValidClientId, TokenSubjectType.User, null, null);
             var userlessValue = CreateCacheValue(null, null);
-            Log.Comment(string.Format("Cache Key (withoutUser): {0}", userlessKey));
-            Log.Comment(string.Format("Cache Value 3: {0}", userlessValue));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Key (withoutUser): {0}", userlessKey));
+            Log.Comment(string.Format(CultureInfo.InvariantCulture, "Cache Value 3: {0}", userlessValue));
 
             TokenCacheKey incorrectUserKey = new TokenCacheKey("https://localhost/MockSts", InvalidResource, ValidClientId, TokenSubjectType.User, null, "testuser2@microsoft.com");
 
@@ -430,7 +431,6 @@ namespace Test.ADAL.Common.Unit
             tokenCache.Clear();
 
             const int MaxItemCount = 100;
-            const int MaxFieldSize = 256;
             TokenCacheKey[] keys = new TokenCacheKey[MaxItemCount];
             AuthenticationResult[] values = new AuthenticationResult[MaxItemCount];
 
@@ -456,16 +456,6 @@ namespace Test.ADAL.Common.Unit
 
             tokenCache.Clear();
         }
-
-        public static void TokenCacheBackCompatTest(byte[] oldcache)
-         {
-             TokenCache cache = new TokenCache(oldcache);
-             Verify.IsNotNull(cache);
-             foreach (var value in cache.tokenCacheDictionary.Values)
-             {
-                 Verify.IsNull(value.UserAssertionHash);
-             }
-         }
 
 internal static void TokenCacheValueSplitTest()
         {
@@ -514,7 +504,7 @@ internal static void TokenCacheValueSplitTest()
 
         public static AuthenticationResult CreateCacheValue(string uniqueId, string displayableId)
         {
-            string refreshToken = string.Format("RefreshToken{0}", Rand.Next());
+            string refreshToken = string.Format(CultureInfo.InvariantCulture, "RefreshToken{0}", Rand.Next());
             return new AuthenticationResult(null, ValidAccessToken, refreshToken, new DateTimeOffset(DateTime.Now + TimeSpan.FromSeconds(ValidExpiresIn)))
                 {
                     UserInfo = new UserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
@@ -587,22 +577,27 @@ internal static void TokenCacheValueSplitTest()
             return item.Match(key);
         }
 
-        private static void VerifyAuthenticationResultsAreEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static void VerifyAuthenticationResultsAreEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
             Verify.IsTrue(AreAuthenticationResultsEqual(result1, result2));
         }
 
-        private static void VerifyAuthenticationResultsAreNotEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static void VerifyAuthenticationResultsAreNotEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
             Verify.IsFalse(AreAuthenticationResultsEqual(result1, result2));
         }
 
-        private static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
+        public static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
+#if TEST_ADAL_NET            
+            if(result1.UserAssertionHash != result2.UserAssertionHash)
+            {
+                return false;
+            }
+#endif
             return (AreStringsEqual(result1.AccessToken, result2.AccessToken)
                     && AreStringsEqual(result1.AccessTokenType, result2.AccessTokenType)
                     && AreStringsEqual(result1.IdToken, result2.IdToken)
-                    && result1.UserAssertionHash == result2.UserAssertionHash
                     && result1.IsMultipleResourceRefreshToken == result2.IsMultipleResourceRefreshToken
                     && AreStringsEqual(result1.RefreshToken, result2.RefreshToken)
                     && AreStringsEqual(result1.TenantId, result2.TenantId)

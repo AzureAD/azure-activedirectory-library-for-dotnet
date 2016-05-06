@@ -16,19 +16,22 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using System;
-using System.Runtime.Serialization;
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    /// <summary>
-    /// Contains the results of one token acquisition operation. 
-    /// </summary>
-    [DataContract]
-    public partial class AuthenticationResult
+    class CacheQueryData
     {
-        // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
-        // to get it from the STS response.
-        internal string Resource { get; set; }
+        public string Authority { get; set; }
+
+        public string Resource { get; set; }
+
+        public string ClientId { get; set; }
+
+        public TokenSubjectType SubjectType { get; set; }
+
+        public string UniqueId { get; set; }
+
+        public string DisplayableId { get; set; }
+
+        public string AssertionHash { get; set; }
     }
 }

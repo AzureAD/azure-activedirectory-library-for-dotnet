@@ -16,6 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
+using System.Globalization;
 using System.Net;
 
 using Windows.Security.Cryptography;

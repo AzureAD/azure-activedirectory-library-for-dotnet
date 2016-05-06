@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Globalization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -135,7 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             RequestParameters authorizationRequestParameters = new RequestParameters(this.Resource, this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
-
+            authorizationRequestParameters[OAuthParameter.HasChrome] = "1";
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
 
             if (!string.IsNullOrWhiteSpace(loginHint))
@@ -177,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     if (authorizationRequestParameters.ContainsKey(kvp.Key))
                     {
-                        throw new AdalException(AdalError.DuplicateQueryParameter, string.Format(AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
+                        throw new AdalException(AdalError.DuplicateQueryParameter, string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.DuplicateQueryParameterTemplate, kvp.Key));
                     }
                 }
 
