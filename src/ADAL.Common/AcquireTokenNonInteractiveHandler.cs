@@ -91,7 +91,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             await base.PreTokenRequest();
 
-            if (this.userAssertion == null)
+            //user_realm discovery should be done only for AAD
+            if (this.userAssertion == null && this.Authenticator.AuthorityType != AuthorityType.ADFS)
             { 
                 UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(this.Authenticator.UserRealmUri, this.userCredential.UserName, this.CallState);
                 Logger.Information(this.CallState, "User with hash '{0}' detected as '{1}'", PlatformSpecificHelper.CreateSha256Hash(this.userCredential.UserName), userRealmResponse.AccountType);
