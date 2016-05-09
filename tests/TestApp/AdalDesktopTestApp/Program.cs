@@ -95,7 +95,7 @@ new UserIdentifier("<enter_user_id_here>", UserIdentifierType.RequiredDisplayabl
 
         private byte[] ReadCacheFile()
         {
-            string path = "c:\\git\\cache.txt";
+            string path = "c:\\cache.txt";
             if (File.Exists(path))
             {
                 return File.ReadAllBytes(path);
@@ -105,7 +105,7 @@ new UserIdentifier("<enter_user_id_here>", UserIdentifierType.RequiredDisplayabl
         }
         private void WriteCacheFile(byte[] cacheData)
         {
-            string path = "c:\\git\\cache.txt";
+            string path = "c:\\cache.txt";
             File.WriteAllBytes(path, cacheData);
         }
     }
