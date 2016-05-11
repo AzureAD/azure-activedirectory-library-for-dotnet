@@ -55,6 +55,7 @@ namespace Test.ADAL.NET.Unit
             TestUrlEncoding("   ");
             TestUrlEncoding(ComplexString);
             TestUrlEncoding(ComplexString2);
+            TestUrlEncoding("@");
         }
 
         [TestMethod]
