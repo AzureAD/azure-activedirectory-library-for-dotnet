@@ -165,7 +165,6 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
             return results;
         }
 
-
         private AuthenticationResultEx GetResult(string token, string scope)
         {
             return this.GetResult(token, scope, this.ExpiresIn);
@@ -176,7 +175,7 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
             DateTimeOffset expiresOn = DateTime.UtcNow + TimeSpan.FromSeconds(expiresIn);
             var result = new AuthenticationResult(this.TokenType, token, expiresOn);
 
-            ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString);
+            ProfileInfo profileInfo = ProfileInfo.Parse(this.ProfileInfoString) ?? ProfileInfo.ParseIdToken(IdTokenString);
             if (profileInfo != null)
             {
                 string tenantId = profileInfo.TenantId;

@@ -52,6 +52,40 @@ namespace Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory
         public string PreferredUsername { get; set; }
 
 
+        public static ProfileInfo ParseIdToken(string idToken)
+        {
+            ProfileInfo profileInfoBody = null;
+            // JWT is made of three parts, separated by a '.' 
+            // First part is the header 
+            // Second part is the token 
+            // Third part is the signature 
+            string[] tokenParts = idToken.Split('.');
+            if (tokenParts.Length < 3)
+            {
+                // Invalid token, return empty
+            }
+            // Token content is in the second part, in urlsafe base64
+            string encodedToken = tokenParts[1];
+            // Convert from urlsafe and add padding if needed
+            int leftovers = encodedToken.Length % 4;
+            if (leftovers == 2)
+            {
+                encodedToken += "==";
+            }
+            else if (leftovers == 3)
+            {
+                encodedToken += "=";
+            }
+            encodedToken = encodedToken.Replace('-', '+').Replace('_', '/');
+            byte[] profileInfoBytes = Base64UrlEncoder.DecodeBytes(encodedToken);
+            using (var stream = new MemoryStream(profileInfoBytes))
+            {
+                var serializer = new DataContractJsonSerializer(typeof(ProfileInfo));
+                profileInfoBody = (ProfileInfo)serializer.ReadObject(stream);
+            }
+            return profileInfoBody;
+        }
+
         public static ProfileInfo Parse(string profileInfo)
         {
             ProfileInfo profileInfoBody = null;
