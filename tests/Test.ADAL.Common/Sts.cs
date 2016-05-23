@@ -207,7 +207,7 @@ namespace Test.ADAL.Common
             this.ValidNonExistentRedirectUriClientId = this.ValidClientId;
             this.ValidClientIdWithExistingRedirectUri = this.ValidClientId;
             this.ValidConfidentialClientId = "91ce6b56-776c-4e07-83c3-ebbb11726999";
-            this.ValidConfidentialClientSecret = "<REPLACE>";
+            this.ValidConfidentialClientSecret = "3VFF+M+V/UibacSYtzpGHbHmIIKeFBkurOfl+fIqhrM=";
             this.ValidWinRTClientId = "786067bc-40cc-4171-be40-a73b2d05a461";
             this.ValidUserName = @"adaltest@aadadfs.onmicrosoft.com";
             this.ValidUserName2 = "adaltest2@aadadfs.onmicrosoft.com";
@@ -215,9 +215,9 @@ namespace Test.ADAL.Common
             this.ValidDefaultRedirectUri = new Uri("https://login.live.com/");
             this.ValidExistingRedirectUri = new Uri("https://login.live.com/");
             this.ValidRedirectUriForConfidentialClient = new Uri("https://confidential.foobar.com");
-            this.ValidPassword = "<REPLACE>";
-            this.ValidPassword2 = "<REPLACE>";
-            this.ValidPassword3 = "<REPLACE>";
+            this.ValidPassword = "p@ssword1";
+            this.ValidPassword2 = "p@ssword2";
+            this.ValidPassword3 = "p@ssword3";
             this.ValidScope = new []{"http://testwebapp.com"};
             this.ValidScope2 = new []{"http://testwebapp2.com"};
             this.ValidScope3 = new []{"http://testwebapp3.com"};
