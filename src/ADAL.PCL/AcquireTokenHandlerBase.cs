@@ -82,6 +82,50 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             CacheQueryData.SubjectType = this.TokenSubjectType;
             CacheQueryData.UniqueId = this.UniqueId;
             CacheQueryData.DisplayableId = this.DisplayableId;
+            CacheQueryData.ExtendedLifeTimeEnabled = false;
+        }
+        protected AcquireTokenHandlerBase(Authenticator authenticator, TokenCache tokenCache, string resource,
+            ClientKey clientKey, TokenSubjectType subjectType, bool extendedLifeTimeEnabled)
+        {
+            this.Authenticator = authenticator;
+            this.CallState = CreateCallState(this.Authenticator.CorrelationId);
+            PlatformPlugin.Logger.Information(this.CallState,
+                string.Format(CultureInfo.CurrentCulture, "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                authenticator.Authority, resource, clientKey.ClientId,
+                (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count) : "null",
+                subjectType));
+
+            this.tokenCache = tokenCache;
+
+            if (string.IsNullOrWhiteSpace(resource))
+            {
+                throw new ArgumentNullException("resource");
+            }
+
+            this.Resource = (resource != NullResource) ? resource : null;
+            this.ClientKey = clientKey;
+            this.TokenSubjectType = subjectType;
+
+            this.LoadFromCache = (tokenCache != null);
+            this.StoreToCache = (tokenCache != null);
+            this.SupportADFS = false;
+
+            this.brokerParameters = new Dictionary<string, string>();
+            brokerParameters["authority"] = authenticator.Authority;
+            brokerParameters["resource"] = resource;
+            brokerParameters["client_id"] = clientKey.ClientId;
+            brokerParameters["correlation_id"] = this.CallState.CorrelationId.ToString();
+            brokerParameters["client_version"] = AdalIdHelper.GetAdalVersion();
+            this.ResultEx = null;
+
+            CacheQueryData = new CacheQueryData();
+            CacheQueryData.Authority = Authenticator.Authority;
+            CacheQueryData.Resource = this.Resource;
+            CacheQueryData.ClientId = this.ClientKey.ClientId;
+            CacheQueryData.SubjectType = this.TokenSubjectType;
+            CacheQueryData.UniqueId = this.UniqueId;
+            CacheQueryData.DisplayableId = this.DisplayableId;
+            CacheQueryData.ExtendedLifeTimeEnabled = extendedLifeTimeEnabled;
         }
 
         internal CallState CallState { get; set; }
@@ -105,27 +149,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected UserIdentifierType UserIdentifierType { get; set; }
 
         protected bool LoadFromCache { get; set; }
-        
+
         protected bool StoreToCache { get; set; }
+
 
         public async Task<AuthenticationResult> RunAsync()
         {
             bool notifiedBeforeAccessCache = false;
-
             try
             {
                 await this.PreRunAsync();
-
                 
+
                 if (this.LoadFromCache)
                 {
+                    
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 
                     ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
                     this.ValidateResult();
 
-                    if (ResultEx != null && ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null)
+                    if ((ResultEx != null && ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) || (ResultEx!=null && ResultEx.Result.ExtendedLifeTimeToken))
                     {
                         ResultEx = await this.RefreshAccessTokenAsync(ResultEx);
                         if (ResultEx != null && ResultEx.Exception == null)
@@ -144,7 +189,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else
                     {
                         await this.PreTokenRequest();
-                        
+
                         // check if broker app installation is required for authentication.
                         if (this.BrokerInvocationRequired())
                         {
@@ -157,6 +202,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     //broker token acquisition failed
+
+                    //return the stale token here
                     if (ResultEx != null && ResultEx.Exception != null)
                     {
                         throw ResultEx.Exception;
@@ -195,7 +242,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected virtual void ValidateResult()
         {
-           
+              
         }
 
         protected virtual void UpdateBrokerParameters(IDictionary<string, string> parameters)
@@ -342,7 +389,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 PlatformPlugin.Logger.Information(this.CallState, string.Format(CultureInfo.CurrentCulture, "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
                     accessTokenHash,
-                    result.ExpiresOn,                    
+                    result.ExpiresOn,
                     result.UserInfo != null ? PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId) : "null"));
             }
         }

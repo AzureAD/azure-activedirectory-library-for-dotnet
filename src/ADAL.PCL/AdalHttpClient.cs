@@ -122,7 +122,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 clientMetrics.EndClientMetricsRecord(endpointType, this.CallState);
             }
+            //logic for retry
 
+            if ((int)response.StatusCode == 500 || (int)response.StatusCode == 503 ||
+                    (int)response.StatusCode == 504)
+            {
+                await Task.Delay(1000);
+                return await this.GetResponseAsync<T>(endpointType, respondToDeviceAuthChallenge);
+            }
+                
             //check for pkeyauth challenge
             if (this.isDeviceAuthChallenge(endpointType, response, respondToDeviceAuthChallenge))
             {
@@ -131,6 +139,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             return typedResponse;
         }
+
 
         private bool isDeviceAuthChallenge(string endpointType, IHttpWebResponse response, bool respondToDeviceAuthChallenge)
         {
