@@ -7,9 +7,7 @@ Here you can find the source code for the library. You can find the correspondin
 - 
 - The next version of the library in prerelease form is also avialable on the NuGet gallery.
 - 
-## Samples and Documentation
 
-[We provide a full suite of sample applications and documentation on GitHub](https://github.com/AzureADSamples) to help you get started with learning the Azure Identity system. This includes tutorials for native clients such as Windows, Windows Phone, iOS, OSX, Android, and Linux. We also provide full walkthroughs for authentication flows such as OAuth2, OpenID Connect, Graph API, and other awesome features. 
 
 ## Community Help and Support
 
