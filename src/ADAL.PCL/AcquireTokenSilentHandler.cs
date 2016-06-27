@@ -45,6 +45,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.UserIdentifierType = userId.Type;
             PlatformPlugin.BrokerHelper.PlatformParameters = parameters;    
             this.SupportADFS = true;
+            this.CacheQueryData.DisplayableId = this.DisplayableId;
+            this.CacheQueryData.UniqueId = this.UniqueId;
 
             this.brokerParameters["username"] = userId.Id;
             this.brokerParameters["username_type"] = userId.Type.ToString();

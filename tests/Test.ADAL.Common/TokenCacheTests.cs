@@ -263,6 +263,67 @@ namespace Test.ADAL.Common.Unit
             authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
         }
+
+        /// <summary>
+        /// Check when there are multiple users in the cache with the same
+        /// authority, clientId, resource but different unique and displayId's that
+        /// we can correctly get them from the cache without a multiple token 
+        /// detected exception.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static async Task TestUniqueIdDisplayableIdLookup(IPlatformParameters parameters)
+        {
+
+            string authority = "https://www.gotJwt.com/";
+            string clientId = Guid.NewGuid().ToString();
+            string resource = Guid.NewGuid().ToString();
+            string tenantId = Guid.NewGuid().ToString();
+            string uniqueId = Guid.NewGuid().ToString();
+            string displayableId = Guid.NewGuid().ToString();
+            Uri redirectUri = new Uri("https://www.GetJwt.com");
+
+            var authenticationResult = CreateCacheValue(uniqueId, displayableId);
+            authority = authority + tenantId + "/";
+            UserCredential credential = new UserCredential(displayableId);
+            AuthenticationContext tempContext = new AuthenticationContext(authority, false);
+            var localCache = tempContext.TokenCache;
+            localCache.Clear();
+
+            // Add first user into cache
+            resource = Guid.NewGuid().ToString();
+            clientId = Guid.NewGuid().ToString();
+            uniqueId = Guid.NewGuid().ToString();
+            displayableId = Guid.NewGuid().ToString();
+            var cacheValue = CreateCacheValue(uniqueId, displayableId);
+            AddToDictionary(localCache,
+                new TokenCacheKey(authority, resource, clientId, TokenSubjectType.User, uniqueId, displayableId),
+                cacheValue);
+
+            //Add second user into cache
+            uniqueId = Guid.NewGuid().ToString();
+            displayableId = Guid.NewGuid().ToString();
+            cacheValue = CreateCacheValue(uniqueId, displayableId);
+            AddToDictionary(localCache,
+                new TokenCacheKey(authority, resource, clientId, TokenSubjectType.User, uniqueId, displayableId),
+                cacheValue);
+
+            var acWithLocalCache = new AuthenticationContext(authority, false, localCache);
+            var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
+            var userIdUpper = new UserIdentifier(displayableId.ToUpper(), UserIdentifierType.RequiredDisplayableId);
+
+            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId);
+            VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
+
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userIdUpper);
+            VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
+
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
+
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+            VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
+        }
 #endif
 
         internal static void TokenCacheCrossTenantOperationsTest()

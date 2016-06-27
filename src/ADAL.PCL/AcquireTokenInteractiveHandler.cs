@@ -81,6 +81,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.UserIdentifierType = userId.Type;
             this.LoadFromCache = (tokenCache != null && parameters != null && PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
             this.SupportADFS = true;
+            this.CacheQueryData.DisplayableId = this.DisplayableId;
+            this.CacheQueryData.UniqueId = this.UniqueId;
 
             this.brokerParameters["force"] = "NO";
             if (userId != UserIdentifier.AnyUser)
