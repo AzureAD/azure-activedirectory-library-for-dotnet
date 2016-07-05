@@ -48,6 +48,14 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Test for TokenCache")]
+        [TestCategory("AdalDotNetUnit")]
+        public async Task TestUniqueIdDisplayableIdLookup()
+        {
+            await TokenCacheTests.TestUniqueIdDisplayableIdLookup();
+        }
+
+        [TestMethod]
         [Description("Test for Token Cache Operations")]
         [TestCategory("AdalDotNetUnit")]
         public void TokenCacheOperationsTest()
