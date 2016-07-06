@@ -41,6 +41,62 @@ namespace Test.ADAL.Common.Unit
         // Passing a seed to make repro possible
         private static readonly Random Rand = new Random(42);
 
+
+        /// <summary>
+        /// Check when there are multiple users in the cache with the same
+        /// authority, clientId, resource but different unique and displayId's that
+        /// we can correctly get them from the cache without a multiple token 
+        /// detected exception.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task TestUniqueIdDisplayableIdLookup()
+        {
+#if TEST_ADAL_NET
+            string authority = "https://www.gotJwt.com/";
+            string clientId = Guid.NewGuid().ToString();
+            string resource = Guid.NewGuid().ToString();
+            string tenantId = Guid.NewGuid().ToString();
+            string uniqueId = Guid.NewGuid().ToString();
+            string displayableId = Guid.NewGuid().ToString();
+            Uri redirectUri = new Uri("https://www.GetJwt.com");
+
+            authority = authority + tenantId + "/";
+            var localCache = new TokenCache();
+
+
+            // Add first user into cache
+            resource = Guid.NewGuid().ToString();
+            clientId = Guid.NewGuid().ToString();
+            uniqueId = Guid.NewGuid().ToString();
+            displayableId = Guid.NewGuid().ToString();
+            var cacheValue = CreateCacheValue(uniqueId, displayableId);
+            AddToDictionary(localCache,
+                new TokenCacheKey(authority, resource, clientId, TokenSubjectType.User, uniqueId, displayableId),
+                cacheValue);
+
+            //Add second user into cache
+            uniqueId = Guid.NewGuid().ToString();
+            displayableId = Guid.NewGuid().ToString();
+            cacheValue = CreateCacheValue(uniqueId, displayableId);
+            AddToDictionary(localCache,
+                new TokenCacheKey(authority, resource, clientId, TokenSubjectType.User, uniqueId, displayableId),
+                cacheValue);
+
+            var acWithLocalCache = new AuthenticationContext(authority, false, localCache);
+            var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
+            var userIdUpper = new UserIdentifier(displayableId.ToUpper(), UserIdentifierType.RequiredDisplayableId);
+
+            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            VerifyAuthenticationResultsAreEqual(cacheValue, authenticationResultFromCache);
+
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+            VerifyAuthenticationResultsAreEqual(cacheValue, authenticationResultFromCache);
+#else
+            await Task.FromResult(false);
+#endif
+        }
+
+
         public static void DefaultTokenCacheTest()
         {
             AuthenticationContext context = new AuthenticationContext("https://login.windows.net/dummy", false);
