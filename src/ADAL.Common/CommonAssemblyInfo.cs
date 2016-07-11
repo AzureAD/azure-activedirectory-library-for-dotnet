@@ -23,15 +23,14 @@ using System.Reflection;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyCompany("Microsoft Open Technologies")]
-[assembly: AssemblyCopyright("Copyright (c) Microsoft Open Technologies. All rights reserved.")]
+[assembly: AssemblyCompany("Microsoft Corporation")]
+[assembly: AssemblyCopyright("Copyright (c) Microsoft Corporation. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("2.28.0.0")]
+// Allow this assembly to be serviced when run on desktop CLR
+[assembly: AssemblyMetadata("Serviceable", "True")]
 
-// Keep major and minor versions in AssemblyFileVersion in sync with AssemblyVersion.
-// Build and revision numbers are replaced on build machine for official builds.
-[assembly: AssemblyFileVersion("2.28.00000.0000")]
+[assembly: AssemblyVersion("2.28.0.0")]
 // On official build, attribute AssemblyInformationalVersionAttribute is added as well
 // with its value equal to the hash of the last commit to the git branch.
 // e.g.: [assembly: AssemblyInformationalVersionAttribute("4392c9835a38c27516fc0cd7bad7bccdcaeab161")]
