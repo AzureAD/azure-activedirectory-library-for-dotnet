@@ -27,7 +27,7 @@
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal enum UserAuthType
+    public enum UserAuthType
     {
         IntegratedAuth,
         UsernamePassword
