@@ -26,6 +26,9 @@
 //------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using Android.App;
+using Android.Content.PM;
+using Android.Provider;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -62,6 +65,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public override string GetDeviceModel()
         {
             return null;
+        }
+
+        public override string GetDeviceId()
+        {
+            return Settings.Secure.AndroidId.ToString();
+        }
+
+        public override string GetApplicationName()
+        {
+            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, 0).PackageName.ToString();
+        }
+
+        public override string GetApplicationVersion()
+        {
+            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName,0).VersionName.ToString();
         }
     }
 }

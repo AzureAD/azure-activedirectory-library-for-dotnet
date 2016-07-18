@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,39 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class HttpEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal HttpEvent() : base(EventConstants.HttpEvent)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            SetEvent(EventConstants.EventName,"http_event");
         }
 
-        public Guid CorrelationId { get; set; }
+        internal string SetUrl { get; set; }
 
-        public string RequestId { get; set; }
+        internal string UserAgent { get; set; }
 
-        public AuthorityType AuthorityType { get; internal set; }
+        internal string HttpMethod { get; set; }
+
+        internal string HttpPath { get; set; }
+
+        internal string HttpResponseCode { get; set; }
+
+        internal string HttpQueryParameters { get; set; }
+
+        internal string HttpResponseMethod { get; set; }
+
+        internal string RequestApiVersion { get; set; }
+
+        internal string ResponseApiVersion { get; set; }
+
+        internal string HttpBodyParameters { get; set; }
     }
 }

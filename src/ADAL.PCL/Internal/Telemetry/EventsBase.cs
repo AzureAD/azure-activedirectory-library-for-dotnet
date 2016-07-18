@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,19 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal abstract class EventsBase
     {
-        public CallState(Guid correlationId,string requestId)
-        {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
-        }
+        internal List<Tuple<string, string>> Events = new List<Tuple<string, string>>();
 
-        public Guid CorrelationId { get; set; }
+        internal abstract void SetEvent(string eventName, string eventParameter);
 
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
+        internal abstract List<Tuple<string, string>> GetEvents();
     }
 }

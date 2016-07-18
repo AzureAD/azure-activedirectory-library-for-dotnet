@@ -31,14 +31,19 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using Foundation;
+using UIKit;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
+
     internal class PlatformInformation : PlatformInformationBase
     {
+
         public override string GetProductName()
         {
             return "PCL.iOS";
@@ -60,21 +65,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return null;
         }
-
+        [SecurityCritical]
         public override string GetOperatingSystem()
         {
             return null;
         }
-
+        [SecurityCritical]
         public override string GetDeviceModel()
         {
             return null;
         }
-
+        [SecurityCritical]
         public override string GetAssemblyFileVersionAttribute()
         {
             // TODO: Check if assembly file version can be read in iOS assembly as well or not. For now, we use assembly version instead.
             return typeof(AdalIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
+        }
+
+        [SecurityCritical]
+        public override string GetApplicationName()
+        {
+            return NSBundle.MainBundle.BundleIdentifier;
+        }
+        [SecurityCritical]
+        public override string GetApplicationVersion()
+        {
+            return NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
+        }
+        [SecurityCritical]
+        public override string GetDeviceId()
+        {
+            return UIDevice.CurrentDevice.IdentifierForVendor.AsString();
         }
     }
 }

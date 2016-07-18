@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -37,6 +38,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
 using Test.ADAL.Common.Unit;
 using Test.ADAL.NET.Unit.Mocks;
+
 
 namespace Test.ADAL.NET.Unit
 {

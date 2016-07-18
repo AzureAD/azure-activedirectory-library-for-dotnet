@@ -27,6 +27,8 @@
 
 using System;
 using System.ComponentModel;
+using System.Management;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
@@ -79,10 +81,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return Environment.OSVersion.ToString();
         }
 
+        public override string GetDeviceId()
+        {
+            string DeviceId = "";
+            ManagementObjectSearcher MOS = new ManagementObjectSearcher("SELECT DeviceID FROM Win32_Processor");
+            foreach (ManagementObject MO in MOS.Get())
+            {
+                DeviceId = MO["DeviceID"].ToString();
+            }
+            return DeviceId;
+        }
+
         public override string GetDeviceModel()
         {
             // Since ADAL .NET may be used on servers, for security reasons, we do not emit device type.
             return null;
+        }
+
+        public override string GetApplicationName()
+        {
+            return Assembly.GetEntryAssembly().GetName().Name;
+        }
+
+        public override string GetApplicationVersion()
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         public override async Task<bool> IsUserLocalAsync(CallState callState)

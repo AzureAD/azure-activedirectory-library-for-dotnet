@@ -26,7 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.IO;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -54,11 +59,41 @@ namespace AdalDesktopTestApp
 
         private static async Task AcquireTokenAsync()
         {
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<user>"));
+            /*
+            Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry telemetry =
+Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, true);
+            */
 
-            string token = result.AccessToken;
-            Console.WriteLine(token + "\n");
+            LoggerCallbackHandler.Callback = new MyCallback();
+
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+
+            try
+            {
+                var result3 = await context.AcquireTokenAsync
+                    ("<Resource>", "<ClientID>",
+                        new Uri("URI"), new PlatformParameters(PromptBehavior.Always));
+            }
+            catch (AdalServiceException)
+            {
+                var result4 = await context.AcquireTokenAsync
+                    ("<Resource>", "<ClientID>",
+                        new Uri("URI"), new PlatformParameters(PromptBehavior.Always));
+            }
+            TokenCache.DefaultShared.Clear();
+            //string token1 = result1.AccessToken;
+            //Console.WriteLine(token1 + "\n");
+            //dispatcher.file();
+        }
+    }
+
+    class MyCallback : IAdalLogCallback
+    {
+        public void Log(LogLevel level, string message)
+        {
+            Console.WriteLine(level + " - " + message);
         }
     }
 }

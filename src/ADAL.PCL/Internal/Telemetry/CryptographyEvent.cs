@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,18 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class CryptographyEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal CryptographyEvent() : base(EventConstants.CryptographyEvent)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            
         }
-
-        public Guid CorrelationId { get; set; }
-
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
     }
 }

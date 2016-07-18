@@ -70,7 +70,7 @@ namespace Test.ADAL.NET.Unit
         public void CallbackTest()
         {
             Logger logger = new Logger();
-            CallState state = new CallState(Guid.NewGuid());
+            CallState state = new CallState(Guid.NewGuid(), Guid.NewGuid().ToString());
             TestCallback callback = new TestCallback();
             LoggerCallbackHandler.Callback = callback;
 
@@ -104,7 +104,7 @@ namespace Test.ADAL.NET.Unit
         public void NullCallbackTest()
         {
             Logger logger = new Logger();
-            CallState state = new CallState(Guid.NewGuid());
+            CallState state = new CallState(Guid.NewGuid(), Guid.NewGuid().ToString());
             logger.Error(state, new Exception("test message"));
             logger.Information(state, "test message");
             logger.Verbose(state, "test message");

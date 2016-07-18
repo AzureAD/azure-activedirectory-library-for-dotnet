@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,22 +25,22 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class BrokerEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal BrokerEvent() : base(EventConstants.BrokerEvent)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            //Fill in the default parameters
+            BrokerVersion = "-1";
         }
 
-        public Guid CorrelationId { get; set; }
+        internal string BrokerApp { get; set; }
 
-        public string RequestId { get; set; }
+        internal string BrokerVersion { get; set; }
 
-        public AuthorityType AuthorityType { get; internal set; }
+        internal string BrokerProtocolVersion { get; set; }
+
     }
 }

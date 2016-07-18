@@ -40,10 +40,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private CallState callState;
         private string extraQueryParameters;
 
-        public AcquireDeviceCodeHandler(Authenticator authenticator, string resource, string clientId, string extraQueryParameters)
+        public AcquireDeviceCodeHandler(Authenticator authenticator, string resource, string clientId, string extraQueryParameters, string requestId)
         {
             this.authenticator = authenticator;
-            this.callState = AcquireTokenHandlerBase.CreateCallState(this.authenticator.CorrelationId);
+            this.callState = AcquireTokenHandlerBase.CreateCallState(this.authenticator.CorrelationId, requestId);
             this.clientKey = new ClientKey(clientId);
             this.resource = resource;
             this.extraQueryParameters = extraQueryParameters;

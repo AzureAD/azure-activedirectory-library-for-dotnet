@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,49 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class CacheEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal CacheEvent(string eventName) : base(EventConstants.CacheEvent)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            //Fill in the default parameters
+            this.EventName = eventName;
         }
 
-        public Guid CorrelationId { get; set; }
+        internal string EventName { get; set; }
 
-        public string RequestId { get; set; }
+        internal string IsMultipleResourceRt { get; set; }
 
-        public AuthorityType AuthorityType { get; internal set; }
+        internal string TokenFound { get; set; }
+
+        internal string TokenNearExpiry { get; set; }
+
+        internal string TokenExtendedLifeTimeExpired { get; set; }
+
+        internal string IsCrossTenantRt { get; set; }
+
+        internal string TokenExpired { get; set; }
+
+        internal string ExtendedLifeTimeEnabled { get; set; }
+
+        internal string ExpiredAt { get; set; }
+
+        internal string TokenSubjectType { get; set; }
+
+        internal override void SetEvent(string eventName, string eventParameter)
+        {
+            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
+        }
+
+        internal void SetEvent(string eventName, bool eventParameter)
+        {
+            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+        }
     }
 }
