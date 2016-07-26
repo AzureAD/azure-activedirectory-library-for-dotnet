@@ -75,6 +75,12 @@ namespace Test.ADAL.Common
             this.context.CorrelationId = new Guid(FixedCorrelationId);
         }
 
+        public AuthenticationContextProxy(string authority, bool validateAuthority, TokenCache tokenCache)
+        {
+            this.context = new AuthenticationContext(authority, validateAuthority, tokenCache);
+            this.context.CorrelationId = new Guid(FixedCorrelationId);
+        }
+
         public static bool CallSync { get; set; }
 
         public static void InitializeTest()

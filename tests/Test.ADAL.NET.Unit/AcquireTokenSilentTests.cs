@@ -38,7 +38,29 @@ namespace Test.ADAL.NET.Unit
             {
                 Verify.Fail("AdalSilentTokenAcquisitionException was expected");
             }
+        }
 
+        [TestMethod]
+        [Description("AcquireTokenFromCacheNonInteractiveTestAsync")]
+        [TestCategory("AdalDotNet")]
+        public async Task AcquireTokenFromCacheSilentTestAsync()
+        {
+            TokenCache cache = new TokenCache();
+            cache.tokenCacheDictionary.Add(
+                new TokenCacheKey("https://login.microsoftonline.com/home/", "resource", "clientid",
+                    TokenSubjectType.User, "unique_id", "displayable_id"),
+                new AuthenticationResult("Bearer", "access-token", "refresh-token",
+                    (DateTimeOffset.UtcNow + TimeSpan.FromHours(5))));
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/home", false, cache);
+            AuthenticationResult result =
+                await ctx.AcquireTokenSilentAsync("resource", "clientid", new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+            Assert.IsNotNull(result);
+            Assert.AreEqual("access-token", result.AccessToken);
+
+            result =
+                await ctx.AcquireTokenSilentAsync("resource", "clientid", new UserIdentifier("displayable_id", UserIdentifierType.RequiredDisplayableId));
+            Assert.IsNotNull(result);
+            Assert.AreEqual("access-token", result.AccessToken);
         }
     }
 }
