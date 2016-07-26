@@ -430,7 +430,7 @@ namespace Test.ADAL.NET
         {
             await AdalTests.AcquireTokenFromCacheTestAsync(Sts);
         }
-
+        
         [TestMethod]
         [TestCategory("AdalDotNet")]
         [Description("Test for cache in multi user scenario")]

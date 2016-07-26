@@ -84,13 +84,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthenticationResult> RunAsync()
         {
             bool notifiedBeforeAccessCache = false;
-            
-            CacheQueryData.Authority = Authenticator.Authority;
-            CacheQueryData.Resource = this.Resource;
-            CacheQueryData.ClientId = this.ClientKey.ClientId;
-            CacheQueryData.SubjectType = this.TokenSubjectType;
-            CacheQueryData.UniqueId = this.UniqueId;
-            CacheQueryData.DisplayableId = this.DisplayableId;
 
             try
             {
@@ -99,6 +92,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 AuthenticationResult result = null;
                 if (this.LoadFromCache)
                 {
+                    CacheQueryData.Authority = Authenticator.Authority;
+                    CacheQueryData.Resource = this.Resource;
+                    CacheQueryData.ClientId = this.ClientKey.ClientId;
+                    CacheQueryData.SubjectType = this.TokenSubjectType;
+                    CacheQueryData.UniqueId = this.UniqueId;
+                    CacheQueryData.DisplayableId = this.DisplayableId;
+
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 

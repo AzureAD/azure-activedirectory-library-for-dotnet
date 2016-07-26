@@ -191,7 +191,6 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
-
         [TestMethod]
         [Description("WS-Trust Request Test")]
         [TestCategory("AdalDotNet")]
@@ -264,6 +263,25 @@ namespace Test.ADAL.NET.Unit
             {
                 Verify.Fail("Not expected");
             }
+        }
+
+
+        [TestMethod]
+        [Description("AcquireTokenFromCacheNonInteractiveTestAsync")]
+        [TestCategory("AdalDotNet")]
+        public async Task AcquireTokenFromCacheNonInteractiveTestAsync()
+        {
+            TokenCache cache = new TokenCache();
+            cache.tokenCacheDictionary.Add(
+                new TokenCacheKey("https://login.microsoftonline.com/home/", "resource", "clientid",
+                    TokenSubjectType.User, "unique_id", "displayable_id"),
+                new AuthenticationResult("Bearer", "access-token", "refresh-token",
+                    (DateTimeOffset.UtcNow + TimeSpan.FromHours(5))));
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/home", false, cache);
+            AuthenticationResult result =
+                await ctx.AcquireTokenAsync("resource", "clientid", new UserCredential("displayable_id"));
+            Assert.IsNotNull(result);
+            Assert.AreEqual("access-token", result.AccessToken);
         }
 
         private static void VerifyUserRealmResponse(UserRealmDiscoveryResponse userRealmResponse, string expectedAccountType)
