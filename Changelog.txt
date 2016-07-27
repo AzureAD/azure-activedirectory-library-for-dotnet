@@ -1,6 +1,10 @@
+2.28.1
+======
+- Fix bug where developer provided UserCredential were ignored for cache lookup.
+
 2.28.0
 ======
-Fix bug where developer provided parameters were ignored for cache lookup
+- Fix bug where developer provided parameters were ignored for cache lookup.
 
 2.27.306291202
 ==============
