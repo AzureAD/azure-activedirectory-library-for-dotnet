@@ -1,0 +1,112 @@
+﻿{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL"
+    },
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL.Android/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL.Android"
+    },
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL.CoreCLR/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL.CoreCLR"
+    },
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL.Desktop/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL.Desktop"
+    },
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL.iOS/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL.iOS"
+    },
+    {
+      "src": [
+        {
+          "files": [ "src/ADAL.PCL.WinRT/*.csproj" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        }
+      ],
+      "dest": "_yml/ADAL.PCL.WinRT"
+    }
+  ],
+  "merge": {
+    "content": [
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL",
+        "dest": "_merged"
+      },
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL.Android",
+        "dest": "_merged"
+      },
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL.CoreCLR",
+        "dest": "_merged"
+      },
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL.Desktop",
+        "dest": "_merged"
+      },
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL.iOS",
+        "dest": "_merged"
+      },
+      {
+        "files": [ "*.yml" ],
+        "src": "_yml/ADAL.PCL.WinRT",
+        "dest": "_merged"
+      }
+    ],
+    "fileMetadata": {
+      "platform": {
+        "_yml/ADAL.PCL/*.yml": "Library",
+        "_yml/ADAL.PCL.Android/*.yml": "Android",
+        "_yml/ADAL.PCL.CoreCLR/*.yml": "CoreCLR",
+        "_yml/ADAL.PCL.Desktop/*.yml": "Desktop",
+        "_yml/ADAL.PCL.iOS/*.yml": "iOS",
+        "_yml/ADAL.PCL.WinRT/*.yml": "WinRT"
+      }
+    }
+  },
+  "build": {
+    "content": [
+      {
+        "files": [ "*.yml" ],
+        "src": "_merged",
+        "dest": "api"
+      }
+    ],
+    "dest": "_site"
+  }
+}
