@@ -59,41 +59,62 @@ namespace AdalDesktopTestApp
 
         private static async Task AcquireTokenAsync()
         {
-            /*
             Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry telemetry =
 Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
             DispatcherImplement dispatcher = new DispatcherImplement();
             telemetry.RegisterDispatcher(dispatcher, true);
-            */
 
-            LoggerCallbackHandler.Callback = new MyCallback();
+            //LoggerCallbackHandler.Callback = new MyCallback();
 
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
 
-            try
-            {
-                var result3 = await context.AcquireTokenAsync
-                    ("<Resource>", "<ClientID>",
-                        new Uri("URI"), new PlatformParameters(PromptBehavior.Always));
-            }
-            catch (AdalServiceException)
-            {
-                var result4 = await context.AcquireTokenAsync
-                    ("<Resource>", "<ClientID>",
-                        new Uri("URI"), new PlatformParameters(PromptBehavior.Always));
-            }
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword<"));
             TokenCache.DefaultShared.Clear();
-            //string token1 = result1.AccessToken;
-            //Console.WriteLine(token1 + "\n");
-            //dispatcher.file();
+            string token = result.AccessToken;
+            Console.WriteLine(token + "\n");
+            dispatcher.file();
         }
     }
 
-    class MyCallback : IAdalLogCallback
+    internal class DispatcherImplement : IDispatcher
     {
-        public void Log(LogLevel level, string message)
+        private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+
+        void IDispatcher.Dispatch(List<Tuple<string, string>> Event)
         {
-            Console.WriteLine(level + " - " + message);
+            storeList.Add(Event);
+        }
+
+        public int Count
+        {
+            get { return storeList.Count; }
+        }
+
+        public void clear()
+        {
+            storeList.Clear();
+        }
+
+        public void file()
+        {
+            using (TextWriter tw = new StreamWriter("C:/Users/abgun/test.txt"))
+            {
+                foreach (List<Tuple<string, string>> list in storeList)
+                {
+                    foreach (Tuple<string, string> tuple in list)
+                    {
+                        tw.WriteLine(tuple.Item1 + " " + tuple.Item2 + "\r\n");
+                    }
+                }
+            }
         }
     }
-}
+
+    internal class MyCallback : IAdalLogCallback
+        {
+            public void Log(LogLevel level, string message)
+            {
+                Console.WriteLine(level + " - " + message);
+            }
+        }
+    }

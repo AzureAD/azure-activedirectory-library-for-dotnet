@@ -37,7 +37,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         static DefaultEvent()
         {
-            ApplicationName = PlatformPlugin.PlatformInformation.GetApplicationName();
+            //ApplicationName = PlatformPlugin.PlatformInformation.GetApplicationName();
 
             ApplicationVersion = PlatformPlugin.PlatformInformation.GetApplicationVersion();
 

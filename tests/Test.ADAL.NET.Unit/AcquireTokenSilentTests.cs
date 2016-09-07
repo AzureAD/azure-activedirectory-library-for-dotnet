@@ -73,9 +73,10 @@ namespace Test.ADAL.NET.Unit
                 Assert.IsTrue(ex.InnerException is AdalException);
                 Assert.AreEqual(((AdalException)ex.InnerException).ErrorCode, "invalid_grant");
             }
-            catch
+            catch(Exception ex)
             {
                 Assert.Fail("AdalSilentTokenAcquisitionException was expected");
+                Assert.Equals(ex, null);
             }
 
         }

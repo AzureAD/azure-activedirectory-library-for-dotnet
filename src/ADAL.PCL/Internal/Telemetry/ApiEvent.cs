@@ -37,31 +37,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             Tenant = PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId);
             SetEvent(EventConstants.Tenant, Tenant);
 
-            Idp = userinfo.IdentityProvider;
-            SetEvent(EventConstants.Idp, Idp);
-
-            if (userinfo.PasswordExpiresOn != null)
+            if (userinfo != null)
             {
-                SetEvent(EventConstants.PasswordExpiration, PasswordExpiration.ToString());
-            }
+                Idp = userinfo.IdentityProvider;
+                SetEvent(EventConstants.Idp, Idp);
 
-            if (userinfo.PasswordChangeUrl != null)
-            {
                 PasswordChangeUrl = userinfo.PasswordChangeUrl;
-                SetEvent(EventConstants.PasswordChangeUrl, PasswordChangeUrl.ToString());
+                SetEvent(EventConstants.PasswordExpiration, PasswordExpiration.ToString());
+
+                FamilyName = userinfo.FamilyName;
+                SetEvent(EventConstants.FamilyName, FamilyName);
+
+                GivenName = userinfo.GivenName;
+                SetEvent(EventConstants.GivenName, GivenName);
+
+                DisplayableId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.DisplayableId);
+                SetEvent(EventConstants.DisplayableId, DisplayableId);
+
+                UniqueId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.UniqueId);
+                SetEvent(EventConstants.UniqueId, UniqueId);
             }
-
-            FamilyName = userinfo.FamilyName;
-            SetEvent(EventConstants.FamilyName, FamilyName);
-
-            GivenName = userinfo.GivenName;
-            SetEvent(EventConstants.GivenName,GivenName);
-
-            DisplayableId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.DisplayableId);
-            SetEvent(EventConstants.DisplayableId, DisplayableId);
-
-            UniqueId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.UniqueId);
-            SetEvent(EventConstants.UniqueId, UniqueId);
 
             Authority = authenticator.Authority;
             SetEvent(EventConstants.Authority,Authority);
