@@ -121,22 +121,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                     httpEvent.SetEvent(EventConstants.UserAgent, client.DefaultRequestHeaders.UserAgent.ToString());
                     httpEvent.SetEvent(EventConstants.RequestApiVersion, requestMessage.Version.ToString());
-                    if (this.BodyParameters != null)
-                    {
-                        httpEvent.SetEvent(EventConstants.HttpBodyParameters,
-                            PlatformPlugin.CryptographyHelper.CreateSha256Hash(this.BodyParameters.ToString()));
-                    }
                     httpEvent.HttpResponseMethod = requestMessage.Method.ToString();
                     Telemetry.GetInstance().StartEvent(this.CallState.RequestId, EventConstants.HttpEvent);
 
                     responseMessage = await client.SendAsync(requestMessage).ConfigureAwait(false);
 
-                    httpEvent.HttpResponseCode = responseMessage.StatusCode.ToString();
-                    httpEvent.SetUrl = requestMessage.RequestUri.ToString();
-                    httpEvent.HttpQueryParameters =
-                        PlatformPlugin.CryptographyHelper.CreateSha256Hash(requestMessage.RequestUri.Query);
-                    httpEvent.SetEvent("HttpQueryParameters",
-                        PlatformPlugin.CryptographyHelper.CreateSha256Hash(requestMessage.RequestUri.Query));
+                    httpEvent.SetEvent(EventConstants.HttpStatusCode, responseMessage.StatusCode);
+                    httpEvent.ParseQuery(requestMessage.RequestUri.Query);
                 }
                 catch (TaskCanceledException ex)
                 {

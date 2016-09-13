@@ -44,11 +44,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             AuthorizationResult authorizationResult = null;
 
+            string requestId = Telemetry.GetInstance().RegisterNewRequest();
+            Telemetry.GetInstance().StartEvent(requestId, "ui_time");
+
+            UIEvent UiEvent = new UIEvent();
+            DateTime UiStartTime = DateTime.Now;
             var sendAuthorizeRequest = new Action(
                 delegate
                 {
                     authorizationResult = this.Authenticate(authorizationUri, redirectUri);
                 });
+            DateTime stopTime = DateTime.Now;
+            UiEvent.UiTime = stopTime.Subtract(UiStartTime);
+            UiEvent.SetEvent(EventConstants.UiTime, UiEvent.UiTime);
+            Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
 
             // If the thread is MTA, it cannot create or communicate with WebBrowser which is a COM control.
             // In this case, we have to create the browser in an STA thread via StaTaskScheduler object.

@@ -37,7 +37,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         internal UIEvent() : base(EventConstants.UIEvent)
         {
-            //Fill in the default parameters
+        }
+
+        internal TimeSpan UiTime { get; set; }
+
+        internal void SetEvent(string eventName, TimeSpan eventParameter)
+        {
+            if (eventParameter != null)
+            {
+                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            }
         }
     }
 }

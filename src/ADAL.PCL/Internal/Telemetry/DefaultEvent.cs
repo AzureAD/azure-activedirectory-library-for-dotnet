@@ -37,7 +37,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         static DefaultEvent()
         {
-            //ApplicationName = PlatformPlugin.PlatformInformation.GetApplicationName();
+            ApplicationName = PlatformPlugin.PlatformInformation.GetApplicationName();
 
             ApplicationVersion = PlatformPlugin.PlatformInformation.GetApplicationVersion();
 
@@ -68,10 +68,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void SetEvent(string eventName, string eventParameter)
         {
-            if (eventParameter != null)
+            if (eventParameter != null && eventParameter.Length != 0)
             {
                 DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
             }
+        }
+
+        internal void SetEvent(string eventName, bool eventParameter)
+        {
+            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
 
         internal override List<Tuple<string, string>> GetEvents()
@@ -97,5 +102,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal static string DeviceId { get; set; }
 
+        internal Guid CorrelationId { get; set; }
     }
 }

@@ -363,9 +363,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     bool tokenExtendedLifeTimeExpired = (resultEx.Result.ExtendedExpiresOn <=
                                             DateTime.UtcNow);
 
-                    cacheEvent.TokenNearExpiry = tokenNearExpiry.ToString();
-                    cacheEvent.TokenExtendedLifeTimeExpired = tokenExtendedLifeTimeExpired.ToString();
-                    cacheEvent.TokenExpired = (resultEx.Result.ExpiresOn <= DateTime.UtcNow).ToString();
                     //check for cross-tenant authority
                     if (!cacheKey.Authority.Equals(cacheQueryData.Authority))
                     {

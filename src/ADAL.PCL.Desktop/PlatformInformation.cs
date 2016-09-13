@@ -100,7 +100,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public override string GetApplicationName()
         {
-            return Assembly.GetEntryAssembly().GetName().Name;
+            try
+            {
+                return Assembly.GetEntryAssembly().GetName().Name;
+            }
+            catch (NullReferenceException)
+            {
+                return null;
+            }
+            
         }
 
         public override string GetApplicationVersion()

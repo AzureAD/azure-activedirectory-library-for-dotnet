@@ -32,7 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class ApiEvent : DefaultEvent
     {
-        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId) : base(EventConstants.GrantEvent)
+        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId, string apiId) : base(EventConstants.GrantEvent)
         {
             Tenant = PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId);
             SetEvent(EventConstants.Tenant, Tenant);
@@ -41,15 +41,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 Idp = userinfo.IdentityProvider;
                 SetEvent(EventConstants.Idp, Idp);
-
-                PasswordChangeUrl = userinfo.PasswordChangeUrl;
-                SetEvent(EventConstants.PasswordExpiration, PasswordExpiration.ToString());
-
-                FamilyName = userinfo.FamilyName;
-                SetEvent(EventConstants.FamilyName, FamilyName);
-
-                GivenName = userinfo.GivenName;
-                SetEvent(EventConstants.GivenName, GivenName);
 
                 DisplayableId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.DisplayableId);
                 SetEvent(EventConstants.DisplayableId, DisplayableId);
@@ -64,85 +55,39 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             AuthorityType = authenticator.AuthorityType.ToString();
             SetEvent(EventConstants.AuthorityType,AuthorityType);
 
-            AuthorizationUri = authenticator.AuthorizationUri;
-            SetEvent(EventConstants.AuthorizationUri, AuthorizationUri);
-
-            CorrelationId = authenticator.CorrelationId.ToString();
-            SetEvent(EventConstants.CorrelationId,CorrelationId);
-
-            DeviceCodeUri = PlatformPlugin.CryptographyHelper.CreateSha256Hash(authenticator.DeviceCodeUri);
-            SetEvent(EventConstants.DeviceCodeUri,DeviceCodeUri);
-
-            IsTenantless = authenticator.IsTenantless.ToString();
-            SetEvent(EventConstants.IsTenantless,IsTenantless);
-
-            SelfSignedJwtAudience = authenticator.SelfSignedJwtAudience;
-            SetEvent(EventConstants.SelfSignedJwtAudience,SelfSignedJwtAudience);
-
-            TokenUri = PlatformPlugin.CryptographyHelper.CreateSha256Hash(authenticator.TokenUri);
-            SetEvent(EventConstants.TokenUri,TokenUri);
-
-            UserRealmUri = authenticator.UserRealmUri;
-            SetEvent(EventConstants.UserRealmUri,UserRealmUri);
-
-            ValidateAuthority = authenticator.ValidateAuthority.ToString();
-            SetEvent(EventConstants.ValidateAuthority,ValidateAuthority);
+            IsDeprecated = false;
+            SetEvent(EventConstants.IsDeprecated, IsDeprecated.ToString());
         }
 
         internal override void SetEvent(string eventName, string eventParameter)
         {
-            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
+            if (eventParameter != null)
+            {
+                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
+            }
         }
 
         internal string Tenant { get; set; }
-
-        internal string RequestId { get; set; }
-
-        internal string Issuer { get; set; }
 
         internal string Idp { get; set; }
 
         internal string Upn { get; set; }
 
-        internal string Email { get; set; }
-
-        internal DateTimeOffset? PasswordExpiration { get; set; }
-
-        internal Uri PasswordChangeUrl { get; set; }
-
-        internal string FamilyName { get; set; }
-
         internal string Authority { get; set; }
 
         internal string AuthorityType { get; set; }
 
-        internal string AuthorizationUri { get; set; }
-
-        internal string CorrelationId { get; set; }
-
-        internal string DeviceCodeUri { get; set; }
-
-        internal string IsTenantless { get; set; }
-
-        internal string SelfSignedJwtAudience { get; set; }
-
-        internal string TokenUri { get; set; }
-
-        internal string UserRealmUri { get; set; }
-
         internal string ValidateAuthority { get; set; }
 
-        internal string UpdateFromTemplateAsync { get; set; }
-
-        internal string UpdateTenantId { get; set; }
-
         internal string DisplayableId { get; set; }
-
-        internal string GivenName { get; set; }
 
         internal string IdentityProvider { get; set; }
 
         internal string UniqueId { get; set; }
+
+        internal bool IsDeprecated { get; set; }
+
+        internal bool ExtendedExpires { get; set; }
     }
 }
 

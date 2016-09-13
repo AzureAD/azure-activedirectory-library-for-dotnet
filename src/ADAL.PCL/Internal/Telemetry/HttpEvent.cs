@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,24 +42,40 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             SetEvent(EventConstants.EventName,"http_event");
         }
 
-        internal string SetUrl { get; set; }
-
         internal string UserAgent { get; set; }
 
         internal string HttpMethod { get; set; }
 
-        internal string HttpPath { get; set; }
-
-        internal string HttpResponseCode { get; set; }
+        internal HttpStatusCode HttpResponseCode { get; set; }
 
         internal string HttpQueryParameters { get; set; }
 
         internal string HttpResponseMethod { get; set; }
 
-        internal string RequestApiVersion { get; set; }
-
         internal string ResponseApiVersion { get; set; }
 
-        internal string HttpBodyParameters { get; set; }
+        internal void ParseQuery(string Query)
+        {
+            if (Query.Length != 0)
+            {
+                String QueryShifted = Query.Substring(1, Query.Length - 1);
+                String[] result = QueryShifted.Split('&');
+                StringBuilder sb = new StringBuilder();
+                foreach (string s in result)
+                {
+                    if (!(s.Contains("password") || s.Contains("upn")))
+                    {
+                        sb.Append(s).Append(" ");
+                    }
+                }
+                HttpQueryParameters = sb.ToString();
+                SetEvent(EventConstants.HttpQueryParameters, HttpQueryParameters);
+            }
+        }
+
+        internal void SetEvent(string eventName, HttpStatusCode eventParameter)
+        {
+                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+        }
     }
 }

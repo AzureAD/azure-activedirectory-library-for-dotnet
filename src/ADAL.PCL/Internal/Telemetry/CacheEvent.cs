@@ -46,28 +46,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal string TokenFound { get; set; }
 
-        internal string TokenNearExpiry { get; set; }
-
-        internal string TokenExtendedLifeTimeExpired { get; set; }
-
-        internal string IsCrossTenantRt { get; set; }
-
-        internal string TokenExpired { get; set; }
-
-        internal string ExtendedLifeTimeEnabled { get; set; }
-
-        internal string ExpiredAt { get; set; }
-
         internal string TokenSubjectType { get; set; }
 
         internal override void SetEvent(string eventName, string eventParameter)
         {
-            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
-        }
-
-        internal void SetEvent(string eventName, bool eventParameter)
-        {
-            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            if (eventParameter != null)
+            {
+                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
+            }
         }
     }
 }

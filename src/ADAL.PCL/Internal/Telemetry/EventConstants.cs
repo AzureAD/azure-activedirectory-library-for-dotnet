@@ -11,10 +11,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string EventName = "event_name";
         public const string ApplicationName = "application_name";
         public const string ApplicationVersion = "application_version";
-        public const string SdkVersion = "sdk_version";
-        public const string SdkId = "sdk_id";
+        public const string SdkVersion = "x-client-sku";
+        public const string SdkId = "x-client-version";
         public const string DeviceId = "device_id";
-        public const string Tenant = "tenant";
+        public const string Tenant = "tenant_id";
         public const string Issuer = "issuer";
         public const string Idp = "idp";
         public const string Upn = "upn";
@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string Crypto = "crypto_event";
         public const string RequestId = "request_id";
         public const string StartTime = "start_time";
-        public const string StopTime = "stop_time";
+        public const string StopTime = "end_time";
         public const string Authority = "authority";
         public const string AuthorityType = "authority_type";
         public const string AuthorizationUri = "authorization_uri";
@@ -59,5 +59,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string TokenFound = "token_found";
         public const string CacheLookUp = "cache_lookup";
         public const string LoginHint = "login_hint";
+        public const string HttpQueryParameters = "query_parameters";
+        public const string HttpStatusCode = "response_code";
+        public const string IsDeprecated = "is_deprecated";
+        public const string ExtendedExpires = "extended_expires_on_setting";
+        public const string UiTime = "ui_time";
     }
 }

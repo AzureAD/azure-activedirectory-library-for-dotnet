@@ -68,7 +68,6 @@ Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
 
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
 
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword<"));
             TokenCache.DefaultShared.Clear();
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");
