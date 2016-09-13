@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             this.Authenticator = authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId, callSync);
-            Logger.Information(this.CallState, 
+            Logger.Information(this.CallState,
                 string.Format(CultureInfo.InvariantCulture, "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
                 authenticator.Authority, resource, clientKey.ClientId,
                 (tokenCache != null) ? tokenCache.GetType().FullName + string.Format(CultureInfo.InvariantCulture, " ({0} items)", tokenCache.Count) : "null",
@@ -78,7 +78,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected UserIdentifierType UserIdentifierType { get; set; }
 
         protected bool LoadFromCache { get; set; }
-        
+
         protected bool StoreToCache { get; set; }
 
         public async Task<AuthenticationResult> RunAsync()
@@ -103,8 +103,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     result = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
-                    result = this.ValidateResult(result);
-
                     if (result != null && result.AccessToken == null && result.RefreshToken != null)
                     {
                         result = await this.RefreshAccessTokenAsync(result);
@@ -148,11 +146,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.NotifyAfterAccessCache();
                 }
             }
-        }
-
-        protected virtual AuthenticationResult ValidateResult(AuthenticationResult result)
-        {
-            return result;
         }
 
         public static CallState CreateCallState(Guid correlationId, bool callSync)
@@ -299,7 +292,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
 
                 Logger.Information(this.CallState, "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tRefresh Token Hash: {1}\n\tExpiration Time: {2}\n\tUser Hash: {3}\n\t",
-                    accessTokenHash, refreshTokenHash, result.ExpiresOn, 
+                    accessTokenHash, refreshTokenHash, result.ExpiresOn,
                     result.UserInfo != null ? PlatformSpecificHelper.CreateSha256Hash(result.UserInfo.UniqueId) : "null");
             }
         }
