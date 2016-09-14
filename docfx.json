@@ -90,7 +90,7 @@
     ],
     "fileMetadata": {
       "platform": {
-        "_yml/ADAL.PCL/*.yml": "Library",
+        "_yml/ADAL.PCL/*.yml": ["Android", "CoreCLR", "Desktop", "iOS", "WinRT"],
         "_yml/ADAL.PCL.Android/*.yml": "Android",
         "_yml/ADAL.PCL.CoreCLR/*.yml": "CoreCLR",
         "_yml/ADAL.PCL.Desktop/*.yml": "Desktop",
