@@ -36,7 +36,7 @@ namespace Test.ADAL.NET.Unit.Mocks
         public string ContentType { get; set; }
         public string Method { get; set; }
         public bool UseDefaultCredentials { get; set; }
-        public WebHeaderCollection Headers { get; }
+        public WebHeaderCollection Headers { get; set; }
         public Task<IHttpWebResponse> GetResponseSyncOrAsync(CallState callState)
         {
             return Task.Run(()=>_response);
