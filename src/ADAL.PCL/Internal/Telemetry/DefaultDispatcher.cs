@@ -54,10 +54,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 Dispatcher.Dispatch(eventsInterface.GetEvents());
             }
-            else
-            {
-                return;
-            }
         }
     }
 }

@@ -44,8 +44,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             AuthorizationResult authorizationResult = null;
 
-            string requestId = Telemetry.GetInstance().RegisterNewRequest();
-            Telemetry.GetInstance().StartEvent(requestId, "ui_time");
+            string requestId = Telemetry.GetInstance().CreateRequestId();
+            Telemetry.GetInstance().StartEvent(requestId, "ui_event");
 
             UIEvent UiEvent = new UIEvent();
             DateTime UiStartTime = DateTime.Now;

@@ -77,5 +77,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
                 DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
+
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            if (dispatchMap.ContainsKey(EventConstants.HttpEventCount))
+            {
+                int previousCount = Int32.Parse(dispatchMap[EventConstants.HttpEventCount]);
+                dispatchMap[EventConstants.HttpEventCount] = previousCount++.ToString();
+            }
+            else
+            {
+                dispatchMap.Add(EventConstants.HttpEventCount, "1");
+            }
+        }
     }
 }

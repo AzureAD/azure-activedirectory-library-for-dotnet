@@ -34,38 +34,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public class Telemetry
     {
         private readonly static Telemetry Instance = new Telemetry();
-        private readonly String format = "yyyy-mm-dd hh:mm:ss:ffff";
+        private readonly string format = "yyyy-mm-dd hh:mm:ss:ffff";
 
         public static Telemetry GetInstance()
         {
             return Instance;
         }
 
-        DefaultDispatcher Dispatcher = null ;
+        private DefaultDispatcher Dispatcher = null;
 
-        private IDictionary<Tuple<string, string>,string> EventTracking = new ConcurrentDictionary<Tuple<string, string>,string>();
+        private readonly IDictionary<Tuple<string, string>, DateTime> EventTracking =
+            new ConcurrentDictionary<Tuple<string, string>, DateTime>();
 
-        internal string RegisterNewRequest()
+        internal string CreateRequestId()
         {
             return Guid.NewGuid().ToString();
         }
 
         public void RegisterDispatcher(IDispatcher dispatcher, bool aggregationRequired)
         {
-            if (dispatcher != null)
+            if (dispatcher == null)
             {
-                if (aggregationRequired)
-                {
-                    Dispatcher = new DefaultDispatcher(dispatcher);
-                }
-                else
-                {
-                    Dispatcher = new AggregatedDispatcher(dispatcher);
-                }
+                return;
+            }
+
+            if (aggregationRequired)
+            {
+                 Dispatcher = new DefaultDispatcher(dispatcher);
             }
             else
             {
-                return;
+                    Dispatcher = new AggregatedDispatcher(dispatcher);
             }
         }
 
@@ -75,10 +74,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 return;
             }
-            if (! EventTracking.ContainsKey(new Tuple<string, string>(requestId, eventName)))
-            {
-                EventTracking.Add(new Tuple<string, string>(requestId, eventName), DateTime.Now.ToString());
-            }
+
+            EventTracking.Add(new Tuple<string, string>(requestId, eventName), DateTime.UtcNow);
         }
 
         internal void StopEvent(string requestId, EventsBase Event,string eventName)
@@ -87,39 +84,36 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 return;
             }
-            string value;
+
+            DateTime startTime;
             List<Tuple<string, string>> listEvent = Event.GetEvents();
+
             if (EventTracking.
-                TryGetValue(new Tuple<string, string>(requestId, eventName), out value))
+                TryGetValue(new Tuple<string, string>(requestId, eventName), out startTime))
             {
-                DateTime startTime = DateTime.Parse(value);
-                DateTime stopTime = DateTime.Now;
+                DateTime stopTime = DateTime.UtcNow;
 
                 listEvent.Add(new Tuple<string, string>(EventConstants.StartTime, startTime.ToString(format)));
                 listEvent.Add(new Tuple<string, string>(EventConstants.StopTime, stopTime.ToString(format)));
 
-                System.TimeSpan diff1 = stopTime.Subtract(startTime);
+                TimeSpan diff1 = stopTime.Subtract(startTime);
                 //Add the response time to the list
-                listEvent.Add(new Tuple<string, string>(EventConstants.ResponseTime,diff1.ToString()));
+                listEvent.Add(new Tuple<string, string>(EventConstants.ResponseTime, diff1.Milliseconds.ToString()));
                 //Adding event name to the start of the list
-                listEvent.Insert(0, new Tuple<string, string>(EventConstants.EventName,eventName));
+                listEvent.Insert(0, new Tuple<string, string>(EventConstants.EventName, eventName));
                 listEvent.Add(new Tuple<string, string>(EventConstants.RequestId, requestId));
                 //Remove the event from the tracking Map
                 EventTracking.Remove(new Tuple<string, string>(requestId, eventName));
             }
-            Dispatcher.Receive(requestId,Event);
+
+            Dispatcher.Receive(requestId, Event);
         }
 
-        internal void DispatchEventNow(string requestId, EventsBase Event,string eventName)
+        internal void DispatchEventNow(string requestId, EventsBase Event, string eventName)
         {
         }
 
-        internal int EventsStored()
-        {
-            return EventTracking.Count;
-        }
-
-        internal void flush(string requestId)
+        internal void Flush(string requestId)
         {
             if (Dispatcher != null)
             {

@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,7 +34,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     class AggregatedDispatcher : DefaultDispatcher
     {
-        private int DefaultCount = 2;
+        static readonly IDictionary<string, string> AggregatorMap =
+            new ConcurrentDictionary<string, string>();
 
         internal AggregatedDispatcher(IDispatcher dispatcher):base(dispatcher)
         {
@@ -42,36 +44,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void Flush(string requestID)
         {
-            bool first = true;
             List<Tuple<string, string>> FlatList = new List<Tuple<string, string>>();
+            Dictionary<String, String> DispatchMap = new Dictionary<string, string>();
+
+            if (ObjectsToBeDispatched == null || (ObjectsToBeDispatched.Count == 0))
+                return ;
+
+            int count = ObjectsToBeDispatched.Count;
             foreach (KeyValuePair<string, List<EventsBase>> pair in ObjectsToBeDispatched)
             {
                 if (requestID.Equals(pair.Key))
                 {
                     foreach (EventsBase Event in pair.Value)
                     {
-                        List<Tuple<string, string>> EventList = Event.GetEvents();
-                        if (first)
-                        {
-                            FlatList.AddRange(EventList);
-                            first = false;
-                            continue;
-                        }
-                        FlatList.Add(EventList[0]);
-                        for (int i = DefaultCount; i < EventList.Count; i++)
-                        {
-                            FlatList.Add(EventList[i]);
-                        }
+                        Event.ProcessEvent(DispatchMap);
                     }
                 }
             }
+
+            foreach (KeyValuePair<string, string> value in DispatchMap)
+            {
+                FlatList.Add(new Tuple<string, string>(value.Key, value.Value));
+            }
+
             if (Dispatcher != null)
             {
                 Dispatcher.Dispatch(FlatList);
-            }
-           else
-            {
-                return;
             }
         }
 

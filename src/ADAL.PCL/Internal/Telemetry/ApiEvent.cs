@@ -26,13 +26,14 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Security;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class ApiEvent : DefaultEvent
     {
-        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId, string apiId) : base(EventConstants.GrantEvent)
+        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId, string apiId) : base(EventConstants.ApiEvent)
         {
             Tenant = PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId);
             SetEvent(EventConstants.Tenant, Tenant);
@@ -57,6 +58,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             IsDeprecated = false;
             SetEvent(EventConstants.IsDeprecated, IsDeprecated.ToString());
+
+            SetEvent(EventConstants.ApiId ,apiId);
         }
 
         internal override void SetEvent(string eventName, string eventParameter)
@@ -88,6 +91,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal bool IsDeprecated { get; set; }
 
         internal bool ExtendedExpires { get; set; }
+
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            List<Tuple<string, string>> listEvent = DefaultEvents;
+            int size = DefaultEvents.Count;
+
+            for (int i = 0; i < size; i++)
+            {
+                if (listEvent[i].Item1.Equals(EventConstants.ApplicationName) ||
+                    listEvent[i].Item1.Equals(EventConstants.ApplicationVersion)
+                    || listEvent[i].Item1.Equals(EventConstants.AuthorityType)
+                    || listEvent[i].Item1.Equals(EventConstants.SdkVersion)
+                    || listEvent[i].Item1.Equals(EventConstants.SdkPlatform)
+                    || listEvent[i].Item1.Equals(EventConstants.AuthorityValidation)
+                    || listEvent[i].Item1.Equals(EventConstants.ExtendedExpires)
+                    || listEvent[i].Item1.Equals(EventConstants.PromptBehavior)
+                    || listEvent[i].Item1.Equals(EventConstants.Idp)
+                    || listEvent[i].Item1.Equals(EventConstants.Tenant)
+                    || listEvent[i].Item1.Equals(EventConstants.Upn)
+                    || listEvent[i].Item1.Equals(EventConstants.LoginHint)
+                    || listEvent[i].Item1.Equals(EventConstants.ResponseTime)
+                    || listEvent[i].Item1.Equals(EventConstants.CorrelationId)
+                    || listEvent[i].Item1.Equals(EventConstants.RequestId)
+                    || listEvent[i].Item1.Equals(EventConstants.ApiId))
+                {
+                    dispatchMap.Add(listEvent[i].Item1, listEvent[i].Item2);
+                }
+            }
+        }
     }
 }
 

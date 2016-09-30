@@ -47,12 +47,11 @@ namespace Test.ADAL.NET.Unit
             Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            string requestIDOne = telemetry.RegisterNewRequest();
+            string requestIDOne = telemetry.CreateRequestId();
             Assert.IsNotNull(requestIDOne);
 
             telemetry.StartEvent(requestIDOne, "acquire_token");
-            string requestIDTwo = telemetry.RegisterNewRequest();
-            Assert.AreEqual(telemetry.EventsStored(), 1);
+            string requestIDTwo = telemetry.CreateRequestId();
 
             DefaultEvent testDefaultEvent = new DefaultEvent("random_event");
             Assert.IsNotNull(DefaultEvent.ApplicationName);
@@ -62,7 +61,7 @@ namespace Test.ADAL.NET.Unit
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
 
-            string requestIDThree = telemetry.RegisterNewRequest();
+            string requestIDThree = telemetry.CreateRequestId();
             telemetry.StartEvent(requestIDThree, "event_3");
             telemetry.StopEvent(requestIDThree, testDefaultEvent, "event_3");
             Assert.AreEqual(dispatcher.Count, 1);
@@ -73,10 +72,10 @@ namespace Test.ADAL.NET.Unit
             telemetry.StopEvent(requestIDTwo, cacheDefaultEvent, "cache_lookup");
             Assert.AreEqual(dispatcher.Count, 2);
 
-            string requestIDFour = telemetry.RegisterNewRequest();
-            telemetry.StartEvent(requestIDFour, EventConstants.Crypto);
-            DefaultEvent cryptoDefaultEvent = new DefaultEvent(EventConstants.Crypto);
-            telemetry.StopEvent(requestIDFour, cacheDefaultEvent, EventConstants.Crypto);
+            string requestIDFour = telemetry.CreateRequestId();
+            telemetry.StartEvent(requestIDFour, EventConstants.CryptographyEvent);
+            DefaultEvent cryptoDefaultEvent = new DefaultEvent(EventConstants.CryptographyEvent);
+            telemetry.StopEvent(requestIDFour, cacheDefaultEvent, EventConstants.CryptographyEvent);
             Assert.AreEqual(dispatcher.Count, 3);
 
             dispatcher.file();
@@ -93,13 +92,13 @@ Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
             DispatcherImplement dispatcher = new DispatcherImplement();
             telemetry.RegisterDispatcher(dispatcher, false);
             dispatcher.clear();
-            string requestIDThree = telemetry.RegisterNewRequest();
+            string requestIDThree = telemetry.CreateRequestId();
             telemetry.StartEvent(requestIDThree, "event_3");
             DefaultEvent testDefaultEvent = new DefaultEvent("event_3");
             Assert.IsNotNull(DefaultEvent.ApplicationName);
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent, "event_3");
-            telemetry.flush(requestIDThree);
+            telemetry.Flush(requestIDThree);
             Assert.AreEqual(dispatcher.Count, 1);
 
             dispatcher.file();
@@ -116,7 +115,7 @@ Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
             DispatcherImplement dispatcher = new DispatcherImplement();
             telemetry.RegisterDispatcher(dispatcher, false);
             dispatcher.clear();
-            string requestIDThree = telemetry.RegisterNewRequest();
+            string requestIDThree = telemetry.CreateRequestId();
             telemetry.StartEvent(requestIDThree, "event_3");
             DefaultEvent testDefaultEvent3 = new DefaultEvent("event_3");
             Assert.IsNotNull(DefaultEvent.ApplicationName);
@@ -134,7 +133,7 @@ Microsoft.IdentityModel.Clients.ActiveDirectory.Telemetry.GetInstance();
             Assert.IsNotNull(DefaultEvent.ApplicationName);
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent5, "event_5");
-            telemetry.flush(requestIDThree);
+            telemetry.Flush(requestIDThree);
             Assert.AreEqual(dispatcher.Count, 1);
 
             dispatcher.file();

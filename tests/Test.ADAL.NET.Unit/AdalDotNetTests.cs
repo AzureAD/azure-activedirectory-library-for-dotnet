@@ -39,7 +39,6 @@ using Test.ADAL.Common;
 using Test.ADAL.Common.Unit;
 using Test.ADAL.NET.Unit.Mocks;
 
-
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
@@ -1497,7 +1496,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-
         [Description("Test for returning entire HttpResponse as inner exception")]
         public async Task HttpErrorResponseAsInnerException()
         {

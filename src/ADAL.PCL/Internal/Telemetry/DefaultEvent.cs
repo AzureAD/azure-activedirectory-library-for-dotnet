@@ -43,27 +43,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             SdkVersion = AdalIdHelper.GetAdalVersion();
 
-            SdkId = AdalIdHelper.GetAssemblyFileVersion();
+            SdkPlatform = AdalIdHelper.GetAssemblyFileVersion();
 
             DeviceId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(PlatformPlugin.PlatformInformation.GetDeviceId());
         }
 
         internal DefaultEvent(string eventName)
         {
-            //SetEvent(EventConstants.EventName,eventName);
-            //Fill in the default parameters
-
             SetEvent(EventConstants.ApplicationName,ApplicationName);
 
             SetEvent(EventConstants.ApplicationVersion, ApplicationVersion);
 
             SetEvent(EventConstants.SdkVersion, SdkVersion);
 
-            SetEvent(EventConstants.SdkId, SdkId);
+            SetEvent(EventConstants.SdkPlatform, SdkPlatform);
 
             SetEvent(EventConstants.DeviceId, DeviceId);
-
-            //TODO :- The idtoken claims will be filled in dynamically
         }
 
         internal override void SetEvent(string eventName, string eventParameter)
@@ -84,6 +79,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return DefaultEvents;
         }
 
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            if ( !dispatchMap.ContainsKey(EventConstants.ApplicationName))
+            {
+                dispatchMap.Add(EventConstants.ApplicationName, ApplicationName);
+            }
+
+            if ( !dispatchMap.ContainsKey(EventConstants.ApplicationVersion))
+            {
+                dispatchMap.Add(EventConstants.ApplicationVersion, ApplicationVersion);
+            }
+
+            if ( !dispatchMap.ContainsKey(EventConstants.ClientId))
+            {
+                dispatchMap.Add(EventConstants.ClientId, ClientId);
+            }
+
+            if ( !dispatchMap.ContainsKey(EventConstants.DeviceId))
+            {
+                dispatchMap.Add(EventConstants.DeviceId, DeviceId);
+            }
+        }
+
         internal string eventName { get; set; }
 
         internal string ClientId { get; set; }
@@ -94,7 +112,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal static string ApplicationVersion { get; set; }
 
-        internal static string SdkId { get; set; }
+        internal static string SdkPlatform { get; set; }
 
         internal static string SdkVersion { get; set; }
 

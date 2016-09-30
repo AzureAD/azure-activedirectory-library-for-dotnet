@@ -313,7 +313,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 if (AfterAccess != null)
                 {
-
                     AfterAccess(args);
                 }
             }
@@ -345,8 +344,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
+                Telemetry.GetInstance().StartEvent(callState.RequestId, "cache_lookup");
                 CacheEvent cacheEvent = new CacheEvent(EventConstants.CacheLookUp);
-                Telemetry.GetInstance().StartEvent(callState.RequestId.ToString(), "cache_lookup");
                 PlatformPlugin.Logger.Verbose(callState, "Looking up cache for a token...");
 
                 AuthenticationResultEx resultEx = null;
@@ -370,7 +369,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         resultEx.Result.AccessToken = null;
                         PlatformPlugin.Logger.Information(callState,
                             "Cross Tenant refresh token was found in the cache");
-                        cacheEvent.SetEvent(EventConstants.IsCrossTenantRt, "true");
                     }
                     else if (tokenNearExpiry && !cacheQueryData.ExtendedLifeTimeEnabled)
                     {
@@ -398,7 +396,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                     else if (!tokenExtendedLifeTimeExpired && cacheQueryData.ExtendedLifeTimeEnabled && tokenNearExpiry)
                     {
-                        cacheEvent.SetEvent(EventConstants.ExtendedLifeTimeEnabled, "true");
+                        cacheEvent.SetEvent(EventConstants.ExtendedExpires, "true");
                         resultEx.Result.ExtendedLifeTimeToken = true;
                         resultEx.Result.ExpiresOn = resultEx.Result.ExtendedExpiresOn;
                         PlatformPlugin.Logger.Information(callState,
@@ -437,6 +435,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     PlatformPlugin.Logger.Information(callState, "No matching token was found in the cache");
                     cacheEvent.SetEvent(EventConstants.TokenFound, "false");
                 }
+
                 Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, "cache_lookup");
                 return resultEx;
             }
@@ -446,8 +445,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
+                Telemetry.GetInstance().StartEvent(callState.RequestId, "cache_write");
                 CacheEvent cacheEvent = new CacheEvent("cache_write");
-                Telemetry.GetInstance().StartEvent(callState.RequestId.ToString(), "cache_write");
                 cacheEvent.TokenSubjectType = subjectType.ToString();
                 cacheEvent.IsMultipleResourceRt = result.IsMultipleResourceRefreshToken.ToString();
                 PlatformPlugin.Logger.Verbose(callState, "Storing token in the cache...");
@@ -470,10 +469,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
                 this.HasStateChanged = true;
+                Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, "cache_write");
             }
         }
 
-        private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string clientId, TokenSubjectType subjectType)
+        private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string clientId,
+            TokenSubjectType subjectType)
         {
             lock (cacheLock)
             {

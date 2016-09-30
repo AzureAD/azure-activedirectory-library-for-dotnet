@@ -55,5 +55,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
             }
         }
+
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            List<Tuple<string, string>> listEvent = DefaultEvents;
+            int size = DefaultEvents.Count;
+
+            for (int i = 0; i < size; i++)
+            {
+                if (listEvent[i].Item1.Equals(EventConstants.IsMultipleResourceRt) ||
+                    (listEvent[i].Item1.Equals(EventConstants.ExtendedExpires)))
+                {
+                    dispatchMap.Add(listEvent[i].Item1, listEvent[i].Item2);
+                }
+            }
+        }
     }
 }
