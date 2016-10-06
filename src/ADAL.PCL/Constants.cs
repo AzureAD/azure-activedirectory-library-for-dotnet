@@ -63,6 +63,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string Unknown = "unknown_error";
 
         /// <summary>
+        /// Unknown error.
+        /// </summary>
+        public const string DispatcherIsNull = "dispatcher_is_null";
+
+        /// <summary>
         /// Non https redirect failed
         /// </summary>
         public const string NonHttpsRedirectNotSupported = "non_https_redirect_failed";

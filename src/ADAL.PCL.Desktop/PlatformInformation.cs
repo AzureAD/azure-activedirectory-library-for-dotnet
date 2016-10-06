@@ -83,11 +83,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public override string GetDeviceId()
         {
-            string DeviceId = "";
-            ManagementObjectSearcher MOS = new ManagementObjectSearcher("SELECT DeviceID FROM Win32_Processor");
-            foreach (ManagementObject MO in MOS.Get())
+            string DeviceId = string.Empty;
+            ManagementObjectSearcher managementObjectSearcher = new ManagementObjectSearcher("SELECT DeviceID FROM Win32_Processor");
+            foreach (ManagementObject managementObject in managementObjectSearcher.Get())
             {
-                DeviceId = MO["DeviceID"].ToString();
+                DeviceId = managementObject["DeviceID"].ToString();
             }
             return DeviceId;
         }

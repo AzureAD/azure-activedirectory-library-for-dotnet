@@ -85,12 +85,12 @@
     <Compile Include="CacheQueryData.cs" />
     <Compile Include="CallState.cs" />
     <Compile Include="IDispatcher.cs" />
-    <Compile Include="Internal\Telemetry\AggregatedDispatcher.cs" />
+    <Compile Include="Internal\Telemetry\OneDriveAggregator.cs" />
     <Compile Include="Internal\Telemetry\ApiEvent.cs" />
     <Compile Include="Internal\Telemetry\BrokerEvent.cs" />
     <Compile Include="Internal\Telemetry\CacheEvent.cs" />
     <Compile Include="Internal\Telemetry\CryptographyEvent.cs" />
-    <Compile Include="Internal\Telemetry\DefaultDispatcher.cs" />
+    <Compile Include="Internal\Telemetry\DefaultAggregator.cs" />
     <Compile Include="Internal\Telemetry\DefaultEvent.cs" />
     <Compile Include="Internal\Telemetry\EventConstants.cs" />
     <Compile Include="Internal\Telemetry\EventsBase.cs" />

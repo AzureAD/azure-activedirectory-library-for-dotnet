@@ -30,7 +30,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class BrokerEvent : DefaultEvent
     {
-        internal BrokerEvent() : base(EventConstants.BrokerEvent)
+        internal BrokerEvent()
         {
             //Fill in the default parameters
             BrokerVersion = "-1";
@@ -41,6 +41,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal string BrokerVersion { get; set; }
 
         internal string BrokerProtocolVersion { get; set; }
-
     }
 }

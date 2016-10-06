@@ -28,16 +28,15 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    class AggregatedDispatcher : DefaultDispatcher
+    internal class OneDriveAggregator : DefaultAggregator
     {
-        static readonly IDictionary<string, string> AggregatorMap =
-            new ConcurrentDictionary<string, string>();
+        internal IDictionary<string, List<EventsBase>> ObjectsToBeDispatched =
+            new ConcurrentDictionary<string, List<EventsBase>>();
 
-        internal AggregatedDispatcher(IDispatcher dispatcher):base(dispatcher)
+        internal OneDriveAggregator(IDispatcher dispatcher) : base(dispatcher)
         {
             Dispatcher = dispatcher;
         }
@@ -45,10 +44,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal override void Flush(string requestID)
         {
             List<Tuple<string, string>> FlatList = new List<Tuple<string, string>>();
-            Dictionary<String, String> DispatchMap = new Dictionary<string, string>();
+            Dictionary<string, string> DispatchMap = new Dictionary<string, string>();
 
             if (ObjectsToBeDispatched == null || (ObjectsToBeDispatched.Count == 0))
-                return ;
+            {
+                return;
+            }
 
             int count = ObjectsToBeDispatched.Count;
             foreach (KeyValuePair<string, List<EventsBase>> pair in ObjectsToBeDispatched)
@@ -69,7 +70,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (Dispatcher != null)
             {
-                Dispatcher.Dispatch(FlatList);
+                Dispatcher.DispatchEvent(FlatList);
             }
         }
 

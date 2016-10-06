@@ -219,10 +219,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static CallState CreateCallState(Guid correlationId, string requestId)
         {
             correlationId = (correlationId != Guid.Empty) ? correlationId : Guid.NewGuid();
-            if (requestId == null)
-            {
-                requestId = Guid.NewGuid().ToString();
-            }
             return new CallState(correlationId, requestId);
         }
 

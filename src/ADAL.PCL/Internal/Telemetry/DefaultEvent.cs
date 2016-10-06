@@ -28,12 +28,11 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class DefaultEvent : EventsBase
     {
-        internal List<Tuple<string, string>> DefaultEvents = new List<Tuple<string, string>>();
+        internal List<Tuple<string, string>> EventDictitionary = new List<Tuple<string, string>>();
 
         static DefaultEvent()
         {
@@ -45,12 +44,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             SdkPlatform = AdalIdHelper.GetAssemblyFileVersion();
 
-            DeviceId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(PlatformPlugin.PlatformInformation.GetDeviceId());
+            DeviceId =
+                PlatformPlugin.CryptographyHelper.CreateSha256Hash(PlatformPlugin.PlatformInformation.GetDeviceId());
         }
 
-        internal DefaultEvent(string eventName)
+        internal DefaultEvent()
         {
-            SetEvent(EventConstants.ApplicationName,ApplicationName);
+            SetEvent(EventConstants.ApplicationName, ApplicationName);
 
             SetEvent(EventConstants.ApplicationVersion, ApplicationVersion);
 
@@ -60,49 +60,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             SetEvent(EventConstants.DeviceId, DeviceId);
         }
-
-        internal override void SetEvent(string eventName, string eventParameter)
-        {
-            if (eventParameter != null && eventParameter.Length != 0)
-            {
-                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
-            }
-        }
-
-        internal void SetEvent(string eventName, bool eventParameter)
-        {
-            DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
-        }
-
-        internal override List<Tuple<string, string>> GetEvents()
-        {
-            return DefaultEvents;
-        }
-
-        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
-        {
-            if ( !dispatchMap.ContainsKey(EventConstants.ApplicationName))
-            {
-                dispatchMap.Add(EventConstants.ApplicationName, ApplicationName);
-            }
-
-            if ( !dispatchMap.ContainsKey(EventConstants.ApplicationVersion))
-            {
-                dispatchMap.Add(EventConstants.ApplicationVersion, ApplicationVersion);
-            }
-
-            if ( !dispatchMap.ContainsKey(EventConstants.ClientId))
-            {
-                dispatchMap.Add(EventConstants.ClientId, ClientId);
-            }
-
-            if ( !dispatchMap.ContainsKey(EventConstants.DeviceId))
-            {
-                dispatchMap.Add(EventConstants.DeviceId, DeviceId);
-            }
-        }
-
-        internal string eventName { get; set; }
 
         internal string ClientId { get; set; }
 
@@ -121,5 +78,46 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal static string DeviceId { get; set; }
 
         internal Guid CorrelationId { get; set; }
+
+        internal override void SetEvent(string eventName, string eventParameter)
+        {
+            if (eventParameter != null && eventParameter.Length != 0)
+            {
+                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
+            }
+        }
+
+        internal void SetEvent(string eventName, bool eventParameter)
+        {
+            EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+        }
+
+        internal override List<Tuple<string, string>> GetEvents()
+        {
+            return EventDictitionary;
+        }
+
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            if (!dispatchMap.ContainsKey(EventConstants.ApplicationName))
+            {
+                dispatchMap.Add(EventConstants.ApplicationName, ApplicationName);
+            }
+
+            if (!dispatchMap.ContainsKey(EventConstants.ApplicationVersion))
+            {
+                dispatchMap.Add(EventConstants.ApplicationVersion, ApplicationVersion);
+            }
+
+            if (!dispatchMap.ContainsKey(EventConstants.ClientId))
+            {
+                dispatchMap.Add(EventConstants.ClientId, ClientId);
+            }
+
+            if (!dispatchMap.ContainsKey(EventConstants.DeviceId))
+            {
+                dispatchMap.Add(EventConstants.DeviceId, DeviceId);
+            }
+        }
     }
 }

@@ -29,30 +29,27 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class DefaultDispatcher
+    internal class DefaultAggregator
     {
-        internal IDictionary<string, List<EventsBase>> ObjectsToBeDispatched = new ConcurrentDictionary<string, List<EventsBase>>();
+        internal IDispatcher Dispatcher;
 
-        internal IDispatcher Dispatcher ;
-
-        internal DefaultDispatcher(IDispatcher dispatcher)
+        internal DefaultAggregator(IDispatcher dispatcher)
         {
             Dispatcher = dispatcher;
         }
 
         internal virtual void Flush(string requestId)
         {
-               
+            //No buffering is required for DefaultDispatcher
         }
 
         internal virtual void Receive(string requestId, EventsBase eventsInterface)
         {
             if (Dispatcher != null)
             {
-                Dispatcher.Dispatch(eventsInterface.GetEvents());
+                Dispatcher.DispatchEvent(eventsInterface.GetEvents());
             }
         }
     }

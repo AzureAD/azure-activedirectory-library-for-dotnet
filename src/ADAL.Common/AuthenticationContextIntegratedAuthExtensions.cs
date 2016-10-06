@@ -25,30 +25,36 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Extension class to support username/password flow.
+    ///     Extension class to support username/password flow.
     /// </summary>
     public static class AuthenticationContextIntegratedAuthExtensions
-	{
-
+    {
         /// <summary>
-        /// Acquires security token from the authority.
+        ///     Acquires security token from the authority.
         /// </summary>
-        /// <remarks>This feature is supported only for Azure Active Directory and Active Directory Federation Services (ADFS) on Windows 10.</remarks>
+        /// <remarks>
+        ///     This feature is supported only for Azure Active Directory and Active Directory Federation Services (ADFS) on
+        ///     Windows 10.
+        /// </remarks>
         /// <param name="ctx">Authentication context instance</param>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="userCredential">The user credential to use for token acquisition.</param>
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
-        public static async Task<AuthenticationResult> AcquireTokenAsync(this AuthenticationContext ctx, string resource, string clientId, UserCredential userCredential)
+        public static async Task<AuthenticationResult> AcquireTokenAsync(this AuthenticationContext ctx,
+            string resource,
+            string clientId,
+            UserCredential userCredential)
         {
-            return await ctx.AcquireTokenCommonAsync(resource, clientId, userCredential, "722").ConfigureAwait(false);
+            return
+                await
+                    ctx.AcquireTokenCommonAsync(resource, clientId, userCredential,
+                        EventConstants.AcquireTokenCommonAsync).ConfigureAwait(false);
         }
     }
-
 }

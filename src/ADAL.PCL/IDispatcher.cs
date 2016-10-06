@@ -1,4 +1,5 @@
-﻿//
+﻿//----------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -28,10 +29,9 @@ using System;
 using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+{
+    public interface IDispatcher
     {
-        public interface IDispatcher
-        {
-            void Dispatch(List<Tuple<string, string>> Event);
-        }
+        void DispatchEvent(List<Tuple<string, string>> Event);
     }
-
+}

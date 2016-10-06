@@ -33,18 +33,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     public class Telemetry
     {
-        private readonly static Telemetry Instance = new Telemetry();
+        private static readonly Telemetry Instance = new Telemetry();
+
+        private readonly IDictionary<Tuple<string, string>, DateTime> EventTracking =
+            new ConcurrentDictionary<Tuple<string, string>, DateTime>();
+
         private readonly string format = "yyyy-mm-dd hh:mm:ss:ffff";
+
+        private DefaultAggregator Dispatcher;
 
         public static Telemetry GetInstance()
         {
             return Instance;
         }
-
-        private DefaultDispatcher Dispatcher = null;
-
-        private readonly IDictionary<Tuple<string, string>, DateTime> EventTracking =
-            new ConcurrentDictionary<Tuple<string, string>, DateTime>();
 
         internal string CreateRequestId()
         {
@@ -55,16 +56,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (dispatcher == null)
             {
-                return;
+                throw new AdalException(AdalError.DispatcherIsNull);
             }
 
             if (aggregationRequired)
             {
-                 Dispatcher = new DefaultDispatcher(dispatcher);
+                Dispatcher = new OneDriveAggregator(dispatcher);
             }
             else
             {
-                    Dispatcher = new AggregatedDispatcher(dispatcher);
+                Dispatcher = new DefaultAggregator(dispatcher);
             }
         }
 
@@ -78,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             EventTracking.Add(new Tuple<string, string>(requestId, eventName), DateTime.UtcNow);
         }
 
-        internal void StopEvent(string requestId, EventsBase Event,string eventName)
+        internal void StopEvent(string requestId, EventsBase Event, string eventName)
         {
             if (Dispatcher == null)
             {
@@ -102,15 +103,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 //Adding event name to the start of the list
                 listEvent.Insert(0, new Tuple<string, string>(EventConstants.EventName, eventName));
                 listEvent.Add(new Tuple<string, string>(EventConstants.RequestId, requestId));
-                //Remove the event from the tracking Map
-                EventTracking.Remove(new Tuple<string, string>(requestId, eventName));
+
+                Dispatcher.Receive(requestId, Event);
+            }
+            else
+            {
+                PlatformPlugin.Logger.Information(null, "StopEvent has been invoked without StartEvent");
             }
 
-            Dispatcher.Receive(requestId, Event);
-        }
-
-        internal void DispatchEventNow(string requestId, EventsBase Event, string eventName)
-        {
+            //Remove the event from the tracking Map
+            EventTracking.Remove(new Tuple<string, string>(requestId, eventName));
         }
 
         internal void Flush(string requestId)

@@ -49,7 +49,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
         {
             returnedUriReady = new SemaphoreSlim(0);
+
+            string requestId = Telemetry.GetInstance().CreateRequestId();
+            Telemetry.GetInstance().StartEvent(requestId, "ui_event");
+
+            UIEvent UiEvent = new UIEvent();
+
             Authenticate(authorizationUri, redirectUri, callState);
+
+            Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
+
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
             return authorizationResult;
         }

@@ -25,18 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class EventConstants
     {
         public const string EventName = "event_name";
+        public const string ExtraQueryParameters = "extra_query_parameters";
         public const string ApiId = "api_id";
+        public const string IsAT = "is_AT";
         public const string IsSuccessful = "is_successful";
         public const string AuthorityValidation = "authority_validation";
         public const string ApplicationName = "application_name";
@@ -71,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RequestApiVersion = "request_api_version";
         public const string HttpBodyParameters = "http_body_parameters";
         public const string HttpResponseMethod = "http_response_method";
-        public const string IsMultipleResourceRt = "is_multiple_resource_rt";
+        public const string IsMRRT = "is_MRRT";
         public const string ExpiredAt = "expired_at";
         public const string TokenFound = "token_found";
         public const string CacheLookUp = "cache_lookup";
@@ -80,8 +77,38 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string HttpStatusCode = "response_code";
         public const string IsDeprecated = "is_deprecated";
         public const string ExtendedExpires = "extended_expires_on_setting";
-        public const string UiTime = "ui_time";
         public const string UserCancel = "user_cancel";
         public const string HttpEventCount = "http_event_count";
+
+        public const string AcquireTokenSilentAsync1 = "3";
+        public const string AcquireTokenSilentAsync2 = "9";
+        public const string AcquireTokenSilentAsyncClientCredential = "10";
+        public const string AcquireTokenSilentAsyncClientCertificate = "11";
+        public const string AcquireTokenSilentAsyncClientAssertion = "12";
+
+        public const string AcquireTokenAsyncInteractive1 = "140";
+        public const string AcquireTokenAsyncInteractive2 = "146";
+        public const string AcquireTokenAsyncInteractive3 = "151";
+
+        public const string AcquireTokenOnBehalfOf = "500";
+        public const string AcquireTokenOnBehalfOfClientCertificate = "506";
+        public const string AcquireTokenOnBehalfOfClientAssertion = "511";
+
+        public const string AcquireDeviceCodeAsync = "606";
+        public const string AcquireTokenByDeviceCodeAsync = "611";
+
+        public const string AcquireTokenAsyncUserAssertion = "700";
+        public const string AcquireTokenAsyncClientCredential = "706";
+        public const string AcquireTokenAsyncClientCertificate = "711";
+        public const string AcquireTokenAsyncClientAssertion = "716";
+
+        public const string AcquireTokenByAuthorizationCodeAsyncClientCredential1 = "800";
+        public const string AcquireTokenByAuthorizationCodeAsyncClientCredential2 = "806";
+        public const string AcquireTokenByAuthorizationCodeAsyncClientAssertion1 = "811";
+        public const string AcquireTokenByAuthorizationCodeAsyncClientAssertion2 = "816";
+        public const string AcquireTokenByAuthorizationCodeAsyncClientCertificate1 = "821";
+        public const string AcquireTokenByAuthorizationCodeAsyncClientCertificate2 = "826";
+
+        public const string AcquireTokenCommonAsync = "722";
     }
 }

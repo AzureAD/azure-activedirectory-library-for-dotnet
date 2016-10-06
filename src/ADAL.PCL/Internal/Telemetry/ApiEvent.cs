@@ -27,13 +27,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class ApiEvent : DefaultEvent
     {
-        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId, string apiId) : base(EventConstants.ApiEvent)
+        internal ApiEvent(Authenticator authenticator, UserInfo userinfo, string tenantId, string apiId)
         {
             Tenant = PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId);
             SetEvent(EventConstants.Tenant, Tenant);
@@ -50,24 +51,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 SetEvent(EventConstants.UniqueId, UniqueId);
             }
 
-            Authority = authenticator.Authority;
-            SetEvent(EventConstants.Authority,Authority);
+            if (tenantId != null)
+            {
+                Authority = HashTenantIdFromAuthority(authenticator.Authority, tenantId);
+            }
+            else
+            {
+                Authority = authenticator.Authority;
+            }
+            SetEvent(EventConstants.Authority, Authority);
 
             AuthorityType = authenticator.AuthorityType.ToString();
-            SetEvent(EventConstants.AuthorityType,AuthorityType);
+            SetEvent(EventConstants.AuthorityType, AuthorityType);
 
             IsDeprecated = false;
             SetEvent(EventConstants.IsDeprecated, IsDeprecated.ToString());
 
-            SetEvent(EventConstants.ApiId ,apiId);
-        }
-
-        internal override void SetEvent(string eventName, string eventParameter)
-        {
-            if (eventParameter != null)
-            {
-                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
-            }
+            SetEvent(EventConstants.ApiId, apiId);
         }
 
         internal string Tenant { get; set; }
@@ -92,10 +92,41 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool ExtendedExpires { get; set; }
 
+        private string HashTenantIdFromAuthority(string authority, string tenantId)
+        {
+            Regex regex = new Regex(tenantId);
+
+            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId), 5);
+
+            return result;
+        }
+
+        internal override void SetEvent(string eventName, string eventParameter)
+        {
+            if (eventParameter != null)
+            {
+                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
+            }
+        }
+
+        internal void SetExtraQueryParameters(string extraQueryParameter)
+        {
+            string[] result = extraQueryParameter.Split('&');
+            StringBuilder stringbuilder = new StringBuilder();
+            foreach (string s in result)
+            {
+                if (s.Contains("="))
+                {
+                    stringbuilder.Append(s.Split('=')[0]).Append("&");
+                }
+            }
+            SetEvent(EventConstants.ExtraQueryParameters, stringbuilder.ToString());
+        }
+
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            List<Tuple<string, string>> listEvent = DefaultEvents;
-            int size = DefaultEvents.Count;
+            List<Tuple<string, string>> listEvent = EventDictitionary;
+            int size = EventDictitionary.Count;
 
             for (int i = 0; i < size; i++)
             {
@@ -122,4 +153,3 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
     }
 }
-

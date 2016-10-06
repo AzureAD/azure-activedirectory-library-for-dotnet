@@ -27,24 +27,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class CacheEvent : DefaultEvent
     {
-        internal CacheEvent(string eventName) : base(eventName)
-        {
-            //Fill in the default parameters
-        }
-
-        internal string EventName { get; set; }
-
         internal string IsMultipleResourceRt { get; set; }
-
-        internal string TokenFound { get; set; }
 
         internal string TokenSubjectType { get; set; }
 
@@ -52,18 +40,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (eventParameter != null)
             {
-                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
             }
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            List<Tuple<string, string>> listEvent = DefaultEvents;
-            int size = DefaultEvents.Count;
+            List<Tuple<string, string>> listEvent = EventDictitionary;
+            int size = EventDictitionary.Count;
 
             for (int i = 0; i < size; i++)
             {
-                if (listEvent[i].Item1.Equals(EventConstants.IsMultipleResourceRt) ||
+                if (listEvent[i].Item1.Equals(EventConstants.IsMRRT) ||
                     (listEvent[i].Item1.Equals(EventConstants.ExtendedExpires)))
                 {
                     dispatchMap.Add(listEvent[i].Item1, listEvent[i].Item2);

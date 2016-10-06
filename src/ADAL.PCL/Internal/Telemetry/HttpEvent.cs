@@ -27,21 +27,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.ServiceModel;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class HttpEvent : DefaultEvent
     {
-        internal HttpEvent() : base(EventConstants.HttpEvent)
-        {
-            SetEvent(EventConstants.EventName,"http_event");
-        }
-
         internal string UserAgent { get; set; }
 
         internal string HttpMethod { get; set; }
@@ -58,8 +50,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (Query.Length != 0)
             {
-                String QueryShifted = Query.Substring(1, Query.Length - 1);
-                String[] result = QueryShifted.Split('&');
+                string QueryShifted = Query.Substring(1, Query.Length - 1);
+                string[] result = QueryShifted.Split('&');
                 StringBuilder sb = new StringBuilder();
                 foreach (string s in result)
                 {
@@ -75,14 +67,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void SetEvent(string eventName, HttpStatusCode eventParameter)
         {
-                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
             if (dispatchMap.ContainsKey(EventConstants.HttpEventCount))
             {
-                int previousCount = Int32.Parse(dispatchMap[EventConstants.HttpEventCount]);
+                int previousCount = int.Parse(dispatchMap[EventConstants.HttpEventCount]);
                 dispatchMap[EventConstants.HttpEventCount] = previousCount++.ToString();
             }
             else

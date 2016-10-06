@@ -27,32 +27,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class UIEvent : DefaultEvent
     {
-        internal UIEvent() : base(EventConstants.UIEvent)
-        {
-        }
-
         internal TimeSpan UiTime { get; set; }
 
         internal void SetEvent(string eventName, TimeSpan eventParameter)
         {
-            if (eventParameter != null)
-            {
-                DefaultEvents.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
-            }
+            EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            List<Tuple<string, string>> listEvent = DefaultEvents;
-            int size = DefaultEvents.Count;
+            List<Tuple<string, string>> listEvent = EventDictitionary;
+            int size = EventDictitionary.Count;
 
             for (int i = 0; i < size; i++)
             {

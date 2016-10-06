@@ -61,17 +61,17 @@ namespace AdalDesktopTestApp
         {
             Telemetry telemetry = Telemetry.GetInstance();
             DispatcherImplement dispatcher = new DispatcherImplement();
-            telemetry.RegisterDispatcher(dispatcher, true);
+            telemetry.RegisterDispatcher(dispatcher, false);
 
             //LoggerCallbackHandler.Callback = new MyCallback();
 
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
-            var result =
+            /*var result =
                 await
                     context.AcquireTokenAsync("https://graph.windows.net", "3b5d8539-60f9-4158-8d3f-c3b9cae4a149",
                         new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Auto),
-                        new UserIdentifier("f9fd32ba-4c8c-43ca-a62c-09ab16f1dd3e", UserIdentifierType.UniqueId), "prompt=consent");
-            //var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword<"));
+                        new UserIdentifier("f9fd32ba-4c8c-43ca-a62c-09ab16f1dd3e", UserIdentifierType.UniqueId), "prompt=consent");*/
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword<"));
             //var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Always));
             TokenCache.DefaultShared.Clear();
             string token = result.AccessToken;
@@ -84,7 +84,7 @@ namespace AdalDesktopTestApp
     {
         private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
 
-        void IDispatcher.Dispatch(List<Tuple<string, string>> Event)
+        void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
         {
             storeList.Add(Event);
         }
