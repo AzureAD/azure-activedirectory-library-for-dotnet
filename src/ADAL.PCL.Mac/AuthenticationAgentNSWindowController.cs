@@ -92,8 +92,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     var nextEvent = NSApplication.SharedApplication.NextEvent(NSEventMask.AnyEvent, NSDate.DistantFuture, NSRunLoop.NSDefaultRunLoopMode, true);
 
+                    //allow only events for this window and for the app
                     //discard events that are for other windows, else they remain somewhat interactive
-                    if (nextEvent.Window != null && nextEvent.Window != window)
+                    if (nextEvent.Window != null && nextEvent.Window != window && nextEvent.Type != NSEventType.AppKitDefined)
                     {
                         continue;
                     }
