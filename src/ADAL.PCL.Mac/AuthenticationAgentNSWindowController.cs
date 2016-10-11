@@ -142,7 +142,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 BackgroundColor = NSColor.Red,
                 WeakDelegate = this,
-              //  AccessibilityIdentifier = "ADAL_SIGN_IN_WINDOW"
+                AccessibilityIdentifier = "ADAL_SIGN_IN_WINDOW"
             };
 
             var contentView = window.ContentView;
@@ -153,7 +153,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 FrameLoadDelegate = this,
                 PolicyDelegate = this,
                 AutoresizingMask = NSViewResizingMask.HeightSizable | NSViewResizingMask.WidthSizable,
-              //  AccessibilityIdentifier = "ADAL_SIGN_IN_WEBVIEW"
+                AccessibilityIdentifier = "ADAL_SIGN_IN_WEBVIEW"
             };
 
             contentView.AddSubview(webView);
