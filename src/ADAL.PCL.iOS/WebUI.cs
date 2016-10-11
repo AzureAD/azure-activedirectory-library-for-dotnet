@@ -84,7 +84,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception ex)
             {
-                throw new AdalException(AdalError.AuthenticationUiFailed, ex);
+                if (ex is AdalException)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw new AdalException(AdalError.AuthenticationUiFailed, ex);
+                }
             }
         }
 

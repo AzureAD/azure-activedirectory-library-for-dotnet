@@ -50,6 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         readonly string url;
         readonly string callback;
+        Exception exceptionToThrow;
 
         readonly ReturnCodeCallback callbackMethod;
 
@@ -77,6 +78,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.callerWindow = callerWindow;
 
             RunModal();
+
+            if (exceptionToThrow != null)
+            {
+                throw new AdalException(AdalError.AuthenticationUiFailed, exceptionToThrow);
+            }
         }
 
         //webview only works on main runloop, not nested, so set up manual modal runloop
@@ -187,6 +193,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         [Export("webView:decidePolicyForNavigationAction:request:frame:decisionListener:")]
         void DecidePolicyForNavigation(WebView webView, NSDictionary actionInformation, NSUrlRequest request, WebFrame frame, NSObject decisionToken)
+        {
+            try
+            {
+                DecidePolicyForNavigationInternal(webView, actionInformation, request, frame, decisionToken);
+            }
+            catch (Exception ex)
+            {
+                exceptionToThrow = ex;
+                WebView.DecideIgnore(decisionToken);
+                Close();
+            }
+        }
+
+        void DecidePolicyForNavigationInternal(WebView webView, NSDictionary actionInformation, NSUrlRequest request, WebFrame frame, NSObject decisionToken)
         {
             if (request == null)
             {
