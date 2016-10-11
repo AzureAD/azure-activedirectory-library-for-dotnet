@@ -101,6 +101,7 @@
     <Compile Include="..\ADAL.Common\PromptBehavior.cs">
       <Link>PromptBehavior.cs</Link>
     </Compile>
+    <Compile Include="EphemeralCookieStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ADAL.PCL\ADAL.PCL.csproj">

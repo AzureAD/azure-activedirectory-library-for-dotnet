@@ -33,12 +33,13 @@ using CoreGraphics;
 using Foundation;
 using AppKit;
 using WebKit;
+using System.Linq;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     [Register("AuthenticationAgentNSWindowController")]
     class AuthenticationAgentNSWindowController
-        : NSWindowController, IWebPolicyDelegate, IWebFrameLoadDelegate, INSWindowDelegate
+        : NSWindowController, IWebPolicyDelegate, IWebFrameLoadDelegate, INSWindowDelegate, IWebResourceLoadDelegate
     {
         const int DEFAULT_WINDOW_WIDTH = 420;
         const int DEFAULT_WINDOW_HEIGHT = 650;
@@ -54,10 +55,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         readonly ReturnCodeCallback callbackMethod;
 
+        //use a temporary cookie store that only lasts long enough for the sign-in
+        EphemeralCookieStore cookieStore = new EphemeralCookieStore();
+
         public delegate void ReturnCodeCallback(AuthorizationResult result);
 
         public AuthenticationAgentNSWindowController(string url, string callback, ReturnCodeCallback callbackMethod)
-            : base ("PlaceholderNibNameToForceWindowLoad")
+            : base("PlaceholderNibNameToForceWindowLoad")
         {
             this.url = url;
             this.callback = callback;
@@ -68,7 +72,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [Export("windowWillClose:")]
         public void WillClose(NSNotification notification)
         {
-            NSApplication.SharedApplication.StopModal ();
+            NSApplication.SharedApplication.StopModal();
 
             NSUrlProtocol.UnregisterClass(new ObjCRuntime.Class(typeof(AdalCustomUrlProtocol)));
         }
@@ -152,6 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 FrameLoadDelegate = this,
                 PolicyDelegate = this,
+                ResourceLoadDelegate = this,
                 AutoresizingMask = NSViewResizingMask.HeightSizable | NSViewResizingMask.WidthSizable,
                 AccessibilityIdentifier = "ADAL_SIGN_IN_WEBVIEW"
             };
@@ -208,6 +213,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         void DecidePolicyForNavigationInternal(WebView webView, NSDictionary actionInformation, NSUrlRequest request, WebFrame frame, NSObject decisionToken)
         {
+            cookieStore.TakeCookies(webView);
+
             if (request == null)
             {
                 WebView.DecideUse(decisionToken);
@@ -290,6 +297,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             CancelAuthentication();
             return true;
+        }
+
+        [Export("webView:resource:didReceiveResponse:fromDataSource:")]
+        public void OnReceivedResponse(WebView sender, NSObject identifier, NSUrlResponse responseReceived, WebDataSource dataSource)
+        {
+            cookieStore.TakeCookies(responseReceived);
+        }
+
+        [Export("webView:resource:willSendRequest:redirectResponse:fromDataSource:")]
+        public NSUrlRequest OnSendRequest(WebView sender, NSObject identifier, NSUrlRequest request, NSUrlResponse redirectResponse, WebDataSource dataSource)
+        {
+            cookieStore.TakeCookies(redirectResponse);
+
+            var mutableRequest = (NSMutableUrlRequest)request.MutableCopy();
+            cookieStore.GiveCookies(mutableRequest);
+            return mutableRequest;
         }
     }
 }
