@@ -28,71 +28,60 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using AppKit;
 using WebKit;
-using System.Linq;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     [Register("AuthenticationAgentNSWindowController")]
-    class AuthenticationAgentNSWindowController
-        : NSWindowController, IWebPolicyDelegate, IWebFrameLoadDelegate, INSWindowDelegate, IWebResourceLoadDelegate
+    class AuthenticationAgentWindowController
+        : NSObject, INSWindowDelegate, IWebPolicyDelegate, IWebFrameLoadDelegate, IWebResourceLoadDelegate
     {
         const int DEFAULT_WINDOW_WIDTH = 420;
         const int DEFAULT_WINDOW_HEIGHT = 650;
 
+        static readonly ObjCRuntime.Class protocolClass = new ObjCRuntime.Class(typeof(AdalCustomUrlProtocol));
+
         WebView webView;
         NSProgressIndicator progressIndicator;
-
-        NSWindow callerWindow;
+        NSWindow window;
 
         readonly string url;
         readonly string callback;
         Exception exceptionToThrow;
 
-        readonly ReturnCodeCallback callbackMethod;
+        readonly Action<AuthorizationResult> callbackMethod;
 
         //use a temporary cookie store that only lasts long enough for the sign-in
         EphemeralCookieStore cookieStore = new EphemeralCookieStore();
 
-        public delegate void ReturnCodeCallback(AuthorizationResult result);
-
-        public AuthenticationAgentNSWindowController(string url, string callback, ReturnCodeCallback callbackMethod)
-            : base("PlaceholderNibNameToForceWindowLoad")
+        AuthenticationAgentWindowController(string url, string callback, Action<AuthorizationResult> callbackMethod)
         {
             this.url = url;
             this.callback = callback;
             this.callbackMethod = callbackMethod;
-            NSUrlProtocol.RegisterClass(new ObjCRuntime.Class(typeof(AdalCustomUrlProtocol)));
+            NSUrlProtocol.RegisterClass(protocolClass);
         }
 
-        [Export("windowWillClose:")]
-        public void WillClose(NSNotification notification)
+        public static void Run(string url, string callback, Action<AuthorizationResult> callbackMethod, NSWindow callerWindow)
         {
-            NSApplication.SharedApplication.StopModal();
-
-            NSUrlProtocol.UnregisterClass(new ObjCRuntime.Class(typeof(AdalCustomUrlProtocol)));
-        }
-
-        public void Run(NSWindow callerWindow)
-        {
-            this.callerWindow = callerWindow;
-
-            RunModal();
-
-            if (exceptionToThrow != null)
+            using (var controller = new AuthenticationAgentWindowController(url, callback, callbackMethod))
             {
-                throw new AdalException(AdalError.AuthenticationUiFailed, exceptionToThrow);
+                controller.LoadWindow(callerWindow);
+                controller.RunModal();
+
+                if (controller.exceptionToThrow != null)
+                {
+                    throw new AdalException(AdalError.AuthenticationUiFailed, controller.exceptionToThrow);
+                }
             }
         }
 
         //webview only works on main runloop, not nested, so set up manual modal runloop
         void RunModal()
         {
-            var window = Window;
             IntPtr session = NSApplication.SharedApplication.BeginModalSession(window);
             NSRunResponse result = NSRunResponse.Continues;
 
@@ -124,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         //largely ported from azure-activedirectory-library-for-objc
         //ADAuthenticationViewController.m
-        public override void LoadWindow()
+        void LoadWindow(NSWindow callerWindow)
         {
             var parentWindow = callerWindow ?? NSApplication.SharedApplication.MainWindow;
 
@@ -142,11 +131,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // Calculate the center of the current main window so we can position our window in the center of it
             CGRect centerRect = CenterRect(windowRect, new CGRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT));
 
-            var window = new NSWindow(centerRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable, NSBackingStore.Buffered, true)
+            window = new NSWindow(centerRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Resizable, NSBackingStore.Buffered, true)
             {
                 BackgroundColor = NSColor.Red,
                 WeakDelegate = this,
-                AccessibilityIdentifier = "ADAL_SIGN_IN_WINDOW"
+                AccessibilityIdentifier = "ADAL_SIGN_IN_WINDOW",
+                //the default is true, which breaks XM reference counting and crashes
+                ReleasedWhenClosed = false
             };
 
             var contentView = window.ContentView;
@@ -177,8 +168,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             contentView.AddSubview(progressIndicator);
 
-            Window = window;
-
             webView.MainFrameUrl = url;
         }
 
@@ -196,6 +185,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return rect2;
         }
 
+        void CancelAuthentication()
+        {
+            callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
+        }
+
+        #region NSWindowDelegate
+
+        [Export("windowWillClose:")]
+        public void WillClose(NSNotification notification)
+        {
+            NSApplication.SharedApplication.StopModal();
+        }
+
+        [Export("windowShouldClose:")]
+        public bool WindowShouldClose(NSObject sender)
+        {
+            CancelAuthentication();
+            return true;
+        }
+
+        #endregion
+
+        #region IWebPolicyDelegate
+
         [Export("webView:decidePolicyForNavigationAction:request:frame:decisionListener:")]
         void DecidePolicyForNavigation(WebView webView, NSDictionary actionInformation, NSUrlRequest request, WebFrame frame, NSObject decisionToken)
         {
@@ -207,7 +220,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 exceptionToThrow = ex;
                 WebView.DecideIgnore(decisionToken);
-                Close();
+                window.Close();
             }
         }
 
@@ -232,7 +245,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 };
                 callbackMethod(result);
                 WebView.DecideIgnore(decisionToken);
-                Close();
+                window.Close();
                 return;
             }
 
@@ -241,7 +254,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 callbackMethod(new AuthorizationResult(AuthorizationStatus.Success, request.Url.ToString()));
                 WebView.DecideIgnore(decisionToken);
-                Close();
+                window.Close();
                 return;
             }
 
@@ -272,32 +285,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 result.ErrorDescription = AdalErrorMessage.NonHttpsRedirectNotSupported;
                 callbackMethod(result);
                 WebView.DecideIgnore(decisionToken);
-                Close();
+                window.Close();
             }
 
             WebView.DecideUse(decisionToken);
         }
 
+        #endregion
+
+        #region IWebFrameLoadDelegate
+
         [Export("webView:didFinishLoadForFrame:")]
         public void FinishedLoad(WebView sender, WebFrame forFrame)
         {
-            Window.Title = webView.MainFrameTitle ?? "Sign in";
+            window.Title = sender.MainFrameTitle ?? "Sign in";
 
             progressIndicator.Hidden = true;
             progressIndicator.StopAnimation(null);
         }
 
-        void CancelAuthentication()
-        {
-            callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
-        }
+        #endregion
 
-        [Export("windowShouldClose:")]
-        public bool WindowShouldClose(NSObject sender)
-        {
-            CancelAuthentication();
-            return true;
-        }
+        #region IWebResourceLoadDelegate
 
         [Export("webView:resource:didReceiveResponse:fromDataSource:")]
         public void OnReceivedResponse(WebView sender, NSObject identifier, NSUrlResponse responseReceived, WebDataSource dataSource)
@@ -313,6 +322,40 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             var mutableRequest = (NSMutableUrlRequest)request.MutableCopy();
             cookieStore.GiveCookies(mutableRequest);
             return mutableRequest;
+        }
+
+        #endregion 
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+               NSUrlProtocol.UnregisterClass(protocolClass);
+
+                if (window != null)
+                {
+                    window.WeakDelegate = null;
+                    window.Dispose();
+                    window = null;
+                }
+
+                if (webView != null)
+                {
+                    webView.FrameLoadDelegate = null;
+                    webView.PolicyDelegate = null;
+                    webView.ResourceLoadDelegate = null;
+                    webView.Dispose();
+                    webView = null;
+                }
+
+                if (progressIndicator != null)
+                {
+                    progressIndicator.Dispose();
+                    progressIndicator = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

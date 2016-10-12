@@ -67,10 +67,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if MAC
                 this.parameters.CallerWindow.InvokeOnMainThread(() =>
                 {
-                    var windowController =
-                        new AuthenticationAgentNSWindowController(authorizationUri.AbsoluteUri,
-                            redirectUri.OriginalString, CallbackMethod);
-                    windowController.Run(parameters.CallerWindow);
+                    AuthenticationAgentWindowController.Run (
+                        authorizationUri.AbsoluteUri, redirectUri.OriginalString,
+                        CallbackMethod, parameters.CallerWindow);
                 });
 #else
                 this.parameters.CallerViewController.InvokeOnMainThread(() =>

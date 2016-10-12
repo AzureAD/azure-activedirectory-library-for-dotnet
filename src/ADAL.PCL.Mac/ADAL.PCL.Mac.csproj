@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AuthenticationAgentNSWindowController.cs" />
+    <Compile Include="AuthenticationAgentWindowController.cs" />
     <Compile Include="BrokerHelper.cs" />
     <Compile Include="PlatformInformation.cs" />
     <Compile Include="PlatformParameters.cs" />
