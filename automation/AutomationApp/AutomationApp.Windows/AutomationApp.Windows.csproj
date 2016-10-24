@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4920FEA9-1507-44A4-BC77-275EA2FFB24F}</ProjectGuid>
+    <ProjectGuid>{EF4A591F-8E7E-4D5D-9C56-694F499B79F9}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AutomationApp.Windows</RootNamespace>
@@ -117,7 +117,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="packages.config" />
     <None Include="Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutomationApp\AutomationApp.csproj">
-      <Project>{a10223ae-26ac-4dc0-806d-250e8a1b756b}</Project>
+      <Project>{a0e7ec9a-6b0c-4c5e-bec7-08b1e80a2d0a}</Project>
       <Name>AutomationApp</Name>
     </ProjectReference>
   </ItemGroup>

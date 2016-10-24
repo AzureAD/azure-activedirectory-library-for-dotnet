@@ -7,11 +7,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="6a4693ab-bc1a-4134-9542-989603e4f58f"
+    Name="e878c94b-afb9-456f-be74-6d51f0aa1fb8"
     Publisher="CN=kpanwar"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="6a4693ab-bc1a-4134-9542-989603e4f58f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="e878c94b-afb9-456f-be74-6d51f0aa1fb8" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>AutomationApp.UWP</DisplayName>

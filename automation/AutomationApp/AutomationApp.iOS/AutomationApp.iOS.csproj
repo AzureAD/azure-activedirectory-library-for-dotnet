@@ -5,14 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{81F35837-1365-4599-8D3C-F794B25417CF}</ProjectGuid>
+    <ProjectGuid>{F94597D1-09E8-43FE-8D65-3B1E15D71891}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>AutomationApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>AutomationApp.iOS</AssemblyName>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -95,7 +93,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <ITunesArtwork Include="iTunesArtwork" />
     <ITunesArtwork Include="iTunesArtwork@2x" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />
@@ -139,7 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutomationApp\AutomationApp.csproj">
-      <Project>{a10223ae-26ac-4dc0-806d-250e8a1b756b}</Project>
+      <Project>{a0e7ec9a-6b0c-4c5e-bec7-08b1e80a2d0a}</Project>
       <Name>AutomationApp</Name>
     </ProjectReference>
   </ItemGroup>
