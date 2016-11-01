@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Android.Webkit;
 
 namespace AutomationApp.Droid
 {
@@ -20,6 +21,7 @@ namespace AutomationApp.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+            WebView.SetWebContentsDebuggingEnabled(true);
             LoadApplication(new App());
         }
     }

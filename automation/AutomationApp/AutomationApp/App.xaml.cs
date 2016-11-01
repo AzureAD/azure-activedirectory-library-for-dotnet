@@ -9,6 +9,8 @@ namespace AutomationApp
 {
     public partial class App : Application
     {
+        public delegate string Command(Dictionary<string, string> input);
+
         public App()
         {
             InitializeComponent();
