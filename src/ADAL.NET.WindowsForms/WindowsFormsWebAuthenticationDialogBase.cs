@@ -17,7 +17,9 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -43,6 +45,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         protected IWin32Window ownerWindow;
 
         private Keys key = Keys.None;
+
+        private readonly HashSet<string> _whiteListedSchemes = new HashSet<string>();
 
         /// <summary>
         /// From MSDN (http://msdn.microsoft.com/en-us/library/ie/dn720860(v=vs.85).aspx): 
@@ -89,6 +93,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             this.webBrowser = new CustomWebBrowser();
             this.webBrowser.PreviewKeyDown += webBrowser_PreviewKeyDown;
             this.InitializeComponent();
+
+            _whiteListedSchemes.Add("browser");
+            _whiteListedSchemes.Add("javascript");
+            _whiteListedSchemes.Add("https");
         }
         
         private void webBrowser_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -132,6 +140,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             // if redirect URI is URN, then we prohibit navigation, to prevent random browser popup.
             e.Cancel = this.CheckForClosingUrl(e.Url);
 
+            // check if the url scheme is of type browser://
+            // this means we need to launch external browser
+            if (!e.Cancel && e.Url.Scheme.Equals("browser", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Process.Start(e.Url.AbsoluteUri.Replace("browser://", "https://"));
+                e.Cancel = true;
+            }
+
             if (!e.Cancel)
             {
                 Logger.Verbose(null, string.Format(CultureInfo.InvariantCulture, "Navigating to '{0}'.", EncodingHelper.UrlDecode(e.Url.ToString())));
@@ -150,6 +166,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             // e.StatusCode - Contains error code which we are able to translate this error to text
             // ADAL.Native contains a code for translation.
+            if (this.DialogResult == DialogResult.OK)
+            {
+                return;
+            }
 
             if (this.webBrowser.IsDisposed)
             {
@@ -184,11 +204,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 this.authenticationResult = url.AbsoluteUri;
                 canClose = true;
             }
-            
-            if (!canClose && !url.AbsoluteUri.Equals("about:blank", StringComparison.CurrentCultureIgnoreCase) && !url.Scheme.Equals("https", StringComparison.CurrentCultureIgnoreCase))
+
+            if (!canClose && !_whiteListedSchemes.Contains(url.Scheme.ToLower(CultureInfo.CurrentCulture)) &&
+                !url.AbsoluteUri.Equals("about:blank", StringComparison.OrdinalIgnoreCase))
             {
                 UriBuilder localUri = new UriBuilder(this.desiredCallbackUri);
-                localUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}", AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
+                localUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
+                    AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
                 this.authenticationResult = localUri.ToString();
                 canClose = true;
             }
