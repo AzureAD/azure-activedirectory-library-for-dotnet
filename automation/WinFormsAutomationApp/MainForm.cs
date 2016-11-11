@@ -56,5 +56,25 @@ namespace WinFormsAutomationApp
             _commandToRun = AuthenticationHelper.ExpireAccessToken;
             pageControl1.SelectedTab = dataInputPage;
         }
+
+        private void invalidateRefreshToken_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void readCache_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void clearCache_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void acquireTokenDeviceProfile_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

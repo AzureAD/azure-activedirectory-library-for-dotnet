@@ -30,6 +30,7 @@
         {
             this.pageControl1 = new WinFormsAutomationApp.PageControl();
             this.mainPage = new System.Windows.Forms.TabPage();
+            this.acquireTokenDeviceProfile = new System.Windows.Forms.Button();
             this.clearCache = new System.Windows.Forms.Button();
             this.readCache = new System.Windows.Forms.Button();
             this.invalidateRefreshToken = new System.Windows.Forms.Button();
@@ -61,6 +62,7 @@
             // 
             // mainPage
             // 
+            this.mainPage.Controls.Add(this.acquireTokenDeviceProfile);
             this.mainPage.Controls.Add(this.clearCache);
             this.mainPage.Controls.Add(this.readCache);
             this.mainPage.Controls.Add(this.invalidateRefreshToken);
@@ -75,40 +77,54 @@
             this.mainPage.Text = "mainPage";
             this.mainPage.UseVisualStyleBackColor = true;
             // 
+            // acquireTokenDeviceProfile
+            // 
+            this.acquireTokenDeviceProfile.AccessibleName = "acquireTokenDeviceProfile";
+            this.acquireTokenDeviceProfile.Location = new System.Drawing.Point(175, 140);
+            this.acquireTokenDeviceProfile.Name = "acquireTokenDeviceProfile";
+            this.acquireTokenDeviceProfile.Size = new System.Drawing.Size(233, 43);
+            this.acquireTokenDeviceProfile.TabIndex = 7;
+            this.acquireTokenDeviceProfile.Text = "Acquire Token Using Device Profile Flow";
+            this.acquireTokenDeviceProfile.UseVisualStyleBackColor = true;
+            this.acquireTokenDeviceProfile.Click += new System.EventHandler(this.acquireTokenDeviceProfile_Click);
+            // 
             // clearCache
             // 
             this.clearCache.AccessibleName = "clearCache";
-            this.clearCache.Location = new System.Drawing.Point(175, 323);
+            this.clearCache.Location = new System.Drawing.Point(175, 385);
             this.clearCache.Name = "clearCache";
             this.clearCache.Size = new System.Drawing.Size(233, 43);
             this.clearCache.TabIndex = 6;
             this.clearCache.Text = "Clear Cache";
             this.clearCache.UseVisualStyleBackColor = true;
+            this.clearCache.Click += new System.EventHandler(this.clearCache_Click);
             // 
             // readCache
             // 
             this.readCache.AccessibleName = "readCache";
-            this.readCache.Location = new System.Drawing.Point(175, 263);
+            this.readCache.Location = new System.Drawing.Point(175, 325);
             this.readCache.Name = "readCache";
             this.readCache.Size = new System.Drawing.Size(233, 43);
             this.readCache.TabIndex = 5;
             this.readCache.Text = "Read Cache";
             this.readCache.UseVisualStyleBackColor = true;
+            this.readCache.Click += new System.EventHandler(this.readCache_Click);
             // 
             // invalidateRefreshToken
             // 
             this.invalidateRefreshToken.AccessibleName = "invalidateRefreshToken";
-            this.invalidateRefreshToken.Location = new System.Drawing.Point(175, 199);
+            this.invalidateRefreshToken.Location = new System.Drawing.Point(175, 261);
             this.invalidateRefreshToken.Name = "invalidateRefreshToken";
             this.invalidateRefreshToken.Size = new System.Drawing.Size(233, 43);
             this.invalidateRefreshToken.TabIndex = 4;
             this.invalidateRefreshToken.Text = "Invalidate Refresh Token";
             this.invalidateRefreshToken.UseVisualStyleBackColor = true;
+            this.invalidateRefreshToken.Click += new System.EventHandler(this.invalidateRefreshToken_Click);
             // 
             // expireAccessToken
             // 
             this.expireAccessToken.AccessibleName = "expireAccessToken";
-            this.expireAccessToken.Location = new System.Drawing.Point(175, 139);
+            this.expireAccessToken.Location = new System.Drawing.Point(175, 201);
             this.expireAccessToken.Name = "expireAccessToken";
             this.expireAccessToken.Size = new System.Drawing.Size(233, 43);
             this.expireAccessToken.TabIndex = 3;
@@ -239,6 +255,7 @@
         private System.Windows.Forms.Button expireAccessToken;
         private System.Windows.Forms.Button clearCache;
         private System.Windows.Forms.Button readCache;
+        private System.Windows.Forms.Button acquireTokenDeviceProfile;
     }
 }
 

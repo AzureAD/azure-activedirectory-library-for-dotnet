@@ -47,6 +47,7 @@ namespace AutomationApp
         
         public static Task<string> ExpireAccessToken(Dictionary<string, string> input)
         {
+            return null;
             //TokenCache.DefaultShared.
         }
 
