@@ -44,6 +44,11 @@ namespace AutomationApp
 
             return output;
         }
+        
+        public static Task<string> ExpireAccessToken(Dictionary<string, string> input)
+        {
+            //TokenCache.DefaultShared.
+        }
 
         public static string ToJson(this object obj)
         {
@@ -81,7 +86,7 @@ namespace AutomationApp
             platformParameters = new PlatformParameters(PromptBehavior.Always, false);
 #else
             //desktop
-            platformParameters = new PlatformParameters(PromptBehavior.Always, null);
+            platformParameters = new PlatformParameters(PromptBehavior.Auto, null);
 #endif
 #endif
 #endif

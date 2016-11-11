@@ -30,6 +30,10 @@
         {
             this.pageControl1 = new WinFormsAutomationApp.PageControl();
             this.mainPage = new System.Windows.Forms.TabPage();
+            this.clearCache = new System.Windows.Forms.Button();
+            this.readCache = new System.Windows.Forms.Button();
+            this.invalidateRefreshToken = new System.Windows.Forms.Button();
+            this.expireAccessToken = new System.Windows.Forms.Button();
             this.acquireTokenSilent = new System.Windows.Forms.Button();
             this.acquireToken = new System.Windows.Forms.Button();
             this.dataInputPage = new System.Windows.Forms.TabPage();
@@ -57,6 +61,10 @@
             // 
             // mainPage
             // 
+            this.mainPage.Controls.Add(this.clearCache);
+            this.mainPage.Controls.Add(this.readCache);
+            this.mainPage.Controls.Add(this.invalidateRefreshToken);
+            this.mainPage.Controls.Add(this.expireAccessToken);
             this.mainPage.Controls.Add(this.acquireTokenSilent);
             this.mainPage.Controls.Add(this.acquireToken);
             this.mainPage.Location = new System.Drawing.Point(4, 22);
@@ -67,10 +75,51 @@
             this.mainPage.Text = "mainPage";
             this.mainPage.UseVisualStyleBackColor = true;
             // 
+            // clearCache
+            // 
+            this.clearCache.AccessibleName = "clearCache";
+            this.clearCache.Location = new System.Drawing.Point(175, 323);
+            this.clearCache.Name = "clearCache";
+            this.clearCache.Size = new System.Drawing.Size(233, 43);
+            this.clearCache.TabIndex = 6;
+            this.clearCache.Text = "Clear Cache";
+            this.clearCache.UseVisualStyleBackColor = true;
+            // 
+            // readCache
+            // 
+            this.readCache.AccessibleName = "readCache";
+            this.readCache.Location = new System.Drawing.Point(175, 263);
+            this.readCache.Name = "readCache";
+            this.readCache.Size = new System.Drawing.Size(233, 43);
+            this.readCache.TabIndex = 5;
+            this.readCache.Text = "Read Cache";
+            this.readCache.UseVisualStyleBackColor = true;
+            // 
+            // invalidateRefreshToken
+            // 
+            this.invalidateRefreshToken.AccessibleName = "invalidateRefreshToken";
+            this.invalidateRefreshToken.Location = new System.Drawing.Point(175, 199);
+            this.invalidateRefreshToken.Name = "invalidateRefreshToken";
+            this.invalidateRefreshToken.Size = new System.Drawing.Size(233, 43);
+            this.invalidateRefreshToken.TabIndex = 4;
+            this.invalidateRefreshToken.Text = "Invalidate Refresh Token";
+            this.invalidateRefreshToken.UseVisualStyleBackColor = true;
+            // 
+            // expireAccessToken
+            // 
+            this.expireAccessToken.AccessibleName = "expireAccessToken";
+            this.expireAccessToken.Location = new System.Drawing.Point(175, 139);
+            this.expireAccessToken.Name = "expireAccessToken";
+            this.expireAccessToken.Size = new System.Drawing.Size(233, 43);
+            this.expireAccessToken.TabIndex = 3;
+            this.expireAccessToken.Text = "Expire Access Token";
+            this.expireAccessToken.UseVisualStyleBackColor = true;
+            this.expireAccessToken.Click += new System.EventHandler(this.expireAccessToken_Click);
+            // 
             // acquireTokenSilent
             // 
             this.acquireTokenSilent.AccessibleName = "acquireTokenSilent";
-            this.acquireTokenSilent.Location = new System.Drawing.Point(175, 83);
+            this.acquireTokenSilent.Location = new System.Drawing.Point(175, 79);
             this.acquireTokenSilent.Name = "acquireTokenSilent";
             this.acquireTokenSilent.Size = new System.Drawing.Size(233, 43);
             this.acquireTokenSilent.TabIndex = 2;
@@ -186,6 +235,10 @@
         private System.Windows.Forms.Button done;
         private System.Windows.Forms.TextBox result;
         private System.Windows.Forms.Button acquireTokenSilent;
+        private System.Windows.Forms.Button invalidateRefreshToken;
+        private System.Windows.Forms.Button expireAccessToken;
+        private System.Windows.Forms.Button clearCache;
+        private System.Windows.Forms.Button readCache;
     }
 }
 

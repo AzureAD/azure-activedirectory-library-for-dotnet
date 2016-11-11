@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutomationApp;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace WinFormsAutomationApp
 {
@@ -20,6 +21,8 @@ namespace WinFormsAutomationApp
         public MainForm()
         {
             InitializeComponent();
+            TokenCache.DefaultShared.AfterAccess += TokenCacheDelegates.AfterAccessNotification;
+            TokenCache.DefaultShared.BeforeAccess += TokenCacheDelegates.BeforeAccessNotification;
         }
 
         private void acquireToken_Click(object sender, EventArgs e)
@@ -45,6 +48,12 @@ namespace WinFormsAutomationApp
         private void acquireTokenSilent_Click(object sender, EventArgs e)
         {
             _commandToRun = AuthenticationHelper.AcquireTokenSilent;
+            pageControl1.SelectedTab = dataInputPage;
+        }
+
+        private void expireAccessToken_Click(object sender, EventArgs e)
+        {
+            _commandToRun = AuthenticationHelper.ExpireAccessToken;
             pageControl1.SelectedTab = dataInputPage;
         }
     }
