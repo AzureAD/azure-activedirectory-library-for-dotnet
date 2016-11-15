@@ -62,7 +62,7 @@ namespace WinFormsAutomationApp
 
                 using (StreamReader reader = new StreamReader(mstream))
                 {
-                    return reader.ReadToEnd();
+                    return JsonOutputFormat(reader.ReadToEnd());
                 }
             }
         }
@@ -71,6 +71,36 @@ namespace WinFormsAutomationApp
         {
             var jss = new JavaScriptSerializer();
             return jss.Deserialize<Dictionary<string, string>>(json); 
+        }
+
+        private static string JsonOutputFormat(string result)
+        {
+            Dictionary<string, string> jsonDictitionary = new Dictionary<string, string>();
+            jsonDictitionary.Add("AccessTokenType", "access_token_type");
+            jsonDictitionary.Add("AccessToken", "access_token");
+            jsonDictitionary.Add("ExpiresOn", "expires_on");
+            jsonDictitionary.Add("ExtendedExpiresOn", "extended_expires_on");
+            jsonDictitionary.Add("ExtendedLifeTimeToken", "extended_lifetime_token");
+            jsonDictitionary.Add("IdToken", "id_token");
+            jsonDictitionary.Add("TenantId", "tenant_id");
+            jsonDictitionary.Add("UserInfo", "user_info");
+            jsonDictitionary.Add("DisplayableId", "displayable_id");
+            jsonDictitionary.Add("FamilyName", "family_name");
+            jsonDictitionary.Add("GivenName", "given_name");
+            jsonDictitionary.Add("IdentityProvider", "identity_provider");
+            jsonDictitionary.Add("PasswordChangeUrl", "password_change_url");
+            jsonDictitionary.Add("PasswordExpiresOn", "password_expires_on");
+            jsonDictitionary.Add("UniqueId", "unique_id");
+
+            foreach (KeyValuePair<string, string> entry in jsonDictitionary)
+            {
+                if (result.Contains(entry.Key))
+                {
+                    result = result.Replace(entry.Key, entry.Value);
+                }
+            }
+
+            return result;
         }
 
         private static IPlatformParameters GetPlatformParametersInstance()
