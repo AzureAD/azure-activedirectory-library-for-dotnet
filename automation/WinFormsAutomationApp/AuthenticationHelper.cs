@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
-namespace AutomationApp
+namespace WinFormsAutomationApp
 {
     internal static class AuthenticationHelper
     {
