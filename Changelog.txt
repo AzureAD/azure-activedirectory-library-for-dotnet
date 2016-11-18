@@ -1,3 +1,9 @@
+Version 2.28.3
+=========
+This release includes
+- Fix .NET webview to add javascript:// to whitelist.
+- Fix .NET webview to ensure if redirect_uri is hit, ignore errors raised by webview after that event.
+
 Version 2.28.2
 ==============
 This release includes
