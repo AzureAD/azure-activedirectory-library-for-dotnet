@@ -51,7 +51,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 return;
             }
 
-            int count = ObjectsToBeDispatched.Count;
             foreach (KeyValuePair<string, List<EventsBase>> pair in ObjectsToBeDispatched)
             {
                 if (requestID.Equals(pair.Key))

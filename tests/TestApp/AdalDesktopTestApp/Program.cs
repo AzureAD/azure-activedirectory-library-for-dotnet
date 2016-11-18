@@ -91,7 +91,10 @@ namespace AdalDesktopTestApp
 
         public int Count
         {
-            get { return storeList.Count; }
+            get
+            {
+                return storeList.Count;
+            }
         }
 
         public void clear()

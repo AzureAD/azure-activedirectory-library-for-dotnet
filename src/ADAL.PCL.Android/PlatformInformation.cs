@@ -69,17 +69,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public override string GetDeviceId()
         {
-            return Settings.Secure.AndroidId.ToString();
+            return Settings.Secure.AndroidId;
         }
 
         public override string GetApplicationName()
         {
-            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, 0).PackageName.ToString();
+            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName, 0).PackageName;
         }
 
         public override string GetApplicationVersion()
         {
-            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName,0).VersionName.ToString();
+            return Application.Context.PackageManager.GetPackageInfo(Application.Context.PackageName,0).VersionName;
         }
     }
 }

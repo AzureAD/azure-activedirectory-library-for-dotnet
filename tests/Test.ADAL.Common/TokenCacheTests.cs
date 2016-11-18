@@ -167,10 +167,10 @@ namespace Test.ADAL.Common.Unit
 
 
         /// <summary>
-        ///     Check when there are multiple users in the cache with the same
-        ///     authority, clientId, resource but different unique and displayId's that
-        ///     we can correctly get them from the cache without a multiple token
-        ///     detected exception.
+        /// Check when there are multiple users in the cache with the same
+        /// authority, clientId, resource but different unique and displayId's that
+        /// we can correctly get them from the cache without a multiple token
+        /// detected exception.
         /// </summary>
         /// <returns></returns>
         public static async Task TestUniqueIdDisplayableIdLookup()
