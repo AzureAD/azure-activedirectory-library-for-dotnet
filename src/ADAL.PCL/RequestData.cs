@@ -50,5 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string RequestId { get; set; }
 
         public Guid CorrelationId { get; set; }
+
+        public string LoginHint { get; set; }
     }
 }

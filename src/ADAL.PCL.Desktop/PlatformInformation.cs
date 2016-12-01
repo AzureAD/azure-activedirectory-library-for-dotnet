@@ -84,11 +84,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public override string GetDeviceId()
         {
             string DeviceId = string.Empty;
-            ManagementObjectSearcher managementObjectSearcher = new ManagementObjectSearcher("SELECT DeviceID FROM Win32_Processor");
-            foreach (ManagementObject managementObject in managementObjectSearcher.Get())
+
+            try
             {
-                DeviceId = managementObject["DeviceID"].ToString();
+                ManagementObjectSearcher managementObjectSearcher =
+                    new ManagementObjectSearcher("SELECT DeviceID FROM Win32_Processor");
+                foreach (ManagementObject managementObject in managementObjectSearcher.Get())
+                {
+                    DeviceId = managementObject["DeviceID"].ToString();
+                }
             }
+            catch (NullReferenceException ex)
+            {
+                PlatformPlugin.Logger.Warning(null, "Failed to retrieve DeviceId: " + ex.Message);
+            }
+
             return DeviceId;
         }
 

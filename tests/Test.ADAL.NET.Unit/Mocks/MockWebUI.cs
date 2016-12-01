@@ -30,6 +30,8 @@ namespace Test.ADAL.NET.Unit.Mocks
                     Assert.IsTrue(inputQp.ContainsKey(key));
                     Assert.AreEqual(QueryParams[key], inputQp[key]);
                 }
+
+                Thread.Sleep(2000);
             }
 
             return await Task.Factory.StartNew(() => this.MockResult).ConfigureAwait(false);

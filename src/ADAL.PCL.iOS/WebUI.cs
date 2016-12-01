@@ -51,15 +51,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             returnedUriReady = new SemaphoreSlim(0);
 
             string requestId = Telemetry.GetInstance().CreateRequestId();
-            Telemetry.GetInstance().StartEvent(requestId, "ui_event");
+            Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
 
             UIEvent UiEvent = new UIEvent();
 
             Authenticate(authorizationUri, redirectUri, callState);
 
-            Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
-
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
+
+            Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
+
             return authorizationResult;
         }
 

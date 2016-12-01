@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -119,15 +120,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         requestMessage.Method = HttpMethod.Get;
                     }
+
                     httpEvent.SetEvent(EventConstants.UserAgent, client.DefaultRequestHeaders.UserAgent.ToString());
                     httpEvent.SetEvent(EventConstants.RequestApiVersion, requestMessage.Version.ToString());
                     httpEvent.HttpResponseMethod = requestMessage.Method.ToString();
+                    httpEvent.ParseQuery(requestMessage.RequestUri.Query);
+
                     Telemetry.GetInstance().StartEvent(this.CallState.RequestId, EventConstants.HttpEvent);
 
                     responseMessage = await client.SendAsync(requestMessage).ConfigureAwait(false);
 
                     httpEvent.SetEvent(EventConstants.HttpStatusCode, responseMessage.StatusCode);
-                    httpEvent.ParseQuery(requestMessage.RequestUri.Query);
+
                 }
                 catch (TaskCanceledException ex)
                 {

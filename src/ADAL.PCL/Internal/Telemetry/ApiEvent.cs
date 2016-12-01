@@ -47,18 +47,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 DisplayableId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.DisplayableId);
                 SetEvent(EventConstants.DisplayableId, DisplayableId);
 
-                UniqueId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.UniqueId);
-                SetEvent(EventConstants.UniqueId, UniqueId);
+                UserId = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userinfo.UniqueId);
+                SetEvent(EventConstants.UserId, UserId);
             }
 
-            if (tenantId != null)
-            {
-                Authority = HashTenantIdFromAuthority(authenticator.Authority, tenantId);
-            }
-            else
-            {
-                Authority = authenticator.Authority;
-            }
+            Authority = HashTenantIdFromAuthority(authenticator.Authority);
+
             SetEvent(EventConstants.Authority, Authority);
 
             AuthorityType = authenticator.AuthorityType.ToString();
@@ -74,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal string Idp { get; set; }
 
-        internal string Upn { get; set; }
+        internal string UserId { get; set; }
 
         internal string Authority { get; set; }
 
@@ -86,17 +80,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal string IdentityProvider { get; set; }
 
-        internal string UniqueId { get; set; }
-
         internal bool IsDeprecated { get; set; }
 
         internal bool ExtendedExpires { get; set; }
 
-        private string HashTenantIdFromAuthority(string authority, string tenantId)
+        private string HashTenantIdFromAuthority(string authority)
         {
-            Regex regex = new Regex(tenantId);
+            string[] authoritySplit = authority.Split('/');
 
-            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenantId), 5);
+            string tenant = authoritySplit[authoritySplit.Length - 2];
+
+            Regex regex = new Regex(tenant);
+
+            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenant), 1);
 
             return result;
         }
@@ -105,7 +101,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (eventParameter != null)
             {
-                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventList.Add(new Tuple<string, string>(eventName, eventParameter));
             }
         }
 
@@ -120,34 +116,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     stringbuilder.Append(s.Split('=')[0]).Append("&");
                 }
             }
-            SetEvent(EventConstants.ExtraQueryParameters, stringbuilder.ToString());
+
+            SetEvent(EventConstants.ExtraQueryParameters,
+                stringbuilder.ToString().Substring(0, stringbuilder.Length - 1));
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            List<Tuple<string, string>> listEvent = EventDictitionary;
-            int size = EventDictitionary.Count;
-
-            for (int i = 0; i < size; i++)
+            foreach (Tuple<string, string> Event in EventList)
             {
-                if (listEvent[i].Item1.Equals(EventConstants.ApplicationName) ||
-                    listEvent[i].Item1.Equals(EventConstants.ApplicationVersion)
-                    || listEvent[i].Item1.Equals(EventConstants.AuthorityType)
-                    || listEvent[i].Item1.Equals(EventConstants.SdkVersion)
-                    || listEvent[i].Item1.Equals(EventConstants.SdkPlatform)
-                    || listEvent[i].Item1.Equals(EventConstants.AuthorityValidation)
-                    || listEvent[i].Item1.Equals(EventConstants.ExtendedExpires)
-                    || listEvent[i].Item1.Equals(EventConstants.PromptBehavior)
-                    || listEvent[i].Item1.Equals(EventConstants.Idp)
-                    || listEvent[i].Item1.Equals(EventConstants.Tenant)
-                    || listEvent[i].Item1.Equals(EventConstants.Upn)
-                    || listEvent[i].Item1.Equals(EventConstants.LoginHint)
-                    || listEvent[i].Item1.Equals(EventConstants.ResponseTime)
-                    || listEvent[i].Item1.Equals(EventConstants.CorrelationId)
-                    || listEvent[i].Item1.Equals(EventConstants.RequestId)
-                    || listEvent[i].Item1.Equals(EventConstants.ApiId))
+                if (Event.Item1.Equals(EventConstants.ApplicationName) ||
+                    Event.Item1.Equals(EventConstants.ApplicationVersion)
+                    || Event.Item1.Equals(EventConstants.AuthorityType)
+                    || Event.Item1.Equals(EventConstants.SdkVersion)
+                    || Event.Item1.Equals(EventConstants.SdkPlatform)
+                    || Event.Item1.Equals(EventConstants.AuthorityValidation)
+                    || Event.Item1.Equals(EventConstants.ExtendedExpires)
+                    || Event.Item1.Equals(EventConstants.PromptBehavior)
+                    || Event.Item1.Equals(EventConstants.Idp)
+                    || Event.Item1.Equals(EventConstants.Tenant)
+                    || Event.Item1.Equals(EventConstants.LoginHint)
+                    || Event.Item1.Equals(EventConstants.ResponseTime)
+                    || Event.Item1.Equals(EventConstants.CorrelationId)
+                    || Event.Item1.Equals(EventConstants.RequestId)
+                    || Event.Item1.Equals(EventConstants.ApiId))
                 {
-                    dispatchMap.Add(listEvent[i].Item1, listEvent[i].Item2);
+                    dispatchMap.Add(Event.Item1, Event.Item2);
                 }
             }
         }

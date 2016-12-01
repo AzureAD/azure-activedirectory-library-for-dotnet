@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return
                 await
                     ctx.AcquireTokenCommonAsync(resource, clientId, userCredential,
-                        EventConstants.AcquireTokenCommonAsync).ConfigureAwait(false);
+                        EventConstants.AcquireTokenAsync).ConfigureAwait(false);
         }
     }
 }

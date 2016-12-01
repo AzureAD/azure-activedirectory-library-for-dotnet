@@ -33,7 +33,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string EventName = "event_name";
         public const string ExtraQueryParameters = "extra_query_parameters";
         public const string ApiId = "api_id";
-        public const string IsAT = "is_AT";
+        public const string IsAT = "is_at";
+        public const string IsRT = "is_rt";
         public const string IsSuccessful = "is_successful";
         public const string AuthorityValidation = "authority_validation";
         public const string ApplicationName = "application_name";
@@ -63,12 +64,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string CorrelationId = "correlation_id";
         public const string GivenName = "given_name";
         public const string DisplayableId = "displayable_id";
-        public const string UniqueId = "unique_id";
+        public const string UserId = "user_id";
         public const string UserAgent = "user_agent";
         public const string RequestApiVersion = "request_api_version";
         public const string HttpBodyParameters = "http_body_parameters";
         public const string HttpResponseMethod = "http_response_method";
-        public const string IsMRRT = "is_MRRT";
+        public const string IsMRRT = "is_mrrt";
         public const string ExpiredAt = "expired_at";
         public const string TokenFound = "token_found";
         public const string CacheLookUp = "cache_lookup";
@@ -79,6 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string ExtendedExpires = "extended_expires_on_setting";
         public const string UserCancel = "user_cancel";
         public const string HttpEventCount = "http_event_count";
+        public const string CacheWrite = "cache_write";
 
         public const string AcquireTokenSilentAsync1 = "3";
         public const string AcquireTokenSilentAsync2 = "9";
@@ -109,6 +111,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string AcquireTokenByAuthorizationCodeAsyncClientCertificate1 = "821";
         public const string AcquireTokenByAuthorizationCodeAsyncClientCertificate2 = "826";
 
-        public const string AcquireTokenCommonAsync = "722";
+        public const string AcquireTokenAsync = "722";
     }
 }

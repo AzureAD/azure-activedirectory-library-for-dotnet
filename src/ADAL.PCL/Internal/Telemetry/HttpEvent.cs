@@ -52,22 +52,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 string QueryShifted = Query.Substring(1, Query.Length - 1);
                 string[] result = QueryShifted.Split('&');
-                StringBuilder sb = new StringBuilder();
+                StringBuilder stringbuilder = new StringBuilder();
                 foreach (string s in result)
                 {
-                    if (!(s.Contains("password") || s.Contains("upn")))
+                    if (s.Contains("="))
                     {
-                        sb.Append(s).Append(" ");
+                        stringbuilder.Append(s.Split('=')[0]).Append("&");
                     }
                 }
-                HttpQueryParameters = sb.ToString();
-                SetEvent(EventConstants.HttpQueryParameters, HttpQueryParameters);
+
+                SetEvent(EventConstants.HttpQueryParameters, stringbuilder.ToString());
             }
         }
 
         internal void SetEvent(string eventName, HttpStatusCode eventParameter)
         {
-            EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            EventList.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)

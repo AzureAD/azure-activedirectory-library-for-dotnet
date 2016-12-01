@@ -59,6 +59,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task SmokeTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -79,6 +83,8 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(result.ExpiresOn, result.ExtendedExpiresOn);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
         }
 
         [TestMethod]
@@ -86,6 +92,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task SmokeTestWithExtendedExpiresOn()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -106,6 +116,8 @@ namespace Test.ADAL.NET.Unit
             Assert.IsTrue(result.ExtendedExpiresOn.Subtract(result.ExpiresOn) > TimeSpan.FromSeconds(5));
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
         }
 
         [TestMethod]
@@ -113,6 +125,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task ExtendedLifetimeRetry()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                  TestConstants.DefaultRedirectUri + "?code=some-code"));
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, true);
@@ -132,7 +148,10 @@ namespace Test.ADAL.NET.Unit
             await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,TestConstants.DefaultRedirectUri, platformParameters);
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(),0);     
+            Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(),0);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
+            dispatcher.clear();
         }
 
         [TestMethod]
@@ -140,6 +159,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task ExtendedLifetimePositiveTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -169,6 +192,8 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 0);
             Assert.AreEqual(result.AccessToken, "some-access-token");
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenSilentAsync1));
         }
 
         [TestMethod]
@@ -176,6 +201,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task ExtendedLifetimeExpiredTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -205,6 +234,9 @@ namespace Test.ADAL.NET.Unit
                      await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
             Assert.IsNull(result.AccessToken);
             Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 0);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenSilentAsync1));
+            dispatcher.clear();
         }
 
 
@@ -254,6 +286,10 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task ExtendedLifetimeRequestTimeoutTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -288,12 +324,19 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(result.AccessToken, "some-access-token");
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenSilentAsync1));
+            dispatcher.clear();
         }
 
         [TestMethod]
         [Description("Test for ExtendedLifetime feature flag being set in normal(non-outage) for Client Credentials")]
         public async Task ClientCredentialExtendedExpiryFlagSet()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
 
@@ -315,9 +358,15 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
+
             // cache look up
             var result2 = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
 
             try
             {
@@ -326,6 +375,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -335,6 +387,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
         }
 
@@ -343,6 +398,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for ExtendedLifetime feature flag being not set in normal(non-outage) for Client Credentials")]
         public async Task ClientCredentialExtendedExpiryFlagNotSet()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
           
@@ -364,9 +423,15 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
+
             // cache look up
             var result2 = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
 
             try
             {
@@ -375,6 +440,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -384,6 +452,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
             }
         }
 
@@ -391,6 +461,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for getting back access token when the extendedExpiresOn flag is set")]
         public async Task ClientCredentialExtendedExpiryPositiveTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.Client,
@@ -437,6 +511,9 @@ namespace Test.ADAL.NET.Unit
             var result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
+
             try
             {
                 await context.AcquireTokenAsync(null, credential);
@@ -444,6 +521,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -453,6 +533,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
         }
 
@@ -460,6 +543,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for ExtendedLifetime feature with the extendedExpiresOn being expired not returning back stale AT")]
         public async Task ClientCredentialExtendedExpiryNegativeTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityCommonTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -514,6 +601,9 @@ namespace Test.ADAL.NET.Unit
             catch (AdalServiceException ex)
             {
                 Assert.AreEqual(ex.InnerException.Message, " Response status code does not indicate success: 504 (GatewayTimeout).");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -523,6 +613,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -532,6 +625,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
         }
 
@@ -539,6 +635,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for ExtendedLifetime feature with the extendedExpiresOn being expired not returning back stale AT")]
         public async Task ClientCredentialNegativeRequestTimeoutTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityCommonTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -593,6 +693,9 @@ namespace Test.ADAL.NET.Unit
             catch (AdalServiceException ex)
             {
                 Assert.AreEqual(ex.InnerException.Message, " Response status code does not indicate success: 408 (RequestTimeout).");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -602,6 +705,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -611,6 +717,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
         }
 
@@ -697,6 +806,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Positive Test for AcquireToken with missing redirectUri and/or userId")]
         public async Task AcquireTokenPositiveWithoutUserIdAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
@@ -712,6 +825,10 @@ namespace Test.ADAL.NET.Unit
                         TestConstants.DefaultRedirectUri, platformParameters);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
+            dispatcher.clear();
+
             try
             {
                 result =
@@ -722,6 +839,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentException exc)
             {
                 Assert.IsTrue(exc.Message.StartsWith(AdalErrorMessage.SpecifyAnyUser));
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive2));
+                dispatcher.clear();
             }
 
             // this should hit the cache
@@ -731,12 +850,19 @@ namespace Test.ADAL.NET.Unit
                         TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive2));
+            dispatcher.clear();
         }
 
         [TestMethod]
         [Description("Test for autority validation to AuthenticationContext")]
         public async Task AuthenticationContextAuthorityValidationTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             AuthenticationContext context = null;
             AuthenticationResult result = null;
             try
@@ -749,6 +875,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(ex.ParamName, "validateAuthority");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
+                dispatcher.clear();
             }
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -769,6 +897,9 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive2));
+            dispatcher.clear();
             //add handler to return failed discovery response
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -789,6 +920,7 @@ namespace Test.ADAL.NET.Unit
             catch (AdalException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, AdalError.AuthorityNotInValidList);
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
             }
         }
 
@@ -796,6 +928,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Negative Test for AcquireToken with invalid resource")]
         public async Task AcquireTokenWithInvalidResourceTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -820,6 +956,7 @@ namespace Test.ADAL.NET.Unit
             catch (AdalServiceException exc)
             {
                 Assert.AreEqual(AdalError.FailedToRefreshToken, exc.ErrorCode);
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenSilentAsync1));
             }
         }
 
@@ -827,6 +964,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Negative Test for AcquireToken with user canceling authentication")]
         public async Task AcquireTokenWithAuthenticationCanceledTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.UserCancel,
                 TestConstants.DefaultRedirectUri + "?error=user_cancelled"));
@@ -839,6 +980,7 @@ namespace Test.ADAL.NET.Unit
             catch (AdalServiceException ex)
             {
                 Assert.AreEqual(ex.ErrorCode, AdalError.AuthenticationCanceled);
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
             }
         }
 
@@ -846,6 +988,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Positive Test for AcquireToken testing default token cache")]
         public async Task AcquireTokenPositiveWithNullCacheTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -862,6 +1008,8 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
         }
 
 
@@ -869,6 +1017,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for simple refresh token")]
         public async Task SimpleRefreshTokenTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
             //add simple RT to cache
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAdfsAuthorityTenant,
@@ -887,6 +1039,8 @@ namespace Test.ADAL.NET.Unit
             catch (AdalSilentTokenAcquisitionException exc)
             {
                 Assert.AreEqual(AdalError.FailedToAcquireTokenSilently, exc.ErrorCode);
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenSilentAsync1));
             }
         }
 
@@ -894,6 +1048,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for acquring token using tenant specific endpoint")]
         public async Task TenantSpecificAuthorityTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -913,12 +1071,18 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
         }
 
         [TestMethod]
         [Description("Test for Force Prompt")]
         public async Task ForcePromptTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -952,12 +1116,19 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncInteractive1));
+            dispatcher.clear();
         }
 
         [TestMethod]
         [Description("Positive Test for AcquireToken non-interactive")]
         public async Task AcquireTokenNonInteractivePositiveTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Get,
@@ -1024,6 +1195,9 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsync));
+            dispatcher.clear();
+
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, cache);
             result =
                 await
@@ -1035,12 +1209,19 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual("user2@id.com", result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsync));
+            dispatcher.clear();
         }
 
         [TestMethod]
         [Description("Positive Test for Confidential Client")]
         public async Task ConfidentialClientWithX509Test()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var certificate = new ClientAssertionCertificate(TestConstants.DefaultClientId,
                 new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword));
@@ -1061,6 +1242,9 @@ namespace Test.ADAL.NET.Unit
                         certificate, TestConstants.DefaultResource);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientCertificate2));
+            dispatcher.clear();
+
             try
             {
                 await
@@ -1070,6 +1254,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "authorizationCode");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientCertificate2));
+                dispatcher.clear();
             }
 
             try
@@ -1082,6 +1269,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "authorizationCode");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientCertificate2));
+                dispatcher.clear();
             }
 
             try
@@ -1094,6 +1284,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "redirectUri");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientCertificate2));
+                dispatcher.clear();
             }
 
             try
@@ -1105,6 +1298,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCertificate");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientCertificate2));
             }
         }
 
@@ -1112,6 +1307,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for Client credential")]
         public async Task ClientCredentialNoCrossTenantTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             TokenCache cache = new TokenCache();
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, cache);
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
@@ -1134,6 +1333,9 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
+
             context = new AuthenticationContext(TestConstants.DefaultAuthorityGuestTenant, cache);
 
             try
@@ -1143,6 +1345,9 @@ namespace Test.ADAL.NET.Unit
             catch (AdalException)
             {
                 Assert.AreEqual(1, cache.tokenCacheDictionary.Count);
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
         }
 
@@ -1150,6 +1355,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for Client credential")]
         public async Task ClientCredentialTestAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
 
@@ -1171,9 +1380,15 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
+
             // cache look up
             var result2 = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+            dispatcher.clear();
 
             try
             {
@@ -1182,6 +1397,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
+                dispatcher.clear();
             }
 
             try
@@ -1191,6 +1408,7 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenAsyncClientCredential));
             }
         }
 
@@ -1243,6 +1461,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for Confidential Client with self signed jwt")]
         public async Task ConfidentialClientWithJwtTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -1269,9 +1491,15 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, TestConstants.DefaultResource);
             Assert.IsNotNull(result.AccessToken);
 
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
+            dispatcher.clear();
+
             result = await context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, null);
             Assert.IsNotNull(result.AccessToken);
-            
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
+            dispatcher.clear();
+
             try
             {
                 await context.AcquireTokenByAuthorizationCodeAsync(string.Empty, TestConstants.DefaultRedirectUri, assertion, TestConstants.DefaultResource);
@@ -1279,6 +1507,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "authorizationCode");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
+                dispatcher.clear();
             }
 
             try
@@ -1288,6 +1519,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "authorizationCode");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
+                dispatcher.clear();
             }
 
             try
@@ -1297,6 +1531,9 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "redirectUri");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
+                dispatcher.clear();
             }
 
             try
@@ -1306,6 +1543,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientAssertion");
+
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenByAuthorizationCodeAsyncClientAssertion2));
             }
         }
 
@@ -1313,6 +1552,10 @@ namespace Test.ADAL.NET.Unit
         [Description("Positive Test for AcquireTokenOnBehalf with client credential")]
         public async Task AcquireTokenOnBehalfAndClientCredentialTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             string accessToken = "some-access-token";
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
@@ -1333,6 +1576,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOf));
+                dispatcher.clear();
             }
 
             try
@@ -1342,6 +1587,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "userAssertion");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOf));
+                dispatcher.clear();
             }
 
             try
@@ -1351,6 +1598,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCredential");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOf));
+                dispatcher.clear();
             }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -1369,12 +1618,18 @@ namespace Test.ADAL.NET.Unit
 
             var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
             Assert.IsNotNull(result.AccessToken);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOf));
         }
 
         [TestMethod]
         [Description("Positive Test for AcquireTokenOnBehalf with client credential")]
         public async Task AcquireTokenOnBehalfAndClientCertificateCredentialTest()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             string accessToken = "some-access-token";
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
@@ -1395,6 +1650,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "resource");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOfClientCertificate));
+                dispatcher.clear();
             }
 
             try
@@ -1404,6 +1661,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "userAssertion");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOfClientCertificate));
+                dispatcher.clear();
             }
 
             try
@@ -1413,6 +1672,8 @@ namespace Test.ADAL.NET.Unit
             catch (ArgumentNullException exc)
             {
                 Assert.AreEqual(exc.ParamName, "clientCertificate");
+                Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOfClientCertificate));
+                dispatcher.clear();
             }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -1431,6 +1692,8 @@ namespace Test.ADAL.NET.Unit
 
             var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
             Assert.IsNotNull(result.AccessToken);
+
+            Assert.IsTrue(dispatcher.AcquireTokenTelemetryValidator(EventConstants.AcquireTokenOnBehalfOfClientCertificate));
         }
 
         [TestMethod]
@@ -1496,11 +1759,14 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+
         [Description("Test for returning entire HttpResponse as inner exception")]
         public async Task HttpErrorResponseAsInnerException()
         {
             TokenCache cache = new TokenCache();
-            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityCommonTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User, "unique_id", "displayable@id.com");
+            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityCommonTenant,
+                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User, "unique_id",
+                "displayable@id.com");
             cache.tokenCacheDictionary[key] = new AuthenticationResultEx
             {
                 RefreshToken = "something-invalid",
@@ -1517,11 +1783,102 @@ namespace Test.ADAL.NET.Unit
                     Method = HttpMethod.Post,
                     ResponseMessage = MockHelpers.CreateHttpErrorResponse()
                 });
-                await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+                await
+                    context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
             }
             catch (AdalSilentTokenAcquisitionException ex)
             {
-                Assert.IsTrue((ex.InnerException.InnerException.InnerException).Message.Contains(TestConstants.ErrorSubCode));
+                Assert.IsTrue(
+                    (ex.InnerException.InnerException.InnerException).Message.Contains(TestConstants.ErrorSubCode));
+            }
+        }
+
+        private class DispatcherImplement : IDispatcher
+        {
+            private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+
+            public int Count
+            {
+                get
+                {
+                    return storeList.Count;
+                }
+            }
+
+            void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
+            {
+                storeList.Add(Event);
+            }
+
+            public void clear()
+            {
+                storeList.Clear();
+            }
+
+            public bool AcquireTokenTelemetryValidator(string apiId)
+            {
+                HashSet<string> items = PopulateHashSet();
+
+                foreach (List<Tuple<string, string>> list in storeList)
+                {
+                    foreach (Tuple<string, string> tuple in list)
+                    {
+                        if ((!(items.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
+                            || ((tuple.Item1.Equals("api_id") && !tuple.Item2.Equals(apiId))))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            private HashSet<string> PopulateHashSet()
+            {
+                HashSet<string> items = new HashSet<string>();
+                items.Add("event_name");
+                items.Add("application_name");
+                items.Add("application_version");
+                items.Add("sdk_version");
+                items.Add("sdk_platform");
+                items.Add("device_id");
+                items.Add("correlation_id");
+                items.Add("start_time");
+                items.Add("end_time");
+                items.Add("response_time");
+                items.Add("request_id");
+                items.Add("is_deprecated");
+                items.Add("idp");
+                items.Add("displayable_id");
+                items.Add("unique_id");
+                items.Add("authority");
+                items.Add("authority_type");
+                items.Add("validation_status");
+                items.Add("extended_expires_on_setting");
+                items.Add("is_successful");
+                items.Add("user_id");
+                items.Add("tenant_id");
+                items.Add("broker_app");
+                items.Add("broker_version");
+                items.Add("login_hint");
+                items.Add("api_id");
+                items.Add("user_agent");
+                items.Add("method");
+                items.Add("query_parameters");
+                items.Add("response_code");
+                items.Add("response_method");
+                items.Add("api_version");
+                items.Add("token_found");
+                items.Add("request_api_version");
+                items.Add("token_subject_type");
+                items.Add("user_cancel");
+                items.Add("redirects_count");
+                items.Add("is_mrrt");
+                items.Add("is_at");
+                items.Add("extra_query_parameters");
+
+                return items;
             }
         }
     }

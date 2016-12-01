@@ -71,36 +71,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
+                string requestId = Telemetry.GetInstance().CreateRequestId();
+                Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
+
+                UIEvent UiEvent = new UIEvent();
+
                 if (ssoMode)
                 {
-                    string requestId = Telemetry.GetInstance().CreateRequestId();
-                    Telemetry.GetInstance().StartEvent(requestId, "ui_event");
-
-                    UIEvent UiEvent = new UIEvent();
-
                     webAuthenticationResult =
                         await
                             WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri)
                                 .AsTask()
                                 .ConfigureAwait(false);
 
-                    Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
                 }
                 else
                 {
-                    string requestId = Telemetry.GetInstance().CreateRequestId();
-                    Telemetry.GetInstance().StartEvent(requestId, "ui_event");
-
-                    UIEvent UiEvent = new UIEvent();
-
                     webAuthenticationResult =
                         await
                             WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri, redirectUri)
                                 .AsTask()
                                 .ConfigureAwait(false);
-
-                    Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
                 }
+
+                Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
+
             }
             catch (FileNotFoundException ex)
             {

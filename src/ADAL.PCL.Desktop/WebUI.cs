@@ -48,13 +48,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 delegate
                 {
                     string requestId = Telemetry.GetInstance().CreateRequestId();
-                    Telemetry.GetInstance().StartEvent(requestId, "ui_event");
-
                     UIEvent UiEvent = new UIEvent();
 
-                    authorizationResult = this.Authenticate(authorizationUri, redirectUri);
+                    try
+                    {
+                        Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
 
-                    Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
+                        authorizationResult = this.Authenticate(authorizationUri, redirectUri);
+                    }
+                    finally
+                    {
+                        Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
+                    }
                 });
 
 

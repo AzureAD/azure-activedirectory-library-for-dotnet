@@ -60,19 +60,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             returnedUriReady = new SemaphoreSlim(0);
 
+            string requestId = Telemetry.GetInstance().CreateRequestId();
+            Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
+
+            UIEvent UiEvent = new UIEvent();
+
             try
             {
-                string requestId = Telemetry.GetInstance().CreateRequestId();
-                Telemetry.GetInstance().StartEvent(requestId, "ui_event");
-
-                UIEvent UiEvent = new UIEvent();
-
                 var agentIntent = new Intent(this.parameters.CallerActivity, typeof(AuthenticationAgentActivity));
                 agentIntent.PutExtra("Url", authorizationUri.AbsoluteUri);
                 agentIntent.PutExtra("Callback", redirectUri.AbsoluteUri);
                 this.parameters.CallerActivity.StartActivityForResult(agentIntent, 0);
 
-                Telemetry.GetInstance().StopEvent(requestId, UiEvent, "ui_event");
             }
             catch (Exception ex)
             {
@@ -80,6 +79,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
+
+            Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
+
             return authorizationResult;
         }
 

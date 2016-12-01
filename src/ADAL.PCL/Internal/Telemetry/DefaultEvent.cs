@@ -32,7 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class DefaultEvent : EventsBase
     {
-        internal List<Tuple<string, string>> EventDictitionary = new List<Tuple<string, string>>();
+        internal List<Tuple<string, string>> EventList = new List<Tuple<string, string>>();
 
         static DefaultEvent()
         {
@@ -63,8 +63,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal string ClientId { get; set; }
 
-        internal string ClientIp { get; set; }
-
         internal static string ApplicationName { get; set; }
 
         internal static string ApplicationVersion { get; set; }
@@ -72,8 +70,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal static string SdkPlatform { get; set; }
 
         internal static string SdkVersion { get; set; }
-
-        internal string UserId { get; set; }
 
         internal static string DeviceId { get; set; }
 
@@ -83,18 +79,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (eventParameter != null && eventParameter.Length != 0)
             {
-                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventList.Add(new Tuple<string, string>(eventName, eventParameter));
             }
         }
 
         internal void SetEvent(string eventName, bool eventParameter)
         {
-            EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            EventList.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
         }
 
         internal override List<Tuple<string, string>> GetEvents()
         {
-            return EventDictitionary;
+            return EventList;
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)

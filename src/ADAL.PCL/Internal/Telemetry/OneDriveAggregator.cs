@@ -62,6 +62,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
+            ObjectsToBeDispatched.Clear();
+
             foreach (KeyValuePair<string, string> value in DispatchMap)
             {
                 FlatList.Add(new Tuple<string, string>(value.Key, value.Value));
@@ -82,6 +84,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ObjectsToBeDispatched[requestId] = eventValue;
                 return;
             }
+
             eventValue = new List<EventsBase>();
             eventValue.Add(eventsInterface);
             ObjectsToBeDispatched.Add(requestId, eventValue);

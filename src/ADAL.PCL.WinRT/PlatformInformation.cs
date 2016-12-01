@@ -86,8 +86,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public override string GetDeviceId()
         {
-            var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
-            return deviceInformation.Id.ToString();
+            string deviceId = string.Empty;
+
+            try
+            {
+                var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
+                deviceId = deviceInformation.Id.ToString();
+            }
+            catch (NullReferenceException ex)
+            {
+                PlatformPlugin.Logger.Warning(null, "Failed to retrieve DeviceId: " + ex.Message);
+            }
+
+            return deviceId;
         }
 
         public override async Task<bool> IsUserLocalAsync(CallState callState)

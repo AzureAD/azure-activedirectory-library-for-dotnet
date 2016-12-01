@@ -380,6 +380,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else if (!cacheKey.ResourceEquals(cacheQueryData.Resource))
                     {
                         cacheEvent.SetEvent(EventConstants.IsMRRT, true);
+                        cacheEvent.SetEvent(EventConstants.IsRT, true);
                         PlatformPlugin.Logger.Information(callState,
                             string.Format(CultureInfo.CurrentCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
@@ -436,7 +437,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     cacheEvent.SetEvent(EventConstants.TokenFound, false);
                 }
 
-                Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, "cache_lookup");
+                Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, EventConstants.CacheLookUp);
                 return resultEx;
             }
         }
@@ -445,7 +446,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                Telemetry.GetInstance().StartEvent(callState.RequestId, "cache_write");
+                Telemetry.GetInstance().StartEvent(callState.RequestId, EventConstants.CacheWrite);
                 CacheEvent cacheEvent = new CacheEvent();
                 cacheEvent.TokenSubjectType = subjectType.ToString();
                 cacheEvent.IsMultipleResourceRt = result.IsMultipleResourceRefreshToken.ToString();
@@ -469,7 +470,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
                 this.HasStateChanged = true;
-                Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, "cache_write");
+                Telemetry.GetInstance().StopEvent(callState.RequestId, cacheEvent, EventConstants.CacheWrite);
             }
         }
 

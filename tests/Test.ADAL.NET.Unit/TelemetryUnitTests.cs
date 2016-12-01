@@ -73,8 +73,6 @@ namespace Test.ADAL.NET.Unit
             DefaultEvent testDefaultEvent5 = new DefaultEvent();
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent5, "event_5");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 3);
         }
 
 
@@ -93,8 +91,6 @@ namespace Test.ADAL.NET.Unit
             CacheEvent testDefaultEvent = new CacheEvent();
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent, "cache_lookup");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 1);
 
             bool result = dispatcher.CacheTelemetryValidator();
 
@@ -112,16 +108,14 @@ namespace Test.ADAL.NET.Unit
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
-            telemetry.StartEvent(requestIDThree, "api_event");
+            telemetry.StartEvent(requestIDThree, EventConstants.ApiEvent);
             Authenticator authenticator = new Authenticator(TestConstants.DefaultAuthorityCommonTenant, true);
             UserInfo userinfo = new UserInfo();
-            userinfo.UniqueId = "uniqueid";
-            userinfo.DisplayableId = "displayableid";
+            userinfo.UniqueId = TestConstants.DefaultUniqueId;
+            userinfo.DisplayableId = TestConstants.DefaultDisplayableId;
             ApiEvent testDefaultEvent = new ApiEvent(authenticator, userinfo, "tenantId", "3");
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
-            telemetry.StopEvent(requestIDThree, testDefaultEvent, "cache_lookup");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 0);
+            telemetry.StopEvent(requestIDThree, testDefaultEvent, EventConstants.ApiEvent);
 
             bool result = dispatcher.ApiTelemetryValidator();
 
@@ -143,8 +137,6 @@ namespace Test.ADAL.NET.Unit
             DefaultEvent testDefaultEvent = new DefaultEvent();
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent, "event_3");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 1);
         }
 
         [TestMethod]
@@ -172,8 +164,6 @@ namespace Test.ADAL.NET.Unit
             DefaultEvent testDefaultEvent5 = new DefaultEvent();
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
             telemetry.StopEvent(requestIDThree, testDefaultEvent5, "event_5");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 1);
         }
 
         [TestMethod]
@@ -334,7 +324,10 @@ namespace Test.ADAL.NET.Unit
 
             public int Count
             {
-                get { return storeList.Count; }
+                get
+                {
+                    return storeList.Count;
+                }
             }
 
             void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
@@ -470,8 +463,8 @@ namespace Test.ADAL.NET.Unit
                 items.Add("token_subject_type");
                 items.Add("user_cancel");
                 items.Add("redirects_count");
-                items.Add("is_MRRT");
-                items.Add("is_AT");
+                items.Add("is_mrrt");
+                items.Add("is_at");
                 items.Add("extra_query_parameters");
 
                 foreach (List<Tuple<string, string>> list in storeList)
@@ -484,7 +477,7 @@ namespace Test.ADAL.NET.Unit
                             return false;
                         }
 
-                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc&")))
+                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc")))
                         {
                             return false;
                         }
@@ -533,8 +526,8 @@ namespace Test.ADAL.NET.Unit
                 items.Add("token_subject_type");
                 items.Add("user_cancel");
                 items.Add("redirects_count");
-                items.Add("is_MRRT");
-                items.Add("is_AT");
+                items.Add("is_mrrt");
+                items.Add("is_at");
                 items.Add("extra_query_parameters");
 
                 foreach (List<Tuple<string, string>> list in storeList)
@@ -547,7 +540,7 @@ namespace Test.ADAL.NET.Unit
                             return false;
                         }
 
-                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc&")))
+                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc")))
                         {
                             return false;
                         }

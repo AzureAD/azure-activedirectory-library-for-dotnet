@@ -193,7 +193,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string extraQueryParameters)
         {
             string requestId = Telemetry.GetInstance().CreateRequestId();
-            Telemetry.GetInstance().StartEvent(requestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestId, EventConstants.ApiEvent);
 
             DeviceCodeResult result = null;
             AcquireDeviceCodeHandler handler = new AcquireDeviceCodeHandler(Authenticator, resource, clientId,
@@ -206,7 +206,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 ApiEvent apiEvent = new ApiEvent(Authenticator, null, null, EventConstants.AcquireDeviceCodeAsync);
                 apiEvent.SetExtraQueryParameters(extraQueryParameters);
-                Telemetry.GetInstance().StopEvent(requestId, apiEvent, "api_event");
+                Telemetry.GetInstance().StopEvent(requestId, apiEvent, EventConstants.ApiEvent);
             }
             return result;
         }
@@ -235,7 +235,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RequestId = Telemetry.GetInstance().CreateRequestId()
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenByDeviceCodeHandler handler = new AcquireTokenByDeviceCodeHandler(requestData, deviceCodeResult);
             AuthenticationResult result = null;
@@ -633,7 +633,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = TokenCache,
                 Resource = resource,
                 ClientKey = new ClientKey(clientId),
-                ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
+                ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
             };
             AcquireTokenInteractiveHandler handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, null,
                 userId, extraQueryParameters, null);
@@ -738,7 +738,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 requestData.Resource = nullResource;
             }
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenByAuthorizationCodeHandler handler = new AcquireTokenByAuthorizationCodeHandler(requestData,
                 authorizationCode, redirectUri);
@@ -770,7 +770,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RequestId = Telemetry.GetInstance().CreateRequestId()
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenForClientHandler handler = new AcquireTokenForClientHandler(requestData);
             AuthenticationResult result = null;
@@ -800,7 +800,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RequestId = Telemetry.GetInstance().CreateRequestId()
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenOnBehalfHandler handler = new AcquireTokenOnBehalfHandler(requestData, userAssertion);
             AuthenticationResult result = null;
@@ -835,7 +835,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RequestId = Telemetry.GetInstance().CreateRequestId()
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenNonInteractiveHandler handler = new AcquireTokenNonInteractiveHandler(requestData,
                 userCredential);
@@ -865,7 +865,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenNonInteractiveHandler handler = new AcquireTokenNonInteractiveHandler(requestData, userAssertion);
             AuthenticationResult result = null;
@@ -893,10 +893,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Resource = resource,
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
-                RequestId = Telemetry.GetInstance().CreateRequestId()
+                RequestId = Telemetry.GetInstance().CreateRequestId(),
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            if (userId != null)
+            {
+                requestData.LoginHint = userId.Id;
+            }
+
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenInteractiveHandler handler = new AcquireTokenInteractiveHandler(requestData, redirectUri,
                 parameters, userId, extraQueryParameters, CreateWebAuthenticationDialog(parameters));
@@ -927,7 +932,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 RequestId = Telemetry.GetInstance().CreateRequestId()
             };
 
-            Telemetry.GetInstance().StartEvent(requestData.RequestId, "api_event");
+            Telemetry.GetInstance().StartEvent(requestData.RequestId, EventConstants.ApiEvent);
 
             AcquireTokenSilentHandler handler = new AcquireTokenSilentHandler(requestData, userId, parameters);
             AuthenticationResult result = null;
@@ -944,7 +949,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return result;
         }
 
-        private void ApiEventHelper(AuthenticationResult result, RequestData requestData, string ApiId,string extraQueryParameters)
+        private void ApiEventHelper(AuthenticationResult result, RequestData requestData, string ApiId, string extraQueryParameters)
         {
             ApiEvent apiEvent = null;
 
@@ -964,8 +969,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 apiEvent.SetExtraQueryParameters(extraQueryParameters);
             }
 
+            if (requestData.LoginHint != null)
+            {
+                apiEvent.SetEvent(EventConstants.LoginHint, requestData.LoginHint);
+            }
+
+            apiEvent.SetEvent(EventConstants.ExtendedExpires, requestData.ExtendedLifeTimeEnabled);
             apiEvent.SetEvent(EventConstants.CorrelationId, requestData.CorrelationId.ToString());
-            Telemetry.GetInstance().StopEvent(requestData.RequestId, apiEvent, "api_event");
+
+            Telemetry.GetInstance().StopEvent(requestData.RequestId, apiEvent, EventConstants.ApiEvent);
             Telemetry.GetInstance().Flush(requestData.RequestId);
         }
     }

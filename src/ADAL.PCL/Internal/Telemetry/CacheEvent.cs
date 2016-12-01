@@ -40,21 +40,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (eventParameter != null)
             {
-                EventDictitionary.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventList.Add(new Tuple<string, string>(eventName, eventParameter));
             }
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            List<Tuple<string, string>> listEvent = EventDictitionary;
-            int size = EventDictitionary.Count;
-
-            for (int i = 0; i < size; i++)
+            foreach (Tuple<string, string> Event in EventList)
             {
-                if (listEvent[i].Item1.Equals(EventConstants.IsMRRT) ||
-                    (listEvent[i].Item1.Equals(EventConstants.ExtendedExpires)))
+                if (Event.Item1.Equals(EventConstants.IsMRRT) ||
+                    (Event.Item1.Equals(EventConstants.ExtendedExpires)))
                 {
-                    dispatchMap.Add(listEvent[i].Item1, listEvent[i].Item2);
+                    dispatchMap.Add(Event.Item1, Event.Item2);
                 }
             }
         }

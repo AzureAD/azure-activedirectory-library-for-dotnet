@@ -65,13 +65,13 @@ namespace AdalDesktopTestApp
 
             //LoggerCallbackHandler.Callback = new MyCallback();
 
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/abgun.onmicrosoft.com", true);
             /*var result =
                 await
                     context.AcquireTokenAsync("https://graph.windows.net", "3b5d8539-60f9-4158-8d3f-c3b9cae4a149",
                         new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Auto),
-                        new UserIdentifier("f9fd32ba-4c8c-43ca-a62c-09ab16f1dd3e", UserIdentifierType.UniqueId), "prompt=consent");*/
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword<"));
+                        new UserIdentifier("f9fd32ba-4c8c-43ca-a62c-09ab16f1dd3e", UserIdentifierType.UniqueId));*/
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword12"));
             //var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Always));
             TokenCache.DefaultShared.Clear();
             string token = result.AccessToken;
