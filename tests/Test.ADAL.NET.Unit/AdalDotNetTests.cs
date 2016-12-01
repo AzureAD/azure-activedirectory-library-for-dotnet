@@ -60,7 +60,7 @@ namespace Test.ADAL.NET.Unit
         public async Task SmokeTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -93,7 +93,7 @@ namespace Test.ADAL.NET.Unit
         public async Task SmokeTestWithExtendedExpiresOn()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -126,7 +126,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ExtendedLifetimeRetry()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -160,7 +160,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ExtendedLifetimePositiveTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
@@ -202,7 +202,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ExtendedLifetimeExpiredTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -287,7 +287,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ExtendedLifetimeRequestTimeoutTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
@@ -334,7 +334,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialExtendedExpiryFlagSet()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -399,7 +399,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialExtendedExpiryFlagNotSet()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -462,7 +462,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialExtendedExpiryPositiveTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
@@ -544,7 +544,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialExtendedExpiryNegativeTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -636,7 +636,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialNegativeRequestTimeoutTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -807,7 +807,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenPositiveWithoutUserIdAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -860,7 +860,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AuthenticationContextAuthorityValidationTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             AuthenticationContext context = null;
@@ -929,7 +929,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenWithInvalidResourceTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -965,7 +965,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenWithAuthenticationCanceledTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -989,7 +989,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenPositiveWithNullCacheTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -1018,7 +1018,7 @@ namespace Test.ADAL.NET.Unit
         public async Task SimpleRefreshTokenTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
@@ -1049,7 +1049,7 @@ namespace Test.ADAL.NET.Unit
         public async Task TenantSpecificAuthorityTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -1080,7 +1080,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ForcePromptTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -1126,7 +1126,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenNonInteractivePositiveTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -1219,7 +1219,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ConfidentialClientWithX509Test()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -1308,7 +1308,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialNoCrossTenantTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             TokenCache cache = new TokenCache();
@@ -1356,7 +1356,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ClientCredentialTestAsync()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -1462,7 +1462,7 @@ namespace Test.ADAL.NET.Unit
         public async Task ConfidentialClientWithJwtTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -1553,7 +1553,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenOnBehalfAndClientCredentialTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -1627,7 +1627,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenOnBehalfAndClientCertificateCredentialTest()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -1794,7 +1794,7 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
-        private class DispatcherImplement : IDispatcher
+        private class TestDispatcher : IDispatcher
         {
             private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
 

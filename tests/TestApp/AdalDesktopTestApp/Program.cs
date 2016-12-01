@@ -59,69 +59,11 @@ namespace AdalDesktopTestApp
 
         private static async Task AcquireTokenAsync()
         {
-            Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
-            telemetry.RegisterDispatcher(dispatcher, false);
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<user>"));
 
-            //LoggerCallbackHandler.Callback = new MyCallback();
-
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/abgun.onmicrosoft.com", true);
-            /*var result =
-                await
-                    context.AcquireTokenAsync("https://graph.windows.net", "3b5d8539-60f9-4158-8d3f-c3b9cae4a149",
-                        new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Auto),
-                        new UserIdentifier("f9fd32ba-4c8c-43ca-a62c-09ab16f1dd3e", UserIdentifierType.UniqueId));*/
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new UserPasswordCredential("test@abgun.onmicrosoft.com", "P@ssword12"));
-            //var result = await context.AcquireTokenAsync("https://graph.windows.net", "193faa18-0c0b-45f3-9125-b08ff04d9890", new Uri("urn:ietf:wg:oauth:2.0:oob"), new PlatformParameters(PromptBehavior.Always));
-            TokenCache.DefaultShared.Clear();
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");
-            dispatcher.file();
         }
     }
-
-    internal class DispatcherImplement : IDispatcher
-    {
-        private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
-
-        void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
-        {
-            storeList.Add(Event);
-        }
-
-        public int Count
-        {
-            get
-            {
-                return storeList.Count;
-            }
-        }
-
-        public void clear()
-        {
-            storeList.Clear();
-        }
-
-        public void file()
-        {
-            using (TextWriter tw = new StreamWriter("test.txt"))
-            {
-                foreach (List<Tuple<string, string>> list in storeList)
-                {
-                    foreach (Tuple<string, string> tuple in list)
-                    {
-                        tw.WriteLine(tuple.Item1 + " " + tuple.Item2 + "\r\n");
-                    }
-                }
-            }
-        }
-    }
-
-    internal class MyCallback : IAdalLogCallback
-        {
-            public void Log(LogLevel level, string message)
-            {
-                Console.WriteLine(level + " - " + message);
-            }
-        }
-    }
+}

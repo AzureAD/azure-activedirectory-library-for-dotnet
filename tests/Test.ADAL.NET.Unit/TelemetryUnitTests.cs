@@ -55,7 +55,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -83,7 +83,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -104,7 +104,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -129,7 +129,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -146,7 +146,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -180,7 +180,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
 
@@ -218,7 +218,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
 
@@ -247,7 +247,7 @@ namespace Test.ADAL.NET.Unit
         public async Task AcquireTokenWithInvalidResourceTestAsyncSilent()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
@@ -294,7 +294,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
 
@@ -318,7 +318,7 @@ namespace Test.ADAL.NET.Unit
             dispatcher.file();
         }
 
-        private class DispatcherImplement : IDispatcher
+        private class TestDispatcher : IDispatcher
         {
             private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
 

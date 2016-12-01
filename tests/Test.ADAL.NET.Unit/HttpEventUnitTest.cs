@@ -52,7 +52,7 @@ namespace Test.ADAL.NET.Unit
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
 
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
@@ -73,7 +73,7 @@ namespace Test.ADAL.NET.Unit
         public void HttpEventQueryParsing()
         {
             Telemetry telemetry = Telemetry.GetInstance();
-            DispatcherImplement dispatcher = new DispatcherImplement();
+            TestDispatcher dispatcher = new TestDispatcher();
             telemetry.RegisterDispatcher(dispatcher, false);
 
             string requestID = telemetry.CreateRequestId();
@@ -87,7 +87,7 @@ namespace Test.ADAL.NET.Unit
             Assert.IsTrue(dispatcher.Parse());
 
         }
-        private class DispatcherImplement : IDispatcher
+        private class TestDispatcher : IDispatcher
         {
             private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
 

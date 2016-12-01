@@ -61,7 +61,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                 }
 
-                SetEvent(EventConstants.HttpQueryParameters, stringbuilder.ToString());
+                SetEvent(EventConstants.ExtraQueryParameters,
+                    stringbuilder.ToString().Substring(0, stringbuilder.Length - 1));
             }
         }
 

@@ -208,6 +208,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 apiEvent.SetExtraQueryParameters(extraQueryParameters);
                 Telemetry.GetInstance().StopEvent(requestId, apiEvent, EventConstants.ApiEvent);
             }
+
             return result;
         }
 
@@ -247,6 +248,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 ApiEventHelper(result, requestData, EventConstants.AcquireTokenByDeviceCodeAsync, null);
             }
+
             return result;
         }
 
@@ -635,6 +637,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
             };
+
             AcquireTokenInteractiveHandler handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, null,
                 userId, extraQueryParameters, null);
             return await handler.CreateAuthorizationUriAsync(CorrelationId).ConfigureAwait(false);
