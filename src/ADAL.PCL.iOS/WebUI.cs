@@ -64,6 +64,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             try
             {
+#if MAC
+                this.parameters.CallerWindow.InvokeOnMainThread(() =>
+                {
+                    AuthenticationAgentWindowController.Run (
+                        authorizationUri.AbsoluteUri, redirectUri.OriginalString,
+                        CallbackMethod, parameters.CallerWindow);
+                });
+#else
                 this.parameters.CallerViewController.InvokeOnMainThread(() =>
                 {
                     var navigationController =
@@ -71,10 +79,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             redirectUri.OriginalString, CallbackMethod, this.parameters.PreferredStatusBarStyle);
                     this.parameters.CallerViewController.PresentViewController(navigationController, false, null);
                 });
+#endif
             }
             catch (Exception ex)
             {
-                throw new AdalException(AdalError.AuthenticationUiFailed, ex);
+                if (ex is AdalException)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw new AdalException(AdalError.AuthenticationUiFailed, ex);
+                }
             }
         }
 
