@@ -99,7 +99,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 TimeSpan diff1 = stopTime.Subtract(startTime);
                 //Add the response time to the list
-                listEvent.Add(new Tuple<string, string>(EventConstants.ResponseTime, diff1.Milliseconds.ToString()));
+                listEvent.Add(new Tuple<string, string>(EventConstants.ResponseTime, diff1.TotalMilliseconds.ToString()));
                 //Adding event name to the start of the list
                 listEvent.Insert(0, new Tuple<string, string>(EventConstants.EventName, eventName));
                 listEvent.Add(new Tuple<string, string>(EventConstants.RequestId, requestId));
