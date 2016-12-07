@@ -120,6 +120,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         protected virtual void WebBrowserNavigatingHandler(object sender, WebBrowserNavigatingEventArgs e)
         {
+            if (this.DialogResult == DialogResult.OK)
+            {
+                Logger.Information(null, "Redirect URI was already hit. Ignore redirection to " + e.Url.Host);
+                e.Cancel = true;
+                return;
+            }
+
             if (this.webBrowser.IsDisposed)
             {
                 Logger.Verbose(null, "We cancel all flows in disposed object and just do nothing, let object close.");
@@ -134,7 +141,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 key = Keys.None;
                 e.Cancel = true;
             }
-
             // we cancel further processing, if we reached final URL.
             // Security issue: we prohibit navigation with auth code
             // if redirect URI is URN, then we prohibit navigation, to prevent random browser popup.
@@ -147,6 +153,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 Process.Start(e.Url.AbsoluteUri.Replace("browser://", "https://"));
                 e.Cancel = true;
             }
+
 
             if (!e.Cancel)
             {
@@ -168,6 +175,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             // ADAL.Native contains a code for translation.
             if (this.DialogResult == DialogResult.OK)
             {
+                Logger.Information(null, "Redirect URI was already hit. Ignoring the error.");
+                e.Cancel = true;
                 return;
             }
 
@@ -203,6 +212,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             {
                 this.authenticationResult = url.AbsoluteUri;
                 canClose = true;
+                Logger.Information(null, "Redirect URI reached at " + this.desiredCallbackUri.Authority);
             }
 
             if (!canClose && !_whiteListedSchemes.Contains(url.Scheme.ToLower(CultureInfo.CurrentCulture)) &&
@@ -213,6 +223,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                     AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
                 this.authenticationResult = localUri.ToString();
                 canClose = true;
+
+                Logger.Information(null, "Non-HTTPS redirect encountered. Exception will be thrown");
             }
 
             if (canClose)
