@@ -30,7 +30,7 @@ using System.Reflection;
 // Allow this assembly to be serviced when run on desktop CLR
 [assembly: AssemblyMetadata("Serviceable", "True")]
 
-[assembly: AssemblyFileVersion("2.28.3.0")]
+[assembly: AssemblyFileVersion("2.28.4.0")]
 // On official build, attribute AssemblyInformationalVersionAttribute is added as well
 // with its value equal to the hash of the last commit to the git branch.
 // e.g.: [assembly: AssemblyInformationalVersionAttribute("4392c9835a38c27516fc0cd7bad7bccdcaeab161")]
