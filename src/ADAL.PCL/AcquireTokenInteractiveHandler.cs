@@ -110,7 +110,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal async Task AcquireAuthorizationAsync()
         {
             Uri authorizationUri = this.CreateAuthorizationUri();
-            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, this.CallState).ConfigureAwait(false);
+            string requestId = Telemetry.GetInstance().CreateRequestId();
+            UIEvent UiEvent = new UIEvent();
+
+            try
+            {
+                Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
+
+                this.authorizationResult =
+                    await
+                        this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, this.CallState)
+                            .ConfigureAwait(false);
+            }
+            finally
+            {
+                Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
+            }
         }
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)

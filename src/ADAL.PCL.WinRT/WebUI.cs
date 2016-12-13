@@ -71,11 +71,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                string requestId = Telemetry.GetInstance().CreateRequestId();
-                Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
-
-                UIEvent UiEvent = new UIEvent();
-
                 if (ssoMode)
                 {
                     webAuthenticationResult =
@@ -83,7 +78,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri)
                                 .AsTask()
                                 .ConfigureAwait(false);
-
                 }
                 else
                 {
@@ -93,9 +87,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                                 .AsTask()
                                 .ConfigureAwait(false);
                 }
-
-                Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
-
             }
             catch (FileNotFoundException ex)
             {

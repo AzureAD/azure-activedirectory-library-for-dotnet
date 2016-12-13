@@ -90,6 +90,7 @@
     </Compile>
     <Compile Include="AcquireTokenSilentTests.cs" />
     <Compile Include="AdalDotNetTests.cs" />
+    <Compile Include="ApiEventUnitTests.cs" />
     <Compile Include="AuthenticationParametersTests.cs" />
     <Compile Include="CacheEventUnitTests.cs" />
     <Compile Include="HttpEventUnitTest.cs" />

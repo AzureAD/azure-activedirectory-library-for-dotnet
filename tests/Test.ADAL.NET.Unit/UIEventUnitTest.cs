@@ -70,6 +70,8 @@ namespace Test.ADAL.NET.Unit
 
             DateTime startTime = DateTime.UtcNow;
 
+            MockWebUI.UiTimeoutEnabled = true;
+
             AuthenticationResult result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,

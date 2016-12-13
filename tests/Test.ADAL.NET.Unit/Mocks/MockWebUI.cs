@@ -44,7 +44,9 @@ namespace Test.ADAL.NET.Unit.Mocks
         internal IDictionary<string, string> HeadersToValidate { get; set; }
 
         internal IDictionary<string, string> QueryParams { get; set; }
-        
+
+        internal static bool UiTimeoutEnabled = false;
+
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
         {
             //match QP passed in for validation. 
@@ -60,7 +62,12 @@ namespace Test.ADAL.NET.Unit.Mocks
                 }
 
             }
-            Thread.Sleep(2000);
+
+            if (UiTimeoutEnabled)
+            {
+                Thread.Sleep(2000);
+            }
+
             return await Task.Factory.StartNew(() => this.MockResult).ConfigureAwait(false);
         }
     }

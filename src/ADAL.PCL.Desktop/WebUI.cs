@@ -47,19 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             var sendAuthorizeRequest = new Action(
                 delegate
                 {
-                    string requestId = Telemetry.GetInstance().CreateRequestId();
-                    UIEvent UiEvent = new UIEvent();
-
-                    try
-                    {
-                        Telemetry.GetInstance().StartEvent(requestId, EventConstants.UIEvent);
-
                         authorizationResult = this.Authenticate(authorizationUri, redirectUri);
-                    }
-                    finally
-                    {
-                        Telemetry.GetInstance().StopEvent(requestId, UiEvent, EventConstants.UIEvent);
-                    }
                 });
 
 

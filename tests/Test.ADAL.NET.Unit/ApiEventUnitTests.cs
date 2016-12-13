@@ -25,16 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
-    public class HttpEventUnitTest
+    public class ApiEventUnitTests
     {
         private PlatformParameters platformParameters;
 
@@ -46,8 +48,24 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test case for checking HttpEvent")]
-        public void TelemetryHttpEvent()
+        [Description("Test case for checking hashing of the tenantID")]
+        public void HashTenantIdFromAuthority()
+        {
+            Authenticator authenticator = new Authenticator(TestConstants.DefaultAuthorityCommonTenant, true);
+            UserInfo userinfo = new UserInfo();
+            userinfo.UniqueId = TestConstants.DefaultUniqueId;
+            userinfo.DisplayableId = TestConstants.DefaultDisplayableId;
+            ApiEvent apiEvent = new ApiEvent(authenticator, userinfo, "tenant-id", "<some-api-id>");
+            string hashedTenantId = apiEvent.HashTenantIdFromAuthority("https://login.microsoftonline.com/blabla.onmicrosoft.com/");
+            Uri authority = new Uri("https://login.microsoftonline.com/blabla.onmicrosoft.com/");
+            string hashedTenantIdMatch =
+                "https://login.microsoftonline.com" + PlatformPlugin.CryptographyHelper.CreateSha256Hash(authority.AbsolutePath);
+            Assert.AreEqual(hashedTenantId, hashedTenantIdMatch);
+        }
+
+        [TestMethod]
+        [Description("Test case for checking ApiEvent")]
+        public void TelemetryApiEvent()
         {
             Telemetry telemetry = Telemetry.GetInstance();
             Assert.IsNotNull(telemetry);
@@ -56,36 +74,18 @@ namespace Test.ADAL.NET.Unit
             telemetry.RegisterDispatcher(dispatcher, true);
             dispatcher.clear();
             string requestIDThree = telemetry.CreateRequestId();
-            telemetry.StartEvent(requestIDThree, "cache_lookup");
-            CacheEvent testDefaultEvent = new CacheEvent();
+            telemetry.StartEvent(requestIDThree, EventConstants.ApiEvent);
+            Authenticator authenticator = new Authenticator(TestConstants.DefaultAuthorityCommonTenant, true);
+            UserInfo userinfo = new UserInfo();
+            userinfo.UniqueId = TestConstants.DefaultUniqueId;
+            userinfo.DisplayableId = TestConstants.DefaultDisplayableId;
+            ApiEvent testDefaultEvent = new ApiEvent(authenticator, userinfo, "tenantId", "3");
             Assert.IsNotNull(DefaultEvent.ApplicationVersion);
-            telemetry.StopEvent(requestIDThree, testDefaultEvent, "cache_lookup");
-            telemetry.Flush(requestIDThree);
-            Assert.AreEqual(dispatcher.Count, 1);
+            telemetry.StopEvent(requestIDThree, testDefaultEvent, EventConstants.ApiEvent);
 
-            bool result = dispatcher.HttpEventTelemetryValidator();
+            bool result = dispatcher.ApiTelemetryValidator();
 
             Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        [Description("Test for query parsing in HttpEvent")]
-        public void HttpEventQueryParsing()
-        {
-            Telemetry telemetry = Telemetry.GetInstance();
-            TestDispatcher dispatcher = new TestDispatcher();
-            telemetry.RegisterDispatcher(dispatcher, false);
-
-            string requestID = telemetry.CreateRequestId();
-            telemetry.StartEvent(requestID, EventConstants.HttpEvent);
-
-            HttpEvent httpEvent = new HttpEvent();
-            string query = "?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8";
-            httpEvent.ParseQuery(query);
-            telemetry.StopEvent(requestID, httpEvent, EventConstants.HttpEvent);
-
-            Assert.IsTrue(dispatcher.Parse());
-
         }
 
         private class TestDispatcher : IDispatcher
@@ -110,55 +110,39 @@ namespace Test.ADAL.NET.Unit
                 storeList.Clear();
             }
 
-            public bool Parse()
+            public bool ApiTelemetryValidator()
             {
-                HashSet<string> queryKeys = new HashSet<string>();
-                queryKeys.Add("sourceid");
-                queryKeys.Add("ion");
-                queryKeys.Add("espv");
-                queryKeys.Add("ie");
+                HashSet<string> Apiitems = new HashSet<string>();
+                Apiitems.Add("event_name");
+                Apiitems.Add("application_name");
+                Apiitems.Add("application_version");
+                Apiitems.Add("sdk_version");
+                Apiitems.Add("sdk_platform");
+                Apiitems.Add("device_id");
+                Apiitems.Add("correlation_id");
+                Apiitems.Add("start_time");
+                Apiitems.Add("end_time");
+                Apiitems.Add("response_time");
+                Apiitems.Add("request_id");
+                Apiitems.Add("is_deprecated");
+                Apiitems.Add("idp");
+                Apiitems.Add("displayable_id");
+                Apiitems.Add("unique_id");
+                Apiitems.Add("authority");
+                Apiitems.Add("authority_type");
+                Apiitems.Add("validation_status");
+                Apiitems.Add("extended_expires_on_setting");
+                Apiitems.Add("is_successful");
+                Apiitems.Add("user_id");
+                Apiitems.Add("tenant_id");
+                Apiitems.Add("login_hint");
+                Apiitems.Add("api_id");
 
                 foreach (List<Tuple<string, string>> list in storeList)
                 {
                     foreach (Tuple<string, string> tuple in list)
                     {
-                        if (tuple.Item1.Equals(EventConstants.HttpQueryParameters))
-                        {
-                            foreach (string query in queryKeys)
-                            {
-                                if (! tuple.Item2.Contains(query))
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return true;
-            }
-
-            public bool HttpEventTelemetryValidator()
-            {
-                HashSet<string> Httpitems = new HashSet<string>();
-                Httpitems.Add("event_name");
-                Httpitems.Add("application_name");
-                Httpitems.Add("application_version");
-                Httpitems.Add("x-client-version");
-                Httpitems.Add("x-client-sku");
-                Httpitems.Add("device_id");
-                Httpitems.Add("correlation_id");
-                Httpitems.Add("start_time");
-                Httpitems.Add("end_time");
-                Httpitems.Add("response_time");
-                Httpitems.Add("request_id");
-                Httpitems.Add("request_api_version");
-
-                foreach (List<Tuple<string, string>> list in storeList)
-                {
-                    foreach (Tuple<string, string> tuple in list)
-                    {
-                        if (!(Httpitems.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
+                        if (!(Apiitems.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
                         {
                             return false;
                         }

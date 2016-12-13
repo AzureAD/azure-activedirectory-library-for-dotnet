@@ -246,7 +246,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, EventConstants.AcquireTokenByDeviceCodeAsync, null);
+                TelemetryApiEvent(result, requestData, EventConstants.AcquireTokenByDeviceCodeAsync, null,
+                    handler.CallState.CorrelationId);
             }
 
             return result;
@@ -753,7 +754,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -784,7 +785,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -814,7 +815,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -850,7 +851,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -879,7 +880,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -916,7 +917,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, extraQueryParameters);
+                TelemetryApiEvent(result, requestData, ApiId, extraQueryParameters, handler.CallState.CorrelationId);
             }
 
             return result;
@@ -946,13 +947,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             finally
             {
-                ApiEventHelper(result, requestData, ApiId, null);
+                TelemetryApiEvent(result, requestData, ApiId, null, handler.CallState.CorrelationId);
             }
 
             return result;
         }
 
-        private void ApiEventHelper(AuthenticationResult result, RequestData requestData, string ApiId, string extraQueryParameters)
+        private void TelemetryApiEvent(AuthenticationResult result, RequestData requestData, string ApiId, string extraQueryParameters, Guid correlationId)
         {
             ApiEvent apiEvent = null;
 
@@ -978,7 +979,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             apiEvent.SetEvent(EventConstants.ExtendedExpires, requestData.ExtendedLifeTimeEnabled);
-            apiEvent.SetEvent(EventConstants.CorrelationId, requestData.CorrelationId.ToString());
+            apiEvent.SetEvent(EventConstants.CorrelationId, correlationId.ToString());
 
             Telemetry.GetInstance().StopEvent(requestData.RequestId, apiEvent, EventConstants.ApiEvent);
             Telemetry.GetInstance().Flush(requestData.RequestId);

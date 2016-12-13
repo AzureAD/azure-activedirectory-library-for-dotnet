@@ -82,6 +82,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 dispatchMap.Add(EventConstants.HttpEventCount, "1");
             }
+
+            foreach (Tuple<string, string> Event in EventList)
+            {
+                if (Event.Item1.Equals(EventConstants.HttpStatusCode))
+                {
+                    dispatchMap[Event.Item1] = Event.Item2;
+                }
+            }
         }
     }
 }

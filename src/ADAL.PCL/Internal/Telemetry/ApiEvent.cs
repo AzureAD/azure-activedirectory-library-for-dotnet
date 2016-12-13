@@ -84,16 +84,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool ExtendedExpires { get; set; }
 
-        private string HashTenantIdFromAuthority(string authority)
+        internal string HashTenantIdFromAuthority(string authority)
         {
-            string[] authoritySplit = authority.Split('/');
-
-            string tenant = authoritySplit[authoritySplit.Length - 2];
-
-            Regex regex = new Regex(tenant);
-
-            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(tenant), 1);
-
+            Uri uri = new Uri(authority);
+            Regex regex = new Regex(uri.AbsolutePath);
+            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(uri.AbsolutePath), 1);
             return result;
         }
 
