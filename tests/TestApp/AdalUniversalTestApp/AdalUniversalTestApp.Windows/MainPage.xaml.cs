@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 using TestApp.PCL;
@@ -51,6 +52,10 @@ namespace AdalUniversalTestApp
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             this.AccessToken.Text = string.Empty;
             this.AccessToken.Text = await tokenBroker.GetTokenInteractiveAsync(new PlatformParameters(PromptBehavior.Auto, false));
         }
@@ -72,6 +77,16 @@ namespace AdalUniversalTestApp
             this.AccessToken.Text = string.Empty;
             string token = await tokenBroker.GetTokenWithClientCredentialAsync();
             this.AccessToken.Text = token;
+        }
+    }
+
+    internal class DispatcherImplement : IDispatcher
+    {
+        private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+
+        void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
+        {
+            storeList.Add(Event);
         }
     }
 }

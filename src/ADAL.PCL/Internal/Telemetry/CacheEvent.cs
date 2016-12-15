@@ -38,7 +38,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void SetEvent(string eventName, string eventParameter)
         {
-            if (eventParameter != null)
+            if (!string.IsNullOrEmpty(eventParameter))
             {
                 EventList.Add(new Tuple<string, string>(eventName, eventParameter));
             }
