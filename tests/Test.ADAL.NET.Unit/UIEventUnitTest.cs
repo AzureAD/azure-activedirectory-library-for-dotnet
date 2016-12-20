@@ -94,7 +94,7 @@ namespace Test.ADAL.NET.Unit
 
         private class TestDispatcher : IDispatcher
         {
-            private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+            private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
 
             public int Count
             {
@@ -104,7 +104,7 @@ namespace Test.ADAL.NET.Unit
                 }
             }
 
-            void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
+            void IDispatcher.DispatchEvent(Dictionary<string, string> Event)
             {
                 storeList.Add(Event);
             }
@@ -146,16 +146,17 @@ namespace Test.ADAL.NET.Unit
                 UIitems.Add("response_code");
 
 
-                foreach (List<Tuple<string, string>> list in storeList)
+                foreach (Dictionary<string, string> list in storeList)
                 {
-                    foreach (Tuple<string, string> tuple in list)
+                    foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if (!(UIitems.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
+                        if (!(UIitems.Contains(tuple.Key) && tuple.Value != null && tuple.Value.Length > 0))
                         {
                             return false;
                         }
                     }
                 }
+
                 return true;
             }
         }

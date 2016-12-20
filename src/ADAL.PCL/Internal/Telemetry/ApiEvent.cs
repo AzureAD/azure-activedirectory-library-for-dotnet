@@ -96,7 +96,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (!string.IsNullOrEmpty(eventParameter))
             {
-                EventList.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventDictitionary[eventName] = eventParameter;
             }
         }
 
@@ -118,25 +118,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            foreach (Tuple<string, string> Event in EventList)
+            foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
-                if (Event.Item1.Equals(EventConstants.ApplicationName) ||
-                    Event.Item1.Equals(EventConstants.ApplicationVersion)
-                    || Event.Item1.Equals(EventConstants.AuthorityType)
-                    || Event.Item1.Equals(EventConstants.SdkVersion)
-                    || Event.Item1.Equals(EventConstants.SdkPlatform)
-                    || Event.Item1.Equals(EventConstants.AuthorityValidation)
-                    || Event.Item1.Equals(EventConstants.ExtendedExpires)
-                    || Event.Item1.Equals(EventConstants.PromptBehavior)
-                    || Event.Item1.Equals(EventConstants.Idp)
-                    || Event.Item1.Equals(EventConstants.Tenant)
-                    || Event.Item1.Equals(EventConstants.LoginHint)
-                    || Event.Item1.Equals(EventConstants.ResponseTime)
-                    || Event.Item1.Equals(EventConstants.CorrelationId)
-                    || Event.Item1.Equals(EventConstants.RequestId)
-                    || Event.Item1.Equals(EventConstants.ApiId))
+                if (Event.Key.Equals(EventConstants.ApplicationName) ||
+                    Event.Key.Equals(EventConstants.ApplicationVersion)
+                    || Event.Key.Equals(EventConstants.AuthorityType)
+                    || Event.Key.Equals(EventConstants.SdkVersion)
+                    || Event.Key.Equals(EventConstants.SdkPlatform)
+                    || Event.Key.Equals(EventConstants.AuthorityValidation)
+                    || Event.Key.Equals(EventConstants.ExtendedExpires)
+                    || Event.Key.Equals(EventConstants.PromptBehavior)
+                    || Event.Key.Equals(EventConstants.Idp)
+                    || Event.Key.Equals(EventConstants.Tenant)
+                    || Event.Key.Equals(EventConstants.LoginHint)
+                    || Event.Key.Equals(EventConstants.ResponseTime)
+                    || Event.Key.Equals(EventConstants.CorrelationId)
+                    || Event.Key.Equals(EventConstants.RequestId)
+                    || Event.Key.Equals(EventConstants.ApiId))
                 {
-                    dispatchMap.Add(Event.Item1, Event.Item2);
+                    dispatchMap.Add(Event.Key, Event.Value);
                 }
             }
         }

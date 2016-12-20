@@ -32,6 +32,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     public interface IDispatcher
     {
-        void DispatchEvent(List<Tuple<string, string>> Event);
+        void DispatchEvent(Dictionary<string, string> Event);
     }
 }

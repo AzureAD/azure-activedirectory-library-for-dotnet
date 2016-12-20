@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void Flush(string requestID)
         {
-            List<Tuple<string, string>> FlatList = new List<Tuple<string, string>>();
+            Dictionary<string, string> FlatList = new Dictionary<string, string>();
             Dictionary<string, string> DispatchMap = new Dictionary<string, string>();
 
             if (ObjectsToBeDispatched == null || (ObjectsToBeDispatched.Count == 0))
@@ -66,7 +66,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             foreach (KeyValuePair<string, string> value in DispatchMap)
             {
-                FlatList.Add(new Tuple<string, string>(value.Key, value.Value));
+                FlatList[value.Key] = value.Value;
             }
 
             if (Dispatcher != null)

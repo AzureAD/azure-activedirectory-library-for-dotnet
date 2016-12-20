@@ -82,9 +82,9 @@ namespace AdalUniversalTestApp
 
     internal class DispatcherImplement : IDispatcher
     {
-        private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+        private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
 
-        void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
+        void IDispatcher.DispatchEvent(Dictionary<string, string> Event)
         {
             storeList.Add(Event);
         }

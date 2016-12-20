@@ -36,16 +36,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void SetEvent(string eventName, TimeSpan eventParameter)
         {
-            EventList.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            EventDictitionary[eventName] = eventParameter.ToString();
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            foreach (Tuple<string, string> Event in EventList)
+            foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
-                if (Event.Item1.Equals(EventConstants.UserCancel))
+                if (Event.Key.Equals(EventConstants.UserCancel))
                 {
-                    dispatchMap.Add(Event.Item1, Event.Item2);
+                    dispatchMap.Add(Event.Key, Event.Value);
                 }
             }
         }

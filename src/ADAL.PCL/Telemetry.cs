@@ -87,22 +87,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             DateTime startTime;
-            List<Tuple<string, string>> listEvent = Event.GetEvents();
+            Dictionary<string, string> listEvent = Event.GetEvents();
 
             if (EventTracking.
                 TryGetValue(new Tuple<string, string>(requestId, eventName), out startTime))
             {
                 DateTime stopTime = DateTime.UtcNow;
 
-                listEvent.Add(new Tuple<string, string>(EventConstants.StartTime, startTime.ToString(format)));
-                listEvent.Add(new Tuple<string, string>(EventConstants.StopTime, stopTime.ToString(format)));
+                listEvent[EventConstants.StartTime] = startTime.ToString(format);
+                listEvent[EventConstants.StopTime] = stopTime.ToString(format);
 
                 TimeSpan diff1 = stopTime.Subtract(startTime);
                 //Add the response time to the list
-                listEvent.Add(new Tuple<string, string>(EventConstants.ResponseTime, diff1.TotalMilliseconds.ToString()));
+                listEvent[EventConstants.ResponseTime] = diff1.TotalMilliseconds.ToString();
                 //Adding event name to the start of the list
-                listEvent.Insert(0, new Tuple<string, string>(EventConstants.EventName, eventName));
-                listEvent.Add(new Tuple<string, string>(EventConstants.RequestId, requestId));
+                listEvent[EventConstants.EventName] = eventName;
+                listEvent[EventConstants.RequestId] = requestId;
 
                 Dispatcher.Receive(requestId, Event);
             }

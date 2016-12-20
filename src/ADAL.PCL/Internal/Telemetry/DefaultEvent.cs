@@ -32,7 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class DefaultEvent : EventsBase
     {
-        internal List<Tuple<string, string>> EventList = new List<Tuple<string, string>>();
+        internal Dictionary<string, string> EventDictitionary = new Dictionary<string, string>();
 
         static DefaultEvent()
         {
@@ -79,18 +79,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (!string.IsNullOrEmpty(eventParameter))
             {
-                EventList.Add(new Tuple<string, string>(eventName, eventParameter));
+                EventDictitionary[eventName] = eventParameter;
             }
         }
 
         internal void SetEvent(string eventName, bool eventParameter)
         {
-            EventList.Add(new Tuple<string, string>(eventName, eventParameter.ToString()));
+            EventDictitionary[eventName] = eventParameter.ToString();
         }
 
-        internal override List<Tuple<string, string>> GetEvents()
+        internal override Dictionary<string, string> GetEvents()
         {
-            return EventList;
+            return EventDictitionary;
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
