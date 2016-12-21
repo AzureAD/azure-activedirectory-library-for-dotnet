@@ -103,26 +103,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal void SetExtraQueryParameters(string extraQueryParameter)
         {
             string[] result = extraQueryParameter.Split('&');
-            StringBuilder stringbuilder = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder();
             foreach (string s in result)
             {
                 if (s.Contains("="))
                 {
-                    stringbuilder.Append(s.Split('=')[0]).Append("&");
+                    stringBuilder.Append(s.Split('=')[0]).Append("&");
                 }
             }
 
-            SetEvent(EventConstants.ExtraQueryParameters,
-                stringbuilder.ToString().Substring(0, stringbuilder.Length - 1));
+            if (string.IsNullOrEmpty(stringBuilder.ToString()))
+            {
+                SetEvent(EventConstants.ExtraQueryParameters,
+                    stringBuilder.ToString().Substring(0, stringBuilder.Length - 1));
+            }
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
             foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
-                if (Event.Key.Equals(EventConstants.ApplicationName) ||
-                    Event.Key.Equals(EventConstants.ApplicationVersion)
-                    || Event.Key.Equals(EventConstants.AuthorityType)
+                if (Event.Key.Equals(EventConstants.AuthorityType)
                     || Event.Key.Equals(EventConstants.SdkVersion)
                     || Event.Key.Equals(EventConstants.SdkPlatform)
                     || Event.Key.Equals(EventConstants.AuthorityValidation)
@@ -134,7 +135,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     || Event.Key.Equals(EventConstants.ResponseTime)
                     || Event.Key.Equals(EventConstants.CorrelationId)
                     || Event.Key.Equals(EventConstants.RequestId)
-                    || Event.Key.Equals(EventConstants.ApiId))
+                    || Event.Key.Equals(EventConstants.ApiId)
+                    || Event.Key.Equals(EventConstants.IsSuccessful)
+                    || Event.Key.Equals(EventConstants.ExtendedExpires))
                 {
                     dispatchMap.Add(Event.Key, Event.Value);
                 }

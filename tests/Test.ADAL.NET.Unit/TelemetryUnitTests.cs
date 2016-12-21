@@ -410,11 +410,11 @@ namespace Test.ADAL.NET.Unit
                 Apiitems.Add("login_hint");
                 Apiitems.Add("api_id");
 
-                foreach (List<Tuple<string, string>> list in storeList)
+                foreach (Dictionary<string, string> list in storeList)
                 {
-                    foreach (Tuple<string, string> tuple in list)
+                    foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if (!(Apiitems.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
+                        if (!(Apiitems.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
                         {
                             return false;
                         }
@@ -467,17 +467,17 @@ namespace Test.ADAL.NET.Unit
                 items.Add("is_at");
                 items.Add("extra_query_parameters");
 
-                foreach (List<Tuple<string, string>> list in storeList)
+                foreach (Dictionary<string, string> list in storeList)
                 {
-                    foreach (Tuple<string, string> tuple in list)
+                    foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if ((!(items.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
-                            || ((tuple.Item1.Equals("api_id") && !tuple.Item2.Equals(EventConstants.AcquireTokenAsyncInteractive3))))
+                        if ((!(items.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
+                            || ((tuple.Key.Equals("api_id") && !tuple.Value.Equals(EventConstants.AcquireTokenAsyncInteractive3))))
                         {
                             return false;
                         }
 
-                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc")))
+                        if ((tuple.Key.Equals("extra_query_parameters") && !tuple.Value.Equals("extra&abc")))
                         {
                             return false;
                         }
@@ -530,17 +530,17 @@ namespace Test.ADAL.NET.Unit
                 items.Add("is_at");
                 items.Add("extra_query_parameters");
 
-                foreach (List<Tuple<string, string>> list in storeList)
+                foreach (Dictionary<string, string> list in storeList)
                 {
-                    foreach (Tuple<string, string> tuple in list)
+                    foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if ((!(items.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
-                            || ((tuple.Item1.Equals("api_id") && !tuple.Item2.Equals(EventConstants.AcquireTokenSilentAsync1))))
+                        if ((!(items.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
+                            || ((tuple.Key.Equals("api_id") && !tuple.Value.Equals(EventConstants.AcquireTokenSilentAsync1))))
                         {
                             return false;
                         }
 
-                        if ((tuple.Item1.Equals("extra_query_parameters") && !tuple.Item2.Equals("extra&abc")))
+                        if ((tuple.Key.Equals("extra_query_parameters") && !tuple.Value.Equals("extra&abc")))
                         {
                             return false;
                         }

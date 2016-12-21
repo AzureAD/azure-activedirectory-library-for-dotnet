@@ -89,7 +89,6 @@
     <Compile Include="Internal\Telemetry\ApiEvent.cs" />
     <Compile Include="Internal\Telemetry\BrokerEvent.cs" />
     <Compile Include="Internal\Telemetry\CacheEvent.cs" />
-    <Compile Include="Internal\Telemetry\CryptographyEvent.cs" />
     <Compile Include="Internal\Telemetry\DefaultAggregator.cs" />
     <Compile Include="Internal\Telemetry\DefaultEvent.cs" />
     <Compile Include="Internal\Telemetry\EventConstants.cs" />

@@ -69,13 +69,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RequestApiVersion = "request_api_version";
         public const string HttpBodyParameters = "http_body_parameters";
         public const string HttpResponseMethod = "http_response_method";
+        public const string RequestIdHeader = "x-ms-request-id";
         public const string IsMRRT = "is_mrrt";
+        public const string OauthErrorCode = "oauth_error_code";
         public const string ExpiredAt = "expired_at";
         public const string TokenFound = "token_found";
         public const string CacheLookUp = "cache_lookup";
         public const string LoginHint = "login_hint";
         public const string HttpQueryParameters = "query_parameters";
         public const string HttpStatusCode = "response_code";
+        public const string HttpPath = "http_path";
         public const string IsDeprecated = "is_deprecated";
         public const string ExtendedExpires = "extended_expires_on_setting";
         public const string UserCancel = "user_cancel";

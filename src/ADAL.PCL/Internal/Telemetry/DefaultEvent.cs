@@ -77,7 +77,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void SetEvent(string eventName, string eventParameter)
         {
-            if (!string.IsNullOrEmpty(eventParameter))
+            if (!string.IsNullOrEmpty(eventParameter) && !string.IsNullOrEmpty(eventName))
             {
                 EventDictitionary[eventName] = eventParameter;
             }

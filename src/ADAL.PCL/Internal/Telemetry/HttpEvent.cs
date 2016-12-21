@@ -52,23 +52,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 string QueryShifted = Query.Substring(1, Query.Length - 1);
                 string[] result = QueryShifted.Split('&');
-                StringBuilder stringbuilder = new StringBuilder();
+                StringBuilder stringBuilder = new StringBuilder();
                 foreach (string s in result)
                 {
                     if (s.Contains("="))
                     {
-                        stringbuilder.Append(s.Split('=')[0]).Append("&");
+                        stringBuilder.Append(s.Split('=')[0]).Append("&");
                     }
                 }
 
-                SetEvent(EventConstants.ExtraQueryParameters,
-                    stringbuilder.ToString().Substring(0, stringbuilder.Length - 1));
+                if (string.IsNullOrEmpty(stringBuilder.ToString()))
+                {
+                    SetEvent(EventConstants.ExtraQueryParameters,
+                        stringBuilder.ToString().Substring(0, stringBuilder.Length - 1));
+                }
             }
-        }
-
-        internal void SetEvent(string eventName, HttpStatusCode eventParameter)
-        {
-            EventDictitionary[eventName] = eventParameter.ToString();
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
@@ -83,11 +81,42 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 dispatchMap.Add(EventConstants.HttpEventCount, "1");
             }
 
+            if (dispatchMap.ContainsKey(EventConstants.HttpStatusCode))
+            {
+                dispatchMap[EventConstants.HttpStatusCode] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.RequestIdHeader))
+            {
+                dispatchMap[EventConstants.RequestIdHeader] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.OauthErrorCode))
+            {
+                dispatchMap[EventConstants.OauthErrorCode] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.HttpPath))
+            {
+                dispatchMap[EventConstants.HttpPath] = string.Empty;
+            }
+
             foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
-                if (Event.Key.Equals(EventConstants.HttpStatusCode))
+                if (Event.Key.Equals(EventConstants.HttpStatusCode) ||
+                    Event.Key.Equals(EventConstants.RequestIdHeader) ||
+                    Event.Key.Equals(EventConstants.OauthErrorCode) ||
+                    Event.Key.Equals(EventConstants.HttpPath)
+                    )
                 {
-                    dispatchMap[Event.Key] = Event.Value;
+                    if (dispatchMap.ContainsKey(Event.Key))
+                    {
+                        dispatchMap[Event.Key] = Event.Value;
+                    }
+                    else
+                    {
+                        dispatchMap.Add(Event.Key, Event.Value);
+                    }
                 }
             }
         }

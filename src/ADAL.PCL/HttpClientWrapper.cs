@@ -97,6 +97,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 client.Timeout = TimeSpan.FromMilliseconds(this.timeoutInMilliSeconds);
 
                 HttpResponseMessage responseMessage;
+                IHttpWebResponse webResponse;
 
                 try
                 {
@@ -125,13 +126,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     httpEvent.SetEvent(EventConstants.RequestApiVersion, requestMessage.Version.ToString());
                     httpEvent.HttpResponseMethod = requestMessage.Method.ToString();
                     httpEvent.ParseQuery(requestMessage.RequestUri.Query);
+                    httpEvent.SetEvent(EventConstants.HttpPath, requestMessage.RequestUri.AbsolutePath);
 
                     Telemetry.GetInstance().StartEvent(this.CallState.RequestId, EventConstants.HttpEvent);
 
                     responseMessage = await client.SendAsync(requestMessage).ConfigureAwait(false);
 
-                    httpEvent.SetEvent(EventConstants.HttpStatusCode, responseMessage.StatusCode);
+                    httpEvent.SetEvent(EventConstants.HttpStatusCode, responseMessage.StatusCode.ToString());
 
+                    webResponse = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
+                    if (webResponse.Headers.ContainsKey(EventConstants.RequestIdHeader))
+                    {
+                        httpEvent.SetEvent(EventConstants.RequestIdHeader, webResponse.Headers[EventConstants.RequestIdHeader]);
+                    }
+
+                    if (!responseMessage.IsSuccessStatusCode)
+                    {
+                        httpEvent.SetEvent(EventConstants.OauthErrorCode, webResponse.ResponseString);
+                    }
                 }
                 catch (TaskCanceledException ex)
                 {
@@ -142,8 +154,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     Telemetry.GetInstance().StopEvent(this.CallState.RequestId, httpEvent, EventConstants.HttpEvent);
                 }
-
-                IHttpWebResponse webResponse = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {

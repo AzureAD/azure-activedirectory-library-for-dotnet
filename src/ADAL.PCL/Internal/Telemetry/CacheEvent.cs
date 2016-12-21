@@ -36,22 +36,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal string TokenSubjectType { get; set; }
 
-        internal override void SetEvent(string eventName, string eventParameter)
-        {
-            if (!string.IsNullOrEmpty(eventParameter))
-            {
-                EventDictitionary[eventName] = eventParameter;
-            }
-        }
-
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
+            if (dispatchMap.ContainsKey(EventConstants.IsMRRT))
+            {
+                dispatchMap[EventConstants.IsMRRT] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.ExtendedExpires))
+            {
+                dispatchMap[EventConstants.ExtendedExpires] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.IsRT))
+            {
+                dispatchMap[EventConstants.IsRT] = string.Empty;
+            }
+
             foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
                 if (Event.Key.Equals(EventConstants.IsMRRT) ||
-                    (Event.Key.Equals(EventConstants.ExtendedExpires)))
+                    Event.Key.Equals(EventConstants.ExtendedExpires) ||
+                    Event.Key.Equals(EventConstants.IsRT))
                 {
-                    dispatchMap.Add(Event.Key, Event.Value);
+                    if (dispatchMap.ContainsKey(Event.Key))
+                    {
+                        dispatchMap[Event.Key] = Event.Value;
+                    }
+                    else
+                    {
+                        dispatchMap.Add(Event.Key, Event.Value);
+                    }
                 }
             }
         }

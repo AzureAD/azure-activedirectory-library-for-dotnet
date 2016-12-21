@@ -41,11 +41,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
+            if (dispatchMap.ContainsKey(EventConstants.UserCancel))
+            {
+                dispatchMap[EventConstants.UserCancel] = string.Empty;
+            }
+
             foreach (KeyValuePair<string, string> Event in EventDictitionary)
             {
                 if (Event.Key.Equals(EventConstants.UserCancel))
                 {
-                    dispatchMap.Add(Event.Key, Event.Value);
+                    if (dispatchMap.ContainsKey(Event.Key))
+                    {
+                        dispatchMap[Event.Key] = Event.Value;
+                    }
+                    else
+                    {
+                        dispatchMap.Add(Event.Key, Event.Value);
+                    }
                 }
             }
         }

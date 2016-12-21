@@ -90,7 +90,7 @@ namespace Test.ADAL.NET.Unit
 
         private class TestDispatcher : IDispatcher
         {
-            private readonly List<List<Tuple<string, string>>> storeList = new List<List<Tuple<string, string>>>();
+            private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
 
             public int Count
             {
@@ -100,7 +100,7 @@ namespace Test.ADAL.NET.Unit
                 }
             }
 
-            void IDispatcher.DispatchEvent(List<Tuple<string, string>> Event)
+            void IDispatcher.DispatchEvent(Dictionary<string, string> Event)
             {
                 storeList.Add(Event);
             }
@@ -138,16 +138,17 @@ namespace Test.ADAL.NET.Unit
                 Apiitems.Add("login_hint");
                 Apiitems.Add("api_id");
 
-                foreach (List<Tuple<string, string>> list in storeList)
+                foreach (Dictionary<string, string> list in storeList)
                 {
-                    foreach (Tuple<string, string> tuple in list)
+                    foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if (!(Apiitems.Contains(tuple.Item1) && tuple.Item2 != null && tuple.Item2.Length > 0))
+                        if (!(Apiitems.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
                         {
                             return false;
                         }
                     }
                 }
+
                 return true;
             }
         }
