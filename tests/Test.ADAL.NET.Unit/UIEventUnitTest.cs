@@ -144,6 +144,7 @@ namespace Test.ADAL.NET.Unit
                 UIitems.Add("token_found");
                 UIitems.Add("request_api_version");
                 UIitems.Add("response_code");
+                UIitems.Add("http_path");
 
 
                 foreach (Dictionary<string, string> list in storeList)

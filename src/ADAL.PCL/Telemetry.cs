@@ -54,11 +54,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public void RegisterDispatcher(IDispatcher dispatcher, bool aggregationRequired)
         {
-            if (dispatcher == null)
-            {
-                throw new AdalException(AdalError.DispatcherIsNull);
-            }
-
             if (aggregationRequired)
             {
                 Dispatcher = new OneDriveAggregator(dispatcher);

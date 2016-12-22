@@ -62,16 +62,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
-            ObjectsToBeDispatched.Clear();
-
-            foreach (KeyValuePair<string, string> value in DispatchMap)
-            {
-                FlatList[value.Key] = value.Value;
-            }
+            ObjectsToBeDispatched.Remove(requestID);
 
             if (Dispatcher != null)
             {
-                Dispatcher.DispatchEvent(FlatList);
+                Dispatcher.DispatchEvent(DispatchMap);
             }
         }
 

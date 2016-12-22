@@ -63,7 +63,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (!string.IsNullOrEmpty(stringBuilder.ToString()))
                 {
-                    SetEvent(EventConstants.ExtraQueryParameters,
+                    SetEvent(EventConstants.HttpQueryParameters,
                         stringBuilder.ToString().Substring(0, stringBuilder.Length - 1));
                 }
             }
