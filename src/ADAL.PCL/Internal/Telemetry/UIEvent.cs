@@ -36,7 +36,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void SetEvent(string eventName, TimeSpan eventParameter)
         {
-            EventDictitionary[eventName] = eventParameter.ToString();
+            this.SetEvent(eventName, eventParameter.ToString());
         }
 
         internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
@@ -50,14 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 if (Event.Key.Equals(EventConstants.UserCancel))
                 {
-                    if (dispatchMap.ContainsKey(Event.Key))
-                    {
                         dispatchMap[Event.Key] = Event.Value;
-                    }
-                    else
-                    {
-                        dispatchMap.Add(Event.Key, Event.Value);
-                    }
                 }
             }
         }

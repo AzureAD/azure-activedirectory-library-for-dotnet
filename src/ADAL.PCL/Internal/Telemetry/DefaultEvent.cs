@@ -85,7 +85,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void SetEvent(string eventName, bool eventParameter)
         {
-            EventDictitionary[eventName] = eventParameter.ToString();
+            this.SetEvent(eventName, eventParameter.ToString());
         }
 
         internal override Dictionary<string, string> GetEvents()

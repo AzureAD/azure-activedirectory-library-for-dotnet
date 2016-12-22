@@ -88,16 +88,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             Uri uri = new Uri(authority);
             Regex regex = new Regex(uri.AbsolutePath);
-            string result = regex.Replace(authority, PlatformPlugin.CryptographyHelper.CreateSha256Hash(uri.AbsolutePath), 1);
+            string result = regex.Replace(authority,
+                PlatformPlugin.CryptographyHelper.CreateSha256Hash(uri.AbsolutePath), 1);
             return result;
-        }
-
-        internal override void SetEvent(string eventName, string eventParameter)
-        {
-            if (!string.IsNullOrEmpty(eventParameter))
-            {
-                EventDictitionary[eventName] = eventParameter;
-            }
         }
 
         internal void SetExtraQueryParameters(string extraQueryParameter)
@@ -112,7 +105,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
-            if (string.IsNullOrEmpty(stringBuilder.ToString()))
+            if (!string.IsNullOrEmpty(stringBuilder.ToString()))
             {
                 SetEvent(EventConstants.ExtraQueryParameters,
                     stringBuilder.ToString().Substring(0, stringBuilder.Length - 1));
@@ -139,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     || Event.Key.Equals(EventConstants.IsSuccessful)
                     || Event.Key.Equals(EventConstants.ExtendedExpires))
                 {
-                    dispatchMap.Add(Event.Key, Event.Value);
+                    dispatchMap[Event.Key] = Event.Value;
                 }
             }
         }

@@ -48,7 +48,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void ParseQuery(string Query)
         {
-            if (Query.Length != 0)
+            if (!string.IsNullOrEmpty(Query))
             {
                 string QueryShifted = Query.Substring(1, Query.Length - 1);
                 string[] result = QueryShifted.Split('&');
@@ -61,7 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                 }
 
-                if (string.IsNullOrEmpty(stringBuilder.ToString()))
+                if (!string.IsNullOrEmpty(stringBuilder.ToString()))
                 {
                     SetEvent(EventConstants.ExtraQueryParameters,
                         stringBuilder.ToString().Substring(0, stringBuilder.Length - 1));
@@ -109,14 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     Event.Key.Equals(EventConstants.HttpPath)
                     )
                 {
-                    if (dispatchMap.ContainsKey(Event.Key))
-                    {
-                        dispatchMap[Event.Key] = Event.Value;
-                    }
-                    else
-                    {
-                        dispatchMap.Add(Event.Key, Event.Value);
-                    }
+                    dispatchMap[Event.Key] = Event.Value;
                 }
             }
         }

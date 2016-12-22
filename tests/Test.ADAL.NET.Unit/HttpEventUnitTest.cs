@@ -88,6 +88,26 @@ namespace Test.ADAL.NET.Unit
 
         }
 
+        [TestMethod]
+        [Description("Test for null query parsing in HttpEvent")]
+        public void HttpEventQueryNullParsing()
+        {
+            Telemetry telemetry = Telemetry.GetInstance();
+            TestDispatcher dispatcher = new TestDispatcher();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
+            string requestID = telemetry.CreateRequestId();
+            telemetry.StartEvent(requestID, EventConstants.HttpEvent);
+
+            HttpEvent httpEvent = new HttpEvent();
+            string query = null;
+            httpEvent.ParseQuery(query);
+            telemetry.StopEvent(requestID, httpEvent, EventConstants.HttpEvent);
+
+            httpEvent.ParseQuery("?abc");
+            Assert.IsTrue(dispatcher.NullParse());
+        }
+
         private class TestDispatcher : IDispatcher
         {
             private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
@@ -108,6 +128,21 @@ namespace Test.ADAL.NET.Unit
             public void clear()
             {
                 storeList.Clear();
+            }
+
+            public bool NullParse()
+            {
+                foreach (Dictionary<string, string> list in storeList)
+                {
+                    foreach (KeyValuePair<string, string> tuple in list)
+                    {
+                        if (tuple.Key.Equals(EventConstants.HttpQueryParameters))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
             }
 
             public bool Parse()

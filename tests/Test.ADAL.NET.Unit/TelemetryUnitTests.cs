@@ -466,12 +466,14 @@ namespace Test.ADAL.NET.Unit
                 items.Add("is_mrrt");
                 items.Add("is_at");
                 items.Add("extra_query_parameters");
+                items.Add("http_path");
+                items.Add("oauth_error_code");
 
                 foreach (Dictionary<string, string> list in storeList)
                 {
                     foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if ((!(items.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
+                        if ((!(items.Contains(tuple.Key) && tuple.Value != null && tuple.Value.Length > 0))
                             || ((tuple.Key.Equals("api_id") && !tuple.Value.Equals(EventConstants.AcquireTokenAsyncInteractive3))))
                         {
                             return false;
@@ -529,12 +531,14 @@ namespace Test.ADAL.NET.Unit
                 items.Add("is_mrrt");
                 items.Add("is_at");
                 items.Add("extra_query_parameters");
+                items.Add("http_path");
+                items.Add("oauth_error_code");
 
                 foreach (Dictionary<string, string> list in storeList)
                 {
                     foreach (KeyValuePair<string, string> tuple in list)
                     {
-                        if ((!(items.Contains(tuple.Key) && string.IsNullOrEmpty(tuple.Value)))
+                        if ((!(items.Contains(tuple.Key) && tuple.Value != null && tuple.Value.Length > 0))
                             || ((tuple.Key.Equals("api_id") && !tuple.Value.Equals(EventConstants.AcquireTokenSilentAsync1))))
                         {
                             return false;

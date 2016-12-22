@@ -1878,6 +1878,9 @@ namespace Test.ADAL.NET.Unit
                 items.Add("is_mrrt");
                 items.Add("is_at");
                 items.Add("extra_query_parameters");
+                items.Add("http_path");
+                items.Add("oauth_error_code");
+                items.Add("x-ms-request-id");
 
                 return items;
             }

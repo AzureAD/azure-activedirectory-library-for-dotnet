@@ -59,14 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     Event.Key.Equals(EventConstants.ExtendedExpires) ||
                     Event.Key.Equals(EventConstants.IsRT))
                 {
-                    if (dispatchMap.ContainsKey(Event.Key))
-                    {
-                        dispatchMap[Event.Key] = Event.Value;
-                    }
-                    else
-                    {
-                        dispatchMap.Add(Event.Key, Event.Value);
-                    }
+                    dispatchMap[Event.Key] = Event.Value;
                 }
             }
         }
