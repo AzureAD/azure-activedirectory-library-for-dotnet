@@ -47,5 +47,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public bool ExtendedLifeTimeEnabled { get; set; }
 
+        public string RequestId { get; set; }
+
+        public string LoginHint { get; set; }
     }
 }

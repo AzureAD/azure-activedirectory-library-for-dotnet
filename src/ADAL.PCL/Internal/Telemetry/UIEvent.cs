@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,33 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class UIEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal TimeSpan UiTime { get; set; }
+
+        internal void SetEvent(string eventName, TimeSpan eventParameter)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            this.SetEvent(eventName, eventParameter.ToString());
         }
 
-        public Guid CorrelationId { get; set; }
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
+        {
+            if (dispatchMap.ContainsKey(EventConstants.UserCancel))
+            {
+                dispatchMap[EventConstants.UserCancel] = string.Empty;
+            }
 
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
+            foreach (KeyValuePair<string, string> Event in EventDictitionary)
+            {
+                if (Event.Key.Equals(EventConstants.UserCancel))
+                {
+                        dispatchMap[Event.Key] = Event.Value;
+                }
+            }
+        }
     }
 }

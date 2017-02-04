@@ -90,7 +90,10 @@
     </Compile>
     <Compile Include="AcquireTokenSilentTests.cs" />
     <Compile Include="AdalDotNetTests.cs" />
+    <Compile Include="ApiEventUnitTests.cs" />
     <Compile Include="AuthenticationParametersTests.cs" />
+    <Compile Include="CacheEventUnitTests.cs" />
+    <Compile Include="HttpEventUnitTest.cs" />
     <Compile Include="LoggerCallbackTests.cs" />
     <Compile Include="Mocks\MockHelpers.cs" />
     <Compile Include="Mocks\MockHttpMessageHandler.cs" />
@@ -101,6 +104,8 @@
     <Compile Include="TestConstants.cs" />
     <Compile Include="TokenCacheUnitTests.cs" />
     <Compile Include="DeviceCodeFlowTests.cs" />
+    <Compile Include="TelemetryUnitTests.cs" />
+    <Compile Include="UIEventUnitTest.cs" />
     <Compile Include="UnitTests.cs" />
   </ItemGroup>
   <ItemGroup>

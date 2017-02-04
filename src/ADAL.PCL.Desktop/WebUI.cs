@@ -47,8 +47,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             var sendAuthorizeRequest = new Action(
                 delegate
                 {
-                    authorizationResult = this.Authenticate(authorizationUri, redirectUri);
+                        authorizationResult = this.Authenticate(authorizationUri, redirectUri);
                 });
+
 
             // If the thread is MTA, it cannot create or communicate with WebBrowser which is a COM control.
             // In this case, we have to create the browser in an STA thread via StaTaskScheduler object.

@@ -81,8 +81,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public override string GetDeviceModel()
         {
-            var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
-            return deviceInformation.SystemProductName;
+            return null;
+        }
+
+        public override string GetDeviceId()
+        {
+            string deviceId = string.Empty;
+
+            try
+            {
+                var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
+                deviceId = deviceInformation.Id.ToString();
+            }
+            catch (NullReferenceException ex)
+            {
+                PlatformPlugin.Logger.Warning(null, "Failed to retrieve DeviceId: " + ex.Message);
+            }
+
+            return deviceId;
         }
 
         public override async Task<bool> IsUserLocalAsync(CallState callState)
@@ -137,6 +153,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.AttemptNone;
                     break;
             }
+        }
+
+        public override string GetApplicationName()
+        {
+            return Windows.ApplicationModel.Package.Current.Id.Name.ToString();
+        }
+
+        public override string GetApplicationVersion()
+        {
+            var ver = Windows.ApplicationModel.Package.Current.Id.Version;
+            return ver.Major.ToString() + "." + ver.Minor.ToString() + "." + ver.Build.ToString() + "." + ver.Revision.ToString();
         }
 
 

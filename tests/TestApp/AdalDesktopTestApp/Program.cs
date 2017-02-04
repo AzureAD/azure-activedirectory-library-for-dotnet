@@ -26,7 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.IO;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -54,11 +59,25 @@ namespace AdalDesktopTestApp
 
         private static async Task AcquireTokenAsync()
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
             var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<user>"));
 
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");
+        }
+    }
+
+    internal class DispatcherImplement : IDispatcher
+    {
+        private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
+
+        void IDispatcher.DispatchEvent(Dictionary<string, string> Event)
+        {
+            storeList.Add(Event);
         }
     }
 }

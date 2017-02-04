@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -71,6 +72,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public async Task<IHttpWebResponse> GetResponseAsync()
         {
+            HttpEvent httpEvent = new HttpEvent();
+
             using (HttpClient client = new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(this.UseDefaultCredentials)))
             {
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -94,6 +97,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 client.Timeout = TimeSpan.FromMilliseconds(this.timeoutInMilliSeconds);
 
                 HttpResponseMessage responseMessage;
+                IHttpWebResponse webResponse;
 
                 try
                 {
@@ -106,7 +110,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         }
                         else
                         {
-                            content = new FormUrlEncodedContent(((DictionaryRequestParameters)this.BodyParameters).ToList());
+                            content =
+                                new FormUrlEncodedContent(((DictionaryRequestParameters) this.BodyParameters).ToList());
                         }
 
                         requestMessage.Method = HttpMethod.Post;
@@ -117,14 +122,38 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         requestMessage.Method = HttpMethod.Get;
                     }
 
+                    httpEvent.SetEvent(EventConstants.UserAgent, client.DefaultRequestHeaders.UserAgent.ToString());
+                    httpEvent.SetEvent(EventConstants.RequestApiVersion, requestMessage.Version.ToString());
+                    httpEvent.HttpResponseMethod = requestMessage.Method.ToString();
+                    httpEvent.ParseQuery(requestMessage.RequestUri.Query);
+                    httpEvent.SetEvent(EventConstants.HttpPath, requestMessage.RequestUri.AbsolutePath);
+
+                    Telemetry.GetInstance().StartEvent(this.CallState.RequestId, EventConstants.HttpEvent);
+
                     responseMessage = await client.SendAsync(requestMessage).ConfigureAwait(false);
+
+                    httpEvent.SetEvent(EventConstants.HttpStatusCode, responseMessage.StatusCode.ToString());
+
+                    webResponse = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
+                    if (webResponse.Headers.ContainsKey(EventConstants.RequestIdHeader))
+                    {
+                        httpEvent.SetEvent(EventConstants.RequestIdHeader, webResponse.Headers[EventConstants.RequestIdHeader]);
+                    }
+
+                    if (!responseMessage.IsSuccessStatusCode)
+                    {
+                        httpEvent.SetEvent(EventConstants.OauthErrorCode, webResponse.ResponseString);
+                    }
                 }
                 catch (TaskCanceledException ex)
                 {
                     throw new HttpRequestWrapperException(null, ex);
                 }
 
-                IHttpWebResponse webResponse = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
+                finally
+                {
+                    Telemetry.GetInstance().StopEvent(this.CallState.RequestId, httpEvent, EventConstants.HttpEvent);
+                }
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {

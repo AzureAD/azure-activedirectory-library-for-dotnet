@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,22 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
+
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class DefaultAggregator
     {
-        public CallState(Guid correlationId,string requestId)
+        internal IDispatcher Dispatcher;
+
+        internal DefaultAggregator(IDispatcher dispatcher)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            Dispatcher = dispatcher;
         }
 
-        public Guid CorrelationId { get; set; }
+        internal virtual void Flush(string requestId)
+        {
+            //No buffering is required for DefaultDispatcher
+        }
 
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
+        internal virtual void Receive(string requestId, EventsBase eventsInterface)
+        {
+            if (Dispatcher != null)
+            {
+                Dispatcher.DispatchEvent(eventsInterface.GetEvents());
+            }
+        }
     }
 }

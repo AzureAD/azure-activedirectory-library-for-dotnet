@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    public interface IDispatcher
     {
-        public CallState(Guid correlationId,string requestId)
-        {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
-        }
-
-        public Guid CorrelationId { get; set; }
-
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
+        void DispatchEvent(Dictionary<string, string> Event);
     }
 }

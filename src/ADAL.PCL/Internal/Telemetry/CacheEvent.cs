@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,21 +26,42 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    internal class CacheEvent : DefaultEvent
     {
-        public CallState(Guid correlationId,string requestId)
+        internal string IsMultipleResourceRt { get; set; }
+
+        internal string TokenSubjectType { get; set; }
+
+        internal override void ProcessEvent(Dictionary<string, string> dispatchMap)
         {
-            this.CorrelationId = correlationId;
-            this.RequestId = requestId;
+            if (dispatchMap.ContainsKey(EventConstants.IsMRRT))
+            {
+                dispatchMap[EventConstants.IsMRRT] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.ExtendedExpires))
+            {
+                dispatchMap[EventConstants.ExtendedExpires] = string.Empty;
+            }
+
+            if (dispatchMap.ContainsKey(EventConstants.IsRT))
+            {
+                dispatchMap[EventConstants.IsRT] = string.Empty;
+            }
+
+            foreach (KeyValuePair<string, string> Event in EventDictitionary)
+            {
+                if (Event.Key.Equals(EventConstants.IsMRRT) ||
+                    Event.Key.Equals(EventConstants.ExtendedExpires) ||
+                    Event.Key.Equals(EventConstants.IsRT))
+                {
+                    dispatchMap[Event.Key] = Event.Value;
+                }
+            }
         }
-
-        public Guid CorrelationId { get; set; }
-
-        public string RequestId { get; set; }
-
-        public AuthorityType AuthorityType { get; internal set; }
     }
 }

@@ -47,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
             this.Authenticator = requestData.Authenticator;
-            this.CallState = CreateCallState(this.Authenticator.CorrelationId);
+            this.CallState = CreateCallState(this.Authenticator.CorrelationId, requestData.RequestId);
             PlatformPlugin.Logger.Information(this.CallState,
                 string.Format(CultureInfo.CurrentCulture,
                     "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
@@ -215,10 +215,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return false;
         }
 
-        public static CallState CreateCallState(Guid correlationId)
+        public static CallState CreateCallState(Guid correlationId, string requestId)
         {
             correlationId = (correlationId != Guid.Empty) ? correlationId : Guid.NewGuid();
-            return new CallState(correlationId);
+            return new CallState(correlationId, requestId);
         }
 
         protected virtual Task PostRunAsync(AuthenticationResult result)

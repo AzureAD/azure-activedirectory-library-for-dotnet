@@ -75,6 +75,10 @@ namespace XFormsApp
 
         async void browseButton_Clicked(object sender, EventArgs e)
         {
+            Telemetry telemetry = Telemetry.GetInstance();
+            DispatcherImplement dispatcher = new DispatcherImplement();
+            telemetry.RegisterDispatcher(dispatcher, false);
+
             this.result.Text = string.Empty;
             string token = await tokenBroker.GetTokenInteractiveAsync(Paramters);
             this.result.Text = token;
@@ -85,6 +89,16 @@ namespace XFormsApp
             this.result.Text = this.result.Text = "Cache items before clear: " + TokenCache.DefaultShared.Count;
             tokenBroker.ClearTokenCache();
             this.result.Text = "Cache items after clear: " + TokenCache.DefaultShared.Count;
+        }
+    }
+
+    internal class DispatcherImplement : IDispatcher
+    {
+        private readonly List<Dictionary<string, string>> storeList = new List<Dictionary<string, string>>();
+
+        void IDispatcher.DispatchEvent(Dictionary<string, string> Event)
+        {
+            storeList.Add(Event);
         }
     }
 }
