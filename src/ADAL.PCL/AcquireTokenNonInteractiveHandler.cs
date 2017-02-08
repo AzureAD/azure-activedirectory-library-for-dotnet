@@ -37,7 +37,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly UserCredential userCredential;
 
         private UserAssertion userAssertion;
-        
+
         public AcquireTokenNonInteractiveHandler(RequestData requestData, UserCredential userCredential)
             : base(requestData)
         {
@@ -93,7 +93,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else if (this.userAssertion != null)
             {
-                this.DisplayableId = userAssertion.UserName;                
+                this.DisplayableId = userAssertion.UserName;
             }
         }
 
@@ -102,6 +102,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected override async Task PreTokenRequest()
         {
             string cloudAudienceUrn;
+
             await base.PreTokenRequest().ConfigureAwait(false);
             if (this.PerformUserRealmDiscovery())
             {
@@ -114,10 +115,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         throw new AdalException(AdalError.MissingFederationMetadataUrl);
                     }
-
                     if (string.IsNullOrWhiteSpace(userRealmResponse.CloudAudienceUrn))
                     {
-                       cloudAudienceUrn = defaultAppliesTo;
+                        cloudAudienceUrn = defaultAppliesTo;
                     }
                     else
                     {
@@ -163,7 +163,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // To request id_token in response
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
-        
+
         private bool PerformUserRealmDiscovery()
         {
             // To decide whether user realm discovery is needed or not
