@@ -175,7 +175,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(address, new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword), null, TestConstants.CloudAudienceUrn );
+            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(address, new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword), null, TestConstants.CloudAudienceUrn);
             Assert.IsNotNull(wstResponse.Token);
 
             wstResponse = await WsTrustRequest.SendRequestAsync(address, new UserCredential(TestConstants.DefaultDisplayableId), null, TestConstants.CloudAudienceUrn);
