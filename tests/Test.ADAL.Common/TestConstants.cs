@@ -55,6 +55,7 @@ namespace Test.ADAL.Common
         Null = 2,
         InMemory = 3
     }
+
     public class TestConstants
     {
         public static readonly string DefaultResource = "resource1";
@@ -73,6 +74,7 @@ namespace Test.ADAL.Common
         public static readonly bool DefaultExtendedLifeTimeEnabled = false;
         public static readonly bool PositiveExtendedLifeTimeEnabled = true;
         public static readonly string ErrorSubCode = "ErrorSubCode";
+        public static readonly string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
+        public static readonly string CloudAudienceUrn = "urn:federation:Blackforest";
     }
-
 }
