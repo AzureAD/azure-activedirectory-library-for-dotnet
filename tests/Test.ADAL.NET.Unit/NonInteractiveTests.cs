@@ -241,6 +241,15 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                }
+            });
+
             WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(address, new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword), null, TestConstants.CloudAudienceUrnMicrosoft);
             Assert.IsNotNull(wstResponse.Token);
 
@@ -257,6 +266,15 @@ namespace Test.ADAL.NET.Unit
                 Uri = new Uri("https://some/address/usernamemixed"),
                 Version = WsTrustVersion.WsTrust13
             };
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                }
+            });
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
