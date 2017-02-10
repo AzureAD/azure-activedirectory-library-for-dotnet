@@ -40,7 +40,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = "federation_active_auth_url")]
         public string FederationActiveAuthUrl { get; set; }
 
-        internal static async Task<UserRealmDiscoveryResponse> CreateByDiscoveryAsync(string userRealmUri, string userName, CallState callState)
+        [DataMember(Name = "cloud_audience_urn")]
+        public string CloudAudienceUrn { get; set; }
+
+        internal static async Task<UserRealmDiscoveryResponse> CreateByDiscoveryAsync(string userRealmUri,
+            string userName, CallState callState)
         {
             string userRealmEndpoint = userRealmUri;
             userRealmEndpoint += (userName + "?api-version=1.0");
@@ -71,7 +75,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             catch (WebException ex)
             {
                 var serviceException = new AdalServiceException(AdalError.UserRealmDiscoveryFailed, ex);
-                clientMetrics.SetLastError(new[] { serviceException.StatusCode.ToString() });
+                clientMetrics.SetLastError(new[] {serviceException.StatusCode.ToString()});
                 throw serviceException;
             }
             finally
