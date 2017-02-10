@@ -97,8 +97,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private const string defaultAppliesTo = "urn:federation:MicrosoftOnline";
-
         protected override async Task PreTokenRequest()
         {
             await base.PreTokenRequest().ConfigureAwait(false);
@@ -113,11 +111,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         throw new AdalException(AdalError.MissingFederationMetadataUrl);
                     }
-                    if (string.IsNullOrWhiteSpace(userRealmResponse.CloudAudienceUrn))
-                    {
-                        userRealmResponse.CloudAudienceUrn = defaultAppliesTo;
-                    }
-
+                    
                     WsTrustAddress wsTrustAddress = await MexParser.FetchWsTrustAddressFromMexAsync(userRealmResponse.FederationMetadataUrl, this.userCredential.UserAuthType, this.CallState).ConfigureAwait(false);
                     PlatformPlugin.Logger.Information(this.CallState, string.Format(CultureInfo.CurrentCulture, " WS-Trust endpoint '{0}' fetched from MEX at '{1}'", wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl));
 

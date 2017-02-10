@@ -64,7 +64,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
               <trust:RequestType>{8}</trust:RequestType>
               </trust:RequestSecurityToken>
               </s:Body>
-              </s:Envelope>";      
+              </s:Envelope>";
+
+        private const string defaultAppliesTo = "urn:federation:MicrosoftOnline";
 
         public static async Task<WsTrustResponse> SendRequestAsync(WsTrustAddress wsTrustAddress, UserCredential credential, CallState callState, string cloudAudience)
         {
@@ -73,6 +75,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (credential.UserAuthType == UserAuthType.IntegratedAuth)
             {
                 SetKerberosOption(request);
+            }
+
+            if (string.IsNullOrEmpty(cloudAudience))
+            {
+                cloudAudience = defaultAppliesTo;
             }
 
             StringBuilder messageBuilder = BuildMessage(cloudAudience, wsTrustAddress, credential);
