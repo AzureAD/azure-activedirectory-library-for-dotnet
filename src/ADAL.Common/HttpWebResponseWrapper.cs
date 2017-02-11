@@ -68,6 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
+            stream.Position = 0;
             return stream;
         }
 
