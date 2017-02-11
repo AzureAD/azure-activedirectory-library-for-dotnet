@@ -84,6 +84,30 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Cloud Audience Urn Test")]
+        [TestCategory("AdalDotNet")]
+        public async Task CloudAudienceUrnTest()
+        {
+            var federatedSts = SetupStsService(StsType.AADFederatedWithADFS3);
+            AuthenticationContext context = new AuthenticationContext(federatedSts.Authority, federatedSts.ValidateAuthority);
+            await context.Authenticator.UpdateFromTemplateAsync(null);
+            UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, federatedSts.ValidUserName, null);
+
+            WsTrustAddress address = new WsTrustAddress()
+            {
+                Uri = new Uri("https://some/address/usernamemixed"),
+                Version = WsTrustVersion.WsTrust13
+            };
+
+            WsTrustResponse wsTrustResponse =
+                await
+                    WsTrustRequest.SendRequestAsync(address, new UserCredential(TestConstants.DefaultDisplayableId),
+                        null, userRealmResponse.CloudAudienceUrn);
+
+            VerifyCloudInstanceUrnResponse(userRealmResponse.CloudAudienceUrn, "urn:federation:Blackforest");
+        }
+
+        [TestMethod]
         [Description("Mex Fetching Test")]
         [TestCategory("AdalDotNet")]
         public async Task MexFetchingTest()
@@ -104,6 +128,26 @@ namespace Test.ADAL.NET.Unit
             {
                 Verify.AreEqual(ex.ErrorCode, AdalError.AccessingWsMetadataExchangeFailed);
             }
+        }
+
+        [TestMethod]
+        [Description("Cloud Audience Urn Null Test")]
+        public async Task CloudAudienceUrnNullTest()
+        {
+            AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
+            await context.Authenticator.UpdateFromTemplateAsync(null);
+
+            UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, null);
+
+            WsTrustAddress address = new WsTrustAddress()
+            {
+                Uri = new Uri("https://some/address/usernamemixed"),
+                Version = WsTrustVersion.WsTrust13
+            };
+
+            WsTrustResponse wsTrustResponse = await WsTrustRequest.SendRequestAsync(address, new UserCredential(TestConstants.DefaultDisplayableId), null, null);
+
+            VerifyCloudInstanceUrnResponse(userRealmResponse.CloudAudienceUrn, "urn:federation:MicrosoftOnline");
         }
 
         [TestMethod]
@@ -143,7 +187,7 @@ namespace Test.ADAL.NET.Unit
             Verify.IsTrue(policies.Count == 2);
             foreach (var policy in policies)
             {
-                Verify.IsTrue(policy.Value.Version== WsTrustVersion.WsTrust2005);
+                Verify.IsTrue(policy.Value.Version == WsTrustVersion.WsTrust2005);
             }
         }
 
@@ -205,7 +249,7 @@ namespace Test.ADAL.NET.Unit
             WsTrustAddress wsTrustAddress = MexParser.ExtractWsTrustAddressFromMex(mexDocument, UserAuthType.UsernamePassword, null);
             Verify.IsNotNull(wsTrustAddress);
 
-            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null);
+            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null, TestConstants.CloudAudienceUrnMicrosoft);
             Verify.IsNotNull(wstResponse.Token);
             Verify.IsTrue(wstResponse.TokenType.Contains("SAML"));
 
@@ -215,14 +259,14 @@ namespace Test.ADAL.NET.Unit
                 securePassword.AppendChar(ch);
             }
 
-            wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, securePassword), null);
+            wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, securePassword), null, TestConstants.CloudAudienceUrnMicrosoft);
             Verify.IsNotNull(wstResponse.Token);
             Verify.IsTrue(wstResponse.TokenType.Contains("SAML"));
 
             try
             {
-                await WsTrustRequest.SendRequestAsync(new WsTrustAddress{Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri + "x")}, 
-                    new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null);
+                await WsTrustRequest.SendRequestAsync(new WsTrustAddress { Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri + "x") },
+                    new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null, TestConstants.CloudAudienceUrnMicrosoft);
             }
             catch (AdalException ex)
             {
@@ -232,7 +276,57 @@ namespace Test.ADAL.NET.Unit
 
             try
             {
-                await WsTrustRequest.SendRequestAsync(new WsTrustAddress { Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri) }, new UserCredential(federatedSts.ValidUserName, "InvalidPassword"), null);
+                await WsTrustRequest.SendRequestAsync(new WsTrustAddress { Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri) }, new UserCredential(federatedSts.ValidUserName, "InvalidPassword"), null, TestConstants.CloudAudienceUrnMicrosoft);
+            }
+            catch (AdalException ex)
+            {
+                Verify.IsNotNull(ex.ErrorCode, AdalError.FederatedServiceReturnedError);
+                Verify.IsNotNull(ex.InnerException);
+            }
+        }
+
+        [TestMethod]
+        [Description("WS-Trust Request Generic Cloud Urn Test")]
+        [TestCategory("AdalDotNet")]
+        public async Task WsTrustRequestGenericCloudUrnTest()
+        {
+            var federatedSts = SetupStsService(StsType.AADFederatedWithADFS3);
+            AuthenticationContext context = new AuthenticationContext(federatedSts.Authority, federatedSts.ValidateAuthority);
+            await context.Authenticator.UpdateFromTemplateAsync(null);
+            UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, federatedSts.ValidUserName, null);
+            XDocument mexDocument = await FecthMexAsync(userRealmResponse.FederationMetadataUrl);
+            Verify.IsNotNull(mexDocument);
+            WsTrustAddress wsTrustAddress = MexParser.ExtractWsTrustAddressFromMex(mexDocument, UserAuthType.UsernamePassword, null);
+            Verify.IsNotNull(wsTrustAddress);
+
+            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null, TestConstants.CloudAudienceUrn);
+            Verify.IsNotNull(wstResponse.Token);
+            Verify.IsTrue(wstResponse.TokenType.Contains("SAML"));
+
+            SecureString securePassword = new SecureString();
+            foreach (var ch in federatedSts.ValidPassword)
+            {
+                securePassword.AppendChar(ch);
+            }
+
+            wstResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, new UserCredential(federatedSts.ValidUserName, securePassword), null, TestConstants.CloudAudienceUrn);
+            Verify.IsNotNull(wstResponse.Token);
+            Verify.IsTrue(wstResponse.TokenType.Contains("SAML"));
+
+            try
+            {
+                await WsTrustRequest.SendRequestAsync(new WsTrustAddress { Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri + "x") },
+                    new UserCredential(federatedSts.ValidUserName, federatedSts.ValidPassword), null, TestConstants.CloudAudienceUrn);
+            }
+            catch (AdalException ex)
+            {
+                Verify.IsNotNull(ex.ErrorCode, AdalError.FederatedServiceReturnedError);
+                Verify.IsNotNull(ex.InnerException);
+            }
+
+            try
+            {
+                await WsTrustRequest.SendRequestAsync(new WsTrustAddress { Uri = new Uri(wsTrustAddress.Uri.AbsoluteUri) }, new UserCredential(federatedSts.ValidUserName, "InvalidPassword"), null, TestConstants.CloudAudienceUrn);
             }
             catch (AdalException ex)
             {
@@ -298,10 +392,10 @@ namespace Test.ADAL.NET.Unit
             {
                 Verify.IsNull(userRealmResponse.FederationActiveAuthUrl);
                 Verify.IsNull(userRealmResponse.FederationMetadataUrl);
-                Verify.IsNull(userRealmResponse.FederationProtocol);                
+                Verify.IsNull(userRealmResponse.FederationProtocol);
             }
         }
-        
+
         private static XDocument ConvertStringToXDocument(string mexDocumentContent)
         {
             byte[] serializedMexDocumentContent = Encoding.UTF8.GetBytes(mexDocumentContent);
@@ -314,16 +408,20 @@ namespace Test.ADAL.NET.Unit
         private async static Task<XDocument> FecthMexAsync(string metadataUrl)
         {
 
-           return await Task.Factory.StartNew(() =>
-            {
-                if (metadataUrl.EndsWith("xx"))
-                {
-                    throw new AdalException(AdalError.AccessingWsMetadataExchangeFailed);
-                }
+            return await Task.Factory.StartNew(() =>
+             {
+                 if (metadataUrl.EndsWith("xx"))
+                 {
+                     throw new AdalException(AdalError.AccessingWsMetadataExchangeFailed);
+                 }
 
-                using (Stream stream = new FileStream("TestMex.xml", FileMode.Open))
-                    return XDocument.Load(stream);
-            });
+                 using (Stream stream = new FileStream("TestMex.xml", FileMode.Open))
+                     return XDocument.Load(stream);
+             });
+        }
+        private static void VerifyCloudInstanceUrnResponse(string cloudAudienceUrn, string expectedCloudAudienceUrn)
+        {
+            Assert.AreEqual(cloudAudienceUrn, expectedCloudAudienceUrn);
         }
     }
 }
