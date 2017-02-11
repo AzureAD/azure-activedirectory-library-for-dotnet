@@ -97,6 +97,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Invalid credential type.
         /// </summary>
+        public const string HttpResponseContentLengthOverLimit = "content_length_over_limit";
+
+        /// <summary>
+        /// Invalid credential type.
+        /// </summary>
         public const string InvalidCredentialType = "invalid_credential_type";
 
         /// <summary>
@@ -288,6 +293,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string InvalidCredentialType = "Invalid credential type";
         public const string InvalidFormatParameterTemplate = "Parameter '{0}' has invalid format";
         public const string InvalidTokenCacheKeyFormat = "Invalid token cache key format";
+
+        public const string HttpResponseContentLengthOverLimit =
+            "Http response content length is over the allocated limit of 1 MB.";
         public const string MissingAuthenticateHeader = "WWW-Authenticate header was expected in the response";
         public const string MultipleTokensMatched = "The cache contains multiple tokens satisfying the requirements. Call AcquireToken again providing more requirements (e.g. UserId)";
         public const string NetworkIsNotAvailable = "The network is down so authentication cannot proceed";

@@ -147,6 +147,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string message = null;
             switch (errorCode)
             {
+                case AdalError.HttpResponseContentLengthOverLimit:
+                    message = AdalErrorMessage.HttpResponseContentLengthOverLimit;
+                    break;
+
                 case AdalError.InvalidCredentialType: 
                     message = AdalErrorMessage.InvalidCredentialType;
                     break;

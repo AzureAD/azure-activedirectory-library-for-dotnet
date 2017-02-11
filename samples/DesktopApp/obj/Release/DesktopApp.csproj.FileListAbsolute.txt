@@ -1,0 +1,11 @@
+C:\git\adal-v2\samples\DesktopApp\bin\Release\DesktopApp.exe.config
+C:\git\adal-v2\samples\DesktopApp\bin\Release\DesktopApp.exe
+C:\git\adal-v2\samples\DesktopApp\bin\Release\DesktopApp.pdb
+C:\git\adal-v2\samples\DesktopApp\bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+C:\git\adal-v2\samples\DesktopApp\bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll
+C:\git\adal-v2\samples\DesktopApp\bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.pdb
+C:\git\adal-v2\samples\DesktopApp\bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb
+C:\git\adal-v2\samples\DesktopApp\bin\Release\Microsoft.IdentityModel.Clients.ActiveDirectory.xml
+C:\git\adal-v2\samples\DesktopApp\obj\Release\DesktopApp.csprojResolveAssemblyReference.cache
+C:\git\adal-v2\samples\DesktopApp\obj\Release\DesktopApp.exe
+C:\git\adal-v2\samples\DesktopApp\obj\Release\DesktopApp.pdb

@@ -24,18 +24,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class HttpWebResponseWrapper : IHttpWebResponse
     {
-        private WebResponse response;
+        private WebResponse _response;
 
         public HttpWebResponseWrapper(WebResponse response)
         {
-            this.response = response;
+            this._response = response;
         }
 
         public HttpStatusCode StatusCode
         {
             get
             {
-                var httpWebResponse = this.response as HttpWebResponse;
+                var httpWebResponse = this._response as HttpWebResponse;
                 return (httpWebResponse != null) ? httpWebResponse.StatusCode : HttpStatusCode.NotImplemented;
             }
         }
@@ -44,18 +44,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                return this.response.Headers;
+                return this._response.Headers;
             }
         }
 
         public Stream GetResponseStream()
         {
-            return this.response.GetResponseStream();
+            Stream stream = new MemoryStream();
+            BinaryReader binReader = new BinaryReader(_response.GetResponseStream());
+            const int bufferSize = 4096;
+            long maxResponseSizeInBytes = 1048576;
+            
+            byte[] buffer = new byte[bufferSize];
+            int count;
+            while ((count = binReader.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                stream.Write(buffer, 0, count);
+                maxResponseSizeInBytes -= count;
+
+                if (maxResponseSizeInBytes < 0)
+                {
+                    throw new AdalException(AdalError.HttpResponseContentLengthOverLimit);
+                }
+            }
+
+            stream.Position = 0;
+            return stream;
         }
 
         public void Close()
         {
-            PlatformSpecificHelper.CloseHttpWebResponse(this.response);
+            PlatformSpecificHelper.CloseHttpWebResponse(this._response);
         }
 
         public void Dispose()
@@ -68,10 +87,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (disposing)
             {
-                if (response != null)
+                if (_response != null)
                 {
-                    ((IDisposable)response).Dispose();
-                    response = null;
+                    ((IDisposable)_response).Dispose();
+                    _response = null;
                 }
             }
         }
