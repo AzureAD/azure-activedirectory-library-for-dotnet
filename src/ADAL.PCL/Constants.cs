@@ -376,6 +376,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string UnsupportedAuthorityValidation =
             "Authority validation is not supported for this type of authority";
 
+        public const string UnsupportedIntegratedAuthentication =
+    "Integrated authentication is not supported for this type of authority";
+
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";
 
@@ -407,7 +410,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             "Integrated authentication failed. You may try an alternative authentication method";
 
         public const string DuplicateQueryParameterTemplate = "Duplicate query parameter '{0}' in extraQueryParameters";
-        
+
         public const string DeviceCertificateNotFoundTemplate = "Device Certificate was not found for {0}";
     }
 
@@ -430,5 +433,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static readonly XNamespace Issue2005 = "http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue";
         public static readonly XNamespace SoapEnvelope = "http://www.w3.org/2003/05/soap-envelope";
     }
-    
+
 }

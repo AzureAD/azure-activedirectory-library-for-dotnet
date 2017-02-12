@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -38,7 +40,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public IHttpClient Create(string uri, CallState callState)
         {
+            if (MockHandlerQueue.Count > 0)
+            {
+                return MockHandlerQueue.Dequeue();
+            }
+
             return new HttpClientWrapper(uri, callState);
+        }
+
+        private readonly static Queue<IHttpClient> MockHandlerQueue = new Queue<IHttpClient>();
+
+        public static void AddMockHandler(IHttpClient mockHandler)
+        {
+            MockHandlerQueue.Enqueue(mockHandler);
+        }
+
+        public static void ClearMockHandlers()
+        {
+            MockHandlerQueue.Clear();
         }
     }
 }

@@ -35,6 +35,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public sealed class ClientCredential
     {
         /// <summary>
+        /// Constructor to create credential with client id and integrated authentication.
+        /// </summary>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        public ClientCredential(string clientId)
+        {
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                throw new ArgumentNullException("clientId");
+            }
+
+            this.ClientId = clientId;
+        }
+
+        /// <summary>
         /// Constructor to create credential with client id and secret
         /// </summary>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
@@ -84,5 +98,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal string ClientSecret { get; private set; }
 
         internal ISecureClientSecret SecureClientSecret { get; private set; }
+
+        /// <summary>
+        /// Indicates whether or not this credential uses integrated authentication on domain-joined machines.
+        /// </summary>
+        public bool IsIntegratedAuth
+        {
+            get { return this.SecureClientSecret == null && string.IsNullOrEmpty(ClientSecret); }
+        }
     }
 }

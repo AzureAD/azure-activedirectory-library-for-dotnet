@@ -44,6 +44,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string RequestedTokenUse = "requested_token_use";
         public const string Username = "username";
         public const string Password = "password";
+        public const string UseWindowsClientAuthentication = "use_windows_client_authentication";
 
         public const string HasChrome = "haschrome";
         public const string LoginHint = "login_hint"; // login_hint is not standard oauth2 parameter
@@ -101,6 +102,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         // The behavior of this value is identical to prompt=none for managed users; However, for federated users, AAD
         // redirects to ADFS as it cannot determine in advance whether ADFS can login user silently (e.g. via WIA) or not.
-        public const string AttemptNone = "attempt_none";        
+        public const string AttemptNone = "attempt_none";
     }
 }

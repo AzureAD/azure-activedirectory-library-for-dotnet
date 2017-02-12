@@ -107,6 +107,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     this.Credential.SecureClientSecret.ApplyTo(parameters);
                 }
+                else if (this.Credential.IsIntegratedAuth)
+                {
+                    parameters[OAuthParameter.UseWindowsClientAuthentication] = "true";
+                }
                 else
                 {
                     parameters[OAuthParameter.ClientSecret] = this.Credential.ClientSecret;

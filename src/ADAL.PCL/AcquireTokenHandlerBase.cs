@@ -312,8 +312,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private async Task<AuthenticationResultEx> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
+            var isIntegratedAuth = this.ClientKey?.Credential != null && this.ClientKey.Credential.IsIntegratedAuth;
+
+            if (isIntegratedAuth && this.Authenticator.AuthorityType != AuthorityType.ADFS)
+            {
+                throw new NotSupportedException(AdalErrorMessage.UnsupportedIntegratedAuthentication);
+            }
+
             client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
-            { Client = { BodyParameters = requestParameters } };
+            { Client = { BodyParameters = requestParameters, UseDefaultCredentials = isIntegratedAuth } };
             TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
         }

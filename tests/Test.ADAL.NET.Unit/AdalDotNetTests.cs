@@ -50,6 +50,7 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             HttpMessageHandlerFactory.ClearMockHandlers();
+            HttpClientFactory.ClearMockHandlers();
             platformParameters = new PlatformParameters(PromptBehavior.Auto);
         }
 
@@ -128,10 +129,10 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 2);
             context.ExtendedLifeTimeEnabled = true;
             AuthenticationResult result =
-            await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,TestConstants.DefaultRedirectUri, platformParameters);
+            await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, platformParameters);
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(),0);     
+            Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 0);
         }
 
         [TestMethod]
@@ -147,7 +148,7 @@ namespace Test.ADAL.NET.Unit
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
-                Result = new AuthenticationResult("Bearer", "some-access-token", DateTimeOffset.UtcNow , (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                Result = new AuthenticationResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
             };
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -198,10 +199,10 @@ namespace Test.ADAL.NET.Unit
                 ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout),
             });
 
-                Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 2);
+            Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 2);
             context.ExtendedLifeTimeEnabled = true;
-                AuthenticationResult result =
-                     await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+            AuthenticationResult result =
+                 await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
             Assert.IsNull(result.AccessToken);
             Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 0);
         }
@@ -228,24 +229,24 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout),
             });
-            
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.InternalServerError),
-            });            
+            });
 
             //Assert.AreEqual(HttpMessageHandlerFactory.MockHandlersCount(), 2);
             context.ExtendedLifeTimeEnabled = true;
-                AuthenticationResult result =
-                    await
-                        context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                            new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+            AuthenticationResult result =
+                await
+                    context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
 
-                Assert.IsNotNull(result);
-                Assert.IsFalse(result.ExpiresOn <=
-                               DateTime.UtcNow);
-                Assert.AreEqual(result.AccessToken, "some-access-token");
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.ExpiresOn <=
+                           DateTime.UtcNow);
+            Assert.AreEqual(result.AccessToken, "some-access-token");
         }
 
         [TestMethod]
@@ -344,7 +345,7 @@ namespace Test.ADAL.NET.Unit
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
-          
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Post,
@@ -359,7 +360,7 @@ namespace Test.ADAL.NET.Unit
                     {"grant_type", "client_credentials"}
                 }
             });
-            
+
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
             Assert.IsNotNull(result.AccessToken);
 
@@ -428,7 +429,7 @@ namespace Test.ADAL.NET.Unit
                     {"grant_type", "client_credentials"}
                 }
             });
-            
+
             var credential = new ClientCredential(TestConstants.DefaultClientId, TestConstants.DefaultClientSecret);
 
             context.ExtendedLifeTimeEnabled = true;
@@ -1010,7 +1011,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             TokenCache cache = new TokenCache();
-            
+
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, cache);
             var result =
                 await
@@ -1099,7 +1100,7 @@ namespace Test.ADAL.NET.Unit
             {
                 await
                     context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri,
-                        (ClientAssertionCertificate) null, TestConstants.DefaultResource);
+                        (ClientAssertionCertificate)null, TestConstants.DefaultResource);
             }
             catch (ArgumentNullException exc)
             {
@@ -1194,6 +1195,49 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Test for Client credential with integrated authentication")]
+        public async Task ClientCredentialWithIntegratedAuthenticationTestAsync()
+        {
+            var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
+            var credential = new ClientCredential(TestConstants.DefaultClientId);
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
+                },
+                PostData = new Dictionary<string, string>()
+                {
+                    {"client_id", TestConstants.DefaultClientId},
+                    {"use_windows_client_authentication", "true"},
+                    {"grant_type", "client_credentials"}
+                }
+            });
+
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            Assert.IsNotNull(result.AccessToken);
+        }
+
+        [TestMethod]
+        [Description("Test for Client credential with integrated authentication")]
+        public async Task ClientCredentialWithIntegratedAuthenticationUsesDefaultCredentialsTestAsync()
+        {
+            var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
+            var credential = new ClientCredential(TestConstants.DefaultClientId);
+
+            HttpClientFactory.AddMockHandler(new MockHttpClient()
+            {
+                ExpectedUseOfDefaultCredentials = true,
+                Response = new HttpWebResponseWrapper("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}", null, HttpStatusCode.OK)
+            });
+
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            Assert.IsNotNull(result.AccessToken);
+        }
+
+        [TestMethod]
         [Description("Test for Client assertion with X509")]
         public async Task ClientAssertionWithX509Test()
         {
@@ -1237,13 +1281,13 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
-        
+
         [TestMethod]
         [Description("Test for Confidential Client with self signed jwt")]
         public async Task ConfidentialClientWithJwtTest()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Post,
@@ -1270,7 +1314,7 @@ namespace Test.ADAL.NET.Unit
 
             result = await context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, null);
             Assert.IsNotNull(result.AccessToken);
-            
+
             try
             {
                 await context.AcquireTokenByAuthorizationCodeAsync(string.Empty, TestConstants.DefaultRedirectUri, assertion, TestConstants.DefaultResource);
@@ -1371,6 +1415,71 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Positive Test for AcquireTokenOnBehalf with integrated authentication client credential")]
+        public async Task AcquireTokenOnBehalfAndIntegratedAuthenticationClientCredentialTest()
+        {
+            var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
+            string accessToken = "some-access-token";
+            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
+                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
+            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", accessToken, DateTimeOffset.UtcNow)
+            };
+
+            ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId);
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-other-token\"}")
+                },
+                PostData = new Dictionary<string, string>()
+                {
+                    {"client_id", TestConstants.DefaultClientId},
+                    {"use_windows_client_authentication", "true"},
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                }
+            });
+
+            var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
+            Assert.IsNotNull(result.AccessToken);
+        }
+
+        [TestMethod]
+        [Description("Positive Test for AcquireTokenOnBehalf with integrated authentication client credential")]
+        public async Task AcquireTokenOnBehalfAndIntegratedAuthenticationClientCredentialUsesDefaultCredentialsTest()
+        {
+            var context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, new TokenCache());
+            string accessToken = "some-access-token";
+            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
+                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
+            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", accessToken, DateTimeOffset.UtcNow)
+            };
+
+            ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId);
+
+            HttpClientFactory.AddMockHandler(new MockHttpClient()
+            {
+                ExpectedUseOfDefaultCredentials = true,
+                Response = new HttpWebResponseWrapper("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-other-token\"}", null, HttpStatusCode.OK)
+            });
+
+            var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
+            Assert.IsNotNull(result.AccessToken);
+        }
+
+        [TestMethod]
         [Description("Positive Test for AcquireTokenOnBehalf with client credential")]
         public async Task AcquireTokenOnBehalfAndClientCertificateCredentialTest()
         {
@@ -1447,7 +1556,7 @@ namespace Test.ADAL.NET.Unit
             {
                 Assert.AreEqual(ex.ParamName, "resource");
             }
-            
+
             uri = await context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123");
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("login_hint"));

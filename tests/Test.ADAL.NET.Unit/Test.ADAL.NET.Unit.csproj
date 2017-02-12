@@ -93,6 +93,7 @@
     <Compile Include="AuthenticationParametersTests.cs" />
     <Compile Include="LoggerCallbackTests.cs" />
     <Compile Include="Mocks\MockHelpers.cs" />
+    <Compile Include="Mocks\MockHttpClient.cs" />
     <Compile Include="Mocks\MockHttpMessageHandler.cs" />
     <Compile Include="Mocks\MockWebUI.cs" />
     <Compile Include="NonInteractiveTests.cs" />
