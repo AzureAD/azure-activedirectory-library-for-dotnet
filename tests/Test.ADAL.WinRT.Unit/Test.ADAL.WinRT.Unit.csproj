@@ -19,7 +19,7 @@
     <PackageCertificateKeyFile>Test.ADAL.WinRT.Unit_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxBundle>Never</AppxBundle>
     <DefineConstants>TEST_ADAL_WINRT_UNIT</DefineConstants>
-    <PackageCertificateThumbprint>560F251FA0C7ECA742692D604426EBC70329A107</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>CE000A9E0006255D30FD57D16F1B17CBD8C6C48B</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,7 +32,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>Sdl7.0.ruleset</CodeAnalysisRuleSet>
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -44,7 +43,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>Sdl7.0.ruleset</CodeAnalysisRuleSet>
-    
   </PropertyGroup>
   <PropertyGroup>
     <AppXPackage>True</AppXPackage>
