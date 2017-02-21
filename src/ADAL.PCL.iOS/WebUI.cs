@@ -68,8 +68,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     var navigationController =
                         new AuthenticationAgentUINavigationController(authorizationUri.AbsoluteUri,
-                            redirectUri.OriginalString, CallbackMethod);
-                    this.parameters.CallerViewController.PresentViewController(navigationController, false, null);
+                            redirectUri.OriginalString, CallbackMethod, this.parameters.PreferredStatusBarStyle);
+
+                    navigationController.ModalPresentationStyle = this.parameters.ModalPresentationStyle;
+
+                    navigationController.ModalTransitionStyle = this.parameters.ModalTransitionStyle;
+
+                    navigationController.TransitioningDelegate = this.parameters.TransitioningDelegate;
+
+                    this.parameters.CallerViewController.PresentViewController(navigationController, true, null);
                 });
             }
             catch (Exception ex)
