@@ -72,5 +72,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Skips calling to broker if broker is present. false, by default
         /// </summary>
         public bool UseBroker { get; set; }
+
+        /// <summary>
+        /// Sets the preferred status bar style for the login form view controller presented
+        /// </summary>
+        /// <value>The preferred status bar style.</value>
+        public UIStatusBarStyle PreferredStatusBarStyle { get; set; }
+
+        /// <summary>
+        /// Set the transition style used when the login form view is presented
+        /// </summary>
+        /// <value>The modal transition style.</value>
+        public UIModalTransitionStyle ModalTransitionStyle { get; set; }
+
+        /// <summary>
+        /// Sets the presentation style used when the login form view is presented
+        /// </summary>
+        /// <value>The modal presentation style.</value>
+        public UIModalPresentationStyle ModalPresentationStyle { get; set; }
+
+
+        /// <summary>
+        /// Sets a custom transitioning delegate to the login form view controller
+        /// </summary>
+        /// <value>The transitioning delegate.</value>
+        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
     }
 }
