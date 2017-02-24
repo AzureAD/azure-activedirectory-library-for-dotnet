@@ -21,7 +21,7 @@ namespace WinFormsAutomationApp
                 AuthenticationResult result =
                     await
                         ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
-                            GetPlatformParametersInstance()).ConfigureAwait(false);
+                            GetPlatformParametersInstance(input["prompt_behavior"])).ConfigureAwait(false);
                 output = result.ToJson();
             }
             catch (Exception exc)
@@ -75,7 +75,7 @@ namespace WinFormsAutomationApp
             return await myTask.ConfigureAwait(false);
         }
 
-        public static async Task<string> InvalidateRefreshTokens(Dictionary<string, string> input)
+        public static async Task<string> InvalidateRefreshToken(Dictionary<string, string> input)
         {
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
             {
@@ -122,7 +122,7 @@ namespace WinFormsAutomationApp
             return await myTask.ConfigureAwait(false);
         }
 
-        public static async Task<string> ClearCache()
+        public static async Task<string> ClearCache(Dictionary<string, string> input)
         {
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
             {
@@ -131,6 +131,22 @@ namespace WinFormsAutomationApp
                 output.Add("item_count", count.ToString());
                 TokenCache.DefaultShared.Clear();
                 output.Add("cache_clear_status", "Cleared the entire cache");
+                return output.ToJson();
+            });
+
+            return await myTask.ConfigureAwait(false);
+        }
+
+
+        public static async Task<string> AcquireTokenUsingDeviceProfile(Dictionary<string, string> input)
+        {
+            Task<string> myTask = Task<string>.Factory.StartNew(() =>
+            {
+                int count = TokenCache.DefaultShared.Count;
+                Dictionary<string, string> output = new Dictionary<string, string>();
+                output.Add("item_count", count.ToString());
+                var list = TokenCache.DefaultShared.ReadItems().ToJson();
+                output.Add("AccessToken", list);
                 return output.ToJson();
             });
 
@@ -189,9 +205,14 @@ namespace WinFormsAutomationApp
             return result;
         }
 
-        private static IPlatformParameters GetPlatformParametersInstance()
+        private static IPlatformParameters GetPlatformParametersInstance(string promptBehaviorString)
         {
             IPlatformParameters platformParameters = null;
+            PromptBehavior pb = PromptBehavior.Auto;
+            if (!string.IsNullOrEmpty(promptBehaviorString))
+            {
+                pb = (PromptBehavior) Enum.Parse(typeof (PromptBehavior), promptBehaviorString, true);
+            }
 
 #if __ANDROID__
         platformParameters = new PlatformParameters(this);
@@ -203,7 +224,7 @@ namespace WinFormsAutomationApp
             platformParameters = new PlatformParameters(PromptBehavior.Always, false);
 #else
             //desktop
-            platformParameters = new PlatformParameters(PromptBehavior.Auto, null);
+            platformParameters = new PlatformParameters(pb, null);
 #endif
 #endif
 #endif

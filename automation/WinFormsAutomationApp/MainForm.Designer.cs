@@ -41,8 +41,10 @@
             this.go = new System.Windows.Forms.Button();
             this.dataInput = new System.Windows.Forms.TextBox();
             this.resultPage = new System.Windows.Forms.TabPage();
-            this.done = new System.Windows.Forms.Button();
-            this.result = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.adalLogs = new System.Windows.Forms.TextBox();
+            this.resultDone = new System.Windows.Forms.Button();
+            this.resultInfo = new System.Windows.Forms.TextBox();
             this.pageControl1.SuspendLayout();
             this.mainPage.SuspendLayout();
             this.dataInputPage.SuspendLayout();
@@ -168,7 +170,7 @@
             // 
             // go
             // 
-            this.go.AccessibleName = "go";
+            this.go.AccessibleName = "requestGo";
             this.go.Location = new System.Drawing.Point(36, 439);
             this.go.Name = "go";
             this.go.Size = new System.Drawing.Size(515, 41);
@@ -179,7 +181,7 @@
             // 
             // dataInput
             // 
-            this.dataInput.AccessibleName = "dataInput";
+            this.dataInput.AccessibleName = "requestInfo";
             this.dataInput.Location = new System.Drawing.Point(36, 23);
             this.dataInput.Multiline = true;
             this.dataInput.Name = "dataInput";
@@ -188,8 +190,10 @@
             // 
             // resultPage
             // 
-            this.resultPage.Controls.Add(this.done);
-            this.resultPage.Controls.Add(this.result);
+            this.resultPage.Controls.Add(this.label1);
+            this.resultPage.Controls.Add(this.adalLogs);
+            this.resultPage.Controls.Add(this.resultDone);
+            this.resultPage.Controls.Add(this.resultInfo);
             this.resultPage.Location = new System.Drawing.Point(4, 22);
             this.resultPage.Name = "resultPage";
             this.resultPage.Padding = new System.Windows.Forms.Padding(3);
@@ -198,26 +202,45 @@
             this.resultPage.Text = "resultPage";
             this.resultPage.UseVisualStyleBackColor = true;
             // 
-            // done
+            // label1
             // 
-            this.done.AccessibleName = "done";
-            this.done.Location = new System.Drawing.Point(28, 494);
-            this.done.Name = "done";
-            this.done.Size = new System.Drawing.Size(536, 32);
-            this.done.TabIndex = 1;
-            this.done.Text = "Done";
-            this.done.UseVisualStyleBackColor = true;
-            this.done.Click += new System.EventHandler(this.done_Click);
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(28, 367);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(54, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Adal Logs";
             // 
-            // result
+            // adalLogs
             // 
-            this.result.AccessibleName = "result";
-            this.result.Enabled = false;
-            this.result.Location = new System.Drawing.Point(28, 16);
-            this.result.Multiline = true;
-            this.result.Name = "result";
-            this.result.Size = new System.Drawing.Size(536, 460);
-            this.result.TabIndex = 0;
+            this.adalLogs.AccessibleName = "adalLogs";
+            this.adalLogs.Enabled = false;
+            this.adalLogs.Location = new System.Drawing.Point(28, 386);
+            this.adalLogs.Multiline = true;
+            this.adalLogs.Name = "adalLogs";
+            this.adalLogs.Size = new System.Drawing.Size(535, 151);
+            this.adalLogs.TabIndex = 2;
+            // 
+            // resultDone
+            // 
+            this.resultDone.AccessibleName = "resultDone";
+            this.resultDone.Location = new System.Drawing.Point(28, 321);
+            this.resultDone.Name = "resultDone";
+            this.resultDone.Size = new System.Drawing.Size(536, 32);
+            this.resultDone.TabIndex = 1;
+            this.resultDone.Text = "Done";
+            this.resultDone.UseVisualStyleBackColor = true;
+            this.resultDone.Click += new System.EventHandler(this.done_Click);
+            // 
+            // resultInfo
+            // 
+            this.resultInfo.AccessibleName = "resultInfo";
+            this.resultInfo.Enabled = false;
+            this.resultInfo.Location = new System.Drawing.Point(28, 16);
+            this.resultInfo.Multiline = true;
+            this.resultInfo.Name = "resultInfo";
+            this.resultInfo.Size = new System.Drawing.Size(536, 280);
+            this.resultInfo.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -248,14 +271,16 @@
         private System.Windows.Forms.Button acquireToken;
         private System.Windows.Forms.Button go;
         private System.Windows.Forms.TextBox dataInput;
-        private System.Windows.Forms.Button done;
-        private System.Windows.Forms.TextBox result;
+        private System.Windows.Forms.Button resultDone;
+        private System.Windows.Forms.TextBox resultInfo;
         private System.Windows.Forms.Button acquireTokenSilent;
         private System.Windows.Forms.Button invalidateRefreshToken;
         private System.Windows.Forms.Button expireAccessToken;
         private System.Windows.Forms.Button clearCache;
         private System.Windows.Forms.Button readCache;
         private System.Windows.Forms.Button acquireTokenDeviceProfile;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox adalLogs;
     }
 }
 
