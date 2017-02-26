@@ -27,7 +27,7 @@
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    internal class InteractiveWebUI : WebUI
+    public class InteractiveWebUI : WebUI
     {
         private WindowsFormsWebAuthenticationDialog dialog;
 

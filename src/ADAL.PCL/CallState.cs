@@ -29,7 +29,7 @@ using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CallState
+    public class CallState
     {
         public CallState(Guid correlationId)
         {
