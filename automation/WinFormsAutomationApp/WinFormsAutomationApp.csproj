@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdalLoggerCallBack.cs" />
     <Compile Include="AuthenticationHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

@@ -7,54 +7,68 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Diagnostics;
 
 namespace WinFormsAutomationApp
 {
     internal static class AuthenticationHelper
     {
+        static AuthenticationHelper()
+        {
+            LoggerCallbackHandler.Callback = new AdalLoggerCallBack();
+        }       
+
         public static async Task<string> AcquireToken(Dictionary<string, string> input)
         {
+            Dictionary<string, string> res = new Dictionary<string, string>();
             AuthenticationContext ctx = new AuthenticationContext(input["authority"]);
-            string output = string.Empty;
             try
             {
+                string s = input.ContainsKey("prompt_behavior") ? input["prompt_behavior"] : null;
                 AuthenticationResult result =
                     await
                         ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
-                            GetPlatformParametersInstance()).ConfigureAwait(false);
-                output = result.ToJson();
+                            GetPlatformParametersInstance(s)).ConfigureAwait(false);                
+                res.Add("unique_id", result.UserInfo.UniqueId);
+                res.Add("access_token", result.AccessToken);
+                res.Add("tenant_id", result.TenantId);
+                res.Add("refresh_token", TokenCache.DefaultShared.tokenCacheDictionary[new TokenCacheKey(input["authority"], input["resource"], input["client_id"], TokenSubjectType.User, result.UserInfo)].RefreshToken);
+           
             }
             catch (Exception exc)
             {
-                output = exc.Message;
+                res.Add("error", exc.Message);
             }
-
-            return output;
+            return FromDictionaryToJson(res);
         }
 
         public static async Task<string> AcquireTokenSilent(Dictionary<string, string> input)
         {
             AuthenticationContext ctx = new AuthenticationContext(input["authority"]);
-            string output = string.Empty;
+            Dictionary<string, string> res = new Dictionary<string, string>();
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync(input["resource"], input["client_id"]).ConfigureAwait(false);
-                output = result.ToJson();
+                res.Add("unique_id", result.UserInfo.UniqueId);
+                res.Add("access_token", result.AccessToken);
+                res.Add("tenant_id", result.TenantId);
+                res.Add("refresh_token", TokenCache.DefaultShared.tokenCacheDictionary[new TokenCacheKey(input["authority"], input["resource"], input["client_id"], TokenSubjectType.User, result.UserInfo)].RefreshToken);
             }
             catch (Exception exc)
             {
-                output = exc.Message;
+                res.Add("error", exc.Message);
             }
-
-            return output;
+            return FromDictionaryToJson(res);
         }
 
         public static async Task<string> ExpireAccessToken(Dictionary<string, string> input)
         {
+            bool notifiedBeforeAccessCache = false;
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
             {
+            
                 List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> CacheItems = QueryCache(input["authority"],
-                    input["client_id"], input["unique_id"], input["displayable_id"]);
+                    input["client_id"], input["user_identifier"]);
 
                 foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> item in CacheItems)
                 {
@@ -62,14 +76,23 @@ namespace WinFormsAutomationApp
                     // otherwise expire all matching access tokens.
                     if (input["resource"] == null || item.Key.ResourceEquals(input["resource"]))
                     {
-                        item.Value.Result.ExpiresOn = DateTime.UtcNow;
-                        TokenCache.DefaultShared.tokenCacheDictionary[item.Key] = item.Value;
-                    }
+                            NotifyBeforeAccessCache(item.Key.Resource, item.Key.ClientId,item.Value.Result.UserInfo.UniqueId, item.Value.Result.UserInfo.DisplayableId);
+                            notifiedBeforeAccessCache = true;
+                            item.Value.Result.ExpiresOn = DateTime.UtcNow;                        
+                            TokenCache.DefaultShared.tokenCacheDictionary[item.Key] = item.Value;                        
+                            TokenCache.DefaultShared.StoreToCache(item.Value, item.Key.Authority, item.Key.Resource, item.Key.ClientId, item.Key.TokenSubjectType, new CallState(new Guid()));
+                            if (notifiedBeforeAccessCache)
+                            {
+                                NotifyAfterAccessCache(item.Key.Resource, item.Key.ClientId, item.Value.Result.UserInfo.UniqueId, item.Value.Result.UserInfo.DisplayableId);
+                                notifiedBeforeAccessCache = false;
+                            }
+                        }
                 }
                 Dictionary<string, string> output = new Dictionary<string, string>();
                 //Send back error if userId or displayableId is not sent back to the user
                 output.Add("expired_access_token_count", CacheItems.Count.ToString());
-                return output.ToJson();
+                return output.FromDictionaryToJson();
+                             
             });
 
             return await myTask.ConfigureAwait(false);
@@ -77,48 +100,67 @@ namespace WinFormsAutomationApp
 
         public static async Task<string> InvalidateRefreshTokens(Dictionary<string, string> input)
         {
+            bool notifiedBeforeAccessCache = false;
+            Dictionary<string, string> output = new Dictionary<string, string>();
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
             {
-                List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> CacheItems = QueryCache(input["authority"],
-                    input["client_id"], input["unique_id"], input["displayable_id"]);
-
-                foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> item in CacheItems)
+                try
                 {
-                    item.Value.RefreshToken = "bad_refresh_token";
-                    TokenCache.DefaultShared.tokenCacheDictionary[item.Key] = item.Value;
+                    List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> CacheItems = QueryCache(input["authority"],
+                    input["client_id"], input["user_identifier"]);
+
+                    foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> item in CacheItems)
+                    {
+                        NotifyBeforeAccessCache(item.Key.Resource, item.Key.ClientId, item.Value.Result.UserInfo.UniqueId, item.Value.Result.UserInfo.DisplayableId);
+                        notifiedBeforeAccessCache = true;
+                        item.Value.RefreshToken = "bad_refresh_token";
+                        item.Value.Result.ExpiresOn = DateTime.UtcNow;
+                        TokenCache.DefaultShared.tokenCacheDictionary[item.Key] = item.Value;
+
+                        TokenCache.DefaultShared.StoreToCache(item.Value, item.Key.Authority, item.Key.Resource, item.Key.ClientId, item.Key.TokenSubjectType, new CallState(new Guid()));
+                        if (notifiedBeforeAccessCache)
+                        {
+                            NotifyAfterAccessCache(item.Key.Resource, item.Key.ClientId, item.Value.Result.UserInfo.UniqueId, item.Value.Result.UserInfo.DisplayableId);
+                            notifiedBeforeAccessCache = false;
+                        }
+                    }
+                    //Send back error if userId or displayableId is not sent back to the user
+                    output.Add("invalidated_refresh_token_count", CacheItems.Count.ToString());                   
                 }
-                Dictionary<string, string> output = new Dictionary<string, string>();
-                //Send back error if userId or displayableId is not sent back to the user
-                output.Add("invalidated_refresh_token_count", CacheItems.Count.ToString());
-                return output.ToJson();
+                catch (Exception exc)
+                {
+                    output.Add("error", exc.Message); 
+                }
+                return output.FromDictionaryToJson();
             });
 
             return await myTask.ConfigureAwait(false);
         }
 
         private static List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> QueryCache(string authority,
-            string clientId, string uniqueId, string displayableId)
+            string clientId, string displayableId)
         {
             return TokenCache.DefaultShared.tokenCacheDictionary.Where(
                 p =>
                     (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
                     && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
-                    && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
                     && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))).ToList();
         }
 
         public static async Task<string> ReadCache(Dictionary<string, string> input)
         {
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
-            {
+            {                
                 int count = TokenCache.DefaultShared.Count;
                 Dictionary<string, string> output = new Dictionary<string, string>();
-                output.Add("item_count", count.ToString());
-                var list = TokenCache.DefaultShared.ReadItems().ToJson();
-                output.Add("AccessToken", list);
-                return output.ToJson();
+                 output.Add("item_count", count.ToString());
+                var list = TokenCache.DefaultShared.ReadItems();
+                if (list.Any())
+                {
+                    output.Add("AccessToken", ((list.ToList())[0]).AccessToken);
+                }
+                return FromDictionaryToJson(output);
             });
-
             return await myTask.ConfigureAwait(false);
         }
 
@@ -133,7 +175,6 @@ namespace WinFormsAutomationApp
                 output.Add("cache_clear_status", "Cleared the entire cache");
                 return output.ToJson();
             });
-
             return await myTask.ConfigureAwait(false);
         }
 
@@ -157,6 +198,12 @@ namespace WinFormsAutomationApp
         {
             var jss = new JavaScriptSerializer();
             return jss.Deserialize<Dictionary<string, string>>(json);
+        }
+
+        public static string FromDictionaryToJson(this Dictionary<string, string> dictionary)
+        {
+            var kvs = dictionary.Select(kvp => string.Format("\"{0}\":\"{1}\"", kvp.Key, string.Concat(kvp.Value)));
+            return string.Concat("{", string.Join(",", kvs), "}");
         }
 
         private static string JsonOutputFormat(string result)
@@ -185,11 +232,10 @@ namespace WinFormsAutomationApp
                     result = result.Replace(entry.Key, entry.Value);
                 }
             }
-
             return result;
         }
 
-        private static IPlatformParameters GetPlatformParametersInstance()
+        private static IPlatformParameters GetPlatformParametersInstance(string prompt)
         {
             IPlatformParameters platformParameters = null;
 
@@ -203,11 +249,42 @@ namespace WinFormsAutomationApp
             platformParameters = new PlatformParameters(PromptBehavior.Always, false);
 #else
             //desktop
-            platformParameters = new PlatformParameters(PromptBehavior.Auto, null);
+            if (PromptBehavior.Always.ToString() == prompt)
+            {
+                platformParameters = new PlatformParameters(PromptBehavior.Always, null);
+            }
+            else
+            {
+                platformParameters = new PlatformParameters(PromptBehavior.Auto, false);
+            }
 #endif
 #endif
 #endif
             return platformParameters;
+        }
+
+        private static void NotifyBeforeAccessCache(string resource,string clientid, string uniqueid,string displayableid)
+        {
+            TokenCache.DefaultShared.OnBeforeAccess(new TokenCacheNotificationArgs
+            {
+                TokenCache = TokenCache.DefaultShared,
+                Resource = resource,
+                ClientId = clientid,
+                UniqueId = uniqueid,
+                DisplayableId = displayableid
+            });
+        }
+
+        private static void NotifyAfterAccessCache(string resource, string clientid, string uniqueid, string displayableid)
+        {
+            TokenCache.DefaultShared.OnAfterAccess(new TokenCacheNotificationArgs
+            {
+                TokenCache = TokenCache.DefaultShared,
+                Resource = resource,
+                ClientId = clientid,
+                UniqueId = uniqueid,
+                DisplayableId = displayableid
+            });
         }
     }
 }

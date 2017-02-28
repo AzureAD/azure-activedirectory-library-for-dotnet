@@ -23,23 +23,25 @@ namespace WinFormsAutomationApp
         {
             _commandToRun = AuthenticationHelper.AcquireToken;
             pageControl1.SelectedTab = dataInputPage;
+            
         }
 
-        private async void go_Click(object sender, EventArgs e)
+        private async void requestGo_Click(object sender, EventArgs e)
         {
-            string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(dataInput.Text)));
+            string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
             pageControl1.SelectedTab = resultPage;
-            result.Text = output;
+            resultInfo.Text = output;
+            adalLogs.Text = AdalLoggerCallBack.Message;
         }
 
-        private void done_Click(object sender, EventArgs e)
+        private void resultDone_Click(object sender, EventArgs e)
         {
-            result.Text = string.Empty;
-            dataInput.Text = string.Empty;
+            resultInfo.Text = string.Empty;
+            requestInfo.Text = string.Empty;
             pageControl1.SelectedTab = mainPage;
         }
 
-        private void acquireTokenSilent_Click(object sender, EventArgs e)
+        private void acquireTokenSilent_Click(object sender, EventArgs e)  
         {
             _commandToRun = AuthenticationHelper.AcquireTokenSilent;
             pageControl1.SelectedTab = dataInputPage;
@@ -53,17 +55,22 @@ namespace WinFormsAutomationApp
 
         private void invalidateRefreshToken_Click(object sender, EventArgs e)
         {
-
+            _commandToRun = AuthenticationHelper.InvalidateRefreshTokens;
+            pageControl1.SelectedTab = dataInputPage;
         }
 
         private void readCache_Click(object sender, EventArgs e)
         {
-
+            _commandToRun = AuthenticationHelper.ReadCache;
+            pageControl1.SelectedTab = dataInputPage;
         }
 
-        private void clearCache_Click(object sender, EventArgs e)
+        private async void clearCache_Click(object sender, EventArgs e)
         {
-
+            string output = await AuthenticationHelper.ClearCache();
+            pageControl1.SelectedTab = resultPage;
+            resultInfo.Text = output;
+            adalLogs.Text = AdalLoggerCallBack.Message;
         }
 
         private void acquireTokenDeviceProfile_Click(object sender, EventArgs e)
