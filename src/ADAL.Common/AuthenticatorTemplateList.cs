@@ -32,7 +32,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     "login.windows.net",            // Microsoft Azure Worldwide - Used in validation scenarios where host is not this list 
                     "login.chinacloudapi.cn",       // Microsoft Azure China
                     "login.microsoftonline.de",     // Microsoft Azure Germany
-                    "login-us.microsoftonline.com", // Microsoft Azure US Government
+                    "login-us.microsoftonline.com", // Microsoft Azure US Government - Legacy
+                    "login.microsoftonline.us",     // Microsoft Azure US Government
                     "login.microsoftonline.com"     // Microsoft Azure Worldwide
                 };
 
