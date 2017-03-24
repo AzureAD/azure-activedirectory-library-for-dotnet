@@ -1,0 +1,21 @@
+branches:
+  only:
+    - dev
+    - sschen/ci
+
+configuration: Release
+
+before_build:
+  - nuget restore
+
+build_script:
+  - ps: .\build\build.ps1
+
+skip_commits:
+  files:
+    - '**/*.md'
+    - 'changelog.txt'
+
+on_finish:
+# Uncomment this to be able to RDP into the build agent
+# ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
