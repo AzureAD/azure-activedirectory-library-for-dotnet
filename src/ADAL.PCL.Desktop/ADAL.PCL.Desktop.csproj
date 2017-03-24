@@ -140,7 +140,11 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <Target Name="AfterBuild">
+    <Error
+            Text="The FREEBUILD property must be set on the command line."
+            Condition="'$(FREEBUILD)' == ''" />
+  </Target>
+
 </Project>
