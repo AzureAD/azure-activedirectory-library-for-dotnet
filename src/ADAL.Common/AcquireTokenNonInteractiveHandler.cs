@@ -25,6 +25,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     internal class AcquireTokenNonInteractiveHandler : AcquireTokenHandlerBase
     {
         private readonly UserCredential userCredential;
+        private readonly string clientSecret;
         private UserAssertion userAssertion;
         
         public AcquireTokenNonInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, UserCredential userCredential, bool callSync)
@@ -37,6 +38,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.userCredential = userCredential;
             this.SupportADFS = true;
+        }
+
+        public AcquireTokenNonInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, string clientSecret, UserCredential userCredential, bool callSync)
+            : base(authenticator, tokenCache, resource, new ClientKey(clientId), TokenSubjectType.User, callSync)
+        {
+            if (userCredential == null)
+            {
+                throw new ArgumentNullException("userCredential");
+            }
+            this.userCredential = userCredential;
+            this.clientSecret = clientSecret;
         }
 
         public AcquireTokenNonInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, UserAssertion userAssertion, bool callSync)
@@ -130,6 +142,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected override void AddAditionalRequestParameters(RequestParameters requestParameters)
         {
+            if(this.clientSecret != null)
+            {
+                requestParameters[OAuthParameter.ClientSecret] = this.clientSecret;
+            }
+
             if (this.userAssertion != null)
             {
                 requestParameters[OAuthParameter.GrantType] = this.userAssertion.AssertionType;
