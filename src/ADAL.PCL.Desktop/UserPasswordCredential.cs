@@ -91,5 +91,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             SecurePassword = null;
         }
+
+        /// <summary>
+        /// Unused
+        /// </summary>
+        /// <param name="status"></param>
+        public void UnusedMethod(bool status)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Dummy class
+    /// </summary>
+    public class DummyDisposable : IDisposable
+    {
+        /// <summary>
+        /// Dummy field
+        /// </summary>
+        public string AField;
+
+        /// <summary>
+        /// Dummy dispose
+        /// </summary>
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

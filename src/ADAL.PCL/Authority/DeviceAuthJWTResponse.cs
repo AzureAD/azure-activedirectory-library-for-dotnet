@@ -39,8 +39,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             this.Alg = "RS256";
             this.Type = "JWT";
-            this.X5c = new List<string>();
-            this.X5c.Add(base64EncodedCertificate);
+            this.X5c = new List<string>()
+            {
+                base64EncodedCertificate
+            };
         }
 
         [DataMember(Name = "x5c", IsRequired = true)]

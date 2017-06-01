@@ -105,8 +105,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             Dictionary<string, string> authenticateHeaderItems = EncodingHelper.ParseKeyValueList(authenticateHeader, ',', false, null);
 
             var authParams = new AuthenticationParameters();
-            string param;
-            authenticateHeaderItems.TryGetValue(AuthorityKey, out param);
+            authenticateHeaderItems.TryGetValue(AuthorityKey, out string param);
             authParams.Authority = param;
             authenticateHeaderItems.TryGetValue(ResourceKey, out param);
             authParams.Resource = param;
