@@ -49,7 +49,7 @@ namespace Test.ADAL.Common.Unit
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDAwMDAwMy0wQ.9p6zqloui6PY31Wg6SJpgt2YS-pGWKjHd-0bw_LcuFo";
 
         // Passing a seed to make repro possible
-        private static readonly Random Rand = new Random(42);
+        private static Random Rand = new Random(42);
 
         public static void DefaultTokenCacheTest()
         {
