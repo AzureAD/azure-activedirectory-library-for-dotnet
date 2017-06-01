@@ -41,6 +41,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="assertion">Assertion representing the user.</param>
         public UserAssertion(string assertion) :this(assertion, OAuthGrantType.JwtBearer)
         {
+int unusedVar = 123;
         }
 
         /// <summary>
