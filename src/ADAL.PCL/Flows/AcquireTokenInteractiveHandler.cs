@@ -166,7 +166,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            // Recreating the Client key here as the original one might have Client Creds in it and we cant allow that to go inside url
+            // as it can be read using man in the middle attack. Hence recreating the object with just the client Id.
+            var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, new ClientKey(this.ClientKey.ClientId));
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
             authorizationRequestParameters[OAuthParameter.HasChrome] = "1";
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;

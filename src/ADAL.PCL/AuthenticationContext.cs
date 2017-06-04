@@ -479,6 +479,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Acquires security token from the authority.
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCreds">Credentials of the client requesting the token.</param>
+        /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
+        /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
+        /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
+        public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientCredential clientCreds, Uri redirectUri, IPlatformParameters parameters)
+        {
+            return await this.AcquireTokenCommonAsync(resource, clientCreds, redirectUri, parameters, UserIdentifier.AnyUser).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires security token from the authority.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
@@ -597,6 +610,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = this.TokenCache,
                 Resource = resource,
                 ClientKey = new ClientKey(clientId),
+                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
+            };
+            var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId, extraQueryParameters, this.CreateWebAuthenticationDialog(parameters));
+            return await handler.RunAsync().ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, ClientCredential clientCreds, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters = null)
+        {
+            RequestData requestData = new RequestData
+            {
+                Authenticator = this.Authenticator,
+                TokenCache = this.TokenCache,
+                Resource = resource,
+                ClientKey = new ClientKey(clientCreds),
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
             };
             var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId, extraQueryParameters, this.CreateWebAuthenticationDialog(parameters));
