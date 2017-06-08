@@ -32,11 +32,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public class PlatformParameters : IPlatformParameters
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="promptBehavior"></param>
-        public PlatformParameters(PromptBehavior promptBehavior):this(promptBehavior, null)
+        private bool displayAdfsUrlAddressBar;
+
+        public PlatformParameters(PromptBehavior promptBehavior) : this(promptBehavior, null)
         {
         }
 
@@ -45,10 +43,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="promptBehavior"></param>
         /// <param name="ownerWindow"></param>
-        public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
+        /// <param name="displayAdfsUrlAddressBar"></param>
+        public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow, bool displayAdfsUrlAddressBar = false)
         {
             this.PromptBehavior = promptBehavior;
             this.OwnerWindow = ownerWindow;
+            this.DisplayAdfsUrlAddressBar = displayAdfsUrlAddressBar;
         }
 
         /// <summary>
@@ -57,8 +57,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public object OwnerWindow { get; private set; }
 
         /// <summary>
+        /// Gets whether ADFS url address bar is displayed in browser dialog box or not.
+        /// </summary>
+        public bool DisplayAdfsUrlAddressBar
+        {
+            get
+            {
+                return this.displayAdfsUrlAddressBar;
+            }
+            private set
+            {
+                this.displayAdfsUrlAddressBar = value;
+            }
+        }
+
+        /// <summary>
         /// Gets prompt behavior. If <see cref="PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
         /// </summary>
-        public PromptBehavior PromptBehavior { get; internal set; } 
+        public PromptBehavior PromptBehavior { get; internal set; }
     }
 }

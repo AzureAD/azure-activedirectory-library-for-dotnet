@@ -108,6 +108,10 @@
     </Compile>
     <Compile Include="StaTaskScheduler.cs" />
     <Compile Include="TokenCachePlugin.cs" />
+    <Compile Include="UserControlWebBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControlWebBrowser.Designer.cs" />
     <Compile Include="UserPasswordCredential.cs" />
     <Compile Include="WebBrowserInterfaces.cs" />
     <Compile Include="WebBrowserNavigateErrorEventArgs.cs" />
@@ -131,6 +135,9 @@
     <None Include="..\..\build\272MSSharedLibSN2048.snk">
       <Link>272MSSharedLibSN2048.snk</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UserControlWebBrowser.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

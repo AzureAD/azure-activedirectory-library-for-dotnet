@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+// Changed by Riteq:  Replaced CustomWebBrowser by UserControlWebBrowser(CustomWebBrowser+AddressBar)
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -48,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         private const int UIWidth = 566;
 
         private Panel webBrowserPanel;
-        private readonly CustomWebBrowser webBrowser;
+        private readonly UserControlWebBrowser webBrowser;
 
         private Uri desiredCallbackUri;
 
@@ -66,7 +68,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// 
         /// </summary>
         /// <param name="ownerWindow"></param>
-        protected WindowsFormsWebAuthenticationDialogBase(object ownerWindow)
+        /// <param name="displayAddressBar"></param>
+        protected WindowsFormsWebAuthenticationDialogBase(object ownerWindow, bool displayAddressBar = false)
         {
             // From MSDN (http://msdn.microsoft.com/en-us/library/ie/dn720860(v=vs.85).aspx): 
             // The net session count tracks the number of instances of the web browser control. 
@@ -100,7 +103,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                     "Invalid owner window type. Expected types are IWin32Window or IntPtr (for window handle).");
             }
 
-            this.webBrowser = new CustomWebBrowser();
+            this.webBrowser = new UserControlWebBrowser(displayAddressBar);
             this.webBrowser.PreviewKeyDown += webBrowser_PreviewKeyDown;
             this.InitializeComponent();
 
@@ -118,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// <summary>
         /// Gets Web Browser control used by the dialog.
         /// </summary>
-        public WebBrowser WebBrowser
+        public UserControlWebBrowser WebBrowser
         {
             get { return this.webBrowser; }
         }
@@ -195,7 +198,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 return;
             }
 
-            if (this.webBrowser.ActiveXInstance != e.WebBrowserActiveXInstance)
+            if (this.webBrowser.customWebBrowser.ActiveXInstance != e.WebBrowserActiveXInstance)
             {
                 // this event came from internal frame, ignore this.
                 return;
@@ -251,19 +254,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             if (!this.webBrowser.IsDisposed)
             {
-                if (this.webBrowser.IsBusy)
+                if (this.webBrowser.customWebBrowser.IsBusy)
                 {
                     PlatformPlugin.Logger.Verbose(null,
                         string.Format(CultureInfo.CurrentCulture,
                             " WebBrowser state: IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
-                            this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
-                            this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
-                    this.webBrowser.Stop();
+                            this.webBrowser.customWebBrowser.IsBusy, this.webBrowser.customWebBrowser.ReadyState, this.webBrowser.customWebBrowser.Created,
+                            this.webBrowser.customWebBrowser.Disposing, this.webBrowser.customWebBrowser.IsDisposed, this.webBrowser.customWebBrowser.IsOffline));
+                    this.webBrowser.customWebBrowser.Stop();
                     PlatformPlugin.Logger.Verbose(null,
                         string.Format(CultureInfo.CurrentCulture,
                             " WebBrowser state (after Stop): IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
-                            this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
-                            this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
+                            this.webBrowser.customWebBrowser.IsBusy, this.webBrowser.customWebBrowser.ReadyState, this.webBrowser.customWebBrowser.Created,
+                            this.webBrowser.customWebBrowser.Disposing, this.webBrowser.customWebBrowser.IsDisposed, this.webBrowser.customWebBrowser.IsOffline));
                 }
             }
         }
@@ -287,11 +290,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             // The WebBrowser event handlers must not throw exceptions.
             // If they do then they may be swallowed by the native
             // browser com control.
-            this.webBrowser.Navigating += this.WebBrowserNavigatingHandler;
-            this.webBrowser.Navigated += this.WebBrowserNavigatedHandler;
-            this.webBrowser.NavigateError += this.WebBrowserNavigateErrorHandler;
-
-            this.webBrowser.Navigate(requestUri);
+            this.webBrowser.customWebBrowser.Navigating += this.WebBrowserNavigatingHandler;
+            this.webBrowser.customWebBrowser.Navigated += this.WebBrowserNavigatedHandler;
+            this.webBrowser.customWebBrowser.NavigateError += this.WebBrowserNavigateErrorHandler;
+            this.webBrowser.TextBoxAddressBar.Text = requestUri.AbsoluteUri;
+            this.webBrowser.TextBoxAddressBar.SelectionStart = 0;
+            this.webBrowser.customWebBrowser.Navigate(requestUri);
             this.OnAuthenticate();
 
             return this.Result;
@@ -325,7 +329,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.Size = new Size(UIWidth, 565);
             this.webBrowser.TabIndex = 1;
-            this.webBrowser.IsWebBrowserContextMenuEnabled = false;
+            this.webBrowser.customWebBrowser.IsWebBrowserContextMenuEnabled = false;
 
             // 
             // webBrowserPanel

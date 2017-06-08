@@ -53,7 +53,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             : base(ownerWindow)
         {
             this.SuppressBrowserSubDialogs();
-            this.WebBrowser.DocumentCompleted += this.DocumentCompletedHandler;
+            this.WebBrowser.customWebBrowser.DocumentCompleted += this.DocumentCompletedHandler;
         }
 
         public void CloseBrowser()
@@ -67,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         private void SuppressBrowserSubDialogs()
         {
-            var webBrowser2 = (NativeWrapper.IWebBrowser2)this.WebBrowser.ActiveXInstance;
+            var webBrowser2 = (NativeWrapper.IWebBrowser2)this.WebBrowser.customWebBrowser.ActiveXInstance;
             webBrowser2.Silent = true;
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private bool HasLoginPage()
         {
-            HtmlDocument doc = this.WebBrowser.Document;
+            HtmlDocument doc = this.WebBrowser.customWebBrowser.Document;
             HtmlElement passwordFieldElement = null;
 
             if (null != doc)

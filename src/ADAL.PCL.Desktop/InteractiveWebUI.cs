@@ -30,12 +30,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
     internal class InteractiveWebUI : WebUI
     {
         private WindowsFormsWebAuthenticationDialog dialog;
+        private readonly bool displayAddressBar;
+
+        public InteractiveWebUI(bool displayAddressBar = false)
+        {
+            this.displayAddressBar = displayAddressBar;
+        }
 
         protected override AuthorizationResult OnAuthenticate()
         {
             AuthorizationResult result;
 
-            using (this.dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow))
+            using (this.dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow, this.displayAddressBar))
             {
                 result = this.dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
             }

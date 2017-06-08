@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+// Changed by Riteq:  Replaced CustomWebBrowser by UserControlWebBrowser(CustomWebBrowser+AddressBar)
+
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -46,12 +48,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// <summary>
         /// Default constructor
         /// </summary>
-        public WindowsFormsWebAuthenticationDialog(object ownerWindow)
-            : base(ownerWindow)
+        public WindowsFormsWebAuthenticationDialog(object ownerWindow, bool displayAddressBar = false)
+            : base(ownerWindow, displayAddressBar)
         {
             this.Shown += this.FormShownHandler;
-            this.WebBrowser.DocumentTitleChanged += this.WebBrowserDocumentTitleChangedHandler;
-            this.WebBrowser.ObjectForScripting = this;
+            this.WebBrowser.customWebBrowser.DocumentTitleChanged += this.WebBrowserDocumentTitleChangedHandler;
+            this.WebBrowser.customWebBrowser.ObjectForScripting = this;
         }
 
         /// <summary>
@@ -128,7 +130,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private void SetBrowserControlZoom(int zoomPercent)
         {
-            NativeWrapper.IWebBrowser2 browser2 = (NativeWrapper.IWebBrowser2)this.WebBrowser.ActiveXInstance;
+            NativeWrapper.IWebBrowser2 browser2 = (NativeWrapper.IWebBrowser2)this.WebBrowser.customWebBrowser.ActiveXInstance;
             NativeWrapper.IOleCommandTarget cmdTarget = browser2.Document as NativeWrapper.IOleCommandTarget;
             if (cmdTarget != null)
             {
@@ -155,7 +157,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private void WebBrowserDocumentTitleChangedHandler(object sender, EventArgs e)
         {
-            this.Text = this.WebBrowser.DocumentTitle;
+            this.Text = this.WebBrowser.customWebBrowser.DocumentTitle;
         }
     }
 }
