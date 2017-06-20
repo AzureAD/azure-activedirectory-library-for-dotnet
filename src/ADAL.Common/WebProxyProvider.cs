@@ -29,6 +29,7 @@ using System.Net;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
+    [Android.Runtime.Preserve(AllMembers = true)]
     internal class WebProxyProvider : IWebProxyProvider
     {
         public IWebProxy GetDefaultWebProxy()
