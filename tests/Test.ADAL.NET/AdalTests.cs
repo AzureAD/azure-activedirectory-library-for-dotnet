@@ -572,25 +572,28 @@ namespace Test.ADAL.Common
 
             try
             {
-                uri = context.GetAuthorizationRequestURL(null, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra=123");
+                uri = context.GetAuthorizationRequestURL(null, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra=123", null);
             }
             catch (ArgumentNullException ex)
             {
                 Verify.AreEqual(ex.ParamName, "resource");
             }
             
-            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra=123");
+            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra=123", null);
             Verify.IsNotNull(uri);
             Verify.IsTrue(uri.AbsoluteUri.Contains("login_hint"));
             Verify.IsTrue(uri.AbsoluteUri.Contains("extra=123"));
-            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, UserIdentifier.AnyUser, null);
+            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, UserIdentifier.AnyUser, null, null);
             Verify.IsNotNull(uri);
             Verify.IsFalse(uri.AbsoluteUri.Contains("login_hint"));
             Verify.IsFalse(uri.AbsoluteUri.Contains("client-request-id="));
             context.CorrelationId = Guid.NewGuid();
-            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra");
+            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra", null);
             Verify.IsNotNull(uri);
             Verify.IsTrue(uri.AbsoluteUri.Contains("client-request-id="));
+            uri = context.GetAuthorizationRequestURL(sts.ValidResource, sts.ValidClientId, sts.ValidDefaultRedirectUri, sts.ValidUserId, "extra", "some");
+            Verify.IsNotNull(uri);
+            Verify.IsTrue(uri.AbsoluteUri.Contains("claims"));
         }
 
         internal static async Task LoggerTest(Sts sts)

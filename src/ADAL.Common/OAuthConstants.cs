@@ -73,6 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string Error = "error";
         public const string ErrorDescription = "error_description";
         public const string ErrorCodes = "error_codes";
+        public const string Claims = "claims";
     }
 
     internal class IdTokenClaim

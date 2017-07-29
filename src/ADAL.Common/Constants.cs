@@ -262,6 +262,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Duplicate query parameter in extraQueryParameters
         /// </summary>
         public const string DuplicateQueryParameter = "duplicate_query_parameter";
+
+        /// <summary>
+        /// Claims step-up required.
+        /// </summary>
+        public const string InteractionRequired = "interaction_required";
     }
 
     /// <summary>
@@ -331,6 +336,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string SpecifyAnyUser = "If you do not need access token for any specific user, pass userId=UserIdentifier.AnyUser instead of userId=null.";
         public const string IntegratedAuthFailed = "Integrated authentication failed. You may try an alternative authentication method";
         public const string DuplicateQueryParameterTemplate = "Duplicate query parameter '{0}' in extraQueryParameters";
+        public const string InteractionRequired = "interaction_required";
     }
 
     internal class XmlNamespace

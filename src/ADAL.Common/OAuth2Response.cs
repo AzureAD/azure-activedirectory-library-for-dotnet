@@ -16,6 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -66,6 +67,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         [DataMember(Name = CorrelationIdClaim, IsRequired = false)]
         public string CorrelationId { get; set; }
+
+        [DataMember(Name = OAuthReservedClaim.Claims, IsRequired = false)]
+        public string Claims { get; set; }
     }
 
     [DataContract]
@@ -169,6 +173,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else if (tokenResponse.Error != null)
             {
+                if (!String.IsNullOrEmpty(tokenResponse.Claims) && tokenResponse.Error == AdalErrorMessage.InteractionRequired)
+                {
+                    throw new AdalClaimsChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, tokenResponse.Claims);
+                }
+
                 throw new AdalServiceException(tokenResponse.Error, tokenResponse.ErrorDescription);
             }
             else

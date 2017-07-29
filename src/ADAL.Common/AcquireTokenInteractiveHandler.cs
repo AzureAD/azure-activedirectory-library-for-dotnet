@@ -39,7 +39,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private readonly UserIdentifier userId;
 
-        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string extraQueryParameters, IWebUI webUI, bool callSync)
+        private readonly string claims;
+
+        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string extraQueryParameters, IWebUI webUI, bool callSync, string claims)
             : base(authenticator, tokenCache, resource, new ClientKey(clientId), TokenSubjectType.User, callSync)
         {
             if (redirectUri == null)
@@ -78,7 +80,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
 
-            this.LoadFromCache = (tokenCache != null && this.promptBehavior != PromptBehavior.Always && this.promptBehavior != PromptBehavior.RefreshSession);
+            if (!string.IsNullOrEmpty(claims))
+            {
+                this.LoadFromCache = false;
+                this.claims = claims;
+            }
+            else
+            {
+                this.LoadFromCache = (tokenCache != null && this.promptBehavior != PromptBehavior.Always && this.promptBehavior != PromptBehavior.RefreshSession);
+            }
 
             this.SupportADFS = true;
         }
@@ -141,6 +151,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (!string.IsNullOrWhiteSpace(loginHint))
             {
                 authorizationRequestParameters[OAuthParameter.LoginHint] = loginHint;
+            }
+
+            if(!string.IsNullOrWhiteSpace(claims))
+            {
+                authorizationRequestParameters["claims"] = claims;
             }
 
             if (this.CallState != null && this.CallState.CorrelationId != Guid.Empty)

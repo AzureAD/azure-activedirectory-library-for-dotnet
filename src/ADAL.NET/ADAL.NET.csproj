@@ -235,6 +235,7 @@
     <Compile Include="ClientAssertionCertificate.cs" />
     <Compile Include="ClientCredential.cs" />
     <Compile Include="ClientKey.cs" />
+    <Compile Include="Common\AdalClaimsChallengeException.cs" />
     <Compile Include="CryptographyHelper.cs" />
     <Compile Include="DotNetEncodingHelper.cs" />
     <Compile Include="JsonWebToken.cs" />
