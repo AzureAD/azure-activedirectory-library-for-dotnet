@@ -173,7 +173,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else if (tokenResponse.Error != null)
             {
-                if (!String.IsNullOrEmpty(tokenResponse.Claims) && tokenResponse.Error == AdalErrorMessage.InteractionRequired)
+                if (!String.IsNullOrWhiteSpace(tokenResponse.Claims) && tokenResponse.Error == AdalError.InteractionRequired)
                 {
                     throw new AdalClaimsChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, tokenResponse.Claims);
                 }

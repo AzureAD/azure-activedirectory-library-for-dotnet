@@ -819,7 +819,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private async Task<AuthenticationResult> AcquireTokenWithClaimsCommonAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior,
           UserIdentifier userId, string extraQueryParameters, string claims)
         {
-            var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache = null, resource, clientId, redirectUri, promptBehavior, userId, extraQueryParameters, null, true, claims);
+            var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache = null, resource, clientId, redirectUri, promptBehavior, userId, 
+                extraQueryParameters, this.CreateWebAuthenticationDialog(promptBehavior), true, claims);
 
             return await handler.RunAsync().ConfigureAwait(false);
         }

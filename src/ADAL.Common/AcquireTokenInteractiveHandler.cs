@@ -80,7 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
 
-            if (!string.IsNullOrEmpty(claims))
+            if (!string.IsNullOrWhiteSpace(claims))
             {
                 this.LoadFromCache = false;
                 this.claims = claims;
