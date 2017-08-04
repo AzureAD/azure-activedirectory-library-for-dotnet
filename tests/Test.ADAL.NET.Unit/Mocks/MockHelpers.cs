@@ -19,16 +19,18 @@ namespace Test.ADAL.NET.Unit.Mocks
             ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
         }
 
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> headersToValidate)
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult,
+            Dictionary<string, string> queryParamsToValidate)
         {
             MockWebUI webUi = new MockWebUI();
-            webUi.HeadersToValidate = headersToValidate;
+            webUi.QueryParams = queryParamsToValidate;
             webUi.MockResult = authorizationResult;
 
             IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
             mockFactory.CreateAuthenticationDialog(Arg.Any<IPlatformParameters>()).Returns(webUi);
             PlatformPlugin.WebUIFactory = mockFactory;
         }
+
 
         public static Stream GenerateStreamFromString(string s)
         {
