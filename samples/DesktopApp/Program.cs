@@ -78,7 +78,7 @@ namespace DesktopApp
         private static async Task AcquireTokenAsync()
         {
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.de/common", true);
-            var result = await context.AcquireTokenAsync("https://graph.cloudapi.de", "1950a258-227b-4e31-a9cf-717495945fc2", new UserCredential("Adi.Lette@awesomemate.eu", "P@ssw0rd"));
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<user>"));
                 
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");
