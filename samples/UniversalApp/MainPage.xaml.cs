@@ -29,13 +29,13 @@ namespace UniversalApp
             this.InitializeComponent();
         }
 
-        private async Task button_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.microsoft.com", "client_id",
-                    new Uri("someUri"));
+                AuthenticationResult result = ctx.AcquireTokenAsync("https://graph.microsoft.com", "client_id",
+                    new Uri("http://localhost")).GetResults();
                 textBlock.Text = result.AccessToken;
             }
             catch (Exception exc)
