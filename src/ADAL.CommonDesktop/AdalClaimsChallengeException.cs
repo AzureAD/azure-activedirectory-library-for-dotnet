@@ -16,7 +16,7 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Common
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// The exception type thrown when a claims challenge error occurs during token acquisition.
