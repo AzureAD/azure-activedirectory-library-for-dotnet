@@ -29,18 +29,37 @@ namespace UniversalApp
             this.InitializeComponent();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private async void accessTokenButton_Click(object sender, RoutedEventArgs e)
         {
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             try
             {
-                AuthenticationResult result = ctx.AcquireTokenAsync("https://graph.microsoft.com", "client_id",
-                    new Uri("http://localhost")).GetResults();
-                textBlock.Text = result.AccessToken;
+                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.microsoft.com", "<CLIENT_ID>",
+                    new Uri("<REDIRECT_URI>"));
+
+                resultTextbox.Text = result.AccessToken;
             }
             catch (Exception exc)
             {
-                textBlock.Text = exc.Message;
+                resultTextbox.Text = exc.Message;
+            }
+        }
+
+        private async void conditionalAccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            try
+            {
+                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.microsoft.com", "<CLIENT_ID>",
+                   new Uri("<REDIRECT_URI>"), PromptBehavior.Auto, new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims);
+
+                resultTextbox.Text = result.AccessToken;
+            }
+            catch (Exception exc)
+            {
+                resultTextbox.Text = exc.Message;
             }
         }
     }

@@ -8,8 +8,9 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Button x:Name="button" Content="Conditional Access" HorizontalAlignment="Left" Margin="120,39,0,0" VerticalAlignment="Top" Width="145" Click="button_Click"/>
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="43,114,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="467" Width="270"/>
+        <Button x:Name="conditionalAccessButton" Content="Conditional Access" HorizontalAlignment="Left" Margin="43,77,0,0" VerticalAlignment="Top" Width="145" Click="conditionalAccessButton_Click"/>
+        <TextBox x:Name="resultTextbox" HorizontalAlignment="Left" Margin="43,114,0,0" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" Text="Access Token:" VerticalAlignment="Top" Height="467" Width="270"/>
+        <Button x:Name="accessTokenButton" Content="Access Token" HorizontalAlignment="Left" Margin="43,10,0,0" VerticalAlignment="Top" Width="145" Click="accessTokenButton_Click"/>
 
     </Grid>
 </Page>
