@@ -19,8 +19,7 @@ namespace Test.ADAL.NET.Unit.Mocks
             ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
         }
 
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult,
-            Dictionary<string, string> queryParamsToValidate)
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
         {
             MockWebUI webUi = new MockWebUI();
             webUi.QueryParams = queryParamsToValidate;
@@ -147,7 +146,7 @@ namespace Test.ADAL.NET.Unit.Mocks
                         "\"oid\": \"" + uniqueId + "\"," +
                         "\"upn\": \"" + displayableId + "\"," +
                         "\"sub\": \"werwerewrewrew-Qd80ehIEdFus\"," +
-                        "\"tid\": \"some-tenant-id\"," +
+                        "\"tid\": \"" +  TestConstants.SomeTenantId + "\"," +
                         "\"ver\": \"2.0\"}";
 
             return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.signature", Base64UrlEncoder.Encode(header), Base64UrlEncoder.Encode(payload));

@@ -129,10 +129,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (!string.IsNullOrEmpty(authorizationResult.CloudInstanceName))
             {
-                var updatedAuntority = ReplaceHost(Authenticator.Authority,
+                var updatedAuthority = ReplaceHost(Authenticator.Authority,
                     authorizationResult.CloudInstanceName);
 
-                Authenticator = new Authenticator(updatedAuntority, Authenticator.ValidateAuthority);
+                Authenticator = new Authenticator(updatedAuthority, Authenticator.ValidateAuthority);
 
                 await Authenticator.UpdateFromTemplateAsync(CallState).ConfigureAwait(false);
                 this.ValidateAuthorityType();
