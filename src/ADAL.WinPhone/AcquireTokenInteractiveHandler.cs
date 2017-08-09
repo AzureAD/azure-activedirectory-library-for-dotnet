@@ -28,7 +28,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     internal partial class AcquireTokenInteractiveHandler
     {
         // This constructor is called by ContinueAcquireTokenAsync after WAB call has returned.
-        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, IWebAuthenticationBrokerContinuationEventArgs args)
+        public AcquireTokenInteractiveHandler(Authenticator authenticator, TokenCache tokenCache, IWebAuthenticationBrokerContinuationEventArgs args, string claims)
             : this(
                 authenticator, 
                 tokenCache, 
@@ -40,7 +40,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     (UserIdentifierType)((int)args.ContinuationData[WabArgName.UserIdType])),
                 null, 
                 NetworkPlugin.WebUIFactory.Create(), 
-                false)
+                false, claims)
         {
             CallState callState = new CallState(new Guid((string)args.ContinuationData[WabArgName.CorrelationId]), false);
             this.authorizationResult = this.webUi.ProcessAuthorizationResult(args, callState);
