@@ -25,7 +25,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Unit.Mocks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Common;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Test.ADAL.NET.Unit
