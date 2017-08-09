@@ -16,7 +16,6 @@
 // limitations under the License.
 //----------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -173,11 +172,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else if (tokenResponse.Error != null)
             {
-                if (!String.IsNullOrWhiteSpace(tokenResponse.Claims) && tokenResponse.Error == AdalError.InteractionRequired)
+#if ADAL_NET
+                if (!string.IsNullOrWhiteSpace(tokenResponse.Claims) && tokenResponse.Error == AdalError.InteractionRequired)
                 {
                     throw new AdalClaimsChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, tokenResponse.Claims);
                 }
-
+#endif
                 throw new AdalServiceException(tokenResponse.Error, tokenResponse.ErrorDescription);
             }
             else

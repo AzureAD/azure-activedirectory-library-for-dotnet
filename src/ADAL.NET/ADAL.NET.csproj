@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ADAL.CommonDesktop\AdalClaimsChallengeException.cs">
+      <Link>CommonDesktop\AdalClaimsChallengeException.cs</Link>
+    </Compile>
     <Compile Include="..\ADAL.CommonDesktop\AdalIdHelper.cs">
       <Link>CommonDesktop\AdalIdHelper.cs</Link>
     </Compile>
@@ -235,7 +238,6 @@
     <Compile Include="ClientAssertionCertificate.cs" />
     <Compile Include="ClientCredential.cs" />
     <Compile Include="ClientKey.cs" />
-    <Compile Include="Common\AdalClaimsChallengeException.cs" />
     <Compile Include="CryptographyHelper.cs" />
     <Compile Include="DotNetEncodingHelper.cs" />
     <Compile Include="JsonWebToken.cs" />
