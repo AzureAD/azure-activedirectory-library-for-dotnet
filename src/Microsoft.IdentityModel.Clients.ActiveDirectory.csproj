@@ -50,7 +50,7 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <EmbeddedResource Include="Properties\Microsoft.Identity.Client.rd.xml" />
+    <EmbeddedResource Include="Properties\Microsoft.IdentityModel.Clients.ActiveDirectory.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.6" PrivateAssets="All" />
@@ -75,11 +75,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\net45\*.cs" />
-    <Compile Include="Features\EventSource\**\*.cs" />
-    <Compile Include="Features\TokenCache\**\*.cs" />
-    <Compile Include="Features\PublicClient\**\*.cs" />
+    <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\*.cs" />
-    <Compile Include="Features\ConfidentialClient\**\*.cs" />
     <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
     <Compile Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
     <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
@@ -88,20 +85,14 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <Compile Include="Platforms\winrt\**\*.cs" />
-    <Compile Include="Features\EventSource\**\*.cs" />
-    <Compile Include="Features\PublicClient\**\*.cs" />
+    <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
-    <Compile Include="Features\TokenCache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
-    <Compile Include="Features\PublicClient\**\*.cs" />
-    <Compile Include="Features\ConfidentialClient\**\*.cs" />
-    <Compile Include="Features\EventSource\**\*.cs" />
-    <Compile Include="Features\TokenCache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />
