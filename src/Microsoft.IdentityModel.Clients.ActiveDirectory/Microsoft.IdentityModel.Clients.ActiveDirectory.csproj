@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
     <Authors>Microsoft Corp.</Authors>
     <PackageTitle>Active Directory Authentication Library</PackageTitle>
     <PackageLicenseUrl>https://go.microsoft.com/fwlink/?linkid=844762</PackageLicenseUrl>
@@ -79,6 +79,7 @@
     <Compile Include="Platforms\net45\**\*.cs" />
     <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\WebProxy\**\*.cs" />
+	<Compile Include="Features\CertificateAssertion\**\*.cs" />
     <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
     <Compile Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
     <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
@@ -97,6 +98,7 @@
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
     <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\WebProxy\**\*.cs" />
+	<Compile Include="Features\CertificateAssertion\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />
@@ -135,8 +137,8 @@
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
     <Compile Include="Features\NonWinCommon\**\*.cs" />
-    <AndroidResource Include="Resources\**\*.axml" />
-    <AndroidResource Include="Resources\**\*.xml" />
+    <AndroidResource Include="Platforms\android\Resources\**\*.axml" />
+    <AndroidResource Include="Platforms\android\Resources\**\*.xml" />
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
