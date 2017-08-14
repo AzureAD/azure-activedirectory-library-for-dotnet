@@ -39,6 +39,7 @@
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);DESKTOP</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
@@ -75,7 +76,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Compile Include="Platforms\net45\*.cs" />
+    <Compile Include="Platforms\net45\**\*.cs" />
     <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\WebProxy\**\*.cs" />
     <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />

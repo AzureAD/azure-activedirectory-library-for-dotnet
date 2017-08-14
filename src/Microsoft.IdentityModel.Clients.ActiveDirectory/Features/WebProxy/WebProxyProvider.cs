@@ -33,7 +33,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         public IWebProxy GetDefaultWebProxy()
         {
+#if NETSTANDARD1_3	
+			// .NET Standard does not include the default implementation of IWebRequest and therefore
+            // there is no default IWebProxy implementation (via WebRequest.DefaultWebProxy).
+            // The current advice when targeting CoreCLR is to use native platform/OS proxy settings.
+            return null;
+#else
             return WebRequest.DefaultWebProxy;
+#endif	
         }
     }
 }

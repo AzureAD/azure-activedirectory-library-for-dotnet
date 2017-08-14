@@ -46,4 +46,3 @@ using System.Runtime.InteropServices;
 
 // Allow this assembly to be serviced when run on desktop CLR
 [assembly: AssemblyMetadata("Serviceable", "True")]
-[assembly: CLSCompliant(true)]

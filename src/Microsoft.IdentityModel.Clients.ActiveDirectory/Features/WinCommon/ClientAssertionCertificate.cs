@@ -55,7 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new ArgumentNullException("certificate");
             }
 
-            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
+            if (certificate.GetRSAPublicKey().KeySize < MinKeySizeInBits)
             {
                 throw new ArgumentOutOfRangeException("certificate",
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.CertificateKeySizeTooSmallTemplate, MinKeySizeInBits));
