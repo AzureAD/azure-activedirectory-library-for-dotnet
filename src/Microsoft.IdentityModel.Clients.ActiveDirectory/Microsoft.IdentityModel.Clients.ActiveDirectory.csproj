@@ -52,6 +52,7 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
+    <Compile Remove="Resources\**\*.*" />
     <EmbeddedResource Include="Properties\Microsoft.IdentityModel.Clients.ActiveDirectory.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -137,8 +138,8 @@
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
     <Compile Include="Features\NonWinCommon\**\*.cs" />
-    <AndroidResource Include="Platforms\android\Resources\**\*.axml" />
-    <AndroidResource Include="Platforms\android\Resources\**\*.xml" />
+    <AndroidResource Include="Resources\**\*.axml" />
+    <AndroidResource Include="Resources\**\*.xml" />
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
