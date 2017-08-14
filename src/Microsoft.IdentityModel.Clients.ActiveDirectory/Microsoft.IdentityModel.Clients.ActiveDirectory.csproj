@@ -77,7 +77,7 @@
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\net45\*.cs" />
     <Compile Include="Features\WinCommon\**\*.cs" />
-    <Compile Include="Features\*.cs" />
+    <Compile Include="Features\WebProxy\**\*.cs" />
     <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
     <Compile Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
     <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
@@ -87,13 +87,15 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <Compile Include="Platforms\winrt\**\*.cs" />
     <Compile Include="Features\WinCommon\**\*.cs" />
-    <Compile Include="Features\*.cs" />
+    <Compile Include="Features\WebProxy\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
+    <Compile Include="Features\WinCommon\**\*.cs" />
+    <Compile Include="Features\WebProxy\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />
@@ -114,6 +116,8 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="Xamarin.iOS" />
     <Compile Include="Platforms\iOS\**\*.cs" />
+    <Compile Include="Features\NonWinCommon\**\*.cs" />
+    <Compile Include="Features\WebProxy\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid7' ">
     <Reference Include="Mono.Android" />
@@ -129,6 +133,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
+    <Compile Include="Features\NonWinCommon\**\*.cs" />
     <AndroidResource Include="Resources\**\*.axml" />
     <AndroidResource Include="Resources\**\*.xml" />
   </ItemGroup>
