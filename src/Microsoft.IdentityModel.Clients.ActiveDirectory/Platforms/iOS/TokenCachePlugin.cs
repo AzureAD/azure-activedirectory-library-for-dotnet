@@ -31,13 +31,13 @@ using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class TokenCachePlugin : ITokenCachePlugin
+    internal class TokenCachePlugin
     {
         const string NAME = "ADAL.PCL.iOS";
 
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
 
-        public void BeforeAccess(TokenCacheNotificationArgs args)
+        public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
             if (args.TokenCache.Count > 0)
             {
@@ -71,12 +71,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception ex)
             {
-                PlatformPlugin.Logger.Warning(null, "Failed to load cache: " + ex);
+                CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex);
                 // Ignore as the cache seems to be corrupt
             }
         }
         
-        public void AfterAccess(TokenCacheNotificationArgs args)
+        public static void AfterAccess(TokenCacheNotificationArgs args)
         {
             if (args.TokenCache.HasStateChanged)
             {
@@ -96,7 +96,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     var err = SecKeyChain.Remove(s);
                     if (err != SecStatusCode.Success)
                     {
-                        PlatformPlugin.Logger.Warning(null, "Failed to remove cache record: " + err);
+                        CallState.Default.Logger.Warning(null, "Failed to remove cache record: " + err);
                     }
 
                     if (args.TokenCache.Count > 0)
@@ -105,7 +105,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         err = SecKeyChain.Add(s);
                         if (err != SecStatusCode.Success)
                         {
-                            PlatformPlugin.Logger.Warning(null, "Failed to save cache record: " + err);
+                            CallState.Default.Logger.Warning(null, "Failed to save cache record: " + err);
                         }
                     }
 
@@ -113,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    PlatformPlugin.Logger.Warning(null, "Failed to save cache: " + ex);
+                    CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex);
                 }
             }
         }

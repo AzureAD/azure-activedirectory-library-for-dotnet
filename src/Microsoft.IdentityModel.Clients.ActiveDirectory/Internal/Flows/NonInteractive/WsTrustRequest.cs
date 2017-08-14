@@ -35,7 +35,6 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Org.Apache.Http.Client;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -72,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public static async Task<WsTrustResponse> SendRequestAsync(WsTrustAddress wsTrustAddress, UserCredential credential, CallState callState, string cloudAudience)
         {
-            IHttpClient request = PlatformPlugin.HttpClientFactory.Create(wsTrustAddress.Uri.AbsoluteUri, callState);
+            IHttpClient request = new HttpClientWrapper(wsTrustAddress.Uri.AbsoluteUri, callState);
             request.ContentType = "application/soap+xml";
             if (credential.UserAuthType == UserAuthType.IntegratedAuth)
             {

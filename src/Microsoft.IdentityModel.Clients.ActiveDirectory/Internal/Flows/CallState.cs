@@ -34,10 +34,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public CallState(Guid correlationId)
         {
             this.CorrelationId = correlationId;
+            Logger = new Logger() {CorrelationId = correlationId.ToString()};
         }
 
         public Guid CorrelationId { get; set; }
 
-        public AuthorityType AuthorityType { get; internal set; }
+        public Logger Logger { get; internal set; }
+
+        public static CallState Default => new CallState(Guid.Empty);
     }
 }

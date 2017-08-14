@@ -45,9 +45,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.userAssertion = userAssertion;
             this.DisplayableId = userAssertion.UserName;
-            CacheQueryData.AssertionHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(userAssertion.Assertion);
+            CacheQueryData.AssertionHash = CryptographyHelper.CreateSha256Hash(userAssertion.Assertion);
 
-            PlatformPlugin.Logger.Verbose(CallState,
+            CallState.Logger.Verbose(CallState,
                 string.Format(CultureInfo.InvariantCulture,
                     "Username provided in user assertion - " + string.IsNullOrEmpty(this.DisplayableId)));
             this.SupportADFS = true;

@@ -31,11 +31,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class HttpClientFactory : IHttpClientFactory
     {
-        public bool AddAdditionalHeaders
-        {
-            get { return true; }
-        }
-
         public IHttpClient Create(string uri, CallState callState)
         {
             return new HttpClientWrapper(uri, callState);

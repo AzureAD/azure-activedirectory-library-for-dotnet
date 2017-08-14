@@ -35,7 +35,7 @@ using Windows.Storage;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class TokenCachePlugin : ITokenCachePlugin
+    internal class TokenCachePlugin
     {
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
 
@@ -44,7 +44,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string CacheValueLength = "CacheValueLength";
         private const int MaxCompositeValueLength = 1024;
 
-        public void BeforeAccess(TokenCacheNotificationArgs args)
+        public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
             if (args != null && args.TokenCache != null)
             {
@@ -60,13 +60,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    PlatformPlugin.Logger.Warning(null, "Failed to load cache: " + ex);
+                    CallState.Logger.Warning(null, "Failed to load cache: " + ex);
                     // Ignore as the cache seems to be corrupt
                 }
             }
         }
         
-        public void AfterAccess(TokenCacheNotificationArgs args)
+        public static void AfterAccess(TokenCacheNotificationArgs args)
         {
             if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
             {
@@ -79,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    PlatformPlugin.Logger.Warning(null, "Failed to save cache: " + ex);
+                    CallState.Logger.Warning(null, "Failed to save cache: " + ex);
                 }
             }
         }

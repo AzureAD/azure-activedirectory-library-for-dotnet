@@ -30,7 +30,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     interface IHttpClientFactory
     {
         IHttpClient Create(string uri, CallState callState);
-
-        bool AddAdditionalHeaders { get; }
     }
 }

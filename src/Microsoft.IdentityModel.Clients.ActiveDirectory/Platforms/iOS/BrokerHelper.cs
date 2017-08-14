@@ -37,7 +37,7 @@ using UIKit;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class BrokerHelper : IBrokerHelper
+    internal class BrokerHelper
     {
         private static SemaphoreSlim brokerResponseReady = null;
         private static NSUrl brokerResponse = null;
@@ -148,7 +148,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 string expectedHash = responseDictionary["hash"];
                 string encryptedResponse = responseDictionary["response"];
                 string decryptedResponse = BrokerKeyHelper.DecryptBrokerResponse(encryptedResponse);
-                string responseActualHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(decryptedResponse);
+                string responseActualHash = CryptographyHelper.CreateSha256Hash(decryptedResponse);
                 byte[] rawHash = Convert.FromBase64String(responseActualHash);
                 string hash  = BitConverter.ToString(rawHash);
                 if (expectedHash.Equals(hash.Replace("-","")))

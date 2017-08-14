@@ -92,7 +92,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // The access is not allowed and we cannot determine whether this is a local user or not. So, we do NOT add form auth parameter.
                 // This is the case where we can advise customers to add extra query parameter if they want.
 
-                PlatformPlugin.Logger.Information(callState, "Cannot access user information to determine whether it is a local user or not due to machine's privacy setting.");
+                CallState.Logger.Information(callState, "Cannot access user information to determine whether it is a local user or not due to machine's privacy setting.");
                 return false;
             }
 
@@ -102,7 +102,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (UnauthorizedAccessException)
             {
-                PlatformPlugin.Logger.Information(callState, "Cannot try Windows Integrated Authentication due to lack of Enterprise capability.");
+                CallState.Logger.Information(callState, "Cannot try Windows Integrated Authentication due to lack of Enterprise capability.");
                 // This mostly means Enterprise capability is missing, so WIA cannot be used and
                 // we return true to add form auth parameter in the caller.
                 return true;
@@ -158,7 +158,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (redirectUri == null)
             {
                 redirectUri = Constant.SsoPlaceHolderUri;
-                PlatformPlugin.Logger.Verbose(callState, "ms-app redirect Uri is used");
+                CallState.Logger.Verbose(callState, "ms-app redirect Uri is used");
             }
 
             return redirectUri;

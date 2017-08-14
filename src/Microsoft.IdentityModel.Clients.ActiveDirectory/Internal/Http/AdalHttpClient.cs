@@ -40,15 +40,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string WwwAuthenticateHeader = "WWW-Authenticate";
         private const string PKeyAuthName = "PKeyAuth";
         private const int DelayTimePeriodMilliSeconds = 1000;
-
+        private CallState _callState;
         internal bool Resiliency = false;
         internal bool RetryOnce = true;
 
         public AdalHttpClient(string uri, CallState callState)
         {
             this.RequestUri = CheckForExtraQueryParameter(uri);
-            this.Client = PlatformPlugin.HttpClientFactory.Create(RequestUri, callState);
-            this.CallState = callState;
+            this.Client = new HttpClientWrapper(RequestUri, callState);
+            _callState = callState;
         }
 
         internal string RequestUri { get; set; }
@@ -69,16 +69,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-
-                if (PlatformPlugin.HttpClientFactory.AddAdditionalHeaders)
-                {
                     IDictionary<string, string> adalIdHeaders = AdalIdHelper.GetAdalIdParameters();
                     foreach (KeyValuePair<string, string> kvp in adalIdHeaders)
                     {
                         this.Client.Headers[kvp.Key] = kvp.Value;
                     }
-                }
-
                 //add pkeyauth header
                 this.Client.Headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
                 using (response = await this.Client.GetResponseAsync().ConfigureAwait(false))
@@ -91,7 +86,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (ex.InnerException is TaskCanceledException)
                 {
                     Resiliency = true;
-                    PlatformPlugin.Logger.Information(this.CallState, "Network timeout - " + ex.InnerException.Message);
+                    _callState.Logger.Information(this.CallState, "Network timeout - " + ex.InnerException.Message);
                 }
 
                 if (!this.isDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
@@ -111,7 +106,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                         if ((int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
                         {
-                            PlatformPlugin.Logger.Information(this.CallState, "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
+                            _callState.Logger.Information(this.CallState, "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
                             Resiliency = true;
                         }
                     }
@@ -127,15 +122,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         {
                             await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
                             RetryOnce = false;
-                            PlatformPlugin.Logger.Information(this.CallState, "Retrying one more time..");
+                            _callState.Logger.Information(this.CallState, "Retrying one more time..");
                             return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                         }
 
-                        PlatformPlugin.Logger.Information(this.CallState,
+                        _callState.Logger.Information(this.CallState,
                                 "Retry Failed - " + ex.InnerException.Message);
                     }
 
-                    PlatformPlugin.Logger.Error(CallState, serviceEx);
+                    _callState.Logger.Error(CallState, serviceEx);
                     throw serviceEx;
                 }
                 else
@@ -143,6 +138,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     response = ex.WebResponse;
                 }
             }
+
             //check for pkeyauth challenge
             if (this.isDeviceAuthChallenge(response, respondToDeviceAuthChallenge))
             {
@@ -154,7 +150,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private bool isDeviceAuthChallenge(IHttpWebResponse response, bool respondToDeviceAuthChallenge)
         {
-            return PlatformPlugin.DeviceAuthHelper.CanHandleDeviceAuthChallenge
+            return DeviceAuthHelper.CanHandleDeviceAuthChallenge
                 && respondToDeviceAuthChallenge
                 && response?.Headers != null
                 && response.Headers.ContainsKey(WwwAuthenticateHeader)
@@ -185,9 +181,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 responseDictionary["SubmitUrl"] = RequestUri;
             }
 
-            string responseHeader = await PlatformPlugin.DeviceAuthHelper.CreateDeviceAuthChallengeResponse(responseDictionary).ConfigureAwait(false);
+            string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponse(responseDictionary).ConfigureAwait(false);
             IRequestParameters rp = this.Client.BodyParameters;
-            this.Client = PlatformPlugin.HttpClientFactory.Create(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]), this.CallState);
+            this.Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]), this.CallState);
             this.Client.BodyParameters = rp;
             this.Client.Headers["Authorization"] = responseHeader;
             return await this.GetResponseAsync<T>(false).ConfigureAwait(false);
@@ -195,7 +191,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private static string CheckForExtraQueryParameter(string url)
         {
-            string extraQueryParameter = PlatformPlugin.PlatformInformation.GetEnvironmentVariable("ExtraQueryParameter");
+            string extraQueryParameter = new PlatformInformation().GetEnvironmentVariable("ExtraQueryParameter");
             string delimiter = (url.IndexOf('?') > 0) ? "&" : "?";
             if (!string.IsNullOrWhiteSpace(extraQueryParameter))
             {

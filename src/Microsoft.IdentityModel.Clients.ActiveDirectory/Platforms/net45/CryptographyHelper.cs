@@ -34,9 +34,9 @@ using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CryptographyHelper : ICryptographyHelper
+    internal class CryptographyHelper
     {
-        public string CreateSha256Hash(string input)
+        public static string CreateSha256Hash(string input)
         {
             if (string.IsNullOrEmpty(input))
             {

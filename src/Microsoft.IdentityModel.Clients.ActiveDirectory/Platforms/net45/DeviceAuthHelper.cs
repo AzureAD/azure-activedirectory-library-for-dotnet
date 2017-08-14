@@ -44,14 +44,14 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class DeviceAuthHelper : IDeviceAuthHelper
+    internal class DeviceAuthHelper
     {
-        public bool CanHandleDeviceAuthChallenge
+        public static bool CanHandleDeviceAuthChallenge
         {
             get { return true; }
         }
 
-        public async Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
+        public static async Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
         {
             string authHeaderTemplate = "PKeyAuth {0}, Context=\"{1}\", Version=\"{2}\"";
 
@@ -79,13 +79,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             return await resultTask.ConfigureAwait(false);
         }
-
-        public bool CanUseBroker
-        {
-            get { return false; }
-        }
-
-        private X509Certificate2 FindCertificate(IDictionary<string, string> challengeData)
+        
+        private static X509Certificate2 FindCertificate(IDictionary<string, string> challengeData)
         {
             var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             try

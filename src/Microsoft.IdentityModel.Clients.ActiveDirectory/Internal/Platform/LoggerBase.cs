@@ -45,10 +45,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return callerFilePath.Substring(callerFilePath.LastIndexOf("\\", StringComparison.Ordinal) + 1);
         }
 
-        internal static string PrepareLogMessage(CallState callState, string classOrComponent, string message)
+        internal string CorrelationId { get; set; } = string.Empty;
+
+        internal string PrepareLogMessage(CallState callState, string classOrComponent, string message)
         {
-            string correlationId = (callState != null) ? callState.CorrelationId.ToString() : string.Empty;
-            return string.Format(CultureInfo.InvariantCulture, "{0:O}: {1} - {2}: {3}", DateTime.UtcNow, correlationId, classOrComponent, message);
+            return string.Format(CultureInfo.InvariantCulture, "{0:O}: {1} - {2}: {3}", DateTime.UtcNow, CorrelationId, classOrComponent, message);
         }
     }
 }

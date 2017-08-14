@@ -53,7 +53,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
-            this.redirectUri = PlatformPlugin.PlatformInformation.ValidateRedirectUri(redirectUri, this.CallState);
+            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, this.CallState);
 
             if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
             {
@@ -62,7 +62,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.authorizationParameters = parameters;
 
-            this.redirectUriRequestParameter = PlatformPlugin.PlatformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
+            this.redirectUriRequestParameter = platformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
 
             if (userId == null)
             {
@@ -87,13 +87,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 this.LoadFromCache = false;
 
-                PlatformPlugin.Logger.Verbose(CallState, "Claims present. Skip cache lookup.");
+                CallState.Logger.Verbose(CallState, "Claims present. Skip cache lookup.");
 
                 this.claims = claims;
             }
             else
             {
-                this.LoadFromCache = (requestData.TokenCache != null && parameters != null && PlatformPlugin.PlatformInformation.GetCacheLoadPolicy(parameters));
+                this.LoadFromCache = (requestData.TokenCache != null && parameters != null && platformInformation.GetCacheLoadPolicy(parameters));
             }
 
             this.brokerParameters["force"] = "NO";
@@ -110,7 +110,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.brokerParameters["redirect_uri"] = this.redirectUri.AbsoluteUri;
             this.brokerParameters["extra_qp"] = extraQueryParameters;
             this.brokerParameters["claims"] = claims;
-            PlatformPlugin.BrokerHelper.PlatformParameters = authorizationParameters;
+            brokerHelper.PlatformParameters = authorizationParameters;
         }
 
         private static string ReplaceHost(string original, string newHost)
@@ -219,17 +219,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (this.authorizationParameters != null)
             {
-                PlatformPlugin.PlatformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
+                platformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
             }
-
-            if (PlatformPlugin.HttpClientFactory.AddAdditionalHeaders)
-            {
+            
                 IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdParameters)
                 {
                     authorizationRequestParameters[kvp.Key] = kvp.Value;
                 }
-            }
+            
 
             if (!string.IsNullOrWhiteSpace(extraQueryParameters))
             {

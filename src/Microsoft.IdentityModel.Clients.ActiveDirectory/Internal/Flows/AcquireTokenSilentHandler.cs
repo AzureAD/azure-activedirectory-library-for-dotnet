@@ -45,7 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
-            PlatformPlugin.BrokerHelper.PlatformParameters = parameters;    
+            BrokerHelper.PlatformParameters = parameters;    
             this.SupportADFS = true;
 
             this.brokerParameters["username"] = userId.Id;
@@ -57,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (ResultEx == null)
                 {
-                PlatformPlugin.Logger.Verbose(this.CallState, "No token matching arguments found in the cache");
+                CallState.Logger.Verbose(this.CallState, "No token matching arguments found in the cache");
                 throw new AdalSilentTokenAcquisitionException();
                 }
             

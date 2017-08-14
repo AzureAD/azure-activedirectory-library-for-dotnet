@@ -39,14 +39,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly TokenCache tokenCache;
         protected readonly IDictionary<string, string> brokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
-
+        protected readonly BrokerHelper brokerHelper = new BrokerHelper();
         private AdalHttpClient client = null;
+        protected PlatformInformation platformInformation = new PlatformInformation();
 
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
             this.Authenticator = requestData.Authenticator;
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
-            PlatformPlugin.Logger.Information(this.CallState,
+
+            CallState.Logger.Information(null, string.Format(CultureInfo.CurrentCulture, "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
+                platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(), AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion()));
+
+            CallState.Logger.Information(this.CallState,
                 string.Format(CultureInfo.CurrentCulture,
                     "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
                     requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
@@ -117,7 +122,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (this.LoadFromCache)
                 {
-                    PlatformPlugin.Logger.Verbose(CallState, "Loading from cache.");
+                    CallState.Logger.Verbose(CallState, "Loading from cache.");
                     CacheQueryData.Authority = Authenticator.Authority;
                     CacheQueryData.Resource = this.Resource;
                     CacheQueryData.ClientId = this.ClientKey.ClientId;
@@ -147,9 +152,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
-                    if (PlatformPlugin.BrokerHelper.CanInvokeBroker)
+                    if (brokerHelper.CanInvokeBroker)
                     {
-                        ResultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
+                        ResultEx = await brokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
                     }
                     else
                     {
@@ -157,7 +162,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         // check if broker app installation is required for authentication.
                         if (this.BrokerInvocationRequired())
                         {
-                            ResultEx = await PlatformPlugin.BrokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
+                            ResultEx = await brokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
                         }
                         else
                         {
@@ -190,10 +195,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception ex)
             {
-                PlatformPlugin.Logger.Error(this.CallState, ex);
+                CallState.Logger.Error(this.CallState, ex);
                 if (client != null && client.Resiliency && extendedLifetimeResultEx != null)
                 {
-                    PlatformPlugin.Logger.Information(this.CallState,
+                    CallState.Logger.Information(this.CallState,
                         "Refreshing AT failed either due to one of these :- Internal Server Error,Gateway Timeout and Service Unavailable.Hence returning back stale AT");
                     return extendedLifetimeResultEx.Result;
                 }
@@ -267,7 +272,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (result.RefreshToken == null)
             {
                 result.RefreshToken = refreshToken;
-                PlatformPlugin.Logger.Verbose(this.CallState,
+                CallState.Logger.Verbose(this.CallState,
                     "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
             }
 
@@ -280,7 +285,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (this.Resource != null)
             {
-                PlatformPlugin.Logger.Verbose(this.CallState, "Refreshing access token...");
+                CallState.Logger.Verbose(this.CallState, "Refreshing access token...");
 
                 try
                 {
@@ -348,15 +353,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (result.AccessToken != null)
             {
-                string accessTokenHash = PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.AccessToken);
+                string accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
 
-                PlatformPlugin.Logger.Information(this.CallState,
+                CallState.Logger.Information(this.CallState,
                     string.Format(CultureInfo.CurrentCulture,
                         "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
                         accessTokenHash,
                         result.ExpiresOn,
                         result.UserInfo != null
-                            ? PlatformPlugin.CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId)
+                            ? CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId)
                             : "null"));
             }
         }

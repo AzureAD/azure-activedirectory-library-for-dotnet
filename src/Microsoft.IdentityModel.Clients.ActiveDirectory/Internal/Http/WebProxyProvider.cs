@@ -25,25 +25,27 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Security.Cryptography;
-using System.Text;
+using System.Net;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CryptographyHelper
+#if ANDROID
+    [Android.Runtime.Preserve(AllMembers = true)]
+#endif
+    internal class WebProxyProvider
     {
-        public static string CreateSha256Hash(string input)
+        public static IWebProxy DefaultWebProxy
         {
-            if (string.IsNullOrWhiteSpace(input))
+            get
             {
+#if NETSTANDARD1_3
+                // .NET Standard does not include the default implementation of IWebRequest and therefore
+                // there is no default IWebProxy implementation (via WebRequest.DefaultWebProxy).
+                // The current advice when targeting CoreCLR is to use native platform/OS proxy settings.
                 return null;
-            }
-
-            using (SHA256Managed sha = new SHA256Managed())
-            {
-                UTF8Encoding encoding = new UTF8Encoding();
-                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
+#else
+            return WebRequest.DefaultWebProxy;
+#endif
             }
         }
     }

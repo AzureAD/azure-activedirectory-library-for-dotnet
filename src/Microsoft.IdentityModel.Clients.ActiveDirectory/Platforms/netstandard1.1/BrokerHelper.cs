@@ -26,25 +26,25 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Security.Cryptography;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class CryptographyHelper
+    class BrokerHelper : IBrokerHelper
     {
-        public static string CreateSha256Hash(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                return null;
-            }
+        public IPlatformParameters PlatformParameters { get; set; }
 
-            using (SHA256Managed sha = new SHA256Managed())
-            {
-                UTF8Encoding encoding = new UTF8Encoding();
-                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
-            }
+        public bool CanInvokeBroker {
+            get { return false; } 
         }
+
+        public Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        {
+            throw new NotImplementedException();
+        }
+        
     }
 }

@@ -70,22 +70,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             var parameters = new Dictionary<string, string>();
 
-            parameters[AdalIdParameter.Product] = PlatformPlugin.PlatformInformation.GetProductName();
+            parameters[AdalIdParameter.Product] = new PlatformInformation().GetProductName();
             parameters[AdalIdParameter.Version] = GetAdalVersion();
 
-            var processorInofrmation = PlatformPlugin.PlatformInformation.GetProcessorArchitecture();
+            var processorInofrmation = new PlatformInformation().GetProcessorArchitecture();
             if (processorInofrmation != null)
             {
                 parameters[AdalIdParameter.CpuPlatform] = processorInofrmation;
             }
 
-            var osInformation = PlatformPlugin.PlatformInformation.GetOperatingSystem();
+            var osInformation = new PlatformInformation().GetOperatingSystem();
             if (osInformation != null)
             {
                 parameters[AdalIdParameter.OS] = osInformation;
             }
 
-            var deviceInformation = PlatformPlugin.PlatformInformation.GetDeviceModel();
+            var deviceInformation = new PlatformInformation().GetDeviceModel();
             if (deviceInformation != null)
             {
                 parameters[AdalIdParameter.DeviceModel] = deviceInformation;
@@ -110,7 +110,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public static string GetAssemblyFileVersion()
         {
-            return PlatformPlugin.PlatformInformation.GetAssemblyFileVersionAttribute();
+            return new PlatformInformation().GetAssemblyFileVersionAttribute();
         }
 
         public static string GetAssemblyInformationalVersion()

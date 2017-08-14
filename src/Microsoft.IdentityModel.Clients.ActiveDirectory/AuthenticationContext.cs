@@ -41,16 +41,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// <summary>
     /// The AuthenticationContext class retrieves authentication tokens from Azure Active Directory and ADFS services.
     /// </summary>
-    public sealed class AuthenticationContext
+    public sealed partial class AuthenticationContext
     {
         internal Authenticator Authenticator;
-
-        static AuthenticationContext()
-        {
-            PlatformPlugin.Logger.Information(null, string.Format(CultureInfo.CurrentCulture, "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                PlatformPlugin.PlatformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(), AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion()));
-        }
-
+        
         /// <summary>
         /// Constructor to create the context with the address of the authority.
         /// Using this constructor will turn ON validation of the authority URL by default if validation is supported for the authority address.
@@ -604,7 +598,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal IWebUI CreateWebAuthenticationDialog(IPlatformParameters parameters)
         {
-            return PlatformPlugin.WebUIFactory.CreateAuthenticationDialog(parameters);
+            return new WebUIFactory().CreateAuthenticationDialog(parameters);
         }
 
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, UserCredential userCredential)

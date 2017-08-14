@@ -25,16 +25,28 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Net;
+using System;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    [Android.Runtime.Preserve(AllMembers = true)]
-    internal class WebProxyProvider : IWebProxyProvider
+    internal class CryptographyHelper
     {
-        public IWebProxy GetDefaultWebProxy()
+        public static string CreateSha256Hash(string input)
         {
-            return WebRequest.DefaultWebProxy;
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return null;
+            }
+
+
+            using (SHA256Managed sha = new SHA256Managed())
+            {
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
+            }
         }
     }
 }

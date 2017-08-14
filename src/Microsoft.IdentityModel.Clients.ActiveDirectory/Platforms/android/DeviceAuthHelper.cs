@@ -32,13 +32,13 @@ using System.Threading.Tasks;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    internal class DeviceAuthHelper : IDeviceAuthHelper
+    internal class DeviceAuthHelper
     {
-        public bool CanHandleDeviceAuthChallenge {
+        public static bool CanHandleDeviceAuthChallenge {
             get { return false; }
         }
 
-        public Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
+        public static Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
         {
             return Task.FromResult(string.Format(CultureInfo.InvariantCulture, @"PKeyAuth Context=""{0}"",Version=""{1}""", challengeData[BrokerConstants.ChallangeResponseContext], challengeData[BrokerConstants.ChallangeResponseVersion]));
         }

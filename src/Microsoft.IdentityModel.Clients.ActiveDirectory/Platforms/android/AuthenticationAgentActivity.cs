@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string userAgent = webSettings.UserAgentString;
             webSettings.UserAgentString = 
                     userAgent + BrokerConstants.ClientTlsNotSupported;
-            PlatformPlugin.Logger.Verbose(null, "UserAgent:" + webSettings.UserAgentString);
+            CallState.Logger.Verbose(null, "UserAgent:" + webSettings.UserAgentString);
 
             webSettings.JavaScriptEnabled = true;
 
@@ -113,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Uri uri = new Uri(url);
                 if (url.StartsWith(BrokerConstants.BrowserExtPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    PlatformPlugin.Logger.Verbose(null, "It is browser launch request");
+                    CallState.Logger.Verbose(null, "It is browser launch request");
                     OpenLinkInBrowser(url, ((Activity)view.Context));
                     view.StopLoading();
                     ((Activity)view.Context).Finish();
@@ -122,7 +122,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (url.StartsWith(BrokerConstants.BrowserExtInstallPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    PlatformPlugin.Logger.Verbose(null, "It is an azure authenticator install request");
+                    CallState.Logger.Verbose(null, "It is an azure authenticator install request");
                     view.StopLoading();
                     this.Finish(view, url);
                     return true;
@@ -137,7 +137,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
-                    string responseHeader = PlatformPlugin.DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
+                    string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
                     Dictionary<string, string> pkeyAuthEmptyResponse = new Dictionary<string, string>();
                     pkeyAuthEmptyResponse[BrokerConstants.ChallangeResponseHeader] = responseHeader;
                     view.LoadUrl(keyPair["SubmitUrl"], pkeyAuthEmptyResponse);

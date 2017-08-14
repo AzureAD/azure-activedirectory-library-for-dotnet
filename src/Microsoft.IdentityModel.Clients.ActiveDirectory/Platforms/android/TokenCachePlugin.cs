@@ -32,17 +32,12 @@ using System;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    internal class TokenCachePlugin : ITokenCachePlugin
+    internal class TokenCachePlugin
     {
         private const string SharedPreferencesName = "ActiveDirectoryAuthenticationLibrary";
         private const string SharedPreferencesKey = "cache";
-
-        public IntPtr Handle 
-        {
-            get { return IntPtr.Zero; }
-        }
-
-        public void BeforeAccess(TokenCacheNotificationArgs args)
+        
+        public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
             if (args.TokenCache.Count > 0)
             {
@@ -62,12 +57,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception ex)
             {
-                PlatformPlugin.Logger.Warning(null, "Failed to load cache: " + ex);
+                CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex);
                 // Ignore as the cache seems to be corrupt
             }
         }
         
-        public void AfterAccess(TokenCacheNotificationArgs args)
+        public static void AfterAccess(TokenCacheNotificationArgs args)
         {
             if (args.TokenCache.HasStateChanged)
             {
@@ -89,7 +84,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    PlatformPlugin.Logger.Warning(null, "Failed to save cache: " + ex);
+                    CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex);
                 }
             }
         }

@@ -37,12 +37,14 @@ using Java.IO;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    internal class BrokerHelper : IBrokerHelper
+    internal class BrokerHelper
     {
         private static SemaphoreSlim readyForResponse = null;
         private static AuthenticationResultEx resultEx = null;
 
         private readonly BrokerProxy mBrokerProxy = new BrokerProxy(Application.Context);
+
+        public CallState CallState { get; set; }
 
         public IPlatformParameters PlatformParameters { get; set; }
 
@@ -70,7 +72,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception exc)
             {
-                PlatformPlugin.Logger.Error(null, exc);
+                CallState.Logger.Error(null, exc);
                 throw;
             }
             await readyForResponse.WaitAsync().ConfigureAwait(false);
@@ -106,7 +108,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (mBrokerProxy.VerifyUser(request.LoginHint,
                 request.UserId))
             {
-                PlatformPlugin.Logger.Verbose(null, "It switched to broker for context: " + mContext.PackageName);
+                CallState.Logger.Verbose(null, "It switched to broker for context: " + mContext.PackageName);
                 request.BrokerAccountName = request.LoginHint;
 
                 // Don't send background request, if prompt flag is always or
@@ -114,17 +116,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 bool hasAccountNameOrUserId = !string.IsNullOrEmpty(request.BrokerAccountName) || !string.IsNullOrEmpty(request.UserId);
                 if (string.IsNullOrEmpty(request.Claims) && hasAccountNameOrUserId)
                 {
-                    PlatformPlugin.Logger.Verbose(null, "User is specified for background token request");
+                    CallState.Logger.Verbose(null, "User is specified for background token request");
                     resultEx = mBrokerProxy.GetAuthTokenInBackground(request, platformParams.CallerActivity);
                 }
                 else
                 {
-                    PlatformPlugin.Logger.Verbose(null, "User is not specified for background token request");
+                    CallState.Logger.Verbose(null, "User is not specified for background token request");
                 }
 
                 if (resultEx != null && resultEx.Result != null && !string.IsNullOrEmpty(resultEx.Result.AccessToken))
                 {
-                    PlatformPlugin.Logger.Verbose(null, "Token is returned from background call ");
+                    CallState.Logger.Verbose(null, "Token is returned from background call ");
                     readyForResponse.Release();
                     return;
                 }
@@ -134,14 +136,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // Initial request to authenticator needs to launch activity to
                 // record calling uid for the account. This happens for Prompt auto
                 // or always behavior.
-                PlatformPlugin.Logger.Verbose(null, "Token is not returned from backgroud call");
+                CallState.Logger.Verbose(null, "Token is not returned from backgroud call");
 
                 // Only happens with callback since silent call does not show UI
-                PlatformPlugin.Logger.Verbose(null, "Launch activity for Authenticator");
-                PlatformPlugin.Logger.Verbose(null, "Starting Authentication Activity");
+                CallState.Logger.Verbose(null, "Launch activity for Authenticator");
+                CallState.Logger.Verbose(null, "Starting Authentication Activity");
                 if (resultEx == null)
                 {
-                    PlatformPlugin.Logger.Verbose(null, "Initial request to authenticator");
+                    CallState.Logger.Verbose(null, "Initial request to authenticator");
                     // Log the initial request but not force a prompt
                 }
 
@@ -158,14 +160,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     try
                     {
-                        PlatformPlugin.Logger.Verbose(null, "Calling activity pid:" + Android.OS.Process.MyPid()
+                        CallState.Logger.Verbose(null, "Calling activity pid:" + Android.OS.Process.MyPid()
                                                             + " tid:" + Android.OS.Process.MyTid() + "uid:"
                                                             + Android.OS.Process.MyUid());
                         platformParams.CallerActivity.StartActivityForResult(brokerIntent, 1001);
                     }
                     catch (ActivityNotFoundException e)
                     {
-                        PlatformPlugin.Logger.Error(null, e);
+                        CallState.Logger.Error(null, e);
                     }
                 }
             }

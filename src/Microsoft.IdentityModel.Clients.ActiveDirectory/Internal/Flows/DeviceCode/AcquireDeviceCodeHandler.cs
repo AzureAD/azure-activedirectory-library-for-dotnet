@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 deviceCodeRequestParameters[OAuthParameter.CorrelationId] = this.callState.CorrelationId.ToString();
             }
             
-            if (PlatformPlugin.HttpClientFactory.AddAdditionalHeaders)
+            if (HttpClientFactory.AddAdditionalHeaders)
             {
                 IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdParameters)

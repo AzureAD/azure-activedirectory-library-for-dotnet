@@ -40,14 +40,14 @@ using Windows.Storage.Streams;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class DeviceAuthHelper : IDeviceAuthHelper
+    internal class DeviceAuthHelper
     {
-        public bool CanHandleDeviceAuthChallenge
+        public static bool CanHandleDeviceAuthChallenge
         {
             get { return true; }
         }
 
-        public async Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
+        public static async Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
         {
             string authHeaderTemplate = "PKeyAuth {0}, Context=\"{1}\", Version=\"{2}\"";
             
@@ -68,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return string.Format(CultureInfo.InvariantCulture, authHeaderTemplate, authToken, challengeData["Context"], challengeData["Version"]);
         }
 
-        private async Task<Certificate> FindCertificate(IDictionary<string, string> challengeData)
+        private static async Task<Certificate> FindCertificate(IDictionary<string, string> challengeData)
         {
             CertificateQuery query = new CertificateQuery();
             IReadOnlyList<Certificate> certificates = null;
@@ -77,7 +77,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (challengeData.ContainsKey("CertAuthorities"))
             {
                 errMessage = "Cert Authorities:" + challengeData["CertAuthorities"];
-                PlatformPlugin.Logger.Verbose(null, "Looking up certificate matching authorities:" + challengeData["CertAuthorities"]);
+                CallState.Logger.Verbose(null, "Looking up certificate matching authorities:" + challengeData["CertAuthorities"]);
                 string[] certAuthorities = challengeData["CertAuthorities"].Split(';');
                 foreach (var certAuthority in certAuthorities)
                 {
@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             else
             {
                 errMessage = "Cert Thumbprint:" + challengeData["CertThumbprint"];
-                PlatformPlugin.Logger.Verbose(null, "Looking up certificate matching thumbprint:" + challengeData["CertThumbprint"]);
+                CallState.Logger.Verbose(null, "Looking up certificate matching thumbprint:" + challengeData["CertThumbprint"]);
                 query.Thumbprint = HexStringToByteArray(challengeData["CertThumbprint"]);
                 certificates = await CertificateStores.FindAllAsync(query).AsTask().ConfigureAwait(false);
             }
@@ -114,7 +114,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return certificates[0];
         }
 
-        private byte[] HexStringToByteArray(string hex)
+        private static byte[] HexStringToByteArray(string hex)
         {
             if (hex.Length % 2 == 1)
                 throw new Exception("The binary key cannot have an odd number of digits");
@@ -129,7 +129,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return arr;
         }
 
-        private int GetHexVal(char hex)
+        private static int GetHexVal(char hex)
         {
             int val = (int)hex;
             return val - (val < 58 ? 48 : 55);

@@ -57,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string userRealmEndpoint = userRealmUri;
             userRealmEndpoint += (userName + "?api-version=1.0");
 
-            PlatformPlugin.Logger.Information(callState, string.Format(CultureInfo.CurrentCulture, " Sending user realm discovery request to '{0}'", userRealmEndpoint));
+            callState.Logger.Information(callState, string.Format(CultureInfo.CurrentCulture, " Sending user realm discovery request to '{0}'", userRealmEndpoint));
 
             var client = new AdalHttpClient(userRealmEndpoint, callState) { Client = { Accept = "application/json" } };
             return await client.GetResponseAsync<UserRealmDiscoveryResponse>().ConfigureAwait(false);

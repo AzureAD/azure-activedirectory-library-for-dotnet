@@ -171,7 +171,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
             if (!e.Cancel)
             {
-                PlatformPlugin.Logger.Verbose(null,
+                CallState.Default.Logger.Verbose(null,
                     string.Format(CultureInfo.CurrentCulture, " Navigating to '{0}'.",
                         EncodingHelper.UrlDecode(e.Url.ToString())));
             }
@@ -181,7 +181,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             if (!this.CheckForClosingUrl(e.Url))
             {
-                PlatformPlugin.Logger.Verbose(null,
+                CallState.Default.Logger.Verbose(null,
                     string.Format(CultureInfo.CurrentCulture, " Navigated to '{0}'.",
                         EncodingHelper.UrlDecode(e.Url.ToString())));
             }
@@ -264,13 +264,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             {
                 if (this.webBrowser.IsBusy)
                 {
-                    PlatformPlugin.Logger.Verbose(null,
+                    CallState.Default.Logger.Verbose(null,
                         string.Format(CultureInfo.CurrentCulture,
                             " WebBrowser state: IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
                             this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
                             this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
                     this.webBrowser.Stop();
-                    PlatformPlugin.Logger.Verbose(null,
+                    CallState.Default.Logger.Verbose(null,
                         string.Format(CultureInfo.CurrentCulture,
                             " WebBrowser state (after Stop): IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
                             this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,

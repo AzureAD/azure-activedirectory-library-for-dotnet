@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    class DeviceAuthHelper : IDeviceAuthHelper
+    class DeviceAuthHelper
     {
-        public bool CanHandleDeviceAuthChallenge { get { return false; } }
+        public static bool CanHandleDeviceAuthChallenge { get { return false; } }
 
-        public Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
+        public static Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
         {
             throw new System.NotImplementedException();
         }

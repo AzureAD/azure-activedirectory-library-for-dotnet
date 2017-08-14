@@ -109,7 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
-                    string responseHeader = PlatformPlugin.DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
+                    string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
                     
                     NSMutableUrlRequest newRequest = (NSMutableUrlRequest)request.MutableCopy();
                     newRequest.Url = new NSUrl(keyPair["SubmitUrl"]);

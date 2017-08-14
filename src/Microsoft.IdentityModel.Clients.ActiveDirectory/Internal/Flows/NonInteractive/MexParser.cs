@@ -74,7 +74,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             XDocument mexDocument;
             try
             {
-                IHttpClient request = PlatformPlugin.HttpClientFactory.Create(federationMetadataUrl, callState);
+                IHttpClient request = new HttpClientWrapper(federationMetadataUrl, callState);
                 using (var response = await request.GetResponseAsync().ConfigureAwait(false))
                 {
                     mexDocument = XDocument.Load(EncodingHelper.GenerateStreamFromString(response.ResponseString), LoadOptions.None);

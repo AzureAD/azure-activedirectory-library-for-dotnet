@@ -33,14 +33,14 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class TokenCachePlugin : ITokenCachePlugin
+    internal class TokenCachePlugin
     {
-        public void BeforeAccess(TokenCacheNotificationArgs args)
+        public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
             // Default implementation, do nothing
         }
 
-        public void AfterAccess(TokenCacheNotificationArgs args)
+        public static void AfterAccess(TokenCacheNotificationArgs args)
         {
             // Default implementation, do nothing
         }
