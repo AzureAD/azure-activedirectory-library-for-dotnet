@@ -127,29 +127,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                 }
 
-                if (parseResponse)
+                if (!parseResponse)
                 {
-                    IEnumerable<XElement> tokenResponses =
-                        responseDocument.Descendants(t + "RequestSecurityTokenResponse");
-                    foreach (var tokenResponse in tokenResponses)
+                    throw new AdalException(AdalError.ParsingWsTrustResponseFailed);
+                }
+
+                IEnumerable<XElement> tokenResponses =
+                    responseDocument.Descendants(t + "RequestSecurityTokenResponse");
+                foreach (var tokenResponse in tokenResponses)
+                {
+                    XElement tokenTypeElement = tokenResponse.Elements(t + "TokenType").FirstOrDefault();
+                    if (tokenTypeElement == null)
                     {
-                        XElement tokenTypeElement = tokenResponse.Elements(t + "TokenType").FirstOrDefault();
-                        if (tokenTypeElement == null)
-                        {
-                            continue;
-                        }
-
-                        XElement requestedSecurityToken =
-                            tokenResponse.Elements(t + "RequestedSecurityToken").FirstOrDefault();
-                        if (requestedSecurityToken == null)
-                        {
-                            continue;
-                        }
-
-                        // TODO #123622: We need to disable formatting due to a potential service bug. Remove the ToString argument when problem is fixed.
-                        tokenResponseDictionary.Add(tokenTypeElement.Value,
-                            requestedSecurityToken.FirstNode.ToString(SaveOptions.DisableFormatting));
+                        continue;
                     }
+
+                    XElement requestedSecurityToken =
+                        tokenResponse.Elements(t + "RequestedSecurityToken").FirstOrDefault();
+                    if (requestedSecurityToken == null)
+                    {
+                        continue;
+                    }
+
+                    // TODO #123622: We need to disable formatting due to a potential service bug. Remove the ToString argument when problem is fixed.
+                    tokenResponseDictionary.Add(tokenTypeElement.Value,
+                        requestedSecurityToken.FirstNode.ToString(SaveOptions.DisableFormatting));
                 }
             }
             catch (XmlException ex)
@@ -162,7 +164,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw new AdalException(AdalError.ParsingWsTrustResponseFailed);
             }
 
-            string tokenType = tokenResponseDictionary.ContainsKey(Saml1Assertion) ? Saml1Assertion : tokenResponseDictionary.Keys.First();
+            string tokenType = tokenResponseDictionary.ContainsKey(Saml1Assertion)
+                ? Saml1Assertion
+                : tokenResponseDictionary.Keys.First();
 
             WsTrustResponse wsTrustResponse = new WsTrustResponse
             {
