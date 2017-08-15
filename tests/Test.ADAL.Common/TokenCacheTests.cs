@@ -175,8 +175,6 @@ namespace Test.ADAL.Common.Unit
         {
 
             string authority = "https://www.gotJwt.com/";
-            string clientId = Guid.NewGuid().ToString();
-            string resource = Guid.NewGuid().ToString();
             string tenantId = Guid.NewGuid().ToString();
             string uniqueId = Guid.NewGuid().ToString();
             string displayableId = Guid.NewGuid().ToString();
@@ -190,8 +188,8 @@ namespace Test.ADAL.Common.Unit
             localCache.Clear();
 
             // Add first user into cache
-            resource = Guid.NewGuid().ToString();
-            clientId = Guid.NewGuid().ToString();
+            string resource = Guid.NewGuid().ToString();
+            string clientId = Guid.NewGuid().ToString();
             uniqueId = Guid.NewGuid().ToString();
             displayableId = Guid.NewGuid().ToString();
             var cacheValue = CreateCacheValue(uniqueId, displayableId);
@@ -209,7 +207,7 @@ namespace Test.ADAL.Common.Unit
 
             var acWithLocalCache = new AuthenticationContext(authority, false, localCache);
             var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
-            var userIdUpper = new UserIdentifier(displayableId.ToUpper(), UserIdentifierType.RequiredDisplayableId);
+            var userIdUpper = new UserIdentifier(displayableId.ToUpper(CultureInfo.InvariantCulture), UserIdentifierType.RequiredDisplayableId);
 
             var parameters = new PlatformParameters(PromptBehavior.Auto);
             var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId);
