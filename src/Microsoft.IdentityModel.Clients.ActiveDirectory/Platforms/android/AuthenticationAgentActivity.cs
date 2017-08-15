@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string userAgent = webSettings.UserAgentString;
             webSettings.UserAgentString = 
                     userAgent + BrokerConstants.ClientTlsNotSupported;
-            CallState.Logger.Verbose(null, "UserAgent:" + webSettings.UserAgentString);
+            CallState.Default.Logger.Verbose(null, "UserAgent:" + webSettings.UserAgentString);
 
             webSettings.JavaScriptEnabled = true;
 
@@ -108,12 +108,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
+            [Obsolete]
             public override bool ShouldOverrideUrlLoading(WebView view, string url)
             {
                 Uri uri = new Uri(url);
                 if (url.StartsWith(BrokerConstants.BrowserExtPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    CallState.Logger.Verbose(null, "It is browser launch request");
+                    CallState.Default.Logger.Verbose(null, "It is browser launch request");
                     OpenLinkInBrowser(url, ((Activity)view.Context));
                     view.StopLoading();
                     ((Activity)view.Context).Finish();
@@ -122,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (url.StartsWith(BrokerConstants.BrowserExtInstallPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    CallState.Logger.Verbose(null, "It is an azure authenticator install request");
+                    CallState.Default.Logger.Verbose(null, "It is an azure authenticator install request");
                     view.StopLoading();
                     this.Finish(view, url);
                     return true;

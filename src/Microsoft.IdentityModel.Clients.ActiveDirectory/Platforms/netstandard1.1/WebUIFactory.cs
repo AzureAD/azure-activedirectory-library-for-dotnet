@@ -25,21 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    class BrokerHelper
+    internal class WebUIFactory : IWebUIFactory
     {
-        public CallState CallState { get; set; }
-        public IPlatformParameters PlatformParameters { get; set; }
-
-        public bool CanInvokeBroker { get { return false; } }
-
-        public Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        public IWebUI CreateAuthenticationDialog(IPlatformParameters parameters)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

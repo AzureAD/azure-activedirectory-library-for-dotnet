@@ -46,7 +46,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     "login.microsoftonline.com"     // Microsoft Azure Worldwide
                 };
 
-            string customAuthorityHost = PlatformInformation.GetEnvironmentVariable("customTrustedHost");
+            string customAuthorityHost = new PlatformInformation().GetEnvironmentVariable("customTrustedHost");
             if (string.IsNullOrWhiteSpace(customAuthorityHost))
             {
                 foreach (string host in trustedHostList)

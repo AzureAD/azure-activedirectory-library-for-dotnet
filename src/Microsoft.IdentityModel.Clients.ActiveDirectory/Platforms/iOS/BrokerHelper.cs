@@ -41,7 +41,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         private static SemaphoreSlim brokerResponseReady = null;
         private static NSUrl brokerResponse = null;
-        
+
+        public CallState CallState { get; set; }
         public IPlatformParameters PlatformParameters { get; set; }
 
         public bool CanInvokeBroker

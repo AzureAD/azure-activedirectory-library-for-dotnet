@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,81 +26,34 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Globalization;
-
+﻿
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal class Logger : LoggerBase
     {
-        static Logger()
-        {
-            AdalEventSource = new AdalEventSource();
-        }
-
-        internal static AdalEventSource AdalEventSource { get; private set; }
-
         internal override void Error(CallState callState, Exception ex, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
-            string log = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), ex.ToString());
-            if (LoggerCallbackHandler.UseDefaultLogging)
-            {
-#if NETSTANDARD1_3
-
-                Console.WriteLine(log);
-#else
-                AdalEventSource.Error(log);
-#endif
-            }
-
-            LoggerCallbackHandler.ExecuteCallback(LogLevel.Error, log);
+            string message = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), ex.ToString());
+            LoggerCallbackHandler.ExecuteCallback(LogLevel.Error, message);
         }
 
         internal override void Verbose(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
-            string log = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
-            if (LoggerCallbackHandler.UseDefaultLogging)
-            {
-#if NETSTANDARD1_3
-
-                Console.WriteLine(log);
-#else
-                AdalEventSource.Verbose(log);
-#endif
-            }
-
-            LoggerCallbackHandler.ExecuteCallback(LogLevel.Verbose, log);
+            string updatedMessage = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
+            LoggerCallbackHandler.ExecuteCallback(LogLevel.Verbose, updatedMessage);
         }
 
         internal override void Information(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
-            string log = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
-            if (LoggerCallbackHandler.UseDefaultLogging)
-            {
-#if NETSTANDARD1_3
-
-                Console.WriteLine(log);
-#else
-                AdalEventSource.Information(log);
-#endif
-            }
-
-            LoggerCallbackHandler.ExecuteCallback(LogLevel.Information, log);
+            string updatedMessage = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
+            LoggerCallbackHandler.ExecuteCallback(LogLevel.Information, updatedMessage);
         }
 
         internal override void Warning(CallState callState, string message, [System.Runtime.CompilerServices.CallerFilePath] string callerFilePath = "")
         {
-            string log = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
-            if (LoggerCallbackHandler.UseDefaultLogging)
-            {
-#if NETSTANDARD1_3
-
-                Console.WriteLine(log);
-#else
-                AdalEventSource.Warning(log);
-#endif
-            }
-
-            LoggerCallbackHandler.ExecuteCallback(LogLevel.Warning, log);
+            string updatedMessage = PrepareLogMessage(callState, GetCallerFilename(callerFilePath), message);
+            LoggerCallbackHandler.ExecuteCallback(LogLevel.Warning, updatedMessage);
         }
     }
 }
+

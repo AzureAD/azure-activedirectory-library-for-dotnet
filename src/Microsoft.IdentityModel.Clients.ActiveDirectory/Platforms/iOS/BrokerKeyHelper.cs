@@ -76,7 +76,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 var result = SecKeyChain.Add(record);
                 if (result != SecStatusCode.Success)
                 {
-                    CallState.Logger.Warning(null, "Failed to save broker key: " + result);
+                    CallState.Default.Logger.Warning(null, "Failed to save broker key: " + result);
                 }
 
                 brokerKey = byteData.ToArray();

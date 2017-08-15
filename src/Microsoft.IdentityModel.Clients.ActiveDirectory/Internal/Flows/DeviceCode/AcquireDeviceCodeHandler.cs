@@ -58,15 +58,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 deviceCodeRequestParameters[OAuthParameter.CorrelationId] = this.callState.CorrelationId.ToString();
             }
             
-            if (HttpClientFactory.AddAdditionalHeaders)
-            {
                 IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdParameters)
                 {
                     deviceCodeRequestParameters[kvp.Key] = kvp.Value;
                 }
-            }
-
+            
             if (!string.IsNullOrWhiteSpace(extraQueryParameters))
             {
                 // Checks for extraQueryParameters duplicating standard parameters

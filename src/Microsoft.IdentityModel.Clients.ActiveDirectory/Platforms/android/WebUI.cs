@@ -85,7 +85,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else
             {
-                CallState.Logger.Information(null, "No pending request for response from web ui.");
+                CallState.Default.Logger.Information(null, "No pending request for response from web ui.");
             }
         }
     }

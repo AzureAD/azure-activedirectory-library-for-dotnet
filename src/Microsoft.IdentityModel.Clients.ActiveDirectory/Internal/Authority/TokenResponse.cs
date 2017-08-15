@@ -181,7 +181,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // the value to 0.
             if (ExtendedExpiresIn < ExpiresIn)
             {
-                CallState.Logger.Information(null,
+                CallState.Default.Logger.Information(null,
                     string.Format(CultureInfo.InvariantCulture,
                         "ExtendedExpiresIn({0}) is less than ExpiresIn({1}). Set ExpiresIn as ExtendedExpiresIn",
                         this.ExtendedExpiresIn, this.ExpiresIn));

@@ -56,6 +56,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private readonly string mBrokerTag;
         public const string DATA_USER_INFO = "com.microsoft.workaccount.user.info";
 
+        public CallState CallState { get; set; }
 
         public BrokerProxy()
         {

@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public static Task<string> CreateDeviceAuthChallengeResponse(IDictionary<string, string> challengeData)
         {
-            return Task.FromResult(string.Format(CultureInfo.InvariantCulture, @"PKeyAuth Context=""{0}"",Version=""{1}""", challengeData[BrokerConstants.ChallengeResponseContext], challengeData[BrokerConstants.ChallengeResponseVersion]));
+            throw new NotImplementedException();
         }
     }
 }

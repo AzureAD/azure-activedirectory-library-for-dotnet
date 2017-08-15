@@ -171,7 +171,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     if (response.ContainsKey(key) && callState != null)
                     {
-                        CallState.Logger.Warning(callState, string.Format(CultureInfo.CurrentCulture, "Key/value pair list contains redundant key '{0}'.", key));
+                        callState.Logger.Warning(callState, string.Format(CultureInfo.CurrentCulture, "Key/value pair list contains redundant key '{0}'.", key));
                     }
 
                     response[key] = value;

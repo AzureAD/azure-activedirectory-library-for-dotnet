@@ -64,6 +64,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public async Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
         {
+            mBrokerProxy.CallState = CallState;
+
             resultEx = null;
             readyForResponse = new SemaphoreSlim(0);
             try
@@ -78,6 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             await readyForResponse.WaitAsync().ConfigureAwait(false);
             return resultEx;
         }
+
         public void AcquireToken(IDictionary<string, string> brokerPayload)
         {
 

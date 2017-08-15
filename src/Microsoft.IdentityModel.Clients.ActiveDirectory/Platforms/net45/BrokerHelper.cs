@@ -35,6 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     class BrokerHelper
     {
+        public CallState CallState { get; set; }
         public IPlatformParameters PlatformParameters { get; set; }
 
         public bool CanInvokeBroker {
