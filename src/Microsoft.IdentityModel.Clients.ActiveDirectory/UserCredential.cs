@@ -32,7 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         IntegratedAuth,
         UsernamePassword
     }
-    
+
     /// <summary>
     /// Credential used for integrated authentication on domain-joined machines.
     /// </summary>
@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Constructor to create credential with client id and secret
         /// </summary>
         /// <param name="userName">Identifier of the user application requests token on behalf.</param>
-        public UserCredential(string userName):this(userName, UserAuthType.IntegratedAuth)
+        public UserCredential(string userName) : this(userName, UserAuthType.IntegratedAuth)
         {
         }
 

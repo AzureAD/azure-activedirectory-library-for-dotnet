@@ -136,11 +136,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
                     extendedLifetimeResultEx = ResultEx;
 
-                    if (ResultEx != null && ResultEx.Result != null)
+                    if (ResultEx?.Result != null && ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) ||
+                                                     (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null)))
                     {
-                        if ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) ||
-                            (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null))
-                        {
                             ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                             if (ResultEx != null && ResultEx.Exception == null)
                             {
@@ -149,7 +147,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             }
                         }
                     }
-                }
 
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
@@ -183,6 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             this.NotifyBeforeAccessCache();
                             notifiedBeforeAccessCache = true;
                         }
+
                         this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
                             this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }

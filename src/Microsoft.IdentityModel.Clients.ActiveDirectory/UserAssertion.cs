@@ -39,7 +39,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// assertion is a JWT token. For other flows, the other construction with assertionType must be used.
         /// </summary>
         /// <param name="assertion">Assertion representing the user.</param>
-        public UserAssertion(string assertion) :this(assertion, OAuthGrantType.JwtBearer)
+        public UserAssertion(string assertion) : this(assertion, OAuthGrantType.JwtBearer)
         {
         }
 

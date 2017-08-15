@@ -70,10 +70,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// WWW-Authenticate header containing authentication parameters.</summary>
         /// <param name="responseMessage">Response received from the resource (e.g. via an http call using HttpClient).</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
-
-        public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(HttpResponseMessage responseMessage)
+        public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
+            HttpResponseMessage responseMessage)
         {
-            return CreateFromUnauthorizedResponseCommon(await HttpClientWrapper.CreateResponseAsync(responseMessage).ConfigureAwait(false));
+            return CreateFromUnauthorizedResponseCommon(await HttpClientWrapper.CreateResponseAsync(responseMessage)
+                .ConfigureAwait(false));
         }
 
         /// <summary>
@@ -95,7 +96,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 || authenticateHeader.Length < Bearer.Length + 2
                 || !char.IsWhiteSpace(authenticateHeader[Bearer.Length]))
             {
-                var ex = new ArgumentException(AdalErrorMessage.InvalidAuthenticateHeaderFormat, nameof(authenticateHeader));
+                var ex = new ArgumentException(AdalErrorMessage.InvalidAuthenticateHeaderFormat,
+                    nameof(authenticateHeader));
                 CallState.Default.Logger.Error(null, ex);
                 throw ex;
             }
@@ -105,11 +107,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             IDictionary<string, string> authenticateHeaderItems;
             try
             {
-                authenticateHeaderItems = EncodingHelper.ParseKeyValueListStrict(authenticateHeader, ',', false, true, null);
+                authenticateHeaderItems =
+                    EncodingHelper.ParseKeyValueListStrict(authenticateHeader, ',', false, true, null);
             }
             catch (ArgumentException ex)
             {
-                var newEx = new ArgumentException(AdalErrorMessage.InvalidAuthenticateHeaderFormat, nameof(authenticateHeader), ex);
+                var newEx = new ArgumentException(AdalErrorMessage.InvalidAuthenticateHeaderFormat,
+                    nameof(authenticateHeader), ex);
                 CallState.Default.Logger.Error(null, newEx);
                 throw newEx;
             }
@@ -140,7 +144,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
                     CallState.Default.Logger.Error(null, ex);
-                    throw ex;                    
+                    throw ex;
                 }
             }
             catch (HttpRequestWrapperException ex)

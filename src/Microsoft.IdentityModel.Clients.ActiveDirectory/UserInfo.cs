@@ -40,7 +40,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Create user information for token cache lookup
         /// </summary>
         public UserInfo()
-        {            
+        {
         }
 
         /// <summary>

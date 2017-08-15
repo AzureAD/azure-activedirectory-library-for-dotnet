@@ -106,7 +106,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Notification method called after any library method accesses the cache.
         /// </summary>
         public TokenCacheNotification AfterAccess { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the flag indicating whether cache state has changed. ADAL methods set this flag after any change. Caller application should reset 
         /// the flag after serializing and persisting the state of the cache.
@@ -164,11 +164,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     foreach (KeyValuePair<TokenCacheKey, AuthenticationResultEx> kvp in this.tokenCacheDictionary)
                     {
                         writer.Write(string.Format(CultureInfo.InvariantCulture, "{1}{0}{2}{0}{3}{0}{4}", Delimiter,
-                            kvp.Key.Authority, kvp.Key.Resource, kvp.Key.ClientId, (int)kvp.Key.TokenSubjectType));
+                            kvp.Key.Authority, kvp.Key.Resource, kvp.Key.ClientId, (int) kvp.Key.TokenSubjectType));
                         writer.Write(kvp.Value.Serialize());
                     }
 
-                    int length = (int)stream.Position;
+                    int length = (int) stream.Position;
                     stream.Position = 0;
                     BinaryReader reader = new BinaryReader(stream);
                     return reader.ReadBytes(length);
@@ -201,7 +201,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     int schemaVersion = reader.ReadInt32();
                     if (schemaVersion != SchemaVersion)
                     {
-                        CallState.Default.Logger.Warning(null, "The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
+                        CallState.Default.Logger.Warning(null,
+                            "The version of the persistent state of the cache does not match the current schema, so skipping deserialization.");
                         return;
                     }
 
@@ -211,10 +212,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         string keyString = reader.ReadString();
 
-                        string[] kvpElements = keyString.Split(new[] { Delimiter }, StringSplitOptions.None);
+                        string[] kvpElements = keyString.Split(new[] {Delimiter}, StringSplitOptions.None);
                         AuthenticationResultEx resultEx = AuthenticationResultEx.Deserialize(reader.ReadString());
                         TokenCacheKey key = new TokenCacheKey(kvpElements[0], kvpElements[1], kvpElements[2],
-                            (TokenSubjectType)int.Parse(kvpElements[3], CultureInfo.CurrentCulture),
+                            (TokenSubjectType) int.Parse(kvpElements[3], CultureInfo.CurrentCulture),
                             resultEx.Result.UserInfo);
 
                         this.tokenCacheDictionary.Add(key, resultEx);
@@ -234,7 +235,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
 
                 List<TokenCacheItem> items =
@@ -295,7 +296,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
                 this.OnBeforeWrite(args);
                 CallState.Default.Logger.Information(null,
@@ -347,7 +348,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 callState.Logger.Verbose(callState, "Looking up cache for a token...");
 
                 AuthenticationResultEx resultEx = null;
-                KeyValuePair<TokenCacheKey, AuthenticationResultEx>? kvp = this.LoadSingleItemFromCache(cacheQueryData, callState);
+                KeyValuePair<TokenCacheKey, AuthenticationResultEx>? kvp =
+                    this.LoadSingleItemFromCache(cacheQueryData, callState);
 
                 if (kvp.HasValue)
                 {
@@ -357,7 +359,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     bool tokenNearExpiry = (resultEx.Result.ExpiresOn <=
                                             DateTime.UtcNow + TimeSpan.FromMinutes(ExpirationMarginInMinutes));
                     bool tokenExtendedLifeTimeExpired = (resultEx.Result.ExtendedExpiresOn <=
-                                            DateTime.UtcNow);
+                                                         DateTime.UtcNow);
 
                     //check for cross-tenant authority
                     if (!cacheKey.Authority.Equals(cacheQueryData.Authority))
@@ -433,7 +435,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal void StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId, TokenSubjectType subjectType, CallState callState)
+        internal void StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId,
+            TokenSubjectType subjectType, CallState callState)
         {
             lock (cacheLock)
             {
@@ -460,7 +463,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string clientId, TokenSubjectType subjectType)
+        private void UpdateCachedMrrtRefreshTokens(AuthenticationResultEx result, string clientId,
+            TokenSubjectType subjectType)
         {
             lock (cacheLock)
             {
@@ -469,7 +473,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     //pass null for authority to update the token for all the tenants
                     List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> mrrtItems =
                         this.QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
-                            result.Result.UserInfo.DisplayableId, null)
+                                result.Result.UserInfo.DisplayableId, null)
                             .Where(p => p.Value.IsMultipleResourceRefreshToken)
                             .ToList();
 
@@ -481,7 +485,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private KeyValuePair<TokenCacheKey, AuthenticationResultEx>? LoadSingleItemFromCache(CacheQueryData cacheQueryData, CallState callState)
+        private KeyValuePair<TokenCacheKey, AuthenticationResultEx>? LoadSingleItemFromCache(
+            CacheQueryData cacheQueryData, CallState callState)
         {
             lock (cacheLock)
             {
@@ -503,18 +508,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         returnValue = resourceSpecificItems.First();
                         break;
                     case 0:
-                        {
-                            // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
-                            List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> mrrtItems =
-                                items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+                    {
+                        // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                        List<KeyValuePair<TokenCacheKey, AuthenticationResultEx>> mrrtItems =
+                            items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
 
-                            if (mrrtItems.Any())
-                            {
-                                returnValue = mrrtItems.First();
-                                callState.Logger.Information(callState,
-                                    "A Multi Resource Refresh Token for a different resource was found which can be used");
-                            }
+                        if (mrrtItems.Any())
+                        {
+                            returnValue = mrrtItems.First();
+                            callState.Logger.Information(callState,
+                                "A Multi Resource Refresh Token for a different resource was found which can be used");
                         }
+                    }
                         break;
                     default:
                         throw new AdalException(AdalError.MultipleTokensMatched);
@@ -557,13 +562,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 //if developer passes an assertion then assertionHash must be used to match the cache entry.
                 //if UserAssertionHash in cache entry is null then it won't be a match.
                 return this.tokenCacheDictionary.Where(
-                    p =>
-                        (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
-                        && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
-                        && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
-                        && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
-                        && p.Key.TokenSubjectType == subjectType &&
-                        (string.IsNullOrWhiteSpace(assertionHash) || assertionHash.Equals(p.Value.UserAssertionHash)))
+                        p =>
+                            (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
+                            && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
+                            && (string.IsNullOrWhiteSpace(uniqueId) || p.Key.UniqueId == uniqueId)
+                            && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
+                            && p.Key.TokenSubjectType == subjectType &&
+                            (string.IsNullOrWhiteSpace(assertionHash) ||
+                             assertionHash.Equals(p.Value.UserAssertionHash)))
                     .ToList();
             }
         }

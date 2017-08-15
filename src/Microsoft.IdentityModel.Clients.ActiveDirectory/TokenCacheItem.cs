@@ -122,8 +122,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool Match(TokenCacheKey key)
         {
-            return (key.Authority == this.Authority && key.ResourceEquals(this.Resource) && key.ClientIdEquals(this.ClientId)
-                    && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId && key.DisplayableIdEquals(this.DisplayableId));
+            return (key.Authority == this.Authority && key.ResourceEquals(this.Resource) &&
+                    key.ClientIdEquals(this.ClientId)
+                    && key.TokenSubjectType == this.TokenSubjectType && key.UniqueId == this.UniqueId &&
+                    key.DisplayableIdEquals(this.DisplayableId));
         }
     }
 }

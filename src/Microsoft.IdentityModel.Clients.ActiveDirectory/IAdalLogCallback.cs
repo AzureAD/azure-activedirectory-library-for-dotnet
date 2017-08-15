@@ -39,14 +39,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Information log level
         /// </summary>
         Information,
+
         /// <summary>
         /// Verbose log level
         /// </summary>
         Verbose,
+
         /// <summary>
         /// Warning log level
         /// </summary>
         Warning,
+
         /// <summary>
         /// Error log level
         /// </summary>

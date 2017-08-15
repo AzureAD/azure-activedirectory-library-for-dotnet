@@ -62,7 +62,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="accessToken">The Access Token requested</param>
         /// <param name="expiresOn">The point in time in which the Access Token returned in the AccessToken property ceases to be valid</param>
         /// <param name="extendedExpiresOn">The point in time in which the Access Token returned in the AccessToken property ceases to be valid</param>
-        internal AuthenticationResult(string accessTokenType, string accessToken, DateTimeOffset expiresOn, DateTimeOffset extendedExpiresOn)
+        internal AuthenticationResult(string accessTokenType, string accessToken, DateTimeOffset expiresOn,
+            DateTimeOffset extendedExpiresOn)
         {
             this.AccessTokenType = accessTokenType;
             this.AccessToken = accessToken;
