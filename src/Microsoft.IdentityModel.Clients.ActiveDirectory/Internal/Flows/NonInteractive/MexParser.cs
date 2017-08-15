@@ -152,17 +152,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     auth = element.Elements(securityPolicy + "SignedEncryptedSupportingTokens").FirstOrDefault();
-                    if (auth == null)
+                    if (auth == null && ((auth = element.Elements(XmlNamespace.Sp2005 + "SignedSupportingTokens").FirstOrDefault()) ==
+                                         null))
                     {
-                        //switch to sp2005
-                        securityPolicy = XmlNamespace.Sp2005;
-                        if ((auth = element.Elements(securityPolicy + "SignedSupportingTokens").FirstOrDefault()) ==
-                            null)
-                        {
                             continue;
-                        }
                     }
 
+                    securityPolicy = XmlNamespace.Sp2005;
                     XElement wspPolicy = auth.Elements(XmlNamespace.Wsp + "Policy").FirstOrDefault();
                     if (wspPolicy == null)
                     {
