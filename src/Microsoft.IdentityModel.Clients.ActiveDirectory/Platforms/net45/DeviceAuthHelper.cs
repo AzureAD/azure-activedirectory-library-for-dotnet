@@ -73,13 +73,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 Task.Factory.StartNew(
                     () =>
                     {
-                        return string.Format(CultureInfo.InvariantCulture, authHeaderTemplate, authToken, challengeData["Context"],
+                        return string.Format(CultureInfo.InvariantCulture, authHeaderTemplate, authToken,
+                            challengeData["Context"],
                             challengeData["Version"]);
                     });
 
             return await resultTask.ConfigureAwait(false);
         }
-        
+
         private static X509Certificate2 FindCertificate(IDictionary<string, string> challengeData)
         {
             var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
@@ -87,46 +88,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 store.Open(OpenFlags.ReadOnly);
                 var certCollection = store.Certificates;
-                X509Certificate2Collection signingCert = null;
                 if (challengeData.ContainsKey("CertAuthorities"))
                 {
-                    string[] certAuthorities = challengeData["CertAuthorities"].Split(new[] {";"},
-                        StringSplitOptions.None);
-                    foreach (var certAuthority in certAuthorities)
-                    {
-                        //reverse the tokenized string and replace "," with " + "
-                        string[] dNames = certAuthority.Split(new[] {","}, StringSplitOptions.None);
-                        string distinguishedIssuerName = dNames[dNames.Length - 1];
-                        for (int i = dNames.Length - 2; i >= 0; i--)
-                        {
-                            distinguishedIssuerName += " + " + dNames[i].Trim();
-                        }
-
-                        signingCert = certCollection.Find(X509FindType.FindByIssuerDistinguishedName,
-                            distinguishedIssuerName, false);
-                        if (signingCert.Count > 0)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (signingCert == null || signingCert.Count == 0)
-                    {
-                        throw new AdalException(AdalError.DeviceCertificateNotFound,
-                            string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.DeviceCertificateNotFoundTemplate,
-                                "Cert Authorities:" + challengeData["CertAuthorities"]));
-                    }
+                   return FindCertificateByCertAuthorities(challengeData, certCollection);
                 }
-                else
+
+                X509Certificate2Collection signingCert = null;
+                signingCert = certCollection.Find(X509FindType.FindByThumbprint, challengeData["CertThumbprint"],
+                    false);
+                if (signingCert.Count == 0)
                 {
-                    signingCert = certCollection.Find(X509FindType.FindByThumbprint, challengeData["CertThumbprint"],
-                        false);
-                    if (signingCert.Count == 0)
-                    {
-                        throw new AdalException(AdalError.DeviceCertificateNotFound,
-                            string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.DeviceCertificateNotFoundTemplate,
-                                "Cert thumbprint:" + challengeData["CertThumbprint"]));
-                    }
+                    throw new AdalException(AdalError.DeviceCertificateNotFound,
+                        string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.DeviceCertificateNotFoundTemplate,
+                            "Cert thumbprint:" + challengeData["CertThumbprint"]));
                 }
 
                 return signingCert[0];
@@ -135,6 +109,40 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 store.Close();
             }
+        }
+
+        private static X509Certificate2 FindCertificateByCertAuthorities(IDictionary<string, string> challengeData, X509Certificate2Collection certCollection)
+        {
+            X509Certificate2Collection signingCert = null;
+            string[] certAuthorities = challengeData["CertAuthorities"].Split(new[] { ";" },
+                StringSplitOptions.None);
+            foreach (var certAuthority in certAuthorities)
+            {
+                //reverse the tokenized string and replace "," with " + "
+                string[] dNames = certAuthority.Split(new[] { "," }, StringSplitOptions.None);
+                string distinguishedIssuerName = dNames[dNames.Length - 1];
+                for (int i = dNames.Length - 2; i >= 0; i--)
+                {
+                    distinguishedIssuerName += " + " + dNames[i].Trim();
+                }
+
+                signingCert = certCollection.Find(X509FindType.FindByIssuerDistinguishedName,
+                    distinguishedIssuerName, false);
+                if (signingCert.Count > 0)
+                {
+                    break;
+                }
+            }
+
+            if (signingCert == null || signingCert.Count == 0)
+            {
+                throw new AdalException(AdalError.DeviceCertificateNotFound,
+                    string.Format(CultureInfo.CurrentCulture,
+                        AdalErrorMessage.DeviceCertificateNotFoundTemplate,
+                        "Cert Authorities:" + challengeData["CertAuthorities"]));
+            }
+
+            return signingCert[0];
         }
 
 
@@ -184,7 +192,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [SuppressMessage("Microsoft.Reliability", "CA2004:RemoveCallsToGCKeepAlive",
             Justification =
                 "This method is used to create the safe handle, and KeepAlive is needed to prevent racing the GC while doing so"
-            )]
+        )]
         public static SafeCertContextHandle GetCertificateContext(X509Certificate certificate)
         {
             SafeCertContextHandle certContext = X509Native.DuplicateCertContext(certificate.Handle);

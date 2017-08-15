@@ -26,12 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System.Globalization;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    using System;
-    using System.Net;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// The exception type thrown when user returned by service does not match user in the request.

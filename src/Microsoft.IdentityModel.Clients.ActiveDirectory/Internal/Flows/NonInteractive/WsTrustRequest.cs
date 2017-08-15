@@ -135,7 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             UserCredential credential)
         {
             // securityHeader will be empty string for Kerberos.
-            StringBuilder securityHeaderBuilder = BuildSecurityHeader(wsTrustAddress, credential);
+            StringBuilder securityHeaderBuilder = BuildSecurityHeader(credential);
 
             string guid = Guid.NewGuid().ToString();
             StringBuilder messageBuilder = new StringBuilder(MaxExpectedMessageSize);
@@ -177,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return escapeStr;
         }
 
-        private static StringBuilder BuildSecurityHeader(WsTrustAddress address, UserCredential credential)
+        private static StringBuilder BuildSecurityHeader(UserCredential credential)
         {
             StringBuilder securityHeaderBuilder = new StringBuilder(MaxExpectedMessageSize);
 

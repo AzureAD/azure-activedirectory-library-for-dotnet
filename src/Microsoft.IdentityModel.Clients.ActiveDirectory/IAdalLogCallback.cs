@@ -96,6 +96,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     _localCallback = value;
                 }
             }
+
+            internal get { return _localCallback; }
         }
 
         internal static void ExecuteCallback(LogLevel level, string message)
