@@ -34,11 +34,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         IRequestParameters BodyParameters { get; set; }
 
-        string Accept { set; }
+        string Accept { set; get; }
 
-        string ContentType { set; }
+        string ContentType { set; get; }
 
-        bool UseDefaultCredentials { set; }
+        bool UseDefaultCredentials { set; get; }
 
         Dictionary<string, string> Headers { get; }
 

@@ -120,7 +120,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             Looper looper = Looper.MyLooper();
             if (looper != null && looper == mContext.MainLooper)
             {
-                Exception exception = new Exception(
+                Exception exception = new AdalException(
                     "calling this from your main thread can lead to deadlock");
                 CallState.Logger.Error(null, exception);
                 if (mContext.ApplicationInfo.TargetSdkVersion >= BuildVersionCodes.Froyo)
@@ -253,7 +253,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (bundleResult == null)
             {
-                throw new Exception("bundleResult");
+                throw new AdalException("bundleResult");
             }
 
             int errCode = bundleResult.GetInt(AccountManager.KeyErrorCode);
@@ -674,7 +674,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // waiting on AccountManagerFuture
             if (Looper.MyLooper() == Looper.MainLooper)
             {
-                throw new Exception("Calling getBrokerUsers on main thread");
+                throw new AdalException("Calling getBrokerUsers on main thread");
             }
 
             Account[] accountList = mAcctManager
