@@ -96,10 +96,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private static Timer CreateStartedTimer(Action onTickAction, int interval)
         {
-            Timer timer = new Timer { Interval = interval };
-            timer.Tick += (notUsedsender, notUsedEventArgs) => onTickAction();
-            timer.Start();
-            return timer;
+            Timer startedTimer = new Timer { Interval = interval };
+            startedTimer.Tick += (notUsedsender, notUsedEventArgs) => onTickAction();
+            startedTimer.Start();
+            return startedTimer;
         }
 
         /// <summary>

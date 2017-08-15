@@ -246,7 +246,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Native
     /// </summary>
     internal sealed class SafeLibraryHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private SafeLibraryHandle() : base(true)
+        public SafeLibraryHandle() : base(true)
         {
         }
 
@@ -268,7 +268,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Native
     /// </summary>
     internal sealed class SafeLocalAllocHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private SafeLocalAllocHandle() : base(true)
+        public SafeLocalAllocHandle() : base(true)
         {
         }
 
