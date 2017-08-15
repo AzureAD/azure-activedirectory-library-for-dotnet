@@ -182,10 +182,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }
                 }
-                if (ResultEx.Result != null)
-                {
-                    ResultEx.Result.Authority = this.Authenticator.Authority;
-                }
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return ResultEx.Result;
             }
