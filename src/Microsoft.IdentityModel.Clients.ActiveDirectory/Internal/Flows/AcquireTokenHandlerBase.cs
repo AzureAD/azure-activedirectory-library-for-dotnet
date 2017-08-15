@@ -145,8 +145,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
                         {
-                            this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
-                                this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                            StoreResultExToCache(ref notifiedBeforeAccessCache);
                         }
                     }
                 }
@@ -171,17 +170,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     this.PostTokenRequest(ResultEx);
-                    if (this.StoreToCache)
-                    {
-                        if (!notifiedBeforeAccessCache)
-                        {
-                            this.NotifyBeforeAccessCache();
-                            notifiedBeforeAccessCache = true;
-                        }
-
-                        this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
-                            this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
-                    }
+                    StoreResultExToCache(ref notifiedBeforeAccessCache);
                 }
 
                 if (ResultEx.Result != null)
@@ -209,6 +198,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     this.NotifyAfterAccessCache();
                 }
+            }
+        }
+
+        private void StoreResultExToCache(ref bool notifiedBeforeAccessCache)
+        {
+            if (this.StoreToCache)
+            {
+                if (!notifiedBeforeAccessCache)
+                {
+                    this.NotifyBeforeAccessCache();
+                    notifiedBeforeAccessCache = true;
+                }
+
+                this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
+                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
             }
         }
 
