@@ -130,15 +130,21 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
+    <ItemGroup>
+    <PackageReference Include="Legacy2CPSWorkaround" Version="1.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NuGet.Build.Tasks.Workaround" Version="1.0.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>  
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ADAL.PCL.iOS\ADAL.PCL.iOS.csproj">
-      <Project>{2f80e14c-b186-4aee-92bc-0de3b6fdb107}</Project>
-      <Name>ADAL.PCL.iOS</Name>
+    <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
+      <Project>{aece489d-9ed4-442d-8d8f-0f383aebb781}</Project>
+      <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\ADAL.PCL\ADAL.PCL.csproj">
-      <Project>{94569420-69b5-4031-a975-f5791e3f2f17}</Project>
-      <Name>ADAL.PCL</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\TestApp.PCL\TestApp.PCL.csproj">
       <Project>{c09ee601-3f07-4e8b-b12f-473b2bfbef95}</Project>
       <Name>TestApp.PCL</Name>

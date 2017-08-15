@@ -11,8 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ADAL.PCL.CoreCLR\ADAL.PCL.CoreCLR.csproj" />
-    <ProjectReference Include="..\..\src\ADAL.PCL\ADAL.PCL.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj" />
   </ItemGroup>
 
 </Project>
