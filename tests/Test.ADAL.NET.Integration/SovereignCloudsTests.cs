@@ -65,8 +65,8 @@ namespace Test.ADAL.NET.Unit
             // make sure that tenant spesific sovereign Authority returned to the app in AuthenticationResult
             Assert.AreEqual(sovereignTenantSpesificAuthority, authenticationResult.Authority);
 
-            // make sure that AuthenticationContext Authority was not changed
-            Assert.AreEqual(TestConstants.DefaultAuthorityCommonTenant, authenticationContext.Authority);
+            // make sure that AuthenticationContext Authority was updated
+            Assert.AreEqual(sovereignTenantSpesificAuthority, authenticationContext.Authority);
 
             // make sure AT was stored in the cache with tenant spesific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);

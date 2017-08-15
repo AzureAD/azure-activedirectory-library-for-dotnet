@@ -139,6 +139,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        public String Authority { get; internal set; }
+        public string Authority { get; internal set; }
     }
 }

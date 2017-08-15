@@ -132,10 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 var updatedAuthority = ReplaceHost(Authenticator.Authority,
                     authorizationResult.CloudInstanceName);
 
-                Authenticator = new Authenticator(updatedAuthority, Authenticator.ValidateAuthority);
-
-                await Authenticator.UpdateFromTemplateAsync(CallState).ConfigureAwait(false);
-                this.ValidateAuthorityType();
+                await UpdateAuthority(updatedAuthority);
             }
         }
 
@@ -158,9 +155,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
         }
 
-        protected override void PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
         {
-            base.PostTokenRequest(resultEx);
+            await base.PostTokenRequest(resultEx);
             if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
             {
                 return;

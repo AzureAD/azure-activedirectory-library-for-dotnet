@@ -420,6 +420,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     if (resultEx != null)
                     {
+                        resultEx.Result.Authority = cacheKey.Authority;
                         PlatformPlugin.Logger.Information(callState,
                             "A matching item (access token or refresh token or both) was found in the cache");
                     }

@@ -190,12 +190,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 string accessToken = data.GetStringExtra(BrokerConstants.AccountAccessToken);
                 DateTimeOffset expiresOn = BrokerProxy.ConvertFromTimeT(data.GetLongExtra(BrokerConstants.AccountExpireDate, 0));
+                string accountAuthority = data.GetStringExtra(BrokerConstants.AccountAuthority);
+                string accountUserInfoTenantId = data.GetStringExtra(BrokerConstants.AccountUserInfoTenantId);
+
                 UserInfo userInfo = BrokerProxy.GetUserInfoFromBrokerResult(data.Extras);
                 resultEx = new AuthenticationResultEx
                 {
                     Result = new AuthenticationResult("Bearer", accessToken, expiresOn)
                     {
-                        UserInfo = userInfo
+                        UserInfo = userInfo,
+                        TenantId = accountUserInfoTenantId,
+                        Authority = accountAuthority
                     }
                 };
             }
