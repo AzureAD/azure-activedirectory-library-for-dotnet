@@ -80,12 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Native
     internal sealed class RSACng : RSA, ICngAsymmetricAlgorithm
     {
         private static KeySizes[] s_legalKeySizes = new KeySizes[] { new KeySizes(384, 16384, 8) };
-
-        // CngKeyBlob formats for RSA key blobs
-        private static CngKeyBlobFormat s_rsaFullPrivateBlob = new CngKeyBlobFormat(BCryptNative.KeyBlobType.RsaFullPrivateBlob);
-        private static CngKeyBlobFormat s_rsaPrivateBlob = new CngKeyBlobFormat(BCryptNative.KeyBlobType.RsaPrivateBlob);
-        private static CngKeyBlobFormat s_rsaPublicBlob = new CngKeyBlobFormat(BCryptNative.KeyBlobType.RsaPublicBlob);
-
+        
         // Key handle
         private CngKey m_key;
 

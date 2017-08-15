@@ -70,13 +70,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 return NotImplemented;
             }
 
-            public int FilterDataObject(System.Runtime.InteropServices.ComTypes.IDataObject pDO, out System.Runtime.InteropServices.ComTypes.IDataObject ppDORet)
+            public int FilterDataObject(System.Runtime.InteropServices.ComTypes.IDataObject pDO,
+                out System.Runtime.InteropServices.ComTypes.IDataObject ppDORet)
             {
                 ppDORet = null;
                 return S_FALSE;
             }
 
-            public int GetDropTarget(NativeWrapper.IOleDropTarget pDropTarget, out NativeWrapper.IOleDropTarget ppDropTarget)
+            public int GetDropTarget(NativeWrapper.IOleDropTarget pDropTarget,
+                out NativeWrapper.IOleDropTarget ppDropTarget)
             {
                 ppDropTarget = null;
                 return S_OK;
@@ -87,6 +89,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 ppDispatch = this.host.ObjectForScripting;
                 return S_OK;
             }
+
             public int GetHostInfo(NativeWrapper.DOCHOSTUIINFO info)
             {
                 const int DOCHOSTUIFLAG_ENABLE_REDIRECT_NOTIFICATION = 0x4000000;
@@ -147,7 +150,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 return NotImplemented;
             }
 
-            public int ResizeBorder(NativeWrapper.COMRECT rect, NativeWrapper.IOleInPlaceUIWindow doc, bool fFrameWindow)
+            public int ResizeBorder(NativeWrapper.COMRECT rect, NativeWrapper.IOleInPlaceUIWindow doc,
+                bool fFrameWindow)
             {
                 return NotImplemented;
             }
@@ -161,29 +165,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                     case 0x4: // selected text CONTEXT_MENU_TEXTSELECT
                     case 0x9: // CONTEXT_MENU_VSCROLL
                     case 0x10: //CONTEXT_MENU_HSCROLL
-                         return S_FALSE; // allow to show menu; Host did not display its UI. MSHTML will display its UI.
-                        
+                        return S_FALSE; // allow to show menu; Host did not display its UI. MSHTML will display its UI.
                 }
                 return S_OK;
             }
 
-            public int ShowUI(int dwID, NativeWrapper.IOleInPlaceActiveObject activeObject, NativeWrapper.IOleCommandTarget commandTarget, NativeWrapper.IOleInPlaceFrame frame, NativeWrapper.IOleInPlaceUIWindow doc)
+            public int ShowUI(int dwID, NativeWrapper.IOleInPlaceActiveObject activeObject,
+                NativeWrapper.IOleCommandTarget commandTarget, NativeWrapper.IOleInPlaceFrame frame,
+                NativeWrapper.IOleInPlaceUIWindow doc)
             {
                 return S_FALSE;
             }
 
             public int TranslateAccelerator(ref NativeWrapper.MSG msg, ref Guid group, int nCmdID)
             {
-                if (msg.message != WM_CHAR)
+                if (msg.message != WM_CHAR && (ModifierKeys == Keys.Shift || ModifierKeys == Keys.Alt ||
+                                               ModifierKeys == Keys.Control))
                 {
-                    if (ModifierKeys == Keys.Shift || ModifierKeys == Keys.Alt || ModifierKeys == Keys.Control)
+                    int num = (int) msg.wParam | (int) ModifierKeys;
+                    Shortcut s = (Shortcut) num;
+                    if (shortcutBlacklist.Contains(s))
                     {
-                        int num = (int) msg.wParam | (int) ModifierKeys;
-                        Shortcut s = (Shortcut) num;
-                        if (shortcutBlacklist.Contains(s))
-                        {
-                            return S_OK;
-                        }
+                        return S_OK;
                     }
                 }
 
@@ -208,7 +211,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 ppv = IntPtr.Zero;
                 if (iid == typeof(NativeWrapper.IDocHostUIHandler).GUID)
                 {
-                    ppv = Marshal.GetComInterfaceForObject(this, typeof(NativeWrapper.IDocHostUIHandler), CustomQueryInterfaceMode.Ignore);
+                    ppv = Marshal.GetComInterfaceForObject(this, typeof(NativeWrapper.IDocHostUIHandler),
+                        CustomQueryInterfaceMode.Ignore);
                     return CustomQueryInterfaceResult.Handled;
                 }
                 return CustomQueryInterfaceResult.NotHandled;
@@ -230,9 +234,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             if (activeXInstance != null)
             {
                 this.webBrowserEvent = new CustomWebBrowserEvent(this);
-                this.webBrowserEventCookie = new AxHost.ConnectionPointCookie(activeXInstance, this.webBrowserEvent, typeof(NativeWrapper.DWebBrowserEvents2));
+                this.webBrowserEventCookie = new AxHost.ConnectionPointCookie(activeXInstance, this.webBrowserEvent,
+                    typeof(NativeWrapper.DWebBrowserEvents2));
             }
-
         }
 
         protected override void DetachSink()
@@ -253,7 +257,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 this.NavigateError(this, e);
             }
         }
-        
+
 
         public event WebBrowserNavigateErrorEventHandler NavigateError;
     }

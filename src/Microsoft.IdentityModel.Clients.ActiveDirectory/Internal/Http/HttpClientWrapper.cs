@@ -64,15 +64,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public int TimeoutInMilliSeconds
         {
-            set
-            {
-                this._timeoutInMilliSeconds = value;
-            }
+            set { this._timeoutInMilliSeconds = value; }
+
+            get => this._timeoutInMilliSeconds;
         }
 
         public async Task<IHttpWebResponse> GetResponseAsync()
         {
-            using (HttpClient client = new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(this.UseDefaultCredentials)))
+            using (HttpClient client =
+                new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(this.UseDefaultCredentials)))
             {
                 client.MaxResponseContentBufferSize = _maxResponseSizeInBytes;
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -80,7 +80,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 requestMessage.RequestUri = new Uri(uri);
                 requestMessage.Headers.Accept.Clear();
 
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(this.Accept ?? "application/json"));
+                requestMessage.Headers.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue(this.Accept ?? "application/json"));
                 foreach (KeyValuePair<string, string> kvp in this.Headers)
                 {
                     requestMessage.Headers.Add(kvp.Key, kvp.Value);
@@ -104,11 +105,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         HttpContent content;
                         if (this.BodyParameters is StringRequestParameters)
                         {
-                            content = new StringContent(this.BodyParameters.ToString(), Encoding.UTF8, this.ContentType);
+                            content = new StringContent(this.BodyParameters.ToString(), Encoding.UTF8,
+                                this.ContentType);
                         }
                         else
                         {
-                            content = new FormUrlEncodedContent(((DictionaryRequestParameters)this.BodyParameters).ToList());
+                            content = new FormUrlEncodedContent(((DictionaryRequestParameters) this.BodyParameters)
+                                .ToList());
                         }
 
                         requestMessage.Method = HttpMethod.Post;
@@ -132,7 +135,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     try
                     {
-                        throw new HttpRequestException(string.Format(CultureInfo.CurrentCulture, " Response status code does not indicate success: {0} ({1}).", (int)webResponse.StatusCode, webResponse.StatusCode), new Exception(webResponse.ResponseString));
+                        throw new HttpRequestException(
+                            string.Format(CultureInfo.CurrentCulture,
+                                " Response status code does not indicate success: {0} ({1}).",
+                                (int) webResponse.StatusCode, webResponse.StatusCode),
+                            new AdalException(webResponse.ResponseString));
                     }
                     catch (HttpRequestException ex)
                     {
@@ -160,7 +167,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
-            return new HttpWebResponseWrapper(await response.Content.ReadAsStringAsync().ConfigureAwait(false), headers, response.StatusCode);
+            return new HttpWebResponseWrapper(await response.Content.ReadAsStringAsync().ConfigureAwait(false), headers,
+                response.StatusCode);
         }
 
         private void VerifyCorrelationIdHeaderInReponse(Dictionary<string, string> headers)
@@ -174,13 +182,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     Guid correlationIdInResponse;
                     if (!Guid.TryParse(correlationIdHeader, out correlationIdInResponse))
                     {
-                        CallState.Logger.Warning(CallState, string.Format(CultureInfo.CurrentCulture, "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader));
+                        CallState.Logger.Warning(CallState,
+                            string.Format(CultureInfo.CurrentCulture,
+                                "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader));
                     }
                     else if (correlationIdInResponse != this.CallState.CorrelationId)
                     {
                         CallState.Logger.Warning(
                             this.CallState,
-                            string.Format(CultureInfo.CurrentCulture, "Returned correlation id '{0}' does not match the sent correlation id '{1}'", correlationIdHeader, CallState.CorrelationId));
+                            string.Format(CultureInfo.CurrentCulture,
+                                "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
+                                correlationIdHeader, CallState.CorrelationId));
                     }
 
                     break;

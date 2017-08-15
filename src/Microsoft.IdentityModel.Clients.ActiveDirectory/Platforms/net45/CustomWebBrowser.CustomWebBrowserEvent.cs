@@ -59,21 +59,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             // We also could tweak implementation of base class if we disagree by implementing this method.
             // This is COM events handler, defined in COM interface, however this model works as Events in .NET
             // Multiple handlers are possible, so empty method just called and do nothing.
+            
+            // Navigating event from public class could be called for internal object.
+            //       Current implementation of System.Windows.Forms.WebBrowser doesn't allow you to track who issues this event this control or IFrame,
+            //       internal IFrame will have different pDisp, so we need filter events from internal IFrames by analyzing this field:
+            //       
+            //       if ( this.webBrowser.ActiveXInstance != e.WebBrowserActiveXInstance )
+            //       {
+            //           // this event came from internal frame, ignore this.
+            //           return;
+            //       }
+            //      
+            //       See WindowsFormsWebAuthenticationDialogBase.WebBrowserNavigateErrorHandler( object sender, WebBrowserNavigateErrorEventArgs e )
+            //       Thus, before making any decision it will be safe to check if Navigating event comes from right object.
+            //       This not a P0 bug, as it final URL with auth code could came only in main frame, however it could give issue with more complicated logic.
             public void BeforeNavigate2( object pDisp, ref object urlObject, ref object flags, ref object targetFrameName, ref object postData, ref object headers, ref bool cancel )
             {
-                // TODO: Navigating event from public class could be called for internal object.
-                //       Current implementation of System.Windows.Forms.WebBrowser doesn't allow you to track who issues this event this control or IFrame,
-                //       internal IFrame will have different pDisp, so we need filter events from internal IFrames by analyzing this field:
-                //       
-                //       if ( this.webBrowser.ActiveXInstance != e.WebBrowserActiveXInstance )
-                //       {
-                //           // this event came from internal frame, ignore this.
-                //           return;
-                //       }
-                //      
-                //       See WindowsFormsWebAuthenticationDialogBase.WebBrowserNavigateErrorHandler( object sender, WebBrowserNavigateErrorEventArgs e )
-                //       Thus, before making any decision it will be safe to check if Navigating event comes from right object.
-                //       This not a P0 bug, as it final URL with auth code could came only in main frame, however it could give issue with more complicated logic.
             }
 
             public void ClientToHostWindow( ref long cX, ref long cY )
