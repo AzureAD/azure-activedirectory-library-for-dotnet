@@ -598,7 +598,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal IWebUI CreateWebAuthenticationDialog(IPlatformParameters parameters)
         {
-            return new WebUIFactory().CreateAuthenticationDialog(parameters);
+            return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters);
         }
 
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, UserCredential userCredential)
