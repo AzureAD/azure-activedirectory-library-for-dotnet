@@ -117,8 +117,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (this.LoadFromCache)
                 {
-                    PlatformPlugin.Logger.Verbose(CallState, string.Format(CultureInfo.InvariantCulture,
-                    "Loading from cache."));
+                    PlatformPlugin.Logger.Verbose(CallState, "Loading from cache.");
                     CacheQueryData.Authority = Authenticator.Authority;
                     CacheQueryData.Resource = this.Resource;
                     CacheQueryData.ClientId = this.ClientKey.ClientId;
@@ -182,6 +181,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
                             this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
                     }
+                }
+                if (ResultEx.Result != null)
+                {
+                    ResultEx.Result.Authority = this.Authenticator.Authority;
                 }
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return ResultEx.Result;
