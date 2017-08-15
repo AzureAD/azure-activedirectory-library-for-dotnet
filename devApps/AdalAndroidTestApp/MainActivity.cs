@@ -31,10 +31,7 @@ using Android.App;
 using Android.Content;
 using Android.Widget;
 using Android.OS;
-
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-
-using TestApp.PCL;
 
 namespace AdalAndroidTestApp
 {
@@ -42,7 +39,7 @@ namespace AdalAndroidTestApp
     public class MainActivity : Activity
     {
         private TextView accessTokenTextView;
-        private MobileAppSts sts = new MobileAppSts();
+
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
@@ -63,33 +60,29 @@ namespace AdalAndroidTestApp
             conditionalAccessButton.Click += conditionalAccessButton_Click;
 
             this.accessTokenTextView = FindViewById<TextView>(Resource.Id.accessTokenTextView);
-
-            sts.Authority = "https://login.microsoftonline.com/common";
-            sts.ValidClientId = "<CLIENT_ID>";
-            sts.ValidResource = "https://graph.windows.net";
-            sts.ValidUserName = "<USER_NAME>";
-
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            email.Text = sts.ValidUserName;
+            email.Text = "<USERNAME>";
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-            AuthenticationAgentContinuationHelper.SetAuthenticationAgentContinuationEventArgs(requestCode, resultCode, data);
+            AuthenticationAgentContinuationHelper.SetAuthenticationAgentContinuationEventArgs(requestCode, resultCode,
+                data);
         }
 
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
         {
             this.accessTokenTextView.Text = string.Empty;
-            TokenBroker tokenBroker = new TokenBroker();
-            tokenBroker.Sts = sts;
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            tokenBroker.Sts.ValidUserName = email.Text;
             string value = null;
             try
             {
-                value = await tokenBroker.GetTokenSilentAsync(new PlatformParameters(this, false)).ConfigureAwait(false);
+                AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+                AuthenticationResult result = await ctx
+                    .AcquireTokenSilentAsync("https://graph.windows.net", "<CLIENT_ID>", UserIdentifier.AnyUser,
+                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
             {
@@ -101,20 +94,20 @@ namespace AdalAndroidTestApp
             }
 
             this.accessTokenTextView.Text = value;
-
         }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
             this.accessTokenTextView.Text = string.Empty;
-            TokenBroker tokenBroker = new TokenBroker();
-            tokenBroker.Sts = sts;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            tokenBroker.Sts.ValidUserName = email.Text;
             string value = null;
             try
             {
-                value = await tokenBroker.GetTokenInteractiveAsync(new PlatformParameters(this, false));
+                AuthenticationResult result = await ctx
+                    .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
+                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
             {
@@ -140,15 +133,19 @@ namespace AdalAndroidTestApp
         private async void conditionalAccessButton_Click(object sender, EventArgs e)
         {
             this.accessTokenTextView.Text = string.Empty;
-            TokenBroker tokenBroker = new TokenBroker();
-            tokenBroker.Sts = sts;
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            tokenBroker.Sts.ValidUserName = email.Text;
             string value = null;
             try
             {
-                string policy = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
-                value = await tokenBroker.GetTokenInteractiveAsync(new PlatformParameters(this, true), null, policy);
+                string claim =
+                    "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+                AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+                AuthenticationResult result = await ctx
+                    .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
+                        new PlatformParameters(this, false),
+                        new UserIdentifier(email.Text, UserIdentifierType.OptionalDisplayableId), null, claim)
+                    .ConfigureAwait(false);
+                value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
             {
@@ -163,4 +160,3 @@ namespace AdalAndroidTestApp
         }
     }
 }
-
