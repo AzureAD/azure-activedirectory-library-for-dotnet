@@ -39,7 +39,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string WwwAuthenticateHeader = "WWW-Authenticate";
         private const string PKeyAuthName = "PKeyAuth";
         private const int DelayTimePeriodMilliSeconds = 1000;
-        private CallState _callState;
+        private readonly CallState _callState;
         internal bool Resiliency = false;
         internal bool RetryOnce = true;
 

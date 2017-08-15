@@ -158,14 +158,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         await this.PreTokenRequest().ConfigureAwait(false);
                         // check if broker app installation is required for authentication.
-                        if (this.BrokerInvocationRequired())
-                        {
-                            ResultEx = await brokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            ResultEx = await this.SendTokenRequestAsync().ConfigureAwait(false);
-                        }
+                        await CheckAndAcquireTokenUsingBroker().ConfigureAwait(false);
                     }
                     //broker token acquisition failed
                     if (ResultEx != null && ResultEx.Exception != null)
@@ -209,6 +202,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     this.NotifyAfterAccessCache();
                 }
+            }
+        }
+
+        private async Task CheckAndAcquireTokenUsingBroker()
+        {
+            if (this.BrokerInvocationRequired())
+            {
+                ResultEx = await brokerHelper.AcquireTokenUsingBroker(brokerParameters).ConfigureAwait(false);
+            }
+            else
+            {
+                ResultEx = await this.SendTokenRequestAsync().ConfigureAwait(false);
             }
         }
 

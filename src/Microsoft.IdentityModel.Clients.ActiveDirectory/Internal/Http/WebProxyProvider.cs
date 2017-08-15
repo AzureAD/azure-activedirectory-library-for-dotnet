@@ -32,7 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID
     [Android.Runtime.Preserve(AllMembers = true)]
 #endif
-    internal class WebProxyProvider
+    internal static class WebProxyProvider
     {
         public static IWebProxy DefaultWebProxy
         {

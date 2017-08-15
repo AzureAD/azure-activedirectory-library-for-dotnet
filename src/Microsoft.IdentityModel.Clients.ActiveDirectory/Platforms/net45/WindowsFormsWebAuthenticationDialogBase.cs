@@ -44,7 +44,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
     public abstract class WindowsFormsWebAuthenticationDialogBase : Form
     {
         private static readonly NavigateErrorStatus NavigateErrorStatus = new NavigateErrorStatus();
-        private static readonly HashSet<string> WhiteListedSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly HashSet<string> WhiteListedSchemes =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private const int UIWidth = 566;
 
@@ -92,11 +94,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             }
             else if (ownerWindow is IWin32Window)
             {
-                this.ownerWindow = (IWin32Window)ownerWindow;
+                this.ownerWindow = (IWin32Window) ownerWindow;
             }
             else if (ownerWindow is IntPtr)
             {
-                this.ownerWindow = new WindowsFormsWin32Window { Handle = (IntPtr)ownerWindow };
+                this.ownerWindow = new WindowsFormsWin32Window {Handle = (IntPtr) ownerWindow};
             }
             else
             {
@@ -260,22 +262,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         private void StopWebBrowser()
         {
-            if (!this.webBrowser.IsDisposed)
+            if (!this.webBrowser.IsDisposed && this.webBrowser.IsBusy)
             {
-                if (this.webBrowser.IsBusy)
-                {
-                    CallState.Default.Logger.Verbose(null,
-                        string.Format(CultureInfo.CurrentCulture,
-                            " WebBrowser state: IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
-                            this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
-                            this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
-                    this.webBrowser.Stop();
-                    CallState.Default.Logger.Verbose(null,
-                        string.Format(CultureInfo.CurrentCulture,
-                            " WebBrowser state (after Stop): IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
-                            this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
-                            this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
-                }
+                CallState.Default.Logger.Verbose(null,
+                    string.Format(CultureInfo.CurrentCulture,
+                        " WebBrowser state: IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
+                        this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
+                        this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
+                this.webBrowser.Stop();
+                CallState.Default.Logger.Verbose(null,
+                    string.Format(CultureInfo.CurrentCulture,
+                        " WebBrowser state (after Stop): IsBusy: {0}, ReadyState: {1}, Created: {2}, Disposing: {3}, IsDisposed: {4}, IsOffline: {5}",
+                        this.webBrowser.IsBusy, this.webBrowser.ReadyState, this.webBrowser.Created,
+                        this.webBrowser.Disposing, this.webBrowser.IsDisposed, this.webBrowser.IsOffline));
             }
         }
 
@@ -322,7 +321,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 : Screen.PrimaryScreen;
 
             // Window height is set to 70% of the screen height.
-            int uiHeight = (int)(Math.Max(screen.WorkingArea.Height, 160) * 70.0 / DpiHelper.ZoomPercent);
+            int uiHeight = (int) (Math.Max(screen.WorkingArea.Height, 160) * 70.0 / DpiHelper.ZoomPercent);
             this.webBrowserPanel = new Panel();
             this.webBrowserPanel.SuspendLayout();
             this.SuspendLayout();
@@ -405,19 +404,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
             if (NavigateErrorStatus.Messages.ContainsKey(statusCode))
             {
                 return new AdalServiceException(
-                    AdalError.AuthenticationUiFailed,
-                    string.Format(CultureInfo.CurrentCulture,
-                        " The browser based authentication dialog failed to complete. Reason: {0}",
-                        NavigateErrorStatus.Messages[statusCode]))
-                { StatusCode = statusCode };
+                        AdalError.AuthenticationUiFailed,
+                        string.Format(CultureInfo.CurrentCulture,
+                            " The browser based authentication dialog failed to complete. Reason: {0}",
+                            NavigateErrorStatus.Messages[statusCode]))
+                    {StatusCode = statusCode};
             }
 
             return new AdalServiceException(
-                AdalError.AuthenticationUiFailed,
-                string.Format(CultureInfo.CurrentCulture,
-                    " The browser based authentication dialog failed to complete for an unknown reason. StatusCode: {0}",
-                    statusCode))
-            { StatusCode = statusCode };
+                    AdalError.AuthenticationUiFailed,
+                    string.Format(CultureInfo.CurrentCulture,
+                        " The browser based authentication dialog failed to complete for an unknown reason. StatusCode: {0}",
+                        statusCode))
+                {StatusCode = statusCode};
         }
 
         /// <summary>
@@ -448,8 +447,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                     deviceDpiY = DefaultDpi;
                 }
 
-                int zoomPercentX = (int)(100 * (deviceDpiX / DefaultDpi));
-                int zoomPercentY = (int)(100 * (deviceDpiY / DefaultDpi));
+                int zoomPercentX = (int) (100 * (deviceDpiX / DefaultDpi));
+                int zoomPercentY = (int) (100 * (deviceDpiY / DefaultDpi));
 
                 ZoomPercent = Math.Min(zoomPercentX, zoomPercentY);
             }

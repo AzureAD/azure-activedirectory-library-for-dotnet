@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class TokenCachePlugin
+    internal static class TokenCachePlugin
     {
         public static void BeforeAccess(TokenCacheNotificationArgs args)
         {

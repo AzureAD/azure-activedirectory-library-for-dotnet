@@ -44,7 +44,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal class DeviceAuthHelper
+    internal static class DeviceAuthHelper
     {
         public static bool CanHandleDeviceAuthChallenge
         {
