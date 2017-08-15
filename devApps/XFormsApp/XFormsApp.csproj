@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="SonarQube analysis settings">
     <!-- These properties have no effect on how the project is built. -->
@@ -13,18 +12,13 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\..\..\..\build\Sdl7.0.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <!-- Workaround until Xamarin supports PPDB -->
     <DebugType>full</DebugType>
-    <SignAssembly>True</SignAssembly>
+    <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>False</DelaySign>
+    <DelaySign>True</DelaySign>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="App.cs" />
-    <Compile Include="MainPage.cs" />
-    <Compile Include="SecondPage.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="StrongNamer" Version="0.0.6" />
     <PackageReference Include="Xamarin.Forms" Version="2.3.4.247" />
@@ -35,7 +29,4 @@
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
   </ItemGroup> 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

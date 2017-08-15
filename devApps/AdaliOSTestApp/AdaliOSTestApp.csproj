@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <PropertyGroup Label="SonarQube analysis settings">
     <!-- These properties have no effect on how the project is built. -->
     <SonarQubeTestProject>true</SonarQubeTestProject>
   </PropertyGroup>
-  
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
@@ -130,24 +128,18 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Legacy2CPSWorkaround" Version="1.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NuGet.Build.Tasks.Workaround" Version="1.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
       <Project>{aece489d-9ed4-442d-8d8f-0f383aebb781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TestApp.PCL\TestApp.PCL.csproj">
-      <Project>{c09ee601-3f07-4e8b-b12f-473b2bfbef95}</Project>
-      <Name>TestApp.PCL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

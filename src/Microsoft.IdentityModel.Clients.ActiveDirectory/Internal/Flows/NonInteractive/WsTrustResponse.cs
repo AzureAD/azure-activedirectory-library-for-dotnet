@@ -60,19 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     XElement fault = body.Elements(XmlNamespace.SoapEnvelope + "Fault").FirstOrDefault();
                     if (fault != null)
                     {
-                        XElement reason = fault.Elements(XmlNamespace.SoapEnvelope + "Reason").FirstOrDefault();
-                        if (reason != null)
-                        {
-                            XElement text = reason.Elements(XmlNamespace.SoapEnvelope + "Text").FirstOrDefault();
-                            if (text != null)
-                            {
-                                using (var reader = text.CreateReader())
-                                {
-                                    reader.MoveToContent();
-                                    errorMessage = reader.ReadInnerXml();
-                                }
-                            }
-                        }
+                        errorMessage = GetFaultMessage(fault);
                     }
                 }
             }
@@ -82,6 +70,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             return errorMessage;
+        }
+
+        private static string GetFaultMessage(XElement fault)
+        {
+            XElement reason = fault.Elements(XmlNamespace.SoapEnvelope + "Reason").FirstOrDefault();
+            if (reason != null)
+            {
+                XElement text = reason.Elements(XmlNamespace.SoapEnvelope + "Text").FirstOrDefault();
+                if (text != null)
+                {
+                    using (var reader = text.CreateReader())
+                    {
+                        reader.MoveToContent();
+                        return reader.ReadInnerXml();
+                    }
+                }
+            }
+
+            return null;
         }
 
         internal static XDocument ReadDocumentFromResponse(Stream responseStream)
@@ -107,6 +114,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     t = XmlNamespace.Trust2005;
                 }
+
                 bool parseResponse = true;
                 if (version == WsTrustVersion.WsTrust13)
                 {

@@ -113,10 +113,6 @@
       <Project>{aece489d-9ed4-442d-8d8f-0f383aebb781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestApp.PCL\TestApp.PCL.csproj">
-      <Project>{c09ee601-3f07-4e8b-b12f-473b2bfbef95}</Project>
-      <Name>TestApp.PCL</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -29,7 +29,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Exceptions;
 using System;
 using System.Text;
-using TestApp.PCL;
 using Xamarin.Forms;
 
 namespace XFormsApp
@@ -54,14 +53,11 @@ namespace XFormsApp
 
     public class SecondPage : ContentPage
     {
-        private TokenBroker tokenBroker;
         private Label result;
         private Label logLabel;
         private AdalCallback callback = new AdalCallback();
         public SecondPage()
         {
-            this.tokenBroker = new TokenBroker();
-
             var acquireTokenButton = new Button
             {
                 Text = "Acquire Token"
@@ -198,7 +194,7 @@ namespace XFormsApp
             Device.BeginInvokeOnMainThread(() =>
             {
                 this.result.Text = "Cache items before clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
-                tokenBroker.ClearTokenCache();
+                TokenCache.DefaultShared.Clear();
                 this.result.Text += "Cache items after clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
             });
         }
