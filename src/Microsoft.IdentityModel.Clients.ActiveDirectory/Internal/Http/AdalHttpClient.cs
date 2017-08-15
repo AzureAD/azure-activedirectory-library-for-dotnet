@@ -68,11 +68,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                    IDictionary<string, string> adalIdHeaders = AdalIdHelper.GetAdalIdParameters();
-                    foreach (KeyValuePair<string, string> kvp in adalIdHeaders)
-                    {
-                        this.Client.Headers[kvp.Key] = kvp.Value;
-                    }
+                IDictionary<string, string> adalIdHeaders = AdalIdHelper.GetAdalIdParameters();
+                foreach (KeyValuePair<string, string> kvp in adalIdHeaders)
+                {
+                    this.Client.Headers[kvp.Key] = kvp.Value;
+                }
                 //add pkeyauth header
                 this.Client.Headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
                 using (response = await this.Client.GetResponseAsync().ConfigureAwait(false))
@@ -88,72 +88,69 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     _callState.Logger.Information(this.CallState, "Network timeout - " + ex.InnerException.Message);
                 }
 
-                if (!this.isDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
+                if (!Resiliency && ex.WebResponse == null)
                 {
-                    AdalServiceException serviceEx;
-                    if (ex.WebResponse != null)
+                    _callState.Logger.Error(CallState, ex);
+                    throw new AdalServiceException(AdalError.Unknown, ex);
+                }
+
+                //check for resiliency
+                if (!Resiliency && (int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
+                {
+                    _callState.Logger.Information(this.CallState,
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
+                    Resiliency = true;
+                }
+
+                if (Resiliency)
+                {
+                    if (RetryOnce)
                     {
-                        TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex.WebResponse);
-                        string[] errorCodes = tokenResponse.ErrorCodes ?? new[] { ex.WebResponse.StatusCode.ToString() };
-                        serviceEx = new AdalServiceException(tokenResponse.Error, tokenResponse.ErrorDescription,
-                            errorCodes, ex);
-
-                        if(ex.WebResponse.StatusCode == HttpStatusCode.BadRequest && tokenResponse.Error == AdalError.InteractionRequired)
-                        {
-                            throw new AdalClaimChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, tokenResponse.Claims);
-                        }
-
-                        if ((int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
-                        {
-                            _callState.Logger.Information(this.CallState, "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
-                            Resiliency = true;
-                        }
+                        await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
+                        RetryOnce = false;
+                        _callState.Logger.Information(this.CallState, "Retrying one more time..");
+                        return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    else
+                    _callState.Logger.Information(this.CallState,
+                        "Retry Failed - " + ex.InnerException.Message);
+                }
+                
+                if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
+                {
+                    TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex.WebResponse);
+                    string[] errorCodes = tokenResponse.ErrorCodes ?? new[] {ex.WebResponse.StatusCode.ToString()};
+                    AdalServiceException serviceEx = new AdalServiceException(tokenResponse.Error,
+                        tokenResponse.ErrorDescription,
+                        errorCodes, ex);
+
+                    if (ex.WebResponse.StatusCode == HttpStatusCode.BadRequest &&
+                        tokenResponse.Error == AdalError.InteractionRequired)
                     {
-                        serviceEx = new AdalServiceException(AdalError.Unknown, ex);
+                        throw new AdalClaimChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription,
+                            tokenResponse.Claims);
                     }
 
-                    if (Resiliency)
-                    {
-                        if (RetryOnce)
-                        {
-                            await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
-                            RetryOnce = false;
-                            _callState.Logger.Information(this.CallState, "Retrying one more time..");
-                            return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
-                        }
-
-                        _callState.Logger.Information(this.CallState,
-                                "Retry Failed - " + ex.InnerException.Message);
-                    }
-
-                    _callState.Logger.Error(CallState, serviceEx);
                     throw serviceEx;
                 }
-                else
-                {
-                    response = ex.WebResponse;
-                }
-            }
 
-            //check for pkeyauth challenge
-            if (this.isDeviceAuthChallenge(response, respondToDeviceAuthChallenge))
-            {
-                return await HandleDeviceAuthChallenge<T>(response).ConfigureAwait(false);
+                //attempt device auth
+                return await HandleDeviceAuthChallenge<T>(ex.WebResponse).ConfigureAwait(false);
             }
-
+            
             return typedResponse;
         }
 
-        private bool isDeviceAuthChallenge(IHttpWebResponse response, bool respondToDeviceAuthChallenge)
+        private bool IsDeviceAuthChallenge(IHttpWebResponse response, bool respondToDeviceAuthChallenge)
         {
             return DeviceAuthHelper.CanHandleDeviceAuthChallenge
-                && respondToDeviceAuthChallenge
-                && response?.Headers != null
-                && response.Headers.ContainsKey(WwwAuthenticateHeader)
-                && response.Headers[WwwAuthenticateHeader].StartsWith(PKeyAuthName, StringComparison.OrdinalIgnoreCase);
+                   && response != null
+                   && respondToDeviceAuthChallenge
+                   && response?.Headers != null
+                   && response.StatusCode == HttpStatusCode.Unauthorized
+                   && response.Headers.ContainsKey(WwwAuthenticateHeader)
+                   && response.Headers[WwwAuthenticateHeader]
+                       .StartsWith(PKeyAuthName, StringComparison.OrdinalIgnoreCase);
         }
 
         private IDictionary<string, string> ParseChallengeData(IHttpWebResponse response)
@@ -180,9 +177,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 responseDictionary["SubmitUrl"] = RequestUri;
             }
 
-            string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponse(responseDictionary).ConfigureAwait(false);
+            string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponse(responseDictionary)
+                .ConfigureAwait(false);
             IRequestParameters rp = this.Client.BodyParameters;
-            this.Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]), this.CallState);
+            this.Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]),
+                this.CallState);
             this.Client.BodyParameters = rp;
             this.Client.Headers["Authorization"] = responseHeader;
             return await this.GetResponseAsync<T>(false).ConfigureAwait(false);
