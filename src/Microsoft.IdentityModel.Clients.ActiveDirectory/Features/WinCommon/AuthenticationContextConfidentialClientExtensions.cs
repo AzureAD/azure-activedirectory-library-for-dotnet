@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Features.WinCommon
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
     /// Extension class to support confidential client flows.
