@@ -135,7 +135,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         if ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) ||
                             (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null))
                         {
-                            await UpdateAuthority(ResultEx.Result.Authority);
                             ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                             if (ResultEx != null && ResultEx.Exception == null)
                             {

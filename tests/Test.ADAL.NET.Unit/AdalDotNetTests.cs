@@ -807,7 +807,7 @@ namespace Test.ADAL.NET.Unit
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, platformParameters);
             Assert.IsNotNull(result);
-            Assert.AreEqual(TestConstants.TenantSpecificAuthority, context.Authenticator.Authority);
+            Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
