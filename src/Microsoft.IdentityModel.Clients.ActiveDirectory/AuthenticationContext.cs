@@ -210,35 +210,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Acquires an access token from the authority on behalf of a user. It requires using a user token previously received.
-        /// </summary>
-        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
-        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
-        /// <param name="userAssertion">The user assertion (token) to use for token acquisition.</param>
-        /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
-            IClientAssertionCertificate clientCertificate, UserAssertion userAssertion)
-        {
-            return await this
-                .AcquireTokenOnBehalfCommonAsync(resource, new ClientKey(clientCertificate, this.Authenticator),
-                    userAssertion).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Acquires an access token from the authority on behalf of a user. It requires using a user token previously received.
-        /// </summary>
-        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
-        /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
-        /// <param name="userAssertion">The user assertion (token) to use for token acquisition.</param>
-        /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientAssertion clientAssertion,
-            UserAssertion userAssertion)
-        {
-            return await this.AcquireTokenOnBehalfCommonAsync(resource, new ClientKey(clientAssertion), userAssertion)
-                .ConfigureAwait(false);
-        }
-
-        /// <summary>
         /// Acquires security token without asking for user credential.
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>

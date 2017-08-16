@@ -217,5 +217,36 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Features.WinCommon
                 .ConfigureAwait(false);
         }
 
+
+        /// <summary>
+        /// Acquires an access token from the authority on behalf of a user. It requires using a user token previously received.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="userAssertion">The user assertion (token) to use for token acquisition.</param>
+        /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
+        public static async Task<AuthenticationResult> AcquireTokenAsync(this AuthenticationContext ctx, string resource,
+            IClientAssertionCertificate clientCertificate, UserAssertion userAssertion)
+        {
+            return await ctx
+                .AcquireTokenOnBehalfCommonAsync(resource, new ClientKey(clientCertificate, ctx.Authenticator),
+                    userAssertion).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires an access token from the authority on behalf of a user. It requires using a user token previously received.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
+        /// <param name="userAssertion">The user assertion (token) to use for token acquisition.</param>
+        /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
+        public static async Task<AuthenticationResult> AcquireTokenAsync(this AuthenticationContext ctx, string resource, ClientAssertion clientAssertion,
+            UserAssertion userAssertion)
+        {
+            return await ctx.AcquireTokenOnBehalfCommonAsync(resource, new ClientKey(clientAssertion), userAssertion)
+                .ConfigureAwait(false);
+        }
+
+
     }
 }
