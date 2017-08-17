@@ -66,6 +66,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         [DataMember(Name = CorrelationIdClaim, IsRequired = false)]
         public string CorrelationId { get; set; }
+
+        [DataMember(Name = OAuthReservedClaim.Claims, IsRequired = false)]
+        public string Claims { get; set; }
     }
 
     [DataContract]
@@ -169,6 +172,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             else if (tokenResponse.Error != null)
             {
+#if ADAL_NET
+                if (!string.IsNullOrWhiteSpace(tokenResponse.Claims) && tokenResponse.Error == AdalError.InteractionRequired)
+                {
+                    throw new AdalClaimsChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, tokenResponse.Claims);
+                }
+#endif
                 throw new AdalServiceException(tokenResponse.Error, tokenResponse.ErrorDescription);
             }
             else

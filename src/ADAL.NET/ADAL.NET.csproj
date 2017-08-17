@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ADAL.CommonDesktop\AdalClaimsChallengeException.cs">
+      <Link>CommonDesktop\AdalClaimsChallengeException.cs</Link>
+    </Compile>
     <Compile Include="..\ADAL.CommonDesktop\AdalIdHelper.cs">
       <Link>CommonDesktop\AdalIdHelper.cs</Link>
     </Compile>

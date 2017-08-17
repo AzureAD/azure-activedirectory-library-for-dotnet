@@ -27,25 +27,70 @@ namespace DesktopApp
         [STAThread]
         static void Main(string[] args)
         {
-            try
+            while(true)
             {
-                AcquireTokenAsync().Wait();
-            }
-            catch (AggregateException ae)
-            {
-                Console.WriteLine(ae.InnerException.Message);
-                Console.WriteLine(ae.InnerException.StackTrace);
-            }
-            finally
-            {
-                Console.ReadKey();
+                // display menu
+                // clear display
+                Console.Clear();
+
+                Console.WriteLine("\n1. Acquire Token\n2. Acquire Token Conditional Access Policy\n0. Exit App");
+                Console.WriteLine("\nEnter your selection: ");
+
+                int selection;
+
+                int.TryParse(Console.ReadLine(), out selection);
+
+                switch(selection)
+                {
+                    case 1: // acquire token
+                        try
+                        {
+                            AcquireTokenAsync().Wait();
+                        }
+                        catch(AggregateException ae)
+                        {
+                            Console.WriteLine(ae.InnerException.Message);
+                            Console.WriteLine(ae.InnerException.StackTrace);
+                        }
+                        break;
+                    case 2: // acquire token with claims
+                        try
+                        {
+                            AcquireTokenWithClaimsAsync().Wait();
+                        }
+                        catch (AggregateException ae)
+                        {
+                            Console.WriteLine(ae.InnerException.Message);
+                            Console.WriteLine(ae.InnerException.StackTrace);
+                        }
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        break;
+                }
+
+                Console.WriteLine("\n\nHit 'ENTER' to continue...");
+                Console.ReadLine();
             }
         }
 
         private static async Task AcquireTokenAsync()
         {
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.de/common", true);
             var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<user>"));
+                
+            string token = result.AccessToken;
+            Console.WriteLine(token + "\n");
+        }
+
+        private static async Task AcquireTokenWithClaimsAsync()
+        {
+            string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>",
+                new Uri("<REDIRECT_URI>"), PromptBehavior.Auto, new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
 
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");

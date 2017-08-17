@@ -151,7 +151,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     message = AdalErrorMessage.HttpResponseContentLengthOverLimit;
                     break;
 
-                case AdalError.InvalidCredentialType: 
+                case AdalError.InvalidCredentialType:
                     message = AdalErrorMessage.InvalidCredentialType;
                     break;
 
@@ -170,6 +170,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 case AdalError.IdentityProviderRequestFailed:
                     message = AdalErrorMessage.IdentityProviderRequestFailed;
                     break;
+
+                case AdalError.InteractionRequired:
+                    message = AdalErrorMessage.InteractionRequired;
+                    break;
+
             }
 
             // The switch case is divided into two to address the strange behavior of winmdidl tool for generating idl file from winmd for ADAL WinRT.

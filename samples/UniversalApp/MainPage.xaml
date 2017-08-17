@@ -1,0 +1,16 @@
+﻿<Page
+    x:Class="UniversalApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UniversalApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Button x:Name="conditionalAccessButton" Content="Conditional Access" HorizontalAlignment="Left" Margin="43,77,0,0" VerticalAlignment="Top" Width="145" Click="conditionalAccessButton_Click"/>
+        <TextBox x:Name="resultTextbox" HorizontalAlignment="Left" Margin="43,114,0,0" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" Text="Access Token:" VerticalAlignment="Top" Height="467" Width="270"/>
+        <Button x:Name="accessTokenButton" Content="Access Token" HorizontalAlignment="Left" Margin="43,10,0,0" VerticalAlignment="Top" Width="145" Click="accessTokenButton_Click"/>
+
+    </Grid>
+</Page>
