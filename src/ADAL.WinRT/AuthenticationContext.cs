@@ -70,7 +70,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DefaultOverload]
         public IAsyncOperation<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri)
         {
-            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, PromptBehavior.Auto, UserIdentifier.AnyUser));
+            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, PromptBehavior.Auto, UserIdentifier.AnyUser, null));
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DefaultOverload]
         public IAsyncOperation<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior)
         {
-            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, UserIdentifier.AnyUser));
+            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, UserIdentifier.AnyUser, null));
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DefaultOverload]
         public IAsyncOperation<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId)
         {
-            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, userId));
+            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, userId, null));
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
         public IAsyncOperation<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string extraQueryParameters, string claims)
         {
-            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, userId, extraQueryParameters, false, claims));
+            return RunTaskAsAsyncOperation(this.AcquireTokenCommonAsync(resource, clientId, redirectUri ?? Constant.SsoPlaceHolderUri, promptBehavior, userId, claims, extraQueryParameters, false));
         }
 
 

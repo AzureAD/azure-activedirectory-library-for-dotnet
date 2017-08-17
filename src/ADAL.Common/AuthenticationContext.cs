@@ -180,7 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync();
         }
 
-        private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string extraQueryParameters = null, bool callSync = false, string claims = null)
+        private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string claims, string extraQueryParameters = null, bool callSync = false)
         {
             var handler = new AcquireTokenInteractiveHandler(this.Authenticator, this.TokenCache, resource, clientId, redirectUri, promptBehavior, userId, extraQueryParameters, this.CreateWebAuthenticationDialog(promptBehavior), callSync, claims);
             return await handler.RunAsync();

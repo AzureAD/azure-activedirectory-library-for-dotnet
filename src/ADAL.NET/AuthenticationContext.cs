@@ -327,7 +327,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="userId">Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to pre-populate the username field in the authentication form. Please note that the end user can still edit the username field and authenticate as a different user. 
         /// If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <param name="extraQueryParameters"></param>
-        /// <param name="claims">Additional claims that are needed for authentication. Acquired from the AdalClaimChallengeException</param>
+        /// <param name="claims">Additional claims that are needed for authentication.</param>
         /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior,
             UserIdentifier userId, string extraQueryParameters, string claims)
@@ -462,7 +462,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
         public AuthenticationResult AcquireToken(string resource, string clientId, Uri redirectUri)
         {
-            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, PromptBehavior.Auto, UserIdentifier.AnyUser, extraQueryParameters: null, callSync: true));
+            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, PromptBehavior.Auto, UserIdentifier.AnyUser, claims: null, extraQueryParameters: null, callSync: true));
         }
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
         public AuthenticationResult AcquireToken(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior)
         {
-            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior, UserIdentifier.AnyUser, extraQueryParameters: null, callSync: true));
+            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior, UserIdentifier.AnyUser, claims: null, extraQueryParameters: null, callSync: true));
         }
 
         /// <summary>
@@ -490,7 +490,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
         public AuthenticationResult AcquireToken(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId)
         {
-            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior: promptBehavior, userId: userId, extraQueryParameters: null, callSync: true));
+            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior: promptBehavior, userId: userId, claims: null, extraQueryParameters: null, callSync: true));
         }
 
         /// <summary>
@@ -506,7 +506,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>It contains Access Token, Refresh Token and the Access Token's expiration time.</returns>
         public AuthenticationResult AcquireToken(string resource, string clientId, Uri redirectUri, PromptBehavior promptBehavior, UserIdentifier userId, string extraQueryParameters)
         {
-            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior: promptBehavior, userId: userId, extraQueryParameters: extraQueryParameters, callSync: true));
+            return RunAsyncTask(this.AcquireTokenCommonAsync(resource, clientId, redirectUri, promptBehavior: promptBehavior, userId: userId, claims: null, extraQueryParameters: extraQueryParameters, callSync: true));
         }
 
         /// <summary>
@@ -804,7 +804,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
-        /// <param name="claims">Additional claims that are needed for authentication. Acquired from the AdalClaimChallengeException. This parameter can be null.</param>
+        /// <param name="claims">Additional claims that are needed for authentication. This parameter can be null.</param>
         /// <returns>URL of the authorize endpoint including the query parameters.</returns>
         public Uri GetAuthorizationRequestURL(string resource, string clientId, Uri redirectUri, UserIdentifier userId, string extraQueryParameters, string claims)
         {
