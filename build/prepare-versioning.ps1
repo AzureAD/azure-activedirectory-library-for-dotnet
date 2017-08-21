@@ -9,7 +9,7 @@ $hash = git rev-parse HEAD
 
 Write-Host "=========================="
 Write-Host "Versioning assembly info file..."
-$filename = "src\ADAL.Common\CommonAssemblyInfo.cs"
+$filename = "src\Microsoft.IdentityModel.Clients.ActiveDirectory\Properties\AssemblyInfo.cs"
 $content = Get-Content $filename
 $newContent = $content -replace "Microsoft Open Technologies", "Microsoft Corporation"
 $newContent = $newContent + "`n" + "[assembly: AssemblyInformationalVersionAttribute(""$hash"")]"
