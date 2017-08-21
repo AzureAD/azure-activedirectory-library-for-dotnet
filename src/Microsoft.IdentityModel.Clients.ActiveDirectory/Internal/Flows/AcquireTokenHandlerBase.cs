@@ -168,7 +168,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         throw ResultEx.Exception;
                     }
-                    await this.PostTokenRequest(ResultEx);
+
+                    await this.PostTokenRequest(ResultEx).ConfigureAwait(false);
 
                     StoreResultExToCache(ref notifiedBeforeAccessCache);
                 }
@@ -259,7 +260,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (!Authenticator.Authority.Equals(updatedAuthority))
             {
-                await Authenticator.UpdateAuthority(updatedAuthority, this.CallState);
+                await Authenticator.UpdateAuthority(updatedAuthority, this.CallState).ConfigureAwait(false);
                 this.ValidateAuthorityType();
             }
         }
@@ -269,7 +270,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // if broker returned Authority update Authenticator
             if (!string.IsNullOrEmpty(resultEx.Result.Authority)) 
             {
-                await UpdateAuthority(resultEx.Result.Authority);
+                await UpdateAuthority(resultEx.Result.Authority).ConfigureAwait(false);
             }
 
             this.Authenticator.UpdateTenantId(resultEx.Result.TenantId);
