@@ -1,3 +1,8 @@
+Version 2.29.0
+==============
+This release includes
+- API overloads for passing in claims challenge for authentication.
+
 Version 2.28.3
 =========
 This release includes
