@@ -131,7 +131,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 var updatedAuthority = ReplaceHost(Authenticator.Authority,
                     authorizationResult.CloudInstanceName);
 
-                await UpdateAuthority(updatedAuthority);
+                await UpdateAuthority(updatedAuthority).ConfigureAwait(false);
             }
         }
 
@@ -156,7 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
         {
-            await base.PostTokenRequest(resultEx);
+            await base.PostTokenRequest(resultEx).ConfigureAwait(false);
             if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
             {
                 return;

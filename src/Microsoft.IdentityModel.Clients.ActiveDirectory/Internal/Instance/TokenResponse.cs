@@ -103,7 +103,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataMember(Name = TokenResponseClaim.Claims, IsRequired = false)]
         public string Claims { get; set; }
 
-        [DataMember(Name = TokenResponseClaim.Authority, IsRequired = false)]
         public string Authority { get; set; }
 
         internal static TokenResponse CreateFromBrokerResponse(IDictionary<string, string> responseDictionary)

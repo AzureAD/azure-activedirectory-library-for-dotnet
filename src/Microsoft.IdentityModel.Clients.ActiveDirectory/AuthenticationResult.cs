@@ -139,7 +139,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.UserInfo = new UserInfo(userInfo);
             }
         }
-      
+        /// <summary>
+        /// Gets the authority which has issued tokens.
+        /// </summary>
         public string Authority { get; internal set; }
     }
 }

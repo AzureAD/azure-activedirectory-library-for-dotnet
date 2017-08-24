@@ -72,7 +72,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
         {
-            await base.PostTokenRequest(resultEx);
+            await base.PostTokenRequest(resultEx).ConfigureAwait(false);
             UserInfo userInfo = resultEx.Result.UserInfo;
             this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
             this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;
