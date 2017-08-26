@@ -25,9 +25,7 @@ namespace Test.ADAL.NET.Unit
         [Description("Sovereign user use world wide authority")]
         public async Task SovereignUserWorldWideAuthorityIntegrationTest()
         {
-            const string testCloudInstanceName = "some-sovereign-cloud";
-            const string sovereignAuthorityHostPrefix = "login.";
-            const string sovereignAuthorityHost = sovereignAuthorityHostPrefix + testCloudInstanceName;
+            const string sovereignAuthorityHost = "login.some-sovereign-cloud";
 
             var sovereignTenantSpesificAuthority = $"https://{sovereignAuthorityHost}/{TestConstants.SomeTenantId}/";
 
@@ -37,7 +35,7 @@ namespace Test.ADAL.NET.Unit
 
             // mock value for authentication returnedUriInput, with cloud_instance_name claim
             var authReturnedUriInputMock = TestConstants.DefaultRedirectUri + "?code=some-code" + "&" +
-                                           TokenResponseClaim.CloudInstanceName + "=" + testCloudInstanceName;
+                                           TokenResponseClaim.CloudInstanceHost + "=" + sovereignAuthorityHost;
 
             MockHelpers.ConfigureMockWebUI(
                 new AuthorizationResult(AuthorizationStatus.Success, authReturnedUriInputMock),
