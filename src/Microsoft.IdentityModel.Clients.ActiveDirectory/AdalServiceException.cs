@@ -29,6 +29,7 @@ using System.Globalization;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -100,6 +101,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
+            this.Headers = ((HttpRequestWrapperException)innerException).WebResponse.Headers;
             this.ServiceErrorCodes = serviceErrorCodes;
         }
 
@@ -114,6 +116,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets the specific error codes that may be returned by the service.
         /// </summary>
         public string[] ServiceErrorCodes { get; set; }
+
+        /// <summary>
+        /// Contains headers from the response that indicated an error
+        /// </summary>
+        public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
         /// Creates and returns a string representation of the current exception.
