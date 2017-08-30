@@ -1417,12 +1417,10 @@ namespace Test.ADAL.NET.Unit
             {
                 if (ex is AdalServiceException adalEx)
                 {
-                    foreach (KeyValuePair<string, string> header in adalEx.Headers)
+                    foreach (KeyValuePair<string, string> header in HttpErrorResponseWithHeaders)
                     {
-                        //Find matching header
-                        var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value == header.Value);
+                        var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value.Contains(header.Value)).FirstOrDefault();
                         Assert.IsNotNull(match);
-                        Assert.AreEqual(match.FirstOrDefault(), header);
                     }
                 }
             }

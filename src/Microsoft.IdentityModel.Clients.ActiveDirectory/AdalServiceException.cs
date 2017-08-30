@@ -30,6 +30,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -81,6 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (response != null)
                 {
                     this.StatusCode = (int)response.StatusCode;
+                    this.Headers = response.Headers;
                 }
                 else if (innerException.InnerException is TaskCanceledException)
                 {
@@ -101,7 +103,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
 
-            this.Headers = ((HttpRequestWrapperException)innerException).WebResponse.Headers;
             this.ServiceErrorCodes = serviceErrorCodes;
         }
 
@@ -120,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Contains headers from the response that indicated an error
         /// </summary>
-        public Dictionary<string, string> Headers { get; set; }
+        public HttpResponseHeaders Headers { get; set; }
 
         /// <summary>
         /// Creates and returns a string representation of the current exception.
