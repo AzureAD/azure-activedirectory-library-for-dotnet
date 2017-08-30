@@ -121,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Contains headers from the response that indicated an error
         /// </summary>
-        public HttpResponseHeaders Headers { get; set; }
+        public HttpResponseHeaders Headers { get; internal set; }
 
         /// <summary>
         /// Creates and returns a string representation of the current exception.

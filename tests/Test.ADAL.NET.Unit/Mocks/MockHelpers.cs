@@ -97,9 +97,9 @@ namespace Test.ADAL.NET.Unit.Mocks
             HttpResponseMessage responseMessage = CreateHttpErrorResponse();
 
             foreach (KeyValuePair<string, string> header in headers)
+            {
                 responseMessage.Headers.Add(header.Key, header.Value);
-
-            //var resp = responseMessage.Content.Headers.TryAddWithoutValidation("retry-after", "120");
+            }
 
             return responseMessage;
         }
