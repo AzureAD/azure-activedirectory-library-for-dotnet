@@ -872,6 +872,8 @@ namespace Test.ADAL.NET.Unit
             });
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true);
+            context.TokenCache.Clear();
+
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
                 TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
@@ -893,6 +895,9 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            //there should be only one cache entry.
+            Assert.AreEqual(1, context.TokenCache.Count);
         }
 
         [TestMethod]
