@@ -853,6 +853,54 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Test for Force Prompt with PromptBehavior.SelectAccount")]
+        public async Task ForcePromptForSelectAccountPromptBehaviorTestAsync()
+        {
+            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                    TestConstants.DefaultRedirectUri + "?code=some-code"),
+                // validate that authorizationUri passed to WebUi contains prompt=select_account query parameter
+                new Dictionary<string, string> {{"prompt", "select_account"}});
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                PostData = new Dictionary<string, string>
+                {
+                    {"grant_type", "authorization_code"}
+                }
+            });
+
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true);
+            context.TokenCache.Clear();
+
+            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
+                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
+            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", "existing-access-token",
+                    DateTimeOffset.UtcNow + TimeSpan.FromMinutes(100))
+            };
+
+            AuthenticationResult result =
+                await
+                    context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                        TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.SelectAccount));
+            Assert.IsNotNull(result);
+            Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
+            Assert.AreEqual(result.AccessToken, "some-access-token");
+            Assert.IsNotNull(result.UserInfo);
+            Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+            Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            //there should be only one cache entry.
+            Assert.AreEqual(1, context.TokenCache.Count);
+        }
+
+        [TestMethod]
         [Description("Positive Test for AcquireToken non-interactive")]
         public async Task AcquireTokenNonInteractivePositiveTestAsync()
         {
@@ -1385,6 +1433,45 @@ namespace Test.ADAL.NET.Unit
             var ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(() =>
                 context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)));
             Assert.IsTrue((ex.InnerException.InnerException.InnerException).Message.Contains(TestConstants.ErrorSubCode));
+        }
+
+        [TestMethod]
+        [Description("Test for ensuring ADAL returns the appropriate headers during a http failure.")]
+        public async Task HttpErrorResponseWithHeaders()
+        {
+            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                                           TestConstants.DefaultRedirectUri + "?code=some-code"));
+
+            List<KeyValuePair<string, string>> HttpErrorResponseWithHeaders = new List<KeyValuePair<string, string>>();
+            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Retry-After", "120"));
+            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("GatewayTimeout", "0"));
+            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Forbidden", "0"));
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateCustomHeaderFailureResponseMessage(HttpErrorResponseWithHeaders)
+            });
+
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, true);
+
+            try
+            {
+                AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                                              TestConstants.DefaultRedirectUri, platformParameters);
+                Assert.Fail();
+            }
+            catch (Exception ex)
+            {
+                if (ex is AdalServiceException adalEx)
+                {
+                    foreach (KeyValuePair<string, string> header in HttpErrorResponseWithHeaders)
+                    {
+                        var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value.Contains(header.Value)).FirstOrDefault();
+                        Assert.IsNotNull(match);
+                    }
+                }
+            }
         }
     }
 }
