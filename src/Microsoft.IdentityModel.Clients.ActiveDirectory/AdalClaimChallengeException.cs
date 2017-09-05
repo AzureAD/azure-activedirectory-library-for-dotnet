@@ -35,12 +35,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public class AdalClaimChallengeException : AdalServiceException
     {
         /// <summary>
-        /// Claims returned from eSTS during token acquisition.
+        /// Represents claims returned from AdalClaimChallengeException
         /// </summary>
         public string Claims { get; internal set; }
 
-        /// <summary
-        ///  Initializes a new instance of the exception class for handling claims.
+        /// <summary>
+        /// Initializes a new instance of the exception class for handling claims.
         /// </summary>
         public AdalClaimChallengeException(string errorCode, string message, Exception innerException, string claims)
             : base(errorCode, GetErrorMessage(errorCode), null, innerException)
