@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public class AdalClaimChallengeException : AdalServiceException
     {
         /// <summary>
-        /// Initializes a new instance of the exception class for handling claims.
+        /// Claims challenge returned from the STS. This value should be passed back to the API caller.
         /// </summary>
         public string Claims { get; internal set; }
 
