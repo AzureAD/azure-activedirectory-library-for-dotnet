@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public class AdalClaimChallengeException : AdalServiceException
     {
         /// <summary>
-        /// Represents claims returned from AdalClaimChallengeException
+        /// Initializes a new instance of the exception class for handling claims.
         /// </summary>
         public string Claims { get; internal set; }
 
