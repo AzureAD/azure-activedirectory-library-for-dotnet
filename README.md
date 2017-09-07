@@ -66,7 +66,7 @@ This is obviously the first diagnostic.  We try to provide helpful error message
 
 ### Logs
 
-In order to configure logging, static property Callback of the LoggerCallbackHandler class should be set to the instance of class implementing IAdalLogCallback interface
+In order to configure logging, static property Callback of the LoggerCallbackHandler class should be set to the instance of a class implementing IAdalLogCallback interface
 
 ### Brokered Authentication for iOS
 

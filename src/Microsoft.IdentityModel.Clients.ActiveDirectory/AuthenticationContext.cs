@@ -145,7 +145,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
-        /// <returns>It contains Access Token, its expiration time, user information.</returns>
+        /// <returns>It contains Device Code, its expiration time, User Code.</returns>
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId)
         {
             return await this.AcquireDeviceCodeAsync(resource, clientId, null).ConfigureAwait(false);
@@ -157,7 +157,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
-        /// <returns>It contains Access Token, its expiration time, user information.</returns>
+        /// <returns>It contains Device Code, its expiration time, User Code.</returns>
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId,
             string extraQueryParameters)
         {
