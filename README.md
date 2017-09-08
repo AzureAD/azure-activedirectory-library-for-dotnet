@@ -235,7 +235,7 @@ ex: msauth://code/mytestiosapp%3A%2F%2Fcom.mycompany.myapp and msauth://code/myt
 ```
 ### Brokered Authentication for Android
 
-If your app requires conditional access or certificate authentication support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app OR Company Portal. Make sure that your Redirect URI and application's bundle id is all in lower case.
+If your app or your app users require conditional access or certificate authentication support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app OR Company Portal. Make sure that your Redirect URI and application's bundle id is all in lower case.
 
 #### Enable Broker Mode on Your Context
 Broker is enabled on a per-authentication-context basis. It is disabled by default. You must set useBroker flag to true in PlatformParameters constructor if you wish ADAL to call to broker:
@@ -251,7 +251,7 @@ If target version is lower than 23, calling app has to have the following permis
  - GET_ACCOUNTS
  - USE_CREDENTIALS
  - MANAGE_ACCOUNTS
-If target version is 23, USE_CREDENTIALS and MANAGE_ACCOUNTS have been deprecated and GET_ACCOUNTS is under protection level "dangerous". Calling app is responsible for requesting the runtime permission for GET_ACCOUNTS. You can reference Runtime permission request for API 23.
+If target version is 23, USE_CREDENTIALS and MANAGE_ACCOUNTS have been deprecated and GET_ACCOUNTS is under protection level "dangerous". The calling app is responsible for requesting the runtime permission for GET_ACCOUNTS. You can reference Runtime permission request for API 23.
 
 #### Registering Redirect URI
 ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
