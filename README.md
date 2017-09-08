@@ -178,7 +178,7 @@ The userBroker flag setting will allow ADAL to try to call out to the broker.
 #### AppDelegate changes
 Update the AppDelegate.cs file to  include the override method below. This method is invoked everytime the application is launched and is used as an opportunity to process response from the Broker and complete the authentication process. 
 ```C#
-public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
+public override bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)
 {            
 	if (AuthenticationContinuationHelper.IsBrokerResponse(sourceApplication))
     {
