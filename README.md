@@ -245,7 +245,7 @@ public PlatformParameters(Activity callerActivity, bool useBroker)
 public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior)
 ```
 
-The userBroker flag setting will allow ADAL to try to call out to the broker.
+The useBroker flag setting will allow ADAL to try to call out to the broker.
 
 If target version is lower than 23, calling app has to have the following permissions declared in manifest(http://developer.android.com/reference/android/accounts/AccountManager.html):
  - GET_ACCOUNTS
