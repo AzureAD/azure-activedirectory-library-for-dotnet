@@ -40,8 +40,8 @@ namespace WinFormsAutomationApp
                     {
                         userIdentifierType = UserIdentifierType.UniqueId;
                     }
-                     else if (string.Equals(input["user_identifier_type"], "optional_displayable",
-                        StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(input["user_identifier_type"], "optional_displayable",
+                       StringComparison.InvariantCultureIgnoreCase))
                     {
                         userIdentifierType = UserIdentifierType.OptionalDisplayableId;
                     }
@@ -50,17 +50,30 @@ namespace WinFormsAutomationApp
                     {
                         userIdentifierType = UserIdentifierType.RequiredDisplayableId;
                     }
+
                     string prompt = input.ContainsKey("prompt_behavior") ? input["prompt_behavior"] : null;
-                    result = await ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
-                        GetPlatformParametersInstance(prompt), 
+
+                    // extraQueryParameters can be null, but key must be present to use correct Acquire Token call for claims overload
+                    if (input.ContainsKey("claims") && (input.ContainsKey("extra_query_parameters")))
+                    {
+                        result = await ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
+                        GetPlatformParametersInstance(prompt),
+                        new UserIdentifier(input["user_identifier"], userIdentifierType), input["extra_query_parameters"], input["claims"])
+                        .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        result = await ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
+                        GetPlatformParametersInstance(prompt),
                         new UserIdentifier(input["user_identifier"], userIdentifierType))
                         .ConfigureAwait(false);
+                    }
                 }
                 else
                 {
                     string prompt = input.ContainsKey("prompt_behavior") ? input["prompt_behavior"] : null;
                     result = await ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
-                                GetPlatformParametersInstance(prompt)).ConfigureAwait(false);
+                    GetPlatformParametersInstance(prompt)).ConfigureAwait(false);
                 }
                 res = ProcessResult(result, input);
             }
@@ -69,7 +82,7 @@ namespace WinFormsAutomationApp
                 res.Add("error", exc.Message);
             }
             return FromDictionaryToJson(res);
-        }       
+        }
 
         public static async Task<string> AcquireTokenSilent(Dictionary<string, string> input)
         {
@@ -89,7 +102,7 @@ namespace WinFormsAutomationApp
 
         public static async Task<string> ExpireAccessToken(Dictionary<string, string> input)
         {
-           
+
             Task<string> myTask = Task<string>.Factory.StartNew(() =>
             {
                 TokenCache.DefaultShared.ReadItems();
@@ -111,7 +124,7 @@ namespace WinFormsAutomationApp
                 //Send back error if userId or displayableId is not sent back to the user
                 output.Add("expired_access_token_count", CacheItems.Count.ToString());
                 return output.FromDictionaryToJson();
-                             
+
             });
 
             return await myTask.ConfigureAwait(false);
@@ -136,11 +149,11 @@ namespace WinFormsAutomationApp
                         UpdateCache(item, updated);
                     }
                     //Send back error if userId or displayableId is not sent back to the user
-                    output.Add("invalidated_refresh_token_count", CacheItems.Count.ToString());                   
+                    output.Add("invalidated_refresh_token_count", CacheItems.Count.ToString());
                 }
                 catch (Exception exc)
                 {
-                    output.Add("error", exc.Message); 
+                    output.Add("error", exc.Message);
                 }
                 return output.FromDictionaryToJson();
             });
@@ -156,7 +169,7 @@ namespace WinFormsAutomationApp
                 Dictionary<string, object> output = new Dictionary<string, object>();
                 TokenCache.DefaultShared.ReadItems();
                 var list = TokenCache.DefaultShared.tokenCacheDictionary;
-                
+
                 if (list.Any())
                 {
                     output.Add("Count", list.Count());
@@ -165,7 +178,7 @@ namespace WinFormsAutomationApp
                     output.Add("expires_on", item.Value.Result.ExpiresOn);
                     output.Add("refresh_token", item.Value.RefreshToken);
                 }
-              
+
                 return FromDictionaryToJson(output);
             });
             return await myTask.ConfigureAwait(false);
@@ -376,5 +389,5 @@ namespace WinFormsAutomationApp
         }
         #endregion
 
-    }    
+    }
 }
