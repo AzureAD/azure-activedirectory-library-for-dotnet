@@ -53,12 +53,11 @@ namespace WinFormsAutomationApp
 
                     string prompt = input.ContainsKey("prompt_behavior") ? input["prompt_behavior"] : null;
 
-                    // extraQueryParameters can be null, but key must be present to use correct Acquire Token call for claims overload
-                    if (input.ContainsKey("claims") && (input.ContainsKey("extra_query_parameters")))
+                    if (input.ContainsKey("claims"))
                     {
                         result = await ctx.AcquireTokenAsync(input["resource"], input["client_id"], new Uri(input["redirect_uri"]),
                         GetPlatformParametersInstance(prompt),
-                        new UserIdentifier(input["user_identifier"], userIdentifierType), input["extra_query_parameters"], input["claims"])
+                        new UserIdentifier(input["user_identifier"], userIdentifierType), null, input["claims"])
                         .ConfigureAwait(false);
                     }
                     else
