@@ -141,9 +141,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
         }
 
-        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override void PostTokenRequest(AuthenticationResultEx resultEx)
         {
-            await base.PostTokenRequest(resultEx).ConfigureAwait(false);
+            base.PostTokenRequest(resultEx);
             if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
             {
                 return;
