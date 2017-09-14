@@ -126,12 +126,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             await this.AcquireAuthorizationAsync().ConfigureAwait(false);
             this.VerifyAuthorizationResult();
 
-            if (!string.IsNullOrEmpty(authorizationResult.CloudInstanceHost))
+            //this code is commented out to disable sovereign cloud flow
+/*            if (!string.IsNullOrEmpty(authorizationResult.CloudInstanceHost))
             {
                 var updatedAuthority = ReplaceHost(Authenticator.Authority, authorizationResult.CloudInstanceHost);
 
                 await UpdateAuthority(updatedAuthority).ConfigureAwait(false);
-            }
+            }*/
         }
 
         internal async Task AcquireAuthorizationAsync()
