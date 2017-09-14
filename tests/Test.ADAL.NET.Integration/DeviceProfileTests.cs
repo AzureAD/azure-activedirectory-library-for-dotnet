@@ -95,7 +95,7 @@ namespace Test.ADAL.NET.Unit
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Get,
-                Url = "https://login.microsoftonline.com/home/oauth2/devicecode",
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
             };
 
@@ -127,10 +127,17 @@ namespace Test.ADAL.NET.Unit
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
             DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client");
+
             Assert.IsNotNull(dcr);
+            Assert.AreEqual("some-device-code", dcr.DeviceCode);
+            Assert.AreEqual("some-user-code", dcr.UserCode);
+            Assert.AreEqual("some-URL", dcr.VerificationUrl);
+            Assert.AreEqual(5, dcr.Interval);
+            Assert.AreEqual("some-message", dcr.Message);
+            Assert.AreEqual("some-client", dcr.ClientId);
+
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
-            Assert.AreEqual("some-device-code", dcr.DeviceCode);
             Assert.AreEqual("some-access-token", result.AccessToken);
         }
 
