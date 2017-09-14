@@ -78,7 +78,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="DeviceCodeFlowTests.cs" />
+    <Compile Include="DeviceProfileTests.cs" />
     <Compile Include="SovereignCloudsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
