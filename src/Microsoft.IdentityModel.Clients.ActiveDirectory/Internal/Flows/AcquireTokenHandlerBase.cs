@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -126,7 +127,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (this.LoadFromCache)
                 {
                     CallState.Logger.Verbose(CallState, "Loading from cache.");
-                    CacheQueryData.Authority = Authenticator.Authority;
                     CacheQueryData.Resource = this.Resource;
                     CacheQueryData.ClientId = this.ClientKey.ClientId;
                     CacheQueryData.SubjectType = this.TokenSubjectType;
@@ -135,7 +135,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
-                    ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
+
+                    var host = GetHostCaseSensitive(this.Authenticator.Authority);
+                    var metadata = await InstanceDiscovery.GetMetadataEntry(host, this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+                    var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, host});
+                    aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
+                    foreach (var aliasedAuthority in aliasedAuthorities)
+                    {
+                        CacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
+                        ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
+                        if (ResultEx?.Result != null) break;
+                    }
+
                     extendedLifetimeResultEx = ResultEx;
 
                     if (ResultEx?.Result != null &&
@@ -206,13 +217,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
                 }
-                string host = new Uri(this.Authenticator.Authority).Host;
                 var metadata = await InstanceDiscovery.GetMetadataEntry(
-                    host, this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
-                this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority.Replace(host, metadata.PreferredCache), this.Resource,
+                    GetHostCaseSensitive(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+                this.tokenCache.StoreToCache(
+                    ResultEx, ReplaceHost(this.Authenticator.Authority, metadata.PreferredCache), this.Resource,
                     this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
             }
             return notifiedBeforeAccessCache;
+        }
+
+        // Note: host is supposed to be case insensitive, but we would like to preserve its case to match a previously cached token
+        private string GetHostCaseSensitive(string uri)
+        {
+            // return new Uri(uri).Host; // This canonical implementation normalizes the host into lower case
+            return uri.Split('/')[2];
+        }
+
+        private string ReplaceHost(string oldUri, string newHost)
+        {
+            return $"https://{newHost}{new Uri(oldUri).AbsolutePath}";
         }
 
         private async Task CheckAndAcquireTokenUsingBroker()
