@@ -136,15 +136,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
 
-                    var host = GetHostCaseSensitive(this.Authenticator.Authority);
-                    var metadata = await InstanceDiscovery.GetMetadataEntry(host, this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
-                    var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, host});
-                    aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
+                    var aliasedAuthorities = await GetOrderedAliases(
+                        GetHostCaseSensitive(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
                     foreach (var aliasedAuthority in aliasedAuthorities)
                     {
                         CacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
                         ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
-                        if (ResultEx?.Result != null) break;
+                        if (ResultEx?.Result != null) {break;} //NOSONAR
                     }
 
                     extendedLifetimeResultEx = ResultEx;
@@ -206,6 +204,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.NotifyAfterAccessCache();
                 }
             }
+        }
+
+        public static async Task<List<string>> GetOrderedAliases(string host, bool validateAuthority, CallState callState)
+        {
+            var metadata = await InstanceDiscovery.GetMetadataEntry(host, validateAuthority, callState).ConfigureAwait(false);
+            var aliasedAuthorities = new List<string>(new string[] { metadata.PreferredCache, host });
+            aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
+            return aliasedAuthorities;
         }
 
         private async Task<bool> StoreResultExToCache(bool notifiedBeforeAccessCache)
