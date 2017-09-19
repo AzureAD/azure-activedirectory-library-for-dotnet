@@ -137,7 +137,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
 
                     var aliasedAuthorities = await GetOrderedAliases(
-                        GetHostCaseSensitive(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+                        GetHost(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
                     foreach (var aliasedAuthority in aliasedAuthorities)
                     {
                         CacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
@@ -224,7 +224,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
                 }
                 var metadata = await InstanceDiscovery.GetMetadataEntry(
-                    GetHostCaseSensitive(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+                    GetHost(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
                 this.tokenCache.StoreToCache(
                     ResultEx, ReplaceHost(this.Authenticator.Authority, metadata.PreferredCache), this.Resource,
                     this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
@@ -232,11 +232,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return notifiedBeforeAccessCache;
         }
 
-        // Note: host is supposed to be case insensitive, but we would like to preserve its case to match a previously cached token
-        private string GetHostCaseSensitive(string uri)
+        private string GetHost(string uri)
         {
-            // return new Uri(uri).Host; // This canonical implementation normalizes the host into lower case
+            // Note: host is supposed to be case insensitive, but we would like to preserve its case to match a previously cached token
             return uri.Split('/')[2];
+            // return new Uri(uri).Host; // This canonical implementation normalizes the host into lower case
         }
 
         private string ReplaceHost(string oldUri, string newHost)
