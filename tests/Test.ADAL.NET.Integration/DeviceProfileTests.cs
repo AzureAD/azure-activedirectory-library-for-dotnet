@@ -143,5 +143,30 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual("some-access-token", result.AccessToken);
         }
 
+        [TestMethod]
+        public async Task NegativeDeviceCodeTest()
+        {
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Get,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
+                ResponseMessage = MockHelpers.CreateDeviceCodeErrorResponse()
+            };
+
+            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            TokenCache cache = new TokenCache();
+            AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
+            try
+            {
+                DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client");
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual(ex.Message, "AADSTS90014: The request body must contain the following parameter: 'client_id'.\r\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\r\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\r\nTimestamp: 2017-09-20 23:05:56Z");
+                return;
+            }
+            Assert.Fail();
+        }
     }
 }

@@ -113,6 +113,12 @@ namespace Test.ADAL.NET.Unit.Mocks
                     "{\"ErrorSubCode\":\"70323\",\"error\":\"invalid_grant\",\"error_description\":\"AADSTS70002: Error validating credentials.AADSTS70008: The provided access grant is expired or revoked.Trace ID: f7ec686c-9196-4220-a754-cd9197de44e9Correlation ID: 04bb0cae-580b-49ac-9a10-b6c3316b1eaaTimestamp: 2015-09-16 07:24:55Z\",\"error_codes\":[70002,70008],\"timestamp\":\"2015-09-16 07:24:55Z\",\"trace_id\":\"f7ec686c-9196-4220-a754-cd9197de44e9\",\"correlation_id\":\"04bb0cae-580b-49ac-9a10-b6c3316b1eaa\"}");
         }
 
+        public static HttpResponseMessage CreateDeviceCodeErrorResponse()
+        {
+            return
+                CreateFailureResponseMessage("{\"error\":\"invalid_request\",\"error_description\":\"AADSTS90014: The request body must contain the following parameter: 'client_id'.\\r\\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\\r\\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\\r\\nTimestamp: 2017-09-20 23:05:56Z\",\"error_codes\":[90014],\"timestamp\":\"2017-09-20 23:05:56Z\",\"trace_id\":\"290d2ab9-40f2-4716-92e2-4a72fc480000\",\"correlation_id\":\"2eee49ee-620e-42c2-9a3c-dcf81955b20f\"}");
+        }
+
         public static HttpResponseMessage CreateFailureResponseMessage(string message)
         {
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
