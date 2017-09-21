@@ -87,7 +87,7 @@ namespace Test.ADAL.NET.Unit.Mocks
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
 
             HttpContent content = new StringContent(
-                "{\"user_code\":\"some-user-code\",\"device_code\":\"some-device-code\",\"verification_url\":\"some-URL\",\"expires_in\":\"900\",\"interval\":\"5\",\"message\":\"some-message\"}");
+                "{\"user_code\":\"some-user-code\",\"device_code\":\"some-device-code\",\"verification_url\":\"some-URL\",\"expires_in\":\"5\",\"interval\":\"5\",\"message\":\"some-message\"}");
             responseMessage.Content = content;
             return responseMessage;
         }
@@ -116,7 +116,7 @@ namespace Test.ADAL.NET.Unit.Mocks
         public static HttpResponseMessage CreateDeviceCodeErrorResponse()
         {
             return
-                CreateFailureResponseMessage("{\"error\":\"invalid_request\",\"error_description\":\"AADSTS90014: The request body must contain the following parameter: 'client_id'.\\r\\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\\r\\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\\r\\nTimestamp: 2017-09-20 23:05:56Z\",\"error_codes\":[90014],\"timestamp\":\"2017-09-20 23:05:56Z\",\"trace_id\":\"290d2ab9-40f2-4716-92e2-4a72fc480000\",\"correlation_id\":\"2eee49ee-620e-42c2-9a3c-dcf81955b20f\"}");
+                CreateFailureResponseMessage("{\"error\":\"invalid_request\",\"error_description\":\"AADSTS90014: some error message.\\r\\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\\r\\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\\r\\nTimestamp: 2017-09-20 23:05:56Z\",\"error_codes\":[90014],\"timestamp\":\"2017-09-20 23:05:56Z\",\"trace_id\":\"290d2ab9-40f2-4716-92e2-4a72fc480000\",\"correlation_id\":\"2eee49ee-620e-42c2-9a3c-dcf81955b20f\"}");
         }
 
         public static HttpResponseMessage CreateFailureResponseMessage(string message)

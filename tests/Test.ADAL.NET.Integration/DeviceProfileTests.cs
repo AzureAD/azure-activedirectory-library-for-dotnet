@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Unit.Mocks;
+using Test.ADAL.Common;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -144,7 +145,7 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        public async Task NegativeDeviceCodeTest()
+        public void NegativeDeviceCodeTest()
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
             {
@@ -157,16 +158,9 @@ namespace Test.ADAL.NET.Unit
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            try
-            {
-                DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual(ex.Message, "AADSTS90014: The request body must contain the following parameter: 'client_id'.\r\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\r\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\r\nTimestamp: 2017-09-20 23:05:56Z");
-                return;
-            }
-            Assert.Fail();
+            DeviceCodeResult dcr;
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client"));
+            Assert.IsTrue(ex.Message.Contains("some error message"));
         }
     }
 }
