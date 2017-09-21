@@ -234,13 +234,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private string GetHost(string uri)
         {
-            // Note: host is supposed to be case insensitive, but we would like to preserve its case to match a previously cached token
+            // The following line serves as a validation for uri. Relevant exceptions will be throwed.
+            new Uri(uri); //NOSONAR
+
+            // Note: host is supposed to be case insensitive, and would be normalized to lowercase by: new Uri(uri).Host
+            // but we would like to preserve its case to match a previously cached token
             return uri.Split('/')[2];
-            // return new Uri(uri).Host; // This canonical implementation normalizes the host into lower case
         }
 
         private string ReplaceHost(string oldUri, string newHost)
         {
+            if (string.IsNullOrEmpty(oldUri) || string.IsNullOrEmpty(newHost)) {throw new ArgumentNullException();}
             return $"https://{newHost}{new Uri(oldUri).AbsolutePath}";
         }
 
