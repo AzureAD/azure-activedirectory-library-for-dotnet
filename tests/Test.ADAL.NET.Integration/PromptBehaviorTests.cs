@@ -31,10 +31,10 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Unit.Mocks;
-using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 using System.Net.Http;
 using Test.ADAL.Common;
 using System.Net;
+using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -45,11 +45,13 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             HttpMessageHandlerFactory.ClearMockHandlers();
+            InstanceDiscovery.InstanceCache.Clear();
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
         }
         
         [TestMethod]
-        [Description("Test for Force Prompt with PromptBehavior.Auto")]
-        public async Task ForcePromptForAutoPromptBehaviorTestAsync()
+        [Description("Test for PromptBehavior.Auto, prompts only if necessary")]
+        public async Task AutoPromptBehaviorTestAsync()
         {
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
@@ -57,7 +59,11 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                PostData = new Dictionary<string, string>()
+                {
+                    {"grant_type", "authorization_code"}
+                }
             });
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true);
@@ -68,7 +74,7 @@ namespace Test.ADAL.NET.Unit
 
             Assert.IsNotNull(result);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
+            Assert.AreEqual("some-access-token", result.AccessToken);
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
@@ -121,8 +127,7 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"client_secret", TestConstants.DefaultClientSecret},
-                    {"grant_type", "client_credentials"}
+                    {"grant_type", "refresh_token"}
                 }
             });
 

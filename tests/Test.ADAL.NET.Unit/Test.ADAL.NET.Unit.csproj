@@ -91,11 +91,11 @@
     <Compile Include="Mocks\MockWebUI.cs" />
     <Compile Include="NonInteractiveTests.cs" />
     <Compile Include="OboFlowTests.cs" />
-    <Compile Include="PromptBehaviorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestConstants.cs" />
     <Compile Include="TokenCacheKeyTests.cs" />
     <Compile Include="TokenCacheUnitTests.cs" />
+    <Compile Include="InstanceDiscoveryTests.cs" />
     <Compile Include="UnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -155,7 +155,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
