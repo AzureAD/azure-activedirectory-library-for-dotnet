@@ -163,7 +163,6 @@ namespace Test.ADAL.NET.Unit
             Assert.IsTrue(ex.Message.Contains("some error message"));
         }
 
-
         [TestMethod]
         public async Task NegativeDeviceCodeTimeoutTest()
         {
