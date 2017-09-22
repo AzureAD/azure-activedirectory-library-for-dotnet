@@ -66,6 +66,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
             }
 
+            if (resultEx == null)
+            {
+                //Get the error message from the STS after the device code has expired
+                resultEx = await base.SendTokenRequestAsync().ConfigureAwait(false);
+            }
+
             return resultEx;
         }
 
