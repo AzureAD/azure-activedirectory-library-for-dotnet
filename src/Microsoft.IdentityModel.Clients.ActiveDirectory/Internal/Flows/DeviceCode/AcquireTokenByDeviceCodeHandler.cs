@@ -47,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             TimeSpan timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
             AuthenticationResultEx resultEx = null;
-            while (timeRemaining.TotalSeconds > 0)
+            while (timeRemaining.TotalSeconds + deviceCodeResult.Interval > 0)
             {
                 try
                 {
@@ -64,12 +64,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 await Task.Delay(TimeSpan.FromSeconds(deviceCodeResult.Interval)).ConfigureAwait(false);
                 timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
-            }
-
-            if (resultEx == null)
-            {
-                //Get the error message from the STS after the device code has expired
-                resultEx = await base.SendTokenRequestAsync().ConfigureAwait(false);
             }
 
             return resultEx;
