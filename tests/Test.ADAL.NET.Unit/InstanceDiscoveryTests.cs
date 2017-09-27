@@ -103,7 +103,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenMultipleSimultaneousCallsWithTheSameAuthority_ShouldMakeOnlyOneRequest()
+        public void TestInstanceDiscovery_WhenMultipleSimultaneousCallsWithTheSameAuthority_ShouldMakeOnlyOneRequest()
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
@@ -156,6 +156,60 @@ namespace Test.ADAL.NET.Unit
             var entry2 = await InstanceDiscovery.GetMetadataEntry("sts.microsoft.com", true, callState).ConfigureAwait(false);
             Assert.AreEqual("login.microsoftonline.com", entry2.PreferredNetwork);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
+        }
+
+        [TestMethod]
+        [TestCategory("InstanceDiscoveryTests")]
+        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetwork()
+        {
+            string host = "login.windows.net";
+            string preferredNetwork = "login.microsoftonline.com";
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                Url = $"https://{host}/common/discovery/instance",
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        @"{
+                        ""tenant_discovery_endpoint"" : ""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
+                        ""metadata"": [
+                            {
+                            ""preferred_network"": ""login.microsoftonline.com"",
+                            ""preferred_cache"": ""login.windows.net"",
+                            ""aliases"": [""login.microsoftonline.com"", ""login.windows.net"", ""sts.microsoft.com""]
+                            }
+                        ]
+                        }"
+                    )
+                }
+            });
+
+            var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
+            await authenticator.UpdateFromTemplateAsync(new CallState(Guid.NewGuid()));
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                Url = $"https://{preferredNetwork}/contoso.com/oauth2/token", // This validates the token request is sending to expected host
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-token\"}")
+                }
+            });
+
+            var privateObject = new PrivateObject(new AcquireTokenForClientHandler(new RequestData
+            {
+                Authenticator = authenticator,
+                Resource = "resource1",
+                ClientKey = new ClientKey(new ClientCredential("client1", "something")),
+                SubjectType = TokenSubjectType.Client,
+                ExtendedLifeTimeEnabled = false
+            }));
+            await (Task) privateObject.Invoke("SendTokenRequestAsync");
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
     }
 }
