@@ -33,9 +33,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Test.ADAL.Common;
+using Test.ADAL.NET.Unit;
 using Test.ADAL.NET.Unit.Mocks;
 
-namespace Test.ADAL.NET.Unit
+namespace Test.ADAL.NET.Integration
 {
     [TestClass]
     public class AcquireTokenSilentTests
