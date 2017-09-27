@@ -67,6 +67,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true);
+            context.TokenCache.Clear();
             AuthenticationResult result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
