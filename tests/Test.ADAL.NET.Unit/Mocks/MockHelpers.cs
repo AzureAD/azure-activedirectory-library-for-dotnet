@@ -82,12 +82,12 @@ namespace Test.ADAL.NET.Unit.Mocks
             return responseMessage;
         }
 
-        public static HttpResponseMessage CreateSuccessDeviceCodeResponseMessage()
+        public static HttpResponseMessage CreateSuccessDeviceCodeResponseMessage(string expirationTime = "900")
         {
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
 
             HttpContent content = new StringContent(
-                "{\"user_code\":\"some-user-code\",\"device_code\":\"some-device-code\",\"verification_url\":\"some-URL\",\"expires_in\":\"900\",\"interval\":\"5\",\"message\":\"some-message\"}");
+                "{\"user_code\":\"some-user-code\",\"device_code\":\"some-device-code\",\"verification_url\":\"some-URL\",\"expires_in\":\"" + expirationTime + "\",\"interval\":\"5\",\"message\":\"some-message\"}");
             responseMessage.Content = content;
             return responseMessage;
         }
@@ -111,6 +111,18 @@ namespace Test.ADAL.NET.Unit.Mocks
             return
                 CreateFailureResponseMessage(
                     "{\"ErrorSubCode\":\"70323\",\"error\":\"invalid_grant\",\"error_description\":\"AADSTS70002: Error validating credentials.AADSTS70008: The provided access grant is expired or revoked.Trace ID: f7ec686c-9196-4220-a754-cd9197de44e9Correlation ID: 04bb0cae-580b-49ac-9a10-b6c3316b1eaaTimestamp: 2015-09-16 07:24:55Z\",\"error_codes\":[70002,70008],\"timestamp\":\"2015-09-16 07:24:55Z\",\"trace_id\":\"f7ec686c-9196-4220-a754-cd9197de44e9\",\"correlation_id\":\"04bb0cae-580b-49ac-9a10-b6c3316b1eaa\"}");
+        }
+
+        public static HttpResponseMessage CreateDeviceCodeErrorResponse()
+        {
+            return
+                CreateFailureResponseMessage("{\"error\":\"invalid_request\",\"error_description\":\"AADSTS90014: some error message.\\r\\nTrace ID: 290d2ab9-40f2-4716-92e2-4a72fc480000\\r\\nCorrelation ID: 2eee49ee-620e-42c2-9a3c-dcf81955b20f\\r\\nTimestamp: 2017-09-20 23:05:56Z\",\"error_codes\":[90014],\"timestamp\":\"2017-09-20 23:05:56Z\",\"trace_id\":\"290d2ab9-40f2-4716-92e2-4a72fc480000\",\"correlation_id\":\"2eee49ee-620e-42c2-9a3c-dcf81955b20f\"}");
+        }
+
+        public static HttpResponseMessage CreateDeviceCodeExpirationErrorResponse()
+        {
+            return
+                CreateFailureResponseMessage("{\"error\":\"code_expired\",\"error_description\":\"AADSTS70019: Verification code expired.\\r\\nTrace ID: c16f4b65-c002-493a-b7cc-a33f3fe70000\\r\\nCorrelation ID: 91e8e5de-8974-4899-beec-08f7654fa1fd\\r\\nTimestamp: 2017-09-22 19:39:55Z\",\"error_codes\":[70019],\"timestamp\":\"2017-09-22 19:39:55Z\",\"trace_id\":\"c16f4b65-c002-493a-b7cc-a33f3fe70000\",\"correlation_id\":\"91e8e5de-8974-4899-beec-08f7654fa1fd\"}");
         }
 
         public static HttpResponseMessage CreateFailureResponseMessage(string message)
