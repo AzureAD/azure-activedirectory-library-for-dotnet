@@ -80,7 +80,6 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(ex.InnerException);
             Assert.IsTrue(ex.InnerException is AdalException);
             Assert.AreEqual(((AdalException)ex.InnerException).ErrorCode, "invalid_grant");
-
         }
 
         [TestMethod]
@@ -88,8 +87,7 @@ namespace Test.ADAL.NET.Unit
         //292916 Ensure AcquireTokenSilent tests exist in ADAL.NET for public clients
         public async Task AcquireTokenSilentTestWithValidTokenInCache()
         {
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true);
-            context.TokenCache.Clear();
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
 
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
