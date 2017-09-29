@@ -121,6 +121,7 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(ex.ErrorCode, AdalError.FailedToAcquireTokenSilently);
             Assert.AreEqual(ex.Message, AdalErrorMessage.FailedToAcquireTokenSilently);
+            Assert.IsNull(ex.InnerException);
         }
 
         [TestMethod]
@@ -136,8 +137,9 @@ namespace Test.ADAL.NET.Integration
                 ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage(),
                 PostData = new Dictionary<string, string>()
                 {
-                    {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "refresh_token"}
+                    { "client_id", TestConstants.DefaultClientId},
+                    {"grant_type", "refresh_token"},
+                    {"refresh_token", "some-rt" }
                 }
             });
 
@@ -161,6 +163,9 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(ex.ErrorCode, AdalError.FailedToAcquireTokenSilently);
             Assert.AreEqual(ex.Message, AdalErrorMessage.FailedToRefreshToken);
+            Assert.IsNotNull(ex.InnerException);
+            Assert.IsTrue(ex.InnerException is AdalServiceException);
+            Assert.AreEqual(((AdalServiceException)(ex.InnerException)).ErrorCode, "invalid_grant");
         }
     }
 }
