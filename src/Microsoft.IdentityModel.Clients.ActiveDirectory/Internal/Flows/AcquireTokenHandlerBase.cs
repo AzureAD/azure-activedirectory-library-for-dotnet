@@ -142,7 +142,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         CacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
                         ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
-                        if (ResultEx?.Result != null) {break;} //NOSONAR
+                        if (ResultEx?.Result != null) //NOSONAR
+                        {
+                            break;
+                        }
                     }
 
                     extendedLifetimeResultEx = ResultEx;
@@ -242,9 +245,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return uri.Split('/')[2];
         }
 
-        private string ReplaceHost(string oldUri, string newHost)
+        private static string ReplaceHost(string oldUri, string newHost)
         {
-            if (string.IsNullOrEmpty(oldUri) || string.IsNullOrEmpty(newHost)) {throw new ArgumentNullException();}
+            if (string.IsNullOrEmpty(oldUri) || string.IsNullOrEmpty(newHost))
+            {
+                throw new ArgumentNullException();
+            }
             return $"https://{newHost}{new Uri(oldUri).AbsolutePath}";
         }
 
