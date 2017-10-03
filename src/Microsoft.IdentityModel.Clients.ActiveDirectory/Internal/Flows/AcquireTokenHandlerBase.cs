@@ -332,10 +332,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private async Task<AuthenticationResultEx> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
+            var metadata = await InstanceDiscovery.GetMetadataEntry(
+                new Uri(Authenticator.TokenUri).Host, Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+            client = new AdalHttpClient(ReplaceHost(Authenticator.TokenUri, metadata.PreferredNetwork), this.CallState)
                 {Client = {BodyParameters = requestParameters}};
             TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
+        }
+
+        private static string ReplaceHost(string oldUri, string newHost)
+        {
+            if (string.IsNullOrEmpty(oldUri) || string.IsNullOrEmpty(newHost))
+            {
+                throw new ArgumentNullException();
+            }
+            return $"https://{newHost}{new Uri(oldUri).AbsolutePath}";
         }
 
         private void NotifyBeforeAccessCache()
