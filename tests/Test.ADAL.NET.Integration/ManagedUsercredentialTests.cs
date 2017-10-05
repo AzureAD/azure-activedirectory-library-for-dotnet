@@ -14,11 +14,11 @@ using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.Au
 namespace Test.ADAL.NET.Integration
 {
     [TestClass]
-    public class ManagedUserCredentialTests
+    public class ManagedUsercredentialTests
     {
         [TestMethod]
-        [Description("Positive Test for AcquireToken non-interactive")]
-        public async Task AcquireTokenNonInteractivePositiveTestAsync()
+        [Description("Positive Test for AcquireToken with a user token already in the cache non-interactive")]
+        public async Task AcquireTokenWithUserTokenAlreadyInCachePositiveTestAsync()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
