@@ -14,7 +14,7 @@ using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.Au
 namespace Test.ADAL.NET.Integration
 {
     [TestClass]
-    public class ManagedUsercredentialTests
+    public class ManagedUserCredentialTests
     {
         [TestMethod]
         [Description("Positive Test for AcquireToken non-interactive")]
