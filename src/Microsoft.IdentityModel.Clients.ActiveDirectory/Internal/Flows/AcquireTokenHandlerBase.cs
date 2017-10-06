@@ -135,18 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
-
-                    var aliasedAuthorities = await GetOrderedAliases(
-                        GetHost(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
-                    foreach (var aliasedAuthority in aliasedAuthorities)
-                    {
-                        CacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
-                        ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
-                        if (ResultEx?.Result != null) //NOSONAR
-                        {
-                            break;
-                        }
-                    }
+                    ResultEx = await LoadResultExFromCache(CacheQueryData);
 
                     extendedLifetimeResultEx = ResultEx;
 
@@ -233,6 +222,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
             }
             return notifiedBeforeAccessCache;
+        }
+
+        private async Task<AuthenticationResultEx> LoadResultExFromCache(CacheQueryData cacheQueryData)
+        {
+            AuthenticationResultEx resultEx = null;
+            var aliasedAuthorities = await GetOrderedAliases(
+                GetHost(this.Authenticator.Authority), this.Authenticator.ValidateAuthority, this.CallState).ConfigureAwait(false);
+            foreach (var aliasedAuthority in aliasedAuthorities)
+            {
+                cacheQueryData.Authority = ReplaceHost(this.Authenticator.Authority, aliasedAuthority);
+                resultEx = this.tokenCache.LoadFromCache(cacheQueryData, this.CallState);
+                if (resultEx?.Result != null)
+                {
+                    break;
+                }
+            }
+            return resultEx;
         }
 
         private string GetHost(string uri)
