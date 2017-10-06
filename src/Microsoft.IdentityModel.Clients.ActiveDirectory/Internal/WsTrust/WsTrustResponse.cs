@@ -148,8 +148,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.WsTrust
                     {
                         continue;
                     }
-
-                    // TODO #123622: We need to disable formatting due to a potential service bug. Remove the ToString argument when problem is fixed.
+                    
                     tokenResponseDictionary.Add(tokenTypeElement.Value,
                         requestedSecurityToken.FirstNode.ToString(SaveOptions.DisableFormatting));
                 }

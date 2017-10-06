@@ -157,10 +157,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                     return JsonWebTokenConstants.HeaderType;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+                set => value = JsonWebTokenConstants.HeaderType;
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.Algorithm)]
@@ -171,10 +168,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                     return this.Credential == null ? JsonWebTokenConstants.Algorithms.None : JsonWebTokenConstants.Algorithms.RsaSha256;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+
+                set => value = this.Credential == null ? JsonWebTokenConstants.Algorithms.None : JsonWebTokenConstants.Algorithms.RsaSha256;
             }
         }
 
@@ -218,10 +213,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                     return this.Credential.Thumbprint;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+                set => value = this.Credential.Thumbprint;
             }
         }
     }
