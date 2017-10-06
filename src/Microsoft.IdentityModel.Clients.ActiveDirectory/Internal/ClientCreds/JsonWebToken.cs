@@ -143,21 +143,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         internal class JWTHeader
         {
             protected IClientAssertionCertificate Credential { get; private set; }
+            private string _type;
+            private string _alg;
 
             public JWTHeader(IClientAssertionCertificate credential)
             {
                 this.Credential = credential;
+                _alg = (this.Credential == null)
+                    ? JsonWebTokenConstants.Algorithms.None
+                    : JsonWebTokenConstants.Algorithms.RsaSha256;
+
+                _type = JsonWebTokenConstants.HeaderType;
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.Type)]
-            public static string Type
+            public string Type
             {
                 get
                 {
-                    return JsonWebTokenConstants.HeaderType;
+                    return _type;
                 }
 
-                set { value = JsonWebTokenConstants.HeaderType; }
+                set { _type = value; }
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.Algorithm)]
@@ -165,16 +172,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             {
                 get
                 {
-                    return this.Credential == null ? JsonWebTokenConstants.Algorithms.None : JsonWebTokenConstants.Algorithms.RsaSha256;
+                    return _alg;
                 }
 
 
-                set
-                {
-                    value = this.Credential == null
-                        ? JsonWebTokenConstants.Algorithms.None
-                        : JsonWebTokenConstants.Algorithms.RsaSha256;
-                }
+                set { _alg = value; }
             }
         }
 
@@ -204,9 +206,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         [DataContract]
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
+            private string _thumbPrint;
+
             public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
                 : base(credential)
             {
+                _thumbPrint = this.Credential.Thumbprint;
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
@@ -215,10 +220,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 get
                 {
                     // Thumbprint should be url encoded
-                    return this.Credential.Thumbprint;
+                    return _thumbPrint;
                 }
 
-                set { value = this.Credential.Thumbprint; }
+                set { _thumbPrint = value; }
             }
         }
     }
