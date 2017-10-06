@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.WsTrust;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows

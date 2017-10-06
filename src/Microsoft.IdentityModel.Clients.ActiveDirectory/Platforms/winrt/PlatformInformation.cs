@@ -36,7 +36,7 @@ using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System.UserProfile;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class PlatformInformation : PlatformInformationBase
     {

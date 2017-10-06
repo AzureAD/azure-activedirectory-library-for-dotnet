@@ -27,6 +27,8 @@
 
 using System;
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class CallState

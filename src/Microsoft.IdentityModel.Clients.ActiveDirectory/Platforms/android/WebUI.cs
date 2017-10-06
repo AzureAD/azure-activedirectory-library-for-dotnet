@@ -38,10 +38,9 @@ using Android.Content.PM;
 using Java.Security;
 using Java.IO;
 using Android.Util;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class WebUI : IWebUI
     {
