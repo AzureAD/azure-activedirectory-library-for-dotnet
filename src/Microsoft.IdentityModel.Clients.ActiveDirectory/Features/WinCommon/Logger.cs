@@ -27,8 +27,9 @@
 
 using System;
 using System.Globalization;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class Logger : LoggerBase
     {

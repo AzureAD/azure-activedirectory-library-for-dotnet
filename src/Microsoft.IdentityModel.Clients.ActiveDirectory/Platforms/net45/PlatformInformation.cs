@@ -25,6 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;

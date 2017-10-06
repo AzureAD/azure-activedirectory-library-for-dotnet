@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,16 +27,20 @@
 
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    internal class HttpRequestWrapperException : Exception
+    internal class CallState
     {
-        public HttpRequestWrapperException(IHttpWebResponse webResponse, Exception innerException) 
-            : base(string.Empty, innerException)
+        public CallState(Guid correlationId)
         {
-            this.WebResponse = webResponse;
+            this.CorrelationId = correlationId;
+            Logger = new Logger() {CorrelationId = correlationId.ToString()};
         }
 
-        public IHttpWebResponse WebResponse { get; private set; }
+        public Guid CorrelationId { get; set; }
+
+        public Logger Logger { get; internal set; }
+
+        public static CallState Default => new CallState(Guid.Empty);
     }
 }

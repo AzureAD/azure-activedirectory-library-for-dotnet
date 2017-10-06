@@ -25,7 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class WebUIFactory : IWebUIFactory
     {

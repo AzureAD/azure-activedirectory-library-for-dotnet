@@ -30,8 +30,9 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     internal class WebUI : IWebUI
     {

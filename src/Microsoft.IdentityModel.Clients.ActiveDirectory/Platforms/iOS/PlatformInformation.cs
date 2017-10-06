@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using System;
 using System.Collections.Generic;
 using System.Linq;
