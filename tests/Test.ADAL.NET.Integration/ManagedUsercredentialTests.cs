@@ -30,7 +30,7 @@ namespace Test.ADAL.NET.Integration
 
         [TestMethod]
         [Description("Positive Test for AcquireToken with an empty cache")]
-        public async Task AcquireTokenWithEmptyCachePositiveTestAsync()
+        public async Task AcquireTokenWithEmptyCache_GetsNewTokenFromService()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -75,22 +75,8 @@ namespace Test.ADAL.NET.Integration
 
         [TestMethod]
         [Description("Positive Test for AcquireToken with a token already in cache")]
-        public async Task AcquireTokenWithValidTokenInCachePositiveTestAsync()
+        public async Task AcquireTokenWithValidTokenInCache_ReturnsCachedToken()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content =
-            new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
-                },
-                QueryParams = new Dictionary<string, string>()
-                {
-                    {"api-version", "1.0"}
-                }
-            });
-
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
 
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
@@ -115,7 +101,7 @@ namespace Test.ADAL.NET.Integration
 
         [TestMethod]
         [Description("Positive Test for AcquireToken for a user when a valid access token already exists in cache for another user.")]
-        public async Task AcquireTokenWithValidAccessTokenInCacheForAnotherUserPositiveTestAsync2()
+        public async Task AcquireTokenWithValidAccessTokenInCacheForAnotherUser_GetsNewTokenFromService()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -134,7 +120,7 @@ namespace Test.ADAL.NET.Integration
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId, "user2@id.com", TestConstants.DefaultResource),
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId + "2", "user2@id.com", TestConstants.DefaultResource),
                 PostData = new Dictionary<string, string>()
                 {
                     {"grant_type", "password"},
@@ -172,15 +158,20 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual("user2@id.com", result.UserInfo.DisplayableId);
-            Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
-            Assert.AreNotEqual(context.TokenCache.tokenCacheDictionary.Values.First(), context.TokenCache.tokenCacheDictionary.Values.Last());
+            Assert.AreEqual(TestConstants.DefaultUniqueId + "2", result.UserInfo.UniqueId);
+
             // There should be only two cache entrys.
             Assert.AreEqual(2, context.TokenCache.Count);
+
+            var keys = context.TokenCache.tokenCacheDictionary.Values.ToList();
+            var values = context.TokenCache.tokenCacheDictionary.Values.ToList();
+            Assert.AreNotEqual(keys[0].Result.UserInfo.UniqueId, keys[1].Result.UserInfo.UniqueId);
+            Assert.AreNotEqual(values[0].Result.UserInfo.UniqueId, values[1].Result.UserInfo.UniqueId);
         }
 
         [TestMethod]
         [Description("Test case with expired access token and valid refresh token in cache. This should result in refresh token being used to get new AT instead of user creds")]
-        public async Task AcquireTokenWithExpiredAccessTokenAndValidRefreshTokenTestAsync()
+        public async Task AcquireTokenWithExpiredAccessTokenAndValidRefreshToken_GetsATUsingRT()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -216,24 +207,20 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-access-token", context.TokenCache.tokenCacheDictionary[key].Result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
             Assert.IsNotNull(result.UserInfo);
-
-            // There should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
         }
 
         [TestMethod]
         [Description("Test case where user realm discovery fails.")]
-        public async Task UserRealmDiscoveryNegativeTestAsync()
+        public void UserRealmDiscoveryFailsTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
-            await context.Authenticator.UpdateFromTemplateAsync(null);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
                 {
-                    Content = new StringContent("{ \"error\":\"user realm discovery failed\", \"ver\":\"1.0\",\"account_type\":\"Unknown\", \"cloudinstancename\":\"login.microsoftonline.com\"}")
+                    Content = new StringContent("user_realm_discovery_failed")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -242,13 +229,15 @@ namespace Test.ADAL.NET.Integration
             });
 
             var ex = AssertException.TaskThrows<AdalException>(() =>
-            UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, CallState.Default));
-            Assert.IsNotNull(ex.ErrorCode, AdalErrorMessage.UserRealmDiscoveryFailed);
+            context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                                                         new UserPasswordCredential(TestConstants.DefaultDisplayableId,
+                                                                                    TestConstants.DefaultPassword)));
+            Assert.AreEqual(((AdalException)ex.InnerException.InnerException).ErrorCode, AdalError.UserRealmDiscoveryFailed);
         }
 
         [TestMethod]
         [Description("Test case where user realm discovery cannot determine the user type.")]
-        public async Task UnknownUserRealmDiscoveryNegativeTestAsync()
+        public async Task UnknownUserRealmDiscoveryTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
             await context.Authenticator.UpdateFromTemplateAsync(null);
@@ -258,7 +247,7 @@ namespace Test.ADAL.NET.Integration
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -266,18 +255,12 @@ namespace Test.ADAL.NET.Integration
                 }
             });
 
-            var userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, CallState.Default);
-
-            Assert.AreEqual("1.0", userRealmResponse.Version);
-            Assert.AreEqual(userRealmResponse.AccountType, "Unknown");
-            Assert.IsNull(userRealmResponse.FederationActiveAuthUrl);
-            Assert.IsNull(userRealmResponse.FederationMetadataUrl);
-            Assert.IsNull(userRealmResponse.FederationProtocol);
-
-
             var ex = AssertException.TaskThrows<AdalException>(() =>
-                UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, null, CallState.Default));
-            Assert.IsNotNull(ex.ErrorCode, AdalError.UnknownUser);
+            context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                                                         new UserPasswordCredential(TestConstants.DefaultDisplayableId, 
+                                                                                    TestConstants.DefaultPassword)));
+
+            Assert.AreEqual(ex.ErrorCode, AdalError.UnknownUserType);
         }
     }
 }
