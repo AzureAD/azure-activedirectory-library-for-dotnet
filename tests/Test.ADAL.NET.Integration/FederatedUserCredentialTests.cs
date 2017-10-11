@@ -27,7 +27,7 @@ namespace Test.ADAL.NET.Integration
 
         [TestMethod]
         [Description("Test for AcquireToken with empty cache")]
-        public async Task AcquireTokenWithEmptyCache_GetsNewTokenFromServiceTestAsync()
+        public async Task AcquireTokenWithEmptyCache_GetsTokenFromServiceTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
