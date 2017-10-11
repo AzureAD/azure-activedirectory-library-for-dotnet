@@ -98,6 +98,7 @@ namespace Test.ADAL.NET.Integration
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -194,6 +195,7 @@ namespace Test.ADAL.NET.Integration
             var values = context.TokenCache.tokenCacheDictionary.Values.ToList();
             Assert.AreNotEqual(keys[0].Result.UserInfo.UniqueId, keys[1].Result.UserInfo.UniqueId);
             Assert.AreNotEqual(values[0].Result.UserInfo.UniqueId, values[1].Result.UserInfo.UniqueId);
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -234,6 +236,7 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-access-token", context.TokenCache.tokenCacheDictionary[key].Result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
             Assert.IsNotNull(result.UserInfo);
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -259,6 +262,8 @@ namespace Test.ADAL.NET.Integration
             context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                                                          new UserPasswordCredential(TestConstants.DefaultDisplayableId,
                                                                                     TestConstants.DefaultPassword)));
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+
             //To be addressed in a later fix
             //Assert.AreEqual(((AdalException)ex.InnerException.InnerException).ErrorCode, AdalError.UserRealmDiscoveryFailed);
         }
@@ -289,6 +294,7 @@ namespace Test.ADAL.NET.Integration
                                                                                     TestConstants.DefaultPassword)));
 
             Assert.AreEqual(ex.ErrorCode, AdalError.UnknownUserType);
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
     }
 }
