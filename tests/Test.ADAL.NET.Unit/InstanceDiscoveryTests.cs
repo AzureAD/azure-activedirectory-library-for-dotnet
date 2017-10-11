@@ -168,5 +168,21 @@ namespace Test.ADAL.NET.Unit
             await authenticator.UpdateFromTemplateAsync(new CallState(Guid.NewGuid()));
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // mock is NOT consumed, so no new request was NOT attempted
         }
+
+        public async Task TestGetOrderedAliases_ShouldStartWithPreferredCacheAndGivenHost()
+        {
+            string givenHost = "sts.microsoft.com";
+            string preferredCache = "login.windows.net";
+            InstanceDiscovery.InstanceCache.TryAdd(givenHost, new InstanceDiscoveryMetadataEntry
+            {
+                PreferredNetwork = "login.microsoftonline.com",
+                PreferredCache = preferredCache,
+                Aliases = new string[] { "login.microsoftonline.com", "login.windows.net", "sts.microsoft.com" }
+            });
+            var orderedList = await AcquireTokenHandlerBase.GetOrderedAliases(givenHost, false, new CallState(Guid.NewGuid()));
+            CollectionAssert.AreEqual(
+                new string[] { preferredCache, givenHost, "login.microsoftonline.com", "login.windows.net", "sts.microsoft.com" },
+                orderedList);
+        }
     }
 }
