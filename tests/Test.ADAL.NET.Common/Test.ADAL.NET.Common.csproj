@@ -82,6 +82,9 @@
     <Content Include="TestMex2005.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="WsTrustResponse13.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WsTrustResponse.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
