@@ -141,7 +141,7 @@ namespace Test.ADAL.NET.Integration
                     Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport\"" +
+                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
@@ -210,7 +210,7 @@ namespace Test.ADAL.NET.Integration
                     Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport\"" +
+                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
@@ -333,7 +333,7 @@ namespace Test.ADAL.NET.Integration
                     Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport\"" +
+                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
@@ -379,7 +379,7 @@ namespace Test.ADAL.NET.Integration
                     Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport\"" +
+                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
