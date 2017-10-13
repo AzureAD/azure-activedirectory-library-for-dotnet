@@ -1,4 +1,31 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿//----------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
@@ -20,6 +47,7 @@ namespace Test.ADAL.NET.Integration
     [DeploymentItem("TestMex.xml")]
     [DeploymentItem("WsTrustResponse.xml")]
     [DeploymentItem("WsTrustResponse13.xml")]
+    [DeploymentItem("TestMexMalformed.xml")]
     public class FederatedUserCredentialTests
     {
         [TestInitialize]
@@ -91,13 +119,16 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-access-token", result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
+            // There should be one cached entry.
+            Assert.AreEqual(1, context.TokenCache.Count);
+
             // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
-        [Description("Provide only username of Federated user. Result in integrated auth call with no password xml tag.")]
-        public async Task ProvideUsernameOfFederatedUser_NoPasswordXmlTagTestAsync()
+        [Description("Integrated auth using upn of federated user.")]
+        public async Task IntegratedAuthUsingUpn_GetsTokenFromServiceTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
@@ -156,14 +187,17 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-access-token", result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
+            // There should be one cached entry.
+            Assert.AreEqual(1, context.TokenCache.Count);
+
             // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
 
         [TestMethod]
-        [Description("No password provided and Mex does not return integrated auth endpoint.")]
-        public async Task NoPasswordAndMexEndpointFailsToResolveTestAsync()
+        [Description("Integrated auth missing mex and fails parsing")]
+        public async Task IntegratedAuthMissingMex_FailsMexParsingTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
@@ -190,17 +224,14 @@ namespace Test.ADAL.NET.Integration
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
-                    Content = new StringContent(File.ReadAllText("TestMex.xml"))
+                    Content = new StringContent("Not found")
                 }
             });
-
-            string emptyPassword = null;
-            UserPasswordCredential userPasswordCredential = new UserPasswordCredential(TestConstants.DefaultDisplayableId, emptyPassword);
 
             // Call acquire token
             var result = AssertException.TaskThrows<AdalException>(() =>
             context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                userPasswordCredential));
+                new UserCredential(TestConstants.DefaultDisplayableId)));
 
             // Check inner exception
             Assert.AreEqual(" Response status code does not indicate success: 404 (NotFound).", result.InnerException.Message);
@@ -229,20 +260,16 @@ namespace Test.ADAL.NET.Integration
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://login.microsoftonline.com/common/oauth2/token")
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
                 {
-                    {"resource", TestConstants.DefaultResource},
-                    {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "refresh_token"},
-                    {"scope", "openid"}
+                    Content = new StringContent("No network call is expected")
                 }
             });
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword));
+                new UserCredential(TestConstants.DefaultDisplayableId));
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -276,23 +303,23 @@ namespace Test.ADAL.NET.Integration
                 }
             });
 
-            // Mock for Mex endpoint fails to resolve and results in 404
+            // Malformed Mex returned
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://msft.sts.microsoft.com/adfs/services/trust/mex")
             {
                 Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("TestMex.xml"))
+                    Content = new StringContent(File.ReadAllText("TestMex.xml").Replace("<wsp:All>", " "))
                 }
             });
 
-            // Call acquire token
-            var result = AssertException.TaskThrows<AdalException>(() =>
+            // Call acquire token, Mex parser fails
+            var result = AssertException.TaskThrows<Exception>(() =>
             context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword)));
+                new UserCredential(TestConstants.DefaultDisplayableId)));
 
-            // Check inner exception
-            Assert.AreEqual(" Response status code does not indicate success: 404 (NotFound).", result.InnerException.Message);
+            // Check exception message
+            Assert.AreEqual("parsing_ws_metadata_exchange_failed: Parsing WS metadata exchange failed", result.Message);
 
             // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
