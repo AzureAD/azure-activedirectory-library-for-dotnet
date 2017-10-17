@@ -315,7 +315,13 @@ namespace Test.ADAL.NET.Integration
 
             // There should be one cached entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            // Cache entry updated with new access token
+            Assert.AreEqual("some-access-token", context.TokenCache.tokenCacheDictionary[key].Result.AccessToken);
             Assert.IsNotNull(result.UserInfo);
+
+            // All mocks are consumed
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
