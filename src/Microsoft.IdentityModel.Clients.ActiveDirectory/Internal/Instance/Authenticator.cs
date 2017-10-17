@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -100,16 +101,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
                 if (this.AuthorityType == AuthorityType.AAD)
                 {
-                    await InstanceDiscovery.GetMetadataEntry(host, this.ValidateAuthority, callState);
+                    var metadata = await InstanceDiscovery.GetMetadataEntry(host, this.ValidateAuthority, callState);
+                    host = metadata.PreferredNetwork;
+                    // All the endpoints will use this updated host, and it affects future network calls, as desired.
+                    // The Authority remains its original host, and will be used in TokenCache later.
                 }
                 else
                 {
                     InstanceDiscovery.AddMetadataEntry(host);
                 }
                 this.AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
-                this.DeviceCodeUri = $"https://{host}/{tenant}/oauth2/devicecode";
-                this.TokenUri = $"https://{host}/{tenant}/oauth2/token";
-                this.UserRealmUri = CanonicalizeUri($"https://{host}/common/UserRealm");
+                this.DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                this.TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                this.UserRealmUri = CanonicalizeUri(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/UserRealm", host));
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 this.SelfSignedJwtAudience = this.TokenUri;
                 this.updatedFromTemplate = true;
