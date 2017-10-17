@@ -38,6 +38,7 @@ using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Test.ADAL.NET.Common;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -60,7 +61,7 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDefaultUrl(TestPaths.Home))
                 {
                     Method = HttpMethod.Get,
                     Url = $"https://{InstanceDiscovery.DefaultTrustedAuthority}/common/discovery/instance",
@@ -88,7 +89,7 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler("https://login.windows.net/common/discovery/instance"));
             }
 
             CallState callState = new CallState(Guid.NewGuid());
@@ -111,7 +112,7 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler("https://login.windows.net/common/discovery/instance"));
             }
 
             CallState callState = new CallState(Guid.NewGuid());
@@ -129,7 +130,8 @@ namespace Test.ADAL.NET.Unit
             string host = "login.windows.net";
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler{
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDefaultUrl(TestPaths.Home))
+                {
                     Method = HttpMethod.Get,
                     Url = $"https://{host}/common/discovery/instance",
                     ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -166,7 +168,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscovery()
         {
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryUrl()));
             var authenticator = new Authenticator("https://login.contoso.com/adfs", false);
             await authenticator.UpdateFromTemplateAsync(new CallState(Guid.NewGuid())).ConfigureAwait(false);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // mock is NOT consumed, so no new request was NOT attempted
