@@ -62,6 +62,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await this.GetResponseAsync<T>(true).ConfigureAwait(false);
         }
 
+        public CookieContainer CookieContainer
+        {
+            get => Client.CookieContainer;
+            set => Client.CookieContainer = value;
+        }
+
         private async Task<T> GetResponseAsync<T>(bool respondToDeviceAuthChallenge)
         {
             T typedResponse = default(T);

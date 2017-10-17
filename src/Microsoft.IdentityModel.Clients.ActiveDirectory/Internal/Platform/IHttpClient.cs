@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -43,5 +44,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         Dictionary<string, string> Headers { get; }
 
         Task<IHttpWebResponse> GetResponseAsync();
+
+        CookieContainer CookieContainer { get; set; }
     }
 }

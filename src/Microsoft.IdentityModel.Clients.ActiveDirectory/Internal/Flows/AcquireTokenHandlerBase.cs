@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -113,6 +114,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected bool LoadFromCache { get; set; }
 
         protected bool StoreToCache { get; set; }
+
+        public CookieContainer CookieContainer
+        {
+            get => client.CookieContainer;
+            set => client.CookieContainer = value;
+        }
 
         public async Task<AuthenticationResult> RunAsync()
         {
@@ -332,8 +339,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private async Task<AuthenticationResultEx> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
-                {Client = {BodyParameters = requestParameters}};
+            client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState) {Client = {BodyParameters = requestParameters}};
             TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
         }
