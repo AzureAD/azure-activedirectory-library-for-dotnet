@@ -44,10 +44,7 @@ namespace Test.ADAL.NET.Common.Mocks
         string url = "";
         public HttpResponseMessage ResponseMessage { get; set; }
 
-        public string Url {
-            get { return url; }
-            set { url = value; }
-        }
+        public string Url { get; set; }
 
         public IDictionary<string, string> QueryParams { get; set; }
 
