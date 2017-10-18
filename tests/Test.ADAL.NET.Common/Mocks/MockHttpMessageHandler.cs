@@ -41,7 +41,6 @@ namespace Test.ADAL.NET.Common.Mocks
         public MockHttpMessageHandler()
         {
         }
-        string url = "";
         public HttpResponseMessage ResponseMessage { get; set; }
 
         public string Url { get; set; }
