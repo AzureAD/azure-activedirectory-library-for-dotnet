@@ -57,7 +57,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
         public MockHttpMessageHandler(string Url)
         {
-            url = Url;
+            this.Url = Url;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
