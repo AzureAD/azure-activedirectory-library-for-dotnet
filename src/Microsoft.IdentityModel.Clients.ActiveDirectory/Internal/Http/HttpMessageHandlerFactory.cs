@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
@@ -40,6 +41,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
             }
 
             return new HttpClientHandler { UseDefaultCredentials = useDefaultCredentials, Proxy = WebProxyProvider.DefaultWebProxy};
+        }
+
+        internal static HttpMessageHandler GetMessageHandler(bool useDefaultCredentials, CookieContainer cookieContainer)
+        {
+            if (MockHandlerQueue.Count > 0)
+            {
+                return MockHandlerQueue.Dequeue();
+            }
+
+            return new HttpClientHandler { UseDefaultCredentials = useDefaultCredentials, Proxy = WebProxyProvider.DefaultWebProxy, CookieContainer = cookieContainer};
         }
 
         private static readonly Queue<HttpMessageHandler> MockHandlerQueue = new Queue<HttpMessageHandler>();

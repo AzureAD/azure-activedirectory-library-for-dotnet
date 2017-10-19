@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -64,6 +65,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         public Dictionary<string, string> Headers { get; private set; }
 
+        public CookieContainer CookieContainer { get; set; } = new CookieContainer();
+
         public int TimeoutInMilliSeconds
         {
             set { this._timeoutInMilliSeconds = value; }
@@ -74,7 +77,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
         public async Task<IHttpWebResponse> GetResponseAsync()
         {
             using (HttpClient client =
-                new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(this.UseDefaultCredentials)))
+                new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(this.UseDefaultCredentials, CookieContainer)))
             {
                 client.MaxResponseContentBufferSize = _maxResponseSizeInBytes;
                 client.DefaultRequestHeaders.Accept.Clear();
@@ -125,6 +128,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     }
 
                     responseMessage = await client.SendAsync(requestMessage).ConfigureAwait(false);
+                    
                 }
                 catch (TaskCanceledException ex)
                 {
