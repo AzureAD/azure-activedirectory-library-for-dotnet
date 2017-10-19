@@ -31,6 +31,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 
@@ -330,7 +333,7 @@ namespace Test.ADAL.Common.Unit
             AuthenticationResultEx value = CreateCacheValue(null, "user1");
         }
 
-        internal static void TokenCacheOperationsTest()
+        internal static async Task TokenCacheOperationsTest()
         {
             var tokenCache = new TokenCache();
             var cacheDictionary = tokenCache.tokenCacheDictionary;
@@ -381,7 +384,7 @@ namespace Test.ADAL.Common.Unit
                 SubjectType = TokenSubjectType.User
             };
 
-            AuthenticationResultEx resultEx = tokenCache.LoadFromCache(data, CallState.Default);
+            AuthenticationResultEx resultEx = await tokenCache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
             Assert.IsNotNull(resultEx);
 
 
@@ -480,7 +483,7 @@ namespace Test.ADAL.Common.Unit
             Assert.AreEqual(0, cacheDictionary.Keys.Count);
         }
 
-        internal static void MultipleUserAssertionHashTest()
+        internal static async Task MultipleUserAssertionHashTest()
         {
             TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts/", "resource1", "client1",
                 TokenSubjectType.Client, null, "user1");
@@ -505,18 +508,18 @@ namespace Test.ADAL.Common.Unit
                 DisplayableId = null
             };
 
-            AuthenticationResultEx resultEx = cache.LoadFromCache(data, CallState.Default);
+            AuthenticationResultEx resultEx = await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
             AreAuthenticationResultExsEqual(value, resultEx);
 
             data.AssertionHash = "hash2";
-            resultEx = cache.LoadFromCache(data, CallState.Default);
+            resultEx = await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
             AreAuthenticationResultExsEqual(value2, resultEx);
 
             data.AssertionHash = null;
 
             // Multiple tokens in cache -> error
-            var exc = AssertException.Throws<AdalException>(() =>
-                cache.LoadFromCache(data, CallState.Default));
+            var exc = AssertException.TaskThrows<AdalException>(async () =>
+                await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false));
             Assert.AreEqual(exc.ErrorCode, AdalError.MultipleTokensMatched);
         }
 

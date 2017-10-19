@@ -39,6 +39,10 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.WsTrust;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -46,6 +50,7 @@ using Test.ADAL.NET.Common.Mocks;
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
+    [DeploymentItem("WsTrustResponse13.xml")]
     [DeploymentItem("WsTrustResponse.xml")]
     [DeploymentItem("TestMex.xml")]
     [DeploymentItem("TestMex2005.xml")]
@@ -90,7 +95,7 @@ namespace Test.ADAL.NET.Unit
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -106,7 +111,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -139,7 +144,7 @@ namespace Test.ADAL.NET.Unit
                                     "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                     "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                     ",\"cloud_audience_urn\":\"urn:federation:Blackforest\"" +
-                                    ",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                                    ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -160,7 +165,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -189,7 +194,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -235,7 +240,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -244,7 +249,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -270,7 +275,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -279,7 +284,7 @@ namespace Test.ADAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 

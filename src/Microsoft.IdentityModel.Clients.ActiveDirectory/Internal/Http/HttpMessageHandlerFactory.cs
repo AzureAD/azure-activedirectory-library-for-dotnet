@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
     internal static class HttpMessageHandlerFactory
     {
