@@ -27,6 +27,7 @@
 
 using System;
 using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
@@ -146,14 +147,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             set { this.Authenticator.CorrelationId = value; }
         }
 
+        public CookieContainer CookieContainer { get; set; }
         //these APIs are not exposed on iOS or android
-#if !ANDROID && !iOS 
-/// <summary>
-/// Acquires device code from the authority.
-/// </summary>
-/// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
-/// <param name="clientId">Identifier of the client requesting the token.</param>
-/// <returns>It contains Device Code, its expiration time, User Code.</returns>
+#if !ANDROID && !iOS
+        /// <summary>
+        /// Acquires device code from the authority.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <returns>It contains Device Code, its expiration time, User Code.</returns>
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId)
         {
             return await this.AcquireDeviceCodeAsync(resource, clientId, null).ConfigureAwait(false);
@@ -326,8 +328,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
             var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, null, userId,
-                extraQueryParameters, null, claims);
-            return await handler.CreateAuthorizationUriAsync(this.CorrelationId).ConfigureAwait(false);
+                extraQueryParameters, null, claims) { CookieContainer = CookieContainer };
+
+            var result = await handler.CreateAuthorizationUriAsync(this.CorrelationId).ConfigureAwait(false);
+            return result;
         }
 
         internal async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeCommonAsync(string authorizationCode,
@@ -346,8 +350,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 requestData.Resource = nullResource;
             }
-            var handler = new AcquireTokenByAuthorizationCodeHandler(requestData, authorizationCode, redirectUri);
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenByAuthorizationCodeHandler(requestData, authorizationCode, redirectUri) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         internal async Task<AuthenticationResult> AcquireTokenForClientCommonAsync(string resource, ClientKey clientKey)
@@ -361,8 +368,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
                 SubjectType = TokenSubjectType.Client
             };
-            var handler = new AcquireTokenForClientHandler(requestData);
-            return await handler.RunAsync().ConfigureAwait(false);
+
+            var handler = new AcquireTokenForClientHandler(requestData) {CookieContainer = CookieContainer};
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         internal async Task<AuthenticationResult> AcquireTokenOnBehalfCommonAsync(string resource, ClientKey clientKey,
@@ -377,8 +388,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
 
-            var handler = new AcquireTokenOnBehalfHandler(requestData, userAssertion);
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenOnBehalfHandler(requestData, userAssertion) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         private async Task<AuthenticationResult> AcquireTokenWithClaimsCommonAsync(string resource, ClientKey clientKey,
@@ -394,10 +408,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
 
-            var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
-                extraQueryParameters, webUI, claims);
 
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
+                extraQueryParameters, webUI, claims) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         internal IWebUI CreateWebAuthenticationDialog(IPlatformParameters parameters)
@@ -416,8 +433,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
-            var handler = new AcquireTokenNonInteractiveHandler(requestData, userCredential);
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenNonInteractiveHandler(requestData, userCredential) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
@@ -431,8 +451,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
             };
-            var handler = new AcquireTokenNonInteractiveHandler(requestData, userAssertion);
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenNonInteractiveHandler(requestData, userAssertion) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
@@ -448,8 +471,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
             };
             var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
-                extraQueryParameters, this.CreateWebAuthenticationDialog(parameters), claims);
-            return await handler.RunAsync().ConfigureAwait(false);
+                extraQueryParameters, this.CreateWebAuthenticationDialog(parameters), claims) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(string resource, ClientKey clientKey,
@@ -464,8 +490,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = clientKey
             };
 
-            var handler = new AcquireTokenSilentHandler(requestData, userId, parameters);
-            return await handler.RunAsync().ConfigureAwait(false);
+            var handler = new AcquireTokenSilentHandler(requestData, userId, parameters) { CookieContainer = CookieContainer };
+
+            var result = await handler.RunAsync().ConfigureAwait(false);
+            CookieContainer = handler.CookieContainer;
+            return result;
         }
     }
 }
