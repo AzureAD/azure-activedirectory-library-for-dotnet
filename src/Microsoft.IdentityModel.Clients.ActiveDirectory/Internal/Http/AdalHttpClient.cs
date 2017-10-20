@@ -67,8 +67,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         public CookieContainer CookieContainer
         {
-            get => Client.CookieContainer;
-            set => Client.CookieContainer = value;
+            get { return Client.CookieContainer; }
+            set { Client.CookieContainer = value; }
         }
 
         private async Task<T> GetResponseAsync<T>(bool respondToDeviceAuthChallenge)

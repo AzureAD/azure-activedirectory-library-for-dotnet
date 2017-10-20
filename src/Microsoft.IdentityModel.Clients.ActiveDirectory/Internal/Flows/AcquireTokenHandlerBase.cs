@@ -124,8 +124,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         public CookieContainer CookieContainer
         {
-            get => client.CookieContainer;
-            set => client.CookieContainer = value;
+            get { return client.CookieContainer; }
+            set { client.CookieContainer = value; }
         }
 
         public async Task<AuthenticationResult> RunAsync()
