@@ -10,6 +10,7 @@ using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Net;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -50,11 +51,55 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        @"{  
+                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
+                            ""api-version"":""1.1"",
+                            ""metadata"":[
+                                {
+                                ""preferred_network"":""login.microsoftonline.com"",
+                                ""preferred_cache"":""login.windows.net"",
+                                ""aliases"":[
+                                    ""login.microsoftonline.com"",
+                                    ""login.windows.net"",
+                                    ""login.microsoft.com"",
+                                    ""sts.windows.net""]},
+                                {
+                                ""preferred_network"":""login.partner.microsoftonline.cn"",
+                                ""preferred_cache"":""login.partner.microsoftonline.cn"",
+                                ""aliases"":[
+                                    ""login.partner.microsoftonline.cn"",
+                                    ""login.chinacloudapi.cn""]},
+                                {
+                                ""preferred_network"":""login.microsoftonline.de"",
+                                ""preferred_cache"":""login.microsoftonline.de"",
+                                ""aliases"":[
+                                     ""login.microsoftonline.de""]},
+                                {  
+                                ""preferred_network"":""login.microsoftonline.us"",
+                                ""preferred_cache"":""login.microsoftonline.us"",
+                                ""aliases"":[
+                                    ""login.microsoftonline.us"",
+                                    ""login.usgovcloudapi.net""]},
+                                {  
+                                ""preferred_network"":""login -us.microsoftonline.com"",
+                                ""preferred_cache"":""login -us.microsoftonline.com"",
+                                ""aliases"":[
+                                    ""login -us.microsoftonline.com""]}]}"
+                    )
+                }
+            });
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
                 Method = HttpMethod.Post,
                 ResponseMessage = 
                     MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId,
                     TestConstants.DefaultDisplayableId, TestConstants.DefaultResource),
-  
+
                 AdditionalRequestValidation = request =>
                 {
                     // make sure that Sovereign authority was used for Authorization request
@@ -76,6 +121,9 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
             Assert.AreEqual(sovereignTenantSpesificAuthority,
                 authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
+
+            // all mocks are consumed
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
     }
 }
