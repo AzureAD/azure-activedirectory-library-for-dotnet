@@ -34,13 +34,14 @@ namespace Test.ADAL.NET.Common
     {
         public static readonly string DefaultResource = "resource1";
         public static readonly string AnotherResource = "resource2";
-        public static readonly string DefaultAuthority = "https://login.microsoftonline.com";
         public static readonly string DefaultAdfsAuthorityTenant = "https://login.contodo.com/adfs/";
         public static readonly string DefaultAuthorityHomeTenant = "https://login.microsoftonline.com/home/";
         public static readonly string SomeTenantId = "some-tenant-id";
         public static readonly string TenantSpecificAuthority = $"https://login.microsoftonline.com/{SomeTenantId}/";
         public static readonly string DefaultAuthorityGuestTenant = "https://login.microsoftonline.com/guest/";
         public static readonly string DefaultAuthorityCommonTenant = "https://login.microsoftonline.com/common/";
+        public static readonly string DisplayableIdUrl = DefaultAuthorityCommonTenant + "UserRealm/displayable@id.com";
+        public static readonly string DiscoveryUrl = DefaultAuthorityCommonTenant + "discovery/instance";
         public static readonly string DefaultClientId = "client_id";
         public static readonly string DefaultUniqueId = "unique_id";
         public static readonly string DefaultDisplayableId = "displayable@id.com";
@@ -53,56 +54,15 @@ namespace Test.ADAL.NET.Common
         public static readonly string ErrorSubCode = "ErrorSubCode";
         public static readonly string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
         public static readonly string CloudAudienceUrn = "urn:federation:Blackforest";
+        public static readonly string TokenEndPoint = "oauth2/token";
+        public static readonly string UserRealm = "UserRealm";
+        public static readonly string DiscoveryEndPoint = "discovery/instance";
+        public static readonly string DisplayableIdEndPoint = "";
 
-        public static string GetTokenHomeUrl()
+        public static string GetTokenUrl(string Authority)
         {
-            return GetDefaultUrl(TestPaths.Home, TestPaths.Token);
+            return Authority + TokenEndPoint;
         }
-
-        public static string GetTokenCommonUrl()
-        {
-            return GetDefaultUrl(TestPaths.Common, TestPaths.Token);
-        }
-
-        public static string GetDisplayableIdUrl()
-        {
-            return GetDefaultUrl(TestPaths.Common, TestPaths.UserRealm) + "/" + DefaultDisplayableId;
-        }
-
-        public static string GetDiscoveryUrl()
-        {
-            return GetUrl(new string[] { DefaultAuthority, TestPaths.Common, TestPaths.Discovery, TestPaths.Instance});
-        }
-
-        public static string GetDefaultUrl(string path)
-        {
-            return DefaultAuthority + "/" + path;
-        }
-
-        public static string GetDefaultUrl(string path1, string path2)
-        {
-            return GetUrl(new string[] { "https://login.microsoftonline.com", path1, path2 });
-        }
-
-        public static string GetUrl(string[] Paths)
-        {
-            string Url = "";
-            foreach(string path in Paths)
-            {
-                Url += path + "/";
-            }
-            return Url.Substring(0, Url.Length - 1);
-        }
-    }
-	public static class TestPaths
-    {
-        public const string Home = "home";
-        public const string Common = "common";
-        public const string Token = "oauth2/token";
-        public const string UserRealm = "UserRealm";
-        public const string Guest = "guest";
-        public const string Discovery = "discovery";
-        public const string Instance = "instance";
     }
 
     public static class StringValue

@@ -83,10 +83,10 @@ namespace Test.ADAL.NET.Unit
         [Description("User Realm Discovery Test")]
         public async Task UserRealmDiscoveryTest()
         {
-            AuthenticationContext context = new AuthenticationContext(TestConstants.GetDisplayableIdUrl(), new TokenCache());
+            AuthenticationContext context = new AuthenticationContext(TestConstants.DisplayableIdUrl, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDisplayableIdUrl())
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DisplayableIdUrl)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -106,7 +106,7 @@ namespace Test.ADAL.NET.Unit
             UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, CallState.Default);
             VerifyUserRealmResponse(userRealmResponse, "Federated");
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDisplayableIdUrl())
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DisplayableIdUrl)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -134,7 +134,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDisplayableIdUrl())
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DisplayableIdUrl)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
