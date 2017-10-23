@@ -2,10 +2,14 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -19,9 +23,11 @@ namespace Test.ADAL.NET.Unit
         {
             HttpMessageHandlerFactory.ClearMockHandlers();
             platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            InstanceDiscovery.InstanceCache.Clear();
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
         }
 
-/*        [TestMethod]
+        [TestMethod]
         [Description("Sovereign user use world wide authority")]
         public async Task SovereignUserWorldWideAuthorityIntegrationTest()
         {
@@ -70,6 +76,6 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
             Assert.AreEqual(sovereignTenantSpesificAuthority,
                 authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
-        }*/
+        }
     }
 }
