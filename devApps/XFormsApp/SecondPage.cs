@@ -38,7 +38,7 @@ namespace XFormsApp
     {
         StringBuilder logs = new StringBuilder();
 
-        public void Log(LogLevel level, string message)
+        public void Log(LogLevel level, string message, bool containsPii)
         {
             logs.AppendLine(message);
         }

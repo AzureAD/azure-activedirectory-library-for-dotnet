@@ -66,7 +66,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="level">Log level</param>
         /// <param name="message">message to be logged</param>
-        void Log(LogLevel level, string message);
+        void Log(LogLevel level, string message, bool containsPii);
     }
 
     /// <summary>
@@ -77,6 +77,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private static readonly object LockObj = new object();
 
         private static IAdalLogCallback _localCallback;
+
+        /// <summary>
+        /// Flag to enable/disable logging of PII data. PII logs are never written to default outputs like Console, Logcat or NSLog.
+        /// Default is set to false.
+        /// </summary>
+        public static bool PiiLoggingEnabled { get; set; } = false;
 
         /// <summary>
         /// Flag to control whether default logging should be performed in addition to calling
@@ -100,11 +106,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             internal get { return _localCallback; }
         }
 
-        internal static void ExecuteCallback(LogLevel level, string message)
+        internal static void ExecuteCallback(LogLevel level, string message, bool containsPii)
         {
             lock (LockObj)
             {
-                _localCallback?.Log(level, message);
+                _localCallback?.Log(level, message, containsPii);
             }
         }
     }

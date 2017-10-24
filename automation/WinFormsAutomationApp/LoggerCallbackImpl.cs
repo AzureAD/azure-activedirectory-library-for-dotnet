@@ -10,7 +10,7 @@ namespace WinFormsAutomationApp
     class LoggerCallbackImpl : IAdalLogCallback
     {
         private StringBuilder logCollector = new StringBuilder();
-        public void Log(LogLevel level, string message)
+        public void Log(LogLevel level, string message, bool containsPii)
         {
             logCollector.AppendLine(message);
         }
