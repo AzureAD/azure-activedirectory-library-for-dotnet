@@ -156,8 +156,10 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [Description("Instance discovery call is made because authority was not already in the instance cache")]
-        public async Task InstanceDiscoverCallMade_AuthorityNotInInstanceCacheTestAsync()
+        public async Task AuthorityNotInInstanceCache_InstanceDiscoverCallMadeTestAsync()
         {
+            InstanceDiscovery.InstanceCache.Clear();
+
             CallState callState = new CallState(Guid.NewGuid());
 
             // creating AuthenticationContext with common Authority
@@ -223,20 +225,57 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
+            // German authority not included
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        @"{  
+                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
+                            ""api-version"":""1.1"",
+                            ""metadata"":[
+                                {
+                                ""preferred_network"":""login.microsoftonline.com"",
+                                ""preferred_cache"":""login.windows.net"",
+                                ""aliases"":[
+                                    ""login.microsoftonline.com"",
+                                    ""login.windows.net"",
+                                    ""login.microsoft.com"",
+                                    ""sts.windows.net""]},
+                                {
+                                ""preferred_network"":""login.microsoftonline.us"",
+                                ""preferred_cache"":""login.microsoftonline.us"",
+                                ""aliases"":[
+                                    ""login.microsoftonline.us"",
+                                    ""login.usgovcloudapi.net""]},
+                                {  
+                                ""preferred_network"":""login -us.microsoftonline.com"",
+                                ""preferred_cache"":""login -us.microsoftonline.com"",
+                                ""aliases"":[
+                                    ""login -us.microsoftonline.com""]}]}"
+                    )
+                }
+            });
+
             var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
                 TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
             Assert.AreEqual(8, InstanceDiscovery.InstanceCache.Count());
 
+            // One mock remaining
+            Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount());
+
             // German authority not included in instance cache
             Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
 
             var entry = await InstanceDiscovery.GetMetadataEntry("login.microsoftonline.de", true, callState).ConfigureAwait(false);
 
-            // German authority included in instance caceh
+            // German authority included in instance cache
             Assert.AreEqual("login.microsoftonline.de", entry.PreferredNetwork);
-            Assert.AreEqual(12, InstanceDiscovery.InstanceCache.Count());
+            Assert.AreEqual(9, InstanceDiscovery.InstanceCache.Count());
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.windows.net"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.some-sovereign-cloud"));
