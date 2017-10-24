@@ -40,7 +40,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net;
 using System;
 
-namespace Test.ADAL.NET.Unit
+namespace Test.ADAL.NET.Integration
 {
     [TestClass]
     public class SovereignCloudsTests
