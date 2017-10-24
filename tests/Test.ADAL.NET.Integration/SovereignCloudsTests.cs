@@ -236,7 +236,7 @@ namespace Test.ADAL.NET.Unit
 
             // German authority included in instance caceh
             Assert.AreEqual("login.microsoftonline.de", entry.PreferredNetwork);
-            Assert.AreEqual(9, InstanceDiscovery.InstanceCache.Count());
+            Assert.AreEqual(12, InstanceDiscovery.InstanceCache.Count());
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.windows.net"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.some-sovereign-cloud"));
