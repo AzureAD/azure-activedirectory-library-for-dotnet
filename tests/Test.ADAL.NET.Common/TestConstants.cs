@@ -40,8 +40,6 @@ namespace Test.ADAL.NET.Common
         public static readonly string TenantSpecificAuthority = $"https://login.microsoftonline.com/{SomeTenantId}/";
         public static readonly string DefaultAuthorityGuestTenant = "https://login.microsoftonline.com/guest/";
         public static readonly string DefaultAuthorityCommonTenant = "https://login.microsoftonline.com/common/";
-        public static readonly string DisplayableIdUrl = DefaultAuthorityCommonTenant + "UserRealm/displayable@id.com";
-        public static readonly string DiscoveryUrl = DefaultAuthorityCommonTenant + "discovery/instance";
         public static readonly string DefaultClientId = "client_id";
         public static readonly string DefaultUniqueId = "unique_id";
         public static readonly string DefaultDisplayableId = "displayable@id.com";
@@ -55,13 +53,22 @@ namespace Test.ADAL.NET.Common
         public static readonly string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
         public static readonly string CloudAudienceUrn = "urn:federation:Blackforest";
         public static readonly string TokenEndPoint = "oauth2/token";
-        public static readonly string UserRealm = "UserRealm";
+        public static readonly string UserRealmEndPoint = "UserRealm";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
-        public static readonly string DisplayableIdEndPoint = "";
 
-        public static string GetTokenUrl(string Authority)
+        public static string GetToken(string Authority)
         {
             return Authority + TokenEndPoint;
+        }
+
+        public static string GetUserRealm(string Authority)
+        {
+            return Authority + UserRealmEndPoint;
+        }
+
+        public static string GetDiscovery(string Authority)
+        {
+            return Authority + DiscoveryEndPoint;
         }
     }
 

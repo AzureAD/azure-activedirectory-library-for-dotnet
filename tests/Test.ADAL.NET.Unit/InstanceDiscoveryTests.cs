@@ -168,7 +168,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscovery()
         {
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.DiscoveryUrl));
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscovery(TestConstants.DefaultAuthorityCommonTenant)));
             var authenticator = new Authenticator("https://login.contoso.com/adfs", false);
             await authenticator.UpdateFromTemplateAsync(new CallState(Guid.NewGuid())).ConfigureAwait(false);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // mock is NOT consumed, so no new request was NOT attempted
