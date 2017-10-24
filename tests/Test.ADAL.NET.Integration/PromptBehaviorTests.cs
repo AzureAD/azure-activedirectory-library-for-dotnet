@@ -39,7 +39,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
-using Test.ADAL.NET.Unit;
 
 namespace Test.ADAL.NET.Integration
 {
