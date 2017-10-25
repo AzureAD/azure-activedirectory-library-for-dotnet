@@ -53,20 +53,20 @@ namespace Test.ADAL.NET.Common
         public static readonly string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
         public static readonly string CloudAudienceUrn = "urn:federation:Blackforest";
         public static readonly string TokenEndPoint = "oauth2/token";
-        public static readonly string UserRealmEndPoint = "UserRealm";
+        public static readonly string UserRealmEndPoint = "userrealm";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
 
-        public static string GetToken(string Authority)
+        public static string GetTokenEndpoint(string Authority)
         {
             return Authority + TokenEndPoint;
         }
 
-        public static string GetUserRealm(string Authority)
+        public static string GetUserRealmEndpoint(string Authority)
         {
             return Authority + UserRealmEndPoint;
         }
 
-        public static string GetDiscovery(string Authority)
+        public static string GetDiscoveryEndpoint(string Authority)
         {
             return Authority + DiscoveryEndPoint;
         }
