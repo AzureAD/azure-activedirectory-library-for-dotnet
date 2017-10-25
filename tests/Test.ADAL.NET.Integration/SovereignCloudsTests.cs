@@ -37,7 +37,6 @@ using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System.Net;
 using System;
 
 namespace Test.ADAL.NET.Integration
@@ -77,49 +76,7 @@ namespace Test.ADAL.NET.Integration
                 // validate that authorizationUri passed to WebUi contains instance_aware query parameter
                 new Dictionary<string, string> { { "instance_aware", "true" } });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(
-                        @"{  
-                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
-                            ""api-version"":""1.1"",
-                            ""metadata"":[
-                                {
-                                ""preferred_network"":""login.microsoftonline.com"",
-                                ""preferred_cache"":""login.windows.net"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.com"",
-                                    ""login.windows.net"",
-                                    ""login.microsoft.com"",
-                                    ""sts.windows.net""]},
-                                {
-                                ""preferred_network"":""login.partner.microsoftonline.cn"",
-                                ""preferred_cache"":""login.partner.microsoftonline.cn"",
-                                ""aliases"":[
-                                    ""login.partner.microsoftonline.cn"",
-                                    ""login.chinacloudapi.cn""]},
-                                {
-                                ""preferred_network"":""login.microsoftonline.de"",
-                                ""preferred_cache"":""login.microsoftonline.de"",
-                                ""aliases"":[
-                                     ""login.microsoftonline.de""]},
-                                {  
-                                ""preferred_network"":""login.microsoftonline.us"",
-                                ""preferred_cache"":""login.microsoftonline.us"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.us"",
-                                    ""login.usgovcloudapi.net""]},
-                                {  
-                                ""preferred_network"":""login -us.microsoftonline.com"",
-                                ""preferred_cache"":""login -us.microsoftonline.com"",
-                                ""aliases"":[
-                                    ""login -us.microsoftonline.com""]}]}"
-                    )
-                }
-            });
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
@@ -158,19 +115,34 @@ namespace Test.ADAL.NET.Integration
         [Description("Instance discovery call is made because authority was not already in the instance cache")]
         public async Task AuthorityNotInInstanceCache_InstanceDiscoverCallMadeTestAsync()
         {
+            HttpMessageHandlerFactory.ClearMockHandlers();
+
+            string content = @"{
+                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
+                            ""api-version"":""1.1"",
+                            ""metadata"":[{
+                                ""preferred_network"":""login.microsoftonline.com"",
+                                ""preferred_cache"":""login.windows.net"",
+                                ""aliases"":[
+                                    ""login.microsoftonline.com"",
+                                    ""login.windows.net"",
+                                    ""login.microsoft.com"",
+                                    ""sts.windows.net""]}]}";
+
+            // German authority not included
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(content));
+
+            // Assure instance cache is empty
             InstanceDiscovery.InstanceCache.Clear();
+            Assert.AreEqual(0, InstanceDiscovery.InstanceCache.Count());
 
-            CallState callState = new CallState(Guid.NewGuid());
-
-            // creating AuthenticationContext with common Authority
+            // Creating AuthenticationContext with common Authority
             var authenticationContext =
                 new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, false, new TokenCache());
 
-            // mock value for authentication returnedUriInput, with cloud_instance_name claim
+            // Mock value for authentication returnedUriInput, with cloud_instance_name claim
             var authReturnedUriInputMock = TestConstants.DefaultRedirectUri + "?code=some-code" + "&" +
                                            TokenResponseClaim.CloudInstanceHost + "=" + sovereignAuthorityHost;
-
-            Assert.AreEqual(0, InstanceDiscovery.InstanceCache.Count());
 
             MockHelpers.ConfigureMockWebUI(
                 new AuthorizationResult(AuthorizationStatus.Success, authReturnedUriInputMock),
@@ -178,39 +150,8 @@ namespace Test.ADAL.NET.Integration
                 new Dictionary<string, string> { { "instance_aware", "true" } });
 
             // German authority not included
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(
-                        @"{  
-                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
-                            ""api-version"":""1.1"",
-                            ""metadata"":[
-                                {
-                                ""preferred_network"":""login.microsoftonline.com"",
-                                ""preferred_cache"":""login.windows.net"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.com"",
-                                    ""login.windows.net"",
-                                    ""login.microsoft.com"",
-                                    ""sts.windows.net""]},
-                                {
-                                ""preferred_network"":""login.microsoftonline.us"",
-                                ""preferred_cache"":""login.microsoftonline.us"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.us"",
-                                    ""login.usgovcloudapi.net""]},
-                                {  
-                                ""preferred_network"":""login -us.microsoftonline.com"",
-                                ""preferred_cache"":""login -us.microsoftonline.com"",
-                                ""aliases"":[
-                                    ""login -us.microsoftonline.com""]}]}"
-                    )
-                }
-            });
-
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(content));
+            
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Post,
@@ -226,44 +167,13 @@ namespace Test.ADAL.NET.Integration
             });
 
             // German authority not included
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(
-                        @"{  
-                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
-                            ""api-version"":""1.1"",
-                            ""metadata"":[
-                                {
-                                ""preferred_network"":""login.microsoftonline.com"",
-                                ""preferred_cache"":""login.windows.net"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.com"",
-                                    ""login.windows.net"",
-                                    ""login.microsoft.com"",
-                                    ""sts.windows.net""]},
-                                {
-                                ""preferred_network"":""login.microsoftonline.us"",
-                                ""preferred_cache"":""login.microsoftonline.us"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.us"",
-                                    ""login.usgovcloudapi.net""]},
-                                {  
-                                ""preferred_network"":""login -us.microsoftonline.com"",
-                                ""preferred_cache"":""login -us.microsoftonline.com"",
-                                ""aliases"":[
-                                    ""login -us.microsoftonline.com""]}]}"
-                    )
-                }
-            });
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(content));
 
             var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
                 TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
-            Assert.AreEqual(8, InstanceDiscovery.InstanceCache.Count());
+            Assert.AreEqual(5, InstanceDiscovery.InstanceCache.Count());
 
             // One mock remaining
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount());
@@ -271,16 +181,17 @@ namespace Test.ADAL.NET.Integration
             // German authority not included in instance cache
             Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
 
-            var entry = await InstanceDiscovery.GetMetadataEntry("login.microsoftonline.de", true, callState).ConfigureAwait(false);
+            var entry = await InstanceDiscovery.GetMetadataEntry("login.microsoftonline.de", true, new CallState(Guid.NewGuid())).ConfigureAwait(false);
 
-            // German authority included in instance cache
+            // German authority now included in instance cache
             Assert.AreEqual("login.microsoftonline.de", entry.PreferredNetwork);
-            Assert.AreEqual(9, InstanceDiscovery.InstanceCache.Count());
+            Assert.AreEqual(6, InstanceDiscovery.InstanceCache.Count());
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.windows.net"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.some-sovereign-cloud"));
+            Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.partner.microsoftonline.cn"));
 
-            // all mocks are consumed
+            // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
     }
