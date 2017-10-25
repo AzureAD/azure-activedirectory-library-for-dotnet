@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Extension class to support confidential client flows.
+    /// Partial class to support confidential client flows.
     /// </summary>
     public sealed partial class AuthenticationContext
     {
