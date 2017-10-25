@@ -124,7 +124,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets the authority which has issued tokens.
         /// </summary>
-        internal string Authority { get; set; }
+        public string Authority { get; internal set; }
 
         /// <summary>
         /// Creates authorization header from authentication result.
