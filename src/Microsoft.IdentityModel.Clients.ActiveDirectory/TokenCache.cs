@@ -361,9 +361,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return resultEx;
         }
 
-        public static string GetHost(string uri)
+        private static string GetHost(string uri)
         {
-            // The following line serves as a validation for uri. Relevant exceptions will be throwed.
+            // The following line serves as a validation for uri. Relevant exceptions will be thrown.
             new Uri(uri); //NOSONAR
 
             // Note: host is supposed to be case insensitive, and would be normalized to lowercase by: new Uri(uri).Host

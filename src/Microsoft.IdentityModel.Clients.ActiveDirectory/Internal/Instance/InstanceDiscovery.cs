@@ -85,6 +85,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntry(Uri authority, bool validateAuthority,
             CallState callState)
         {
+            if (authority == null)
+            {
+                throw new ArgumentNullException(nameof(authority));
+            }
+
             InstanceDiscoveryMetadataEntry entry = null;
             if (!InstanceCache.TryGetValue(authority.Host, out entry))
             {
@@ -111,9 +116,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/authorize", host, tenant);
         }
 
-        public static string GetTenant(Uri uri)
+        private static string GetTenant(Uri uri)
         {
-            return uri.AbsolutePath.Split('/')[1];  // Will generate exception when uri contains no tenant
+            return uri.AbsolutePath.Split('/')[1];  // Will generate exception when tenant can not be determined
         }
 
         // No return value. Modifies InstanceCache directly.
@@ -165,6 +170,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         // To populate a host into the cache as-is, when it is not already there
         public static bool AddMetadataEntry(string host)
         {
+            if (host == null)
+            {
+                throw new ArgumentNullException(nameof(host));
+            }
+
             return InstanceCache.TryAdd(host, new InstanceDiscoveryMetadataEntry
             {
                 PreferredNetwork = host,
