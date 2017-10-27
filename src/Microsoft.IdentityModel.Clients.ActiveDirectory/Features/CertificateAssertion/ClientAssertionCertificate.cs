@@ -110,5 +110,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             // Thumbprint should be url encoded
             get { return Base64UrlEncoder.Encode(this.Certificate.GetCertHash()); }
         }
+
+        /// <summary>
+        /// Returns base64 encoding of the certificate
+        /// </summary>
+        public string GetEncodedCertificate()
+        {
+            // Thumbprint should be url encoded
+            return Base64UrlEncoder.Encode(this.Certificate.ToString());
+        }
     }
 }

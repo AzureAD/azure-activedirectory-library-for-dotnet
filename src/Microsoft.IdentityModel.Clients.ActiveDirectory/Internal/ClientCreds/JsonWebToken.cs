@@ -61,6 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             public const string Algorithm = "alg";
             public const string Type = "typ";
             public const string X509CertificateThumbprint = "x5t";
+            public const string X509Certificate = "x5c";
         }
     }   
 
@@ -207,11 +208,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
             private string _thumbPrint;
+            private string _certificate;
 
             public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
+                _certificate = this.Credential.GetEncodedCertificate();
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
@@ -224,6 +227,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 }
 
                 set { _thumbPrint = value; }
+            }
+
+            [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509Certificate)]
+            public string X509Certificate
+            {
+                get
+                {
+                    // Certificate should be url encoded
+                    return _certificate;
+                }
+
+                set { _certificate = value; }
             }
         }
     }

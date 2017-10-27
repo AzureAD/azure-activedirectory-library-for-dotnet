@@ -48,5 +48,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Thumbprint of the Certificate
         /// </summary>
         string Thumbprint { get; }
+
+        /// <summary>
+        /// Gets the base64 encoded certificate
+        /// </summary>
+        string GetEncodedCertificate();
     }
 }
