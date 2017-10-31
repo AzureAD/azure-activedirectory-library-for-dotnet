@@ -122,7 +122,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string IdToken { get; internal set; }
 
         /// <summary>
-        /// Gets the authority which has issued tokens.
+        /// Gets the authority that has issued the token.
         /// </summary>
         public string Authority { get; internal set; }
 

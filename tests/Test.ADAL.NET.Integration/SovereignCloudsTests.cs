@@ -46,9 +46,9 @@ namespace Test.ADAL.NET.Integration
     {
         private PlatformParameters platformParameters;
 
-        const string sovereignAuthorityHost = "login.some-sovereign-cloud";
+        const string sovereignAuthorityHost = "login.some-sovereign-cloud.com";
 
-        string sovereignTenantSpecificAuthority = $"https://{sovereignAuthorityHost}/{TestConstants.SomeTenantId}/";
+        string sovereignTenantSpecificAuthority = String.Format("https://{0}/{1}/", sovereignAuthorityHost, TestConstants.SomeTenantId);
 
         [TestInitialize]
         public void Initialize()
@@ -96,13 +96,13 @@ namespace Test.ADAL.NET.Integration
                 TestConstants.DefaultClientId,
                 TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
-            // make sure that tenant spesific sovereign Authority returned to the app in AuthenticationResult
+            // make sure that tenant specific sovereign Authority returned to the app in AuthenticationResult
             Assert.AreEqual(sovereignTenantSpecificAuthority, authenticationResult.Authority);
 
             // make sure that AuthenticationContext Authority was updated
             Assert.AreEqual(sovereignTenantSpecificAuthority, authenticationContext.Authority);
 
-            // make sure AT was stored in the cache with tenant spesific Sovereign Authority in the key
+            // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
             Assert.AreEqual(sovereignTenantSpecificAuthority,
                 authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
@@ -115,8 +115,6 @@ namespace Test.ADAL.NET.Integration
         [Description("Instance discovery call is made because authority was not already in the instance cache")]
         public async Task AuthorityNotInInstanceCache_InstanceDiscoverCallMadeTestAsync()
         {
-            HttpMessageHandlerFactory.ClearMockHandlers();
-
             string content = @"{
                             ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
                             ""api-version"":""1.1"",
@@ -129,18 +127,11 @@ namespace Test.ADAL.NET.Integration
                                     ""login.microsoft.com"",
                                     ""sts.windows.net""]}]}";
 
-            // German authority not included
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant), content));
-
-            // Assure instance cache is empty
-            InstanceDiscovery.InstanceCache.Clear();
-            Assert.AreEqual(0, InstanceDiscovery.InstanceCache.Count());
-
-            // Creating AuthenticationContext with common Authority
+            // creating AuthenticationContext with common Authority
             var authenticationContext =
                 new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, false, new TokenCache());
 
-            // Mock value for authentication returnedUriInput, with cloud_instance_name claim
+            // mock value for authentication returnedUriInput, with cloud_instance_name claim
             var authReturnedUriInputMock = TestConstants.DefaultRedirectUri + "?code=some-code" + "&" +
                                            TokenResponseClaim.CloudInstanceHost + "=" + sovereignAuthorityHost;
 
@@ -149,9 +140,8 @@ namespace Test.ADAL.NET.Integration
                 // validate that authorizationUri passed to WebUi contains instance_aware query parameter
                 new Dictionary<string, string> { { "instance_aware", "true" } });
 
-            // German authority not included
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant), content));
-            
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Post,
@@ -165,34 +155,32 @@ namespace Test.ADAL.NET.Integration
                     Assert.AreEqual(sovereignAuthorityHost, request.RequestUri.Authority);
                 }
             });
-
-            // German authority not included
+            
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityBlackforestTenant), content));
 
-            var authenticationResult = 
-                await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
+            var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
                 TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
-            Assert.AreEqual(5, InstanceDiscovery.InstanceCache.Count());
+            // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
+            Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
+            Assert.AreEqual(sovereignTenantSpecificAuthority,
+                authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
 
-            // One mock remaining
-            Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount());
-
-            // German authority not included in instance cache
+            // DE cloud authority not included in instance cache
             Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
-            
+
+            // Instance discovery makes another call because DE cloud authority is not in the instance cache
             var entry = await InstanceDiscovery.GetMetadataEntry(new Uri("https://login.microsoftonline.de"), true, new CallState(Guid.NewGuid())).ConfigureAwait(false);
 
-            // German authority now included in instance cache
+            // DE cloud authority now included in instance cache
             Assert.AreEqual("login.microsoftonline.de", entry.PreferredNetwork);
-            Assert.AreEqual(6, InstanceDiscovery.InstanceCache.Count());
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.windows.net"));
-            Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.some-sovereign-cloud"));
+            Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains(sovereignAuthorityHost));
             Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.partner.microsoftonline.cn"));
 
-            // All mocks are consumed
+            // all mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
     }
