@@ -31,6 +31,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using System.Reflection;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 {
@@ -61,7 +62,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             public const string Algorithm = "alg";
             public const string Type = "typ";
             public const string X509CertificateThumbprint = "x5t";
-            public const string X509Certificate = "x5c";
+            public const string X509CertificatePublicCertValue = "x5c";
         }
     }   
 
@@ -214,7 +215,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
-                _certificate = this.Credential.GetEncodedCertificate();
+                _certificate = "";
+
+                //Check to see if credential is our implementation or developer provided.
+#if (NETCORE4_5 && NETSTANDARD1_3)
+                if (credential is ClientAssertionCertificate cert)
+                {
+                    _certificate = Base64UrlEncoder.Encode(cert.Certificate.ToString());
+                    return;
+                }
+#endif
+                if (!credential.GetType().ToString().Contains("Microsoft.IdentityModel"))
+                {
+                    CallState.Default.Logger.Warning(null, "The implementation is developer provided and it should be replaced with library provided implmentation");
+                }
+                var _cert = credential.GetType().GetRuntimeProperty("Certificate").GetValue(credential);
+                if (_cert != null)
+                {
+                    _certificate = Base64UrlEncoder.Encode(_cert.ToString());
+                }
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
@@ -229,8 +248,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 set { _thumbPrint = value; }
             }
 
-            [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509Certificate)]
-            public string X509Certificate
+            [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificatePublicCertValue)]
+            public string X509CertificatePublicCertValue
             {
                 get
                 {

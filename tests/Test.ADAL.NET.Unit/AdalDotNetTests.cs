@@ -944,56 +944,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test for Client assertion with X509")]
-        public async Task ClientAssertionWithX509Test()
-        {
-            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
-            var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
-
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            var expectedAudience = TestConstants.DefaultAuthorityCommonTenant + "oauth2/token";
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-                },
-                PostData = new Dictionary<string, string>
-                {
-                    {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "client_credentials"},
-                    {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"}
-                },
-                AdditionalRequestValidation = request =>
-                {
-                    var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
-
-                    // Check presence of client_assertion in request
-                    string encodedJwt;
-                    Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
-                }
-            });
-
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
-            Assert.IsNotNull(result.AccessToken);
-
-            // Null resource -> error
-            var exc = AssertException.TaskThrows<ArgumentNullException>(() =>
-                context.AcquireTokenAsync(null, clientAssertion));
-            Assert.AreEqual(exc.ParamName, "resource");
-
-            // Null client credential -> error
-            exc = AssertException.TaskThrows<ArgumentNullException>(() =>
-                context.AcquireTokenAsync(TestConstants.DefaultResource, (ClientCredential)null));
-
-            Assert.AreEqual(exc.ParamName, "clientCredential");
-        }
-
-
-        [TestMethod]
         [Description("Test for Confidential Client with self signed jwt")]
         public async Task ConfidentialClientWithJwtTest()
         {

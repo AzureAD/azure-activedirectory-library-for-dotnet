@@ -68,6 +68,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ClientAssertionCertificateTests.cs" />
     <Compile Include="CommonUnitTests.cs" />
     <Compile Include="TokenCacheTests.cs" />
     <Compile Include="AdalDotNetTests.cs" />
