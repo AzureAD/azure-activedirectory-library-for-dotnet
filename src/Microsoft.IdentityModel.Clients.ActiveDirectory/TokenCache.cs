@@ -32,6 +32,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -341,7 +344,52 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal AuthenticationResultEx LoadFromCache(CacheQueryData cacheQueryData, CallState callState)
+        internal async Task<AuthenticationResultEx> LoadFromCache(CacheQueryData cacheQueryData, CallState callState)
+        {
+            AuthenticationResultEx resultEx = null;
+            var aliasedHosts = await GetOrderedAliases(cacheQueryData.Authority, false, callState).ConfigureAwait(false);
+            foreach (var aliasedHost in aliasedHosts)
+            {
+                cacheQueryData.Authority = ReplaceHost(cacheQueryData.Authority, aliasedHost);
+                resultEx = LoadFromCacheCommon(cacheQueryData, callState);
+                if (resultEx?.Result != null)
+                {
+                    break;
+                }
+            }
+
+            return resultEx;
+        }
+
+        private static string GetHost(string uri)
+        {
+            // The following line serves as a validation for uri. Relevant exceptions will be thrown.
+            new Uri(uri); //NOSONAR
+
+            // Note: host is supposed to be case insensitive, and would be normalized to lowercase by: new Uri(uri).Host
+            // but we would like to preserve its case to match a previously cached token
+            return uri.Split('/')[2];
+        }
+
+        private static string ReplaceHost(string oldUri, string newHost)
+        {
+            if (string.IsNullOrEmpty(oldUri) || string.IsNullOrEmpty(newHost))
+            {
+                throw new ArgumentNullException();
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, "https://{0}{1}", newHost, new Uri(oldUri).AbsolutePath);
+        }
+
+        internal static async Task<List<string>> GetOrderedAliases(string authority, bool validateAuthority, CallState callState)
+        {
+            var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), validateAuthority, callState).ConfigureAwait(false);
+            var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, GetHost(authority)});
+            aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
+            return aliasedAuthorities;
+        }
+
+        internal AuthenticationResultEx LoadFromCacheCommon(CacheQueryData cacheQueryData, CallState callState)
         {
             lock (cacheLock)
             {
@@ -436,7 +484,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal void StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId,
+        internal async Task StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId,
+            TokenSubjectType subjectType, CallState callState)
+        {
+            var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), false, callState).ConfigureAwait(false);
+            StoreToCacheCommon(result, ReplaceHost(authority, metadata.PreferredCache), resource, clientId, subjectType, callState);
+        }
+
+        internal void StoreToCacheCommon(AuthenticationResultEx result, string authority, string resource, string clientId,
             TokenSubjectType subjectType, CallState callState)
         {
             lock (cacheLock)

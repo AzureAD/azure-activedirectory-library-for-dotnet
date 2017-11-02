@@ -29,10 +29,13 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.ADAL.NET.Unit.Mocks;
+using Test.ADAL.Common;
+using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
 
-namespace Test.ADAL.NET.Unit
+namespace Test.ADAL.NET.Integration
 {
     [TestClass]
     public class DeviceCodeFlowTests
@@ -41,6 +44,8 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             HttpMessageHandlerFactory.ClearMockHandlers();
+            InstanceDiscovery.InstanceCache.Clear();
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -58,7 +63,7 @@ namespace Test.ADAL.NET.Unit
                 VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token"
             };
 
-            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = "https://login.microsoftonline.com/home/oauth2/token",
@@ -72,7 +77,7 @@ namespace Test.ADAL.NET.Unit
             };
 
             HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = "https://login.microsoftonline.com/home/oauth2/token",
@@ -92,7 +97,7 @@ namespace Test.ADAL.NET.Unit
         public async Task FullCoveragePositiveTest()
         {
 
-            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Get,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
@@ -101,7 +106,7 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
-            mockMessageHandler = new MockHttpMessageHandler()
+            mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
@@ -115,7 +120,7 @@ namespace Test.ADAL.NET.Unit
             };
 
             HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
@@ -141,5 +146,68 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual("some-access-token", result.AccessToken);
         }
 
+        [TestMethod]
+        public void NegativeDeviceCodeTest()
+        {
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Get,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
+                ResponseMessage = MockHelpers.CreateDeviceCodeErrorResponse()
+            };
+
+            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            TokenCache cache = new TokenCache();
+            AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
+            DeviceCodeResult dcr;
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client"));
+            Assert.IsTrue(ex.Message.Contains("some error message"));
+        }
+
+        [TestMethod]
+        public async Task NegativeDeviceCodeTimeoutTest()
+        {
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Get,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
+                ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage("1")
+            };
+
+            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Post,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
+                ResponseMessage = MockHelpers.CreateFailureResponseMessage("{\"error\":\"authorization_pending\"," +
+                                                               "\"error_description\":\"AADSTS70016: Pending end-user authorization." +
+                                                               "\\r\\nTrace ID: f6c2c73f-a21d-474e-a71f-d8b121a58205\\r\\nCorrelation ID: " +
+                                                               "36fe3e82-442f-4418-b9f4-9f4b9295831d\\r\\nTimestamp: 2015-09-24 19:51:51Z\"," +
+                                                               "\"error_codes\":[70016],\"timestamp\":\"2015-09-24 19:51:51Z\",\"trace_id\":" +
+                                                               "\"f6c2c73f-a21d-474e-a71f-d8b121a58205\",\"correlation_id\":" +
+                                                               "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
+            };
+
+            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Post,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
+                ResponseMessage = MockHelpers.CreateDeviceCodeExpirationErrorResponse()
+            };
+            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            TokenCache cache = new TokenCache();
+            AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
+            DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some resource", "some authority");
+
+            Assert.IsNotNull(dcr);
+            AuthenticationResult result;
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await ctx.AcquireTokenByDeviceCodeAsync(dcr));
+            Assert.IsTrue(ex.Message.Contains("Verification code expired"));
+        }
     }
 }

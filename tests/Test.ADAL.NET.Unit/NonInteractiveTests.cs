@@ -39,12 +39,18 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.WsTrust;
 using Test.ADAL.Common;
-using Test.ADAL.NET.Unit.Mocks;
+using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
 
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
+    [DeploymentItem("WsTrustResponse13.xml")]
     [DeploymentItem("WsTrustResponse.xml")]
     [DeploymentItem("TestMex.xml")]
     [DeploymentItem("TestMex2005.xml")]
@@ -60,7 +66,7 @@ namespace Test.ADAL.NET.Unit
         [Description("Get WsTrust Address from mex")]
         public async Task MexParserGetWsTrustAddressTest()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -69,7 +75,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            WsTrustAddress address = await MexParser.FetchWsTrustAddressFromMexAsync("https://some-url", UserAuthType.IntegratedAuth, null);
+            WsTrustAddress address = await MexParser.FetchWsTrustAddressFromMexAsync(TestConstants.DefaultAuthorityCommonTenant, UserAuthType.IntegratedAuth, null);
             Assert.IsNotNull(address);
         }
 
@@ -77,10 +83,10 @@ namespace Test.ADAL.NET.Unit
         [Description("User Realm Discovery Test")]
         public async Task UserRealmDiscoveryTest()
         {
-            AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
+            AuthenticationContext context = new AuthenticationContext(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -89,7 +95,7 @@ namespace Test.ADAL.NET.Unit
                                                 "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -100,12 +106,12 @@ namespace Test.ADAL.NET.Unit
             UserRealmDiscoveryResponse userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, CallState.Default);
             VerifyUserRealmResponse(userRealmResponse, "Federated");
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -128,7 +134,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -138,7 +144,7 @@ namespace Test.ADAL.NET.Unit
                                     "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                     "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                     ",\"cloud_audience_urn\":\"urn:federation:Blackforest\"" +
-                                    ",\"cloudinstancename\":\"login.microsoftonline.com\"}")
+                                    ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                 },
                 QueryParams = new Dictionary<string, string>()
                 {
@@ -154,12 +160,12 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -183,12 +189,12 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -223,27 +229,28 @@ namespace Test.ADAL.NET.Unit
         [Description("WS-Trust Request Test")]
         public async Task WsTrustRequestTest()
         {
+            string URI = "https://some/address/usernamemixed";
             WsTrustAddress address = new WsTrustAddress()
             {
-                Uri = new Uri("https://some/address/usernamemixed"),
+                Uri = new Uri(URI),
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -258,27 +265,29 @@ namespace Test.ADAL.NET.Unit
         [Description("WS-Trust Request Generic Cloud Urn Test")]
         public async Task WsTrustRequestGenericCloudUrnTest()
         {
+            string URI = "https://some/address/usernamemixed";
+
             WsTrustAddress address = new WsTrustAddress()
             {
-                Uri = new Uri("https://some/address/usernamemixed"),
+                Uri = new Uri(URI),
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse.xml"))
+                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
                 }
             });
 
@@ -287,23 +296,6 @@ namespace Test.ADAL.NET.Unit
 
             wstResponse = await WsTrustRequest.SendRequestAsync(address, new UserCredential(TestConstants.DefaultDisplayableId), null, TestConstants.CloudAudienceUrn);
             Assert.IsNotNull(wstResponse.Token);
-        }
-
-        [TestMethod, WorkItem(699)] // Regression test https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/699
-        [Description("Tests the real service accepts the request as valid")]
-        public void WsTrustRequestAcceptedByService()
-        {
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
-
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(() =>
-                context.AcquireTokenAsync("https://graph.windows.net", "unknown-client-F1E93291-6F42-453A-866F-C2F672F283BD", new UserCredential("unknown-userF1E93291-6F42-453A-866F-C2F672F283BD@microsoft.com")));
-
-            Debug.WriteLine($"Error code: {ex.ErrorCode}");
-            Debug.WriteLine($"Error message: {ex.Message}");
-
-            // If the request is not well-formed then the error message returned will be something like
-            //  "Federated service at https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport returned error: ID3035: The request was not valid or is malformed."
-            Assert.IsFalse(ex.Message.Contains("ID3035"), "Not expecting the request to be rejected as invalid");
         }
 
         [TestMethod]

@@ -29,8 +29,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal abstract class AcquireTokenHandlerBase
     {
@@ -135,7 +142,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
-                    ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
+                    ResultEx = await this.tokenCache.LoadFromCache(CacheQueryData, this.CallState).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
                     if (ResultEx?.Result != null &&
@@ -145,7 +152,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
                         {
-                            StoreResultExToCache(ref notifiedBeforeAccessCache);
+                            notifiedBeforeAccessCache = await StoreResultExToCache(notifiedBeforeAccessCache).ConfigureAwait(false);
                         }
                     }
                 }
@@ -170,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
 
                     this.PostTokenRequest(ResultEx);
-                    StoreResultExToCache(ref notifiedBeforeAccessCache);
+                    notifiedBeforeAccessCache = await StoreResultExToCache(notifiedBeforeAccessCache).ConfigureAwait(false);
                 }
 
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
@@ -196,7 +203,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private void StoreResultExToCache(ref bool notifiedBeforeAccessCache)
+        private async Task<bool> StoreResultExToCache(bool notifiedBeforeAccessCache)
         {
             if (this.StoreToCache)
             {
@@ -206,9 +213,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
                 }
 
-                this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
-                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                await this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
+                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState).ConfigureAwait(false);
             }
+            return notifiedBeforeAccessCache;
         }
 
         private async Task CheckAndAcquireTokenUsingBroker()

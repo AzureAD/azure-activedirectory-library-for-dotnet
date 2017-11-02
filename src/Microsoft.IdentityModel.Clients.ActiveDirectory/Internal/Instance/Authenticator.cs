@@ -26,10 +26,11 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 {
     internal enum AuthorityType
     {
@@ -40,8 +41,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     internal class Authenticator
     {
         private const string TenantlessTenantName = "Common";
-
-        private static readonly AuthenticatorTemplateList AuthenticatorTemplateList = new AuthenticatorTemplateList();
 
         private bool updatedFromTemplate;
 
@@ -97,18 +96,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (!this.updatedFromTemplate)
             {
                 var authorityUri = new Uri(this.Authority);
-                string host = authorityUri.Authority;
+                var host = authorityUri.Host;
                 string path = authorityUri.AbsolutePath.Substring(1);
                 string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
-
-                AuthenticatorTemplate matchingTemplate = await AuthenticatorTemplateList.FindMatchingItemAsync(this.ValidateAuthority, host, tenant, callState).ConfigureAwait(false);
-
-                this.AuthorizationUri = matchingTemplate.AuthorizeEndpoint.Replace("{tenant}", tenant);
-                this.DeviceCodeUri = matchingTemplate.DeviceCodeEndpoint.Replace("{tenant}", tenant);
-                this.TokenUri = matchingTemplate.TokenEndpoint.Replace("{tenant}", tenant);
-                this.UserRealmUri = CanonicalizeUri(matchingTemplate.UserRealmEndpoint);
+                if (this.AuthorityType == AuthorityType.AAD)
+                {
+                    var metadata = await InstanceDiscovery.GetMetadataEntry(authorityUri, this.ValidateAuthority, callState);
+                    host = metadata.PreferredNetwork;
+                    // All the endpoints will use this updated host, and it affects future network calls, as desired.
+                    // The Authority remains its original host, and will be used in TokenCache later.
+                }
+                else
+                {
+                    InstanceDiscovery.AddMetadataEntry(host);
+                }
+                this.AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                this.DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                this.TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                this.UserRealmUri = CanonicalizeUri(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
-                this.SelfSignedJwtAudience = matchingTemplate.Issuer.Replace("{tenant}", tenant);
+                this.SelfSignedJwtAudience = this.TokenUri;
                 this.updatedFromTemplate = true;
             }
         }
