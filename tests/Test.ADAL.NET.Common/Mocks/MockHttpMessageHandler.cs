@@ -60,8 +60,6 @@ namespace Test.ADAL.NET.Common.Mocks
             this.Url = Url;
         }
 
-        public object AdditionalValidationOutput;
-
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Assert.AreEqual(Method, request.Method);
