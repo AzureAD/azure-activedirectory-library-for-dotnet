@@ -42,6 +42,7 @@ namespace Test.ADAL.NET.Common
         public static readonly string DefaultAuthorityCommonTenant = "https://login.microsoftonline.com/common/";
         public static readonly string DefaultClientId = "client_id";
         public static readonly string DefaultUniqueId = "unique_id";
+        public static readonly string DefaultThumbprint = "some_thumbprint";
         public static readonly string DefaultDisplayableId = "displayable@id.com";
         public static readonly Uri DefaultRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");
         public static readonly bool DefaultRestrictToSingleUser = false;

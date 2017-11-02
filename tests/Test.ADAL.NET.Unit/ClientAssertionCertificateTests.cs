@@ -28,6 +28,7 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace Test.ADAL.NET.Unit
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var expectedAudience = TestConstants.DefaultAuthorityCommonTenant + "oauth2/token";
 
-            var ValidX5cClaim = "\"x5c\":\"W1N1YmplY3RdDQogIENOPUFDUzJDbGllbnRDZXJ0aWZpY2F0ZQ0KDQpbSXNzdWVyXQ0KICBDTj1BQ1MyQ2xpZW50Q2VydGlmaWNhdGUNCg0KW1NlcmlhbCBOdW1iZXJdDQogIDMzQTM0NTYwRDA0OUY2Qjc0RTg4QUY4MkY3NTY3MzE0DQoNCltOb3QgQmVmb3JlXQ0KICA1LzIyLzIwMTIgMzoxMToyMiBQTQ0KDQpbTm90IEFmdGVyXQ0KICA1LzIyLzIwMzAgMTI6MDA6MDAgQU0NCg0KW1RodW1icHJpbnRdDQogIDQyOUFCMDI1RkFDQzgwQ0VGMzA3MURENzc3NzcxMTFENjc1QTQyNTMNCg";
+            var validCertClaim = "\"x5c\":\"" + Base64UrlEncoder.Encode(certificate.ToString());
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
             {
@@ -94,7 +95,7 @@ namespace Test.ADAL.NET.Unit
 
                     // Check presence of x5c cert claim
                     var jwt = EncodingHelper.Base64Decode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(jwt.Contains(ValidX5cClaim));
+                    Assert.IsTrue(jwt.Contains(validCertClaim));
                 }
             });
 
@@ -112,5 +113,64 @@ namespace Test.ADAL.NET.Unit
 
             Assert.AreEqual(exc.ParamName, "clientCredential");
         }
+
+        [TestMethod]
+        [Description("Test for developer implemented client assertion with X509")]
+        public async Task DeveloperImplementedClientAssertionWithX509Test()
+        {
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            var clientAssertion = new ClientAssertionTestImplementation();
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
+
+            var validCertClaim = "\"x5c\":\"" + Base64UrlEncoder.Encode(certificate.ToString());
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
+                },
+                AdditionalRequestValidation = request =>
+                {
+                    var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+
+                    // Check presence of client_assertion in request
+                    string encodedJwt;
+                    Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+
+                    // Check presence of x5c cert claim
+                    var jwt = EncodingHelper.Base64Decode(encodedJwt.Split('.')[0]);
+                    Assert.IsTrue(jwt.Contains(validCertClaim));
+                }
+            });
+
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
+            Assert.IsNotNull(result.AccessToken);
+        }
+    }
+
+    [DeploymentItem("valid_cert.pfx")]
+    class ClientAssertionTestImplementation : IClientAssertionCertificate
+    {
+
+        public string ClientId { get { return TestConstants.DefaultClientId; } }
+
+        public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }
+
+        public byte[] Sign(string message)
+        {
+            CryptographyHelper helper = new CryptographyHelper();
+            return helper.SignWithCertificate(message, this.Certificate);
+        }
+
+        public X509Certificate2 Certificate { get; }
+
+        public ClientAssertionTestImplementation()
+        {
+            this.Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+        }
     }
 }
+
