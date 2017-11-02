@@ -50,7 +50,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 DefaultLog(logLevel, formattedMessage);
             }
 
-            LoggerCallbackHandler.ExecuteCallback(logLevel, formattedMessage, containsPii);
+            if (LoggerCallbackHandler.LogCallback != null)
+            {
+                LoggerCallbackHandler.ExecuteCallback(logLevel, formattedMessage, containsPii);
+            }
+            else if (!containsPii)
+            {
+                // execute obsolete IAdalLogCallback only if LogCallback is not set and message does not contain Pii
+                LoggerCallbackHandler.ExecuteCallback(logLevel, formattedMessage);
+            }
         }
 
         internal static string GetCallerFilename(string callerFilePath)
