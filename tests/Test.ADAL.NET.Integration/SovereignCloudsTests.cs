@@ -46,7 +46,7 @@ namespace Test.ADAL.NET.Integration
     {
         private PlatformParameters platformParameters;
 
-        const string sovereignAuthorityHost = "login.some-sovereign-cloud.com";
+        const string sovereignAuthorityHost = "login.microsoftonline.de";
 
         string sovereignTenantSpecificAuthority = String.Format("https://{0}/{1}/", sovereignAuthorityHost, TestConstants.SomeTenantId);
 
@@ -76,7 +76,7 @@ namespace Test.ADAL.NET.Integration
                 // validate that authorizationUri passed to WebUi contains instance_aware query parameter
                 new Dictionary<string, string> { { "instance_aware", "true" } });
 
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityBlackforestTenant)));
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
