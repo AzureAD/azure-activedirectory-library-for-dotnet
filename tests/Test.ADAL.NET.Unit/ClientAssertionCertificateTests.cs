@@ -47,6 +47,17 @@ namespace Test.ADAL.NET.Unit
     [DeploymentItem("valid_cert.pfx")]
     public class ClientAssertionCertificateTests
     {
+        private PlatformParameters platformParameters;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            HttpMessageHandlerFactory.ClearMockHandlers();
+            InstanceDiscovery.InstanceCache.Clear();
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            platformParameters = new PlatformParameters(PromptBehavior.Auto);
+        }
+
         [TestMethod]
         [Description("Test for Client assertion with X509")]
         public async Task ClientAssertionWithX509Test()
