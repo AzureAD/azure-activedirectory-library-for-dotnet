@@ -140,9 +140,9 @@ namespace Test.ADAL.NET.Unit
                     string encodedJwt;
                     Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
 
-                    // Check presence of x5c cert claim
+                    // Check presence of x5c cert claim. It should not exist.
                     var jwt = EncodingHelper.Base64Decode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(jwt.Contains(validCertClaim));
+                    Assert.IsTrue(!jwt.Contains("\"x5c\":"));
                 }
             });
 

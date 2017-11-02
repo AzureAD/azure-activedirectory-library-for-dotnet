@@ -131,6 +131,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             // Header segment
             string jsonHeader = EncodeHeaderToJson(credential);
 
+            //Remove x5c claim if no certificate is available
+            if (jsonHeader.Contains("no_cert"))
+            {
+                string emptyX5cClaim = "\"x5c\":\"no_cert\",";
+                jsonHeader = jsonHeader.Remove(jsonHeader.IndexOf(emptyX5cClaim), emptyX5cClaim.Length);
+            }
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -215,25 +221,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
-                _certificate = "";
+                _certificate = "no_cert";
 
                 //Check to see if credential is our implementation or developer provided.
-#if (NETCORE4_5 && NETSTANDARD1_3)
+                if (!credential.GetType().ToString().Contains("Microsoft.IdentityModel"))
+                {
+                    CallState.Default.Logger.Warning(null, "The implementation of IClientAssertionCertificate is developer provided and it should be replaced with library provided implmentation.");
+                    return;
+                }
+
+#if (NET45 || NETSTANDARD1_3)
                 if (credential is ClientAssertionCertificate cert)
                 {
                     _certificate = Base64UrlEncoder.Encode(cert.Certificate.ToString());
-                    return;
                 }
 #endif
-                if (!credential.GetType().ToString().Contains("Microsoft.IdentityModel"))
-                {
-                    CallState.Default.Logger.Warning(null, "The implementation is developer provided and it should be replaced with library provided implmentation");
-                }
-                var _cert = credential.GetType().GetRuntimeProperty("Certificate").GetValue(credential);
-                if (_cert != null)
-                {
-                    _certificate = Base64UrlEncoder.Encode(_cert.ToString());
-                }
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
