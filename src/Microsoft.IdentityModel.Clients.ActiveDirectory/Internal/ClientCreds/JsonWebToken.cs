@@ -130,11 +130,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         {
             // Header segment
             string jsonHeader = EncodeHeaderToJson(credential);
+            string emptyX5cClaim = "\"x5c\":\"\",";
 
             //Remove x5c claim if no certificate is available
-            if (jsonHeader.Contains("no_cert"))
+            if (jsonHeader.Contains(emptyX5cClaim))
             {
-                string emptyX5cClaim = "\"x5c\":\"no_cert\",";
                 jsonHeader = jsonHeader.Remove(jsonHeader.IndexOf(emptyX5cClaim), emptyX5cClaim.Length);
             }
             string encodedHeader = EncodeSegment(jsonHeader);
@@ -220,7 +220,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
-                X509CertificatePublicCertValue = "no_cert";
+                X509CertificatePublicCertValue = string.Empty;
 
                 //Check to see if credential is our implementation or developer provided.
                 if (!credential.GetType().ToString().Contains("Microsoft.IdentityModel"))
