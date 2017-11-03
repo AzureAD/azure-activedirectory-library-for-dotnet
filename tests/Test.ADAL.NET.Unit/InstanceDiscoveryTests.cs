@@ -38,6 +38,7 @@ using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Test.ADAL.NET.Common;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -60,7 +61,7 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
                 {
                     Method = HttpMethod.Get,
                     Url = $"https://{InstanceDiscovery.DefaultTrustedAuthority}/common/discovery/instance",
@@ -72,12 +73,12 @@ namespace Test.ADAL.NET.Unit
             string host = "invalid_instance.example.com";
 
             // ADAL still behaves correctly using developer provided authority
-            var entry = await InstanceDiscovery.GetMetadataEntry(host, false, callState).ConfigureAwait(false);
+            var entry = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), false, callState).ConfigureAwait(false);
             Assert.AreEqual(host, entry.PreferredNetwork); // No exception raised, the host is returned as-is
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // 1 mock response is consumed, 1 remaining
 
             // Subsequent requests do not result in further authority validation network requests for the process lifetime
-            var entry2 = await InstanceDiscovery.GetMetadataEntry(host, false, callState).ConfigureAwait(false);
+            var entry2 = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), false, callState).ConfigureAwait(false);
             Assert.AreEqual(host, entry2.PreferredNetwork);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
         }
@@ -88,19 +89,19 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler("https://login.windows.net/common/discovery/instance"));
             }
 
             CallState callState = new CallState(Guid.NewGuid());
             string host = "login.windows.net";
 
             // ADAL still behaves correctly using developer provided authority
-            var entry = await InstanceDiscovery.GetMetadataEntry(host, true, callState).ConfigureAwait(false);
+            var entry = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, callState).ConfigureAwait(false);
             Assert.AreEqual(host, entry.PreferredNetwork); // No exception raised, the host is returned as-is
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // 1 mock response is consumed, 1 remaining
 
             // Subsequent requests do not result in further authority validation network requests for the process lifetime
-            var entry2 = await InstanceDiscovery.GetMetadataEntry(host, true, callState).ConfigureAwait(false);
+            var entry2 = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, callState).ConfigureAwait(false);
             Assert.AreEqual(host, entry2.PreferredNetwork);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
         }
@@ -111,14 +112,14 @@ namespace Test.ADAL.NET.Unit
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+                HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler("https://login.windows.net/common/discovery/instance"));
             }
 
             CallState callState = new CallState(Guid.NewGuid());
             string host = "login.windows.net";
             Task.WaitAll( // Simulate several simultaneous calls
-                InstanceDiscovery.GetMetadataEntry(host, true, callState),
-                InstanceDiscovery.GetMetadataEntry(host, true, callState));
+                InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, callState),
+                InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, callState));
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // 1 mock response is consumed, 1 remaining
         }
 
@@ -129,7 +130,8 @@ namespace Test.ADAL.NET.Unit
             string host = "login.windows.net";
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler{
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+                {
                     Method = HttpMethod.Get,
                     Url = $"https://{host}/common/discovery/instance",
                     ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -152,12 +154,12 @@ namespace Test.ADAL.NET.Unit
 
             CallState callState = new CallState(Guid.NewGuid());
             // ADAL still behaves correctly using developer provided authority
-            var entry = await InstanceDiscovery.GetMetadataEntry(host, true, callState).ConfigureAwait(false);
+            var entry = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, callState).ConfigureAwait(false);
             Assert.AreEqual("login.microsoftonline.com", entry.PreferredNetwork); // No exception raised, the host is returned as-is
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // 1 mock response is consumed, 1 remaining
 
             // Subsequent requests do not result in further authority validation network requests for the process lifetime
-            var entry2 = await InstanceDiscovery.GetMetadataEntry("sts.microsoft.com", true, callState).ConfigureAwait(false);
+            var entry2 = await InstanceDiscovery.GetMetadataEntry(new Uri("https://sts.microsoft.com/tenant"), true, callState).ConfigureAwait(false);
             Assert.AreEqual("login.microsoftonline.com", entry2.PreferredNetwork);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
         }
@@ -166,7 +168,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscovery()
         {
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler());
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
             var authenticator = new Authenticator("https://login.contoso.com/adfs", false);
             await authenticator.UpdateFromTemplateAsync(new CallState(Guid.NewGuid())).ConfigureAwait(false);
             Assert.AreEqual(1, HttpMessageHandlerFactory.MockHandlersCount()); // mock is NOT consumed, so no new request was NOT attempted
@@ -184,7 +186,8 @@ namespace Test.ADAL.NET.Unit
                 PreferredCache = preferredCache,
                 Aliases = new string[] {"login.microsoftonline.com", "login.windows.net", "sts.microsoft.com"}
             });
-            var orderedList = await TokenCache.GetOrderedAliases(givenHost, false, new CallState(Guid.NewGuid())).ConfigureAwait(false);
+            var orderedList = await TokenCache.GetOrderedAliases(
+                $"https://{givenHost}/tenant", false, new CallState(Guid.NewGuid())).ConfigureAwait(false);
             CollectionAssert.AreEqual(
                 new string[] {preferredCache, givenHost, "login.microsoftonline.com", "login.windows.net", "sts.microsoft.com"},
                 orderedList);
@@ -200,15 +203,40 @@ namespace Test.ADAL.NET.Unit
                 {
                     Content = new StringContent(
                         @"{
-                        ""tenant_discovery_endpoint"" : ""https://login.microsoftonline.com/v1/.well-known/openid-configuration"",
-                        ""metadata"": [
+                        ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
+                        ""api-version"":""1.1"",
+                        ""metadata"":[
                             {
-                            ""preferred_network"": ""login.microsoftonline.com"",
-                            ""preferred_cache"": ""login.windows.net"",
-                            ""aliases"": [""login.microsoftonline.com"", ""login.windows.net"", ""sts.microsoft.com""]
-                            }
-                        ]
-                        }"
+                            ""preferred_network"":""login.microsoftonline.com"",
+                            ""preferred_cache"":""login.windows.net"",
+                            ""aliases"":[
+                                ""login.microsoftonline.com"",
+                                ""login.windows.net"",
+                                ""login.microsoft.com"",
+                                ""sts.windows.net""]},
+                            {
+                            ""preferred_network"":""login.partner.microsoftonline.cn"",
+                            ""preferred_cache"":""login.partner.microsoftonline.cn"",
+                            ""aliases"":[
+                                ""login.partner.microsoftonline.cn"",
+                                ""login.chinacloudapi.cn""]},
+                            {
+                            ""preferred_network"":""login.microsoftonline.de"",
+                            ""preferred_cache"":""login.microsoftonline.de"",
+                            ""aliases"":[
+                                    ""login.microsoftonline.de""]},
+                            {
+                            ""preferred_network"":""login.microsoftonline.us"",
+                            ""preferred_cache"":""login.microsoftonline.us"",
+                            ""aliases"":[
+                                ""login.microsoftonline.us"",
+                                ""login.usgovcloudapi.net""]},
+                            {
+                            ""preferred_network"":""login-us.microsoftonline.com"",
+                            ""preferred_cache"":""login-us.microsoftonline.com"",
+                            ""aliases"":[
+                                ""login-us.microsoftonline.com""]}
+                        ]}"
                     )
                 }
             });
@@ -260,7 +288,7 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
                 Method = HttpMethod.Get,
-                Url = $"https://{preferredNetwork}/common/UserRealm/johndoe@contoso.com", // This validates the token request is sending to expected host
+                Url = $"https://{preferredNetwork}/common/userrealm/johndoe@contoso.com", // This validates the token request is sending to expected host
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent("{\"account_type\":\"managed\"}")
