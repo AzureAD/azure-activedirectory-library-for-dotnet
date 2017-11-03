@@ -57,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             else if (!containsPii)
             {
                 // execute obsolete IAdalLogCallback only if LogCallback is not set and message does not contain Pii
-                LoggerCallbackHandler.ExecuteCallback(logLevel, formattedMessage);
+                LoggerCallbackHandler.ExecuteObsoleteCallback(logLevel, formattedMessage);
             }
         }
 

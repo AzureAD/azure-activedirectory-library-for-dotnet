@@ -67,7 +67,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     public delegate void LogCallback(LogLevel level, string message, bool containsPii);
 
     /// <summary>
-    /// Callback for capturing ADAL logs to custom logging schemes.
+    /// Obsolete Callback for capturing ADAL logs to custom logging schemes.
+    /// Will be called only if LogCallback delegate is not set 
+    /// and only for messages with no Pii
     /// </summary>
     [Obsolete("Use LogCallback delegate instead")]
     public interface IAdalLogCallback
@@ -103,7 +105,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private static IAdalLogCallback _localCallback;
 
         /// <summary>
-        /// Callback implementation
+        /// Obsolete Callback implementation
+        /// Will be called only if LogCallback is not set 
+        /// and only for messages with no Pii
         /// </summary>
         public static IAdalLogCallback Callback
 #pragma warning restore 0618
@@ -119,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             internal get { return _localCallback; }
         }
 
-        internal static void ExecuteCallback(LogLevel level, string message)
+        internal static void ExecuteObsoleteCallback(LogLevel level, string message)
         {
             lock (LockObj)
             {
@@ -130,8 +134,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private static volatile LogCallback _logCallback;
 
         /// <summary>
-        ///     Callback instance that can be provided by the developer to consume and publish logs in a custom manner.
-        ///     The property can only be set once and it will throw an ArgumentException if called twice.
+        /// Instance of LogCallback delegate
+        /// that can be provided by the developer to consume and publish logs in a custom manner.
+        /// If set, Callback - instance of obsolete IAdalLogCallback will be ignored 
         /// </summary>
         public static LogCallback LogCallback
         {
