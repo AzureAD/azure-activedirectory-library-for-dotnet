@@ -215,13 +215,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
             private string _thumbPrint;
-            private string _certificate;
 
             public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
-                _certificate = "no_cert";
+                X509CertificatePublicCertValue = "no_cert";
 
                 //Check to see if credential is our implementation or developer provided.
                 if (!credential.GetType().ToString().Contains("Microsoft.IdentityModel"))
@@ -233,7 +232,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 #if (NET45 || NETSTANDARD1_3)
                 if (credential is ClientAssertionCertificate cert)
                 {
-                    _certificate = Base64UrlEncoder.Encode(cert.Certificate.ToString());
+                    X509CertificatePublicCertValue = Base64UrlEncoder.Encode(cert.Certificate.ToString());
                 }
 #endif
             }
@@ -251,16 +250,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificatePublicCertValue)]
-            public string X509CertificatePublicCertValue
-            {
-                get
-                {
-                    // Certificate should be url encoded
-                    return _certificate;
-                }
-
-                set { _certificate = value; }
-            }
+            public string X509CertificatePublicCertValue { get; set; }
         }
     }
 }
