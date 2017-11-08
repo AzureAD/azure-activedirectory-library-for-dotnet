@@ -89,20 +89,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 if (ex.InnerException is TaskCanceledException)
                 {
                     Resiliency = true;
-                    _callState.Logger.Information(this.CallState, "Network timeout - " + ex.InnerException.Message);
+                    if (LoggerCallbackHandler.PiiLoggingEnabled)
+                    {
+                        _callState.Logger.InformationPii(this.CallState, "Network timeout, Exception message: " + ex.InnerException.Message);
+                    }
+                    else
+                    {
+                        _callState.Logger.Information(this.CallState, "Network timeout, Exception type: " + ex.InnerException.GetType());
+                    }
                 }
 
                 if (!Resiliency && ex.WebResponse == null)
                 {
-                    _callState.Logger.Error(CallState, ex);
+                    _callState.Logger.ErrorPii(CallState, ex);
                     throw new AdalServiceException(AdalError.Unknown, ex);
                 }
 
                 //check for resiliency
                 if (!Resiliency && (int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
                 {
-                    _callState.Logger.Information(this.CallState,
-                        "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
+                    if (LoggerCallbackHandler.PiiLoggingEnabled)
+                    {
+                        _callState.Logger.InformationPii(this.CallState,
+                            "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception message: " + ex.InnerException?.Message);
+                    }
+                    else
+                    {
+                        _callState.Logger.Information(this.CallState,
+                            "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
+                    }
                     Resiliency = true;
                 }
 
@@ -116,8 +131,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    _callState.Logger.Information(this.CallState,
-                        "Retry Failed - " + ex.InnerException.Message);
+                    if (LoggerCallbackHandler.PiiLoggingEnabled)
+                    {
+                        _callState.Logger.InformationPii(this.CallState,
+                            "Retry Failed, Exception message: " + ex.InnerException?.Message);
+                    }
+                    else
+                    {
+                        _callState.Logger.Information(this.CallState,
+                            "Retry Failed, Exception type: " + ex.InnerException?.GetType());
+                    }
                 }
                 
                 if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))

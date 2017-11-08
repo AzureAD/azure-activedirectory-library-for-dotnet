@@ -57,7 +57,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
             }
             catch (Exception ex)
             {
-                CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex);
+                if (LoggerCallbackHandler.PiiLoggingEnabled)
+                {
+                    CallState.Default.Logger.WarningPii(null, "Failed to load cache: " + ex.ToString());
+                }
+                else
+                {
+                    CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex.PiiLessToString());
+                }
                 // Ignore as the cache seems to be corrupt
             }
         }
@@ -84,7 +91,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
                 }
                 catch (Exception ex)
                 {
-                    CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex);
+                    if (LoggerCallbackHandler.PiiLoggingEnabled)
+                    {
+                        CallState.Default.Logger.WarningPii(null, "Failed to save cache: " + ex.ToString());
+                    }
+                    else
+                    {
+                        CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex.PiiLessToString());
+                    }
                 }
             }
         }

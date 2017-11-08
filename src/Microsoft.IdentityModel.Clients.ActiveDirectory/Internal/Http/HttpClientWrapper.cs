@@ -135,18 +135,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    try
-                    {
-                        throw new HttpRequestException(
-                            string.Format(CultureInfo.CurrentCulture,
-                                " Response status code does not indicate success: {0} ({1}).",
-                                (int) webResponse.StatusCode, webResponse.StatusCode),
-                            new AdalException(webResponse.ResponseString));
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        throw new HttpRequestWrapperException(webResponse, ex);
-                    }
+                    throw new HttpRequestWrapperException(webResponse, new HttpRequestException(
+                        string.Format(CultureInfo.CurrentCulture,
+                            "Response status code does not indicate success: {0} ({1}).",
+                            (int) webResponse.StatusCode, webResponse.StatusCode)));
                 }
 
                 if (addCorrelationId)

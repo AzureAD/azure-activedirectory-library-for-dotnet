@@ -83,7 +83,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch (Exception exc)
             {
-                CallState.Logger.Error(null, exc);
+                CallState.Logger.ErrorPii(null, exc);
                 throw;
             }
             await readyForResponse.WaitAsync().ConfigureAwait(false);

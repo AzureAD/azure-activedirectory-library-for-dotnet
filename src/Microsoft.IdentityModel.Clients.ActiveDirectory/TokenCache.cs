@@ -425,7 +425,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                     else if (!cacheKey.ResourceEquals(cacheQueryData.Resource))
                     {
-                        callState.Logger.Information(callState,
+                        callState.Logger.InformationPii(callState,
                             string.Format(CultureInfo.CurrentCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
                                 cacheKey.Resource, cacheQueryData.Resource));

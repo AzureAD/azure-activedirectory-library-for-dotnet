@@ -192,7 +192,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    CallState.Logger.Error(null, e);
+                    CallState.Logger.ErrorPii(null, e);
                 }
             }
 
@@ -228,7 +228,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (AuthenticatorException e)
                 {
-                    CallState.Logger.Error(null, e);
+                    CallState.Logger.ErrorPii(null, e);
                 }
                 catch (Exception e)
                 {
@@ -236,7 +236,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     /*                    Logger.e(TAG, "Authenticator cancels the request", "",
                                                 ADALError.BROKER_AUTHENTICATOR_IO_EXCEPTION);*/
 
-                    CallState.Logger.Error(null, e);
+                    CallState.Logger.ErrorPii(null, e);
                 }
 
                 CallState.Logger.Verbose(null, "Returning result from Authenticator");
@@ -254,7 +254,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             if (bundleResult == null)
             {
-                throw new AdalException("bundleResult");
+                throw new AdalException("bundleResult in broker response is null");
             }
 
             int errCode = bundleResult.GetInt(AccountManager.KeyErrorCode);
@@ -358,7 +358,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             catch (Exception e)
             {
                 // Authenticator gets problem from webrequest or file read/write
-                CallState.Logger.Error(null, new AdalException("Authenticator cancels the request", e));
+                CallState.Logger.ErrorPii(null, new AdalException("Authenticator cancels the request", e));
             }
 
             return intent;
@@ -520,7 +520,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    CallState.Logger.Error(null, e);
+                    CallState.Logger.ErrorPii(null, e);
                 }
 
                 CallState.Logger.Verbose(null,

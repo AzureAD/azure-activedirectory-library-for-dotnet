@@ -28,6 +28,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -58,6 +59,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 // execute obsolete IAdalLogCallback only if LogCallback is not set and message does not contain Pii
                 LoggerCallbackHandler.ExecuteObsoleteCallback(logLevel, formattedMessage);
+            }
+        }
+
+        private void Log(CallState callState, LogLevel logLevel, Exception exception)
+        {
+            if (LoggerCallbackHandler.PiiLoggingEnabled)
+            {
+                Log(callState, logLevel, exception.ToString(), true);
+            }
+            else
+            {
+                Log(callState, logLevel, exception.PiiLessToString(), false);
             }
         }
 
@@ -110,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         internal void ErrorPii(CallState callState, Exception ex)
         {
-            Log(callState, LogLevel.Error, ex.ToString(), true);
+            Log(callState, LogLevel.Error, ex);
         }
     }
 }

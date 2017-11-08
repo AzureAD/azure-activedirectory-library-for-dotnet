@@ -61,15 +61,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(),
                 AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion()));
 
-            CallState.Logger.Information(this.CallState,
-                string.Format(CultureInfo.CurrentCulture,
-                    "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
-                    requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
-                    (tokenCache != null)
-                        ? tokenCache.GetType().FullName +
-                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
-                        : "null",
-                    requestData.SubjectType));
+            if (LoggerCallbackHandler.PiiLoggingEnabled)
+            {
+                CallState.Logger.InformationPii(this.CallState,
+                    string.Format(CultureInfo.CurrentCulture,
+                        "=== Token Acquisition started: \n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                        requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
+                        tokenCache != null
+                            ? tokenCache.GetType().FullName +
+                              string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                            : "null",
+                        requestData.SubjectType));
+            }
+            else
+            {
+                CallState.Logger.Information(this.CallState, "=== Token Acquisition started");
+            }
 
             this.tokenCache = requestData.TokenCache;
 
@@ -185,7 +192,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
             catch (Exception ex)
             {
-                CallState.Logger.Error(this.CallState, ex);
+                CallState.Logger.ErrorPii(this.CallState, ex);
                 if (client != null && client.Resiliency && extendedLifetimeResultEx != null)
                 {
                     CallState.Logger.Information(this.CallState,
@@ -376,14 +383,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 string accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
 
-                CallState.Logger.Information(this.CallState,
-                    string.Format(CultureInfo.CurrentCulture,
-                        "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
-                        accessTokenHash,
-                        result.ExpiresOn,
-                        result.UserInfo != null
-                            ? CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId)
-                            : "null"));
+                if (LoggerCallbackHandler.PiiLoggingEnabled)
+                {
+                    CallState.Logger.InformationPii(this.CallState,
+                        string.Format(CultureInfo.CurrentCulture,
+                            "=== Token Acquisition finished successfully. An access token was returned: Access Token Hash: {0}\n\tExpiration Time: {1}\n\tUser id: {2}\n\t",
+                            accessTokenHash,
+                            result.ExpiresOn,
+                            result.UserInfo != null
+                                ? result.UserInfo.UniqueId
+                                : "null"));
+                }
+                else
+                {
+                    CallState.Logger.Information(this.CallState, "=== Token Acquisition finished successfully. An access token was returned.");
+                }
             }
         }
 
