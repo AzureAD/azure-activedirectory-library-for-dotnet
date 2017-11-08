@@ -138,7 +138,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     throw new HttpRequestWrapperException(webResponse, new HttpRequestException(
                         string.Format(CultureInfo.CurrentCulture,
                             "Response status code does not indicate success: {0} ({1}).",
-                            (int) webResponse.StatusCode, webResponse.StatusCode)));
+                            (int) webResponse.StatusCode, webResponse.StatusCode),
+                        new AdalException(webResponse.ResponseString)));
                 }
 
                 if (addCorrelationId)
