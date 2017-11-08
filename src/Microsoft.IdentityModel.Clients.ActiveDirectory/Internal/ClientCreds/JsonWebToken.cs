@@ -222,7 +222,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                     return;
                 }
 
-#if NET45
+#if  NET45
                 if (credential is ClientAssertionCertificate cert)
                 {
                     X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.GetRawCertData());
@@ -230,7 +230,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 #elif NETSTANDARD1_3
                 if (credential is ClientAssertionCertificate cert)
                 {
-                    X509CertificatePublicCertValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(cert.Certificate.ToString()));
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.RawData);
                 }
 #endif
             }

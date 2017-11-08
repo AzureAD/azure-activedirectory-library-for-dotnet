@@ -68,7 +68,7 @@ namespace Test.ADAL.NET.Unit
             var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
             var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
 
-            var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.ToString()));
+            var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
             {
@@ -87,8 +87,8 @@ namespace Test.ADAL.NET.Unit
                     Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
 
                     // Check presence of x5c cert claim. It should not exist.
-                    var jwt = EncodingHelper.Base64Decode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(!jwt.Contains("\"x5c\":"));
+                    var jwtHeader = EncodingHelper.UrlDecode(encodedJwt.Split('.')[0]);
+                    Assert.IsTrue(!jwtHeader.Contains("\"x5c\":"));
                 }
             });
 
@@ -104,7 +104,7 @@ namespace Test.ADAL.NET.Unit
             var clientAssertion = new ClientAssertionTestImplementation();
             var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
 
-            var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.ToString()));
+            var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
             {
@@ -123,8 +123,8 @@ namespace Test.ADAL.NET.Unit
                     Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
 
                     // Check presence of x5c cert claim. It should not exist.
-                    var jwt = EncodingHelper.Base64Decode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(!jwt.Contains("\"x5c\":"));
+                    var jwtHeader = EncodingHelper.UrlDecode(encodedJwt.Split('.')[0]);
+                    Assert.IsTrue(!jwtHeader.Contains("\"x5c\":"));
                 }
             });
 
