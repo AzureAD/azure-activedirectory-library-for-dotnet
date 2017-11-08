@@ -177,8 +177,6 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
             Assert.AreEqual("some-access-token", result.AccessToken);
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
         }
 
         [TestMethod]
@@ -1145,9 +1143,6 @@ namespace Test.ADAL.NET.Unit
             var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
             Assert.IsNotNull(result.AccessToken);
 
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
-
             // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
@@ -1205,9 +1200,6 @@ namespace Test.ADAL.NET.Unit
 
             var result = await context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
             Assert.IsNotNull(result.AccessToken);
-
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
 
             // All mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());

@@ -167,9 +167,6 @@ namespace Test.ADAL.NET.Integration
             AuthenticationResult result = await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                     new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result);
-
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
         }
     }
 }
