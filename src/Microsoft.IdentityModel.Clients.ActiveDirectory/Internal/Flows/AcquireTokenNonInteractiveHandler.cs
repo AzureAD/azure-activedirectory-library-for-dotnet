@@ -90,16 +90,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         throw new AdalException(AdalError.UnknownUser);
                     }
 
-                    if (LoggerCallbackHandler.PiiLoggingEnabled)
-                    {
-                        CallState.Logger.VerbosePii(this.CallState,
-                            string.Format(CultureInfo.CurrentCulture, "Logged in user with user name '{0}' detected",
-                                userCredential.UserName));
-                    }
-                    else
-                    {
-                        CallState.Logger.Verbose(this.CallState, "Logged in user detected");
-                    }
+                    CallState.Logger.Verbose(CallState, "Logged in user detected");
+
+                    CallState.Logger.VerbosePii(CallState,
+                        string.Format(CultureInfo.CurrentCulture, "with user name '{0}'",
+                            userCredential.UserName));
                 }
 
                 this.DisplayableId = userCredential.UserName;

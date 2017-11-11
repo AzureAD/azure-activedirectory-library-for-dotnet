@@ -6,7 +6,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     internal static class Extensions
     {
-        internal static string PiiLessToString(this Exception ex)
+        internal static string GetPiiScrubbedDetails(this Exception ex)
         {
             string res = null;
             if (ex != null)
@@ -27,7 +27,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (ex.InnerException != null)
                 {
-                    sb.Append(" ---> " + PiiLessToString(ex.InnerException) + Environment.NewLine +
+                    sb.Append(" ---> " + GetPiiScrubbedDetails(ex.InnerException) + Environment.NewLine +
                               "--- End of inner exception stack trace ---");
                 }
                 if (ex.StackTrace != null)

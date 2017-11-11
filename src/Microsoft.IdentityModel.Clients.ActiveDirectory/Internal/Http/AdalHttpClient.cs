@@ -89,14 +89,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 if (ex.InnerException is TaskCanceledException)
                 {
                     Resiliency = true;
-                    if (LoggerCallbackHandler.PiiLoggingEnabled)
-                    {
-                        _callState.Logger.InformationPii(this.CallState, "Network timeout, Exception message: " + ex.InnerException.Message);
-                    }
-                    else
-                    {
-                        _callState.Logger.Information(this.CallState, "Network timeout, Exception type: " + ex.InnerException.GetType());
-                    }
+
+                    _callState.Logger.Information(this.CallState, "Network timeout, Exception type: " + ex.InnerException.GetType());
+                    _callState.Logger.InformationPii(this.CallState, "Exception message: " + ex.InnerException.Message);
                 }
 
                 if (!Resiliency && ex.WebResponse == null)
@@ -108,16 +103,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 //check for resiliency
                 if (!Resiliency && (int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
                 {
-                    if (LoggerCallbackHandler.PiiLoggingEnabled)
-                    {
-                        _callState.Logger.InformationPii(this.CallState,
-                            "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception message: " + ex.InnerException?.Message);
-                    }
-                    else
-                    {
-                        _callState.Logger.Information(this.CallState,
-                            "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
-                    }
+                    _callState.Logger.Information(this.CallState,
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
+
+                    _callState.Logger.InformationPii(this.CallState, "Exception message: " + ex.InnerException?.Message);
+                    
                     Resiliency = true;
                 }
 
@@ -131,16 +121,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    if (LoggerCallbackHandler.PiiLoggingEnabled)
-                    {
-                        _callState.Logger.InformationPii(this.CallState,
-                            "Retry Failed, Exception message: " + ex.InnerException?.Message);
-                    }
-                    else
-                    {
-                        _callState.Logger.Information(this.CallState,
-                            "Retry Failed, Exception type: " + ex.InnerException?.GetType());
-                    }
+                    _callState.Logger.Information(CallState,
+                        "Retry Failed, Exception type: " + ex.InnerException?.GetType());
+
+                    _callState.Logger.InformationPii(CallState, "Exception message: " + ex.InnerException?.Message);
                 }
                 
                 if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))

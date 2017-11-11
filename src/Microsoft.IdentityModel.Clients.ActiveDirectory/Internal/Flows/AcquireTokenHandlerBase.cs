@@ -61,22 +61,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(),
                 AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion()));
 
-            if (LoggerCallbackHandler.PiiLoggingEnabled)
+            CallState.Logger.Information(CallState,
+                string.Format(CultureInfo.CurrentCulture,
+                    "=== Token Acquisition started: \n\tCacheType: {0}\n\tAuthentication Target: {1}\n\t",
+                    tokenCache != null
+                        ? tokenCache.GetType().FullName +
+                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                        : "null",
+                    requestData.SubjectType));
+
+            if (InstanceDiscovery.IsWhitelisted(requestData.Authenticator.GetAuthorityHost()))
             {
-                CallState.Logger.InformationPii(this.CallState,
+                CallState.Logger.Information(CallState,
                     string.Format(CultureInfo.CurrentCulture,
-                        "=== Token Acquisition started: \n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
-                        requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
-                        tokenCache != null
-                            ? tokenCache.GetType().FullName +
-                              string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
-                            : "null",
-                        requestData.SubjectType));
+                        "Authority Host: {0}",
+                        requestData.Authenticator.GetAuthorityHost()));
             }
-            else
-            {
-                CallState.Logger.Information(this.CallState, "=== Token Acquisition started");
-            }
+
+            CallState.Logger.InformationPii(CallState,
+                string.Format(CultureInfo.CurrentCulture,
+                    "Authority: {0}\n\tResource: {1}\n\tClientId: {2}",
+                    requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId));
 
             this.tokenCache = requestData.TokenCache;
 
@@ -381,23 +386,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if (result.AccessToken != null)
             {
-                string accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
+                var accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
 
-                if (LoggerCallbackHandler.PiiLoggingEnabled)
-                {
-                    CallState.Logger.InformationPii(this.CallState,
-                        string.Format(CultureInfo.CurrentCulture,
-                            "=== Token Acquisition finished successfully. An access token was returned: Access Token Hash: {0}\n\tExpiration Time: {1}\n\tUser id: {2}\n\t",
-                            accessTokenHash,
-                            result.ExpiresOn,
-                            result.UserInfo != null
-                                ? result.UserInfo.UniqueId
-                                : "null"));
-                }
-                else
-                {
-                    CallState.Logger.Information(this.CallState, "=== Token Acquisition finished successfully. An access token was returned.");
-                }
+                CallState.Logger.Information(CallState,
+                    string.Format(CultureInfo.CurrentCulture,
+                        "=== Token Acquisition finished successfully. An access token was returned: Expiration Time: {0}",
+                        result.ExpiresOn));
+
+                CallState.Logger.InformationPii(CallState,
+                    string.Format(CultureInfo.CurrentCulture, "Access Token Hash: {0}\n\t User id: {1}",
+                        accessTokenHash,
+                        result.UserInfo != null
+                            ? result.UserInfo.UniqueId
+                            : "null"));
             }
         }
 

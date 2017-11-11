@@ -70,7 +70,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             else
             {
-                Log(callState, logLevel, exception.PiiLessToString(), false);
+                Log(callState, logLevel, exception.GetPiiScrubbedDetails(), false);
             }
         }
 
