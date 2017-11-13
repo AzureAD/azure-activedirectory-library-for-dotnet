@@ -44,33 +44,31 @@ namespace Test.ADAL.NET.Integration
     [TestClass]
     public class SovereignCloudsTests
     {
-        private PlatformParameters platformParameters;
+        private PlatformParameters _platformParameters;
 
-        const string sovereignAuthorityHost = "login.microsoftonline.de";
+        private const string SovereignAuthorityHost = "login.microsoftonline.de";
 
-        string sovereignTenantSpecificAuthority = String.Format("https://{0}/{1}/", sovereignAuthorityHost, TestConstants.SomeTenantId);
+        private readonly string _sovereignTenantSpecificAuthority = String.Format("https://{0}/{1}/", SovereignAuthorityHost, TestConstants.SomeTenantId);
 
         [TestInitialize]
         public void Initialize()
         {
             HttpMessageHandlerFactory.InitializeMockProvider();
-            platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
             InstanceDiscovery.InstanceCache.Clear();
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
         [Description("Sovereign user use world wide authority")]
         public async Task SovereignUserWorldWideAuthorityIntegrationTest()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
             // creating AuthenticationContext with common Authority
             var authenticationContext =
                 new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, false, new TokenCache());
 
             // mock value for authentication returnedUriInput, with cloud_instance_name claim
             var authReturnedUriInputMock = TestConstants.DefaultRedirectUri + "?code=some-code" + "&" +
-                                           TokenResponseClaim.CloudInstanceHost + "=" + sovereignAuthorityHost;
+                                           TokenResponseClaim.CloudInstanceHost + "=" + SovereignAuthorityHost;
 
             MockHelpers.ConfigureMockWebUI(
                 new AuthorizationResult(AuthorizationStatus.Success, authReturnedUriInputMock),
@@ -89,23 +87,23 @@ namespace Test.ADAL.NET.Integration
                 AdditionalRequestValidation = request =>
                 {
                     // make sure that Sovereign authority was used for Authorization request
-                    Assert.AreEqual(sovereignAuthorityHost, request.RequestUri.Authority);
+                    Assert.AreEqual(SovereignAuthorityHost, request.RequestUri.Authority);
                 }
             });
 
             var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
             // make sure that tenant specific sovereign Authority returned to the app in AuthenticationResult
-            Assert.AreEqual(sovereignTenantSpecificAuthority, authenticationResult.Authority);
+            Assert.AreEqual(_sovereignTenantSpecificAuthority, authenticationResult.Authority);
 
             // make sure that AuthenticationContext Authority was updated
-            Assert.AreEqual(sovereignTenantSpecificAuthority, authenticationContext.Authority);
+            Assert.AreEqual(_sovereignTenantSpecificAuthority, authenticationContext.Authority);
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
-            Assert.AreEqual(sovereignTenantSpecificAuthority,
+            Assert.AreEqual(_sovereignTenantSpecificAuthority,
                 authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
 
             // all mocks are consumed
@@ -116,68 +114,46 @@ namespace Test.ADAL.NET.Integration
         [Description("Instance discovery call is made because authority was not already in the instance cache")]
         public async Task AuthorityNotInInstanceCache_InstanceDiscoverCallMadeTestAsync()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
-
-            string content = @"{
-                            ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
-                            ""api-version"":""1.1"",
-                            ""metadata"":[{
-                                ""preferred_network"":""login.microsoftonline.com"",
-                                ""preferred_cache"":""login.windows.net"",
-                                ""aliases"":[
-                                    ""login.microsoftonline.com"",
-                                    ""login.windows.net"",
-                                    ""login.microsoft.com"",
-                                    ""sts.windows.net""]}]}";
-
             // creating AuthenticationContext with common Authority
             var authenticationContext =
                 new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, false, new TokenCache());
 
             // mock value for authentication returnedUriInput, with cloud_instance_name claim
             var authReturnedUriInputMock = TestConstants.DefaultRedirectUri + "?code=some-code" + "&" +
-                                           TokenResponseClaim.CloudInstanceHost + "=" + sovereignAuthorityHost;
+                                           TokenResponseClaim.CloudInstanceHost + "=" + SovereignAuthorityHost;
 
             MockHelpers.ConfigureMockWebUI(
                 new AuthorizationResult(AuthorizationStatus.Success, authReturnedUriInputMock),
                 // validate that authorizationUri passed to WebUi contains instance_aware query parameter
                 new Dictionary<string, string> { { "instance_aware", "true" } });
 
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant), content));
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage =
-                    MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId,
-                    TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
-            });
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint
+                (TestConstants.DefaultAuthorityCommonTenant)));
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Post,
                 ResponseMessage =
-                   MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId,
-                   TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
+                    MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId,
+                        TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
             });
-
+            
             // Assure instance cache is empty
             Assert.AreEqual(0, InstanceDiscovery.InstanceCache.Count());
 
-            var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
+            await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
-            Assert.AreEqual(sovereignTenantSpecificAuthority,
+            Assert.AreEqual(_sovereignTenantSpecificAuthority,
                 authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault().Authority);
 
             // DE cloud authority now included in instance cache
-            Assert.AreEqual(5, InstanceDiscovery.InstanceCache.Count());
+            Assert.AreEqual(10, InstanceDiscovery.InstanceCache.Count());
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.microsoftonline.de"));
             Assert.AreEqual(true, InstanceDiscovery.InstanceCache.Keys.Contains("login.windows.net"));
-            Assert.AreEqual(false, InstanceDiscovery.InstanceCache.Keys.Contains("login.partner.microsoftonline.cn"));
 
             // all mocks are consumed
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
