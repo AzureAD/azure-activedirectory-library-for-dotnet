@@ -78,7 +78,7 @@ namespace Test.ADAL.NET.Integration
 
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityBlackforestTenant))
             {
                 Method = HttpMethod.Post,
                 ResponseMessage =
@@ -142,7 +142,7 @@ namespace Test.ADAL.NET.Integration
 
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant), content));
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityBlackforestTenant))
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -151,7 +151,7 @@ namespace Test.ADAL.NET.Integration
                 }
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityBlackforestTenant))
             {
                 Method = HttpMethod.Post,
                 ResponseMessage =
