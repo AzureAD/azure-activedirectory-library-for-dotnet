@@ -115,7 +115,7 @@ namespace Test.ADAL.NET.Integration
         [Description("Instance discovery call is made because authority was not already in the instance cache")]
         public async Task AuthorityNotInInstanceCache_InstanceDiscoverCallMadeTestAsync()
         {
-            string content = @"{
+            const string content = @"{
                             ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
                             ""api-version"":""1.1"",
                             ""metadata"":[{
