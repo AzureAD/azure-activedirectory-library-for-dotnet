@@ -62,18 +62,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
         }
 
-        private void Log(CallState callState, LogLevel logLevel, Exception exception)
-        {
-            if (LoggerCallbackHandler.PiiLoggingEnabled)
-            {
-                Log(callState, logLevel, exception.ToString(), true);
-            }
-            else
-            {
-                Log(callState, logLevel, exception.GetPiiScrubbedDetails(), false);
-            }
-        }
-
         internal static string GetCallerFilename(string callerFilePath)
         {
             return callerFilePath.Substring(callerFilePath.LastIndexOf("\\", StringComparison.Ordinal) + 1);
@@ -118,12 +106,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         internal void Error(CallState callState, Exception ex)
         {
-            Log(callState, LogLevel.Error, ex.ToString(), false);
+            Log(callState, LogLevel.Error, ex.GetPiiScrubbedDetails(), false);
         }
 
         internal void ErrorPii(CallState callState, Exception ex)
         {
-            Log(callState, LogLevel.Error, ex);
+            Log(callState, LogLevel.Error, ex.ToString(), true);
+        }
+
+        internal void Error(CallState callState, string message)
+        {
+            Log(callState, LogLevel.Error, message, false);
         }
     }
 }

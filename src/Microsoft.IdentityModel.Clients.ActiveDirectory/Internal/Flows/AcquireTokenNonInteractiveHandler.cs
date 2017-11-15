@@ -84,17 +84,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 if (string.IsNullOrWhiteSpace(this.userCredential.UserName))
                 {
                     this.userCredential.UserName = await platformInformation.GetUserPrincipalNameAsync().ConfigureAwait(false);
+                    string msg;
                     if (string.IsNullOrWhiteSpace(userCredential.UserName))
                     {
-                        CallState.Logger.Information(this.CallState, "Could not find UPN for logged in user");
+                        msg = "Could not find UPN for logged in user";
+                        CallState.Logger.Information(this.CallState, msg);
+                        CallState.Logger.InformationPii(this.CallState, msg);
+
                         throw new AdalException(AdalError.UnknownUser);
                     }
 
-                    CallState.Logger.Verbose(CallState, "Logged in user detected");
+                    msg = "Logged in user detected";
+                    CallState.Logger.Verbose(CallState, msg);
 
-                    CallState.Logger.VerbosePii(CallState,
-                        string.Format(CultureInfo.CurrentCulture, "with user name '{0}'",
-                            userCredential.UserName));
+                    var piiMsg = msg + string.Format(CultureInfo.CurrentCulture, " with user name '{0}'",
+                                     userCredential.UserName);
+                    CallState.Logger.VerbosePii(CallState, piiMsg);
                 }
 
                 this.DisplayableId = userCredential.UserName;
@@ -129,7 +134,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                             wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl));
 
                     WsTrustResponse wsTrustResponse = await WsTrustRequest.SendRequestAsync(wsTrustAddress, this.userCredential, this.CallState, userRealmResponse.CloudAudienceUrn).ConfigureAwait(false);
-                    CallState.Logger.Information(this.CallState, string.Format(CultureInfo.CurrentCulture, " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType));
+
+                    var msg = string.Format(CultureInfo.CurrentCulture,
+                        " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType);
+                    CallState.Logger.Information(this.CallState, msg);
+                    CallState.Logger.InformationPii(this.CallState, msg);
 
                     // We assume that if the response token type is not SAML 1.1, it is SAML 2
                     this.userAssertion = new UserAssertion(wsTrustResponse.Token, (wsTrustResponse.TokenType == WsTrustResponse.Saml1Assertion) ? OAuthGrantType.Saml11Bearer : OAuthGrantType.Saml20Bearer);

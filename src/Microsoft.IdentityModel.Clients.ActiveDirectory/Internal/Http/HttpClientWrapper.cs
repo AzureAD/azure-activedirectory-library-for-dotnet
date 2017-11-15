@@ -169,17 +169,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     Guid correlationIdInResponse;
                     if (!Guid.TryParse(correlationIdHeader, out correlationIdInResponse))
                     {
-                        CallState.Logger.Warning(CallState,
-                            string.Format(CultureInfo.CurrentCulture,
-                                "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader));
+                        var msg = string.Format(CultureInfo.CurrentCulture,
+                            "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader);
+                        CallState.Logger.Warning(CallState, msg);
+                        CallState.Logger.WarningPii(CallState, msg);
                     }
                     else if (correlationIdInResponse != this.CallState.CorrelationId)
                     {
-                        CallState.Logger.Warning(
-                            this.CallState,
-                            string.Format(CultureInfo.CurrentCulture,
-                                "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                                correlationIdHeader, CallState.CorrelationId));
+                        var msg = string.Format(CultureInfo.CurrentCulture,
+                            "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
+                            correlationIdHeader, CallState.CorrelationId);
+                        CallState.Logger.Warning(this.CallState, msg);
+                        CallState.Logger.WarningPii(this.CallState, msg);
                     }
 
                     break;
