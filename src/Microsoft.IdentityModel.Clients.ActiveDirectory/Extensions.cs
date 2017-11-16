@@ -15,13 +15,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 sb.Append(string.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is AdalException adalException)
+                if (ex is AdalException)
                 {
+                    var adalException = (AdalException) ex;
                     sb.Append(string.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", adalException.ErrorCode));
                 }
 
-                if (ex is AdalServiceException adalServiceException)
+                if (ex is AdalServiceException)
                 {
+                    var adalServiceException  = (AdalServiceException) ex; 
                     sb.Append(string.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}", adalServiceException.StatusCode));
                 }
 
