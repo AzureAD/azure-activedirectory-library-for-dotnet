@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Initializes a new instance of the exception class for handling claims.
         /// </summary>
         public AdalClaimChallengeException(string errorCode, string message, Exception innerException, string claims)
-            : base(errorCode, GetErrorMessage(errorCode), null, innerException)
+            : base(errorCode, message, null, innerException)
         {
             Claims = claims;
         }
