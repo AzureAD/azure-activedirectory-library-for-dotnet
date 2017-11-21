@@ -39,7 +39,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
-using Test.ADAL.NET.Unit;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -49,7 +48,12 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.ClearMockHandlers();
+            HttpMessageHandlerFactory.InitializeMockProvider();
+            ResetInstanceDiscovery();
+        }
+
+        public void ResetInstanceDiscovery()
+        {
             InstanceDiscovery.InstanceCache.Clear();
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
@@ -83,6 +87,8 @@ namespace Test.ADAL.NET.Integration
             Assert.IsNotNull(result.UserInfo);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+            // There should be one cached entry.
+            Assert.AreEqual(1, context.TokenCache.Count);
         }
         
         [TestMethod]
@@ -121,6 +127,26 @@ namespace Test.ADAL.NET.Integration
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
 
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
+
+            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
+                {
+                    UserInfo =
+                        new UserInfo()
+                        {
+                            DisplayableId = TestConstants.DefaultDisplayableId,
+                            UniqueId = TestConstants.DefaultUniqueId
+                        }
+                },
+            },
+            TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+            new CallState(new Guid()));
+            ResetInstanceDiscovery();
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
             {
                 Method = HttpMethod.Post,
@@ -130,18 +156,6 @@ namespace Test.ADAL.NET.Integration
                     {"grant_type", "refresh_token"}
                 }
             });
-
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
-
-            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
-                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
-            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
-            {
-                RefreshToken = "some-rt",
-                ResourceInResponse = TestConstants.DefaultResource,
-                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
-            };
 
             AuthenticationResult result =
                 await
@@ -163,6 +177,26 @@ namespace Test.ADAL.NET.Integration
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
 
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
+
+            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
+                {
+                    UserInfo =
+                        new UserInfo()
+                        {
+                            DisplayableId = TestConstants.DefaultDisplayableId,
+                            UniqueId = TestConstants.DefaultUniqueId
+                        }
+                },
+            },
+            TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+            new CallState(new Guid()));
+            ResetInstanceDiscovery();
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
             {
                 Method = HttpMethod.Post,
@@ -172,18 +206,6 @@ namespace Test.ADAL.NET.Integration
                     {"grant_type", "authorization_code"}
                 }
             });
-
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
-
-            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
-                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
-            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
-            {
-                RefreshToken = "some-rt",
-                ResourceInResponse = TestConstants.DefaultResource,
-                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
-            };
 
             AuthenticationResult result =
                 await
@@ -206,6 +228,27 @@ namespace Test.ADAL.NET.Integration
                 // validate that authorizationUri passed to WebUi contains prompt=select_account query parameter
                 new Dictionary<string, string> { { "prompt", "select_account" } });
 
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
+
+            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", "existing-access-token",
+                    DateTimeOffset.UtcNow + TimeSpan.FromMinutes(100))
+                {
+                    UserInfo =
+                        new UserInfo()
+                        {
+                            DisplayableId = TestConstants.DefaultDisplayableId,
+                            UniqueId = TestConstants.DefaultUniqueId
+                        }
+                },
+            },
+            TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+            new CallState(new Guid()));
+            ResetInstanceDiscovery();
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
             {
                 Method = HttpMethod.Post,
@@ -215,19 +258,6 @@ namespace Test.ADAL.NET.Integration
                     {"grant_type", "authorization_code"}
                 }
             });
-
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
-
-            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
-                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
-            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
-            {
-                RefreshToken = "some-rt",
-                ResourceInResponse = TestConstants.DefaultResource,
-                Result = new AuthenticationResult("Bearer", "existing-access-token",
-                    DateTimeOffset.UtcNow + TimeSpan.FromMinutes(100))
-            };
 
             AuthenticationResult result =
                 await
@@ -285,6 +315,26 @@ namespace Test.ADAL.NET.Integration
                 // validate that authorizationUri passed to WebUi contains prompt=refresh_session query parameter
                 new Dictionary<string, string> { { "prompt", "refresh_session" } });
 
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
+
+            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            {
+                RefreshToken = "some-rt",
+                ResourceInResponse = TestConstants.DefaultResource,
+                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
+                {
+                    UserInfo =
+                        new UserInfo()
+                        {
+                            DisplayableId = TestConstants.DefaultDisplayableId,
+                            UniqueId = TestConstants.DefaultUniqueId
+                        }
+                },
+            },
+            TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
+            new CallState(new Guid()));
+            ResetInstanceDiscovery();
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
             {
                 Method = HttpMethod.Post,
@@ -294,18 +344,6 @@ namespace Test.ADAL.NET.Integration
                     {"grant_type", "authorization_code"}
                 }
             });
-
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
-
-            TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityHomeTenant,
-                TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId);
-            context.TokenCache.tokenCacheDictionary[key] = new AuthenticationResultEx
-            {
-                RefreshToken = "some-rt",
-                ResourceInResponse = TestConstants.DefaultResource,
-                Result = new AuthenticationResult("Bearer", "existing-access-token", DateTimeOffset.UtcNow)
-            };
 
             AuthenticationResult result =
                 await

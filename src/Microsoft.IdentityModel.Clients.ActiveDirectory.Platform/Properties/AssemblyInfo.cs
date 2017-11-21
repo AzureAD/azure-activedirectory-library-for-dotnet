@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,42 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Threading.Tasks;
+using System.Resources;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
-{
-    internal class PlatformInformation : PlatformInformationBase
-    {
-        public override string GetProductName()
-        {
-            return null;
-        }
+// General Information about an assembly is controlled through the following
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("Microsoft.IdentityModel.Clients.ActiveDirectory.Platform")]
 
-        public override async Task<string> GetUserPrincipalNameAsync()
-        {
-            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
-        }
-
-        public override string GetEnvironmentVariable(string variable)
-        {
-            return null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return null;
-        }
-
-        public override string GetDeviceModel()
-        {
-            // Since ADAL .NET may be used on servers, for security reasons, we do not emit device type.
-            return null;
-        }
-    }
-}
+// Allow this assembly to be serviced when run on desktop CLR
+[assembly: AssemblyMetadata("Serviceable", "True")]

@@ -1,3 +1,14 @@
+Version 3.17.2
+==============
+- Re-enable binary compatibility by re-adding the platform specific assemblies containing public types and adding TypeForwardedTo attributes (#887)
+
+Version 3.17.1
+==============
+This hotfix release includes the following changes to rollback breaking changes
+- Move select account enum to the end of the promptbehavior list (#874)
+- Move extension methods to be public instance methods in the primary assembly (#875)
+- Confidential client API for Xamarin iOS and Xamarin Android get an Obsolete attribute explaining why they should not be used (with link to FAQ) (#880)
+
 Version 3.17.0
 ==============
 This release includes
@@ -16,13 +27,18 @@ This release includes
 - Support for PromptBehavior.SelectAccount (#754)
 - Fix for net47 where RSACng key was not being used correctly (#781)
 
+Version 3.16.1
+==============
+This release includes
+- Fix for net47 where non-exportable private key usage was failing. (#752)
+- Fix api surface -- Add GetAuthRequestUrlAsync method without claims overload (#740)
+
 Version 3.16.0
 ==============
 This release includes
 - Fix for WinRT failure when logging an empty UserInfo object (#727).
 - Implement PromptBehavior support for iOS/Android
 - Url encode claims for iOS with Broker (#744)
-- Fix api surface - Add GetAuthRequestUrlAsync method without claims overload (#740)
 
 Version 3.15.0
 ==============

@@ -230,7 +230,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 var tokenResponse = new TokenResponse
                 {
-                   // Authority = data.GetStringExtra(BrokerConstants.AccountAuthority),
+                    Authority = data.GetStringExtra(BrokerConstants.AccountAuthority),
                     AccessToken = data.GetStringExtra(BrokerConstants.AccountAccessToken),
                     IdTokenString = data.GetStringExtra(BrokerConstants.AccountIdToken),
                     TokenType = "Bearer",
