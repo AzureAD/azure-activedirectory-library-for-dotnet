@@ -42,7 +42,7 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.ClearMockHandlers();
+            HttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
