@@ -25,7 +25,7 @@ $ git remote add upstream git@github.com:AzureAD/azure-activedirectory-library-f
 ```
 
 ### Initial build of ADAL.Net
-We recommand that you use Visual Studio 2017 with Xamarin, .Net Core and UWP installed. 
+We recommend that you use Visual Studio 2017 with Xamarin, .Net Core and UWP installed. 
 You will also need Visual Studio 2015 update 3 with the windows 8.1 SDK installed in order to build ADAL.NET for the WinRT platform
 > Important node: 
 ADAL.Net uses a multi-targeting projects to generate assemblies for several platforms. There are issues with the Nuget package manager in Visual Studio 2017, not recogizing nuget pacakges in the ADAL.NET project. Therefore you'd want to restore the nuget packages using this command line:
@@ -39,7 +39,7 @@ you can then either build ADAL.Net in Visual Studio or from the command line:
 $ msbuild ADAL.NET.NoWinRT.sln /t:build /p:configuration=release 
 ```
 
-To run the unit tests:
+To run the tests:
 -Skip strong name Verification for this assembly for on your machine (run in command prompt as an admin)
 ```
 sn -Vr *,31bf3856ad364e35
@@ -49,6 +49,12 @@ Run the unit tests:
 ```
 vstest.console tests\Test.ADAL.NET.Unit\bin\release\net462\Test.ADAL.NET.Unit.dll
 ```
+
+Run the integration tests:
+```
+vstest.console tests\Test.ADAL.NET.Integration\bin\Release\net462\Test.ADAL.NET.Integration.dll
+```
+
 When you are done re-enable  strong name Verification for this assembly for on your machine (run in command prompt as an admin)
 ```
 sn -Vu *,31bf3856ad364e35
