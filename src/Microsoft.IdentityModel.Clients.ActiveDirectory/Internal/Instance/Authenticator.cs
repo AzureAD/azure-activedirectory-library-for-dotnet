@@ -42,7 +42,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
     {
         private const string TenantlessTenantName = "Common";
 
-        private bool updatedFromTemplate;
+        private bool _updatedFromTemplate;
+
+        internal static Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         private void Init(string authority, bool validateAuthority)
         {
@@ -67,7 +69,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
         {
             Init(authority, this.ValidateAuthority);
 
-            updatedFromTemplate = false;
+            _updatedFromTemplate = false;
             await UpdateFromTemplateAsync(callState).ConfigureAwait(false);
         }
 
@@ -98,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public async Task UpdateFromTemplateAsync(CallState callState)
         {
-            if (!this.updatedFromTemplate)
+            if (!this._updatedFromTemplate)
             {
                 var authorityUri = new Uri(this.Authority);
                 var host = authorityUri.Host;
@@ -121,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 this.UserRealmUri = CanonicalizeUri(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 this.SelfSignedJwtAudience = this.TokenUri;
-                this.updatedFromTemplate = true;
+                this._updatedFromTemplate = true;
             }
         }
 
@@ -130,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
             if (this.IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
             {
                 this.ReplaceTenantlessTenant(tenantId);
-                this.updatedFromTemplate = false;
+                this._updatedFromTemplate = false;
             }
         }
 
@@ -181,8 +183,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private void ReplaceTenantlessTenant(string tenantId)
         {
-            var regex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase);
-            this.Authority = regex.Replace(this.Authority, tenantId, 1);
+            this.Authority = TenantNameRegex.Replace(this.Authority, tenantId, 1);
         }
     }
 }
