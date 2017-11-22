@@ -10,6 +10,8 @@ Agreement.  You only need to do that once. We can not look at your code until yo
 
 
 ### FORK
+> Important node: 
+Because Nuget brings very long assemblies file names, you'd want to clone ADAL.NET in a folder which has a short name and is very close to the root of your hard drive (for instance C:\aad). then,  might want to rename the cloned folder to a shorted name (see below).
 
 Fork the project [on GitHub][] and check out
 your copy.
@@ -18,8 +20,15 @@ Example for .NET:
 
 ```
 $ git clone git@github.com:username/azure-activedirectory-library-for-dotnet.git
-$ cd azure-activedirectory-library-for-dotnet
+$ rename azure-activedirectory-library-for-dotnet adal.net
 $ git remote add upstream git@github.com:AzureAD/azure-activedirectory-library-for-dotnet.git
+```
+
+> Important node: 
+ADAL.Net uses a multi-targeting projects to generate assemblies for several platforms. There are issues with the Nuget package manager in Visual Studio 2017, not recogizing nuget pacakges in the ADAL.NET project. Therefore you'd want to restore the nuget packages using this command line:
+
+```
+$ msbuild ADAL.NET.NoWinRT.sln /t:restore 
 ```
 
 Now decide if you want your feature or bug fix to go into the current stable version or the next version of the library. 
