@@ -67,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
     /// </summary>
     internal static class AdalIdHelper
     {
-        internal static Regex AdalVersionRegex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+", RegexOptions.CultureInvariant);
+        private static readonly Regex AdalVersionRegex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+", RegexOptions.CultureInvariant);
 
         public static IDictionary<string, string> GetAdalIdParameters()
         {
