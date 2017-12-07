@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
     {
         private const string TenantlessTenantName = "Common";
 
-        private bool _updatedFromTemplate;
+        private bool updatedFromTemplate;
 
         private static readonly Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -69,7 +69,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
         {
             Init(authority, this.ValidateAuthority);
 
-            _updatedFromTemplate = false;
+            updatedFromTemplate = false;
             await UpdateFromTemplateAsync(callState).ConfigureAwait(false);
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public async Task UpdateFromTemplateAsync(CallState callState)
         {
-            if (!this._updatedFromTemplate)
+            if (!this.updatedFromTemplate)
             {
                 var authorityUri = new Uri(this.Authority);
                 var host = authorityUri.Host;
@@ -123,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 this.UserRealmUri = CanonicalizeUri(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 this.SelfSignedJwtAudience = this.TokenUri;
-                this._updatedFromTemplate = true;
+                this.updatedFromTemplate = true;
             }
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
             if (this.IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
             {
                 this.ReplaceTenantlessTenant(tenantId);
-                this._updatedFromTemplate = false;
+                this.updatedFromTemplate = false;
             }
         }
 
