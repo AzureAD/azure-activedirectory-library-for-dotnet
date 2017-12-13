@@ -152,7 +152,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return authorityType;
         }
 
-        private static string CanonicalizeUri(string uri)
+        internal static string CanonicalizeUri(string uri)
         {
             if (!string.IsNullOrWhiteSpace(uri) && !uri.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
