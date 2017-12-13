@@ -35,6 +35,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 {
@@ -120,9 +121,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 
             return new TokenResponse
             {
-                Authority = responseDictionary.ContainsKey("authority") ? EncodingHelper.UrlDecode(responseDictionary["authority"]) : null,
+                Authority = responseDictionary.ContainsKey("authority")
+                    ? Authenticator.CanonicalizeUri(EncodingHelper.UrlDecode(responseDictionary["authority"]))
+                    : null,
                 AccessToken = responseDictionary["access_token"],
-                RefreshToken = responseDictionary["refresh_token"],
+                RefreshToken = responseDictionary.ContainsKey("refresh_token")
+                    ? responseDictionary["refresh_token"]
+                    : null,
                 IdTokenString = responseDictionary["id_token"],
                 TokenType = "Bearer",
                 CorrelationId = responseDictionary["correlation_id"],
