@@ -44,7 +44,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected const string NullResource = "null_resource_as_optional";
         protected static readonly Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
-        protected readonly IDictionary<string, string> brokerParameters;
+        internal readonly IDictionary<string, string> brokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
         protected readonly BrokerHelper brokerHelper = new BrokerHelper();
         private AdalHttpClient client = null;
