@@ -1,4 +1,31 @@
-﻿using System;
+﻿//----------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +46,7 @@ namespace Test.ADAL.NET.Unit
     public class BrokerParametersTests
     {
         private const string Authority = "https://login.microsoftonline.com/test";
-        private static readonly string CanonicalizedAuthority = Authenticator.CanonicalizeUri(Authority);
+        private static readonly string CanonicalizedAuthority = Authenticator.EnsureUrlEndsWithForwardSlash(Authority);
 
         private const string ExtraQueryParameters = "testQueryParameters";
         private const string Claims = "testClaims";
@@ -51,20 +78,20 @@ namespace Test.ADAL.NET.Unit
 
             var brokerParams = acquireTokenInteractiveHandler.brokerParameters;
 
-            Assert.AreEqual(CanonicalizedAuthority, brokerParams["authority"]);
-            Assert.AreEqual(Resource, brokerParams["resource"]);
-            Assert.AreEqual(ClientId, brokerParams["client_id"]);
+            Assert.AreEqual(CanonicalizedAuthority, brokerParams[BrokerParameter.Authority]);
+            Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);
+            Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
 
-            Assert.AreEqual(acquireTokenInteractiveHandler.CallState.CorrelationId.ToString(), brokerParams["correlation_id"]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams["client_version"]);
-            Assert.AreEqual("NO", brokerParams["force"]);
-            Assert.AreEqual(string.Empty, brokerParams["username"]);
-            Assert.AreEqual(UserIdentifierType.OptionalDisplayableId.ToString(), brokerParams["username_type"]);
+            Assert.AreEqual(acquireTokenInteractiveHandler.CallState.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
+            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual("NO", brokerParams[BrokerParameter.Force]);
+            Assert.AreEqual(string.Empty, brokerParams[BrokerParameter.Username]);
+            Assert.AreEqual(UserIdentifierType.OptionalDisplayableId.ToString(), brokerParams[BrokerParameter.UsernameType]);
 
-            Assert.AreEqual(TestConstants.DefaultRedirectUri, brokerParams["redirect_uri"]);
+            Assert.AreEqual(TestConstants.DefaultRedirectUri, brokerParams[BrokerParameter.RedirectUri]);
 
-            Assert.AreEqual(ExtraQueryParameters, brokerParams["extra_qp"]);
-            Assert.AreEqual(Claims, brokerParams["claims"]);
+            Assert.AreEqual(ExtraQueryParameters, brokerParams[BrokerParameter.ExtraQp]);
+            Assert.AreEqual(Claims, brokerParams[BrokerParameter.Claims]);
         }
 
         [TestMethod]
@@ -77,15 +104,15 @@ namespace Test.ADAL.NET.Unit
 
             var brokerParams = acquireTokenSilentHandler.brokerParameters;
 
-            Assert.AreEqual(CanonicalizedAuthority, brokerParams["authority"]);
-            Assert.AreEqual(Resource, brokerParams["resource"]);
-            Assert.AreEqual(ClientId, brokerParams["client_id"]);
-            Assert.AreEqual(acquireTokenSilentHandler.CallState.CorrelationId.ToString(), brokerParams["correlation_id"]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams["client_version"]);
-            Assert.AreEqual(UniqueUserId, brokerParams["username"]);
-            Assert.AreEqual(UserIdentifierType.UniqueId.ToString(), brokerParams["username_type"]);
+            Assert.AreEqual(CanonicalizedAuthority, brokerParams[BrokerParameter.Authority]);
+            Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);
+            Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
+            Assert.AreEqual(acquireTokenSilentHandler.CallState.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
+            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual(UniqueUserId, brokerParams[BrokerParameter.Username]);
+            Assert.AreEqual(UserIdentifierType.UniqueId.ToString(), brokerParams[BrokerParameter.UsernameType]);
 
-            Assert.IsTrue(brokerParams.ContainsKey("silent_broker_flow"));
+            Assert.IsTrue(brokerParams.ContainsKey(BrokerParameter.SilentBrokerFlow));
         }
     }
 }

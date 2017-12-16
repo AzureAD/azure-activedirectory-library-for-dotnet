@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CoreFoundation;
 using Foundation;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using UIKit;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
@@ -73,7 +74,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public async Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
         {
-            if (brokerPayload.ContainsKey("silent_broker_flow"))
+            if (brokerPayload.ContainsKey(BrokerParameter.SilentBrokerFlow))
             {
                 throw new AdalSilentTokenAcquisitionException();
             }
@@ -89,13 +90,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (brokerPayload.ContainsKey("claims"))
             {
                 brokerPayload.Add("skip_cache", "YES");
-                string claims = EncodingHelper.UrlEncode(brokerPayload["claims"]);
-                brokerPayload["claims"] = claims;
+                string claims = EncodingHelper.UrlEncode(brokerPayload[BrokerParameter.Claims]);
+                brokerPayload[BrokerParameter.Claims] = claims;
             }
 
-            if (brokerPayload.ContainsKey("broker_install_url"))
+            if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
-                    string url = brokerPayload["broker_install_url"];
+                    string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
                     Uri uri = new Uri(url);
                     string query = uri.Query;
                     if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
