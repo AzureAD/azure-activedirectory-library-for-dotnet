@@ -119,7 +119,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return new TokenResponse
             {
                 Authority = responseDictionary.ContainsKey("authority")
-                    ? Authenticator.CanonicalizeUri(EncodingHelper.UrlDecode(responseDictionary["authority"]))
+                    ? Authenticator.EnsureUrlEndsWithForwardSlash(EncodingHelper.UrlDecode(responseDictionary["authority"]))
                     : null,
                 AccessToken = responseDictionary["access_token"],
                 RefreshToken = responseDictionary.ContainsKey("refresh_token")
