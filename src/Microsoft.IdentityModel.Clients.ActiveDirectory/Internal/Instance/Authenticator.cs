@@ -47,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void Init(string authority, bool validateAuthority)
         {
-            this.Authority = CanonicalizeUri(authority);
+            this.Authority = EnsureUrlEndsWithForwardSlash(authority);
 
             this.AuthorityType = DetectAuthorityType(this.Authority);
 
@@ -106,7 +106,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.AuthorizationUri = matchingTemplate.AuthorizeEndpoint.Replace("{tenant}", tenant);
                 this.DeviceCodeUri = matchingTemplate.DeviceCodeEndpoint.Replace("{tenant}", tenant);
                 this.TokenUri = matchingTemplate.TokenEndpoint.Replace("{tenant}", tenant);
-                this.UserRealmUri = CanonicalizeUri(matchingTemplate.UserRealmEndpoint);
+                this.UserRealmUri = EnsureUrlEndsWithForwardSlash(matchingTemplate.UserRealmEndpoint);
+
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 this.SelfSignedJwtAudience = matchingTemplate.Issuer.Replace("{tenant}", tenant);
                 this.updatedFromTemplate = true;
@@ -152,7 +153,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return authorityType;
         }
 
-        private static string CanonicalizeUri(string uri)
+        internal static string EnsureUrlEndsWithForwardSlash(string uri)
         {
             if (!string.IsNullOrWhiteSpace(uri) && !uri.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
