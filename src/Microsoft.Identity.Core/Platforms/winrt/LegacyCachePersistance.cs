@@ -32,7 +32,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.Storage;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.Identity.Core.Cache
 {
@@ -47,9 +46,6 @@ namespace Microsoft.Identity.Core.Cache
 
         public static byte[] LoadCache()
         {
-            {
-                if (args != null && args.TokenCache != null)
-                {
                     try
                     {
                         var localSettings = ApplicationData.Current.LocalSettings;
@@ -59,33 +55,28 @@ namespace Microsoft.Identity.Core.Cache
                     }
                     catch (Exception ex)
                     {
-                        CoreCoreLoggerBase.Default.Warning("Failed to load cache: " + ex.Message);
-                        CoreCoreLoggerBase.Default.ErrorPii(ex);
+                        CoreLoggerBase.Default.Warning("Failed to load cache: " + ex.Message);
+                        CoreLoggerBase.Default.ErrorPii(ex);
                         // Ignore as the cache seems to be corrupt
                     }
-                }
-            }
 
             return null;
         }
 
         public static void WriteCache(byte[] serializedCache)
         {
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
-            {
                 try
                 {
                     var localSettings = ApplicationData.Current.LocalSettings;
                     localSettings.CreateContainer(LocalSettingsContainerName, ApplicationDataCreateDisposition.Always);
-                    SetCacheValue(localSettings.Containers[LocalSettingsContainerName].Values, args.TokenCache.Serialize());
-                    args.TokenCache.HasStateChanged = false;
+                    SetCacheValue(localSettings.Containers[LocalSettingsContainerName].Values, serializedCache);
+                    
                 }
                 catch (Exception ex)
                 {
-                    CoreCoreLoggerBase.Default.Warning("Failed to save cache: " + ex.Message);
-                    CoreCoreLoggerBase.Default.ErrorPii(ex);
+                    CoreLoggerBase.Default.Warning("Failed to save cache: " + ex.Message);
+                    CoreLoggerBase.Default.ErrorPii(ex);
                 }
-            }
         }
 
         internal static void SetCacheValue(IPropertySet containerValues, byte[] value)

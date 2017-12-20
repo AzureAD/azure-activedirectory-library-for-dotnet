@@ -30,6 +30,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {

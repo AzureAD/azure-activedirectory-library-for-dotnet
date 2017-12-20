@@ -35,6 +35,7 @@ using Windows.Networking.Connectivity;
 using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System.UserProfile;
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
@@ -96,8 +97,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                 var msg =
                     "Cannot access user information to determine whether it is a local user or not due to machine's privacy setting.";
-                requestContext.Logger.Info(requestContext, msg);
-                requestContext.Logger.InfoPii(requestContext, msg);
+                requestContext.Logger.Info(msg);
+                requestContext.Logger.InfoPii(msg);
 
                 return false;
             }
@@ -109,8 +110,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             catch (UnauthorizedAccessException)
             {
                 var msg = "Cannot try Windows Integrated Authentication due to lack of Enterprise capability.";
-                requestContext.Logger.Info(requestContext, msg);
-                requestContext.Logger.InfoPii(requestContext, msg);
+                requestContext.Logger.Info(msg);
+                requestContext.Logger.InfoPii(msg);
 
                 // This mostly means Enterprise capability is missing, so WIA cannot be used and
                 // we return true to add form auth parameter in the caller.
@@ -173,8 +174,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 redirectUri = Constant.SsoPlaceHolderUri;
 
                 var msg = "ms-app redirect Uri is used";
-                requestContext.Logger.Verbose(requestContext, msg);
-                requestContext.Logger.VerbosePii(requestContext, msg);
+                requestContext.Logger.Verbose(msg);
+                requestContext.Logger.VerbosePii(msg);
             }
 
             return redirectUri;

@@ -50,6 +50,7 @@
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
+    <None Remove="Platforms\net45\CryptographyHelper.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
   
@@ -112,11 +113,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Platforms\net45\" />
-    <Folder Include="Platforms\netstandard1.1\" />
-    <Folder Include="Platforms\netstandard1.3\" />
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />

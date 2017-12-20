@@ -28,7 +28,7 @@
 using System;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.Identity.Core
 {
     internal class CryptographyHelper
     {

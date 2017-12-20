@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,50 +27,37 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
-#if ANDROID || iOS || WINDOWS_APP
-using Microsoft.Identity.Core.Cache;
-#endif
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    /// <summary>
-    /// This class marked with ifdefs because only iOS/Android/WinRT provide platform default storage. 
-    /// Delegates have no implementation for netstandard1.1, netstandard1.3 and net45.
-    /// Platform specific persistance logic is implemented in core.
-    /// </summary>
-
-#if ANDROID
-    [Android.Runtime.Preserve(AllMembers = true)]
-#endif
-    internal static class StorageDelegates
+    internal static class SigningHelper
     {
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
+        public static byte[] SignWithCertificate(string message, X509Certificate2 certificate)
         {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.Count > 0)
+            if (message == null)
             {
-                // We assume that the cache has not changed since last write
-                return;
+                throw new ArgumentNullException(nameof(message));
             }
 
-            args.TokenCache.Deserialize(LegacyCachePersistance.LoadCache());
-#endif
-        }
-
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged && args.TokenCache.Count > 0)
+            if (certificate == null)
             {
-                LegacyCachePersistance.WriteCache(args.TokenCache.Serialize());
-                args.TokenCache.HasStateChanged = false;
+                throw new ArgumentNullException(nameof(certificate));
             }
-#endif
-        }
 
+            // Copied from MSAL:
+            // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/7fe94109/src/Microsoft.Identity.Client/Platforms/netstandard1.3/CryptographyHelper.cs#L68
+            using (var key = certificate.GetRSAPrivateKey())
+            {
+                return key.SignData(Encoding.UTF8.GetBytes(message), HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            }
+        }
     }
 }

@@ -26,51 +26,27 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
-#if ANDROID || iOS || WINDOWS_APP
-using Microsoft.Identity.Core.Cache;
-#endif
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Identity.Core
 {
-    /// <summary>
-    /// This class marked with ifdefs because only iOS/Android/WinRT provide platform default storage. 
-    /// Delegates have no implementation for netstandard1.1, netstandard1.3 and net45.
-    /// Platform specific persistance logic is implemented in core.
-    /// </summary>
-
-#if ANDROID
-    [Android.Runtime.Preserve(AllMembers = true)]
-#endif
-    internal static class StorageDelegates
+    internal class CryptographyHelper
     {
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
+        public static string CreateSha256Hash(string input)
         {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.Count > 0)
+            if (string.IsNullOrWhiteSpace(input))
             {
-                // We assume that the cache has not changed since last write
-                return;
+                return null;
             }
 
-            args.TokenCache.Deserialize(LegacyCachePersistance.LoadCache());
-#endif
-        }
-
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged && args.TokenCache.Count > 0)
+            using (var sha256 = SHA256.Create())
             {
-                LegacyCachePersistance.WriteCache(args.TokenCache.Serialize());
-                args.TokenCache.HasStateChanged = false;
+                var inputBytes = Encoding.UTF8.GetBytes(input);
+                var outputBytes = sha256.ComputeHash(inputBytes);
+                return Convert.ToBase64String(outputBytes);
             }
-#endif
         }
-
     }
 }
