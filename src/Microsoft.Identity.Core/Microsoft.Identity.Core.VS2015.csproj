@@ -11,8 +11,8 @@
     <ProjectGuid>{72F03823-45DC-4F77-BDCB-29E880BF1AC8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.IdentityModel.Clients.ActiveDirectory</RootNamespace>
-    <AssemblyName>Microsoft.IdentityModel.Clients.ActiveDirectory</AssemblyName>
+    <RootNamespace>Microsoft.Identity.Core</RootNamespace>
+    <AssemblyName>Microsoft.Identity.Core</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
