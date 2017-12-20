@@ -31,6 +31,11 @@ namespace Microsoft.Identity.Core
 {
     internal class RequestContext
     {
+
+        public RequestContext(Guid correlationId) : this(correlationId, CoreLoggerBase.Default)
+        {
+        }
+
         public RequestContext(Guid correlationId, ILogger logger)
         {
             CorrelationId = correlationId;
