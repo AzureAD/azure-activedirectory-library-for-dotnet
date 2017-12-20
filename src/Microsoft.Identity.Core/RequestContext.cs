@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,23 +26,19 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
+namespace Microsoft.Identity.Core
 {
-    internal class TokenCachePlugin
+    internal class RequestContext
     {
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
+        public RequestContext(Guid correlationId, ILogger logger)
         {
-            // Default implementation, do nothing
+            CorrelationId = correlationId;
+            Logger = logger;
         }
 
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-            // Default implementation, do nothing
-        }
+        public Guid CorrelationId { get; set; }
+
+        public ILogger Logger { get; set; }
     }
 }

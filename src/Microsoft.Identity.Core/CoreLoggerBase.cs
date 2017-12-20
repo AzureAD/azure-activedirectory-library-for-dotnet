@@ -31,18 +31,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
+namespace Microsoft.Identity.Core
 {
-    internal class TokenCachePlugin
+    internal abstract class CoreLoggerBase : ILogger
     {
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
-        {
-            // Default implementation, do nothing
-        }
+        public static ILogger Default = null;
 
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-            // Default implementation, do nothing
-        }
+        public abstract void Error(string message);
+        public abstract void ErrorPii(string message);
+        public abstract void Warning(string message);
+        public abstract void WarningPii(string message);
+        public abstract void Info(string message);
+        public abstract void InfoPii(string message);
+        public abstract void Verbose(string message);
+        public abstract void VerbosePii(string message);
+        public abstract void Error(Exception ex);
+        public abstract void ErrorPii(Exception ex);
     }
 }

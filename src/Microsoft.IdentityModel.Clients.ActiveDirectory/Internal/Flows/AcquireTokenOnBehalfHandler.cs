@@ -51,8 +51,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             var msg = string.Format(CultureInfo.InvariantCulture,
                 "Username provided in user assertion - " + string.IsNullOrEmpty(DisplayableId));
-            CallState.Logger.Verbose(CallState, msg);
-            CallState.Logger.VerbosePii(CallState, msg);
+            RequestContext.Logger.Verbose(msg);
+            RequestContext.Logger.VerbosePii(msg);
 
             this.SupportADFS = true;
         }

@@ -159,7 +159,7 @@ namespace Test.ADAL.NET.Unit
             LoggerCallbackHandler.PiiLoggingEnabled = true;
 
             logger.ErrorPii(state, new Exception(Message));
-            logger.InformationPii(state, Message);
+            logger.InfoPii(state, Message);
             logger.VerbosePii(state, Message);
             logger.WarningPii(state, Message);
 
@@ -172,7 +172,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(0, obsoleteCallback.InfoLogCount);
             Assert.AreEqual(0, obsoleteCallback.VerboseLogCount);
 
-            logger.Information(state, Message);
+            logger.Info(state, Message);
             Assert.AreEqual(1, obsoleteCallback.ErrorLogCount);
             Assert.AreEqual(0, obsoleteCallback.WarningLogCount);
             Assert.AreEqual(1, obsoleteCallback.InfoLogCount);
@@ -212,7 +212,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(0, _infoLogCount);
             Assert.AreEqual(0, _verboseLogCount);
 
-            logger.Information(state, Message);
+            logger.Info(state, Message);
             Assert.AreEqual(1, _errorLogCount);
             Assert.AreEqual(0, _warningLogCount);
             Assert.AreEqual(1, _infoLogCount);
@@ -260,7 +260,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(0, _piiInfoLogCount);
             Assert.AreEqual(0, _piiVerboseLogCount);
 
-            logger.InformationPii(state, Message);
+            logger.InfoPii(state, Message);
             Assert.AreEqual(1, _piiErrorLogCount);
             Assert.AreEqual(0, _piiWarningLogCount);
             Assert.AreEqual(1, _piiInfoLogCount);
@@ -299,12 +299,12 @@ namespace Test.ADAL.NET.Unit
             LoggerCallbackHandler.LogCallback = null;
 
             logger.Error(state, new Exception(Message));
-            logger.Information(state, Message);
+            logger.Info(state, Message);
             logger.Verbose(state, Message);
             logger.Warning(state, Message);
 
             logger.ErrorPii(state, new Exception(Message));
-            logger.InformationPii(state, Message);
+            logger.InfoPii(state, Message);
             logger.VerbosePii(state, Message);
             logger.WarningPii(state, Message);
         }
@@ -326,7 +326,7 @@ namespace Test.ADAL.NET.Unit
             logger.Verbose(state, Message);
             Assert.AreEqual(1, defaultLogCounter);
 
-            logger.Information(state, Message);
+            logger.Info(state, Message);
             Assert.AreEqual(2, defaultLogCounter);
 
             logger.Warning(state, Message);
@@ -353,7 +353,7 @@ namespace Test.ADAL.NET.Unit
             logger.Verbose(state, Message);
             Assert.AreEqual(0, defaultLogCounter);
 
-            logger.Information(state, Message);
+            logger.Info(state, Message);
             Assert.AreEqual(0, defaultLogCounter);
 
             logger.Warning(state, Message);
@@ -378,7 +378,7 @@ namespace Test.ADAL.NET.Unit
             LoggerCallbackHandler.UseDefaultLogging = true;
 
             logger.VerbosePii(state, Message);
-            logger.InformationPii(state, Message);
+            logger.InfoPii(state, Message);
             logger.WarningPii(state, Message);
             logger.ErrorPii(state, new Exception(Message));
 

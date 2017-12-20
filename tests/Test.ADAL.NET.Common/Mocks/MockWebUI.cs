@@ -44,7 +44,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
         internal IDictionary<string, string> QueryParams { get; set; }
         
-        public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
+        public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
             //match QP passed in for validation. 
             if (QueryParams != null)
