@@ -310,13 +310,11 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("LoggerCallbackTests")]
         public void DefaultLog_UseDefaultLoggingIsTrue_Logged()
         {
-            var logger = Substitute.ForPartsOf<Logger>();
+            var logger = Substitute.ForPartsOf<Logger>(Guid.Empty);
 
             var defaultLogCounter = 0;
             logger.When(x => x.DefaultLog(Arg.Any<LogLevel>(), Arg.Any<string>())).Do(x => defaultLogCounter++);
-
-            var state = new RequestContext(Guid.NewGuid());
-
+            
             LoggerCallbackHandler.PiiLoggingEnabled = true;
             LoggerCallbackHandler.UseDefaultLogging = true;
 
@@ -337,13 +335,11 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("LoggerCallbackTests")]
         public void DefaultLog_UseDefaultLoggingIsFalse_NotLogged()
         {
-            var logger = Substitute.ForPartsOf<Logger>();
+            var logger = Substitute.ForPartsOf<Logger>(Guid.Empty);
 
             var defaultLogCounter = 0;
             logger.When(x => x.DefaultLog(Arg.Any<LogLevel>(), Arg.Any<string>())).Do(x => defaultLogCounter++);
-
-            var state = new RequestContext(Guid.NewGuid());
-
+            
             LoggerCallbackHandler.PiiLoggingEnabled = true;
             LoggerCallbackHandler.UseDefaultLogging = false;
 
@@ -364,13 +360,11 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("LoggerCallbackTests")]
         public void DefaultLog_UseDefaultLoggingIsTrueContainsPii_PiiNotLogged()
         {
-            var logger = Substitute.ForPartsOf<Logger>();
+            var logger = Substitute.ForPartsOf<Logger>(Guid.Empty);
 
             var piiCounter = 0;
             logger.When(x => x.DefaultLog(Arg.Any<LogLevel>(), Arg.Any<string>())).Do(x => piiCounter++);
-
-            var state = new RequestContext(Guid.NewGuid());
-
+            
             LoggerCallbackHandler.PiiLoggingEnabled = true;
             LoggerCallbackHandler.UseDefaultLogging = true;
 
