@@ -1,5 +1,6 @@
 clone_folder: c:\AADDotNetLib
 
+#retry installation
 install:
  - appveyor-retry powershell .\InstallAndroidSDK.ps1
 
