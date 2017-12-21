@@ -56,6 +56,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public const string Claims = "claims";
         public const string CloudInstanceHost = "cloud_instance_host_name";
         public const string Authority = "authority";
+        public const string ClientInfo = "client_info";
     }
 
     [DataContract]
@@ -105,6 +106,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         [DataMember(Name = TokenResponseClaim.Claims, IsRequired = false)]
         public string Claims { get; set; }
 
+        [DataMember(Name = TokenResponseClaim.ClientInfo, IsRequired = false)]
+        public string ClientInfo { get; set; }
+
         public string Authority { get; set; }
 
         internal static TokenResponse CreateFromBrokerResponse(IDictionary<string, string> responseDictionary)
@@ -127,7 +131,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 TokenType = "Bearer",
                 CorrelationId = responseDictionary["correlation_id"],
                 Resource = responseDictionary["resource"],
-                ExpiresOn = long.Parse(responseDictionary["expires_on"].Split('.')[0], CultureInfo.CurrentCulture)
+                ExpiresOn = long.Parse(responseDictionary["expires_on"].Split('.')[0], CultureInfo.CurrentCulture),
+                ClientInfo = responseDictionary["client_info"]
             };
         }
 
