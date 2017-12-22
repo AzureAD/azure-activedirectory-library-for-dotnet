@@ -50,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected readonly BrokerHelper brokerHelper = new BrokerHelper();
         private AdalHttpClient client = null;
         protected PlatformInformation platformInformation = new PlatformInformation();
-        protected readonly RequestContext RequestContext;
+        internal readonly RequestContext RequestContext;
 
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
