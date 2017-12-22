@@ -49,9 +49,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerHelper.PlatformParameters = parameters;    
             this.SupportADFS = true;
 
-            this.brokerParameters["username"] = userId.Id;
-            this.brokerParameters["username_type"] = userId.Type.ToString();
-            this.brokerParameters["silent_broker_flow"] = null; //add key
+            this.brokerParameters[BrokerParameter.Username] = userId.Id;
+            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            this.brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
         protected override Task<AuthenticationResultEx> SendTokenRequestAsync()
@@ -59,8 +59,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             if (ResultEx == null)
             {
                 var msg = "No token matching arguments found in the cache";
-                CallState.Logger.Verbose(CallState, msg);
-                CallState.Logger.VerbosePii(CallState, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 throw new AdalSilentTokenAcquisitionException();
             }
