@@ -34,6 +34,7 @@ using Android.App;
 using Android.Content;
 using Java.IO;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 
@@ -47,7 +48,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private readonly BrokerProxy mBrokerProxy = new BrokerProxy(Application.Context);
 
-        public CallState CallState { get; set; }
+        public RequestContext RequestContext { get; set; }
 
         public IPlatformParameters PlatformParameters { get; set; }
 
@@ -66,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             get
             {
-                mBrokerProxy.CallState = CallState;
+                mBrokerProxy.RequestContext = RequestContext;
                 return WillUseBroker() && mBrokerProxy.CanSwitchToBroker();
             }
         }
@@ -74,7 +75,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public async Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
         {
-            mBrokerProxy.CallState = CallState;
+            mBrokerProxy.RequestContext = RequestContext;
 
             resultEx = null;
             readyForResponse = new SemaphoreSlim(0);
@@ -84,8 +85,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch (Exception ex)
             {
-                CallState.Logger.Error(null, ex);
-                CallState.Logger.ErrorPii(null, ex);
+                RequestContext.Logger.Error(ex);
+                RequestContext.Logger.ErrorPii(ex);
                 throw;
             }
             await readyForResponse.WaitAsync().ConfigureAwait(false);
@@ -123,8 +124,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 request.UserId))
             {
                 var msg = "It switched to broker for context: " + mContext.PackageName;
-                CallState.Logger.Verbose(null, msg);
-                CallState.Logger.VerbosePii(null, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 request.BrokerAccountName = request.LoginHint;
 
@@ -134,23 +135,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 if (string.IsNullOrEmpty(request.Claims) && hasAccountNameOrUserId)
                 {
                     msg = "User is specified for background token request";
-                    CallState.Logger.Verbose(null, msg);
-                    CallState.Logger.VerbosePii(null, msg);
+                    RequestContext.Logger.Verbose(msg);
+                    RequestContext.Logger.VerbosePii(msg);
 
                     resultEx = mBrokerProxy.GetAuthTokenInBackground(request, platformParams.CallerActivity);
                 }
                 else
                 {
                     msg = "User is not specified for background token request";
-                    CallState.Logger.Verbose(null, msg);
-                    CallState.Logger.VerbosePii(null, msg);
+                    RequestContext.Logger.Verbose(msg);
+                    RequestContext.Logger.VerbosePii(msg);
                 }
 
                 if (resultEx != null && resultEx.Result != null && !string.IsNullOrEmpty(resultEx.Result.AccessToken))
                 {
                     msg = "Token is returned from background call";
-                    CallState.Logger.Verbose(null, msg);
-                    CallState.Logger.VerbosePii(null, msg);
+                    RequestContext.Logger.Verbose(msg);
+                    RequestContext.Logger.VerbosePii(msg);
 
                     readyForResponse.Release();
                     return;
@@ -162,23 +163,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // record calling uid for the account. This happens for Prompt auto
                 // or always behavior.
                 msg = "Token is not returned from backgroud call";
-                CallState.Logger.Verbose(null, msg);
-                CallState.Logger.VerbosePii(null, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 // Only happens with callback since silent call does not show UI
                 msg = "Launch activity for Authenticator";
-                CallState.Logger.Verbose(null, msg);
-                CallState.Logger.VerbosePii(null, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 msg = "Starting Authentication Activity";
-                CallState.Logger.Verbose(null, msg);
-                CallState.Logger.VerbosePii(null, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 if (resultEx == null)
                 {
                     msg = "Initial request to authenticator";
-                    CallState.Logger.Verbose(null, msg);
-                    CallState.Logger.VerbosePii(null, msg);
+                    RequestContext.Logger.Verbose(msg);
+                    RequestContext.Logger.VerbosePii(msg);
                     // Log the initial request but not force a prompt
                 }
 
@@ -198,15 +199,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         msg = "Calling activity pid:" + Android.OS.Process.MyPid()
                               + " tid:" + Android.OS.Process.MyTid() + "uid:"
                               + Android.OS.Process.MyUid();
-                        CallState.Logger.Verbose(null, msg);
-                        CallState.Logger.VerbosePii(null, msg);
+                        RequestContext.Logger.Verbose(msg);
+                        RequestContext.Logger.VerbosePii(msg);
 
                         platformParams.CallerActivity.StartActivityForResult(brokerIntent, 1001);
                     }
                     catch (ActivityNotFoundException e)
                     {
-                        CallState.Logger.Error(null, e);
-                        CallState.Logger.ErrorPii(null, e);
+                        RequestContext.Logger.Error(e);
+                        RequestContext.Logger.ErrorPii(e);
                     }
                 }
             }
