@@ -110,7 +110,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerParameters[BrokerParameter.Authority] = requestData.Authenticator.Authority;
             brokerParameters[BrokerParameter.Resource] = requestData.Resource;
             brokerParameters[BrokerParameter.ClientId] = requestData.ClientKey.ClientId;
-            brokerParameters[BrokerParameter.CorrelationId] = this.CallState.CorrelationId.ToString();
+            brokerParameters[BrokerParameter.CorrelationId] = RequestContext.CorrelationId.ToString();
             brokerParameters[BrokerParameter.ClientVersion] = AdalIdHelper.GetAdalVersion();
             this.ResultEx = null;
 
