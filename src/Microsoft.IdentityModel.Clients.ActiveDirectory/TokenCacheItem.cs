@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -38,7 +39,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Default constructor.
         /// </summary>
-        internal TokenCacheItem(TokenCacheKey key, AuthenticationResult result)
+        internal TokenCacheItem(TokenCacheKey key, AdalResult result)
         {
             this.Authority = key.Authority;
             this.Resource = key.Resource;

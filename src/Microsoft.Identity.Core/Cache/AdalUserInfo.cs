@@ -27,44 +27,26 @@
 
 using System;
 using System.Runtime.Serialization;
-using Microsoft.Identity.Core.Cache;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Identity.Core.Cache
 {
     /// <summary>
     /// Contains information of a single user. This information is used for token cache lookup. Also if created with userId, userId is sent to the service when login_hint is accepted.
     /// </summary>
     [DataContract]
-    public sealed class UserInfo
+    public sealed class AdalUserInfo
     {
         /// <summary>
         /// Create user information for token cache lookup
         /// </summary>
-        public UserInfo()
+        public AdalUserInfo()
         {
-        }
-
-        /// <summary>
-        /// Create user information for token cache lookup
-        /// </summary>
-        internal UserInfo(AdalUserInfo adalUserInfo)
-        {
-            if (adalUserInfo != null)
-            {
-                this.UniqueId = adalUserInfo.UniqueId;
-                this.DisplayableId = adalUserInfo.DisplayableId;
-                this.GivenName = adalUserInfo.GivenName;
-                this.FamilyName = adalUserInfo.FamilyName;
-                this.IdentityProvider = adalUserInfo.IdentityProvider;
-                this.PasswordChangeUrl = adalUserInfo.PasswordChangeUrl;
-                this.PasswordExpiresOn = adalUserInfo.PasswordExpiresOn;
-            }
         }
 
         /// <summary>
         /// Create user information copied from another UserInfo object
         /// </summary>
-        public UserInfo(UserInfo other)
+        public AdalUserInfo(AdalUserInfo other)
         {
             if (other != null)
             {
