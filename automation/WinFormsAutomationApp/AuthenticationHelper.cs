@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Newtonsoft.Json;
