@@ -51,7 +51,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="expiresOn">The point in time in which the Access Token returned in the AccessToken property ceases to be valid</param>
         internal AuthenticationResult(AdalResult adalResult)
         {
-            _adalResult = adalResult ?? throw new ArgumentNullException();
+            if (adalResult == null)
+            {
+                throw new ArgumentNullException(nameof(adalResult));
+            }
+
+            _adalResult = adalResult;
             UserInfo = new UserInfo(_adalResult.UserInfo);
         }
 
