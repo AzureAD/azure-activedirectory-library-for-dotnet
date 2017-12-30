@@ -47,35 +47,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Create user information for token cache lookup
         /// </summary>
-        internal UserInfo(AdalUserInfo adalUserInfo)
+        internal UserInfo(AdalUserInfo adalUserInfo) : this(adalUserInfo?.UniqueId, adalUserInfo?.DisplayableId,
+            adalUserInfo?.GivenName, adalUserInfo?.FamilyName, adalUserInfo?.IdentityProvider,
+            adalUserInfo?.PasswordChangeUrl, adalUserInfo?.PasswordExpiresOn)
         {
-            if (adalUserInfo != null)
-            {
-                this.UniqueId = adalUserInfo.UniqueId;
-                this.DisplayableId = adalUserInfo.DisplayableId;
-                this.GivenName = adalUserInfo.GivenName;
-                this.FamilyName = adalUserInfo.FamilyName;
-                this.IdentityProvider = adalUserInfo.IdentityProvider;
-                this.PasswordChangeUrl = adalUserInfo.PasswordChangeUrl;
-                this.PasswordExpiresOn = adalUserInfo.PasswordExpiresOn;
-            }
         }
 
         /// <summary>
         /// Create user information copied from another UserInfo object
         /// </summary>
-        public UserInfo(UserInfo other)
+        public UserInfo(UserInfo other) : this(other?.UniqueId, other?.DisplayableId, other?.GivenName,
+            other?.FamilyName, other?.IdentityProvider, other?.PasswordChangeUrl, other?.PasswordExpiresOn)
         {
-            if (other != null)
-            {
-                this.UniqueId = other.UniqueId;
-                this.DisplayableId = other.DisplayableId;
-                this.GivenName = other.GivenName;
-                this.FamilyName = other.FamilyName;
-                this.IdentityProvider = other.IdentityProvider;
-                this.PasswordChangeUrl = other.PasswordChangeUrl;
-                this.PasswordExpiresOn = other.PasswordExpiresOn;
-            }
+        }
+
+        private UserInfo(string uniqueId, string displayableId, string givenName, string familyName,
+            string identityProvider, Uri passwordChangeUrl, DateTimeOffset? passwordExpiresOn)
+        {
+            this.UniqueId = uniqueId;
+            this.DisplayableId = displayableId;
+            this.GivenName = givenName;
+            this.FamilyName = familyName;
+            this.IdentityProvider = identityProvider;
+            this.PasswordChangeUrl = passwordChangeUrl;
+            this.PasswordExpiresOn = passwordExpiresOn;
         }
 
         /// <summary>
