@@ -29,6 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -44,24 +46,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected const string NullResource = "null_resource_as_optional";
         protected static readonly Task CompletedTask = Task.FromResult(false);
         private readonly TokenCache tokenCache;
-        protected readonly IDictionary<string, string> brokerParameters;
+        internal readonly IDictionary<string, string> brokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
         protected readonly BrokerHelper brokerHelper = new BrokerHelper();
         private AdalHttpClient client = null;
         protected PlatformInformation platformInformation = new PlatformInformation();
+        internal readonly RequestContext RequestContext;
 
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
             this.Authenticator = requestData.Authenticator;
-            this.CallState = CreateCallState(this.Authenticator.CorrelationId);
-            brokerHelper.CallState = this.CallState;
+            RequestContext = CreateCallState(this.Authenticator.CorrelationId);
+            brokerHelper.RequestContext = RequestContext;
 
             var msg = string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
                 platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(),
                 AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion());
-            CallState.Logger.Information(null, msg);
-            CallState.Logger.InformationPii(null, msg);
+            RequestContext.Logger.Info(msg);
+            RequestContext.Logger.InfoPii(msg);
 
             msg = string.Format(CultureInfo.CurrentCulture,
                 "=== Token Acquisition started: \n\tCacheType: {0}\n\tAuthentication Target: {1}\n\t",
@@ -76,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     ", Authority Host: {0}",
                     requestData.Authenticator.GetAuthorityHost());
             }
-            CallState.Logger.Information(CallState, msg);
+            RequestContext.Logger.Info(msg);
 
 
             var piiMsg = string.Format(CultureInfo.CurrentCulture,
@@ -87,7 +90,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                       string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
                     : "null",
                 requestData.SubjectType);
-            CallState.Logger.InformationPii(this.CallState, piiMsg);
+            RequestContext.Logger.InfoPii(piiMsg);
 
             this.tokenCache = requestData.TokenCache;
 
@@ -105,17 +108,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.SupportADFS = false;
 
             this.brokerParameters = new Dictionary<string, string>();
-            brokerParameters["authority"] = requestData.Authenticator.Authority;
-            brokerParameters["resource"] = requestData.Resource;
-            brokerParameters["client_id"] = requestData.ClientKey.ClientId;
-            brokerParameters["correlation_id"] = this.CallState.CorrelationId.ToString();
-            brokerParameters["client_version"] = AdalIdHelper.GetAdalVersion();
+            brokerParameters[BrokerParameter.Authority] = requestData.Authenticator.Authority;
+            brokerParameters[BrokerParameter.Resource] = requestData.Resource;
+            brokerParameters[BrokerParameter.ClientId] = requestData.ClientKey.ClientId;
+            brokerParameters[BrokerParameter.CorrelationId] = RequestContext.CorrelationId.ToString();
+            brokerParameters[BrokerParameter.ClientVersion] = AdalIdHelper.GetAdalVersion();
             this.ResultEx = null;
 
             CacheQueryData.ExtendedLifeTimeEnabled = requestData.ExtendedLifeTimeEnabled;
         }
-
-        internal CallState CallState { get; set; }
 
         protected bool SupportADFS { get; set; }
 
@@ -125,7 +126,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected ClientKey ClientKey { get; private set; }
 
-        protected AuthenticationResultEx ResultEx { get; set; }
+        protected AdalResultWrapper ResultEx { get; set; }
 
         protected TokenSubjectType TokenSubjectType { get; private set; }
 
@@ -142,7 +143,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public async Task<AuthenticationResult> RunAsync()
         {
             bool notifiedBeforeAccessCache = false;
-            AuthenticationResultEx extendedLifetimeResultEx = null;
+            AdalResultWrapper extendedLifetimeResultEx = null;
 
             try
             {
@@ -151,8 +152,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 if (this.LoadFromCache)
                 {
                     var msg = "Loading from cache.";
-                    CallState.Logger.Verbose(CallState, msg);
-                    CallState.Logger.VerbosePii(CallState, msg);
+                    RequestContext.Logger.Verbose(msg);
+                    RequestContext.Logger.VerbosePii(msg);
 
                     CacheQueryData.Authority = Authenticator.Authority;
                     CacheQueryData.Resource = this.Resource;
@@ -163,7 +164,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
-                    ResultEx = await this.tokenCache.LoadFromCache(CacheQueryData, this.CallState).ConfigureAwait(false);
+                    ResultEx = await this.tokenCache.LoadFromCache(CacheQueryData, RequestContext).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
                     if (ResultEx?.Result != null &&
@@ -202,20 +203,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
 
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
-                return ResultEx.Result;
+                return new AuthenticationResult(ResultEx.Result);
             }
             catch (Exception ex)
             {
-                CallState.Logger.Error(this.CallState, ex);
-                CallState.Logger.ErrorPii(this.CallState, ex);
+                RequestContext.Logger.Error(ex);
+                RequestContext.Logger.ErrorPii(ex);
                 if (client != null && client.Resiliency && extendedLifetimeResultEx != null)
                 {
                     var msg = "Refreshing AT failed either due to one of these :- Internal Server Error,Gateway Timeout and Service Unavailable." +
                                        "Hence returning back stale AT";
-                    CallState.Logger.Information(this.CallState, msg);
-                    CallState.Logger.InformationPii(this.CallState, msg);
+                    RequestContext.Logger.Info(msg);
+                    RequestContext.Logger.InfoPii(msg);
 
-                    return extendedLifetimeResultEx.Result;
+                    return new AuthenticationResult(extendedLifetimeResultEx.Result);
                 }
                 throw;
             }
@@ -239,7 +240,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
 
                 await this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
-                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState).ConfigureAwait(false);
+                    this.ClientKey.ClientId, this.TokenSubjectType, RequestContext).ConfigureAwait(false);
             }
             return notifiedBeforeAccessCache;
         }
@@ -265,22 +266,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return false;
         }
 
-        public static CallState CreateCallState(Guid correlationId)
+        public static RequestContext CreateCallState(Guid correlationId)
         {
             correlationId = (correlationId != Guid.Empty) ? correlationId : Guid.NewGuid();
-            return new CallState(correlationId);
+            return new RequestContext(correlationId, new Logger(correlationId));
         }
 
-        protected virtual Task PostRunAsync(AuthenticationResult result)
+        protected virtual Task PostRunAsync(AdalResult result)
         {
             LogReturnedToken(result);
-
             return CompletedTask;
         }
 
         protected virtual async Task PreRunAsync()
         {
-            await this.Authenticator.UpdateFromTemplateAsync(this.CallState).ConfigureAwait(false);
+            await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
             this.ValidateAuthorityType();
         }
 
@@ -293,12 +293,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if(!Authenticator.Authority.Equals(updatedAuthority))
             {
-                await Authenticator.UpdateAuthority(updatedAuthority, this.CallState).ConfigureAwait(false);
+                await Authenticator.UpdateAuthority(updatedAuthority, RequestContext).ConfigureAwait(false);
                 this.ValidateAuthorityType();
             }
         }
 
-        protected virtual async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        protected virtual async Task PostTokenRequest(AdalResultWrapper resultEx)
         {
             // if broker returned Authority update Authentiator
             if(!string.IsNullOrEmpty(resultEx.Result.Authority))
@@ -313,7 +313,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected abstract void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters);
 
-        protected virtual async Task<AuthenticationResultEx> SendTokenRequestAsync()
+        protected virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
             this.AddAditionalRequestParameters(requestParameters);
@@ -321,36 +321,36 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }
 
-        protected async Task<AuthenticationResultEx> SendTokenRequestByRefreshTokenAsync(string refreshToken)
+        protected async Task<AdalResultWrapper> SendTokenRequestByRefreshTokenAsync(string refreshToken)
         {
             var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
 
-            AuthenticationResultEx result = await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
+            AdalResultWrapper result = await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
 
             if (result.RefreshToken == null)
             {
                 result.RefreshToken = refreshToken;
 
                 var msg = "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead";
-                CallState.Logger.Verbose(this.CallState, msg);
-                CallState.Logger.VerbosePii(this.CallState, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
             }
 
             return result;
         }
 
-        private async Task<AuthenticationResultEx> RefreshAccessTokenAsync(AuthenticationResultEx result)
+        private async Task<AdalResultWrapper> RefreshAccessTokenAsync(AdalResultWrapper result)
         {
-            AuthenticationResultEx newResultEx = null;
+            AdalResultWrapper newResultEx = null;
 
             if (this.Resource != null)
             {
                 var msg = "Refreshing access token...";
-                CallState.Logger.Verbose(this.CallState, msg);
-                CallState.Logger.VerbosePii(this.CallState, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 try
                 {
@@ -378,16 +378,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                             serviceException.ServiceErrorCodes,
                             serviceException);
                     }
-                    newResultEx = new AuthenticationResultEx {Exception = ex};
+                    newResultEx = new AdalResultWrapper {Exception = ex};
                 }
             }
 
             return newResultEx;
         }
 
-        private async Task<AuthenticationResultEx> SendHttpMessageAsync(IRequestParameters requestParameters)
+        private async Task<AdalResultWrapper> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            client = new AdalHttpClient(this.Authenticator.TokenUri, this.CallState)
+            client = new AdalHttpClient(this.Authenticator.TokenUri, RequestContext)
                 {Client = {BodyParameters = requestParameters}};
             TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
@@ -417,7 +417,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             });
         }
 
-        private void LogReturnedToken(AuthenticationResult result)
+        private void LogReturnedToken(AdalResult result)
         {
             if (result.AccessToken != null)
             {
@@ -426,24 +426,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 var msg = string.Format(CultureInfo.CurrentCulture,
                     "=== Token Acquisition finished successfully. An access token was returned: Expiration Time: {0}",
                     result.ExpiresOn);
-                CallState.Logger.Information(CallState, msg);
+                RequestContext.Logger.Info(msg);
 
                 var piiMsg = msg + string.Format(CultureInfo.CurrentCulture, "Access Token Hash: {0}\n\t User id: {1}",
                                  accessTokenHash,
                                  result.UserInfo != null
                                      ? result.UserInfo.UniqueId
                                      : "null");
-                CallState.Logger.InformationPii(CallState, piiMsg);
+                RequestContext.Logger.InfoPii( piiMsg);
             }
         }
 
         protected void ValidateAuthorityType()
         {
-            if (!this.SupportADFS && this.Authenticator.AuthorityType == AuthorityType.ADFS)
+            if (!SupportADFS && Authenticator.AuthorityType == AuthorityType.ADFS)
             {
                 throw new AdalException(AdalError.InvalidAuthorityType,
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.InvalidAuthorityTypeTemplate,
-                        this.Authenticator.Authority));
+                        Authenticator.Authority));
             }
         }
     }

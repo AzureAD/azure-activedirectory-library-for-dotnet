@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,23 +26,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Text;
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Identity.Core
 {
-    internal class CallState
+    internal class CryptographyHelper
     {
-        public CallState(Guid correlationId)
+        public static string CreateSha256Hash(string input)
         {
-            this.CorrelationId = correlationId;
-            Logger = new Logger() {CorrelationId = correlationId.ToString()};
+            return null;
         }
-
-        public Guid CorrelationId { get; set; }
-
-        public Logger Logger { get; internal set; }
-
-        public static CallState Default => new CallState(Guid.Empty);
     }
 }

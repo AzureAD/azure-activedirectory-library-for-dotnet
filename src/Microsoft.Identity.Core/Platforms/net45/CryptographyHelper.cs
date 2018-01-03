@@ -26,46 +26,32 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Permissions;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.Identity.Core
 {
     internal class CryptographyHelper
     {
         public static string CreateSha256Hash(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrEmpty(input))
             {
                 return null;
             }
 
-            using (var sha256 = SHA256.Create())
+            using (SHA256Cng sha = new SHA256Cng())
             {
-                var inputBytes = Encoding.UTF8.GetBytes(input);
-                var outputBytes = sha256.ComputeHash(inputBytes);
-                return Convert.ToBase64String(outputBytes);
-            }
-        }
-
-        public byte[] SignWithCertificate(string message, X509Certificate2 certificate)
-        {
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-
-            if (certificate == null)
-            {
-                throw new ArgumentNullException(nameof(certificate));
-            }
-
-            // Copied from MSAL:
-            // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/7fe94109/src/Microsoft.Identity.Client/Platforms/netstandard1.3/CryptographyHelper.cs#L68
-            using (var key = certificate.GetRSAPrivateKey())
-            {
-                return key.SignData(Encoding.UTF8.GetBytes(message), HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
             }
         }
     }

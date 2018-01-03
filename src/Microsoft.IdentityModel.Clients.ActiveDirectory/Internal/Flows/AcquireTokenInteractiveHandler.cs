@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
@@ -53,10 +54,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private readonly string claims;
 
-        public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
+        public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters,
+            UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
-            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, this.CallState);
+            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
 
             if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
             {
@@ -65,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             this.authorizationParameters = parameters;
 
-            this.redirectUriRequestParameter = platformInformation.GetRedirectUriAsString(this.redirectUri, this.CallState);
+            this.redirectUriRequestParameter = platformInformation.GetRedirectUriAsString(this.redirectUri, RequestContext);
 
             if (userId == null)
             {
@@ -91,8 +93,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 this.LoadFromCache = false;
 
                 var msg = "Claims present. Skip cache lookup.";
-                CallState.Logger.Verbose(CallState, msg);
-                CallState.Logger.VerbosePii(CallState, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
 
                 this.claims = claims;
             }
@@ -101,20 +103,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 this.LoadFromCache = (requestData.TokenCache != null && parameters != null && platformInformation.GetCacheLoadPolicy(parameters));
             }
 
-            this.brokerParameters["force"] = "NO";
+            this.brokerParameters[BrokerParameter.Force] = "NO";
             if (userId != UserIdentifier.AnyUser)
             {
-                this.brokerParameters["username"] = userId.Id;
+                this.brokerParameters[BrokerParameter.Username] = userId.Id;
             }
             else
             {
-                this.brokerParameters["username"] = string.Empty;
+                this.brokerParameters[BrokerParameter.Username] = string.Empty;
             }
-            this.brokerParameters["username_type"] = userId.Type.ToString();
+            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
 
-            this.brokerParameters["redirect_uri"] = this.redirectUri.AbsoluteUri;
-            this.brokerParameters["extra_qp"] = extraQueryParameters;
-            this.brokerParameters["claims"] = claims;
+            this.brokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
+            this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
+            this.brokerParameters[BrokerParameter.Claims] = claims;
             brokerHelper.PlatformParameters = authorizationParameters;
         }
 
@@ -142,13 +144,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         internal async Task AcquireAuthorizationAsync()
         {
             Uri authorizationUri = this.CreateAuthorizationUri();
-            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, this.CallState).ConfigureAwait(false);
+            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, RequestContext).ConfigureAwait(false);
         }
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)
         {
-            this.CallState.CorrelationId = correlationId;
-            await this.Authenticator.UpdateFromTemplateAsync(this.CallState).ConfigureAwait(false);
+            this.RequestContext.CorrelationId = correlationId;
+            await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
             return this.CreateAuthorizationUri();
         }
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
@@ -158,7 +160,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
         }
 
-        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override async Task PostTokenRequest(AdalResultWrapper resultEx)
         {
             await base.PostTokenRequest(resultEx).ConfigureAwait(false);
             if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
@@ -213,9 +215,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 authorizationRequestParameters["claims"] = claims;
             }
 
-            if (this.CallState != null && this.CallState.CorrelationId != Guid.Empty)
+            if (this.RequestContext != null && this.RequestContext.CorrelationId != Guid.Empty)
             {
-                authorizationRequestParameters[OAuthParameter.CorrelationId] = this.CallState.CorrelationId.ToString();
+                authorizationRequestParameters[OAuthParameter.CorrelationId] = this.RequestContext.CorrelationId.ToString();
             }
 
             if (this.authorizationParameters != null)
@@ -233,7 +235,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             if (!string.IsNullOrWhiteSpace(extraQueryParameters))
             {
                 // Checks for extraQueryParameters duplicating standard parameters
-                Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(extraQueryParameters, '&', false, this.CallState);
+                Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(extraQueryParameters, '&', false, RequestContext);
                 foreach (KeyValuePair<string, string> kvp in kvps)
                 {
                     if (authorizationRequestParameters.ContainsKey(kvp.Key))
@@ -265,7 +267,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             Uri uri = new Uri(this.authorizationResult.Code);
             string query = EncodingHelper.UrlDecode(uri.Query);
-            Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(query, '&', false, this.CallState);
+            Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(query, '&', false, RequestContext);
             parameters["username"] = kvps["username"];
         }
 
@@ -275,7 +277,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 && !string.IsNullOrEmpty(this.authorizationResult.Code)
                 && this.authorizationResult.Code.StartsWith("msauth://", StringComparison.OrdinalIgnoreCase))
             {
-                this.brokerParameters["broker_install_url"] = this.authorizationResult.Code;
+                this.brokerParameters[BrokerParameter.BrokerInstallUrl] = this.authorizationResult.Code;
                 return true;
             }
 

@@ -36,13 +36,13 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Identity.Core.Cache
 {
     [DataContract]
-    internal class AuthenticationResultEx
+    internal class AdalResultWrapper
     {
         [DataMember]
-        public AuthenticationResult Result { get; set; }
+        public AdalResult Result { get; set; }
 
         /// <summary>
         /// Gets the Refresh Token associated with the requested Access Token. Note: not all operations will return a Refresh Token.
@@ -73,14 +73,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// Serializes the object to a JSON string
         /// </summary>
         /// <returns>Deserialized authentication result</returns>
-        public static AuthenticationResultEx Deserialize(string serializedObject)
+        public static AdalResultWrapper Deserialize(string serializedObject)
         {
-            AuthenticationResultEx resultEx;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultEx));
+            AdalResultWrapper resultEx;
+            var serializer = new DataContractJsonSerializer(typeof(AdalResultWrapper));
             byte[] serializedObjectBytes = Encoding.UTF8.GetBytes(serializedObject);
             using (var stream = new MemoryStream(serializedObjectBytes))
             {
-                resultEx = (AuthenticationResultEx)serializer.ReadObject(stream);
+                resultEx = (AdalResultWrapper)serializer.ReadObject(stream);
             }
 
             return resultEx;
@@ -93,7 +93,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public string Serialize()
         {
             string serializedObject;
-            var serializer = new DataContractJsonSerializer(typeof(AuthenticationResultEx));
+            var serializer = new DataContractJsonSerializer(typeof(AdalResultWrapper));
             using (MemoryStream stream = new MemoryStream())
             {
                 serializer.WriteObject(stream, this);
@@ -108,9 +108,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         [DataMember]
         public string UserAssertionHash { get; set; }
 
-        internal AuthenticationResultEx Clone()
+        internal AdalResultWrapper Clone()
         {
-            return new AuthenticationResultEx
+            return Deserialize(Serialize());
+
+/*            return new AdalResultWrapper
             {
                 UserAssertionHash = this.UserAssertionHash,
                 Exception = this.Exception,
@@ -124,7 +126,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                     TenantId = this.Result.TenantId,
                     UserInfo = new UserInfo(this.Result.UserInfo)
                 }
-            };
+            };*/
         }
     }
 }

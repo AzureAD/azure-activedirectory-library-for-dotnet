@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
@@ -71,19 +72,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUri.OriginalString;
         }
 
-        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override async Task PostTokenRequest(AdalResultWrapper resultEx)
         {
             await base.PostTokenRequest(resultEx).ConfigureAwait(false);
-            UserInfo userInfo = resultEx.Result.UserInfo;
-            this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
-            this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;
+            AdalUserInfo adalUserInfo = resultEx.Result.UserInfo;
+            this.UniqueId = (adalUserInfo == null) ? null : adalUserInfo.UniqueId;
+            this.DisplayableId = (adalUserInfo == null) ? null : adalUserInfo.DisplayableId;
             if (resultEx.ResourceInResponse != null)
             {
                 this.Resource = resultEx.ResourceInResponse;
 
                 var msg = "Resource value in the token response was used for storing tokens in the cache";
-                CallState.Logger.Verbose(this.CallState, msg);
-                CallState.Logger.VerbosePii(this.CallState, msg);
+                RequestContext.Logger.Verbose(msg);
+                RequestContext.Logger.VerbosePii(msg);
             }
 
             // If resource is not passed as an argument and is not returned by STS either, 

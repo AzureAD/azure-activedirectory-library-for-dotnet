@@ -26,15 +26,26 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    internal abstract class CoreLoggerBase : ILogger
     {
-        public static string CreateSha256Hash(string input)
-        {
-            return null;
-        }
+        public static ILogger Default = null;
+
+        public abstract void Error(string message);
+        public abstract void ErrorPii(string message);
+        public abstract void Warning(string message);
+        public abstract void WarningPii(string message);
+        public abstract void Info(string message);
+        public abstract void InfoPii(string message);
+        public abstract void Verbose(string message);
+        public abstract void VerbosePii(string message);
+        public abstract void Error(Exception ex);
+        public abstract void ErrorPii(Exception ex);
     }
 }

@@ -31,18 +31,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class TokenCachePlugin
+    /// <summary>
+    /// This class is intended to wrap ADAL's AdalResultWrapper and MSAL's TokenCacheItem.
+    /// 2 libraries have funamentally different representation and storage concept of the data.
+    /// Instead of creating multiple levels of translation, it would be simpler to have this class that holds both ADAL and MSAL cache representation objects.
+    /// Translation of data should be done in core.
+    /// </summary>
+    internal class CoreTokenCacheItem
     {
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
-        {
-            // Default implementation, do nothing
-        }
+        public AdalResultWrapper AdalResultWrapper { get; set; }
 
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-            // Default implementation, do nothing
-        }
+        //MSAL cache items should be added here.
     }
 }

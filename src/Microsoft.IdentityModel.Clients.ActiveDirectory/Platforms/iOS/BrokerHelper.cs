@@ -33,9 +33,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using CoreFoundation;
 using Foundation;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using UIKit;
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -44,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private static SemaphoreSlim brokerResponseReady = null;
         private static NSUrl brokerResponse = null;
 
-        public CallState CallState { get; set; }
+        public RequestContext RequestContext { get; set; }
         public IPlatformParameters PlatformParameters { get; set; }
 
         public bool CanInvokeBroker
@@ -71,9 +74,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
         }
 
-        public async Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        public async Task<AdalResultWrapper> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
         {
-            if (brokerPayload.ContainsKey("silent_broker_flow"))
+            if (brokerPayload.ContainsKey(BrokerParameter.SilentBrokerFlow))
             {
                 throw new AdalSilentTokenAcquisitionException();
             }
@@ -89,13 +92,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (brokerPayload.ContainsKey("claims"))
             {
                 brokerPayload.Add("skip_cache", "YES");
-                string claims = EncodingHelper.UrlEncode(brokerPayload["claims"]);
-                brokerPayload["claims"] = claims;
+                string claims = EncodingHelper.UrlEncode(brokerPayload[BrokerParameter.Claims]);
+                brokerPayload[BrokerParameter.Claims] = claims;
             }
 
-            if (brokerPayload.ContainsKey("broker_install_url"))
+            if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
-                    string url = brokerPayload["broker_install_url"];
+                    string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
                     Uri uri = new Uri(url);
                     string query = uri.Query;
                     if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
@@ -121,7 +124,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return ProcessBrokerResponse();
         }
 
-        private AuthenticationResultEx ProcessBrokerResponse()
+        private AdalResultWrapper ProcessBrokerResponse()
         {
             string[] keyValuePairs = brokerResponse.Query.Split('&');
 
@@ -139,7 +142,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return ResultFromBrokerResponse(responseDictionary);
         }
 
-        private AuthenticationResultEx ResultFromBrokerResponse(IDictionary<string, string> responseDictionary)
+        private AdalResultWrapper ResultFromBrokerResponse(IDictionary<string, string> responseDictionary)
         {
             TokenResponse response;
 
