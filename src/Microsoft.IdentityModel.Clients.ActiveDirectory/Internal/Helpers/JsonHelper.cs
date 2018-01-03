@@ -54,5 +54,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
 
             return response;
         }
+
+        internal static T DeserializeFromJson<T>(byte[] jsonByteArray)
+        {
+            if (jsonByteArray == null || jsonByteArray.Length == 0)
+            {
+                return default(T);
+            }
+
+            T response;
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T));
+            using (MemoryStream stream = new MemoryStream(jsonByteArray))
+            {
+                response = ((T)serializer.ReadObject(stream));
+            }
+
+            return response;
+        }
     }
 }

@@ -317,6 +317,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
             this.AddAditionalRequestParameters(requestParameters);
+            requestParameters.Add(OAuthParameter.ClientInfo, "1");
             return await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }
 

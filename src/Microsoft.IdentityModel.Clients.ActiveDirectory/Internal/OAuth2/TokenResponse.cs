@@ -272,7 +272,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                     RefreshToken = this.RefreshToken,
                     // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
                     // to get it from the STS response.
-                    ResourceInResponse = this.Resource
+                    ResourceInResponse = this.Resource,
+                    ClientInfo = ClientInfo != null ? Microsoft.Identity.Client.Internal.ClientInfo.CreateFromJson(this.ClientInfo) : null
                 };
             }
             else if (this.Error != null)

@@ -49,6 +49,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public const string LoginHint = "login_hint"; // login_hint is not standard oauth2 parameter
         public const string CorrelationId = OAuthHeader.CorrelationId; // correlation id is not standard oauth2 parameter
         public const string Prompt = "prompt"; // prompt is not standard oauth2 parameter
+        public const string ClientInfo = "client_info"; // client_info is not standard oauth2 parameter
     }
 
     internal static class OAuthGrantType

@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Client.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,6 +66,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         [DataMember]
         internal string ResourceInResponse { get; set; }
 
+        [DataMember]
+        public ClientInfo ClientInfo { get; set; }
 
         /// <summary>
         /// Serializes the object to a JSON string
@@ -113,6 +116,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 Exception = this.Exception,
                 RefreshToken = this.RefreshToken,
                 ResourceInResponse = this.ResourceInResponse,
+                ClientInfo = this.ClientInfo,
                 Result = new AuthenticationResult(this.Result.AccessTokenType, this.Result.AccessToken, this.Result.ExpiresOn, this.Result.ExtendedExpiresOn)
                 {
                     ExtendedLifeTimeToken = this.Result.ExtendedLifeTimeToken,

@@ -108,7 +108,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -169,7 +170,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -237,7 +239,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -351,7 +354,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -465,7 +469,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -522,7 +527,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -579,7 +585,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -643,7 +650,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -753,7 +761,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -864,7 +873,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
@@ -926,7 +936,8 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
+                    {OAuthParameter.ClientInfo, "1"}
                 }
             });
 
