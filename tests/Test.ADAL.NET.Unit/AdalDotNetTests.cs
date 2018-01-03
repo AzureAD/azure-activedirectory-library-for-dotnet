@@ -86,8 +86,8 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, true);
-            context.TokenCache.Clear();
+            var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
+
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
@@ -125,8 +125,6 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, _platformParameters);
-
-            IDictionary<TokenCacheKey, AuthenticationResultEx> cahcheItems = context.TokenCache.tokenCacheDictionary;
 
             Assert.IsNotNull(result);
             Assert.IsTrue(context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
