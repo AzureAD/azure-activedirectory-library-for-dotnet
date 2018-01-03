@@ -32,6 +32,7 @@ using Android.Content;
 using Android.Widget;
 using Android.OS;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Runnable = Java.Lang.Runnable;
 
 namespace AdalAndroidTestApp
 {
@@ -59,7 +60,7 @@ namespace AdalAndroidTestApp
             Button conditionalAccessButton = FindViewById<Button>(Resource.Id.conditionalAccessButton);
             conditionalAccessButton.Click += conditionalAccessButton_Click;
 
-            this.accessTokenTextView = FindViewById<TextView>(Resource.Id.accessTokenTextView);
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView = FindViewById<TextView>(Resource.Id.accessTokenTextView); }));
             EditText email = FindViewById<EditText>(Resource.Id.email);
             email.Text = "<USERNAME>";
         }
@@ -73,7 +74,7 @@ namespace AdalAndroidTestApp
 
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
         {
-            this.accessTokenTextView.Text = string.Empty;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
             try
@@ -93,12 +94,12 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            this.accessTokenTextView.Text = value;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
         }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
-            this.accessTokenTextView.Text = string.Empty;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
@@ -118,7 +119,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            this.accessTokenTextView.Text = value;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
         }
 
         private async void clearCacheButton_Click(object sender, EventArgs e)
@@ -126,13 +127,13 @@ namespace AdalAndroidTestApp
             await Task.Factory.StartNew(() =>
             {
                 TokenCache.DefaultShared.Clear();
-                this.accessTokenTextView.Text = "Cache cleared";
+                RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = "Cache cleared"; }));
             });
         }
 
         private async void conditionalAccessButton_Click(object sender, EventArgs e)
         {
-            this.accessTokenTextView.Text = string.Empty;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
             try
@@ -156,7 +157,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            this.accessTokenTextView.Text = value;
+            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
         }
     }
 }
