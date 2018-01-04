@@ -29,6 +29,7 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using Java.Lang;
+using System;
 
 namespace AdalAndroidTestApp
 {
@@ -42,8 +43,8 @@ namespace AdalAndroidTestApp
 
         public UITextView(Activity activity, TextView view)
         {
-            this.activity = activity;
-            this.view = view;
+            this.activity = activity ?? throw new ArgumentException("Activity must not be null.");
+            this.view = view ?? throw new ArgumentException("View must not be null.");
         }
 
         /// <summary>
@@ -57,10 +58,7 @@ namespace AdalAndroidTestApp
             }
             set
             {
-                if (Looper.MyLooper() != null && Looper.MyLooper().Thread == Looper.MainLooper.Thread)
-                    view.Text = value;
-                else
-                    activity.RunOnUiThread(new Runnable(delegate () { view.Text = value; }));
+                activity.RunOnUiThread(new Runnable(delegate () { view.Text = value; }));
             }
         }
     }
