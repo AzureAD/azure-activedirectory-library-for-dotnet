@@ -58,6 +58,9 @@ namespace Test.ADAL.NET.Common
         public static readonly string UserRealmEndPoint = "userrealm";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
 
+        public static readonly string DefaultUniqueIdentifier = "SomeUniqueIdentifier ";
+        public static readonly string DefaultUniqueTenantIdentifier = "SomeUniqueTenantIdentifier ";
+
         public static string GetTokenEndpoint(string Authority)
         {
             return Authority + TokenEndPoint;

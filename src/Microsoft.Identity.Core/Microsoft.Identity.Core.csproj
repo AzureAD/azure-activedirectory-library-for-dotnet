@@ -51,13 +51,10 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Resources\**\*.*" />
-    <None Remove="AdalError.cs" />
-    <None Remove="AdalException.cs" />
     <None Remove="Cache\AdalResult.cs" />
     <None Remove="Cache\AdalResultWrapper.cs" />
     <None Remove="Cache\AdalUserInfo.cs" />
     <None Remove="Cache\ClientInfo.cs" />
-    <None Remove="Constants.cs" />
     <None Remove="Helpers\Base64UrlEncoder.cs" />
     <None Remove="Helpers\EncodingHelper.cs" />
     <None Remove="Helpers\JsonHelper.cs" />

@@ -71,36 +71,31 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNet")]
         public async Task ClientInfoTest()
         {
-            const string testUniqueIdentifier = "TestUI123";
-            const string testUniqueTenantIdentifier = "TestUTID123";
-
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                 TestConstants.DefaultRedirectUri + "?code=some-code"));
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseWithClientInfoMessage(testUniqueIdentifier, testUniqueTenantIdentifier),
-                PostData = new Dictionary<string, string>()
+            HttpMessageHandlerFactory.AddMockHandler(
+                new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
                 {
-                    {OAuthParameter.ClientInfo, "1"}
-                }
-            });
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>
+                    {
+                        {OAuthParameter.ClientInfo, "1"}
+                    }
+                });
 
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
 
-            var result =
-                await
-                    context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+            await
+                context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
+                    TestConstants.DefaultRedirectUri, _platformParameters);
 
             var cahcheItems = context.TokenCache.tokenCacheDictionary;
 
             Assert.AreEqual(1, cahcheItems.Count);
-
-
-            Assert.IsNotNull(cahcheItems.First());
-            Assert.AreEqual(testUniqueIdentifier, cahcheItems.First().Value.ClientInfo.UniqueIdentifier);
-            Assert.AreEqual(testUniqueTenantIdentifier, cahcheItems.First().Value.ClientInfo.UniqueTenantIdentifier);
+   
+            Assert.AreEqual(TestConstants.DefaultUniqueIdentifier, cahcheItems.First().Value.ClientInfo.UniqueIdentifier);
+            Assert.AreEqual(TestConstants.DefaultUniqueTenantIdentifier, cahcheItems.First().Value.ClientInfo.UniqueTenantIdentifier);
         }
 
         [TestMethod]

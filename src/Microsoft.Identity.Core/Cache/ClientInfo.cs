@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Runtime.Serialization;
 using Microsoft.Identity.Core.Helpers;
@@ -51,7 +50,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
-                throw new AdalException(AdalError.JsonParseError, "client info is null");
+                throw new CoreClientException(CoreClientException.JsonParseError, "client info is null");
             }
 
             try
@@ -60,7 +59,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception exc)
             {
-                throw new AdalException(AdalError.JsonParseError,
+                throw new CoreClientException(CoreClientException.JsonParseError,
                     "Failed to parse the returned client info.", exc);
             }
         }

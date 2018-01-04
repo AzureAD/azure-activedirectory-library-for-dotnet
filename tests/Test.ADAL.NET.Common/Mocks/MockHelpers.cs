@@ -30,7 +30,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -127,38 +127,27 @@ namespace Test.ADAL.NET.Common.Mocks
             return CreateSuccessTokenResponseMessage(false);
         }
 
-        public static HttpResponseMessage CreateSuccessTokenResponseWithClientInfoMessage(string uniqueIdentifier, string unqiueTenantIdentifier)
-        {
-            var clientInfo = new ClientInfo
-            {
-                UniqueIdentifier = uniqueIdentifier,
-                UniqueTenantIdentifier = unqiueTenantIdentifier
-            };
-
-            var base64EncodedSerializedClientInfo = Base64UrlEncoder.Encode(JsonHelper.EncodeToJson<ClientInfo>(clientInfo));
-
-            var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-            const string extendedExpiresIn = "";
-
-            HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\",\"refresh_token\":\"something-encrypted\",\"id_token\":\"" +
-                                                    CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) + "\"," +
-                                                    "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
-            responseMessage.Content = content;
-            return responseMessage;
-        }
-
         public static HttpResponseMessage CreateSuccessTokenResponseMessage(bool setExtendedExpiresIn)
         {
-            HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-            string extendedExpiresIn = "";
+            var responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+            var extendedExpiresIn = "";
 
             if (setExtendedExpiresIn)
             {
                 extendedExpiresIn = "\"ext_expires_in\":\"7200\",";
             }
 
-            HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\",\"refresh_token\":\"something-encrypted\",\"id_token\":\"" +
-                                  CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) + "\"}");
+            var clientInfo = new ClientInfo
+            {
+                UniqueIdentifier = TestConstants.DefaultUniqueIdentifier,
+                UniqueTenantIdentifier = TestConstants.DefaultUniqueTenantIdentifier
+            };
+            var base64EncodedSerializedClientInfo = Base64UrlEncoder.Encode(JsonHelper.EncodeToJson<ClientInfo>(clientInfo));
+
+            HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn +
+                                                    "\"resource\":\"resource1\",\"access_token\":\"some-access-token\",\"refresh_token\":\"something-encrypted\"," +
+                                                    "\"id_token\":\"" + CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) + "\"," +
+                                                    "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
             responseMessage.Content = content;
             return responseMessage;
         }
