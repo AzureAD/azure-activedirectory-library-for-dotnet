@@ -32,7 +32,6 @@ using Android.Content;
 using Android.Widget;
 using Android.OS;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Runnable = Java.Lang.Runnable;
 
 namespace AdalAndroidTestApp
 {
@@ -100,7 +99,7 @@ namespace AdalAndroidTestApp
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
+            this.accessTokenTextView.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
@@ -159,26 +158,6 @@ namespace AdalAndroidTestApp
             }
 
             this.accessTokenTextView.Text = value;
-        }
-    }
-
-    class UITextView
-    {
-        private Activity activity;
-        private TextView view;
-
-        public UITextView(Activity activity, TextView view)
-        {
-            this.activity = activity;
-            this.view = view;
-        }
-
-        public string Text
-        {
-            get
-            { return view.Text; }
-            set
-            { activity.RunOnUiThread(new Runnable(delegate () { view.Text = value; })); }
         }
     }
 }
