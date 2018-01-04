@@ -1,0 +1,28 @@
+clone_folder: c:\AADDotNetLib
+
+#retry installation
+install:
+ - appveyor-retry powershell .\InstallAndroidSDK.ps1
+
+image: Previous Visual Studio 2017
+
+configuration: Release
+
+environment:
+  JavaSdkDirectory: '%JAVA_HOME%'
+
+before_build:
+  - nuget restore ADAL.NET.NoWinRT.sln
+  - '"C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.6.1 Tools/sn.exe" -Vr *,*'
+
+build:
+  project: ADAL.NET.NoWinRT.sln
+
+skip_commits:
+  files:
+    - '**/*.md'
+    - 'changelog.txt'
+
+on_finish:
+# Uncomment this to be able to RDP into the build agent
+# ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
