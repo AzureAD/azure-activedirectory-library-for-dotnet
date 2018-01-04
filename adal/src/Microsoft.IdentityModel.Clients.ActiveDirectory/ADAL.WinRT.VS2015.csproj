@@ -118,7 +118,7 @@
     <Compile Include="Features\WinCommon\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Core\Microsoft.Identity.Core.VS2015.csproj">
+    <ProjectReference Include="..\..\..\core\src\Microsoft.Identity.Core.VS2015.csproj">
       <Project>{72f03823-45dc-4f77-bdcb-29e880bf1ac8}</Project>
       <Name>Microsoft.Identity.Core.VS2015</Name>
     </ProjectReference>

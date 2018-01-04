@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdalUniversalTestApp.Window
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADAL.WinRT.VS2015.Platform", "src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\ADAL.WinRT.VS2015.Platform.csproj", "{62659826-9AC1-4592-A1DB-1E7EFBDBD426}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Core.VS2015", "..\Microsoft.Identity.Core\Microsoft.Identity.Core.VS2015.csproj", "{72F03823-45DC-4F77-BDCB-29E880BF1AC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Identity.Core.VS2015", "..\core\src\Microsoft.Identity.Core.VS2015.csproj", "{72F03823-45DC-4F77-BDCB-29E880BF1AC8}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
