@@ -39,7 +39,7 @@ namespace AdalAndroidTestApp
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
-        private TextView accessTokenTextView;
+        private UITextView accessTokenTextView;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -60,7 +60,8 @@ namespace AdalAndroidTestApp
             Button conditionalAccessButton = FindViewById<Button>(Resource.Id.conditionalAccessButton);
             conditionalAccessButton.Click += conditionalAccessButton_Click;
 
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView = FindViewById<TextView>(Resource.Id.accessTokenTextView); }));
+            this.accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
+
             EditText email = FindViewById<EditText>(Resource.Id.email);
             email.Text = "<USERNAME>";
         }
@@ -74,7 +75,7 @@ namespace AdalAndroidTestApp
 
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
         {
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
+            this.accessTokenTextView.Text = string.Empty;
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
             try
@@ -94,7 +95,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
+            this.accessTokenTextView.Text = value;
         }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
@@ -119,7 +120,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
+            this.accessTokenTextView.Text = value;
         }
 
         private async void clearCacheButton_Click(object sender, EventArgs e)
@@ -127,13 +128,13 @@ namespace AdalAndroidTestApp
             await Task.Factory.StartNew(() =>
             {
                 TokenCache.DefaultShared.Clear();
-                RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = "Cache cleared"; }));
+                this.accessTokenTextView.Text = "Cache cleared";
             });
         }
 
         private async void conditionalAccessButton_Click(object sender, EventArgs e)
         {
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = string.Empty; }));
+            this.accessTokenTextView.Text = string.Empty;
             EditText email = FindViewById<EditText>(Resource.Id.email);
             string value = null;
             try
@@ -157,7 +158,27 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            RunOnUiThread(new Runnable(delegate () { this.accessTokenTextView.Text = value; }));
+            this.accessTokenTextView.Text = value;
+        }
+    }
+
+    class UITextView
+    {
+        private Activity activity;
+        private TextView view;
+
+        public UITextView(Activity activity, TextView view)
+        {
+            this.activity = activity;
+            this.view = view;
+        }
+
+        public string Text
+        {
+            get
+            { return view.Text; }
+            set
+            { activity.RunOnUiThread(new Runnable(delegate () { view.Text = value; })); }
         }
     }
 }
