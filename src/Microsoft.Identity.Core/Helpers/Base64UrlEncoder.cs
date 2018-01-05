@@ -58,9 +58,9 @@ namespace Microsoft.Identity.Core.Helpers
             return Encode(TextEncoding.GetBytes(arg));
         }
 
-        public static byte[] DecodeBytes(string arg)
+        public static byte[] Decode(string base64url)
         {
-            string s = arg;
+            string s = base64url;
             s = s.Replace(Base64UrlCharacter62, Base64Character62); // 62nd char of encoding
             s = s.Replace(Base64UrlCharacter63, Base64Character63); // 63rd char of encoding
 
@@ -76,11 +76,10 @@ namespace Microsoft.Identity.Core.Helpers
                     s += Base64PadCharacter; 
                     break; // One pad char
                 default:
-                    throw new ArgumentException("Illegal base64url string!", "arg");
+                    throw new ArgumentException("Illegal base64url string!", "base64url");
             }
 
             return Convert.FromBase64String(s); // Standard base64 decoder
-
         }
 
         internal static string Encode(byte[] arg)

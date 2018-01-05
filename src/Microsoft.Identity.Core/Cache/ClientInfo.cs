@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Core.Cache
 
             try
             {
-                return JsonHelper.DeserializeFromJson<ClientInfo>(Base64UrlEncoder.DecodeBytes(clientInfo));
+                return JsonHelper.DeserializeFromJson<ClientInfo>(Base64UrlEncoder.Decode(clientInfo));
             }
             catch (Exception exc)
             {
