@@ -27,11 +27,11 @@
 
 using System;
 using Android.Util;
-using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.EventsSource
 {
-    internal class PlatformLogger : ILogger
+    internal class PlatformLogger : CoreLoggerBase
     {
         public void Error(string errorMessage)
         {

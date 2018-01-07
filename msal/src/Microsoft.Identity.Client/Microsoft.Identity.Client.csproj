@@ -50,6 +50,7 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
+    <Compile Remove="Internal\LoggerBase.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Client.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +143,10 @@
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\Microsoft.Identity.Core.csproj" />
+  </ItemGroup>
   
  
   <!-- This is here to workaround designer issues so VS sees them appropriately -->

@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Core.Cache
     /// Contains the results of one token acquisition operation. 
     /// </summary>
     [DataContract]
-    public sealed class AdalResult
+    internal sealed class AdalResult
     {
         private const string Oauth2AuthorizationHeader = "Bearer ";
 
