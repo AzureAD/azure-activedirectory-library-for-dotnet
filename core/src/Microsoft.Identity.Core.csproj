@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;MonoAndroid7;Xamarin.iOS10;win81</TargetFrameworks>        
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
     <Product>Microsoft.Identity.Core ($(TargetFramework))</Product>
     <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -50,7 +50,6 @@
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
-    <Compile Remove="Resources\**\*.*" />
     <None Remove="Cache\AdalResult.cs" />
     <None Remove="Cache\AdalResultWrapper.cs" />
     <None Remove="Cache\AdalUserInfo.cs" />
@@ -116,8 +115,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
-    <AndroidResource Include="Resources\**\*.axml" />
-    <AndroidResource Include="Resources\**\*.xml" />
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
