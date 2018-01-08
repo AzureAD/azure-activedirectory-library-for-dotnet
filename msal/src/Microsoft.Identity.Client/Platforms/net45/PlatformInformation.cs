@@ -32,12 +32,12 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
     internal class PlatformInformation : PlatformInformationBase
     {
-	bool isWindows;
 	internal static bool IsWindows {
             get {
                 switch (Environment.OSVersion.Platform) {
@@ -50,11 +50,6 @@ namespace Microsoft.Identity.Client
                         return false;
 		}
             }
-        }
-
-        public PlatformInformation(RequestContext requestContext) :base(requestContext)
-        {
-	    isWindows = IsWindows;
         }
 
         public override string GetProductName()
@@ -70,8 +65,8 @@ namespace Microsoft.Identity.Client
 
         public override string GetProcessorArchitecture()
         {
-	        if (isWindows)
-                return NativeMethods.GetProcessorArchitecture(RequestContext);
+	        if (IsWindows)
+                return NativeMethods.GetProcessorArchitecture();
 			else
                 return null;
         }
@@ -104,7 +99,7 @@ namespace Microsoft.Identity.Client
 
         public override bool IsDomainJoined()
         {
-            if (!isWindows)
+            if (!IsWindows)
                 return false;
             
             bool returnValue = false;
@@ -123,8 +118,8 @@ namespace Microsoft.Identity.Client
             }
             catch (Exception ex)
             {
-                RequestContext.Logger.Warning(ex.Message);
-                RequestContext.Logger.WarningPii(ex.Message);
+                CoreLoggerBase.Default.Warning(ex.Message);
+                CoreLoggerBase.Default.WarningPii(ex.Message);
                 // ignore the exception as the result is already set to false;
             }
 
@@ -150,7 +145,7 @@ namespace Microsoft.Identity.Client
             [DllImport("kernel32.dll")]
             private static extern void GetNativeSystemInfo(ref SYSTEM_INFO lpSystemInfo);
 
-            public static string GetProcessorArchitecture(RequestContext requestContext)
+            public static string GetProcessorArchitecture()
             {
                 try
                 {
@@ -174,7 +169,7 @@ namespace Microsoft.Identity.Client
                 }
                 catch (Exception ex)
                 {
-                    requestContext.Logger.Warning(ex.Message);
+                    CoreLoggerBase.Default.Warning(ex.Message);
                     return "Unknown";
                 }
             }

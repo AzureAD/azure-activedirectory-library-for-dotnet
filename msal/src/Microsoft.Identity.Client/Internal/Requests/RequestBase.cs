@@ -130,7 +130,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 ApiId = ApiId,
                 ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(),
                 UserId = AuthenticationRequestParameters.User != null ? AuthenticationRequestParameters.User.Identifier : "",
-                CorrelationId = AuthenticationRequestParameters.RequestContext.CorrelationId,
+                CorrelationId = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString(),
                 RequestId = AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
                 IsConfidentialClient = IsConfidentialClient,
                 UiBehavior = GetUIBehaviorPromptValue(),

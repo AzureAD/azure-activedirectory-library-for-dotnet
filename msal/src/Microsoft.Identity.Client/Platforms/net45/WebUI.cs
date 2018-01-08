@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Interfaces;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.UI
 {

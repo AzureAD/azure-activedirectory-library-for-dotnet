@@ -26,11 +26,11 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Client.Internal.EventsSource;
 
-namespace Microsoft.Identity.Client.Internal.EventsSource
+namespace Microsoft.Identity.Client.Internal
 {
-    internal class PlatformLogger : ILogger
+    internal class PlatformLogger
     {
         static PlatformLogger()
         {
@@ -39,29 +39,24 @@ namespace Microsoft.Identity.Client.Internal.EventsSource
 
         internal static MsalEventSource MsalEventSource { get; }
 
-        public void Error(string message)
+        public static void Error(string message)
         {
             MsalEventSource.Error(message);
         }
 
-        public void Warning(string message)
+        public static void Warning(string message)
         {
             MsalEventSource.Error(message);
         }
 
-        public void Verbose(string message)
+        public static void Verbose(string message)
         {
             MsalEventSource.Error(message);
         }
 
-        public void Information(string message)
+        public static void Information(string message)
         {
             MsalEventSource.Error(message);
-        }
-
-        public void Error(Exception ex)
-        {
-            Error(ex.ToString());
         }
     }
 }

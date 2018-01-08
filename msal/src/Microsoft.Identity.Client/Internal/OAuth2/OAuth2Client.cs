@@ -37,6 +37,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.Telemetry;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.OAuth2
 {
@@ -81,10 +82,10 @@ namespace Microsoft.Identity.Client.Internal.OAuth2
 
         internal async Task<T> ExecuteRequest<T>(Uri endPoint, HttpMethod method, RequestContext requestContext)
         {
-            bool addCorrelationId = (requestContext != null && !string.IsNullOrEmpty(requestContext.CorrelationId));
+            bool addCorrelationId = (requestContext != null && !string.IsNullOrEmpty(requestContext.Logger.CorrelationId.ToString()));
             if (addCorrelationId)
             {
-                _headers.Add(OAuth2Header.CorrelationId, requestContext.CorrelationId);
+                _headers.Add(OAuth2Header.CorrelationId, requestContext.Logger.CorrelationId.ToString());
                 _headers.Add(OAuth2Header.RequestCorrelationIdInResponse, "true");
             }
 
@@ -182,12 +183,12 @@ namespace Microsoft.Identity.Client.Internal.OAuth2
                 if (string.Compare(trimmedKey, OAuth2Header.CorrelationId, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     string correlationIdHeader = headers[trimmedKey].Trim();
-                    if (!string.Equals(correlationIdHeader, requestContext.CorrelationId))
+                    if (!string.Equals(correlationIdHeader, requestContext.Logger.CorrelationId))
                     {
                         requestContext.Logger.Warning("Returned correlation id does not match the sent correlation id");
                         requestContext.Logger.WarningPii(string.Format(CultureInfo.InvariantCulture,
                             "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                            correlationIdHeader, requestContext.CorrelationId));
+                            correlationIdHeader, requestContext.Logger.CorrelationId));
                     }
 
                     break;

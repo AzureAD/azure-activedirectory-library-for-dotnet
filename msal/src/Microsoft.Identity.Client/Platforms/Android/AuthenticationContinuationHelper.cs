@@ -30,6 +30,7 @@ using Android.App;
 using Android.Content;
 using Microsoft.Identity.Client.Internal;
 using System;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
@@ -46,7 +47,7 @@ namespace Microsoft.Identity.Client
         /// <param name="data">Response data from authentication</param>
         public static void SetAuthenticationContinuationEventArgs(int requestCode, Result resultCode, Intent data)
         {
-            RequestContext requestContext = new RequestContext(Guid.Empty, null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
             var msg = string.Format(CultureInfo.InvariantCulture, "Received Activity Result({0})", (int) resultCode);
             requestContext.Logger.Info(msg);

@@ -60,9 +60,9 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("LoggerTests")]
         public void CallbackTestErrorTest()
         {
-            Logger logger = new Logger(Guid.Empty, null);
+            MsalLogger logger = new MsalLogger(Guid.Empty, null);
             var counter = 0;
-            Logger.Level = Logger.LogLevel.Error;
+            MsalLoggerSettings.Level = MsalLoggerSettings.LogLevel.Error;
 
             _callback.When(x => x(Logger.LogLevel.Error, Arg.Any<string>(), false)).Do(x => counter++);
             logger.Error("test message");

@@ -36,6 +36,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 
@@ -386,7 +387,7 @@ namespace Test.ADAL.Common.Unit
                 SubjectType = TokenSubjectType.User
             };
 
-            AdalResultWrapper resultEx = await tokenCache.LoadFromCache(data, new RequestContext(Guid.Empty)).ConfigureAwait(false);
+            AdalResultWrapper resultEx = await tokenCache.LoadFromCache(data, new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             Assert.IsNotNull(resultEx);
 
 
@@ -510,18 +511,18 @@ namespace Test.ADAL.Common.Unit
                 DisplayableId = null
             };
 
-            AdalResultWrapper resultEx = await cache.LoadFromCache(data, new RequestContext(Guid.Empty)).ConfigureAwait(false);
+            AdalResultWrapper resultEx = await cache.LoadFromCache(data, new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             AreAdalResultWrappersEqual(value, resultEx);
 
             data.AssertionHash = "hash2";
-            resultEx = await cache.LoadFromCache(data, new RequestContext(Guid.Empty)).ConfigureAwait(false);
+            resultEx = await cache.LoadFromCache(data, new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             AreAdalResultWrappersEqual(value2, resultEx);
 
             data.AssertionHash = null;
 
             // Multiple tokens in cache -> error
             var exc = AssertException.TaskThrows<AdalException>(async () =>
-                await cache.LoadFromCache(data, new RequestContext(Guid.Empty)).ConfigureAwait(false));
+                await cache.LoadFromCache(data, new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false));
             Assert.AreEqual(exc.ErrorCode, AdalError.MultipleTokensMatched);
         }
 

@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.OAuth2;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.Instance
 {

@@ -34,6 +34,7 @@ using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.OAuth2;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Client.Internal.Telemetry;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {

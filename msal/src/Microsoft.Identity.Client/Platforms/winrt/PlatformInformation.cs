@@ -35,13 +35,12 @@ using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System.UserProfile;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
     internal class PlatformInformation : PlatformInformationBase
     {
-        public PlatformInformation(RequestContext requestContext) : base(requestContext) { }
-
         public override string GetProductName()
         {
             return "MSAL.WinRT";
@@ -55,7 +54,7 @@ namespace Microsoft.Identity.Client
 
         public override string GetProcessorArchitecture()
         {
-            return NativeMethods.GetProcessorArchitecture(RequestContext);
+            return NativeMethods.GetProcessorArchitecture();
         }
 
         public override string GetOperatingSystem()
@@ -123,7 +122,7 @@ namespace Microsoft.Identity.Client
             [DllImport("kernel32.dll")]
             private static extern void GetNativeSystemInfo(ref SYSTEM_INFO lpSystemInfo);
 
-            public static string GetProcessorArchitecture(RequestContext requestContext)
+            public static string GetProcessorArchitecture()
             {
                 try
                 {
@@ -147,8 +146,8 @@ namespace Microsoft.Identity.Client
                 }
                 catch (Exception ex)
                 {
-                    requestContext.Logger.Warning(ex.Message);
-                    requestContext.Logger.WarningPii(ex.Message);
+                    CoreLoggerBase.Default.Warning(ex.Message);
+                    CoreLoggerBase.Default.WarningPii(ex.Message);
                     return "Unknown";
                 }
             }

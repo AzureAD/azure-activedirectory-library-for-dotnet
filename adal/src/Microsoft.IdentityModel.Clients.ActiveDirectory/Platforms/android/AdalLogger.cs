@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,32 +26,36 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Globalization;
+using Android.Provider;
+using Android.Util;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class Logger : LoggerBase
+    [Android.Runtime.Preserve(AllMembers = true)]
+    internal class AdalLogger : AdalLoggerBase
     {
-        public Logger(Guid correlationId) : base(correlationId)
+        public AdalLogger(Guid correlationId) : base(correlationId)
         {
         }
-
-        static Logger()
-        {
-            AdalEventSource = new AdalEventSource();
-            Default = new Logger(Guid.Empty);
-        }
-
-        internal static AdalEventSource AdalEventSource { get; private set; }
-
+        
         internal override void DefaultLog(LogLevel logLevel, string message)
         {
-#if NETSTANDARD1_3
-
-            Console.WriteLine(message);
-#else
-            AdalEventSource.Error(message);
-#endif
+            switch (logLevel)
+            {
+                case LogLevel.Verbose:
+                    Log.Verbose(null, message);
+                    break;
+                case LogLevel.Information:
+                    Log.Info(null, message);
+                    break;
+                case LogLevel.Warning:
+                    Log.Warn(null, message);
+                    break;
+                case LogLevel.Error:
+                    Log.Error(null, message);
+                    break;
+            }
         }
     }
 }
+

@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                return Logger.AdalEventSource;
+                return AdalLogger.AdalEventSource;
             }
         }
     }

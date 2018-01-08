@@ -149,7 +149,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)
         {
-            this.RequestContext.CorrelationId = correlationId;
+            this.RequestContext.Logger.CorrelationId = correlationId;
             await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
             return this.CreateAuthorizationUri();
         }
@@ -215,9 +215,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 authorizationRequestParameters["claims"] = claims;
             }
 
-            if (this.RequestContext != null && this.RequestContext.CorrelationId != Guid.Empty)
+            if (this.RequestContext != null && this.RequestContext.Logger.CorrelationId != Guid.Empty)
             {
-                authorizationRequestParameters[OAuthParameter.CorrelationId] = this.RequestContext.CorrelationId.ToString();
+                authorizationRequestParameters[OAuthParameter.CorrelationId] = this.RequestContext.Logger.CorrelationId.ToString();
             }
 
             if (this.authorizationParameters != null)

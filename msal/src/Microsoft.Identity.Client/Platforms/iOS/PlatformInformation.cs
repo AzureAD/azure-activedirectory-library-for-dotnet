@@ -30,17 +30,13 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using System;
 using UIKit;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
     internal class PlatformInformation : PlatformInformationBase
     {
         internal const string IosDefaultRedirectUriTemplate = "msal{0}://auth";
-
-        public PlatformInformation(RequestContext requestContext) : base(requestContext)
-        {
-        }
-
         public override string GetProductName()
         {
             return "MSAL.Xamarin.iOS";

@@ -97,7 +97,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new RequestContext(new Guid()));
+               new RequestContext(new AdalLogger(new Guid())));
             }
             ResetInstanceDiscovery();
 
@@ -158,7 +158,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new RequestContext(new Guid()));
+               new RequestContext(new AdalLogger(new Guid())));
             }
             ResetInstanceDiscovery();
 
@@ -342,7 +342,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = CryptographyHelper.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new RequestContext(new Guid()));
+               new RequestContext(new AdalLogger(new Guid())));
             }
             ResetInstanceDiscovery();
 
@@ -456,7 +456,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = CryptographyHelper.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new RequestContext(new Guid()));
+               new RequestContext(new AdalLogger(new Guid())));
             }
             ResetInstanceDiscovery();
 
@@ -512,7 +512,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new Guid()));
+           new RequestContext(new AdalLogger(new Guid())));
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -569,7 +569,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new Guid()));
+           new RequestContext(new AdalLogger(new Guid())));
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -745,7 +745,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = CryptographyHelper.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new Guid()));
+           new RequestContext(new AdalLogger(new Guid())));
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -856,7 +856,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = CryptographyHelper.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new Guid()));
+           new RequestContext(new AdalLogger(new Guid())));
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))

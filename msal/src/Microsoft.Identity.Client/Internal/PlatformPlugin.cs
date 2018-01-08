@@ -27,6 +27,7 @@
 
 using System;
 using Microsoft.Identity.Client.Internal.Interfaces;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal
 {
@@ -42,8 +43,6 @@ namespace Microsoft.Identity.Client.Internal
 
     internal static class PlatformPlugin
     {
-        private const string Namespace = "Microsoft.Identity.Client.";
-
         static PlatformPlugin()
         {
             if (PlatformPluginSwitch.DynamicallyLinkAssembly)
@@ -54,45 +53,44 @@ namespace Microsoft.Identity.Client.Internal
 
         public static IWebUIFactory WebUIFactory { get; set; }
         
-        public static ILogger PlatformLogger { get; set; }
         public static PlatformInformationBase PlatformInformation { get; set; }
 
         public static void InitializeByAssemblyDynamicLinking()
         {
 #if !FACADE
+            CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
             InjectDependecies(
                 (IWebUIFactory) new UI.WebUIFactory(),
-                (ILogger) new EventsSource.PlatformLogger(),
-                (PlatformInformationBase) new PlatformInformation(new RequestContext(Guid.Empty, null)));
+                (PlatformInformationBase) new PlatformInformation());
 #endif
         }
 
         public static void InjectDependecies(IWebUIFactory webUIFactory,
-            ILogger platformlogger,
             PlatformInformationBase platformInformation)
         {
             WebUIFactory = webUIFactory;
-            PlatformLogger = platformlogger;
             PlatformInformation = platformInformation;
         }
 
-        public static void LogMessage(Logger.LogLevel logLevel, string formattedMessage)
+#if !FACADE
+        public static void LogMessage(MsalLogLevel logLevel, string formattedMessage)
         {
             switch (logLevel)
             {
-                case Logger.LogLevel.Error:
+                case MsalLogLevel.Error:
                     PlatformLogger.Error(formattedMessage);
                     break;
-                case Logger.LogLevel.Warning:
+                case MsalLogLevel.Warning:
                     PlatformLogger.Warning(formattedMessage);
                     break;
-                case Logger.LogLevel.Info:
+                case MsalLogLevel.Info:
                     PlatformLogger.Information(formattedMessage);
                     break;
-                case Logger.LogLevel.Verbose:
+                case MsalLogLevel.Verbose:
                     PlatformLogger.Verbose(formattedMessage);
                     break;
             }
         }
+#endif
     }
 }

@@ -31,19 +31,13 @@ namespace Microsoft.Identity.Core
 {
     internal class RequestContext
     {
-
-        public RequestContext(Guid correlationId) : this(correlationId, CoreLoggerBase.Default)
+        public RequestContext(CoreLoggerBase logger)
         {
-        }
-
-        public RequestContext(Guid correlationId, ILogger logger)
-        {
-            CorrelationId = correlationId;
             Logger = logger;
         }
 
-        public Guid CorrelationId { get; set; }
+        public string TelemetryRequestId { get; set; }
 
-        public ILogger Logger { get; set; }
+        public CoreLoggerBase Logger { get; set; }
     }
 }

@@ -35,6 +35,7 @@ using Windows.Security.Cryptography.DataProtection;
 using Windows.Storage.Streams;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Interfaces;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
@@ -122,8 +123,6 @@ namespace Microsoft.Identity.Client
 
         private static T RunAsyncTaskAndWait<T>(Task<T> task)
         {
-            RequestContext requestContext = new RequestContext(Guid.Empty, null);
-
             try
             {
                 Task.Run(async () => await task.ConfigureAwait(false)).Wait();
@@ -131,8 +130,8 @@ namespace Microsoft.Identity.Client
             }
             catch (AggregateException ae)
             {
-                requestContext.Logger.Error(ae.InnerException);
-                requestContext.Logger.ErrorPii(ae.InnerException);
+                CoreLoggerBase.Default.Error(ae.InnerException);
+                CoreLoggerBase.Default.ErrorPii(ae.InnerException);
                 // Any exception thrown as a result of running task will cause AggregateException to be thrown with 
                 // actual exception as inner.
                 throw ae.InnerExceptions[0];

@@ -33,9 +33,17 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
 {
-    internal abstract class CoreLoggerBase : ILogger
+    internal abstract class CoreLoggerBase
     {
-        public static ILogger Default = null;
+        public static CoreLoggerBase Default = null;
+
+        public Guid CorrelationId { get; set; }
+
+        protected CoreLoggerBase(Guid correlationId)
+        {
+            CorrelationId = correlationId;
+        }
+
 
         public abstract void Error(string message);
         public abstract void ErrorPii(string message);

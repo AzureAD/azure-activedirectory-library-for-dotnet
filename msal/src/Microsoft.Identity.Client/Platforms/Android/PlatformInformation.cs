@@ -29,6 +29,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using System.Collections.Generic;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
@@ -36,11 +37,7 @@ namespace Microsoft.Identity.Client
     internal class PlatformInformation : PlatformInformationBase
     {
         internal const string AndroidDefaultRedirectUriTemplate = "msal{0}://auth";
-
-        public PlatformInformation(RequestContext requestContext) : base(requestContext)
-        {
-        }
-
+        
         public override string GetProductName()
         {
             return "MSAL.Xamarin.Android";

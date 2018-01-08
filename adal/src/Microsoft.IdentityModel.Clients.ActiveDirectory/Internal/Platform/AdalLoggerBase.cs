@@ -33,14 +33,17 @@ using Microsoft.Identity.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal abstract class LoggerBase : CoreLoggerBase
+    internal abstract class AdalLoggerBase : CoreLoggerBase
     {
         internal abstract void DefaultLog(LogLevel logLevel, string message);
-        private readonly Guid _correlationId;
 
-        protected LoggerBase(Guid correlationId)
+        static AdalLoggerBase()
         {
-            _correlationId = correlationId;
+            Default = new AdalLogger(Guid.Empty);
+        }
+
+        protected AdalLoggerBase(Guid correlationId) :base(correlationId)
+        {
         }
 
         private void Log(LogLevel logLevel, string message, bool containsPii,
@@ -76,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         internal string FormatLogMessage(string classOrComponent, string message)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:O}: {1} - {2}: {3}", DateTime.UtcNow, _correlationId, classOrComponent, message);
+            return string.Format(CultureInfo.InvariantCulture, "{0:O}: {1} - {2}: {3}", DateTime.UtcNow, CorrelationId, classOrComponent, message);
         }
 
         public override void InfoPii(string message)

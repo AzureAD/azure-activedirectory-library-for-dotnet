@@ -111,7 +111,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerParameters[BrokerParameter.Authority] = requestData.Authenticator.Authority;
             brokerParameters[BrokerParameter.Resource] = requestData.Resource;
             brokerParameters[BrokerParameter.ClientId] = requestData.ClientKey.ClientId;
-            brokerParameters[BrokerParameter.CorrelationId] = RequestContext.CorrelationId.ToString();
+            brokerParameters[BrokerParameter.CorrelationId] = RequestContext.Logger.CorrelationId.ToString();
             brokerParameters[BrokerParameter.ClientVersion] = AdalIdHelper.GetAdalVersion();
             this.ResultEx = null;
 
@@ -269,7 +269,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public static RequestContext CreateCallState(Guid correlationId)
         {
             correlationId = (correlationId != Guid.Empty) ? correlationId : Guid.NewGuid();
-            return new RequestContext(correlationId, new Logger(correlationId));
+            return new RequestContext(new AdalLogger(correlationId));
         }
 
         protected virtual Task PostRunAsync(AdalResult result)

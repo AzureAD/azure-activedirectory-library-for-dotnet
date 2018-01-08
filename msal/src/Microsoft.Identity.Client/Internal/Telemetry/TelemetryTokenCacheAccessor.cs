@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.Telemetry
 {

@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
@@ -77,7 +78,6 @@ namespace Microsoft.Identity.Client
         {
             lock (tokenCache.LockObject)
             {
-                RequestContext requestContext = new RequestContext(Guid.Empty, null);
                 Dictionary<string, IEnumerable<string>> cacheDict = JsonHelper
                     .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(state);
                 if (cacheDict == null || cacheDict.Count == 0)
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Client
             // reads the underlying in-memory dictionary and dumps out the content as a JSON
             lock (tokenCache.LockObject)
             {   
-                RequestContext requestContext = new RequestContext(Guid.Empty, null);
+                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
                 Dictionary<string, IEnumerable<string>> cacheDict = new Dictionary<string, IEnumerable<string>>();
                 cacheDict["access_tokens"] = tokenCache.GetAllAccessTokenCacheItems(requestContext);
                 cacheDict["refresh_tokens"] = tokenCache.GetAllRefreshTokenCacheItems(requestContext);

@@ -59,9 +59,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             var deviceCodeRequestParameters = new DictionaryRequestParameters(this.resource, this.clientKey);
 
-            if (this.requestContext != null && this.requestContext.CorrelationId != Guid.Empty)
+            if (this.requestContext != null && this.requestContext.Logger.CorrelationId != Guid.Empty)
             {
-                deviceCodeRequestParameters[OAuthParameter.CorrelationId] = this.requestContext.CorrelationId.ToString();
+                deviceCodeRequestParameters[OAuthParameter.CorrelationId] = this.requestContext.Logger.CorrelationId.ToString();
             }
             
                 IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();

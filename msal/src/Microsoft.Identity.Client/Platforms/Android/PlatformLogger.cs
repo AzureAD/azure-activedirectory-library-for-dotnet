@@ -29,33 +29,28 @@ using System;
 using Android.Util;
 using Microsoft.Identity.Core;
 
-namespace Microsoft.Identity.Client.Internal.EventsSource
+namespace Microsoft.Identity.Client.Internal
 {
-    internal class PlatformLogger : CoreLoggerBase
+    internal class PlatformLogger
     {
-        public void Error(string errorMessage)
+        public static void Error(string errorMessage)
         {
             Log.Error(null, errorMessage);
         }
 
-        public void Warning(string message)
+        public static void Warning(string message)
         {
             Log.Warn(null, message);
         }
 
-        public void Verbose(string message)
+        public static void Verbose(string message)
         {
             Log.Verbose(null, message);
         }
 
-        public void Information(string message)
+        public static void Information(string message)
         {
             Log.Info(null, message);
-        }
-
-        public void Error(Exception ex)
-        {
-            Error(ex.ToString());
         }
     }
 }

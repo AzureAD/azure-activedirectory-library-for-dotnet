@@ -34,6 +34,7 @@ using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.Requests;
 using System.Linq;
 using Microsoft.Identity.Client.Internal.Telemetry;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {
@@ -69,7 +70,7 @@ namespace Microsoft.Identity.Client
                 UserTokenCache.ClientId = clientId;
             }
 
-            RequestContext requestContext = new RequestContext(Guid.Empty, null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
             var msg = string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
@@ -136,7 +137,7 @@ namespace Microsoft.Identity.Client
         {
             get
             {
-                RequestContext requestContext = new RequestContext(Guid.Empty, null);
+                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
                 if (UserTokenCache == null)
                 {
                     const string msg = "Token cache is null or empty. Returning empty list of users.";
@@ -245,7 +246,7 @@ namespace Microsoft.Identity.Client
         internal RequestContext CreateRequestContext(Guid correlationId)
         {
             correlationId = (correlationId != Guid.Empty) ? correlationId : Guid.NewGuid();
-            return new RequestContext(correlationId, Component);
+            return new RequestContext(new MsalLogger(correlationId, Component));
         }
     }
 }

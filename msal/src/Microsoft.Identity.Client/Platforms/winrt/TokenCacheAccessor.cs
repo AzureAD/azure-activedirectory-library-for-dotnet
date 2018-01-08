@@ -25,6 +25,7 @@
 
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

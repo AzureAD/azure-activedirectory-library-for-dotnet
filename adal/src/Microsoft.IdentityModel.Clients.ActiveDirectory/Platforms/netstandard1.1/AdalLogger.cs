@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,20 +27,18 @@
 
 using System;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class RequestContext
+    internal class AdalLogger : AdalLoggerBase
     {
-        public string CorrelationId { get; }
-
-        public Logger Logger { get; set; }
-
-        public string TelemetryRequestId { get; set; }
-
-        public RequestContext(Guid correlationId, string component)
+        public AdalLogger(Guid correlationId) : base(correlationId)
         {
-            CorrelationId = correlationId.ToString();
-            Logger = new Logger(correlationId, component);
+        }
+
+        internal override void DefaultLog(LogLevel logLevel, string message)
+        {
+            // no default logging for netstandard 1.1 platform
         }
     }
 }
+

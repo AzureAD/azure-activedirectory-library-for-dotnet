@@ -229,9 +229,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authorizationRequestParameters[OAuth2Parameter.LoginHint] = AuthenticationRequestParameters.LoginHint;
             }
 
-            if (!string.IsNullOrEmpty(AuthenticationRequestParameters.RequestContext?.CorrelationId))
+            if (AuthenticationRequestParameters.RequestContext?.Logger?.CorrelationId != Guid.Empty)
             {
-                authorizationRequestParameters[OAuth2Parameter.CorrelationId] = AuthenticationRequestParameters.RequestContext.CorrelationId;
+                authorizationRequestParameters[OAuth2Parameter.CorrelationId] = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString();
             }
 
             IDictionary<string, string> adalIdParameters = MsalIdHelper.GetMsalIdParameters();

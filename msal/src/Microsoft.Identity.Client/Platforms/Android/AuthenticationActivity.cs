@@ -34,6 +34,7 @@ using Android.OS;
 using Android.Support.CustomTabs;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.OAuth2;
+using Microsoft.Identity.Core;
 using Uri = Android.Net.Uri;
 
 namespace Microsoft.Identity.Client

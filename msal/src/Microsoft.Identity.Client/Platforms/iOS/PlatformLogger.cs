@@ -26,35 +26,29 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Client.Internal.EventsSource
+namespace Microsoft.Identity.Client.Internal
 {
-    internal class PlatformLogger : ILogger
+    internal class PlatformLogger
     {
-        public void Error(string message)
+        public static void Error(string message)
         {
             Console.WriteLine(message); //Console.writeline writes to NSLog by default
         }
 
-        public void Warning(string message)
+        public static void Warning(string message)
         {
             Console.WriteLine(message); //Console.writeline writes to NSLog by default
         }
 
-        public void Verbose(string message)
+        public static void Verbose(string message)
         {
             Console.WriteLine(message); //Console.writeline writes to NSLog by default
         }
 
-        public void Information(string message)
+        public static void Information(string message)
         {
             Console.WriteLine(message); //Console.writeline writes to NSLog by default
-        }
-
-        public void Error(Exception ex)
-        {
-            Error(ex.ToString());
         }
     }
 }

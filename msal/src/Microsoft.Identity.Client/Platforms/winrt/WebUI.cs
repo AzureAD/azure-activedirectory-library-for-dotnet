@@ -33,6 +33,7 @@ using Microsoft.Identity.Client.Internal.Interfaces;
 using Microsoft.Identity.Client.Internal;
 using Windows.Networking.Connectivity;
 using Windows.ApplicationModel.Core;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.UI
 {

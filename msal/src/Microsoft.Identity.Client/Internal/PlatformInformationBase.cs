@@ -29,19 +29,13 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal.OAuth2;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal
 {
     internal abstract class PlatformInformationBase
     {
         internal const string DefaultRedirectUri = "urn:ietf:wg:oauth:2.0:oob";
-
-        protected readonly RequestContext RequestContext;
-        protected PlatformInformationBase(RequestContext requestContext)
-        {
-            RequestContext = requestContext;
-        }
-
         public abstract string GetProductName();
         public abstract string GetEnvironmentVariable(string variable);
         public abstract string GetProcessorArchitecture();

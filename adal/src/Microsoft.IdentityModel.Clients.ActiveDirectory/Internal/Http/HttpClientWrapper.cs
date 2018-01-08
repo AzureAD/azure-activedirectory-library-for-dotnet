@@ -90,10 +90,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     requestMessage.Headers.Add(kvp.Key, kvp.Value);
                 }
 
-                bool addCorrelationId = (this.RequestContext != null && this.RequestContext.CorrelationId != Guid.Empty);
+                bool addCorrelationId = (this.RequestContext != null && this.RequestContext.Logger.CorrelationId != Guid.Empty);
                 if (addCorrelationId)
                 {
-                    requestMessage.Headers.Add(OAuthHeader.CorrelationId, this.RequestContext.CorrelationId.ToString());
+                    requestMessage.Headers.Add(OAuthHeader.CorrelationId, this.RequestContext.Logger.CorrelationId.ToString());
                     requestMessage.Headers.Add(OAuthHeader.RequestCorrelationIdInResponse, "true");
                 }
 
@@ -175,11 +175,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         RequestContext.Logger.Warning(msg);
                         RequestContext.Logger.WarningPii(msg);
                     }
-                    else if (correlationIdInResponse != this.RequestContext.CorrelationId)
+                    else if (correlationIdInResponse != this.RequestContext.Logger.CorrelationId)
                     {
                         var msg = string.Format(CultureInfo.CurrentCulture,
                             "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                            correlationIdHeader, RequestContext.CorrelationId);
+                            correlationIdHeader, RequestContext.Logger.CorrelationId);
                         RequestContext.Logger.Warning(msg);
                         RequestContext.Logger.WarningPii(msg);
                     }

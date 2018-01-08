@@ -29,14 +29,10 @@ using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class Logger : LoggerBase
+    internal class AdalLogger : AdalLoggerBase
     {
-        public Logger(Guid correlationId) : base(correlationId)
+        public AdalLogger(Guid correlationId) : base(correlationId)
         {
-        }
-        static Logger()
-        {
-            Default = new Logger(Guid.Empty);
         }
 
         internal override void DefaultLog(LogLevel logLevel, string message)

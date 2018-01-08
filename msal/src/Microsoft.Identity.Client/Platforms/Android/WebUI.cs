@@ -32,6 +32,7 @@ using Android.Content;
 using Android.Net;
 using Microsoft.Identity.Client.Internal.Interfaces;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Uri = System.Uri;
 
 namespace Microsoft.Identity.Client

@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.OAuth2;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
