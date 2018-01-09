@@ -38,7 +38,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
-    class AcquireDeviceCodeHandler
+    internal class AcquireDeviceCodeHandler
     {
         private readonly Authenticator authenticator;
         private readonly ClientKey clientKey;
