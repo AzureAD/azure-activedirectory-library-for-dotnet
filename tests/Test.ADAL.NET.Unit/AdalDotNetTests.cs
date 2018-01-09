@@ -39,7 +39,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
@@ -48,6 +47,7 @@ using Test.ADAL.Common.Unit;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -80,7 +80,7 @@ namespace Test.ADAL.NET.Unit
                     ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
                     PostData = new Dictionary<string, string>
                     {
-                        {OAuthParameter.ClientInfo, "1"}
+                        {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                     }
                 });
 
@@ -111,7 +111,7 @@ namespace Test.ADAL.NET.Unit
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
                 PostData = new Dictionary<string, string>()
                 {
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -364,7 +364,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -405,7 +405,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -453,7 +453,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
@@ -468,7 +468,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -519,7 +519,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
@@ -534,7 +534,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -583,7 +583,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
@@ -598,7 +598,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -648,7 +648,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
@@ -663,7 +663,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -903,7 +903,7 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -964,7 +964,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -980,7 +980,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -1013,7 +1013,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"client_secret", TestConstants.DefaultClientSecret},
                     {"grant_type", "client_credentials"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -1057,7 +1057,7 @@ namespace Test.ADAL.NET.Unit
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "client_credentials"},
                     {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 },
                 AdditionalRequestValidation = request =>
                 {
@@ -1099,7 +1099,7 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -1110,7 +1110,7 @@ namespace Test.ADAL.NET.Unit
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -1193,7 +1193,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -1252,7 +1252,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 

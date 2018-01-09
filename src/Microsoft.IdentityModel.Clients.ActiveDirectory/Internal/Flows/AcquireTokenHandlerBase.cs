@@ -316,7 +316,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
-            requestParameters.Add(OAuthParameter.ClientInfo, "1");
+            requestParameters.Add(OAuthParameter.ClientInfo, ClientInfoValues.Default);
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }

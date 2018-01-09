@@ -111,7 +111,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -173,7 +173,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -242,7 +242,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -357,7 +357,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -472,7 +472,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -530,7 +530,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -588,7 +588,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -653,7 +653,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -764,7 +764,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -876,7 +876,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
@@ -939,7 +939,7 @@ namespace Test.ADAL.NET.Unit
                 {
                     {"client_id", TestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"},
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 

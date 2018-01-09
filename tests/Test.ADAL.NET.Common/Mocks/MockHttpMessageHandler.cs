@@ -32,7 +32,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.ADAL.NET.Common.Mocks
 {

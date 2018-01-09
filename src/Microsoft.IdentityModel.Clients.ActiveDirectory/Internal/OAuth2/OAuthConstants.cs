@@ -52,6 +52,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public const string ClientInfo = "client_info"; // client_info is not standard oauth2 parameter
     }
 
+    internal static class ClientInfoValues
+    {
+        public const string Default = "1";
+    }
+
     internal static class OAuthGrantType
     {
         public const string AuthorizationCode = "authorization_code";

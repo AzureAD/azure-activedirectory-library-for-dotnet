@@ -28,8 +28,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {

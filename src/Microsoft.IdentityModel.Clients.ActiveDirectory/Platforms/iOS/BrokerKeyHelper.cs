@@ -30,8 +30,8 @@ using System.IO;
 using System.Security.Cryptography;
 using Foundation;
 using Security;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -93,7 +93,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         
         internal static String DecryptBrokerResponse(String encryptedBrokerResponse)
         {
-            byte[] outputBytes = Base64UrlEncoder.DecodeBytes(encryptedBrokerResponse);
+            byte[] outputBytes = Base64UrlEncoder.Decode(encryptedBrokerResponse);
             string plaintext = string.Empty;
             
             using (MemoryStream memoryStream = new MemoryStream(outputBytes))

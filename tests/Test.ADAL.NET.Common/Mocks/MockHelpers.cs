@@ -33,9 +33,9 @@ using System.Net.Http;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using NSubstitute;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.ADAL.NET.Common.Mocks
 {

@@ -77,7 +77,7 @@ namespace Test.ADAL.NET.Unit
                                                                            "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}"),
                 PostData = new Dictionary<string, string>()
                 {
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             };
 
@@ -91,7 +91,7 @@ namespace Test.ADAL.NET.Unit
                         TestConstants.DefaultDisplayableId, TestConstants.DefaultResource),
                 PostData = new Dictionary<string, string>()
                 {
-                    {OAuthParameter.ClientInfo, "1"}
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
                 }
             });
 
