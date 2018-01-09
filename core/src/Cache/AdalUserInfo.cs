@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Core.Cache
     /// Contains information of a single user. This information is used for token cache lookup. Also if created with userId, userId is sent to the service when login_hint is accepted.
     /// </summary>
     [DataContract]
-    public sealed class AdalUserInfo
+    internal sealed class AdalUserInfo
     {
         /// <summary>
         /// Create user information for token cache lookup
