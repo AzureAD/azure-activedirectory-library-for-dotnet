@@ -40,6 +40,7 @@ using Test.MSAL.NET.Unit.Mocks;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
+using Microsoft.Identity.Core;
 using NSubstitute;
 
 namespace Test.MSAL.NET.Unit
@@ -545,7 +546,7 @@ namespace Test.MSAL.NET.Unit
                 ValidateAuthority = false
             };
 
-            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(Guid.NewGuid(), null));
+            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             var accessTokenInCache = accessTokens.Where(
                     item =>
                         item.ScopeSet.ScopeContains(TestConstants.Scope))
@@ -599,7 +600,7 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
 
             // make sure token in Cache was updated
-            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(Guid.NewGuid(), null));
+            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             var accessTokenInCache = accessTokens.Where(
                     item =>
                         item.ScopeSet.ScopeContains(TestConstants.Scope))

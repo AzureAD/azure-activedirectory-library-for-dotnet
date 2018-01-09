@@ -26,9 +26,6 @@ namespace Test.Microsoft.Identity.Core.Android
 		
 		public static void UpdateIdValues()
 		{
-			global::Microsoft.Identity.Core.Resource.Id.agentWebView = global::Test.Microsoft.Identity.Core.Android.Resource.Id.agentWebView;
-			global::Microsoft.Identity.Core.Resource.Layout.WebAuthenticationBroker = global::Test.Microsoft.Identity.Core.Android.Resource.Layout.WebAuthenticationBroker;
-			global::Microsoft.Identity.Core.Resource.String.ApplicationName = global::Test.Microsoft.Identity.Core.Android.Resource.String.ApplicationName;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionHostName = global::Test.Microsoft.Identity.Core.Android.Resource.Id.OptionHostName;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionPort = global::Test.Microsoft.Identity.Core.Android.Resource.Id.OptionPort;
 			global::Xamarin.Android.NUnitLite.Resource.Id.OptionRemoteServer = global::Test.Microsoft.Identity.Core.Android.Resource.Id.OptionRemoteServer;

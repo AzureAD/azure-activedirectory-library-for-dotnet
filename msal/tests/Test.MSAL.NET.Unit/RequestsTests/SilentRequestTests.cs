@@ -33,6 +33,7 @@ using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.Requests;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -77,7 +78,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = TestConstants.Scope,
                 TokenCache = cache,
-                RequestContext = new RequestContext(Guid.Empty, null)
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
             parameters.User = null;
@@ -125,7 +126,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 User = new User()
                 {
                     Identifier = TestConstants.UserIdentifier,
@@ -178,7 +179,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
                 User = new User(),
-                RequestContext = new RequestContext(Guid.Empty, null)
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
             try
@@ -220,7 +221,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
                 User = new User(),
-                RequestContext = new RequestContext(Guid.Empty, null)
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
             
             try

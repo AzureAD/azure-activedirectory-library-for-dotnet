@@ -34,6 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -50,9 +51,9 @@ namespace XForms
         private void RefreshCacheView()
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
-            accessTokenCacheItems.ItemsSource = tokenCache.GetAllAccessTokensForClient(new RequestContext(Guid.Empty, null));
+            accessTokenCacheItems.ItemsSource = tokenCache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
 
-            refreshTokenCacheItems.ItemsSource = tokenCache.GetAllRefreshTokensForClient(new RequestContext(Guid.Empty, null));
+            refreshTokenCacheItems.ItemsSource = tokenCache.GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
         }
 
         protected override void OnAppearing()
@@ -63,10 +64,10 @@ namespace XForms
         private void OnClearClicked(object sender, EventArgs e)
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
-            var users = tokenCache.GetUsers(new Uri(App.Authority).Host, new RequestContext(Guid.Empty, null));
+            var users = tokenCache.GetUsers(new Uri(App.Authority).Host, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             foreach (var user in users)
             {
-                tokenCache.Remove(user, new RequestContext(Guid.Empty, null));
+                tokenCache.Remove(user, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             }
 
             RefreshCacheView();

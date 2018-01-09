@@ -34,6 +34,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -139,7 +140,7 @@ namespace Test.MSAL.NET.Unit.HttpTests
             try
             {
                 var msalHttpResponse = await HttpRequest.SendGet(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new RequestContext(Guid.Empty, null)).ConfigureAwait(false);
+                    new Dictionary<string, string>(), new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
             catch (MsalServiceException exc)
@@ -170,7 +171,7 @@ namespace Test.MSAL.NET.Unit.HttpTests
             try
             {
                 var msalHttpResponse = await HttpRequest.SendPost(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), null, new RequestContext(Guid.Empty, null)).ConfigureAwait(false);
+                    new Dictionary<string, string>(), null, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
             catch (MsalServiceException exc)
@@ -203,7 +204,7 @@ namespace Test.MSAL.NET.Unit.HttpTests
             try
             {
                 var msalHttpResponse = await HttpRequest.SendGet(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new RequestContext(Guid.Empty, null)).ConfigureAwait(false);
+                    new Dictionary<string, string>(), new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
             catch (MsalServiceException exc)
@@ -237,7 +238,7 @@ namespace Test.MSAL.NET.Unit.HttpTests
             try
             {
                 var msalHttpResponse = await HttpRequest.SendPost(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new Dictionary<string, string>(), new RequestContext(Guid.Empty, null)).ConfigureAwait(false);
+                    new Dictionary<string, string>(), new Dictionary<string, string>(), new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
             catch (MsalServiceException exc)

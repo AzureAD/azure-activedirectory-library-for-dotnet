@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core;
 
 namespace DesktopTestApp
 {
@@ -39,7 +40,7 @@ namespace DesktopTestApp
 
         private void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
-            _cache.Remove(_item.User, new RequestContext(Guid.Empty, null));
+            _cache.Remove(_item.User, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             RefreshViewDelegate?.Invoke();
         }
     }

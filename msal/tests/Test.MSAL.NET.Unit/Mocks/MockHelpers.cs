@@ -34,6 +34,7 @@ using System.Net.Http;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Interfaces;
+using Microsoft.Identity.Core;
 using NSubstitute;
 
 namespace Test.MSAL.NET.Unit.Mocks

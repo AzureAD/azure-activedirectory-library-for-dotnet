@@ -278,7 +278,7 @@ namespace Test.MSAL.NET.Unit
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
-            Logger.PiiLoggingEnabled = true;
+            MsalLoggerSettings.PiiLoggingEnabled = true;
 
             telemetry.ClientId = "a1b3c3d4";
             var reqId = telemetry.GenerateNewRequestId();
@@ -318,7 +318,7 @@ namespace Test.MSAL.NET.Unit
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
-            Logger.PiiLoggingEnabled = false;
+            MsalLoggerSettings.PiiLoggingEnabled = false;
 
             telemetry.ClientId = "a1b3c3d4";
             var reqId = telemetry.GenerateNewRequestId();

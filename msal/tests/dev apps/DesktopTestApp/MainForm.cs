@@ -33,6 +33,7 @@ using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core;
 
 namespace DesktopTestApp
 {
@@ -56,7 +57,7 @@ namespace DesktopTestApp
             RefreshUserList();
         }
 
-        public void LogDelegate(MsalLoggerSettings.LogLevel level, string message, bool containsPii)
+        public void LogDelegate(MsalLogLevel level, string message, bool containsPii)
         {
             Action action = null;
 
@@ -292,7 +293,7 @@ namespace DesktopTestApp
 
             cachePageTableLayout.RowCount = 0;
             foreach (RefreshTokenCacheItem rtItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                .GetAllRefreshTokensForClient(new RequestContext(Guid.Empty, null)))
+                .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
             {
                 AddControlToCachePageTableLayout(
                     new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache, rtItem)
@@ -301,7 +302,7 @@ namespace DesktopTestApp
                     });
 
                 foreach (AccessTokenCacheItem atItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                    .GetAllAccessTokensForClient(new RequestContext(Guid.Empty, null)))
+                    .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
                 {
                     if (atItem.User.Identifier.Equals(rtItem.User.Identifier))
                     {
@@ -345,7 +346,7 @@ namespace DesktopTestApp
             _publicClientHandler.ExtraQueryParams = extraQueryParams.Text;
             Environment.SetEnvironmentVariable("MsalExtraQueryParameter", environmentQP.Text);
 
-            MsalLoggerSettings.Level = (MsalLoggerSettings.LogLevel)Enum.Parse(typeof(MsalLoggerSettings.LogLevel), (string)logLevel.SelectedItem);
+            MsalLoggerSettings.Level = (MsalLogLevel)Enum.Parse(typeof(MsalLogLevel), (string)logLevel.SelectedItem);
             MsalLoggerSettings.PiiLoggingEnabled = PiiLoggingEnabled.Checked;
         }
 

@@ -33,6 +33,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.OAuth2;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -76,7 +77,7 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateSuccessTokenResponseMessage()
             });
             OAuth2Client client = new OAuth2Client();
-            Task<TokenResponse> task = client.GetToken(new Uri(TestConstants.AuthorityCommonTenant), new RequestContext(Guid.Empty, null));
+            Task<TokenResponse> task = client.GetToken(new Uri(TestConstants.AuthorityCommonTenant), new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             TokenResponse response = task.Result;
             Assert.IsNotNull(response);
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");

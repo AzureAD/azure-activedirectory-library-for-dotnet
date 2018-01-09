@@ -66,12 +66,12 @@ namespace XForms
 
             InitPublicClient();
 
-            Logger.LogCallback = delegate(Logger.LogLevel level, string message, bool containsPii)
+            MsalLoggerSettings.LogCallback = delegate(MsalLogLevel level, string message, bool containsPii)
             {
                 Device.BeginInvokeOnMainThread(() => { LogPage.AddToLog("[" + level + "]" + " - " + message, containsPii); });
             };
-            Logger.Level = Logger.LogLevel.Verbose;
-            Logger.PiiLoggingEnabled = true;
+            MsalLoggerSettings.Level = MsalLogLevel.Verbose;
+            MsalLoggerSettings.PiiLoggingEnabled = true;
         }
 
         public static void InitPublicClient()

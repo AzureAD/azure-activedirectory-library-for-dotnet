@@ -35,6 +35,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -90,7 +91,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Aad);
             Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null));
+                    await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
                 })
                 .GetAwaiter()
                 .GetResult();
@@ -121,7 +122,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Aad);
             Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null));
+                    await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
                 })
                 .GetAwaiter()
                 .GetResult();
@@ -170,7 +171,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null));
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();
@@ -209,7 +210,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null));
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();
@@ -243,7 +244,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null));
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();

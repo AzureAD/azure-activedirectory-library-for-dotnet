@@ -56,7 +56,7 @@ namespace WebApp.Controllers
 
         static HomeController()
         {
-            MsalLoggerSettings.LogCallback = delegate(MsalLoggerSettings.LogLevel level, string message, bool containsPii)
+            MsalLoggerSettings.LogCallback = delegate(MsalLogLevel level, string message, bool containsPii)
             {
                 lock (LogStringBuilder)
                 {
@@ -64,7 +64,7 @@ namespace WebApp.Controllers
                                                 message);
                 }
             };
-            MsalLoggerSettings.Level = MsalLoggerSettings.LogLevel.Verbose;
+            MsalLoggerSettings.Level = MsalLogLevel.Verbose;
             MsalLoggerSettings.PiiLoggingEnabled = true;
         }
 

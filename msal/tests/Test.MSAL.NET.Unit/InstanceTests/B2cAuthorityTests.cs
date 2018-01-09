@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Http;
 using Microsoft.Identity.Client.Internal.Instance;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Guid = System.Guid;
 
@@ -65,7 +66,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task
                     .Run(
-                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null)); })
+                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null))); })
                     .GetAwaiter()
                     .GetResult();
                 Assert.Fail("test should have failed");
@@ -88,7 +89,7 @@ namespace Test.MSAL.NET.Unit.InstanceTests
             {
                 Task
                     .Run(
-                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(Guid.NewGuid(), null)); })
+                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null))); })
                     .GetAwaiter()
                     .GetResult();
                 Assert.Fail("test should have failed");

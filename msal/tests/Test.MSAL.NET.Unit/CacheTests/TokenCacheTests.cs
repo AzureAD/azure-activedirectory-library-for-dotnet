@@ -36,8 +36,10 @@ using Microsoft.Identity.Client.Internal.Cache;
 using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.OAuth2;
 using Microsoft.Identity.Client.Internal.Requests;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
+using CryptographyHelper = Microsoft.Identity.Client.CryptographyHelper;
 
 namespace Test.MSAL.NET.Unit.CacheTests
 {
@@ -95,7 +97,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
             AccessTokenCacheItem item = cache.FindAccessToken(new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -136,7 +138,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = new SortedSet<string>(),
@@ -176,7 +178,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = new SortedSet<string>(),
@@ -226,7 +228,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             Assert.IsNull(cache.FindAccessToken(new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -265,7 +267,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             Assert.IsNull(cache.FindAccessToken(new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -302,7 +304,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtKey.ToString()] = JsonHelper.SerializeToJson(rtItem);
             var authParams = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -315,7 +317,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             // change the outcome of cache look up.
             Assert.IsNotNull(cache.FindRefreshToken(new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant + "more", false),
                 Scope = TestConstants.Scope,
@@ -346,7 +348,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtKey.ToString()] = JsonHelper.SerializeToJson(rtItem);
             var authParams = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -385,7 +387,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             AccessTokenCacheItem cacheItem = cache.FindAccessToken(new AuthenticationRequestParameters()
             {
                 IsClientCredentialRequest = true,
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 ClientId = TestConstants.ClientId,
                 ClientCredential = TestConstants.CredentialWithSecret,
@@ -422,7 +424,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -464,7 +466,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -506,7 +508,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
@@ -540,7 +542,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.TokenType = "Bearer";
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 ClientId = TestConstants.ClientId
             };
@@ -571,7 +573,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.Scope = TestConstants.Scope.AsSingleString();
             response.TokenType = "Bearer";
 
-            RequestContext requestContext = new RequestContext(Guid.NewGuid(), null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -623,7 +625,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.Scope = TestConstants.Scope.AsSingleString();
             response.TokenType = "Bearer";
 
-            RequestContext requestContext = new RequestContext(Guid.NewGuid(), null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -673,7 +675,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 TokenType = "Bearer"
             };
 
-            RequestContext requestContext = new RequestContext(Guid.NewGuid(), null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -724,7 +726,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.Scope = TestConstants.Scope.AsSingleString();
             response.TokenType = "Bearer";
 
-            RequestContext requestContext = new RequestContext(Guid.NewGuid(), null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -746,7 +748,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.TokenType = "Bearer";
 
 
-            requestContext = new RequestContext(Guid.NewGuid(), null);
+            requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -794,7 +796,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             response.Scope = TestConstants.Scope.AsSingleString();
             response.TokenType = "Bearer";
 
-            RequestContext requestContext = new RequestContext(Guid.NewGuid(), null);
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
             AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
             {
                 RequestContext = requestContext,
@@ -852,7 +854,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             var param = new AuthenticationRequestParameters()
             {
-                RequestContext = new RequestContext(Guid.Empty, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = new SortedSet<string>(),
@@ -881,7 +883,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId
             };
             cache.AddAccessTokenCacheItem(JsonHelper.DeserializeFromJson<AccessTokenCacheItem>(noVersionCacheEntry));
-            ICollection<AccessTokenCacheItem> items = cache.GetAllAccessTokensForClient(new RequestContext(Guid.Empty, null));
+            ICollection<AccessTokenCacheItem> items = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             Assert.AreEqual(1, items.Count);
             AccessTokenCacheItem item = items.First();
             Assert.AreEqual(0, item.Version);
@@ -898,7 +900,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId
             };
             cache.AddAccessTokenCacheItem(JsonHelper.DeserializeFromJson<AccessTokenCacheItem>(differentVersionEntry));
-            ICollection<AccessTokenCacheItem> items = cache.GetAllAccessTokensForClient(new RequestContext(Guid.Empty, null));
+            ICollection<AccessTokenCacheItem> items = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             Assert.AreEqual(1, items.Count);
             AccessTokenCacheItem item = items.First();
             Assert.AreEqual(5, item.Version);
