@@ -136,9 +136,6 @@ namespace Test.Microsoft.Identity.Core.Android
 			// aapt resource value: 0x7f050011
 			public const int TestSuiteListView = 2131034129;
 			
-			// aapt resource value: 0x7f050012
-			public const int agentWebView = 2131034130;
-			
 			static Id()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -164,9 +161,6 @@ namespace Test.Microsoft.Identity.Core.Android
 			// aapt resource value: 0x7f030003
 			public const int test_suite = 2130903043;
 			
-			// aapt resource value: 0x7f030004
-			public const int WebAuthenticationBroker = 2130903044;
-			
 			static Layout()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -180,11 +174,11 @@ namespace Test.Microsoft.Identity.Core.Android
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f040000
-			public const int ApplicationName = 2130968576;
-			
 			// aapt resource value: 0x7f040001
-			public const int Hello = 2130968577;
+			public const int ApplicationName = 2130968577;
+			
+			// aapt resource value: 0x7f040000
+			public const int Hello = 2130968576;
 			
 			static String()
 			{
