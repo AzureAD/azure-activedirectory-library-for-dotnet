@@ -11,6 +11,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>MSAL.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
+    <Configurations>Debug;Release;Appveyor</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StrongNamer" Version="0.0.6" />

@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Configurations>Debug;Release;Appveyor</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <ProjectGuid>{412F8F05-2694-4D2E-8FE0-A821721CF682}</ProjectGuid>

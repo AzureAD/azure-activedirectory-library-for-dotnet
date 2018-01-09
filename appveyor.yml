@@ -6,7 +6,7 @@ install:
 
 image: Previous Visual Studio 2017
 
-configuration: Release
+configuration: Appveyor
 
 environment:
   JavaSdkDirectory: '%JAVA_HOME%'
@@ -17,6 +17,7 @@ before_build:
 
 build:
   project: Combined.NoWinRT.sln
+  parallel: true
 
 skip_commits:
   files:

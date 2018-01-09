@@ -3,6 +3,7 @@
   <PropertyGroup Label="SonarQube analysis settings">
     <!-- These properties have no effect on how the project is built. -->
     <SonarQubeTestProject>true</SonarQubeTestProject>
+    <Configurations>Debug;Release;Appveyor</Configurations>
   </PropertyGroup>
   
   <PropertyGroup>

@@ -91,6 +91,12 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Appveyor|iPhoneSimulator'">
+    <OutputPath>bin\iPhoneSimulator\Appveyor\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Appveyor|iPhone'">
+    <OutputPath>bin\iPhone\Appveyor\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AcquirePageRenderer.cs" />
     <Compile Include="GlobalSuppressions.cs" />

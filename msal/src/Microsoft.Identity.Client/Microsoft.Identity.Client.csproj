@@ -5,6 +5,7 @@
        which assembly to analyse. -->
   <PropertyGroup Condition="'$(TargetFramework)' != 'net45' ">
     <SonarQubeExclude>true</SonarQubeExclude>
+    <Configurations>Debug;Release;Appveyor</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
