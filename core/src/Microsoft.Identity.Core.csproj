@@ -49,8 +49,9 @@
   
   <ItemGroup>
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
-    <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
+    <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="build\**\*.*;obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
+    <Compile Remove="Features\**\*.*" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
   
@@ -68,6 +69,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Compile Include="Features\Cache\**\*.cs" />
     <Compile Include="Platforms\net45\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
@@ -75,9 +77,11 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
+    <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
+    <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />

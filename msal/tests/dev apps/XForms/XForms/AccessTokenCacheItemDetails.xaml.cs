@@ -34,24 +34,24 @@ namespace XForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class AccessTokenCacheItemDetails : ContentPage
     {
-        internal AccessTokenCacheItemDetails(AccessTokenCacheItem accessTokenCacheItem)
+        internal AccessTokenCacheItemDetails(MsalAccessTokenCacheItem msalAccessTokenCacheItem)
         {
             InitializeComponent();
 
-            authorityLabel.Text = accessTokenCacheItem.Authority;
-            clientIdLabel.Text = accessTokenCacheItem.ClientId;
+            authorityLabel.Text = msalAccessTokenCacheItem.Authority;
+            clientIdLabel.Text = msalAccessTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = accessTokenCacheItem.User.DisplayableId;
-            userNameLabel.Text = accessTokenCacheItem.User.Name;
-            userIdentityProviderLabel.Text = accessTokenCacheItem.User.IdentityProvider;
+            userDisplayableIdLabel.Text = msalAccessTokenCacheItem.User.DisplayableId;
+            userNameLabel.Text = msalAccessTokenCacheItem.User.Name;
+            userIdentityProviderLabel.Text = msalAccessTokenCacheItem.User.IdentityProvider;
 
-            expiresOnLabel.Text = accessTokenCacheItem.ExpiresOn.ToString();
-            scopesLabel.Text = accessTokenCacheItem.Scope;
+            expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
+            scopesLabel.Text = msalAccessTokenCacheItem.Scope;
 
-            clientInfoUniqueIdentifierLabel.Text = accessTokenCacheItem.ClientInfo.UniqueIdentifier;
-            clientInfoUniqueTenantIdentifierLabel.Text = accessTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
+            clientInfoUniqueIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueIdentifier;
+            clientInfoUniqueTenantIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
 
-            accessTokenLabel.Text = StringShortenerConverter.GetShortStr(accessTokenCacheItem.AccessToken, 100);
+            accessTokenLabel.Text = StringShortenerConverter.GetShortStr(msalAccessTokenCacheItem.AccessToken, 100);
         }
     }
 }

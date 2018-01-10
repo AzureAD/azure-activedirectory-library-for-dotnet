@@ -29,6 +29,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {

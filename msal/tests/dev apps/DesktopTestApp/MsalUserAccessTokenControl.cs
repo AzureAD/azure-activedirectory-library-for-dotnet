@@ -10,12 +10,12 @@ namespace DesktopTestApp
     public partial class MsalUserAccessTokenControl : UserControl
     {
         private readonly TokenCache _cache;
-        private readonly AccessTokenCacheItem _item;
+        private readonly MsalAccessTokenCacheItem _item;
         public delegate void RefreshView();
 
         public RefreshView RefreshViewDelegate { get; set; }
 
-        internal MsalUserAccessTokenControl(TokenCache cache, AccessTokenCacheItem item) : this()
+        internal MsalUserAccessTokenControl(TokenCache cache, MsalAccessTokenCacheItem item) : this()
         {
             _cache = cache;
             _item = item;

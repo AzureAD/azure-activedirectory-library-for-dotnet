@@ -39,21 +39,21 @@ namespace XForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class RefreshTokenCacheItemDetails : ContentPage
     {
-        internal RefreshTokenCacheItemDetails(RefreshTokenCacheItem refreshTokenCacheItem)
+        internal RefreshTokenCacheItemDetails(MsalRefreshTokenCacheItem msalRefreshTokenCacheItem)
         {
             InitializeComponent();
 
-            environmentLabel.Text = refreshTokenCacheItem.Environment;
-            clientIdLabel.Text = refreshTokenCacheItem.ClientId;
+            environmentLabel.Text = msalRefreshTokenCacheItem.Environment;
+            clientIdLabel.Text = msalRefreshTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = refreshTokenCacheItem.User.DisplayableId;
-            userNameLabel.Text = refreshTokenCacheItem.User.Name;
-            userIdentityProviderLabel.Text = refreshTokenCacheItem.User.IdentityProvider;
+            userDisplayableIdLabel.Text = msalRefreshTokenCacheItem.User.DisplayableId;
+            userNameLabel.Text = msalRefreshTokenCacheItem.User.Name;
+            userIdentityProviderLabel.Text = msalRefreshTokenCacheItem.User.IdentityProvider;
 
-            clientInfoUniqueIdentifierLabel.Text = refreshTokenCacheItem.ClientInfo.UniqueIdentifier;
-            clientInfoUniqueTenantIdentifierLabel.Text = refreshTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
+            clientInfoUniqueIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueIdentifier;
+            clientInfoUniqueTenantIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
 
-            refreshTokenLabel.Text = StringShortenerConverter.GetShortStr(refreshTokenCacheItem.RefreshToken, 100);
+            refreshTokenLabel.Text = StringShortenerConverter.GetShortStr(msalRefreshTokenCacheItem.RefreshToken, 100);
         }
     }
 }

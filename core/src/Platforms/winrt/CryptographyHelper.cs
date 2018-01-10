@@ -33,6 +33,7 @@ using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Security.Cryptography.DataProtection;
 using Windows.Storage.Streams;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
@@ -40,6 +41,21 @@ namespace Microsoft.Identity.Core
     {
         // This descriptor does not require the enterprise authentication capability.
         private const string ProtectionDescriptor = "LOCAL=user";
+
+        public static string CreateBase64UrlEncodedSha256Hash(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
+            IBuffer inputBuffer = CryptographicBuffer.ConvertStringToBinary(input, BinaryStringEncoding.Utf8);
+            var hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
+
+            IBuffer hashed = hasher.HashData(inputBuffer);
+            string output = CryptographicBuffer.EncodeToBase64String(hashed);
+            return Base64UrlHelpers.Encode(Convert.FromBase64String(output));
+        }
 
         public static string CreateSha256Hash(string input)
         {

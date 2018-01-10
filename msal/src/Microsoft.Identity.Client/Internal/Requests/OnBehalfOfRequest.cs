@@ -53,14 +53,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
             // like mfa etc.
             if (LoadFromCache)
             {
-                AccessTokenItem
+                MsalAccessTokenItem
                     = TokenCache.FindAccessToken(AuthenticationRequestParameters);
             }
         }
 
         protected override async Task SendTokenRequestAsync()
         {
-            if (AccessTokenItem == null)
+            if (MsalAccessTokenItem == null)
             {
                 await base.SendTokenRequestAsync().ConfigureAwait(false);
             }

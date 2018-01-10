@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Client
                 {
                     foreach (var atItem in cacheDict["access_tokens"])
                     {
-                        tokenCache.AddAccessTokenCacheItem(JsonHelper.DeserializeFromJson<AccessTokenCacheItem>(atItem));
+                        tokenCache.AddAccessTokenCacheItem(JsonHelper.DeserializeFromJson<MsalAccessTokenCacheItem>(atItem));
                     }
                 }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Client
                 {
                     foreach (var rtItem in cacheDict["refresh_tokens"])
                     {
-                        tokenCache.AddRefreshTokenCacheItem(JsonHelper.DeserializeFromJson<RefreshTokenCacheItem>(rtItem));
+                        tokenCache.AddRefreshTokenCacheItem(JsonHelper.DeserializeFromJson<MsalRefreshTokenCacheItem>(rtItem));
                     }
                 }
             }

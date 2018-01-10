@@ -11,14 +11,14 @@ namespace DesktopTestApp
     public partial class MsalUserRefreshTokenControl : UserControl
     {
         private TokenCache _cache;
-        private RefreshTokenCacheItem _item;
+        private MsalRefreshTokenCacheItem _item;
         public delegate void RefreshView();
 
         private const string GarbageRtValue = "garbage-refresh-token";
 
         public RefreshView RefreshViewDelegate { get; set; }
 
-        internal MsalUserRefreshTokenControl(TokenCache cache, RefreshTokenCacheItem item) : this()
+        internal MsalUserRefreshTokenControl(TokenCache cache, MsalRefreshTokenCacheItem item) : this()
         {
             _cache = cache;
             _item = item;

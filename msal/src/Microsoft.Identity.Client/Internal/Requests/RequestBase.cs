@@ -42,8 +42,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
         protected static readonly Task CompletedTask = Task.FromResult(false);
         internal readonly AuthenticationRequestParameters AuthenticationRequestParameters;
         internal readonly TokenCache TokenCache;
-        protected TokenResponse Response;
-        protected AccessTokenCacheItem AccessTokenItem;
+        protected MsalTokenResponse Response;
+        protected MsalAccessTokenCacheItem MsalAccessTokenItem;
         public ApiEvent.ApiIds ApiId { get; set; }
         public bool IsConfidentialClient { get; set; }
         protected virtual string GetUIBehaviorPromptValue()
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             SupportADFS = false;
 
             AuthenticationRequestParameters.LogState();
-            Client.Telemetry.GetInstance().ClientId = AuthenticationRequestParameters.ClientId;
+            Telemetry.GetInstance().ClientId = AuthenticationRequestParameters.ClientId;
         }
 
         protected virtual SortedSet<string> GetDecoratedScope(SortedSet<string> inputScope)
@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         public async Task<AuthenticationResult> RunAsync()
         {
             //this method is the common entrance for all token requests, so it is a good place to put the generic Telemetry logic here
-            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Client.Telemetry.GetInstance().GenerateNewRequestId();
+            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Telemetry.GetInstance().GenerateNewRequestId();
             var apiEvent = new ApiEvent()
             {
                 ApiId = ApiId,
@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 apiEvent.AuthorityType = AuthenticationRequestParameters.Authority.AuthorityType.ToString();
             }
 
-            Client.Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+            Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
 
             try
             {
@@ -173,12 +173,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
             finally
             {
-                Client.Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
-                Client.Telemetry.GetInstance().Flush(AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
+                Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+                Telemetry.GetInstance().Flush(AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
             }
         }
 
-        private AccessTokenCacheItem SaveTokenResponseToCache()
+        private MsalAccessTokenCacheItem SaveTokenResponseToCache()
         {
             // developer passed in user object.
             string msg = "checking client info returned from the server..";
@@ -226,7 +226,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 return TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
             }
 
-            return new AccessTokenCacheItem(AuthenticationRequestParameters.TenantUpdatedCanonicalAuthority,
+            return new MsalAccessTokenCacheItem(AuthenticationRequestParameters.TenantUpdatedCanonicalAuthority,
                 AuthenticationRequestParameters.ClientId, Response);
         }
 
@@ -255,12 +255,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             //save to cache if no access token item found
             //this means that no cached item was found
-            if (AccessTokenItem == null)
+            if (MsalAccessTokenItem == null)
             {
-                AccessTokenItem = SaveTokenResponseToCache();
+                MsalAccessTokenItem = SaveTokenResponseToCache();
             }
 
-            return new AuthenticationResult(AccessTokenItem);
+            return new AuthenticationResult(MsalAccessTokenItem);
         }
 
         protected abstract void SetAdditionalRequestParameters(OAuth2Client client);
