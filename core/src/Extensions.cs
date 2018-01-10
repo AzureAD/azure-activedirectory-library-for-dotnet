@@ -28,8 +28,9 @@
 using System;
 using System.Globalization;
 using System.Text;
+using Microsoft.Identity.Client;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Core
 {
     internal static class Extensions
     {

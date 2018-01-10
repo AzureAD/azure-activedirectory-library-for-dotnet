@@ -28,7 +28,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace Microsoft.Identity.Client.Internal.Http
+namespace Microsoft.Identity.Core.Http
 {
     internal static class HttpMessageHandlerFactory
     {

@@ -28,7 +28,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Microsoft.Identity.Client.Internal.Http
+namespace Microsoft.Identity.Core.Http
 {
     internal class HttpResponse
     {
