@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core.Cache;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -41,9 +41,9 @@ namespace XForms
             authorityLabel.Text = msalAccessTokenCacheItem.Authority;
             clientIdLabel.Text = msalAccessTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = msalAccessTokenCacheItem.User.DisplayableId;
-            userNameLabel.Text = msalAccessTokenCacheItem.User.Name;
-            userIdentityProviderLabel.Text = msalAccessTokenCacheItem.User.IdentityProvider;
+            userDisplayableIdLabel.Text = msalAccessTokenCacheItem.IdToken.PreferredUsername;
+            userNameLabel.Text = msalAccessTokenCacheItem.IdToken.Name;
+            userIdentityProviderLabel.Text = msalAccessTokenCacheItem.IdToken.Issuer;
 
             expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
             scopesLabel.Text = msalAccessTokenCacheItem.Scope;

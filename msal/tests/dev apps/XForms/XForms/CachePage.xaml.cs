@@ -25,8 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal.Cache;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,6 +33,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 

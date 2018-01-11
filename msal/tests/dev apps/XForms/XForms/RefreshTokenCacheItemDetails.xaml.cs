@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core.Cache;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -46,9 +46,9 @@ namespace XForms
             environmentLabel.Text = msalRefreshTokenCacheItem.Environment;
             clientIdLabel.Text = msalRefreshTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = msalRefreshTokenCacheItem.User.DisplayableId;
-            userNameLabel.Text = msalRefreshTokenCacheItem.User.Name;
-            userIdentityProviderLabel.Text = msalRefreshTokenCacheItem.User.IdentityProvider;
+            userDisplayableIdLabel.Text = msalRefreshTokenCacheItem.DisplayableId;
+            userNameLabel.Text = msalRefreshTokenCacheItem.Name;
+            userIdentityProviderLabel.Text = msalRefreshTokenCacheItem.IdentityProvider;
 
             clientInfoUniqueIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueIdentifier;
             clientInfoUniqueTenantIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
