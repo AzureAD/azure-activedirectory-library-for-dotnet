@@ -82,7 +82,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
                 Scope = TestConstants.Scope.AsSingleString(),
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
             };
@@ -123,7 +123,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
                 Scope = TestConstants.Scope.AsSingleString(),
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
             };
@@ -166,7 +166,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId)
             };
 
@@ -212,7 +212,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 Authority = TestConstants.AuthorityHomeTenant,
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
                 ScopeSet = TestConstants.Scope
@@ -258,7 +258,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ScopeSet = TestConstants.Scope,
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 TokenType = "Bearer",
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromMinutes(4))
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromMinutes(4))
             };
 
             atItem.AccessToken = atItem.GetAccessTokenItemKey().ToString();
@@ -372,7 +372,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
                 ExpiresOnUnixTimestamp =
-                    MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)),
+                    CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)),
                 RawIdToken = null,
                 RawClientInfo = null,
                 User = null,
@@ -412,7 +412,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId)
             };
 
@@ -453,7 +453,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId)
             };
 
@@ -495,7 +495,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 TokenType = "Bearer",
                 ScopeSet = TestConstants.Scope,
                 Scope = TestConstants.Scope.AsSingleString(),
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromHours(1)),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId)
             };
 

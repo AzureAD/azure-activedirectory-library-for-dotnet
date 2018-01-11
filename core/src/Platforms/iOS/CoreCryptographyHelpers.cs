@@ -32,8 +32,7 @@ using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
-    [Android.Runtime.Preserve(AllMembers = true)]
-    internal class CryptographyHelper
+    internal class CoreCryptographyHelpers
     {
         public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
@@ -73,6 +72,5 @@ namespace Microsoft.Identity.Core
                 return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
             }
         }
-        
     }
 }

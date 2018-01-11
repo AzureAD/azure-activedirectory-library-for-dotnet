@@ -25,15 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Helpers;
 using System;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    [Android.Runtime.Preserve(AllMembers = true)]
+    internal class CoreCryptographyHelpers
     {
         public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core
                 return null;
             }
 
-            using (SHA256 sha = SHA256.Create())
+            using (SHA256Managed sha = new SHA256Managed())
             {
                 UTF8Encoding encoding = new UTF8Encoding();
                 return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Core
         public static string GenerateCodeVerifier()
         {
             byte[] buffer = new byte[Constants.CodeVerifierByteSize];
-            using (var randomSource = RandomNumberGenerator.Create())
+            using (RNGCryptoServiceProvider randomSource = new RNGCryptoServiceProvider())
             {
                 randomSource.GetBytes(buffer);
             }
@@ -67,12 +67,12 @@ namespace Microsoft.Identity.Core
                 return null;
             }
 
-            using (var sha256 = SHA256.Create())
+            using (SHA256Managed sha = new SHA256Managed())
             {
-                var inputBytes = Encoding.UTF8.GetBytes(input);
-                var outputBytes = sha256.ComputeHash(inputBytes);
-                return Convert.ToBase64String(outputBytes);
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
             }
         }
+        
     }
 }

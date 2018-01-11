@@ -550,7 +550,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId,
                 TokenType = "Bearer",
                 ExpiresOnUnixTimestamp =
-                    MsalHelpers.DateTimeToUnixTimestamp((DateTime.UtcNow + TimeSpan.FromSeconds(3600))),
+                    CoreHelpers.DateTimeToUnixTimestamp((DateTime.UtcNow + TimeSpan.FromSeconds(3600))),
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
                 ScopeSet = TestConstants.Scope

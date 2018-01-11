@@ -30,11 +30,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Instance;
 using Microsoft.Identity.Client.Internal.Requests;
 using System.Linq;
-using Microsoft.Identity.Client.Internal.Telemetry;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.TelemetryEvents;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {
@@ -61,7 +62,7 @@ namespace Microsoft.Identity.Client
             bool validateAuthority)
         {
             ClientId = clientId;
-            Authority authorityInstance = Internal.Instance.Authority.CreateAuthority(authority, validateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
             Authority = authorityInstance.CanonicalAuthority;
             RedirectUri = redirectUri;
             ValidateAuthority = validateAuthority;
@@ -191,7 +192,7 @@ namespace Microsoft.Identity.Client
             Authority authorityInstance = null;
             if (!string.IsNullOrEmpty(authority))
             {
-                authorityInstance = Internal.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             }
 
             return

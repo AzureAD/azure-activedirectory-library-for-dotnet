@@ -30,13 +30,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Http;
-using Microsoft.Identity.Client.Internal.Instance;
-using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.MSAL.NET.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit.HttpTests
 {

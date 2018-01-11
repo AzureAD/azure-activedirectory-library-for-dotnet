@@ -7,7 +7,7 @@
   <PropertyGroup>
     <RootNamespace>Test.Microsoft.Identity.Core.Unit</RootNamespace>
     <AssemblyName>Test.Microsoft.Identity.Core.Unit</AssemblyName>
-    <DefineConstants>$(DefineConstants);TEST_CORE_NET</DefineConstants>
+    <DefineConstants>TEST_CORE_NET</DefineConstants>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
@@ -16,7 +16,6 @@
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <DelaySign></DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

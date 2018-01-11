@@ -26,52 +26,25 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Globalization;
-using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    internal class CoreCryptographyHelpers
     {
         public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                return null;
-            }
-
-            using (SHA256Cng sha = new SHA256Cng())
-            {
-                UTF8Encoding encoding = new UTF8Encoding();
-                return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
-            }
+            return null;
         }
 
         public static string GenerateCodeVerifier()
         {
-            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
-            using (RNGCryptoServiceProvider randomSource = new RNGCryptoServiceProvider())
-            {
-                randomSource.GetBytes(buffer);
-            }
-
-            return Base64UrlHelpers.Encode(buffer);
+            return null;
         }
 
         public static string CreateSha256Hash(string input)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                return null;
-            }
-
-            using (SHA256Cng sha = new SHA256Cng())
-            {
-                UTF8Encoding encoding = new UTF8Encoding();
-                return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));
-            }
+            return null;
         }
     }
 }

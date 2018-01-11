@@ -60,7 +60,7 @@ namespace Test.MSAL.NET.Unit.Mocks
                 throw ExceptionToThrow;
             }
 
-            IDictionary<string, string> inputQp = MsalHelpers.ParseKeyValueList(authorizationUri.Query.Substring(1), '&', true, null);
+            IDictionary<string, string> inputQp = CoreHelpers.ParseKeyValueList(authorizationUri.Query.Substring(1), '&', true, null);
             Assert.IsNotNull(inputQp[OAuth2Parameter.State]);
             if (AddStateInAuthorizationResult)
             {

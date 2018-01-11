@@ -37,7 +37,7 @@ using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    internal class CoreCryptographyHelpers
     {
         // This descriptor does not require the enterprise authentication capability.
         private const string ProtectionDescriptor = "LOCAL=user";

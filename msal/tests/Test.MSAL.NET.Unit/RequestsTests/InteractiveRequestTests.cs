@@ -151,7 +151,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
                 TokenType = "Bearer",
-                ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromSeconds(3599)),
+                ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromSeconds(3599)),
                 ScopeSet = TestConstants.Scope
             };
             atItem.IdToken = IdToken.Parse(atItem.RawIdToken);

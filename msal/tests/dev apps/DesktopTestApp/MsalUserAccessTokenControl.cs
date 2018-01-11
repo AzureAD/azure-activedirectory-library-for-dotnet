@@ -32,7 +32,7 @@ namespace DesktopTestApp
         private void expireAccessTokenButton_Click(object sender, System.EventArgs e)
         {
             expiresOnLabel.Text = DateTimeOffset.UtcNow.ToString();
-            _item.ExpiresOnUnixTimestamp = MsalHelpers.DateTimeToUnixTimestamp(DateTimeOffset.UtcNow);
+            _item.ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTimeOffset.UtcNow);
             _cache.SaveAccesTokenCacheItem(_item);
         }
 

@@ -26,13 +26,14 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    internal class CoreCryptographyHelpers
     {
         public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
@@ -41,7 +42,7 @@ namespace Microsoft.Identity.Core
                 return null;
             }
 
-            using (SHA256Managed sha = new SHA256Managed())
+            using (SHA256Cng sha = new SHA256Cng())
             {
                 UTF8Encoding encoding = new UTF8Encoding();
                 return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
@@ -61,12 +62,12 @@ namespace Microsoft.Identity.Core
 
         public static string CreateSha256Hash(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrEmpty(input))
             {
                 return null;
             }
 
-            using (SHA256Managed sha = new SHA256Managed())
+            using (SHA256Cng sha = new SHA256Cng())
             {
                 UTF8Encoding encoding = new UTF8Encoding();
                 return Convert.ToBase64String(sha.ComputeHash(encoding.GetBytes(input)));

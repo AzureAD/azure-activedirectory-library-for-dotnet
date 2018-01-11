@@ -366,7 +366,7 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.DisplayableId, null);
             Uri uri = task.Result;
             Assert.IsNotNull(uri);
-            Dictionary<string, string> qp = MsalHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
             Assert.IsNotNull(qp);
             Assert.AreEqual(11, qp.Count);
             Assert.IsTrue(qp.ContainsKey("client-request-id"));
@@ -406,7 +406,7 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.DisplayableId, null);
             Uri uri = task.Result;
             Assert.IsNotNull(uri);
-            Dictionary<string, string> qp = MsalHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
             Assert.IsNotNull(qp);
             Assert.AreEqual(12, qp.Count);
             Assert.AreEqual("my-policy", qp["p"]);
@@ -486,7 +486,7 @@ namespace Test.MSAL.NET.Unit
             Uri uri = task.Result;
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.StartsWith(TestConstants.AuthorityGuestTenant, StringComparison.CurrentCulture));
-            Dictionary<string, string> qp = MsalHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
             Assert.IsNotNull(qp);
             Assert.AreEqual(12, qp.Count);
             Assert.IsTrue(qp.ContainsKey("client-request-id"));

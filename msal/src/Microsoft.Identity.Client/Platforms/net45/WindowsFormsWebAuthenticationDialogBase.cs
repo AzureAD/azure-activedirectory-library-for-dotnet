@@ -153,7 +153,7 @@ namespace Microsoft.Identity.Client.Internal.UI
 
             if (!e.Cancel)
             {
-                string urlDecode = MsalHelpers.UrlDecode(e.Url.ToString());
+                string urlDecode = CoreHelpers.UrlDecode(e.Url.ToString());
                 string message = string.Format(CultureInfo.InvariantCulture, "Navigating to '{0}'.", urlDecode);
                 RequestContext.Logger.VerbosePii(message);
             }
@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Client.Internal.UI
             // Guard condition
             if (CheckForClosingUrl(e.Url)) return;
 
-            string urlDecode = MsalHelpers.UrlDecode(e.Url.ToString());
+            string urlDecode = CoreHelpers.UrlDecode(e.Url.ToString());
             string message = string.Format(CultureInfo.InvariantCulture, "Navigated to '{0}'.", urlDecode);
             RequestContext.Logger.VerbosePii(message);
         }

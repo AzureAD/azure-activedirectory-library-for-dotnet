@@ -27,9 +27,7 @@ using Android.App;
 using Android.Content;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core

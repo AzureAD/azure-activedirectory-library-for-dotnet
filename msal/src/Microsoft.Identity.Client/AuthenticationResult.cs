@@ -25,10 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Cache;
 using System;
 using System.Collections.Generic;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {
@@ -47,6 +47,9 @@ namespace Microsoft.Identity.Client
         internal AuthenticationResult(MsalAccessTokenCacheItem msalAccessTokenCacheItem)
         {
             _msalAccessTokenCacheItem = msalAccessTokenCacheItem;
+            User = new User(_msalAccessTokenCacheItem.GetUserIdentifier(),
+                _msalAccessTokenCacheItem.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.IdToken?.Name,
+                _msalAccessTokenCacheItem.IdToken?.Issuer);
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace Microsoft.Identity.Client
         /// Gets the user object. Some elements in User might be null if not returned by the
         /// service. It can be passed back in some API overloads to identify which user should be used.
         /// </summary>
-        public virtual IUser User => _msalAccessTokenCacheItem.User;
+        public virtual IUser User { get; internal set; }
 
         /// <summary>
         /// Gets the entire Id Token if returned by the service or null if no Id Token is returned.

@@ -30,10 +30,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal.Cache;
-using Microsoft.Identity.Client.Internal.Instance;
-using Microsoft.Identity.Client.Internal.OAuth2;
-using Microsoft.Identity.Client.Internal.Telemetry;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.TelemetryEvents;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {

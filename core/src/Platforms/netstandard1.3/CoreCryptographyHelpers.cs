@@ -25,26 +25,54 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.Helpers;
 using System;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CryptographyHelper
+    internal class CoreCryptographyHelpers
     {
         public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
-            return null;
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
+            using (SHA256 sha = SHA256.Create())
+            {
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
+            }
         }
 
         public static string GenerateCodeVerifier()
         {
-            return null;
+            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
+            using (var randomSource = RandomNumberGenerator.Create())
+            {
+                randomSource.GetBytes(buffer);
+            }
+
+            return Base64UrlHelpers.Encode(buffer);
         }
 
         public static string CreateSha256Hash(string input)
         {
-            return null;
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return null;
+            }
+
+            using (var sha256 = SHA256.Create())
+            {
+                var inputBytes = Encoding.UTF8.GetBytes(input);
+                var outputBytes = sha256.ComputeHash(inputBytes);
+                return Convert.ToBase64String(outputBytes);
+            }
         }
     }
 }

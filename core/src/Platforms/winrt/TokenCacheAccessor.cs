@@ -64,31 +64,31 @@ namespace Microsoft.Identity.Core
         {
             ApplicationDataCompositeValue composite = new ApplicationDataCompositeValue();
             SetCacheValue(composite, item);
-            _accessTokenContainer.Values[CryptographyHelper.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
+            _accessTokenContainer.Values[CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
         }
 
         public void SaveRefreshToken(string cacheKey, string item)
         {
             ApplicationDataCompositeValue composite = new ApplicationDataCompositeValue();
             SetCacheValue(composite, item);
-            _refreshTokenContainer.Values[CryptographyHelper.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
+            _refreshTokenContainer.Values[CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
         }
 
         public string GetRefreshToken(string refreshTokenKey)
         {
             return CoreHelpers.ByteArrayToString(
                 GetCacheValue((ApplicationDataCompositeValue) _refreshTokenContainer.Values[
-                    CryptographyHelper.CreateBase64UrlEncodedSha256Hash(refreshTokenKey)]));
+                    CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(refreshTokenKey)]));
         }
         
         public void DeleteAccessToken(string cacheKey)
         {
-            _accessTokenContainer.Values.Remove(CryptographyHelper.CreateBase64UrlEncodedSha256Hash(cacheKey));
+            _accessTokenContainer.Values.Remove(CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey));
         }
 
         public void DeleteRefreshToken(string cacheKey)
         {
-            _refreshTokenContainer.Values.Remove(CryptographyHelper.CreateBase64UrlEncodedSha256Hash(cacheKey));
+            _refreshTokenContainer.Values.Remove(CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey));
         }
 
         public ICollection<string> GetAllAccessTokensAsString()
@@ -115,7 +115,7 @@ namespace Microsoft.Identity.Core
 
         internal static void SetCacheValue(ApplicationDataCompositeValue composite, string stringValue)
         {
-            byte[] encryptedValue = CryptographyHelper.Encrypt(stringValue.ToByteArray());
+            byte[] encryptedValue = CoreCryptographyHelpers.Encrypt(stringValue.ToByteArray());
             composite[CacheValueLength] = encryptedValue.Length;
 
             int segmentCount = (encryptedValue.Length / MaxCompositeValueLength) +
@@ -161,7 +161,7 @@ namespace Microsoft.Identity.Core
                 (segmentCount - 1) * MaxCompositeValueLength,
                 encyptedValueLength - (segmentCount - 1) * MaxCompositeValueLength);
 
-            return CryptographyHelper.Decrypt(encryptedValue);
+            return CoreCryptographyHelpers.Decrypt(encryptedValue);
         }
 
         public ICollection<string> GetAllAccessTokenKeys()
