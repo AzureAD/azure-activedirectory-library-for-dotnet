@@ -33,7 +33,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using Microsoft.Identity.Core;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
+namespace Microsoft.Identity.Core.Helpers
 {
     /// <summary>
     /// The encoding helper.
@@ -183,7 +183,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
 
                     response[key] = value;
                 }
-                else if(strict && pair.Count > 2)
+                else if (strict && pair.Count > 2)
                 {
                     throw new ArgumentException(nameof(input));
                 }

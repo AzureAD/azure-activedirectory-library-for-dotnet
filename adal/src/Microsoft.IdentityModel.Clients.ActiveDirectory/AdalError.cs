@@ -275,6 +275,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Claims step-up required.
         /// </summary>
         public const string InteractionRequired = "interaction_required";
+
+        /// <summary>
+        /// JSON parsing failed.
+        /// </summary>
+        public const string JsonParseError = "json_parse_failed";
     }
 
 }

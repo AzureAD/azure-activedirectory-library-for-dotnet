@@ -37,9 +37,9 @@ using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Certificates;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {

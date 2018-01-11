@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using System;

@@ -65,6 +65,8 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember]
         internal string ResourceInResponse { get; set; }
 
+        [DataMember]
+        public ClientInfo ClientInfo { get; set; }
 
         /// <summary>
         /// Serializes the object to a JSON string
@@ -115,6 +117,7 @@ namespace Microsoft.Identity.Core.Cache
                 Exception = this.Exception,
                 RefreshToken = this.RefreshToken,
                 ResourceInResponse = this.ResourceInResponse,
+                ClientInfo = this.ClientInfo,
                 Result = new AuthenticationResult(this.Result.AccessTokenType, this.Result.AccessToken, this.Result.ExpiresOn, this.Result.ExtendedExpiresOn)
                 {
                     ExtendedLifeTimeToken = this.Result.ExtendedLifeTimeToken,

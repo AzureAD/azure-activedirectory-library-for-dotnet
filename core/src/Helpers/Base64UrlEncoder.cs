@@ -29,7 +29,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
+namespace Microsoft.Identity.Core.Helpers
 {
     internal static class Base64UrlEncoder
     {
@@ -58,29 +58,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
             return Encode(TextEncoding.GetBytes(arg));
         }
 
-        public static byte[] DecodeBytes(string arg)
+        public static byte[] Decode(string base64url)
         {
-            string s = arg;
+            string s = base64url;
             s = s.Replace(Base64UrlCharacter62, Base64Character62); // 62nd char of encoding
             s = s.Replace(Base64UrlCharacter63, Base64Character63); // 63rd char of encoding
 
-            switch (s.Length % 4) 
+            switch (s.Length % 4)
             {
                 // Pad 
                 case 0:
                     break; // No pad chars in this case
                 case 2:
-                    s += DoubleBase64PadCharacter; 
+                    s += DoubleBase64PadCharacter;
                     break; // Two pad chars
                 case 3:
-                    s += Base64PadCharacter; 
+                    s += Base64PadCharacter;
                     break; // One pad char
                 default:
-                    throw new ArgumentException("Illegal base64url string!", "arg");
+                    throw new ArgumentException("Illegal base64url string!", "base64url");
             }
 
             return Convert.FromBase64String(s); // Standard base64 decoder
-
         }
 
         internal static string Encode(byte[] arg)

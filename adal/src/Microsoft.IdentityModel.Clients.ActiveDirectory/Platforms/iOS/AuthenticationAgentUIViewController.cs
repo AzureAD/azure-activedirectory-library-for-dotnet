@@ -32,7 +32,7 @@ using CoreFoundation;
 using CoreGraphics;
 using Foundation;
 using UIKit;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {

@@ -36,9 +36,9 @@ using Foundation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using UIKit;
 using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {

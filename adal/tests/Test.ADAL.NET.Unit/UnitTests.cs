@@ -46,6 +46,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.ADAL.NET.Unit
 {

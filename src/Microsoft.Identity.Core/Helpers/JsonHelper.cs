@@ -29,7 +29,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
+namespace Microsoft.Identity.Core.Helpers
 {
     internal static class JsonHelper
     {
@@ -50,6 +50,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
             using (MemoryStream stream = new MemoryStream(new StringBuilder(json).ToByteArray()))
             {
                 response = ((T) serializer.ReadObject(stream));
+            }
+
+            return response;
+        }
+
+        internal static T DeserializeFromJson<T>(byte[] jsonByteArray)
+        {
+            if (jsonByteArray == null || jsonByteArray.Length == 0)
+            {
+                return default(T);
+            }
+
+            T response;
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T));
+            using (MemoryStream stream = new MemoryStream(jsonByteArray))
+            {
+                response = ((T)serializer.ReadObject(stream));
             }
 
             return response;

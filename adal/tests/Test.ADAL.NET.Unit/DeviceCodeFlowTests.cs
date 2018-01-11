@@ -26,10 +26,12 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -72,7 +74,11 @@ namespace Test.ADAL.NET.Unit
                                                                            "36fe3e82-442f-4418-b9f4-9f4b9295831d\\r\\nTimestamp: 2015-09-24 19:51:51Z\"," +
                                                                            "\"error_codes\":[70016],\"timestamp\":\"2015-09-24 19:51:51Z\",\"trace_id\":" +
                                                                            "\"f6c2c73f-a21d-474e-a71f-d8b121a58205\",\"correlation_id\":" +
-                                                                           "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
+                                                                           "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}"),
+                PostData = new Dictionary<string, string>()
+                {
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
+                }
             };
 
             HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
@@ -82,7 +88,11 @@ namespace Test.ADAL.NET.Unit
                 Url = "https://login.microsoftonline.com/home/oauth2/token",
                 ResponseMessage =
                     MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId,
-                        TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
+                        TestConstants.DefaultDisplayableId, TestConstants.DefaultResource),
+                PostData = new Dictionary<string, string>()
+                {
+                    {OAuthParameter.ClientInfo, ClientInfoValues.Default}
+                }
             });
 
             TokenCache cache = new TokenCache();
