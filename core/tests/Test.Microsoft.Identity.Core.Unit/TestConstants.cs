@@ -27,8 +27,6 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
 
 namespace Test.MSAL.NET.Unit
 {
@@ -49,7 +47,6 @@ namespace Test.MSAL.NET.Unit
         public static readonly string DisplayableId = "displayable@id.com";
         public static readonly string RedirectUri = "urn:ietf:wg:oauth:2.0:oob";
         public static readonly string ClientSecret = "client_secret";
-        public static readonly ClientCredential CredentialWithSecret = new ClientCredential(ClientSecret);
         public static readonly string Uid = "my-UID";
         public static readonly string Utid= "my-UTID";
 
@@ -67,14 +64,6 @@ namespace Test.MSAL.NET.Unit
                 Base64UrlHelpers.Encode(utid));
         }
 
-        public static readonly User User = new User
-        {
-            DisplayableId = DisplayableId,
-            Identifier = UserIdentifier,
-            IdentityProvider = IdentityProvider,
-            Name = Name,
-        };
-
         public static readonly string OnPremiseAuthority = "https://fs.contoso.com/adfs/";
         public static readonly string OnPremiseClientId = "on_premise_client_id";
         public static readonly string OnPremiseUniqueId = "on_premise_unique_id";
@@ -86,11 +75,5 @@ namespace Test.MSAL.NET.Unit
         public static readonly string OnPremiseClientSecret = "on_premise_client_secret";
         public static readonly string OnPremiseUid = "my-OnPremise-UID";
         public static readonly string OnPremiseUtid = "my-OnPremise-UTID";
-        public static readonly ClientCredential OnPremiseCredentialWithSecret = new ClientCredential(ClientSecret);
-        public static readonly User OnPremiseUser = new User
-        {
-            DisplayableId = OnPremiseDisplayableId,
-            Identifier = OnPremiseHomeObjectId
-        };
     }
 }

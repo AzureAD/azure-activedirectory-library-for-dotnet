@@ -26,9 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Cache;
 
 namespace Test.MSAL.NET.Unit.Mocks
 {
