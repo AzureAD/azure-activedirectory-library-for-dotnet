@@ -28,11 +28,37 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.Identity.Core
 {
     internal class CryptographyHelper
     {
+        public static string CreateBase64UrlEncodedSha256Hash(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
+            using (SHA256Managed sha = new SHA256Managed())
+            {
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
+            }
+        }
+
+        public static string GenerateCodeVerifier()
+        {
+            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
+            using (RNGCryptoServiceProvider randomSource = new RNGCryptoServiceProvider())
+            {
+                randomSource.GetBytes(buffer);
+            }
+
+            return Base64UrlHelpers.Encode(buffer);
+        }
+
         public static string CreateSha256Hash(string input)
         {
             if (string.IsNullOrWhiteSpace(input))

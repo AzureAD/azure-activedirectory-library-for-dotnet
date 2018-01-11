@@ -165,4 +165,7 @@
       <Version>25.3.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Platforms\netstandard1.1\" />
+  </ItemGroup>
 </Project>

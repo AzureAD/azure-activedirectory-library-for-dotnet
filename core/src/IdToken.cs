@@ -29,6 +29,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client.Internal
 {

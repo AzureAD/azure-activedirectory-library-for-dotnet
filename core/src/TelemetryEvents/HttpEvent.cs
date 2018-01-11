@@ -27,6 +27,7 @@
 
 
 using System;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.TelemetryEvents
 {
@@ -54,7 +55,7 @@ namespace Microsoft.Identity.Core.TelemetryEvents
         public string QueryParams
         {
             set => this[QueryParametersKey] = String.Join( // query parameters are case-sensitive
-                "&", MsalHelpers.ParseKeyValueList(value, '&', false, true, null).Keys); // It turns out ParseKeyValueList(..., null) is valid
+                "&", CoreHelpers.ParseKeyValueList(value, '&', false, true, null).Keys); // It turns out ParseKeyValueList(..., null) is valid
         }
 
         public string ApiVersion {

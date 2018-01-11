@@ -25,20 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Microsoft.Identity.Client
+namespace Test.MSAL.NET.Unit
 {
-    internal class CryptographyHelper
+    [TestClass]
+    public class ClientInfoTests
     {
-        public static string CreateBase64UrlEncodedSha256Hash(string input)
+        [TestMethod]
+        [TestCategory("ClientInfoTests")]
+        public void ParseTest()
         {
-            return null;
-        }
-
-        public static string GenerateCodeVerifier()
-        {
-            return null;
+            ClientInfo clientInfo = ClientInfo.CreateFromJson("eyJ1aWQiOiJteS1VSUQiLCJ1dGlkIjoibXktVVRJRCJ9");
+            Assert.IsNotNull(clientInfo);
+            Assert.AreEqual(TestConstants.Uid, clientInfo.UniqueIdentifier);
+            Assert.AreEqual(TestConstants.Utid, clientInfo.UniqueTenantIdentifier);
         }
     }
 }

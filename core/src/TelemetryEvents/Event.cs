@@ -28,6 +28,7 @@
 using Microsoft.Identity.Core.Helpers;
 using System;
 using System.Collections.Generic;
+using Microsoft.Identity.Core.Instance;
 
 namespace Microsoft.Identity.Core.TelemetryEvents
 {

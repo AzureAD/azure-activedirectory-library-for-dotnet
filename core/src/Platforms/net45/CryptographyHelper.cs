@@ -28,19 +28,38 @@
 using System;
 using System.Globalization;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.Win32.SafeHandles;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Security.Permissions;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
 {
     internal class CryptographyHelper
     {
+        public static string CreateBase64UrlEncodedSha256Hash(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
+            using (SHA256Cng sha = new SHA256Cng())
+            {
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
+            }
+        }
+
+        public static string GenerateCodeVerifier()
+        {
+            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
+            using (RNGCryptoServiceProvider randomSource = new RNGCryptoServiceProvider())
+            {
+                randomSource.GetBytes(buffer);
+            }
+
+            return Base64UrlHelpers.Encode(buffer);
+        }
+
         public static string CreateSha256Hash(string input)
         {
             if (string.IsNullOrEmpty(input))

@@ -25,22 +25,25 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
+using System;
+using System.Text;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.MSAL.NET.Unit.HttpTests
 {
     [TestClass]
-    public class ClientInfoTests
+    public class HttpClientFactoryTests
     {
         [TestMethod]
-        [TestCategory("ClientInfoTests")]
-        public void ParseTest()
+        [TestCategory("HttpClientFactoryTests")]
+        public void GetHttpClient_MaxRespContentBuffSizeSetTo1Mb()
         {
-            ClientInfo clientInfo = ClientInfo.CreateFromJson("eyJ1aWQiOiJteS1VSUQiLCJ1dGlkIjoibXktVVRJRCJ9");
-            Assert.IsNotNull(clientInfo);
-            Assert.AreEqual(TestConstants.Uid, clientInfo.UniqueIdentifier);
-            Assert.AreEqual(TestConstants.Utid, clientInfo.UniqueTenantIdentifier);
+            HttpClientFactory.ReturnHttpClientForMocks = false;
+            Assert.AreEqual(1024 * 1024, HttpClientFactory.GetHttpClient().MaxResponseContentBufferSize);
         }
     }
 }

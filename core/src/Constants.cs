@@ -28,7 +28,7 @@
 using System;
 using System.Xml.Linq;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Core
 {
     internal static class MsalErrorEx
     {

@@ -18,6 +18,8 @@ namespace Microsoft.Identity.Client.Internal
                 //space is intentional for formatting of the message
                 Component = string.Format(CultureInfo.InvariantCulture, " ({0})", component);
             }
+
+            PiiLoggingEnabled = MsalLoggerSettings.PiiLoggingEnabled;
         }
 
         internal string Component { get; set; }

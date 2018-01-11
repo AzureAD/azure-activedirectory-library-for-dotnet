@@ -27,6 +27,7 @@
 
 using System;
 using System.Globalization;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client
 {

@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Core.Cache
 
             if (IdToken != null)
             {
-                User = new User(GetUserIdentifier(), IdToken.PreferredUsername, IdToken.Name, IdToken.Issuer);
+                //User = new User(GetUserIdentifier(), IdToken.PreferredUsername, IdToken.Name, IdToken.Issuer);
             }
         }
 
