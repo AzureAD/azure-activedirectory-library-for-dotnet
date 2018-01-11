@@ -73,62 +73,72 @@ namespace Microsoft.Identity.Core.TelemetryEvents
 
         public ApiIds ApiId
         {
-            set => this[ApiIdKey] = ((int)value).ToStringInvariant();
+            set { this[ApiIdKey] = ((int) value).ToStringInvariant(); }
         }
 
         public Uri Authority
         {
-            set => this[AuthorityKey] = ScrubTenant(value)?.ToLowerInvariant();
+            set { this[AuthorityKey] = ScrubTenant(value)?.ToLowerInvariant(); }
         }
 
         public string AuthorityType
         {
-            set => this[AuthorityTypeKey] = value?.ToLowerInvariant();
+            set { this[AuthorityTypeKey] = value?.ToLowerInvariant(); }
         }
 
         public string UiBehavior
         {
-            set => this[UiBehaviorKey] = value?.ToLowerInvariant();
+            set { this[UiBehaviorKey] = value?.ToLowerInvariant(); }
         }
 
         public string ValidationStatus
         {
-            set => this[ValidationStatusKey] = value?.ToLowerInvariant();
+            set { this[ValidationStatusKey] = value?.ToLowerInvariant(); }
         }
 
         public string TenantId
         {
-            set => this[TenantIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value) : null;
+            set
+            {
+                this[TenantIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled
+                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    : null;
+            }
         }
 
         public string UserId
         {
-            set => this[UserIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value) : null;
+            set
+            {
+                this[UserIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled
+                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    : null;
+            }
         }
 
         public bool WasSuccessful
         {
-            set => this[WasSuccessfulKey] = value.ToString().ToLowerInvariant();
-            get => this[WasSuccessfulKey] == true.ToString().ToLowerInvariant();
+            set { this[WasSuccessfulKey] = value.ToString().ToLowerInvariant(); }
+            get { return this[WasSuccessfulKey] == true.ToString().ToLowerInvariant(); }
         }
 
         public string CorrelationId
         {
-            set => this[CorrelationIdKey] = value;
+            set { this[CorrelationIdKey] = value; }
         }
 
         public string RequestId
         {
-            set => this[RequestIdKey] = value;
+            set { this[RequestIdKey] = value; }
         }
 
         public bool IsConfidentialClient
         {
-            set => this[IsConfidentialClientKey] = value.ToString().ToLowerInvariant();
+            set { this[IsConfidentialClientKey] = value.ToString().ToLowerInvariant(); }
         }
 
         public string ApiErrorCode {
-            set => this[ApiErrorCodeKey] = value;
+            set { this[ApiErrorCodeKey] = value; }
         }
     }
 }

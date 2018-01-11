@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Core.TelemetryEvents
 
         public bool UserCancelled
         {
-            set => this[UserCancelledKey] = value.ToString().ToLowerInvariant();
+            set { this[UserCancelledKey] = value.ToString().ToLowerInvariant(); }
         }
     }
 }

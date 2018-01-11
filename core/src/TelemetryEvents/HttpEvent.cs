@@ -44,32 +44,38 @@ namespace Microsoft.Identity.Core.TelemetryEvents
 
         public Uri HttpPath
         {
-            set => this[HttpPathKey] = ScrubTenant(value); // http path is case-sensitive
+            set { this[HttpPathKey] = ScrubTenant(value); } // http path is case-sensitive
         }
 
         public string UserAgent
         {
-            set => this[UserAgentKey] = value;
+            set { this[UserAgentKey] = value; }
         }
 
         public string QueryParams
         {
-            set => this[QueryParametersKey] = String.Join( // query parameters are case-sensitive
-                "&", CoreHelpers.ParseKeyValueList(value, '&', false, true, null).Keys); // It turns out ParseKeyValueList(..., null) is valid
+            set
+            {
+                this[QueryParametersKey] = String.Join( // query parameters are case-sensitive
+                    "&",
+                    CoreHelpers.ParseKeyValueList(value, '&', false, true, null)
+                        .Keys); // It turns out ParseKeyValueList(..., null) is valid
+            }
         }
 
-        public string ApiVersion {
-            set => this[ApiVersionKey] = value?.ToLowerInvariant();
+        public string ApiVersion
+        {
+            set { this[ApiVersionKey] = value?.ToLowerInvariant(); }
         }
 
         public int HttpResponseStatus
         {
-            set => this[ResponseCodeKey] = value.ToStringInvariant();
+            set { this[ResponseCodeKey] = value.ToStringInvariant(); }
         }
 
         public string OauthErrorCode
         {
-            set => this[OauthErrorCodeKey] = value;
+            set { this[OauthErrorCodeKey] = value; }
         }
     }
 }

@@ -43,13 +43,15 @@ namespace Microsoft.Identity.Core
 
                 sb.Append(string.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is MsalException msalException)
+                if (ex is MsalException)
                 {
+                    MsalException msalException = (MsalException) ex;
                     sb.Append(string.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", msalException.ErrorCode));
                 }
 
-                if (ex is MsalServiceException msalServiceException)
+                if (ex is MsalServiceException)
                 {
+                    MsalServiceException msalServiceException = (MsalServiceException)ex;
                     sb.Append(string.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}",
                         msalServiceException.StatusCode));
                 }
