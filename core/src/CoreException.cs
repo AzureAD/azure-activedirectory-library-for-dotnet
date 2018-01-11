@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Core
         public CoreException()
             : base(CoreErrorMessage.Unknown)
         {
-            ErrorCode = CoreError.Unknown;
+            ErrorCode = CoreError.UnknownError;
         }
 
         /// <summary>
