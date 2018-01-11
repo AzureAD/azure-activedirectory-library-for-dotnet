@@ -31,9 +31,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.MSAL.NET.Unit.Mocks;
+using Test.Microsoft.Identity.Unit.Mocks;
 
-namespace Test.MSAL.NET.Unit.HttpTests
+namespace Test.Microsoft.Identity.Unit.HttpTests
 {
     [TestClass]
     public class HttpRequestTests

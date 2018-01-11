@@ -30,16 +30,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Cache;
-using Microsoft.Identity.Client.Internal.Instance;
-using Microsoft.Identity.Client.Internal.OAuth2;
-using Microsoft.Identity.Client.Internal.Requests;
-using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
-using CryptographyHelper = Microsoft.Identity.Client.CryptographyHelper;
 
 namespace Test.MSAL.NET.Unit.CacheTests
 {

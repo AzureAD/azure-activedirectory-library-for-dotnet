@@ -34,7 +34,7 @@ using System.Net.Http;
 using Microsoft.Identity.Core.Helpers;
 using NSubstitute;
 
-namespace Test.MSAL.NET.Unit.Mocks
+namespace Test.Microsoft.Identity.Unit.Mocks
 {
     internal static class MockHelpers
     {

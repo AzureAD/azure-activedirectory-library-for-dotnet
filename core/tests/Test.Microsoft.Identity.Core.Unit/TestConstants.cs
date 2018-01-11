@@ -28,7 +28,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.Microsoft.Identity.Unit
 {
     class TestConstants
     {

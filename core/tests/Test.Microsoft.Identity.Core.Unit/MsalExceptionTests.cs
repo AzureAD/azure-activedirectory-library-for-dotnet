@@ -28,7 +28,7 @@ using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Test.MSAL.NET.Unit.PublicApi
+namespace Test.Microsoft.Identity.Unit.PublicApi
 {
     [TestClass]
     public class MsalExceptionTests

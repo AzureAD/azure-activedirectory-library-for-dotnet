@@ -27,7 +27,7 @@
 
 using System;
 
-namespace Test.MSAL.NET.Unit.Mocks
+namespace Test.Microsoft.Identity.Unit.Mocks
 {
     internal class TokenCacheHelper
     {

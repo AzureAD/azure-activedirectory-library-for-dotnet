@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.MSAL.NET.Unit.Mocks
+namespace Test.Microsoft.Identity.Unit.Mocks
 {
     internal class MockHttpMessageHandler : HttpMessageHandler
     {

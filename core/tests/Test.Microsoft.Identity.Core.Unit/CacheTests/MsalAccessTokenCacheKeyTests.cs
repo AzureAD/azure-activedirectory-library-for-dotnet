@@ -30,20 +30,20 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.MSAL.NET.Unit.CacheTests
+namespace Test.Microsoft.Identity.Unit.CacheTests
 {
     [TestClass]
-    public class AccessTokenCacheKeyTests
+    public class MsalAccessTokenCacheKeyTests
     {
         [TestMethod]
         [TestCategory("AccessTokenCacheKeyTests")]
         public void ConstructorTest()
         {
-            MsalAccessTokenCacheKey key = new AccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
+            MsalAccessTokenCacheKey key = new MsalAccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
                 TestConstants.Scope, TestConstants.ClientId, TestConstants.UserIdentifier);
             ValidateTokenCacheKey(key);
 
-            key = new AccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
+            key = new MsalAccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
                 null, TestConstants.ClientId, TestConstants.UserIdentifier);
             
             Assert.IsNotNull(key.Scope);
@@ -51,7 +51,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
         }
 
-        private void ValidateTokenCacheKey(AccessTokenCacheKey key)
+        private void ValidateTokenCacheKey(MsalAccessTokenCacheKey key)
         {
             Assert.IsNotNull(key);
             Assert.AreEqual(TestConstants.AuthorityHomeTenant, key.Authority);
@@ -65,7 +65,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         public void TestScopeEquals()
         {
 
-            AccessTokenCacheKey key = new AccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
+            MsalAccessTokenCacheKey key = new MsalAccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
                 TestConstants.Scope, TestConstants.ClientId, TestConstants.UserIdentifier);
 
             SortedSet<string> otherScope = null;

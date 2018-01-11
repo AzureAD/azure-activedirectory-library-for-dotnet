@@ -27,7 +27,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.Microsoft.Identity.Unit
 {
     [TestClass]
     public class ClientInfoTests

@@ -25,19 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal.Cache;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.MSAL.NET.Unit.CacheTests
+namespace Test.Microsoft.Identity.Unit.CacheTests
 {
     [TestClass]
-    public class RefreshTokenCacheKeyTests
+    public class MsalRefreshTokenCacheKeyTests
     {
         [TestMethod]
         [TestCategory("RefreshTokenCacheKeyTests")]
         public void ConstructorTest()
         {
-            RefreshTokenCacheKey key = new RefreshTokenCacheKey(TestConstants.ProductionEnvironment,
+            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionEnvironment,
                 TestConstants.ClientId, TestConstants.UserIdentifier);
 
             Assert.IsNotNull(key);
@@ -50,7 +49,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("RefreshTokenCacheKeyTests")]
         public void ToStringTest()
         {
-            RefreshTokenCacheKey key = new RefreshTokenCacheKey(TestConstants.ProductionEnvironment,
+            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionEnvironment,
                 TestConstants.ClientId, TestConstants.UserIdentifier);
 
             Assert.IsNotNull(key);

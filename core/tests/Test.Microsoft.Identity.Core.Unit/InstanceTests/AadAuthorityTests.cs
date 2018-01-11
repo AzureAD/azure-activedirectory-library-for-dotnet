@@ -33,9 +33,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
-namespace Test.MSAL.NET.Unit.InstanceTests
+namespace Test.Microsoft.Identity.Unit.InstanceTests
 {
     [TestClass]
     [DeploymentItem("Resources\\OpenidConfiguration.json")]

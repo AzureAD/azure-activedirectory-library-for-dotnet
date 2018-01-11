@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.Microsoft.Identity.Unit.OAuth2Tests
 {
     [TestClass]
     public class TokenResponseTests

@@ -41,7 +41,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 using Guid = System.Guid;
 
-namespace Test.MSAL.NET.Unit.InstanceTests
+namespace Test.Microsoft.Identity.Unit.InstanceTests
 {
     [TestClass]
     [DeploymentItem("Resources\\drs-response-missing-field.json")]
