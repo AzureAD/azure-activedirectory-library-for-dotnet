@@ -49,6 +49,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
         [TestInitialize]
         public void TestInitialize()
         {
+            new TestPlatformInformation();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();

@@ -44,6 +44,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
         [TestInitialize]
         public void TestInitialize()
         {
+            new TestPlatformInformation();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
         }
