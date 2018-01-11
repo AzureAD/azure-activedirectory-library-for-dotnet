@@ -29,8 +29,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Cache;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {

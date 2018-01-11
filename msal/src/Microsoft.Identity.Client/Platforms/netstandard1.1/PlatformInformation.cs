@@ -25,48 +25,37 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Client.Internal.Requests
+namespace Microsoft.Identity.Client
 {
-    internal class ClientCredentialRequest : RequestBase
+    internal class PlatformInformation : PlatformInformationBase
     {
-        public ClientCredentialRequest(AuthenticationRequestParameters authenticationRequestParameters, bool forceRefresh)
-            : base(authenticationRequestParameters)
+        public override string GetProductName()
         {
-            ForceRefresh = forceRefresh;
+            return "MSAL.Facade";
         }
 
-        protected override SortedSet<string> GetDecoratedScope(SortedSet<string> inputScope)
+        public override string GetEnvironmentVariable(string variable)
         {
-            return inputScope;
-        }
-        
-        internal override Task PreTokenRequest()
-        {
-            // look for access token in the cache first.
-            if (!ForceRefresh && LoadFromCache)
-            {
-                MsalAccessTokenItem
-                    = TokenCache.FindAccessToken(AuthenticationRequestParameters);
-            }
-
-            return CompletedTask;
-        }
-        protected override async Task SendTokenRequestAsync()
-        {
-            if (MsalAccessTokenItem == null)
-            {
-                await ResolveAuthorityEndpoints().ConfigureAwait(false);
-                await base.SendTokenRequestAsync().ConfigureAwait(false);
-            }
+            return null;
         }
 
-        protected override void SetAdditionalRequestParameters(OAuth2Client client)
+        public override string GetProcessorArchitecture()
         {
-            client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.ClientCredentials);
+            return null;
+        }
+
+        public override string GetOperatingSystem()
+        {
+            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        }
+
+        public override string GetDeviceModel()
+        {
+            // Since MSAL .NET may be used on servers, for security reasons, we do not emit device type.
+            return null;
         }
     }
 }

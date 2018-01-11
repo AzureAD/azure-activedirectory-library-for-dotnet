@@ -57,6 +57,15 @@ namespace Microsoft.Identity.Core
             return Base64UrlHelpers.Encode(Convert.FromBase64String(output));
         }
 
+        public static string GenerateCodeVerifier()
+        {
+            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
+            var windowsBuffer = CryptographicBuffer.GenerateRandom((uint)buffer.Length);
+            Array.Copy(windowsBuffer.ToArray(), buffer, buffer.Length);
+
+            return Base64UrlHelpers.Encode(buffer);
+        }
+
         public static string CreateSha256Hash(string input)
         {
             if (string.IsNullOrWhiteSpace(input))

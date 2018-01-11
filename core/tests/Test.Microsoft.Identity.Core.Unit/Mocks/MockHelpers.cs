@@ -31,10 +31,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Interfaces;
-using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
 using NSubstitute;
 
 namespace Test.MSAL.NET.Unit.Mocks
@@ -55,29 +52,7 @@ namespace Test.MSAL.NET.Unit.Mocks
             ":\"" + CreateClientInfo() + "\",\"id_token\"" +
             ":\"" + CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId) +
             "\",\"id_token_expires_in\":\"3600\"}";
-
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult)
-        {
-            ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
-        }
-
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
-        {
-            MockWebUI webUi = new MockWebUI();
-            webUi.QueryParamsToValidate = queryParamsToValidate;
-            webUi.MockResult = authorizationResult;
-
-            ConfigureMockWebUI(webUi);
-        }
-
-
-        public static void ConfigureMockWebUI(MockWebUI webUi)
-        {
-            IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
-            mockFactory.CreateAuthenticationDialog(Arg.Any<UIParent>(), Arg.Any<RequestContext>()).Returns(webUi);
-            PlatformPlugin.WebUIFactory = mockFactory;
-        }
-
+        
         public static string CreateClientInfo()
         {
             return CreateClientInfo(TestConstants.Uid, TestConstants.Utid);

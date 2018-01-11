@@ -28,15 +28,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Instance;
-using Microsoft.Identity.Client.Internal.OAuth2;
 using Microsoft.Identity.Client.Internal.Requests;
-using Microsoft.Identity.Client.Internal.Telemetry;
+
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.TelemetryEvents;
 
 namespace Microsoft.Identity.Client
 {
@@ -121,8 +120,10 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = msalAccessTokenCacheItem.User
-                    };
+                        User = new User(msalAccessTokenCacheItem.GetUserIdentifier(),
+                            msalAccessTokenCacheItem.IdToken?.PreferredUsername, msalAccessTokenCacheItem.IdToken?.Name,
+                            msalAccessTokenCacheItem.IdToken?.Issuer)
+                };
 
                     HasStateChanged = true;
                     OnBeforeAccess(args);
@@ -456,7 +457,9 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = msalRefreshTokenCacheItem.User
+                        User = new User(msalRefreshTokenCacheItem.GetUserIdentifier(),
+                            msalRefreshTokenCacheItem.DisplayableId, msalRefreshTokenCacheItem.Name,
+                            msalRefreshTokenCacheItem.IdentityProvider)
                     };
 
                     OnBeforeAccess(args);
@@ -481,7 +484,9 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = msalAccessTokenCacheItem.User
+                        User = new User(msalAccessTokenCacheItem.GetUserIdentifier(),
+                            msalAccessTokenCacheItem.IdToken?.PreferredUsername, msalAccessTokenCacheItem.IdToken?.Name,
+                            msalAccessTokenCacheItem.IdToken?.Issuer)
                     };
 
                     OnBeforeAccess(args);
@@ -517,7 +522,9 @@ namespace Microsoft.Identity.Client
                     if (environment.Equals(
                         item.Environment, StringComparison.OrdinalIgnoreCase))
                     {
-                        User user = new User(item.User);
+                        User user = new User(item.GetUserIdentifier(),
+                            item.DisplayableId, item.Name,
+                            item.IdentityProvider);
                         allUsers[item.GetUserIdentifier()] = user;
                     }
                 }
@@ -700,7 +707,9 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = msalAccessTokenCacheItem.User
+                    User = new User(msalAccessTokenCacheItem.GetUserIdentifier(),
+                        msalAccessTokenCacheItem.IdToken?.PreferredUsername, msalAccessTokenCacheItem.IdToken?.Name,
+                        msalAccessTokenCacheItem.IdToken?.Issuer)
                 };
 
                 try
@@ -732,7 +741,9 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = msalRefreshTokenCacheItem.User
+                    User = new User(msalRefreshTokenCacheItem.GetUserIdentifier(),
+                        msalRefreshTokenCacheItem.DisplayableId, msalRefreshTokenCacheItem.Name,
+                        msalRefreshTokenCacheItem.IdentityProvider)
                 };
 
                 try

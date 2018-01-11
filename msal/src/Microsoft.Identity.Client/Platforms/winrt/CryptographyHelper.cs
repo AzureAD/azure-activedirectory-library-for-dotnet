@@ -45,30 +45,6 @@ namespace Microsoft.Identity.Client
         // This descriptor does not require the enterprise authentication capability.
         private const string ProtectionDescriptor = "LOCAL=user";
 
-        public static string CreateBase64UrlEncodedSha256Hash(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return null;
-            }
-
-            IBuffer inputBuffer = CryptographicBuffer.ConvertStringToBinary(input, BinaryStringEncoding.Utf8);
-            var hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
-
-            IBuffer hashed = hasher.HashData(inputBuffer);
-            string output = CryptographicBuffer.EncodeToBase64String(hashed);
-            return Base64UrlHelpers.Encode(Convert.FromBase64String(output));
-        }
-
-        public static string GenerateCodeVerifier()
-        {
-            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
-            var windowsBuffer = CryptographicBuffer.GenerateRandom((uint)buffer.Length);
-            Array.Copy(windowsBuffer.ToArray(), buffer, buffer.Length);
-
-            return Base64UrlHelpers.Encode(buffer);
-        }
-
         public static string Encrypt(string message)
         {
             if (string.IsNullOrEmpty(message))

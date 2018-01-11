@@ -27,8 +27,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal.OAuth2;
-using Microsoft.Identity.Client.Internal.Cache;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
