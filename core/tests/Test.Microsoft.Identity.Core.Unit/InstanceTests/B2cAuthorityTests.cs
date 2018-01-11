@@ -27,7 +27,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.Core.Unit;
 using Guid = System.Guid;
 
 namespace Test.Microsoft.Identity.Unit.InstanceTests
@@ -62,7 +66,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task
                     .Run(
-                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null))); })
+                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))); })
                     .GetAwaiter()
                     .GetResult();
                 Assert.Fail("test should have failed");
@@ -85,7 +89,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             {
                 Task
                     .Run(
-                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new MsalLogger(Guid.NewGuid(), null))); })
+                        async () => { await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))); })
                     .GetAwaiter()
                     .GetResult();
                 Assert.Fail("test should have failed");

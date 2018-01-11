@@ -26,6 +26,10 @@
 //------------------------------------------------------------------------------
 
 using System;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.MSAL.NET.Unit.Mocks
 {
@@ -52,7 +56,7 @@ namespace Test.MSAL.NET.Unit.Mocks
             //add access token
             accessor.AccessTokenCacheDictionary[item.GetAccessTokenItemKey().ToString()] = JsonHelper.SerializeToJson(item);
 
-            item = new AccessTokenCacheItem()
+            item = new MsalAccessTokenCacheItem()
             {
                 Authority = TestConstants.AuthorityGuestTenant,
                 ClientId = TestConstants.ClientId,
@@ -74,7 +78,7 @@ namespace Test.MSAL.NET.Unit.Mocks
 
         public static void AddRefreshTokenToCache(TokenCacheAccessor accessor, string uid, string utid, string name)
         {
-            var rtItem = new RefreshTokenCacheItem
+            var rtItem = new MsalRefreshTokenCacheItem
             {
                 Environment = TestConstants.ProductionEnvironment,
                 ClientId = TestConstants.ClientId,

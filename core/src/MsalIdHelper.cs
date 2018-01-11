@@ -68,10 +68,11 @@ namespace Microsoft.Identity.Core
     {
         public static IDictionary<string, string> GetMsalIdParameters()
         {
-            var parameters = new Dictionary<string, string>();
-
-            parameters[MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName();
-            parameters[MsalIdParameter.Version] = GetMsalVersion();
+            var parameters = new Dictionary<string, string>
+            {
+                [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
+                [MsalIdParameter.Version] = GetMsalVersion()
+            };
 
             var processorInofrmation = CorePlatformInformationBase.Instance.GetProcessorArchitecture();
             if (processorInofrmation != null)
