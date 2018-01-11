@@ -94,12 +94,6 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.Android.Support.V4" Version="25.4.0.2" />
     <PackageReference Include="Xamarin.Android.Support.Compat" Version="25.4.0.2" />
-    <PackageReference Include="Legacy2CPSWorkaround" Version="1.0.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="StrongNamer">
-      <Version>0.0.6</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj">

@@ -26,9 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Cache;
 
 namespace Test.MSAL.NET.Unit.Mocks
 {
@@ -38,7 +35,7 @@ namespace Test.MSAL.NET.Unit.Mocks
 
         public static void PopulateCache(TokenCacheAccessor accessor)
         {
-            AccessTokenCacheItem item = new AccessTokenCacheItem()
+            MsalAccessTokenCacheItem item = new MsalAccessTokenCacheItem()
             {
                 Authority = TestConstants.AuthorityHomeTenant,
                 ClientId = TestConstants.ClientId,

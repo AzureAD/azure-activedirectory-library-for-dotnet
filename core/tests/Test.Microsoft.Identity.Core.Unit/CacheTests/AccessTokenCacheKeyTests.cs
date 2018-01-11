@@ -28,8 +28,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal.Cache;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.MSAL.NET.Unit.CacheTests
@@ -41,7 +39,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("AccessTokenCacheKeyTests")]
         public void ConstructorTest()
         {
-            AccessTokenCacheKey key = new AccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
+            MsalAccessTokenCacheKey key = new AccessTokenCacheKey(TestConstants.AuthorityHomeTenant,
                 TestConstants.Scope, TestConstants.ClientId, TestConstants.UserIdentifier);
             ValidateTokenCacheKey(key);
 
