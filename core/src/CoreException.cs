@@ -36,17 +36,12 @@ namespace Microsoft.Identity.Core
     internal class CoreException : Exception
     {
         /// <summary>
-        /// Unknown Error occured.
-        /// </summary>
-        public const string UnknownError = "unknown_error";
-
-        /// <summary>
         /// Initializes a new instance of the exception class.
         /// </summary>
         public CoreException()
             : base(CoreErrorMessage.Unknown)
         {
-            ErrorCode = UnknownError;
+            ErrorCode = CoreError.Unknown;
         }
 
         /// <summary>

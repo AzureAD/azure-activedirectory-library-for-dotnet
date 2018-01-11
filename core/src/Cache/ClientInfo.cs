@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             if (string.IsNullOrEmpty(clientInfo))
             {
-                throw new CoreClientException(CoreClientException.JsonParseError, "client info is null");
+                throw new CoreClientException(CoreError.JsonParseError, "client info is null");
             }
 
             try
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception exc)
             {
-                throw new CoreClientException(CoreClientException.JsonParseError,
+                throw new CoreClientException(CoreError.JsonParseError,
                     "Failed to parse the returned client info.", exc);
             }
         }

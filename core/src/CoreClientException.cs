@@ -35,11 +35,6 @@ namespace Microsoft.Identity.Core
     class CoreClientException : CoreException
     {
         /// <summary>
-        /// JSON parsing failed.
-        /// </summary>
-        public const string JsonParseError = "json_parse_failed";
-
-        /// <summary>
         /// Initializes a new instance of the exception class with a specified
         /// error code.
         /// </summary>
