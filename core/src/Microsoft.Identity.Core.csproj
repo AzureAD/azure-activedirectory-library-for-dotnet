@@ -127,4 +127,8 @@
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+  
+  <ItemGroup>
+    <Compile Remove="Platforms\net45\LegacyCachePersistance.cs" />
+  </ItemGroup>
 </Project>

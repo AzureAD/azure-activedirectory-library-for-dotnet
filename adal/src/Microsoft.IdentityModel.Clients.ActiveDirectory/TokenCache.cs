@@ -51,11 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="args">Arguments related to the cache item impacted</param>
         public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
-
-        private const int SchemaVersion = 3;
-
-        private const string Delimiter = ":::";
-
+        
         internal readonly IDictionary<AdalTokenCacheKey, AdalResultWrapper> tokenCacheDictionary;
 
         // We do not want to return near expiry tokens, this is why we use this hard coded setting to refresh tokens which are close to expiration.
@@ -159,7 +155,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                return AdalCacheOperations.Serialize(tokenCacheDictionary, SchemaVersion, Delimiter);
+                return AdalCacheOperations.Serialize(tokenCacheDictionary);
             }
         }
 
@@ -172,7 +168,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             lock (cacheLock)
             {
                 tokenCacheDictionary.Clear();
-                foreach (var entry in AdalCacheOperations.Deserialize(state, SchemaVersion, Delimiter))
+                foreach (var entry in AdalCacheOperations.Deserialize(state))
                 {
                     tokenCacheDictionary.Add(entry.Key, entry.Value);
                 }
@@ -445,6 +441,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     msg = "No matching token was found in the cache";
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
+                    if (cacheQueryData.SubjectType == TokenSubjectType.User)
+                    {
+                        msg = "Checking MSAL cache for user token cache";
+                        requestContext.Logger.Info(msg);
+                        requestContext.Logger.InfoPii(msg);
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
+                    }
                 }
 
                 return resultEx;
@@ -489,6 +492,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
                 this.HasStateChanged = true;
+
+                //store ADAL RT in MSAL cache for user tokens where authority is AAD
+                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) != AuthorityType.AAD)
+                {
+                    CacheFallbackOperations.WriteMsalRefreshToken(result, authority, clientId, displayableId, result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName);
+                }
             }
         }
 
