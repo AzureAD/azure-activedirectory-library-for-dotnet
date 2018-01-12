@@ -34,7 +34,7 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class ClassExtensions
+    internal static class ExtensionMethods
     {
         public static void AppendQueryParameters(this UriBuilder builder, string queryParams)
         {

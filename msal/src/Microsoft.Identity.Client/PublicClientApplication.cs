@@ -33,7 +33,7 @@ using Microsoft.Identity.Client.Internal.Requests;
 using System.Collections.Generic;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.TelemetryEvents;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client
 {

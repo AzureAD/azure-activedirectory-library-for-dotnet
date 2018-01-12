@@ -29,7 +29,7 @@
 using System;
 using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Core.TelemetryEvents
+namespace Microsoft.Identity.Core.Telemetry
 {
     internal class HttpEvent : EventBase
     {
