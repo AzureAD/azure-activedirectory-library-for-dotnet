@@ -124,11 +124,6 @@ namespace Microsoft.Identity.Core.Cache
                 // this should only happen for client credentials.
                 ClientInfo = ClientInfo.CreateFromJson(RawClientInfo);
             }
-
-            if (IdToken != null)
-            {
-                //User = new User(GetUserIdentifier(), IdToken.PreferredUsername, IdToken.Name, IdToken.Issuer);
-            }
         }
 
         // This method is called after the object 
