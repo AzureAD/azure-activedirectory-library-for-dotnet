@@ -14,3 +14,5 @@ AppPackages
 Microsoft.IdentityModel.Clients.ActiveDirectory.XML
 *.htm
 .nugetPackageRoot/
+/devApps/AdalAndroidTestApp/AdalAndroidTestApp.csproj.bak
+/ADAL.NET.NoWinRT.sln.DotSettings.user
