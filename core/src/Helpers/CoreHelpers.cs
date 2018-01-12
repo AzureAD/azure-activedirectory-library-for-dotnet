@@ -35,78 +35,6 @@ namespace Microsoft.Identity.Core.Helpers
 {
     internal static class CoreHelpers
     {
-        public static string ToStringInvariant(this int val)
-        {
-            return val.ToString(CultureInfo.InvariantCulture);
-        }
-        
-        public static string ToStringInvariant(this long val)
-        {
-            return val.ToString(CultureInfo.InvariantCulture);
-        }
-
-        public static bool ScopeContains(this SortedSet<string> scopes, SortedSet<string> otherScope)
-        {
-            foreach (string otherString in otherScope)
-            {
-                if (!scopes.Contains(otherString, StringComparer.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public static bool ScopeIntersects(this SortedSet<string> scopes, SortedSet<string> otherScope)
-        {
-            return scopes.Overlaps(otherScope);
-        }
-
-        internal static string[] AsArray(this SortedSet<string> setOfStrings)
-        {
-            return setOfStrings?.ToArray();
-        }
-
-        internal static string AsSingleString(this IEnumerable<string> input)
-        {
-            if (IsNullOrEmpty(input))
-            {
-                return string.Empty;
-            }
-
-            return string.Join(" ", input);
-        }
-
-        internal static SortedSet<string> AsSet(this string singleString)
-        {
-            if (string.IsNullOrEmpty(singleString))
-            {
-                return new SortedSet<string>();
-            }
-
-            return new SortedSet<string>(singleString.Split(new[] { " " }, StringSplitOptions.None));
-        }
-
-        internal static string[] AsArray(this string singleString)
-        {
-            if (string.IsNullOrWhiteSpace(singleString))
-            {
-                return new string[] { };
-            }
-
-            return singleString.Split(new[] { " " }, StringSplitOptions.None);
-        }
-
-        internal static SortedSet<string> CreateSetFromEnumerable(this IEnumerable<string> input)
-        {
-            if (input == null || !input.Any())
-            {
-                return new SortedSet<string>();
-            }
-            return new SortedSet<string>(input);
-        }
-        
         internal static bool IsNullOrEmpty(IEnumerable<string> input)
         {
             return input == null || !input.Any();
@@ -251,67 +179,6 @@ namespace Microsoft.Identity.Core.Helpers
             return ParseKeyValueList(input, delimiter, urlDecode, true, requestContext);
         }
 
-        public static byte[] ToByteArray(this String stringInput)
-        {
-            return ToByteArray(new StringBuilder(stringInput));
-        }
-
-        public static byte[] ToByteArray(this StringBuilder stringBuilder)
-        {
-            if (stringBuilder == null)
-            {
-                return null;
-            }
-
-            UTF8Encoding encoding = new UTF8Encoding();
-            var messageChars = new char[stringBuilder.Length];
-
-            try
-            {
-                stringBuilder.CopyTo(0, messageChars, 0, stringBuilder.Length);
-                return encoding.GetBytes(messageChars);
-            }
-            finally
-            {
-                messageChars.SecureClear();
-            }
-        }
-
-        public static void SecureClear(this StringBuilder stringBuilder)
-        {
-            if (stringBuilder != null)
-            {
-                for (int i = 0; i < stringBuilder.Length; i++)
-                {
-                    stringBuilder[i] = '\0';
-                }
-
-                stringBuilder.Length = 0;
-            }
-        }
-
-        public static void SecureClear(this byte[] bytes)
-        {
-            if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    bytes[i] = 0;
-                }
-            }
-        }
-
-        public static void SecureClear(this char[] chars)
-        {
-            if (chars != null)
-            {
-                for (int i = 0; i < chars.Length; i++)
-                {
-                    chars[i] = '\0';
-                }
-            }
-        }
-
         internal static List<string> SplitWithQuotes(string input, char delimiter)
         {
             List<string> items = new List<string>();
@@ -349,23 +216,6 @@ namespace Microsoft.Identity.Core.Helpers
             }
 
             return items;
-        }
-
-        public static void AppendQueryParameters(this UriBuilder builder, string queryParams)
-        {
-            if (builder == null || string.IsNullOrEmpty(queryParams))
-            {
-                return;
-            }
-
-            if (builder.Query.Length > 1)
-            {
-                builder.Query = builder.Query.Substring(1) + "&" + queryParams;
-            }
-            else
-            {
-                builder.Query = queryParams;
-            }
         }
 
         private static void AddKeyValueString(StringBuilder messageBuilder, string key, char[] value)
