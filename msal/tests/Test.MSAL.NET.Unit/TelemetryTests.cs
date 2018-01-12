@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Core.TelemetryEvents;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.MSAL.NET.Unit
