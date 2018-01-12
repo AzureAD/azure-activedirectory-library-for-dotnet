@@ -25,31 +25,53 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.Identity.Core.Cache
 {
-    class RequestData
+    internal class CacheFallbackOperations
     {
-        public Authenticator Authenticator { get; set; }
+        public void WriteMsalRefreshToken(AdalResultWrapper resultWrapper)
+        {
+            if (string.IsNullOrEmpty(resultWrapper.RawClientInfo))
+            {
+                CoreLoggerBase.Default.Info("Client Info is missing. Skipping MSAL RT cache write");
+                return;
+            }
 
-        public TokenCache TokenCache { get; set; }
+            if (string.IsNullOrEmpty(resultWrapper.RefreshToken))
+            {
+                CoreLoggerBase.Default.Info("Refresh Token is missing. Skipping MSAL RT cache write");
+                return;
+            }
 
-        public string Resource { get; set; }
+            MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem()
+            {
 
-        public ClientKey ClientKey { get; set; }
+            };
 
-        public TokenSubjectType SubjectType { get; set; }
+            ITokenCacheAccessor accessor = new TokenCacheAccessor();
+            accessor.SaveRefreshToken(rtItem.GetRefreshTokenItemKey().ToString(), JsonHelper.SerializeToJson(rtItem));
+        }
 
-        public bool ExtendedLifeTimeEnabled { get; set; }
+        public void WriteAdalRefreshToken(MsalRefreshTokenCacheItem rtItem)
+        {
+            if (rtItem == null)
+            {
+                CoreLoggerBase.Default.Info("rtItem is null. Skipping MSAL RT cache write");
+                return;
+            }
 
+            AdalResultWrapper wrapper = new AdalResultWrapper()
+            {
+                RefreshToken = rtItem.RefreshToken
+            };
+            
+        }
     }
 }
