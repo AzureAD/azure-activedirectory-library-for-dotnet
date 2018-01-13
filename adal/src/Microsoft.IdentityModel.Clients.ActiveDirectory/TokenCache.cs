@@ -494,7 +494,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 this.HasStateChanged = true;
 
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
-                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) != AuthorityType.AAD)
+                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == AuthorityType.AAD)
                 {
                     CacheFallbackOperations.WriteMsalRefreshToken(result, authority, clientId, displayableId, result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName);
                 }

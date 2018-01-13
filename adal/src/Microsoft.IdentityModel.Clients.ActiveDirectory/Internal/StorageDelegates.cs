@@ -51,20 +51,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.Count > 0)
+            if (args != null && args.TokenCache != null)
             {
-                // We assume that the cache has not changed since last write
-                return;
+                args.TokenCache.Deserialize(LegacyCachePersistance.LoadCache());
             }
 
-            args.TokenCache.Deserialize(LegacyCachePersistance.LoadCache());
 #endif
         }
 
         public static void AfterAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged && args.TokenCache.Count > 0)
+            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
             {
                 LegacyCachePersistance.WriteCache(args.TokenCache.Serialize());
                 args.TokenCache.HasStateChanged = false;
