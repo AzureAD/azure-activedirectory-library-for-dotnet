@@ -74,7 +74,8 @@ namespace Microsoft.Identity.Core.Cache
                 return;
             }
 
-            AdalTokenCacheKey key = new AdalTokenCacheKey(authority, null, rtItem.ClientId, TokenSubjectType.User, uniqueId, rtItem.DisplayableId);
+            //Using scope instead of resource becaue that value does not exist. STS should return it.
+            AdalTokenCacheKey key = new AdalTokenCacheKey(authority, scope, rtItem.ClientId, TokenSubjectType.User, uniqueId, rtItem.DisplayableId);
             AdalResultWrapper wrapper = new AdalResultWrapper()
             {
                 Result = new AdalResult(null,null, DateTimeOffset.MinValue),
@@ -89,7 +90,7 @@ namespace Microsoft.Identity.Core.Cache
 #if !FACADE && !NETSTANDARD1_3
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(LegacyCachePersistance.LoadCache());
             dictionary[key] = wrapper;
-            AdalCacheOperations.Serialize(dictionary);
+            LegacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
 #endif
         }
 
@@ -106,6 +107,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(LegacyCachePersistance.LoadCache());
             //filter by client id and environment first
+            //TODO - authority check needs to be updated for alias check
             List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p => p.Key.ClientId.Equals(clientId) && environment.Equals(new Uri(p.Key.Authority).Host)).ToList();
 
@@ -122,7 +124,6 @@ namespace Microsoft.Identity.Core.Cache
             //if upn is provided then use it to filter
             if (!string.IsNullOrEmpty(upn))
             {
-                //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> upnEntries = listToProcess.Where(p => upn.Equals(p.Key.DisplayableId)).ToList();
                 if (upnEntries.Any())
                 {

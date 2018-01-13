@@ -1130,10 +1130,7 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
             {
                 Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-other-token\"}")
-                },
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
@@ -1188,10 +1185,7 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityCommonTenant))
             {
                 Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-other-token\"}")
-                },
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
                 PostData = new Dictionary<string, string>()
                 {
                     {"client_id", TestConstants.DefaultClientId},
