@@ -41,6 +41,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             this.ClientId = clientId;
             this.HasCredential = false;
+            this.SendX5c = false;
         }
 
         public ClientKey(ClientCredential clientCredential)
@@ -53,6 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Credential = clientCredential;
             this.ClientId = clientCredential.ClientId;
             this.HasCredential = true;
+            this.SendX5c = false;
         }
 
         public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator)
@@ -67,6 +69,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Certificate = clientCertificate;
             this.ClientId = clientCertificate.ClientId;
             this.HasCredential = true;
+            this.SendX5c = false;
+        }
+
+        public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator, bool sendX5c)
+        {
+            this.Authenticator = authenticator;
+
+            if (clientCertificate == null)
+            {
+                throw new ArgumentNullException("clientCertificate");
+            }
+
+            this.Certificate = clientCertificate;
+            this.ClientId = clientCertificate.ClientId;
+            this.HasCredential = true;
+            this.SendX5c = sendX5c;
         }
 
         public ClientKey(ClientAssertion clientAssertion)
@@ -79,6 +97,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Assertion = clientAssertion;
             this.ClientId = clientAssertion.ClientId;
             this.HasCredential = true;
+            this.SendX5c = false;
         }
 
         public ClientCredential Credential { get; private set; }
@@ -92,6 +111,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string ClientId { get; private set; }
 
         public bool HasCredential { get; private set; }
+        public bool SendX5c { get; private set; }
 
 
         public void AddToParameters(IDictionary<string, string> parameters)
@@ -120,7 +140,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             else if (this.Certificate != null)
             {
                 JsonWebToken jwtToken = new JsonWebToken(this.Certificate, this.Authenticator.SelfSignedJwtAudience);
-                ClientAssertion clientAssertion = jwtToken.Sign(this.Certificate);
+                ClientAssertion clientAssertion = jwtToken.Sign(this.Certificate, this.SendX5c);
                 parameters[OAuthParameter.ClientAssertionType] = clientAssertion.AssertionType;
                 parameters[OAuthParameter.ClientAssertion] = clientAssertion.Assertion;
             }

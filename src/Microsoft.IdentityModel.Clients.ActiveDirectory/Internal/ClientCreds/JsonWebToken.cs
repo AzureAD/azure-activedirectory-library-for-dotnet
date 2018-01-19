@@ -60,6 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             public const string Algorithm = "alg";
             public const string Type = "typ";
             public const string X509CertificateThumbprint = "x5t";
+            public const string X509CertificatePublicCertValue = "x5c";
         }
     }   
 
@@ -69,6 +70,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const int MaxTokenLength = 65536;   
 
         private readonly JWTPayload payload;
+
+        private static bool _sendX5c = false;
+        Object LockObject = new Object();
 
         public JsonWebToken(IClientAssertionCertificate certificate, string audience)
         {
@@ -86,11 +90,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
         }
 
-        public ClientAssertion Sign(IClientAssertionCertificate credential)
+        public ClientAssertion Sign(IClientAssertionCertificate credential, bool sendX5c)
         {
+            _sendX5c = sendX5c;
+            string token;
             // Base64Url encoded header and claims
-            string token = this.Encode(credential);     
-
+            lock (LockObject)
+            {
+                token = this.Encode(credential);
+            }
             // Length check before sign
             if (MaxTokenLength < token.Length)
             {
@@ -127,7 +135,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             // Header segment
             string jsonHeader = EncodeHeaderToJson(credential);
-
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -203,9 +210,36 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataContract]
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
+            private string _thumbPrint;
+            private string _certificate;
+
             public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
                 : base(credential)
             {
+                _thumbPrint = this.Credential.Thumbprint;
+                X509CertificatePublicCertValue = null;
+
+                if (!_sendX5c)
+                    return;
+
+                //Check to see if credential is our implementation or developer provided.
+                if (credential.GetType().ToString() != "Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate")
+                {
+                    CallState.Default.Logger.Warning(null, "The implementation of IClientAssertionCertificate is developer provided and it should be replaced with library provided implmentation.");
+                    return;
+                }
+
+#if  NET45
+                if (credential is ClientAssertionCertificate cert)
+                {
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.GetRawCertData());
+                }
+#elif NETSTANDARD1_3
+                if (credential is ClientAssertionCertificate cert)
+                {
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.RawData);
+                }
+#endif
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
@@ -214,7 +248,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 get
                 {
                     // Thumbprint should be url encoded
-                    return this.Credential.Thumbprint;
+                    return _thumbPrint;
                 }
 
                 set
@@ -222,6 +256,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     // This setter is required by DataContractJsonSerializer
                 }
             }
+
+            [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificatePublicCertValue, EmitDefaultValue = false)]
+            public string X509CertificatePublicCertValue { get; set; }
         }
     }
 }

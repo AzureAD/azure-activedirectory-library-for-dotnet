@@ -764,6 +764,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Acquires security token from the authority.
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="sendX5c">Sends the x509 public certificate as x5c</param>
+        /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
+#if ANDROID || iOS || WINDOWS_APP
+        [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
+#endif
+        public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
+            IClientAssertionCertificate clientCertificate, bool sendX5c)
+        {
+            return await AcquireTokenForClientCommonAsync(resource, new ClientKey(clientCertificate, Authenticator, sendX5c))
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires security token from the authority.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
 #if ANDROID || iOS || WINDOWS_APP

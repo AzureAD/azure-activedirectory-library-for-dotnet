@@ -85,6 +85,7 @@
     <Compile Include="AuthenticationParametersTests.cs" />
     <Compile Include="ClaimsChallengeExceptionTests.cs" />
     <Compile Include="Common\AssertException.cs" />
+    <Compile Include="JsonWebTokenTests.cs" />
     <Compile Include="LoggerCallbackTests.cs" />
     <Compile Include="Mocks\MockHelpers.cs" />
     <Compile Include="Mocks\MockHttpMessageHandler.cs" />
