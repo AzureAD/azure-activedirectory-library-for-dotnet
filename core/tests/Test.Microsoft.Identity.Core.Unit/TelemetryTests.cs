@@ -27,15 +27,18 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Telemetry;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Http;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.Microsoft.Identity.Core.Unit
 {
-    class MyReceiver
+    public class MyReceiver
     {
-        internal List<Dictionary<string, string>> EventsReceived { get; set; }
+        public List<Dictionary<string, string>> EventsReceived { get; set; }
 
         public MyReceiver()
         {
@@ -60,9 +63,17 @@ namespace Test.MSAL.NET.Unit
     [TestClass]
     public class TelemetryTests
     {
+        private static TestPlatformInformation _testPlatformInformation;
+        private readonly MyReceiver _myReceiver = new MyReceiver();
+
         [TestInitialize]
         public void Initialize()
         {
+            _testPlatformInformation = new TestPlatformInformation();
+            Authority.ValidatedAuthorities.Clear();
+            HttpClientFactory.ReturnHttpClientForMocks = true;
+            HttpMessageHandlerFactory.ClearMockHandlers();
+            new TestLogger(Guid.Empty);
         }
 
         private const string TenantId = "1234";
@@ -278,8 +289,8 @@ namespace Test.MSAL.NET.Unit
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
-            MsalLoggerSettings.PiiLoggingEnabled = true;
-
+            CoreLoggerBase.PiiLoggingEnabled = true;
+           
             telemetry.ClientId = "a1b3c3d4";
             var reqId = telemetry.GenerateNewRequestId();
             try
@@ -313,13 +324,12 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PiiLoggingEnabled set to false, TenantId & UserId set to null values")]
-        [Ignore] // Disable until we investigate and fix this broken test
         public void PiiLoggingEnabledFalse_TenantIdUserIdSetToNullValueTest()
         {
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
-            MsalLoggerSettings.PiiLoggingEnabled = false;
+            CoreLoggerBase.PiiLoggingEnabled = false;
 
             telemetry.ClientId = "a1b3c3d4";
             var reqId = telemetry.GenerateNewRequestId();
