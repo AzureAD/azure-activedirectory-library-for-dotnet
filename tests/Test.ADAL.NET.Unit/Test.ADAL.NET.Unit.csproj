@@ -84,6 +84,7 @@
     <Compile Include="AdalDotNetTests.cs" />
     <Compile Include="AuthenticationParametersTests.cs" />
     <Compile Include="ClaimsChallengeExceptionTests.cs" />
+    <Compile Include="ClientAssertionTestImplementation.cs" />
     <Compile Include="Common\AssertException.cs" />
     <Compile Include="JsonWebTokenTests.cs" />
     <Compile Include="LoggerCallbackTests.cs" />

@@ -761,11 +761,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Acquires security token from the authority.
+        /// Acquires security token from the authority and sends the x509 public certificate
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
-        /// <param name="sendX5c">Sends the x509 public certificate as x5c</param>
+        /// <param name="sendX5c">Sends the x509 public certificate as a x5c claim</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
