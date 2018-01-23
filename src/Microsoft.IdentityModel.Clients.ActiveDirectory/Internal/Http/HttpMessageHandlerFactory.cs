@@ -25,18 +25,24 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
     internal static class HttpMessageHandlerFactory
     {
         internal static HttpMessageHandler GetMessageHandler(bool useDefaultCredentials)
         {
-            if (MockHandlerQueue.Count > 0)
+            if (UseMocks)
             {
-                return MockHandlerQueue.Dequeue();
+                if (MockHandlerQueue.Count > 0)
+                {
+                    return MockHandlerQueue.Dequeue();
+                }
+
+                throw new ArgumentException("No mocks available to consume");
             }
 
             return new HttpClientHandler { UseDefaultCredentials = useDefaultCredentials, Proxy = WebProxyProvider.DefaultWebProxy};
@@ -49,14 +55,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             MockHandlerQueue.Enqueue(mockHandler);
         }
 
-        public static void ClearMockHandlers()
+        public static void InitializeMockProvider()
         {
+            UseMocks = true;
             MockHandlerQueue.Clear();
         }
 
         public static int MockHandlersCount()
         {
             return MockHandlerQueue.Count;
+        }
+
+        public static bool UseMocks
+        {
+            get; set;
         }
     }
 }

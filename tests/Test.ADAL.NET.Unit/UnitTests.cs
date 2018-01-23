@@ -35,10 +35,16 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Test.ADAL.Common;
-using Test.ADAL.NET.Unit.Mocks;
+using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -53,7 +59,7 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.ClearMockHandlers();
+            HttpMessageHandlerFactory.InitializeMockProvider();
         }
 
         [TestMethod]
@@ -154,6 +160,13 @@ namespace Test.ADAL.NET.Unit
             RunAuthenticationParametersNegative("Bearer authorization_uri=abc=de");
         }
 
+        [TestMethod]
+        [Description("Test for Adal version creation with Regex")]
+        public void AdalVersionRegexTest()
+        {
+            string adalVersion = AdalIdHelper.GetAdalVersion();
+            Assert.IsNotNull(adalVersion);
+        }
 
         [TestMethod]
         [Description("Test for ParseKeyValueList method in EncodingHelper")]
@@ -238,14 +251,14 @@ namespace Test.ADAL.NET.Unit
         private static TokenResponse CreateTokenResponse()
         {
             return new TokenResponse
-                               {
-                                   AccessToken = "access_token",
-                                   RefreshToken = "refresh_token",
-                                   CorrelationId = Guid.NewGuid().ToString(),
-                                   Resource = "my-resource",
-                                   TokenType = "Bearer",
-                                   ExpiresIn = 3899
-                               };
+            {
+                AccessToken = "access_token",
+                RefreshToken = "refresh_token",
+                CorrelationId = Guid.NewGuid().ToString(),
+                Resource = "my-resource",
+                TokenType = "Bearer",
+                ExpiresIn = 3899
+            };
         }
 
         [TestMethod]
@@ -281,7 +294,7 @@ namespace Test.ADAL.NET.Unit
             }
 
             var finalString = new string(stringChars);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -309,7 +322,7 @@ namespace Test.ADAL.NET.Unit
             }
 
             var finalString = new string(stringChars);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)

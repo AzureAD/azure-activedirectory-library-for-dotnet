@@ -28,8 +28,10 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenOnBehalfHandler : AcquireTokenHandlerBase
     {
@@ -47,9 +49,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.DisplayableId = userAssertion.UserName;
             CacheQueryData.AssertionHash = CryptographyHelper.CreateSha256Hash(userAssertion.Assertion);
 
-            CallState.Logger.Verbose(CallState,
-                string.Format(CultureInfo.InvariantCulture,
-                    "Username provided in user assertion - " + string.IsNullOrEmpty(this.DisplayableId)));
+            var msg = string.Format(CultureInfo.InvariantCulture,
+                "Username provided in user assertion - " + string.IsNullOrEmpty(DisplayableId));
+            CallState.Logger.Verbose(CallState, msg);
+            CallState.Logger.VerbosePii(CallState, msg);
+
             this.SupportADFS = true;
         }
 

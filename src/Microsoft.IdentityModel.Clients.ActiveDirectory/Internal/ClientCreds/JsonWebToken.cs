@@ -30,8 +30,10 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using System.Reflection;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 {
     internal static class JsonWebTokenConstants
     {
@@ -60,6 +62,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             public const string Algorithm = "alg";
             public const string Type = "typ";
             public const string X509CertificateThumbprint = "x5t";
+            public const string X509CertificatePublicCertValue = "x5c";
         }
     }   
 
@@ -127,7 +130,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             // Header segment
             string jsonHeader = EncodeHeaderToJson(credential);
-
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -142,24 +144,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal class JWTHeader
         {
             protected IClientAssertionCertificate Credential { get; private set; }
+            private string _type;
+            private string _alg;
 
             public JWTHeader(IClientAssertionCertificate credential)
             {
                 this.Credential = credential;
+                _alg = (this.Credential == null)
+                    ? JsonWebTokenConstants.Algorithms.None
+                    : JsonWebTokenConstants.Algorithms.RsaSha256;
+
+                _type = JsonWebTokenConstants.HeaderType;
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.Type)]
-            public static string Type
+            public string Type
             {
                 get
                 {
-                    return JsonWebTokenConstants.HeaderType;
+                    return _type;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+                set { _type = value; }
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.Algorithm)]
@@ -167,13 +173,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 get
                 {
-                    return this.Credential == null ? JsonWebTokenConstants.Algorithms.None : JsonWebTokenConstants.Algorithms.RsaSha256;
+                    return _alg;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+
+                set { _alg = value; }
             }
         }
 
@@ -203,9 +207,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [DataContract]
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
+            private string _thumbPrint;
+
             public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
                 : base(credential)
             {
+                _thumbPrint = this.Credential.Thumbprint;
+                X509CertificatePublicCertValue = null;
+
+                //Check to see if credential is our implementation or developer provided.
+                if (credential.GetType().ToString() != "Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate")
+                {
+                    CallState.Default.Logger.Warning(null, "The implementation of IClientAssertionCertificate is developer provided and it should be replaced with library provided implmentation.");
+                    return;
+                }
+
+#if  NET45
+                if (credential is ClientAssertionCertificate cert)
+                {
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.GetRawCertData());
+                }
+#elif NETSTANDARD1_3
+                if (credential is ClientAssertionCertificate cert)
+                {
+                    X509CertificatePublicCertValue = Convert.ToBase64String(cert.Certificate.RawData);
+                }
+#endif
             }
 
             [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificateThumbprint)]
@@ -214,14 +241,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 get
                 {
                     // Thumbprint should be url encoded
-                    return this.Credential.Thumbprint;
+                    return _thumbPrint;
                 }
 
-                set
-                {
-                    // This setter is required by DataContractJsonSerializer
-                }
+                set { _thumbPrint = value; }
             }
+
+            [DataMember(Name = JsonWebTokenConstants.ReservedHeaderParameters.X509CertificatePublicCertValue, EmitDefaultValue = false)]
+            public string X509CertificatePublicCertValue { get; set; }
         }
     }
 }

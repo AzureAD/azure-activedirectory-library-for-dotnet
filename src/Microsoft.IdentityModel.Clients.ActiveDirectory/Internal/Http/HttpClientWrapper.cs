@@ -34,8 +34,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
     internal class HttpClientWrapper : IHttpClient
     {
@@ -133,18 +135,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    try
-                    {
-                        throw new HttpRequestException(
-                            string.Format(CultureInfo.CurrentCulture,
-                                " Response status code does not indicate success: {0} ({1}).",
-                                (int) webResponse.StatusCode, webResponse.StatusCode),
-                            new AdalException(webResponse.ResponseString));
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        throw new HttpRequestWrapperException(webResponse, ex);
-                    }
+                    throw new HttpRequestWrapperException(webResponse, new HttpRequestException(
+                        string.Format(CultureInfo.CurrentCulture,
+                            "Response status code does not indicate success: {0} ({1}).",
+                            (int) webResponse.StatusCode, webResponse.StatusCode),
+                        new AdalException(webResponse.ResponseString)));
                 }
 
                 if (addCorrelationId)
@@ -174,17 +169,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     Guid correlationIdInResponse;
                     if (!Guid.TryParse(correlationIdHeader, out correlationIdInResponse))
                     {
-                        CallState.Logger.Warning(CallState,
-                            string.Format(CultureInfo.CurrentCulture,
-                                "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader));
+                        var msg = string.Format(CultureInfo.CurrentCulture,
+                            "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader);
+                        CallState.Logger.Warning(CallState, msg);
+                        CallState.Logger.WarningPii(CallState, msg);
                     }
                     else if (correlationIdInResponse != this.CallState.CorrelationId)
                     {
-                        CallState.Logger.Warning(
-                            this.CallState,
-                            string.Format(CultureInfo.CurrentCulture,
-                                "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                                correlationIdHeader, CallState.CorrelationId));
+                        var msg = string.Format(CultureInfo.CurrentCulture,
+                            "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
+                            correlationIdHeader, CallState.CorrelationId);
+                        CallState.Logger.Warning(this.CallState, msg);
+                        CallState.Logger.WarningPii(this.CallState, msg);
                     }
 
                     break;

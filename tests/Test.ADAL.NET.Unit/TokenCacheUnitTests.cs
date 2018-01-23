@@ -30,6 +30,9 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common.Unit;
+using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -37,6 +40,14 @@ namespace Test.ADAL.NET.Unit
     [DeploymentItem("oldcache.serialized")]
     public class TokenCacheUnitTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            HttpMessageHandlerFactory.InitializeMockProvider();
+            InstanceDiscovery.InstanceCache.Clear();
+            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+        }
+
         [TestMethod]
         [Description("Test to store in default token cache")]
         [TestCategory("AdalDotNetUnit")]
@@ -63,9 +74,9 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("Test for Token Cache Operations")]
         [TestCategory("AdalDotNetUnit")]
-        public void TokenCacheOperationsTest()
+        public async Task TokenCacheOperationsTest()
         {
-            TokenCacheTests.TokenCacheOperationsTest();
+            await TokenCacheTests.TokenCacheOperationsTest().ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -87,9 +98,9 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         [Description("Test for Multiple User tokens found, hash fallback test")]
         [TestCategory("AdalDotNetUnit")]
-        public void MultipleUserAssertionHashTest()
+        public async Task MultipleUserAssertionHashTest()
         {
-            TokenCacheTests.MultipleUserAssertionHashTest();
+            await TokenCacheTests.MultipleUserAssertionHashTest().ConfigureAwait(false);
         }
 
         [TestMethod]

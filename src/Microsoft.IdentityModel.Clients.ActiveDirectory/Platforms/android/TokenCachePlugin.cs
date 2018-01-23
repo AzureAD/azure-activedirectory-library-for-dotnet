@@ -29,7 +29,7 @@ using Android.App;
 using Android.Content;
 using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
 {
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class TokenCachePlugin
@@ -57,7 +57,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
             catch (Exception ex)
             {
-                CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex);
+                CallState.Default.Logger.Warning(null, "Failed to load cache: ");
+                CallState.Default.Logger.ErrorPii(null, ex);
                 // Ignore as the cache seems to be corrupt
             }
         }
@@ -84,7 +85,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex);
+                    CallState.Default.Logger.Warning(null, "Failed to save cache: ");
+                    CallState.Default.Logger.ErrorPii(null, ex);
                 }
             }
         }

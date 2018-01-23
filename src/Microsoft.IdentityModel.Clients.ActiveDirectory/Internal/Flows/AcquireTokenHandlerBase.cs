@@ -30,8 +30,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal abstract class AcquireTokenHandlerBase
     {
@@ -50,20 +57,38 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.CallState = CreateCallState(this.Authenticator.CorrelationId);
             brokerHelper.CallState = this.CallState;
 
-            CallState.Logger.Information(null, string.Format(CultureInfo.CurrentCulture,
+            var msg = string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
                 platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(),
-                AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion()));
+                AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion());
+            CallState.Logger.Information(null, msg);
+            CallState.Logger.InformationPii(null, msg);
 
-            CallState.Logger.Information(this.CallState,
-                string.Format(CultureInfo.CurrentCulture,
-                    "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
-                    requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
-                    (tokenCache != null)
-                        ? tokenCache.GetType().FullName +
-                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
-                        : "null",
-                    requestData.SubjectType));
+            msg = string.Format(CultureInfo.CurrentCulture,
+                "=== Token Acquisition started: \n\tCacheType: {0}\n\tAuthentication Target: {1}\n\t",
+                tokenCache != null
+                    ? tokenCache.GetType().FullName +
+                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                    : "null",
+                requestData.SubjectType);
+            if (InstanceDiscovery.IsWhitelisted(requestData.Authenticator.GetAuthorityHost()))
+            {
+                msg += string.Format(CultureInfo.CurrentCulture,
+                    ", Authority Host: {0}",
+                    requestData.Authenticator.GetAuthorityHost());
+            }
+            CallState.Logger.Information(CallState, msg);
+
+
+            var piiMsg = string.Format(CultureInfo.CurrentCulture,
+                "=== Token Acquisition started:\n\tAuthority: {0}\n\tResource: {1}\n\tClientId: {2}\n\tCacheType: {3}\n\tAuthentication Target: {4}\n\t",
+                requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
+                (tokenCache != null)
+                    ? tokenCache.GetType().FullName +
+                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                    : "null",
+                requestData.SubjectType);
+            CallState.Logger.InformationPii(this.CallState, piiMsg);
 
             this.tokenCache = requestData.TokenCache;
 
@@ -126,7 +151,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (this.LoadFromCache)
                 {
-                    CallState.Logger.Verbose(CallState, "Loading from cache.");
+                    var msg = "Loading from cache.";
+                    CallState.Logger.Verbose(CallState, msg);
+                    CallState.Logger.VerbosePii(CallState, msg);
+
                     CacheQueryData.Authority = Authenticator.Authority;
                     CacheQueryData.Resource = this.Resource;
                     CacheQueryData.ClientId = this.ClientKey.ClientId;
@@ -136,7 +164,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     this.NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
-                    ResultEx = this.tokenCache.LoadFromCache(CacheQueryData, this.CallState);
+                    ResultEx = await this.tokenCache.LoadFromCache(CacheQueryData, this.CallState).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
                     if (ResultEx?.Result != null &&
@@ -146,7 +174,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
                         {
-                            StoreResultExToCache(ref notifiedBeforeAccessCache);
+                            notifiedBeforeAccessCache = await StoreResultExToCache(notifiedBeforeAccessCache).ConfigureAwait(false);
                         }
                     }
                 }
@@ -170,8 +198,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         throw ResultEx.Exception;
                     }
 
-                    this.PostTokenRequest(ResultEx);
-                    StoreResultExToCache(ref notifiedBeforeAccessCache);
+                    await this.PostTokenRequest(ResultEx).ConfigureAwait(false);
+                    notifiedBeforeAccessCache = await StoreResultExToCache(notifiedBeforeAccessCache).ConfigureAwait(false);
                 }
 
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
@@ -180,10 +208,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             catch (Exception ex)
             {
                 CallState.Logger.Error(this.CallState, ex);
+                CallState.Logger.ErrorPii(this.CallState, ex);
                 if (client != null && client.Resiliency && extendedLifetimeResultEx != null)
                 {
-                    CallState.Logger.Information(this.CallState,
-                        "Refreshing AT failed either due to one of these :- Internal Server Error,Gateway Timeout and Service Unavailable.Hence returning back stale AT");
+                    var msg = "Refreshing AT failed either due to one of these :- Internal Server Error,Gateway Timeout and Service Unavailable." +
+                                       "Hence returning back stale AT";
+                    CallState.Logger.Information(this.CallState, msg);
+                    CallState.Logger.InformationPii(this.CallState, msg);
+
                     return extendedLifetimeResultEx.Result;
                 }
                 throw;
@@ -197,7 +229,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private void StoreResultExToCache(ref bool notifiedBeforeAccessCache)
+        private async Task<bool> StoreResultExToCache(bool notifiedBeforeAccessCache)
         {
             if (this.StoreToCache)
             {
@@ -207,9 +239,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     notifiedBeforeAccessCache = true;
                 }
 
-                this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
-                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState);
+                await this.tokenCache.StoreToCache(ResultEx, this.Authenticator.Authority, this.Resource,
+                    this.ClientKey.ClientId, this.TokenSubjectType, this.CallState).ConfigureAwait(false);
             }
+            return notifiedBeforeAccessCache;
         }
 
         private async Task CheckAndAcquireTokenUsingBroker()
@@ -257,9 +290,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return CompletedTask;
         }
         
-        protected virtual void PostTokenRequest(AuthenticationResultEx result)
+        protected async Task UpdateAuthority(string updatedAuthority)
         {
-            this.Authenticator.UpdateTenantId(result.Result.TenantId);
+            if(!Authenticator.Authority.Equals(updatedAuthority))
+            {
+                await Authenticator.UpdateAuthority(updatedAuthority, this.CallState).ConfigureAwait(false);
+                this.ValidateAuthorityType();
+            }
+        }
+
+        protected virtual async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        {
+            // if broker returned Authority update Authentiator
+            if(!string.IsNullOrEmpty(resultEx.Result.Authority))
+            {
+                await UpdateAuthority(resultEx.Result.Authority).ConfigureAwait(false);
+            }
+
+            this.Authenticator.UpdateTenantId(resultEx.Result.TenantId);
+
+            resultEx.Result.Authority = Authenticator.Authority;
         }
 
         protected abstract void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters);
@@ -283,8 +333,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (result.RefreshToken == null)
             {
                 result.RefreshToken = refreshToken;
-                CallState.Logger.Verbose(this.CallState,
-                    "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
+
+                var msg = "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead";
+                CallState.Logger.Verbose(this.CallState, msg);
+                CallState.Logger.VerbosePii(this.CallState, msg);
             }
 
             return result;
@@ -296,7 +348,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             if (this.Resource != null)
             {
-                CallState.Logger.Verbose(this.CallState, "Refreshing access token...");
+                var msg = "Refreshing access token...";
+                CallState.Logger.Verbose(this.CallState, msg);
+                CallState.Logger.VerbosePii(this.CallState, msg);
 
                 try
                 {
@@ -367,16 +421,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (result.AccessToken != null)
             {
-                string accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
+                var accessTokenHash = CryptographyHelper.CreateSha256Hash(result.AccessToken);
 
-                CallState.Logger.Information(this.CallState,
-                    string.Format(CultureInfo.CurrentCulture,
-                        "=== Token Acquisition finished successfully. An access token was retuned:\n\tAccess Token Hash: {0}\n\tExpiration Time: {1}\n\tUser Hash: {2}\n\t",
-                        accessTokenHash,
-                        result.ExpiresOn,
-                        result.UserInfo != null
-                            ? CryptographyHelper.CreateSha256Hash(result.UserInfo.UniqueId)
-                            : "null"));
+                var msg = string.Format(CultureInfo.CurrentCulture,
+                    "=== Token Acquisition finished successfully. An access token was returned: Expiration Time: {0}",
+                    result.ExpiresOn);
+                CallState.Logger.Information(CallState, msg);
+
+                var piiMsg = msg + string.Format(CultureInfo.CurrentCulture, "Access Token Hash: {0}\n\t User id: {1}",
+                                 accessTokenHash,
+                                 result.UserInfo != null
+                                     ? result.UserInfo.UniqueId
+                                     : "null");
+                CallState.Logger.InformationPii(CallState, piiMsg);
             }
         }
 

@@ -32,8 +32,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
 {
     internal static class TokenCachePlugin
     {
@@ -60,7 +61,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    CallState.Default.Logger.Warning(null, "Failed to load cache: " + ex);
+                    CallState.Default.Logger.Warning(null, "Failed to load cache: ");
+                    CallState.Default.Logger.ErrorPii(null, ex);
                     // Ignore as the cache seems to be corrupt
                 }
             }
@@ -79,7 +81,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 catch (Exception ex)
                 {
-                    CallState.Default.Logger.Warning(null, "Failed to save cache: " + ex);
+                    CallState.Default.Logger.Warning(null, "Failed to save cache: ");
+                    CallState.Default.Logger.ErrorPii(null, ex);
                 }
             }
         }

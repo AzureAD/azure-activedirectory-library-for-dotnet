@@ -26,10 +26,11 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 {
     internal enum AuthorityType
     {
@@ -41,9 +42,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         private const string TenantlessTenantName = "Common";
 
-        private static readonly AuthenticatorTemplateList AuthenticatorTemplateList = new AuthenticatorTemplateList();
-
         private bool updatedFromTemplate;
+
+        private static readonly Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         private void Init(string authority, bool validateAuthority)
         {
@@ -74,6 +75,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         public string Authority { get; private set; }
 
+        public string GetAuthorityHost()
+        {
+            return !string.IsNullOrWhiteSpace(Authority) ? new Uri(this.Authority).Host : null;
+        }
+
         public AuthorityType AuthorityType { get; private set; }
 
         public bool ValidateAuthority { get; private set; }
@@ -97,19 +103,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             if (!this.updatedFromTemplate)
             {
                 var authorityUri = new Uri(this.Authority);
-                string host = authorityUri.Authority;
+                var host = authorityUri.Host;
                 string path = authorityUri.AbsolutePath.Substring(1);
                 string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
 
-                AuthenticatorTemplate matchingTemplate = await AuthenticatorTemplateList.FindMatchingItemAsync(this.ValidateAuthority, host, tenant, callState).ConfigureAwait(false);
-
-                this.AuthorizationUri = matchingTemplate.AuthorizeEndpoint.Replace("{tenant}", tenant);
-                this.DeviceCodeUri = matchingTemplate.DeviceCodeEndpoint.Replace("{tenant}", tenant);
-                this.TokenUri = matchingTemplate.TokenEndpoint.Replace("{tenant}", tenant);
-                this.UserRealmUri = EnsureUrlEndsWithForwardSlash(matchingTemplate.UserRealmEndpoint);
-
+                if (this.AuthorityType == AuthorityType.AAD)
+                {
+                    var metadata = await InstanceDiscovery.GetMetadataEntry(authorityUri, this.ValidateAuthority, callState);
+                    host = metadata.PreferredNetwork;
+                    // All the endpoints will use this updated host, and it affects future network calls, as desired.
+                    // The Authority remains its original host, and will be used in TokenCache later.
+                }
+                else
+                {
+                    InstanceDiscovery.AddMetadataEntry(host);
+                }
+                this.AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                this.DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                this.TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                this.UserRealmUri = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
                 this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
-                this.SelfSignedJwtAudience = matchingTemplate.Issuer.Replace("{tenant}", tenant);
+                this.SelfSignedJwtAudience = this.TokenUri;
                 this.updatedFromTemplate = true;
             }
         }
@@ -170,8 +184,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private void ReplaceTenantlessTenant(string tenantId)
         {
-            var regex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase);
-            this.Authority = regex.Replace(this.Authority, tenantId, 1);
+            this.Authority = TenantNameRegex.Replace(this.Authority, tenantId, 1);
         }
     }
 }

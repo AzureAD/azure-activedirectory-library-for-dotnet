@@ -28,8 +28,9 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using System;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenSilentHandler : AcquireTokenHandlerBase
     {
@@ -57,13 +58,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         protected override Task<AuthenticationResultEx> SendTokenRequestAsync()
         {
             if (ResultEx == null)
-                {
-                CallState.Logger.Verbose(this.CallState, "No token matching arguments found in the cache");
-                throw new AdalSilentTokenAcquisitionException();
-                }
-            
-            throw new AdalSilentTokenAcquisitionException(ResultEx.Exception);
+            {
+                var msg = "No token matching arguments found in the cache";
+                CallState.Logger.Verbose(CallState, msg);
+                CallState.Logger.VerbosePii(CallState, msg);
 
+                throw new AdalSilentTokenAcquisitionException();
+            }
+
+            throw new AdalSilentTokenAcquisitionException(ResultEx.Exception);
         }
 
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)

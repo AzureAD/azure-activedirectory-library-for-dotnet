@@ -27,8 +27,9 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     class AcquireTokenByAuthorizationCodeHandler : AcquireTokenHandlerBase
     {
@@ -70,16 +71,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUri.OriginalString;
         }
 
-        protected override void PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
         {
-            base.PostTokenRequest(resultEx);
+            await base.PostTokenRequest(resultEx).ConfigureAwait(false);
             UserInfo userInfo = resultEx.Result.UserInfo;
             this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
             this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;
             if (resultEx.ResourceInResponse != null)
             {
                 this.Resource = resultEx.ResourceInResponse;
-                CallState.Logger.Verbose(this.CallState, "Resource value in the token response was used for storing tokens in the cache");
+
+                var msg = "Resource value in the token response was used for storing tokens in the cache";
+                CallState.Logger.Verbose(this.CallState, msg);
+                CallState.Logger.VerbosePii(this.CallState, msg);
             }
 
             // If resource is not passed as an argument and is not returned by STS either, 

@@ -30,8 +30,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
     class AdalHttpClient
     {
@@ -86,12 +89,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (ex.InnerException is TaskCanceledException)
                 {
                     Resiliency = true;
-                    _callState.Logger.Information(this.CallState, "Network timeout - " + ex.InnerException.Message);
+
+                    _callState.Logger.Information(this.CallState, "Network timeout, Exception type: " + ex.InnerException.GetType());
+                    _callState.Logger.InformationPii(this.CallState, "Network timeout, Exception message: " + ex.InnerException.Message);
                 }
 
                 if (!Resiliency && ex.WebResponse == null)
                 {
                     _callState.Logger.Error(CallState, ex);
+                    _callState.Logger.ErrorPii(CallState, ex);
                     throw new AdalServiceException(AdalError.Unknown, ex);
                 }
 
@@ -99,7 +105,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (!Resiliency && (int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
                 {
                     _callState.Logger.Information(this.CallState,
-                        "HttpStatus code: " + ex.WebResponse.StatusCode + " - " + ex.InnerException.Message);
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
+
+                    _callState.Logger.InformationPii(this.CallState,
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception message: " + ex.InnerException?.Message);
+                    
                     Resiliency = true;
                 }
 
@@ -109,12 +119,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     {
                         await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
                         RetryOnce = false;
-                        _callState.Logger.Information(this.CallState, "Retrying one more time..");
+
+                        var msg = "Retrying one more time..";
+                        _callState.Logger.Information(this.CallState, msg);
+                        _callState.Logger.InformationPii(this.CallState, msg);
+
                         return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    _callState.Logger.Information(this.CallState,
-                        "Retry Failed - " + ex.InnerException.Message);
+                    _callState.Logger.Information(CallState,
+                        "Retry Failed, Exception type: " + ex.InnerException?.GetType());
+                    _callState.Logger.InformationPii(CallState, 
+                        "Retry Failed, Exception message: " + ex.InnerException?.Message);
                 }
                 
                 if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))

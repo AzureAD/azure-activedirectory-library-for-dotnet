@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal partial class CustomWebBrowser : WebBrowser
     {
@@ -182,8 +182,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 if (msg.message != WM_CHAR && (ModifierKeys == Keys.Shift || ModifierKeys == Keys.Alt ||
                                                ModifierKeys == Keys.Control))
                 {
-                    int num = (int) msg.wParam | (int) ModifierKeys;
-                    Shortcut s = (Shortcut) num;
+                    int num = (int)msg.wParam | (int)ModifierKeys;
+                    Shortcut s = (Shortcut)num;
                     if (shortcutBlacklist.Contains(s))
                     {
                         return S_OK;
@@ -262,6 +262,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public event WebBrowserNavigateErrorEventHandler NavigateError;
     }
 
+}
+
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+{ 
     /// <summary>
     /// Delegate to handle navifation errors in the browser control
     /// </summary>
