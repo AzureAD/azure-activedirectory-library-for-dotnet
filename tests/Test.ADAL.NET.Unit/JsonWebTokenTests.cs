@@ -114,6 +114,7 @@ namespace Test.ADAL.NET.Unit
 
             //Check for empty x5c claim
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            context.TokenCache.Clear();
             result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, false);
             Assert.IsNotNull(result.AccessToken);
         }

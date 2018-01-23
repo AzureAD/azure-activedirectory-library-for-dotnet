@@ -71,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private readonly JWTPayload payload;
 
-        private bool _sendX5c = false;
+        private bool sendX5c = false;
 
         public JsonWebToken(IClientAssertionCertificate certificate, string audience)
         {
@@ -92,7 +92,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public ClientAssertion Sign(IClientAssertionCertificate credential, bool sendX5c)
         {
             string token;
-            this._sendX5c = sendX5c;
+            this.sendX5c = sendX5c;
 
             // Base64Url encoded header and claims
             token = this.Encode(credential);
@@ -132,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private string Encode(IClientAssertionCertificate credential)
         {
             // Header segment
-            string jsonHeader = EncodeHeaderToJson(credential, _sendX5c);
+            string jsonHeader = EncodeHeaderToJson(credential, sendX5c);
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -217,7 +217,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 _thumbPrint = this.Credential.Thumbprint;
                 X509CertificatePublicCertValue = null;
 
-                if (sendX5C)
+                if (!sendX5C)
                     return;
 
                 //Check to see if credential is our implementation or developer provided.
