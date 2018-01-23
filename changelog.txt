@@ -2,8 +2,8 @@ Version 3.17.4
 ==============
 This release includes
 - Complicance with GDPR
-	- Add PiiLoggingEnabled flag
-- Include Sovereign Cloud support
+	- Add PiiLoggingEnabled flag (#877)
+- Include Sovereign Cloud support (#884)
 
 Version 3.17.3
 ==============
