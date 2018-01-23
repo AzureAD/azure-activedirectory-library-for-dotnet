@@ -765,7 +765,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
-        /// <param name="sendX5c">Sends the x509 public certificate as a x5c claim</param>
+        /// <param name="sendX5c">Sends the x509 public certificate to the STS as a x5c claim.
+        /// This parameter enables application developers to opt-in to easy certificates roll-up
+        /// in Azure AD: in the case the certificate was renewed on the machine executing ADAL.NET,
+        /// setting this parameter to true will send the certificate public key to Azure AD in
+        /// addition to the certificate thumbprint, so that Azure AD rolls-over it's internal
+        /// knowledge of the certificate. This avoid the azure AD application admin to have to
+        /// change the application manifest in the Azure portal (or to run a powershell / CLI script)</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
