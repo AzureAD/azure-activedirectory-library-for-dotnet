@@ -1,4 +1,4 @@
-Version 3.17.4
+Version 3.18.0
 ==============
 This release includes
 - Complicance with GDPR
