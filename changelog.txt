@@ -4,7 +4,6 @@ This release includes
 - Complicance with GDPR
 	- Add PiiLoggingEnabled flag
 - Include Sovereign Cloud support
-- Send x509 public certificate to STS as an x5c claim
 
 Version 3.17.3
 ==============
