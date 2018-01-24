@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 
-[assembly: AssemblyFileVersion("3.17.3.0")]
+[assembly: AssemblyFileVersion("3.18.0.0")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -47,4 +47,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ff47962a-d498-4c63-b7e9-4db3653ad7db")]
+[assembly: Guid("ff47962a-d498-4c63-b7e9-4db3653ad7db")] 

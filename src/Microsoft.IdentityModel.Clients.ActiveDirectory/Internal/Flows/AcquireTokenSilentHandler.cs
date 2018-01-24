@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using System;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
@@ -49,9 +50,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerHelper.PlatformParameters = parameters;    
             this.SupportADFS = true;
 
-            this.brokerParameters["username"] = userId.Id;
-            this.brokerParameters["username_type"] = userId.Type.ToString();
-            this.brokerParameters["silent_broker_flow"] = null; //add key
+            this.brokerParameters[BrokerParameter.Username] = userId.Id;
+            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            this.brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
         protected override Task<AuthenticationResultEx> SendTokenRequestAsync()

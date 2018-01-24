@@ -66,7 +66,7 @@ This is obviously the first diagnostic.  We try to provide helpful error message
 
 ### Logs
 
-In order to configure logging, implementation of IAdalLogCallback interface should be provided
+Until ADAL.Net 3.18, in order to configure logging, you had to implement the ``IAdalLogCallback`` interface
 
 ```C#
 class LoggerCallbackImpl : IAdalLogCallback
@@ -77,10 +77,39 @@ class LoggerCallbackImpl : IAdalLogCallback
     }
 }
 ```
-static property Callback of the LoggerCallbackHandler class should be set to the instance of a class implementing IAdalLogCallback interface
+and then you had to set the static property ``Callback`` of the ``LoggerCallbackHandler`` class to the instance of a class implementing the ``IAdalLogCallback`` interface. 
 
-```C#
+```CSharp
 LoggerCallbackHandler.Callback = new LoggerCallbackImpl();
+```
+
+
+This interface was logging all the information including the information containing Personally Identifyable Information (PII)
+
+
+From ADAL.NET 3.17.2, we help you to be [GDPR](https://gdpr-info.eu/) compliant out of the box, by not logging PII any longer through the ``IAdalLogCallback`` interface.
+
+Now, if you really need/want to log PII to help you with debugging, you can leverage a new mechanism in ADAL.NET 3.18:
+-	You can subscribe to every message (including the ones filtered out because they contain PII information), by setting the ``LogCallback`` delegate of ``LoggerCallbackHandler``. You will be told by the ``containsPii`` parameter, if a message contains PII or not. Note that using ``LoggerCallbackHandler.LogCallback`` delegate will disable the legacy mechanism of logging the messages through the ``LoggerCallbackHandler.Callback`` property.
+-	Once you have set the ``LoggerCallbackHandler.LogCallback`` property, you can also control if you want to log PII or not by settting the ``LoggerCallbackHandler.PiiLoggingEnabled`` property. By default, this Boolean is set to ``false`` (still to help you being GDPR compliant). If you set it to ``true``, messages will be logged twice (one which does not contain PII, for which ``containsPii`` will be false), and the second which will contain PII (and for which ``containsPii`` will be true)
+Finally, in any case, when PII information is logged, it’s systematically hashed.
+
+```CSharp
+  private static void Log(LogLevel level, string message, bool containsPii)
+  {
+   if (containsPii)
+   {
+    Console.ForegroundColor = ConsoleColor.Red;
+   }
+   Console.WriteLine($"{level} {message}");
+   Console.ResetColor();
+  }
+
+  static void Main(string[] args)
+  {
+   LoggerCallbackHandler.LogCallback = Log;
+   LoggerCallbackHandler.PiiLoggingEnabled = true;
+   ...
 ```
 
 ### Brokered Authentication for iOS
