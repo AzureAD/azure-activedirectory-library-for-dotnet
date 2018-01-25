@@ -32,6 +32,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -51,6 +52,54 @@ namespace Test.ADAL.NET.Unit
     {
         private PlatformParameters platformParameters;
 
+        MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
+        {
+            Method = HttpMethod.Post,
+            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
+            },
+            AdditionalRequestValidation = request =>
+            {
+                var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+
+                // Check presence of client_assertion in request
+                string encodedJwt;
+                Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+
+                // Check presence of x5c cert claim. It should exist.
+                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadToken(encodedJwt) as JwtSecurityToken;
+                var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
+                Assert.IsTrue(x5c.Key == "x5c");
+            }
+        };
+
+        MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
+        {
+            Method = HttpMethod.Post,
+            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
+            },
+            AdditionalRequestValidation = request =>
+            {
+                var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+
+                // Check presence of client_assertion in request
+                string encodedJwt;
+                Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+
+                // Check presence of x5c cert claim. It should not exist.
+                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadToken(encodedJwt) as JwtSecurityToken;
+                var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
+                Assert.IsTrue(x5c.Key != "x5c");
+            }
+        };
+
         [TestInitialize]
         public void Initialize()
         {
@@ -61,8 +110,8 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test for Json Web Token with client assertion and a X509 public certificate claim")]
-        public async Task JsonWebTokenWithX509PublicCertClaimTest()
+        [Description("Test for client assertion with X509 public certificate using sendX5C")]
+        public async Task JsonWebTokenWithX509PublicCertSendX5CTest()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
@@ -70,89 +119,44 @@ namespace Test.ADAL.NET.Unit
 
             var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-                },
-                AdditionalRequestValidation = request =>
-                {
-                    var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+            //Check for x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true);
+            Assert.IsNotNull(result.AccessToken);
 
-                    // Check presence of client_assertion in request
-                    string encodedJwt;
-                    Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+            //Check for empty x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            context.TokenCache.Clear();
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, false);
+            Assert.IsNotNull(result.AccessToken);
+        }
 
-                    // Check presence of x5c cert claim. It should not exist.
-                    var jwtHeader = EncodingHelper.UrlDecode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(!jwtHeader.Contains("\"x5c\":"));
-                }
-            });
+        [TestMethod]
+        [Description("Test for default client assertion without X509 public certificate claim")]
+        public async Task JsonWebTokenDefaultX509PublicCertClaimTest()
+        {
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
+            var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
+
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
 
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
             Assert.IsNotNull(result.AccessToken);
         }
 
         [TestMethod]
-        [Description("Test for Json Web Token with developer implemented client assertion")]
+        [Description("Test for client assertion with developer implemented client assertion")]
         public async Task JsonWebTokenWithDeveloperImplementedClientAssertionTest()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionTestImplementation();
             var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
 
-            var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-                },
-                AdditionalRequestValidation = request =>
-                {
-                    var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
-
-                    // Check presence of client_assertion in request
-                    string encodedJwt;
-                    Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
-
-                    // Check presence of x5c cert claim. It should not exist.
-                    var jwtHeader = EncodingHelper.UrlDecode(encodedJwt.Split('.')[0]);
-                    Assert.IsTrue(!jwtHeader.Contains("\"x5c\":"));
-                }
-            });
-
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true);
             Assert.IsNotNull(result.AccessToken);
-        }
-    }
-
-
-    [DeploymentItem("valid_cert.pfx")]
-    class ClientAssertionTestImplementation : IClientAssertionCertificate
-    {
-
-        public string ClientId { get { return TestConstants.DefaultClientId; } }
-
-        public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }
-
-        public byte[] Sign(string message)
-        {
-            CryptographyHelper helper = new CryptographyHelper();
-            return helper.SignWithCertificate(message, this.Certificate);
-        }
-
-        public X509Certificate2 Certificate { get; }
-
-        public ClientAssertionTestImplementation()
-        {
-            this.Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
         }
     }
 }

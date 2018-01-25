@@ -73,6 +73,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
         private readonly JWTPayload payload;
 
+        private bool sendX5C = false;
+
         public JsonWebToken(IClientAssertionCertificate certificate, string audience)
         {
             DateTime validFrom = DateTime.UtcNow;
@@ -89,8 +91,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             };
         }
 
-        public ClientAssertion Sign(IClientAssertionCertificate credential)
+        public ClientAssertion Sign(IClientAssertionCertificate credential, bool sendX5C)
         {
+            this.sendX5C = sendX5C;
             // Base64Url encoded header and claims
             string token = this.Encode(credential);     
 
@@ -113,9 +116,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             return Base64UrlEncoder.Encode(segment);
         }
 
-        private static string EncodeHeaderToJson(IClientAssertionCertificate credential)
+        private static string EncodeHeaderToJson(IClientAssertionCertificate credential, bool sendX5C)
         {
-            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential);
+            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential, sendX5C);
             return JsonHelper.EncodeToJson(header);
         }
 
@@ -129,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         private string Encode(IClientAssertionCertificate credential)
         {
             // Header segment
-            string jsonHeader = EncodeHeaderToJson(credential);
+            string jsonHeader = EncodeHeaderToJson(credential, this.sendX5C);
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -209,11 +212,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         {
             private string _thumbPrint;
 
-            public JWTHeaderWithCertificate(IClientAssertionCertificate credential)
+            public JWTHeaderWithCertificate(IClientAssertionCertificate credential, bool sendX5C)
                 : base(credential)
             {
                 _thumbPrint = this.Credential.Thumbprint;
                 X509CertificatePublicCertValue = null;
+
+                if (!sendX5C)
+                    return;
 
                 //Check to see if credential is our implementation or developer provided.
                 if (credential.GetType().ToString() != "Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate")
