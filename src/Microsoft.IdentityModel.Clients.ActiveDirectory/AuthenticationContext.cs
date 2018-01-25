@@ -767,20 +767,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Acquires security token from the authority.
+        /// Acquires a security token from the authority while enabling the simplification Azure AD certificate roll-over.
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
-        /// <param name="sendX5c">This parameter enables application developers to achieve easy certificates roll-up
+        /// <param name="sendX5c">This parameter enables application developers to achieve easy certificates roll-over
         /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD 
         /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or powershell/CLI operation) 
-        /// IMPORTANT: this flow isn’t enabled on the service at the time of this SDK release (<ADAL version>).
+        /// IMPORTANT: this flow isn’t enabled on the service at the time of this SDK release (ADAL.Net 3.19).
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
-#if ANDROID || iOS || WINDOWS_APP
-        [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
-#endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, bool sendX5c)
         {
