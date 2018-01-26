@@ -767,7 +767,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Acquires a security token from the authority while enabling the simplification Azure AD certificate roll-over.
+        /// Acquires a security token from the authority while enabling simplified Azure AD certificate roll-over
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
@@ -778,12 +778,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// (either via portal or powershell/CLI operation) 
         /// IMPORTANT: this flow isn’t enabled on the service at the time of this SDK release (ADAL.Net 3.19).
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
+#if !(ANDROID || iOS || WINDOWS_APP)
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, bool sendX5c)
         {
-            return await AcquireTokenForClientCommonAsync(resource, new ClientKey(clientCertificate, Authenticator, sendX5c))
+            return await AcquireTokenForClientCommonAsync(resource, new ClientKey(clientCertificate, Authenticator) { SendX5c = sendX5c })
                 .ConfigureAwait(false);
         }
+#endif
 
         /// <summary>
         /// Acquires security token from the authority.

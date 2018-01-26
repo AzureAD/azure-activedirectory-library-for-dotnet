@@ -65,12 +65,11 @@ namespace Test.ADAL.NET.Unit
                 var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
 
                 // Check presence of client_assertion in request
-                string encodedJwt;
-                Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+                Assert.IsTrue(formsData.TryGetValue("client_assertion", out string encodedJwt), "Missing client_assertion from request");
 
                 // Check presence of x5c cert claim. It should exist.
-                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadToken(encodedJwt) as JwtSecurityToken;
+                var handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadJwtToken(encodedJwt);
                 var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
                 Assert.IsTrue(x5c.Key == "x5c");
             }
@@ -89,12 +88,11 @@ namespace Test.ADAL.NET.Unit
                 var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
 
                 // Check presence of client_assertion in request
-                string encodedJwt;
-                Assert.IsTrue(formsData.TryGetValue("client_assertion", out encodedJwt), "Missing client_assertion from request");
+                Assert.IsTrue(formsData.TryGetValue("client_assertion", out string encodedJwt), "Missing client_assertion from request");
 
                 // Check presence of x5c cert claim. It should not exist.
-                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadToken(encodedJwt) as JwtSecurityToken;
+                var handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadJwtToken(encodedJwt);
                 var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
                 Assert.IsTrue(x5c.Key != "x5c");
             }

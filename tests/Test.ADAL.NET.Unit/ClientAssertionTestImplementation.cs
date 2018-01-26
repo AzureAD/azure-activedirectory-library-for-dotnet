@@ -44,7 +44,6 @@ namespace Test.ADAL.NET.Unit
     [DeploymentItem("valid_cert.pfx")]
     public class ClientAssertionTestImplementation : IClientAssertionCertificate
     {
-
         public string ClientId { get { return TestConstants.DefaultClientId; } }
 
         public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }

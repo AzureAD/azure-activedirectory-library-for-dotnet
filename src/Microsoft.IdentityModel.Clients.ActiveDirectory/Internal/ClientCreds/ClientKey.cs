@@ -34,72 +34,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 {
     internal class ClientKey
     {
+
         public ClientKey(string clientId)
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
             this.ClientId = clientId;
-            this.HasCredential = false;
-            this.SendX5c = false;
         }
 
         public ClientKey(ClientCredential clientCredential)
         {
-            if (clientCredential == null)
-            {
-                throw new ArgumentNullException("clientCredential");
-            }
-
-            this.Credential = clientCredential;
+            this.Credential = clientCredential ?? throw new ArgumentNullException(nameof(clientCredential));
             this.ClientId = clientCredential.ClientId;
             this.HasCredential = true;
-            this.SendX5c = false;
         }
 
         public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator)
         {
             this.Authenticator = authenticator;
-
-            if (clientCertificate == null)
-            {
-                throw new ArgumentNullException("clientCertificate");
-            }
-
-            this.Certificate = clientCertificate;
+            this.Certificate = clientCertificate ?? throw new ArgumentNullException(nameof(clientCertificate));
             this.ClientId = clientCertificate.ClientId;
             this.HasCredential = true;
-            this.SendX5c = false;
-        }
-
-        public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator, bool sendX5c)
-        {
-            this.Authenticator = authenticator;
-
-            if (clientCertificate == null)
-            {
-                throw new ArgumentNullException("clientCertificate");
-            }
-
-            this.Certificate = clientCertificate;
-            this.ClientId = clientCertificate.ClientId;
-            this.HasCredential = true;
-            this.SendX5c = sendX5c;
         }
 
         public ClientKey(ClientAssertion clientAssertion)
         {
-            if (clientAssertion == null)
-            {
-                throw new ArgumentNullException("clientAssertion");
-            }
-
-            this.Assertion = clientAssertion;
+            this.Assertion = clientAssertion ?? throw new ArgumentNullException(nameof(clientAssertion));
             this.ClientId = clientAssertion.ClientId;
             this.HasCredential = true;
-            this.SendX5c = false;
         }
 
         public ClientCredential Credential { get; private set; }
@@ -114,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
         public bool HasCredential { get; private set; }
 
-        public bool SendX5c { get; private set; }
+        public bool SendX5c { get; set; }
 
         public void AddToParameters(IDictionary<string, string> parameters)
         {
