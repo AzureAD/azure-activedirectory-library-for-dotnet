@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using System;
 using System.Collections.Generic;
 
@@ -60,30 +61,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public AuthenticationRequest(IDictionary<string, string> brokerPayload)
         {
-            Authority = brokerPayload["authority"];
-            Resource = brokerPayload["resource"];
-            ClientId = brokerPayload["client_id"];
-            if (brokerPayload.ContainsKey("redirect_uri"))
+            Authority = brokerPayload[BrokerParameter.Authority];
+            Resource = brokerPayload[BrokerParameter.Resource];
+            ClientId = brokerPayload[BrokerParameter.ClientId];
+            if (brokerPayload.ContainsKey(BrokerParameter.RedirectUri))
             {
-                RedirectUri = brokerPayload["redirect_uri"];
+                RedirectUri = brokerPayload[BrokerParameter.RedirectUri];
             }
 
-            if (brokerPayload.ContainsKey("username"))
+            if (brokerPayload.ContainsKey(BrokerParameter.Username))
             {
-                LoginHint = brokerPayload["username"];
-                BrokerAccountName = LoginHint;
+                if (brokerPayload[BrokerParameter.UsernameType].Equals(UserIdentifierType.UniqueId.ToString()))
+                {
+                    UserId = brokerPayload[BrokerParameter.Username];
+                }
+                else
+                {
+                    LoginHint = brokerPayload[BrokerParameter.Username];
+                    BrokerAccountName = LoginHint;
+                }
             }
 
-            if (brokerPayload.ContainsKey("extra_qp"))
+            if (brokerPayload.ContainsKey(BrokerParameter.ExtraQp))
             {
-                ExtraQueryParamsAuthentication = brokerPayload["extra_qp"];
+                ExtraQueryParamsAuthentication = brokerPayload[BrokerParameter.ExtraQp];
             }
 
-            CorrelationId = Guid.Parse(brokerPayload["correlation_id"]);
-            Version = brokerPayload["client_version"];
+            CorrelationId = Guid.Parse(brokerPayload[BrokerParameter.CorrelationId]);
+            Version = brokerPayload[BrokerParameter.ClientVersion];
 
-            if (brokerPayload.ContainsKey("claims")) {
-                Claims = brokerPayload["claims"];
+            if (brokerPayload.ContainsKey(BrokerParameter.Claims)) {
+                Claims = brokerPayload[BrokerParameter.Claims];
             }
         }
     }
