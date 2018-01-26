@@ -1,21 +1,23 @@
 clone_folder: c:\AADDotNetLib
 
+#retry installation
 install:
-- ps: .\InstallAndroidSDK.ps1
+ - appveyor-retry powershell .\InstallAndroidSDK.ps1
 
-image: Visual Studio 2017
+image: Previous Visual Studio 2017
 
-configuration: Release
+configuration: Appveyor
 
 environment:
   JavaSdkDirectory: '%JAVA_HOME%'
 
 before_build:
-  - nuget restore ADAL.NET.NoWinRT.sln
-  - '"C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.6.1 Tools/sn.exe" -Vr *,31bf3856ad364e35'
+  - nuget restore Combined.NoWinRT.sln
+  - '"C:/Program Files (x86)/Microsoft SDKs/Windows/v10.0A/bin/NETFX 4.6.1 Tools/sn.exe" -Vr *,*'
 
 build:
-  project: ADAL.NET.NoWinRT.sln
+  project: Combined.NoWinRT.sln
+  parallel: true
 
 skip_commits:
   files:
