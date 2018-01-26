@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using System;
 using System.Collections.Generic;
 
@@ -68,10 +69,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 RedirectUri = brokerPayload["redirect_uri"];
             }
 
-            if (brokerPayload.ContainsKey("username"))
+            if (brokerPayload.ContainsKey(BrokerParameter.Username))
             {
-                LoginHint = brokerPayload["username"];
-                BrokerAccountName = LoginHint;
+                if (brokerPayload[BrokerParameter.UsernameType].Equals(UserIdentifierType.UniqueId.ToString()))
+                {
+                    UserId = brokerPayload["username"];
+                }
+                else
+                {
+                    LoginHint = brokerPayload["username"];
+                    BrokerAccountName = LoginHint;
+                }
             }
 
             if (brokerPayload.ContainsKey("extra_qp"))

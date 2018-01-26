@@ -150,7 +150,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
          * component.
          */
         public const string Signature = "1L4Z9FJCgn5c0VLhyAxC5O9LdlE=";
-        
+
         /**
          * Signature info for Azure authenticator app that installs authenticator
          * component.
@@ -174,6 +174,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public const string BrowserExtInstallPrefix = "msauth://";
 
         public const string CallerInfoPackage = "caller.info.package";
+
+        public const string CallerInfoUid = "caller.info.uid";
 
         // Claims step-up. Skip cache look up
         public const string SkipCache = "skip.cache";

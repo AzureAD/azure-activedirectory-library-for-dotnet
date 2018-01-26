@@ -97,6 +97,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 CallState.Logger.VerbosePii(CallState, msg);
 
                 this.claims = claims;
+                this.brokerParameters[BrokerParameter.Claims] = claims;
             }
             else
             {
@@ -116,7 +117,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             this.brokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
             this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
-            this.brokerParameters[BrokerParameter.Claims] = claims;
             brokerHelper.PlatformParameters = authorizationParameters;
         }
 

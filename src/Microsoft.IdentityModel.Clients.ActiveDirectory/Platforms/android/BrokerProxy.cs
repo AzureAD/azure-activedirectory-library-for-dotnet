@@ -477,6 +477,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             brokerOptions.PutString(BrokerConstants.AccountLoginHint, username);
             brokerOptions.PutString(BrokerConstants.AccountName, username);
 
+            brokerOptions.PutString(BrokerConstants.CallerInfoPackage, mContext.PackageName);
+            brokerOptions.PutInt(BrokerConstants.CallerInfoUid, Process.MyUid());
+
             return brokerOptions;
         }
 
