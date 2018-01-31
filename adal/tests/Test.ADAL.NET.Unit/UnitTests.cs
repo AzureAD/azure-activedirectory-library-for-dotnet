@@ -282,33 +282,33 @@ namespace Test.ADAL.NET.Unit
             }
         }
 
-	    [TestMethod]
-	    [Description("Test to verify AdditionalClaims are part of the signed message in the ClientAssertion")]
-	    public void AdditionalClaimsSignWithCertificateTest()
-	    {
-			var x509Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+        [TestMethod]
+        [Description("Test to verify AdditionalClaims are part of the signed message in the ClientAssertion")]
+        public void AdditionalClaimsSignWithCertificateTest()
+        {
+            var x509Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
 
-		    const string clientId = "911";
-		    const string audience = "007";
-			const string clientipKey = "client_ip";
-		    const string clientipValue = "192.168.1.0";
+            const string clientId = "911";
+            const string audience = "007";
+            const string clientipKey = "client_ip";
+            const string clientipValue = "192.168.1.0";
 
-		    var additionalClaims = new Dictionary<string, string> {{clientipKey, clientipValue}};
-		    var clientCertificate = new ClientAssertionCertificate(clientId, x509Certificate, additionalClaims);
-		    var jsonWebToken = new JsonWebToken(clientCertificate, audience);
-		    var ipClaimAssertion = jsonWebToken.Sign(clientCertificate);
+            var additionalClaims = new Dictionary<string, string> { { clientipKey, clientipValue } };
+            var clientCertificate = new ClientAssertionCertificate(clientId, x509Certificate, additionalClaims);
+            var jsonWebToken = new JsonWebToken(clientCertificate, audience);
+            var ipClaimAssertion = jsonWebToken.Sign(clientCertificate);
 
-		    Assert.AreEqual(clientId, ipClaimAssertion.ClientId);
-			Assert.IsNotNull(ipClaimAssertion.Assertion);
+            Assert.AreEqual(clientId, ipClaimAssertion.ClientId);
+            Assert.IsNotNull(ipClaimAssertion.Assertion);
 
-		    var clientCertificateNoAdditionalClaims = new ClientAssertionCertificate(clientId, x509Certificate);
-		    var jsonWebTokenNoAdditionalClaims = new JsonWebToken(clientCertificateNoAdditionalClaims, audience);
-		    var noAdditionalClaimsAssertion = jsonWebTokenNoAdditionalClaims.Sign(clientCertificate);
-		    Assert.IsNotNull(noAdditionalClaimsAssertion.Assertion);
-			Assert.AreNotEqual(noAdditionalClaimsAssertion.Assertion, ipClaimAssertion.Assertion);
-		}
+            var clientCertificateNoAdditionalClaims = new ClientAssertionCertificate(clientId, x509Certificate);
+            var jsonWebTokenNoAdditionalClaims = new JsonWebToken(clientCertificateNoAdditionalClaims, audience);
+            var noAdditionalClaimsAssertion = jsonWebTokenNoAdditionalClaims.Sign(clientCertificate);
+            Assert.IsNotNull(noAdditionalClaimsAssertion.Assertion);
+            Assert.AreNotEqual(noAdditionalClaimsAssertion.Assertion, ipClaimAssertion.Assertion);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void ResponseSizeOverLimitTest()
         {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

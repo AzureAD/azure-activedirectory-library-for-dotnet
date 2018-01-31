@@ -40,6 +40,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -134,64 +135,64 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.AccessToken);
         }
 
-	    [TestMethod]
-	    [Description("Test to verify serialization and deserialization of ClientAssertionCertificate and JsonWebToken")]
-	    public void AdditionalClaimsSerializationTest()
-	    {
-		    const string clientipKey = "client_ip";
-		    const string clientipValue = "192.168.1.0";
-		    var additionalClaims = new Dictionary<string, string>
-		    {
-			    { clientipKey, clientipValue },
-			    { "anyclaim", "additional claims rocks"}
-		    };
+        [TestMethod]
+        [Description("Test to verify serialization and deserialization of ClientAssertionCertificate and JsonWebToken")]
+        public void AdditionalClaimsSerializationTest()
+        {
+            const string clientipKey = "client_ip";
+            const string clientipValue = "192.168.1.0";
+            var additionalClaims = new Dictionary<string, string>
+            {
+                { clientipKey, clientipValue },
+                { "anyclaim", "additional claims rocks"}
+            };
 
-		    var payload = new JsonWebToken.JWTPayload() { AdditionalClaims = additionalClaims };
-		    var serializedPayLoad = JsonHelper.EncodeToJson(payload);
-		    var deserializedPayload = JsonHelper.DecodeFromJson<JsonWebToken.JWTPayload>(serializedPayLoad);
+            var payload = new JsonWebToken.JWTPayload() { AdditionalClaims = additionalClaims };
+            var serializedPayLoad = JsonHelper.EncodeToJson(payload);
+            var deserializedPayload = JsonHelper.DecodeFromJson<JsonWebToken.JWTPayload>(serializedPayLoad);
 
-		    Assert.AreEqual(payload.AdditionalClaims.Count, deserializedPayload.AdditionalClaims.Count);
-		    foreach (var additionalClaim in payload.AdditionalClaims)
-		    {
-			    Assert.AreEqual(additionalClaim.Value, deserializedPayload.AdditionalClaims[additionalClaim.Key], "Deserialized value doesn't match original value.");
-		    }
-	    }
+            Assert.AreEqual(payload.AdditionalClaims.Count, deserializedPayload.AdditionalClaims.Count);
+            foreach (var additionalClaim in payload.AdditionalClaims)
+            {
+                Assert.AreEqual(additionalClaim.Value, deserializedPayload.AdditionalClaims[additionalClaim.Key], "Deserialized value doesn't match original value.");
+            }
+        }
 
-		[TestMethod]
-		[Description("Test for Json Web Token with additional claims")]
-		public async Task JsonWebTokenWithAdditionalClaimsTest()
-		{
-			var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
-			const string clientipKey = "client_ip";
-			const string clientipValue = "192.168.1.0";
-			var additionalClaims = new Dictionary<string, string>
-			{
-				{ clientipKey, clientipValue },
-				{ "anyclaim", "additional claims rocks"}
-			};
-			var clientCertificateAssertion = new ClientAssertionCertificate("my_client_id", certificate, additionalClaims);
-			var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
+        [TestMethod]
+        [Description("Test for Json Web Token with additional claims")]
+        public async Task JsonWebTokenWithAdditionalClaimsTest()
+        {
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            const string clientipKey = "client_ip";
+            const string clientipValue = "192.168.1.0";
+            var additionalClaims = new Dictionary<string, string>
+            {
+                { clientipKey, clientipValue },
+                { "anyclaim", "additional claims rocks"}
+            };
+            var clientCertificateAssertion = new ClientAssertionCertificate("my_client_id", certificate, additionalClaims);
+            var context = new AuthenticationContext(TestConstants.TenantSpecificAuthority, new TokenCache());
 
-			HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
-			{
-				Method = HttpMethod.Post,
-				ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-				{
-					Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-				},
-				AdditionalRequestValidation = request =>
-				{
-					var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-					var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
-					formsData.TryGetValue("client_assertion", out var encodedJwt);
-					Assert.IsNotNull(encodedJwt, nameof(encodedJwt) + " != null");
-				}
-			});
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
+                },
+                AdditionalRequestValidation = request =>
+                {
+                    var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+                    formsData.TryGetValue("client_assertion", out var encodedJwt);
+                    Assert.IsNotNull(encodedJwt, nameof(encodedJwt) + " != null");
+                }
+            });
 
-			AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientCertificateAssertion);
-			Assert.IsNotNull(result.AccessToken);
-		}
-	}
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientCertificateAssertion);
+            Assert.IsNotNull(result.AccessToken);
+        }
+    }
 
     [DeploymentItem("valid_cert.pfx")]
     class ClientAssertionTestImplementation : IClientAssertionCertificate
@@ -200,7 +201,7 @@ namespace Test.ADAL.NET.Unit
         public string ClientId { get { return TestConstants.DefaultClientId; } }
 
         public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }
-	    public Dictionary<string, string> AdditionalClaims { get { return null; } }
+        public Dictionary<string, string> AdditionalClaims { get { return null; } }
 
         public byte[] Sign(string message)
         {

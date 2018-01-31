@@ -63,7 +63,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if NETSTANDARD1_3
             if (certificate.GetRSAPublicKey().KeySize < MinKeySizeInBits)
 #else
-	            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
+            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
 #endif	
             {
                 throw new ArgumentOutOfRangeException(nameof(certificate),
@@ -74,25 +74,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Certificate = certificate;
         }
 
-		/// <summary>
-		/// Constructor to create credential with client Id and certificate and claimSet.
-		/// </summary>
-		/// <param name="clientId">Identifier of the client requesting the token.</param>
-		/// <param name="certificate">The certificate used as credential.</param>
-		/// <param name="additionalClaims">The additional claims to be added to the payload of the client assertion.</param>
-		public ClientAssertionCertificate(string clientId, X509Certificate2 certificate, Dictionary<string, string> additionalClaims) : this(clientId, certificate)
-	    {
-		    this.AdditionalClaims = additionalClaims ?? throw new ArgumentNullException(nameof(additionalClaims));
-	    }
+        /// <summary>
+        /// Constructor to create credential with client Id and certificate and claimSet.
+        /// </summary>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="certificate">The certificate used as credential.</param>
+        /// <param name="additionalClaims">The additional claims to be added to the payload of the client assertion.</param>
+        public ClientAssertionCertificate(string clientId, X509Certificate2 certificate, Dictionary<string, string> additionalClaims) : this(clientId, certificate)
+        {
+            this.AdditionalClaims = additionalClaims ?? throw new ArgumentNullException(nameof(additionalClaims));
+        }
 
-		// TODO: Consider if we should have a public setter on AdditionalClaims and perhaps remove the additional contructor.
+        // TODO: Consider if we should have a public setter on AdditionalClaims and perhaps remove the additional contructor.
 
-		/// <summary>
-		/// Gets the additional claims to be added to the payload of the ClientAssertion.
-		/// </summary>
-	    public Dictionary<string, string> AdditionalClaims { get; private set; }
+        /// <summary>
+        /// Gets the additional claims to be added to the payload of the ClientAssertion.
+        /// </summary>
+        public Dictionary<string, string> AdditionalClaims { get; private set; }
 
-	    /// <summary>
+        /// <summary>
         /// Gets the identifier of the client requesting the token.
         /// </summary>
         public string ClientId { get { return clientId; } }
