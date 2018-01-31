@@ -1,7 +1,7 @@
 Version 3.19.1
 ==============
 This hotfix release includes:
-- Fix deadlock issue when calling UI context without specifying ConfigureAwait(false)
+- Fix deadlock issue when calling with UI context without specifying ConfigureAwait(false)
 
 Version 3.19.0
 ==============
