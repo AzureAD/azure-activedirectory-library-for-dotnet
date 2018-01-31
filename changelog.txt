@@ -1,3 +1,8 @@
+Version 3.19.1
+==============
+This hotfix release includes:
+- Fix deadlock issue when calling UI context without specifying ConfigureAwait(false)
+
 Version 3.19.0
 ==============
 - Adding new Api to acquire a security token from the authority while enabling simplified Azure AD certificate roll-over (#959)
