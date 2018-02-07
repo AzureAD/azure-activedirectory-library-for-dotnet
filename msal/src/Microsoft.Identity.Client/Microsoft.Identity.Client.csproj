@@ -34,7 +34,9 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <DefineConstants>$(DefineConstants);WINRT</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
+    <DefineConstants>$(DefineConstants);UAP10_0</DefineConstants>
+  </PropertyGroup>  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
@@ -93,7 +95,7 @@
     <Compile Include="Features\PublicClient\**\*.cs" />
     <Compile Include="Features\*.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
     <Compile Include="Features\TokenCache\**\*.cs" />
   </ItemGroup>
@@ -158,10 +160,10 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
     <PackageReference Include="Xamarin.Android.Support.CustomTabs">
-      <Version>25.3.1</Version>
+      <Version>25.4.0.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
-      <Version>25.3.1</Version>
+      <Version>25.4.0.2</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

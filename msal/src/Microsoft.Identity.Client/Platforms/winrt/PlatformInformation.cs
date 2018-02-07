@@ -36,6 +36,7 @@ using Windows.Storage;
 using Windows.System.UserProfile;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Client
 {
@@ -72,6 +73,10 @@ namespace Microsoft.Identity.Client
 
         public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)
         {
+#if UAP10_0
+            var users = await Windows.System.User.FindAllAsync(Windows.System.UserType.LocalUser);
+            return users.Any();
+#else // WinRT  
             if (!UserInformation.NameAccessAllowed)
             {
                 // The access is not allowed and we cannot determine whether this is a local user or not. So, we do NOT add form auth parameter.
@@ -98,6 +103,7 @@ namespace Microsoft.Identity.Client
                 // we return true to add form auth parameter in the caller.
                 return true;
             }
+#endif
         }
 
         public override bool IsDomainJoined()

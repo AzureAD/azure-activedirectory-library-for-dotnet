@@ -47,6 +47,10 @@ namespace XForms.Droid
 {
     internal class AcquirePageRenderer : PageRenderer
     {
+        public AcquirePageRenderer(Context context) : base(context)
+        {
+
+        }
         AcquirePage _page;
 
         protected override void OnElementChanged(ElementChangedEventArgs<Page> e)
