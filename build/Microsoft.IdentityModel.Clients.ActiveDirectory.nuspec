@@ -9,7 +9,7 @@
     <projectUrl>https://aka.ms/adalnet</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>
-      <a href="https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki">ADAL.NET</a> enables you to acquire a security token to access protected Web APIs, for instance Microsoft Graph or your own Web API.
+      ADAL.NET enables you to acquire a security token to access protected Web APIs, for instance Microsoft Graph or your own Web API.
       It's a .NET Standard class library which you can consume on various .NET client platforms (including Windows desktop, UWP, Windows 8.1, Xamarin iOS and Xamarin Android)
       but also you Web applications and Web APIs (ASP.NET, .NET Core, ASP.NET Core) that call other Web APIs in the name of a user, or without a user.
       ADAL.NET takes advantage of Windows Server Active Directory and Azure Active Directory (Azure AD).
