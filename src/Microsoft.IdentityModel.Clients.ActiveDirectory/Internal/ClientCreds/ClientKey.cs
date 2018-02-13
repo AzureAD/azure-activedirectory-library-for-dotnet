@@ -47,7 +47,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
         public ClientKey(ClientCredential clientCredential)
         {
-            this.Credential = clientCredential ?? throw new ArgumentNullException(nameof(clientCredential));
+            if (clientCredential == null)
+            {
+                throw new ArgumentNullException(nameof(clientCredential));
+            }
+            this.Credential = clientCredential;
+
             this.ClientId = clientCredential.ClientId;
             this.HasCredential = true;
         }
@@ -55,14 +60,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator)
         {
             this.Authenticator = authenticator;
-            this.Certificate = clientCertificate ?? throw new ArgumentNullException(nameof(clientCertificate));
+            if (clientCertificate == null)
+            {
+                throw new ArgumentNullException(nameof(clientCertificate));
+            }
+            this.Certificate = clientCertificate;
+
             this.ClientId = clientCertificate.ClientId;
             this.HasCredential = true;
         }
 
         public ClientKey(ClientAssertion clientAssertion)
         {
-            this.Assertion = clientAssertion ?? throw new ArgumentNullException(nameof(clientAssertion));
+            if (clientAssertion == null)
+            {
+                throw new ArgumentNullException(nameof(clientAssertion));
+            }
+            this.Assertion = clientAssertion;
+
             this.ClientId = clientAssertion.ClientId;
             this.HasCredential = true;
         }
