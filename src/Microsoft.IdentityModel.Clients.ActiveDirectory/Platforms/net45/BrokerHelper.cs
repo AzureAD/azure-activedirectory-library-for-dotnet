@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             get { return false; } 
         }
 
-        public Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        public Task<AuthenticationResultEx> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
         {
             throw new NotImplementedException();
         }

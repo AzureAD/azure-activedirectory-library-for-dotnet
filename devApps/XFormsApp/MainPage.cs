@@ -28,6 +28,7 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -35,6 +36,7 @@ using Xamarin.Forms;
 
 namespace XFormsApp
 {
+    [SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid", Justification = "Reviewed.")]
     public class MainPage : ContentPage
     {
         public MainPage()

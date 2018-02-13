@@ -71,7 +71,9 @@ namespace AdalAndroidTestApp
                 data);
         }
 
+#pragma warning disable AvoidAsyncVoid // Avoid async void
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
+#pragma warning restore AvoidAsyncVoid // Avoid async void
         {
             this.accessTokenTextView.Text = string.Empty;
             EditText email = FindViewById<EditText>(Resource.Id.email);
@@ -96,8 +98,11 @@ namespace AdalAndroidTestApp
             this.accessTokenTextView.Text = value;
         }
 
+#pragma warning disable AvoidAsyncVoid // Avoid async void
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
+#pragma warning restore AvoidAsyncVoid // Avoid async void
         {
+            await Task.Delay(1000);
             this.accessTokenTextView.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             EditText email = FindViewById<EditText>(Resource.Id.email);
@@ -106,7 +111,7 @@ namespace AdalAndroidTestApp
             {
                 AuthenticationResult result = await ctx
                     .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
-                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                        new PlatformParameters(this, false));
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -121,7 +126,9 @@ namespace AdalAndroidTestApp
             this.accessTokenTextView.Text = value;
         }
 
+#pragma warning disable AvoidAsyncVoid // Avoid async void
         private async void clearCacheButton_Click(object sender, EventArgs e)
+#pragma warning restore AvoidAsyncVoid // Avoid async void
         {
             await Task.Factory.StartNew(() =>
             {
@@ -130,7 +137,9 @@ namespace AdalAndroidTestApp
             });
         }
 
+#pragma warning disable AvoidAsyncVoid // Avoid async void
         private async void conditionalAccessButton_Click(object sender, EventArgs e)
+#pragma warning restore AvoidAsyncVoid // Avoid async void
         {
             this.accessTokenTextView.Text = string.Empty;
             EditText email = FindViewById<EditText>(Resource.Id.email);

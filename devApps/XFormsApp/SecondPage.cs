@@ -27,12 +27,14 @@
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration;
 
 namespace XFormsApp
 {
+    [SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid", Justification = "Reviewed.")]
     public class SecondPage : ContentPage
     {
         private readonly StringBuilder _logs = new StringBuilder();

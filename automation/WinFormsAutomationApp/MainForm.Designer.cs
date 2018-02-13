@@ -112,7 +112,7 @@
             this.clearCache.TabIndex = 6;
             this.clearCache.Text = "Clear Cache";
             this.clearCache.UseVisualStyleBackColor = true;
-            this.clearCache.Click += new System.EventHandler(this.clearCache_Click);
+            this.clearCache.Click += new System.EventHandler(this.ClearCache_Click);
             // 
             // readCache
             // 
@@ -123,7 +123,7 @@
             this.readCache.TabIndex = 5;
             this.readCache.Text = "Read Cache";
             this.readCache.UseVisualStyleBackColor = true;
-            this.readCache.Click += new System.EventHandler(this.readCache_Click);
+            this.readCache.Click += new System.EventHandler(this.ReadCache_Click);
             // 
             // invalidateRefreshToken
             // 
@@ -190,7 +190,7 @@
             this.requestGo.TabIndex = 1;
             this.requestGo.Text = "GO!";
             this.requestGo.UseVisualStyleBackColor = true;
-            this.requestGo.Click += new System.EventHandler(this.requestGo_Click);
+            this.requestGo.Click += new System.EventHandler(this.RequestGo_Click);
             // 
             // requestInfo
             // 

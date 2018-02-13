@@ -49,7 +49,7 @@ namespace Test.ADAL.NET.Integration
         }
 
         [TestMethod]
-        public async Task PositiveTest()
+        public async Task PositiveTestAsync()
         {
             DeviceCodeResult dcr = new DeviceCodeResult()
             {
@@ -88,13 +88,13 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
+            AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
         }
 
         [TestMethod]
-        public async Task FullCoveragePositiveTest()
+        public async Task FullCoveragePositiveTestAsync()
         {
 
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
@@ -131,7 +131,7 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client");
+            DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             Assert.AreEqual("some-device-code", dcr.DeviceCode);
@@ -141,7 +141,7 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-message", dcr.Message);
             Assert.AreEqual("some-client", dcr.ClientId);
 
-            AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
+            AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
             // There should be one cached entry.
@@ -163,12 +163,12 @@ namespace Test.ADAL.NET.Integration
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
             DeviceCodeResult dcr;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client"));
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false));
             Assert.IsTrue(ex.Message.Contains("some error message"));
         }
 
         [TestMethod]
-        public async Task NegativeDeviceCodeTimeoutTest()
+        public async Task NegativeDeviceCodeTimeoutTestAsync()
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
@@ -204,11 +204,11 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some resource", "some authority");
+            DeviceCodeResult dcr = await ctx.AcquireDeviceCodeAsync("some resource", "some authority").ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await ctx.AcquireTokenByDeviceCodeAsync(dcr));
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false));
             Assert.IsTrue(ex.Message.Contains("Verification code expired"));
         }
     }
