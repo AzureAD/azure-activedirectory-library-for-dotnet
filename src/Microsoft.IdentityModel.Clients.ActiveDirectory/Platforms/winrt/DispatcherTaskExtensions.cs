@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     internal static class DispatcherTaskExtensions
     {
         public static async Task<T> RunTaskAsync<T>(this CoreDispatcher dispatcher,
-            Func<Task<T>> func, CoreDispatcherPriority priority = CoreDispatcherPriority.High)
+            Func<Task<T>> func, CoreDispatcherPriority priority = CoreDispatcherPriority.Normal)
         {
             var taskCompletionSource = new TaskCompletionSource<T>();
             await dispatcher.RunAsync(priority, async () =>
