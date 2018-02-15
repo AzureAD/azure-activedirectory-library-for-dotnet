@@ -40,7 +40,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);DESKTOP</DefineConstants>
-    <NoWarn>$(NoWarn);CS8002</NoWarn>
+    <NoWarn>1701;1702;1705</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
     <DefineConstants>$(DefineConstants);iOS</DefineConstants>

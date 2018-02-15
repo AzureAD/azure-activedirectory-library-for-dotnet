@@ -40,9 +40,9 @@ namespace WinFormsAutomationApp
             pageControl1.SelectedTab = dataInputPage;
         }
 
-        private async void RequestGo_Click(object sender, EventArgs e)
+        private async void requestGo_ClickAsync(object sender, EventArgs e)
         {
-             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
+            string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
