@@ -106,7 +106,7 @@ namespace AdalAndroidTestApp
             {
                 AuthenticationResult result = await ctx
                     .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
-                        new PlatformParameters(this, false));
+                        new PlatformParameters(this, false)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -127,7 +127,7 @@ namespace AdalAndroidTestApp
             {
                 TokenCache.DefaultShared.Clear();
                 this.accessTokenTextView.Text = "Cache cleared";
-            });
+            }).ConfigureAwait(false);
         }
 
         private async void conditionalAccessButton_Click(object sender, EventArgs e)

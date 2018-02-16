@@ -36,7 +36,6 @@ using Xamarin.Forms;
 
 namespace XFormsApp
 {
-    [SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid", Justification = "Reviewed.")]
     public class MainPage : ContentPage
     {
         public MainPage()
@@ -59,7 +58,7 @@ namespace XFormsApp
 
         async void browseButton_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new SecondPage());
+            await Navigation.PushModalAsync(new SecondPage()).ConfigureAwait(false);
         }
     }
 }

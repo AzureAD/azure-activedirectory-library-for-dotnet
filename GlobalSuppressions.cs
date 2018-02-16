@@ -153,3 +153,7 @@
 
 //Android PLatform Suppressions
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S101:Types should be named in camel case", Justification = "Acceptable use of common initialism", Scope = "type", Target = "~T:Microsoft.IdentityModel.Clients.ActiveDirectory.WebUIFactory")]
+
+//XForms Suppressions
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid:Avoid async void", Justification = "Event handlers require a void signature", Scope = "member", Target = "~T:XFormsApp.MainPage")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid:Avoid async void", Justification = "Event handlers require a void signature", Scope = "member", Target = "~T:XFormsApp.SecondPage")]

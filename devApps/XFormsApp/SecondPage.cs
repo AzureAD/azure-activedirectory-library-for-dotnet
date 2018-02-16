@@ -34,7 +34,6 @@ using Xamarin.Forms.PlatformConfiguration;
 
 namespace XFormsApp
 {
-    [SuppressMessage("AsyncUsage.CSharp.Reliability", "AvoidAsyncVoid", Justification = "Reviewed.")]
     public class SecondPage : ContentPage
     {
         private readonly StringBuilder _logs = new StringBuilder();
