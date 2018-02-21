@@ -24,7 +24,7 @@
   <Import Project="$(MSBuildThisFileDirectory)AssemblySigningVerification.targets"/>
   
   <PropertyGroup>
-    <Configuration Condition="$(Configuration)==''" >Debug</Configuration>
+    <Configuration Condition="$(Configuration)==''" >Release</Configuration>
     <NuspecFilePath Condition="$(NuspecFilePath)==''">$(MSBuildThisFileDirectory)Microsoft.IdentityModel.Clients.ActiveDirectory.nuspec</NuspecFilePath>
     <AdalBinaryFolder Condition="$(AdalBinaryFolder)==''">$..adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.1\</AdalBinaryFolder>
 
