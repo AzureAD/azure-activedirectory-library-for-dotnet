@@ -344,10 +344,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal async Task<AuthenticationResultEx> LoadFromCache(CacheQueryData cacheQueryData, CallState callState)
+        internal async Task<AuthenticationResultEx> LoadFromCacheAsync(CacheQueryData cacheQueryData, CallState callState)
         {
             AuthenticationResultEx resultEx = null;
-            var aliasedHosts = await GetOrderedAliases(cacheQueryData.Authority, false, callState).ConfigureAwait(false);
+            var aliasedHosts = await GetOrderedAliasesAsync(cacheQueryData.Authority, false, callState).ConfigureAwait(false);
             foreach (var aliasedHost in aliasedHosts)
             {
                 cacheQueryData.Authority = ReplaceHost(cacheQueryData.Authority, aliasedHost);
@@ -381,9 +381,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return string.Format(CultureInfo.InvariantCulture, "https://{0}{1}", newHost, new Uri(oldUri).AbsolutePath);
         }
 
-        internal static async Task<List<string>> GetOrderedAliases(string authority, bool validateAuthority, CallState callState)
+        internal static async Task<List<string>> GetOrderedAliasesAsync(string authority, bool validateAuthority, CallState callState)
         {
-            var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), validateAuthority, callState).ConfigureAwait(false);
+            var metadata = await InstanceDiscovery.GetMetadataEntryAsync(new Uri(authority), validateAuthority, callState).ConfigureAwait(false);
             var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, GetHost(authority)});
             aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
             return aliasedAuthorities;
@@ -504,10 +504,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        internal async Task StoreToCache(AuthenticationResultEx result, string authority, string resource, string clientId,
+        internal async Task StoreToCacheAsync(AuthenticationResultEx result, string authority, string resource, string clientId,
             TokenSubjectType subjectType, CallState callState)
         {
-            var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), false, callState).ConfigureAwait(false);
+            var metadata = await InstanceDiscovery.GetMetadataEntryAsync(new Uri(authority), false, callState).ConfigureAwait(false);
             StoreToCacheCommon(result, ReplaceHost(authority, metadata.PreferredCache), resource, clientId, subjectType, callState);
         }
 

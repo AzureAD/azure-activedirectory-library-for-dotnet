@@ -67,7 +67,7 @@ namespace Test.ADAL.NET.Integration
         public async Task AcquireTokenWithEmptyCache_GetsTokenFromServiceTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -117,7 +117,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword));
+                new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -135,7 +135,7 @@ namespace Test.ADAL.NET.Integration
         public async Task IntegratedAuthUsingUpn_GetsTokenFromServiceTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -185,7 +185,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserCredential(TestConstants.DefaultDisplayableId));
+                new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -204,7 +204,7 @@ namespace Test.ADAL.NET.Integration
         public async Task IntegratedAuthMissingMex_FailsMexParsingTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -252,7 +252,7 @@ namespace Test.ADAL.NET.Integration
         public async Task AcquireTokenWithValidTokenInCache_ReturnsCachedTokenTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             TokenCacheKey key = new TokenCacheKey(TestConstants.DefaultAuthorityCommonTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -276,7 +276,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserCredential(TestConstants.DefaultDisplayableId));
+                new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -291,9 +291,9 @@ namespace Test.ADAL.NET.Integration
         public async Task IntegratedAuthWithExpiredTokenInCache_UsesRefreshTokenTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
-            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
@@ -308,7 +308,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityCommonTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -323,7 +323,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserCredential(TestConstants.DefaultDisplayableId));
+                new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -332,7 +332,7 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual(1, context.TokenCache.Count);
 
             // Cache entry updated with new access token
-            var entry = await context.TokenCache.LoadFromCache(new CacheQueryData
+            var entry = await context.TokenCache.LoadFromCacheAsync(new CacheQueryData
             {
                 Authority = TestConstants.DefaultAuthorityCommonTenant,
                 Resource = TestConstants.DefaultResource,
@@ -341,7 +341,7 @@ namespace Test.ADAL.NET.Integration
                 UniqueId = TestConstants.DefaultUniqueId,
                 DisplayableId = TestConstants.DefaultDisplayableId
             },
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             Assert.AreEqual("some-access-token", entry.Result.AccessToken);
 
             Assert.IsNotNull(result.UserInfo);
@@ -356,7 +356,7 @@ namespace Test.ADAL.NET.Integration
         public async Task MexEndpointFailsToResolveTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -405,7 +405,7 @@ namespace Test.ADAL.NET.Integration
         public async Task IntegratedAuthUsingUpn_MexDoesNotReturnAuthEndpointTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -463,7 +463,7 @@ namespace Test.ADAL.NET.Integration
         public async Task PasswordAndUpnProvided_MexDoesNotReturnUsernamePasswordEndpointTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {

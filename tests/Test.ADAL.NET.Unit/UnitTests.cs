@@ -310,7 +310,7 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        public async Task ResponseSizeAtLimitTest()
+        public async Task ResponseSizeAtLimitTestAsync()
         {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[1048576];
@@ -331,7 +331,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
             HttpClientWrapper wrapper = new HttpClientWrapper(TestConstants.DefaultAuthorityCommonTenant, null);
-            await wrapper.GetResponseAsync();
+            await wrapper.GetResponseAsync().ConfigureAwait(false);
         }
 
         private static void RunAuthenticationParametersPositive(string authenticateHeader, string expectedAuthority, string excepectedResource)

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IdentityModel.Clients.ActiveDirectory", "src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj", "{AECE489D-9ED4-442D-8D8F-0F383AEBB781}"
 EndProject
@@ -9,9 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D62811A9-35C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CF9400D7-1CFA-4495-AA6D-24105B10801A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.NET.Unit", "tests\Test.ADAL.NET.Unit\Test.ADAL.NET.Unit.csproj", "{91E9E564-8A44-457B-A97C-E76C9F6275D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit", "tests\Test.ADAL.NET.Unit\Test.ADAL.NET.Unit.csproj", "{91E9E564-8A44-457B-A97C-E76C9F6275D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.NET.Integration", "tests\Test.ADAL.NET.Integration\Test.ADAL.NET.Integration.csproj", "{2BD6EA30-37A4-4799-B778-A473FC6B19D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Integration", "tests\Test.ADAL.NET.Integration\Test.ADAL.NET.Integration.csproj", "{2BD6EA30-37A4-4799-B778-A473FC6B19D4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devApps", "devApps", "{54CB21B9-187C-4E63-9022-A9964886C56D}"
 EndProject
@@ -35,9 +35,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "automation", "automation", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsAutomationApp", "automation\WinFormsAutomationApp\WinFormsAutomationApp.csproj", "{84AAB705-1A89-4149-BBE0-5C4505D9CBED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.NET.Common", "tests\Test.ADAL.NET.Common\Test.ADAL.NET.Common.csproj", "{412F8F05-2694-4D2E-8FE0-A821721CF682}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Common", "tests\Test.ADAL.NET.Common\Test.ADAL.NET.Common.csproj", "{412F8F05-2694-4D2E-8FE0-A821721CF682}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform", "src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.csproj", "{AFCBE743-E9FA-4066-9445-333A0CFE3507}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform", "src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.csproj", "{AFCBE743-E9FA-4066-9445-333A0CFE3507}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2EDD2D9B-4797-4B12-A71A-63F3FF620AA2}"
+	ProjectSection(SolutionItems) = preProject
+		ConfigureAwait.ruleset = ConfigureAwait.ruleset
+		GlobalSuppressions.cs = GlobalSuppressions.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

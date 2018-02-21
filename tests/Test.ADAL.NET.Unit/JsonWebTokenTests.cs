@@ -109,7 +109,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [Description("Test for client assertion with X509 public certificate using sendX5C")]
-        public async Task JsonWebTokenWithX509PublicCertSendX5CTest()
+        public async Task JsonWebTokenWithX509PublicCertSendX5CTestAsync()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
@@ -119,19 +119,19 @@ namespace Test.ADAL.NET.Unit
 
             //Check for x5c claim
             HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             //Check for empty x5c claim
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             context.TokenCache.Clear();
-            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, false);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, false).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
 
         [TestMethod]
         [Description("Test for default client assertion without X509 public certificate claim")]
-        public async Task JsonWebTokenDefaultX509PublicCertClaimTest()
+        public async Task JsonWebTokenDefaultX509PublicCertClaimTestAsync()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
@@ -139,13 +139,13 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
 
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
 
         [TestMethod]
         [Description("Test for client assertion with developer implemented client assertion")]
-        public async Task JsonWebTokenWithDeveloperImplementedClientAssertionTest()
+        public async Task JsonWebTokenWithDeveloperImplementedClientAssertionTestAsync()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionTestImplementation();
@@ -153,7 +153,7 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
 
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, true).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
     }

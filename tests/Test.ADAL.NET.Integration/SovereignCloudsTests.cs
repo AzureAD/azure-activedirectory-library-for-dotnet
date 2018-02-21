@@ -61,7 +61,7 @@ namespace Test.ADAL.NET.Integration
 
         [TestMethod]
         [Description("Sovereign user use world wide authority")]
-        public async Task SovereignUserWorldWideAuthorityIntegrationTest()
+        public async Task SovereignUserWorldWideAuthorityIntegrationTestAsync()
         {
             // creating AuthenticationContext with common Authority
             var authenticationContext =
@@ -94,7 +94,7 @@ namespace Test.ADAL.NET.Integration
 
             var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true").ConfigureAwait(false);
 
             // make sure that tenant specific sovereign Authority returned to the app in AuthenticationResult
             Assert.AreEqual(_sovereignTenantSpecificAuthority, authenticationResult.Authority);
@@ -164,7 +164,7 @@ namespace Test.ADAL.NET.Integration
 
             await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true").ConfigureAwait(false);
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
