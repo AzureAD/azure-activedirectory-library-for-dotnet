@@ -25,7 +25,7 @@
   
   <PropertyGroup>
     <Configuration Condition="$(Configuration)==''" >Debug</Configuration>
-    <AdalUnifiedPath Condition="$(AdalUnifiedPath)=="">\adal\src</AdalUnifiedPath>
+    <AdalUnifiedPath Condition="$(AdalUnifiedPath)==">\adal\src</AdalUnifiedPath>
     <NuspecFilePath Condition="$(NuspecFilePath)==''">$(MSBuildThisFileDirectory)Microsoft.IdentityModel.Clients.ActiveDirectory.nuspec</NuspecFilePath>
     <AdalBinaryFolder Condition="$(AdalBinaryFolder)==''">$(AdalUnifiedPath)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.1\</AdalBinaryFolder>
 
