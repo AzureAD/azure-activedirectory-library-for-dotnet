@@ -203,7 +203,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         RequestContext.Logger.Verbose(msg);
                         RequestContext.Logger.VerbosePii(msg);
 
-                        platformParams.CallerActivity.StartActivityForResult(brokerIntent, 1001);
+                        platformParams.CallerActivity.StartActivityForResult(brokerIntent, platformParams.BrokerRequestCode);
                     }
                     catch (ActivityNotFoundException e)
                     {

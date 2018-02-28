@@ -59,11 +59,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="callerActivity">activity calling ADAL to acquire token</param>
         /// <param name="useBroker">flag to enable or disable broker flow. FALSE by default.</param>
         /// <param name="promptBehavior">Prompt behavior enum to control UI</param>
-        public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior)
+        public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior) :this(callerActivity, useBroker, promptBehavior, 0, 1001)
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="callerActivity">activity calling ADAL to acquire token</param>
+        /// <param name="useBroker">flag to enable or disable broker flow. FALSE by default.</param>
+        /// <param name="promptBehavior">Prompt behavior enum to control UI</param>
+        /// <param name="requestCode">RequestCode provided to authentication activities launched by ADAL</param>
+        /// <param name="brokerRequestCode">RequestCode provided to broker launched by ADAL</param>
+        public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior, int requestCode, int brokerRequestCode)
         {
             this.CallerActivity = callerActivity;
             UseBroker = useBroker;
             PromptBehavior = promptBehavior;
+            RequestCode = requestCode;
+            BrokerRequestCode = brokerRequestCode;
         }
 
         /// <summary>
@@ -80,5 +94,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets prompt behavior. If <see cref="PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
         /// </summary>
         public PromptBehavior PromptBehavior { get; set; }
+
+        /// <summary>
+        /// RequestCode provided to authentication activity launched by ADAL
+        /// </summary>
+        public int RequestCode { get; set; }
+
+        /// <summary>
+        /// RequestCode provided to broker launched by ADAL
+        /// </summary>
+        public int BrokerRequestCode { get; set; }
     }
 }
