@@ -116,6 +116,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
             return new PlatformInformation().GetAssemblyFileVersionAttribute();
         }
 
+        public static string GetClientVersion()
+        {
+            var clientVersion = AdalIdHelper.GetAdalVersion();
+            if (AdalIdHelper.VersionNotDetermined.Equals(clientVersion))
+            {
+                clientVersion = AdalIdHelper.GetAssemblyFileVersion();
+            }
+            return clientVersion;
+        }
+
         public static string GetAssemblyInformationalVersion()
         {
             AssemblyInformationalVersionAttribute attribute = typeof(AdalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
