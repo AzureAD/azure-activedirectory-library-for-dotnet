@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Core;
@@ -51,21 +52,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
             if (certificate == null)
             {
-                throw new ArgumentNullException("certificate");
+                throw new ArgumentNullException(nameof(certificate));
             }
 
 #if NETSTANDARD1_3
             if (certificate.GetRSAPublicKey().KeySize < MinKeySizeInBits)
 #else
-	            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
+            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
 #endif	
             {
-                throw new ArgumentOutOfRangeException("certificate",
+                throw new ArgumentOutOfRangeException(nameof(certificate),
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.CertificateKeySizeTooSmallTemplate, MinKeySizeInBits));
             }
 
@@ -73,6 +74,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Certificate = certificate;
         }
 
+        /// <summary>
+        /// Constructor to create credential with client Id and certificate and claimSet.
+        /// </summary>
+        /// <param name="clientId">Identifier of the client requesting the token.</param>
+        /// <param name="certificate">The certificate used as credential.</param>
+        /// <param name="additionalClaims">The additional claims to be added to the payload of the client assertion.</param>
+        public ClientAssertionCertificate(string clientId, X509Certificate2 certificate, Dictionary<string, string> additionalClaims) : this(clientId, certificate)
+        {
+            this.AdditionalClaims = additionalClaims ?? throw new ArgumentNullException(nameof(additionalClaims));
+        }
+
+        // TODO: Consider if we should have a public setter on AdditionalClaims and perhaps remove the additional contructor.
+
+        /// <summary>
+        /// Gets the additional claims to be added to the payload of the ClientAssertion.
+        /// </summary>
+        public Dictionary<string, string> AdditionalClaims { get; private set; }
 
         /// <summary>
         /// Gets the identifier of the client requesting the token.

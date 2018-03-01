@@ -270,7 +270,7 @@ namespace Test.ADAL.NET.Unit
             string[] certs = { "valid_cert.pfx", "valid_cert2.pfx" };
             for (int i = 0; i < 2; i++)
             {
-                X509Certificate2 x509Certificate = new X509Certificate2(certs[i], "password");
+                X509Certificate2 x509Certificate = new X509Certificate2(certs[i], TestConstants.DefaultPassword);
                 ClientAssertionCertificate cac = new ClientAssertionCertificate("some_id", x509Certificate);
                 byte[] signature = cac.Sign(Message);
                 Assert.IsNotNull(signature);
@@ -280,6 +280,32 @@ namespace Test.ADAL.NET.Unit
                 signature = cac.Sign(Message);
                 Assert.IsNotNull(signature);
             }
+        }
+
+        [TestMethod]
+        [Description("Test to verify AdditionalClaims are part of the signed message in the ClientAssertion")]
+        public void AdditionalClaimsSignWithCertificateTest()
+        {
+            var x509Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+
+            const string clientId = "911";
+            const string audience = "007";
+            const string clientipKey = "client_ip";
+            const string clientipValue = "192.168.1.0";
+
+            var additionalClaims = new Dictionary<string, string> { { clientipKey, clientipValue } };
+            var clientCertificate = new ClientAssertionCertificate(clientId, x509Certificate, additionalClaims);
+            var jsonWebToken = new JsonWebToken(clientCertificate, audience);
+            var ipClaimAssertion = jsonWebToken.Sign(clientCertificate);
+
+            Assert.AreEqual(clientId, ipClaimAssertion.ClientId);
+            Assert.IsNotNull(ipClaimAssertion.Assertion);
+
+            var clientCertificateNoAdditionalClaims = new ClientAssertionCertificate(clientId, x509Certificate);
+            var jsonWebTokenNoAdditionalClaims = new JsonWebToken(clientCertificateNoAdditionalClaims, audience);
+            var noAdditionalClaimsAssertion = jsonWebTokenNoAdditionalClaims.Sign(clientCertificate);
+            Assert.IsNotNull(noAdditionalClaimsAssertion.Assertion);
+            Assert.AreNotEqual(noAdditionalClaimsAssertion.Assertion, ipClaimAssertion.Assertion);
         }
 
         [TestMethod]

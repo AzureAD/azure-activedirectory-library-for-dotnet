@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -57,9 +58,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             public const string NotBefore = "nbf";
             public const string ExpiresOn = "exp";
             public const string JwtIdentifier = "jti";
+	        public const string Additional = "add"; // TODO: validate if this value can be reserved (also will be AAD specific in that case)
         }
 
-        internal static class ReservedHeaderParameters
+		internal static class ReservedHeaderParameters
         {
             public const string Algorithm = "alg";
             public const string Type = "typ";
@@ -87,7 +89,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
                                ValidFrom = ConvertToTimeT(validFrom),
                                ValidTo = ConvertToTimeT(validTo),
                                Subject = certificate.ClientId,
-                               JwtIdentifier = Guid.NewGuid().ToString()
+                               JwtIdentifier = Guid.NewGuid().ToString(),
+							   AdditionalClaims = certificate.AdditionalClaims
+							   
             };
         }
 
@@ -204,6 +208,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
             [DataMember(Name = JsonWebTokenConstants.ReservedClaims.JwtIdentifier, IsRequired=false, EmitDefaultValue=false)]
             public string JwtIdentifier { get; set; }
+
+			[DataMember(Name = JsonWebTokenConstants.ReservedClaims.Additional, IsRequired = false, EmitDefaultValue = false)]
+	        public Dictionary<string, string> AdditionalClaims { get; set; }
         }
 
         [DataContract]

@@ -239,3 +239,5 @@ _Pvt_Extensions
 project.lock.json
 *.project.lock.json
 msal/tests/dev apps/XForms/XForms.UWP/BundleArtifacts/x86.txt
+/devApps/AdalAndroidTestApp/AdalAndroidTestApp.csproj.bak
+/ADAL.NET.NoWinRT.sln.DotSettings.user

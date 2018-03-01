@@ -25,6 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
@@ -48,5 +51,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Thumbprint of the Certificate
         /// </summary>
         string Thumbprint { get; }
+
+		/// <summary>
+		/// Gets the additional claims to be added to the payload of the ClientAssertion.
+		/// </summary>
+		Dictionary<string, string> AdditionalClaims { get; }
     }
 }
