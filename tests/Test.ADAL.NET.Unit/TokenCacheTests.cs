@@ -175,7 +175,7 @@ namespace Test.ADAL.Common.Unit
         /// detected exception.
         /// </summary>
         /// <returns></returns>
-        public static async Task TestUniqueIdDisplayableIdLookup()
+        public static async Task TestUniqueIdDisplayableIdLookupAsync()
         {
 
             string authority = "https://www.gotjwt.com/";
@@ -214,16 +214,16 @@ namespace Test.ADAL.Common.Unit
             var userIdUpper = new UserIdentifier(displayableId.ToUpper(CultureInfo.InvariantCulture), UserIdentifierType.RequiredDisplayableId);
 
             var parameters = new PlatformParameters(PromptBehavior.Auto);
-            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId);
+            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userIdUpper);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
         }
 
@@ -253,7 +253,7 @@ namespace Test.ADAL.Common.Unit
             AddToDictionary(localCache, tokenCacheKey, authenticationResult);
             AuthenticationContext acWithLocalCache = new AuthenticationContext(authority, false, localCache);
             AuthenticationResult authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenAsync(resource, clientId, credential);
+                await acWithLocalCache.AcquireTokenAsync(resource, clientId, credential).ConfigureAwait(false);
             AreAuthenticationResultsEqual(authenticationResult.Result, authenticationResultFromCache);
 
             // Duplicate throws error
@@ -272,7 +272,7 @@ namespace Test.ADAL.Common.Unit
             adae = AssertException.TaskThrows<AdalException>(async () =>
             {
                 AuthenticationContext acWithDefaultCache = new AuthenticationContext(authority, false);
-                await acWithDefaultCache.AcquireTokenAsync(resource, clientId, credential);
+                await acWithDefaultCache.AcquireTokenAsync(resource, clientId, credential).ConfigureAwait(false);
                 Assert.Fail("Exception expected");
             });
             Assert.IsTrue(adae.ErrorCode == "multiple_matching_tokens_detected" &&
@@ -292,7 +292,7 @@ namespace Test.ADAL.Common.Unit
             AddToDictionary(localCache, tempKey, cacheValue);
 
             authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters);
+                await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
             // @resource && @clientId && userId
@@ -310,14 +310,14 @@ namespace Test.ADAL.Common.Unit
             var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
             var userIdUpper = new UserIdentifier(displayableId.ToUpper(), UserIdentifierType.RequiredDisplayableId);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
             authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+                await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(cacheValue.Result, authenticationResultFromCache);
         }
 #endif
@@ -333,7 +333,7 @@ namespace Test.ADAL.Common.Unit
             AuthenticationResultEx value = CreateCacheValue(null, "user1");
         }
 
-        internal static async Task TokenCacheOperationsTest()
+        internal static async Task TokenCacheOperationsTestAsync()
         {
             var tokenCache = new TokenCache();
             var cacheDictionary = tokenCache.tokenCacheDictionary;
@@ -384,7 +384,7 @@ namespace Test.ADAL.Common.Unit
                 SubjectType = TokenSubjectType.User
             };
 
-            AuthenticationResultEx resultEx = await tokenCache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
+            AuthenticationResultEx resultEx = await tokenCache.LoadFromCacheAsync(data, CallState.Default).ConfigureAwait(false);
             Assert.IsNotNull(resultEx);
 
 
@@ -483,7 +483,7 @@ namespace Test.ADAL.Common.Unit
             Assert.AreEqual(0, cacheDictionary.Keys.Count);
         }
 
-        internal static async Task MultipleUserAssertionHashTest()
+        internal static async Task MultipleUserAssertionHashTestAsync()
         {
             TokenCacheKey key = new TokenCacheKey("https://localhost/MockSts/", "resource1", "client1",
                 TokenSubjectType.Client, null, "user1");
@@ -508,18 +508,18 @@ namespace Test.ADAL.Common.Unit
                 DisplayableId = null
             };
 
-            AuthenticationResultEx resultEx = await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
+            AuthenticationResultEx resultEx = await cache.LoadFromCacheAsync(data, CallState.Default).ConfigureAwait(false);
             AreAuthenticationResultExsEqual(value, resultEx);
 
             data.AssertionHash = "hash2";
-            resultEx = await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false);
+            resultEx = await cache.LoadFromCacheAsync(data, CallState.Default).ConfigureAwait(false);
             AreAuthenticationResultExsEqual(value2, resultEx);
 
             data.AssertionHash = null;
 
             // Multiple tokens in cache -> error
             var exc = AssertException.TaskThrows<AdalException>(async () =>
-                await cache.LoadFromCache(data, CallState.Default).ConfigureAwait(false));
+                await cache.LoadFromCacheAsync(data, CallState.Default).ConfigureAwait(false));
             Assert.AreEqual(exc.ErrorCode, AdalError.MultipleTokensMatched);
         }
 

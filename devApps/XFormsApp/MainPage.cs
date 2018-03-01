@@ -28,6 +28,7 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -57,7 +58,7 @@ namespace XFormsApp
 
         async void browseButton_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new SecondPage());
+            await Navigation.PushModalAsync(new SecondPage()).ConfigureAwait(false);
         }
     }
 }

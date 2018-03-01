@@ -24,6 +24,13 @@
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.91635" />
   </ItemGroup> 
   <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
+  </ItemGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\ConfigureAwait.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\GlobalSuppressions.cs" />
     <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
       <Project>{aece489d-9ed4-442d-8d8f-0f383aebb781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>

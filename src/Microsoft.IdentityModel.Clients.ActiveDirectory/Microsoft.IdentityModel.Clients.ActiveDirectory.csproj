@@ -40,7 +40,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);DESKTOP</DefineConstants>
-    <NoWarn>$(NoWarn);CS8002</NoWarn>
+    <NoWarn>1701;1702;1705</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
     <DefineConstants>$(DefineConstants);iOS</DefineConstants>
@@ -134,6 +134,12 @@
     <Compile Include="Features\NonWinCommon\**\*.cs" />
     <AndroidResource Include="Resources\**\*.axml" />
     <AndroidResource Include="Resources\**\*.xml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\ConfigureAwait.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
   </ItemGroup>
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />

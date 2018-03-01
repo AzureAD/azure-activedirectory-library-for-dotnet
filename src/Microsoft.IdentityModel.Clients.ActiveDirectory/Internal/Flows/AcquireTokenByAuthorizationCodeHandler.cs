@@ -71,9 +71,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUri.OriginalString;
         }
 
-        protected override async Task PostTokenRequest(AuthenticationResultEx resultEx)
+        protected override async Task PostTokenRequestAsync(AuthenticationResultEx resultEx)
         {
-            await base.PostTokenRequest(resultEx).ConfigureAwait(false);
+            await base.PostTokenRequestAsync(resultEx).ConfigureAwait(false);
             UserInfo userInfo = resultEx.Result.UserInfo;
             this.UniqueId = (userInfo == null) ? null : userInfo.UniqueId;
             this.DisplayableId = (userInfo == null) ? null : userInfo.DisplayableId;

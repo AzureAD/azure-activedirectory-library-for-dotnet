@@ -37,7 +37,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public bool CanInvokeBroker { get { return false; } }
 
-        public Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        public Task<AuthenticationResultEx> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
         {
             throw new System.NotImplementedException();
         }

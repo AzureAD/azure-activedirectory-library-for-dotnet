@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,19 +26,29 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class DeviceAuthHelper
+    internal static class DispatcherTaskExtensions
     {
-        public static bool CanHandleDeviceAuthChallenge { get { return false; } }
-
-        public static Task<string> CreateDeviceAuthChallengeResponseAsync(IDictionary<string, string> challengeData)
+        public static async Task<T> RunTaskAsync<T>(this CoreDispatcher dispatcher,
+            Func<Task<T>> func, CoreDispatcherPriority priority = CoreDispatcherPriority.Normal)
         {
-            throw new NotImplementedException();
+            var taskCompletionSource = new TaskCompletionSource<T>();
+            await dispatcher.RunAsync(priority, async () =>
+            {
+                try
+                {
+                    taskCompletionSource.SetResult(await func());
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                }
+            });
+            return await taskCompletionSource.Task;
         }
     }
 }

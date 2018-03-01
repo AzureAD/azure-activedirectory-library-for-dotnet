@@ -26,6 +26,7 @@
     <Reference Include="NSubstitute, Version=2.0.3.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NSubstitute.2.0.3\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
+    <Compile Include="..\..\GlobalSuppressions.cs" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
@@ -61,5 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\ConfigureAwait.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
   </ItemGroup>
 </Project>

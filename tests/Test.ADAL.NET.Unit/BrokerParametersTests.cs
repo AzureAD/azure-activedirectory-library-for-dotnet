@@ -83,7 +83,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
 
             Assert.AreEqual(acquireTokenInteractiveHandler.CallState.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual(AdalIdHelper.GetAssemblyFileVersion(), brokerParams[BrokerParameter.ClientVersion]);
             Assert.AreEqual("NO", brokerParams[BrokerParameter.Force]);
             Assert.AreEqual(string.Empty, brokerParams[BrokerParameter.Username]);
             Assert.AreEqual(UserIdentifierType.OptionalDisplayableId.ToString(), brokerParams[BrokerParameter.UsernameType]);
@@ -108,7 +108,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);
             Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
             Assert.AreEqual(acquireTokenSilentHandler.CallState.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual(AdalIdHelper.GetAssemblyFileVersion(), brokerParams[BrokerParameter.ClientVersion]);
             Assert.AreEqual(UniqueUserId, brokerParams[BrokerParameter.Username]);
             Assert.AreEqual(UserIdentifierType.UniqueId.ToString(), brokerParams[BrokerParameter.UsernameType]);
 

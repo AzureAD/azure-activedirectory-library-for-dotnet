@@ -27,6 +27,7 @@
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration;
