@@ -1,8 +1,5 @@
 clone_folder: c:\AADDotNetLib
 
-install:
-- ps: .\InstallAndroidSDK.ps1
-
 image: Visual Studio 2017
 
 configuration: Release

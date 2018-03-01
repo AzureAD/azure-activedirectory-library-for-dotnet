@@ -151,7 +151,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 }
 
                 //attempt device auth
-                return await HandleDeviceAuthChallenge<T>(ex.WebResponse).ConfigureAwait(false);
+                return await HandleDeviceAuthChallengeAsync<T>(ex.WebResponse).ConfigureAwait(false);
             }
             
             return typedResponse;
@@ -184,7 +184,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
             return data;
         }
 
-        private async Task<T> HandleDeviceAuthChallenge<T>(IHttpWebResponse response)
+        private async Task<T> HandleDeviceAuthChallengeAsync<T>(IHttpWebResponse response)
         {
             IDictionary<string, string> responseDictionary = this.ParseChallengeData(response);
 
@@ -193,7 +193,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 responseDictionary["SubmitUrl"] = RequestUri;
             }
 
-            string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponse(responseDictionary)
+            string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponseAsync(responseDictionary)
                 .ConfigureAwait(false);
             IRequestParameters rp = this.Client.BodyParameters;
             this.Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]),

@@ -30,6 +30,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Security.Authentication.Web;
+using Windows.ApplicationModel.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -71,22 +72,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             try
             {
-                if (ssoMode)
-                {
-                    webAuthenticationResult =
-                        await
-                            WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri)
-                                .AsTask()
-                                .ConfigureAwait(false);
-                }
-                else
-                {
-                    webAuthenticationResult =
-                        await
-                            WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri, redirectUri)
-                                .AsTask()
-                                .ConfigureAwait(false);
-                }
+                webAuthenticationResult = await CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(
+                    async () =>
+                    {
+                        if (ssoMode)
+                        {
+                            return await WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri)
+                            .AsTask()
+                            .ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return await WebAuthenticationBroker.AuthenticateAsync(options, authorizationUri, redirectUri)
+                            .AsTask()
+                            .ConfigureAwait(false);
+                        }
+                    }).ConfigureAwait(false);
             }
             catch (FileNotFoundException ex)
             {

@@ -72,7 +72,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         }
 
 
-        public async Task<AuthenticationResultEx> AcquireTokenUsingBroker(IDictionary<string, string> brokerPayload)
+        public async Task<AuthenticationResultEx> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
         {
             mBrokerProxy.CallState = CallState;
 

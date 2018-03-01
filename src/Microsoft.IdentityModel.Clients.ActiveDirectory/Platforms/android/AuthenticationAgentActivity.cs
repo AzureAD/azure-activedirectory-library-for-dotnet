@@ -38,7 +38,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     [Activity(Label = "Sign in")]
     [CLSCompliant(false)]
+#pragma warning disable CS3019 // CLS compliance checking will not be performed because it is not visible from outside this assembly
     internal class AuthenticationAgentActivity : Activity
+#pragma warning restore CS3019 // CLS compliance checking will not be performed because it is not visible from outside this assembly
     {
         private const string AboutBlankUri = "about:blank";
 
@@ -139,7 +141,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     }
 
                     Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
-                    string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
+                    string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponseAsync(keyPair).Result;
                     Dictionary<string, string> pkeyAuthEmptyResponse = new Dictionary<string, string>();
                     pkeyAuthEmptyResponse[BrokerConstants.ChallangeResponseHeader] = responseHeader;
                     view.LoadUrl(keyPair["SubmitUrl"], pkeyAuthEmptyResponse);

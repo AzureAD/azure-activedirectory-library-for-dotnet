@@ -72,7 +72,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserNoHashInCacheNoUsernamePassedInAssertionTest()
+        public async Task MultiUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -80,7 +80,7 @@ namespace Test.ADAL.NET.Unit
             foreach (var cachenoise in _cacheNoise)
             {
                 //cache entry has no user assertion hash
-                await context.TokenCache.StoreToCache(new AuthenticationResultEx
+                await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
                 {
                     RefreshToken = cachenoise + "some-rt",
                     ResourceInResponse = TestConstants.DefaultResource,
@@ -95,7 +95,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new CallState(new Guid()));
+                new CallState(new Guid())).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -117,7 +117,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -133,7 +133,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserNoHashInCacheMatchingUsernamePassedInAssertionTest()
+        public async Task MultiUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -141,7 +141,7 @@ namespace Test.ADAL.NET.Unit
             foreach (var cachenoise in _cacheNoise)
             {
                 //cache entry has no user assertion hash
-                await context.TokenCache.StoreToCache(new AuthenticationResultEx
+                await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
                 {
                     RefreshToken = cachenoise + "some-rt",
                     ResourceInResponse = TestConstants.DefaultResource,
@@ -156,7 +156,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new CallState(new Guid()));
+                new CallState(new Guid())).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -179,7 +179,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -195,7 +195,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserNoHashInCacheDifferentUsernamePassedInAssertionTest()
+        public async Task MultiUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -247,7 +247,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion(accessToken, OAuthGrantType.JwtBearer,
-                            "non-existant" + TestConstants.DefaultDisplayableId));
+                            "non-existant" + TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -264,7 +264,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserWithHashInCacheNoUsernameAndMatchingAssertionTest()
+        public async Task MultiUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -303,7 +303,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -314,7 +314,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserWithHashInCacheNoUsernameAndDifferentAssertionTest()
+        public async Task MultiUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -323,7 +323,7 @@ namespace Test.ADAL.NET.Unit
 
             foreach (var cachenoise in _cacheNoise)
             {
-                await context.TokenCache.StoreToCache(new AuthenticationResultEx
+                await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
                 {
                     RefreshToken = cachenoise + "some-rt",
                     ResourceInResponse = TestConstants.DefaultResource,
@@ -340,7 +340,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = CryptographyHelper.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new CallState(new Guid()));
+                new CallState(new Guid())).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -363,7 +363,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion("non-existant" + accessToken));
+                        new UserAssertion("non-existant" + accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -376,7 +376,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserWithHashInCacheMatchingUsernameAndMatchingAssertionTest()
+        public async Task MultiUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -414,7 +414,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -429,7 +429,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task MultiUserWithHashInCacheMatchingUsernameAndDifferentAssertionTest()
+        public async Task MultiUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -437,7 +437,7 @@ namespace Test.ADAL.NET.Unit
             string tokenInCache = "obo-access-token";
             foreach (var cachenoise in _cacheNoise)
             {
-                await context.TokenCache.StoreToCache(new AuthenticationResultEx
+                await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
                 {
                     RefreshToken = cachenoise + "some-rt",
                     ResourceInResponse = TestConstants.DefaultResource,
@@ -454,7 +454,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = CryptographyHelper.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-                new CallState(new Guid()));
+                new CallState(new Guid())).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -478,7 +478,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer,
-                            TestConstants.DefaultDisplayableId));
+                            TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -490,11 +490,11 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserNoHashInCacheNoUsernamePassedInAssertionTest()
+        public async Task SingleUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
-            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
@@ -510,7 +510,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -531,7 +531,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -547,11 +547,11 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserNoHashInCacheMatchingUsernamePassedInAssertionTest()
+        public async Task SingleUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
-            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
@@ -567,7 +567,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -589,7 +589,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -605,7 +605,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserNoHashInCacheDifferentUsernamePassedInAssertionTest()
+        public async Task SingleUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -653,7 +653,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion(accessToken, OAuthGrantType.JwtBearer, displayableId2
-                            ));
+                            )).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -671,7 +671,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserWithHashInCacheNoUsernameAndMatchingAssertionTest()
+        public async Task SingleUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -706,7 +706,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -721,12 +721,12 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserWithHashInCacheNoUsernameAndDifferentAssertionTest()
+        public async Task SingleUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
             string tokenInCache = "obo-access-token";
-            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
@@ -743,7 +743,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = CryptographyHelper.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -765,7 +765,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -782,7 +782,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionTest()
+        public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -817,7 +817,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -832,12 +832,12 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserWithHashInCacheMatchingUsernameAndDifferentAssertionTest()
+        public async Task SingleUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
             string tokenInCache = "obo-access-token";
-            await context.TokenCache.StoreToCache(new AuthenticationResultEx
+            await context.TokenCache.StoreToCacheAsync(new AuthenticationResultEx
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = TestConstants.DefaultResource,
@@ -854,7 +854,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = CryptographyHelper.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new CallState(new Guid()));
+            new CallState(new Guid())).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -876,7 +876,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -892,7 +892,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
-        public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionDifferentResourceTest()
+        public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionDifferentResourceTestAsync()
         {
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, new TokenCache());
             string accessToken = "access-token";
@@ -938,7 +938,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
