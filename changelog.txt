@@ -1,3 +1,8 @@
+Version 3.19.2
+==============
+This hotfix release includes:
+- Fix for an issue with web UI failure on UWP platform
+
 Version 3.19.1
 ==============
 This hotfix release includes:
