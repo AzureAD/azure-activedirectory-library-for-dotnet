@@ -1,3 +1,5 @@
+Sonarqube PR Test
+
 Version 3.19.2
 ==============
 This hotfix release includes:
