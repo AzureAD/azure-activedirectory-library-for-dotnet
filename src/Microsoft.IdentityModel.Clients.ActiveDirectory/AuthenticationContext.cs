@@ -766,6 +766,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 .ConfigureAwait(false);
         }
 
+#if !(ANDROID || iOS || WINDOWS_APP)
         /// <summary>
         /// Acquires a security token from the authority while enabling simplified Azure AD certificate roll-over.
         /// IMPORTANT: this flow isn’t enabled on the service at the time of this SDK release (ADAL.Net 3.19).
@@ -778,7 +779,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or powershell/CLI operation)</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
-#if !(ANDROID || iOS || WINDOWS_APP)
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, bool sendX5c)
         {
