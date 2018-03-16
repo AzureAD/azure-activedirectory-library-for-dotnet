@@ -199,7 +199,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = this.TokenCache,
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
                 Resource = deviceCodeResult.Resource,
-                ClientKey = new ClientKey(deviceCodeResult.ClientId)
+                ClientKey = new ClientKey(deviceCodeResult.ClientId),
+                CorrelationId = deviceCodeResult.CorrelationId
             };
 
             var handler = new AcquireTokenByDeviceCodeHandler(requestData, deviceCodeResult);
