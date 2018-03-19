@@ -29,7 +29,11 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -59,7 +63,8 @@ namespace Test.ADAL.NET.Unit
                 Interval = 5,
                 Message = "get token here",
                 UserCode = "user-code",
-                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token"
+                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token",
+                CorrelationId = TestConstants.CorrelationId
             };
 
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
@@ -90,6 +95,36 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
+        }
+
+        [TestMethod]
+        public void CorrelationIdTest()
+        {
+            DeviceCodeResult dcr = new DeviceCodeResult()
+            {
+                ClientId = TestConstants.DefaultClientId,
+                Resource = TestConstants.DefaultResource,
+                DeviceCode = "device-code",
+                ExpiresOn = (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10)),
+                Interval = 5,
+                Message = "get token here",
+                UserCode = "user-code",
+                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token",
+                CorrelationId = TestConstants.CorrelationId
+            };
+
+            RequestData requestData = new RequestData
+            {
+                Authenticator = new Authenticator(TestConstants.DefaultAuthorityHomeTenant, false),
+                TokenCache = new TokenCache(),
+                ExtendedLifeTimeEnabled = false,
+                Resource = dcr.Resource,
+                ClientKey = new ClientKey(TestConstants.DefaultClientId),
+                CorrelationId = dcr.CorrelationId
+            };
+
+            var handler = new AcquireTokenByDeviceCodeHandler(requestData, dcr);
+            Assert.AreEqual(TestConstants.CorrelationId, handler.CallState.CorrelationId);
         }
     }
 }
