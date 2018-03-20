@@ -50,5 +50,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         public bool ExtendedLifeTimeEnabled { get; set; }
 
+        public Guid CorrelationId { get; set; }
     }
 }

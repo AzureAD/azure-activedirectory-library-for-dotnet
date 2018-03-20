@@ -59,6 +59,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         [DataMember(Name = "error_description", IsRequired = false)]
         public string ErrorDescription { get; internal set; }
 
+        [DataMember(Name = "client-request-id", IsRequired =false)]
+        public Guid CorrelationId { get; internal set; }
+
         public DeviceCodeResult GetResult(string clientId, string resource)
         {
             return new DeviceCodeResult()
@@ -70,7 +73,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 Interval = this.Interval,
                 VerificationUrl = this.VerificationUrl,
                 ClientId = clientId,
-                Resource = resource
+                Resource = resource,
+                CorrelationId = this.CorrelationId
             };
         }
     }
