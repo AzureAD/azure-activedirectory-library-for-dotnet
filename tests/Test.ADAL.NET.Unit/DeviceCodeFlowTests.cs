@@ -98,6 +98,7 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
+        [Description("Test CorrelationId is being correctly set")]
         public void CorrelationIdTest()
         {
             DeviceCodeResult dcr = new DeviceCodeResult()
@@ -113,7 +114,7 @@ namespace Test.ADAL.NET.Unit
                 CorrelationId = TestConstants.CorrelationId
             };
 
-            RequestData requestData = new RequestData
+            RequestData deviceCodeRd = new RequestData
             {
                 Authenticator = new Authenticator(TestConstants.DefaultAuthorityHomeTenant, false),
                 TokenCache = new TokenCache(),
@@ -123,8 +124,30 @@ namespace Test.ADAL.NET.Unit
                 CorrelationId = dcr.CorrelationId
             };
 
-            var handler = new AcquireTokenByDeviceCodeHandler(requestData, dcr);
-            Assert.AreEqual(TestConstants.CorrelationId, handler.CallState.CorrelationId);
-        }
+            RequestData nonDeviceCodeRd = new RequestData
+            {
+                Authenticator = new Authenticator(TestConstants.DefaultAuthorityHomeTenant, false),
+                TokenCache = new TokenCache(),
+                ExtendedLifeTimeEnabled = false,
+                Resource = TestConstants.DefaultResource,
+                ClientKey = new ClientKey(TestConstants.DefaultClientId),
+            };
+
+            UserIdentifier testUser = new UserIdentifier("user-id", UserIdentifierType.UniqueId);
+
+            var deviceCodehandler = new AcquireTokenByDeviceCodeHandler(deviceCodeRd, dcr);
+            var authCodeHandler = new AcquireTokenByAuthorizationCodeHandler(nonDeviceCodeRd, "auth-code", TestConstants.DefaultRedirectUri);
+            var interactiveHandler = new AcquireTokenInteractiveHandler(nonDeviceCodeRd, TestConstants.DefaultRedirectUri, null, testUser, null, null, null);
+            var nonInteractiveHandler = new AcquireTokenNonInteractiveHandler(nonDeviceCodeRd, new UserCredential("password"));
+            var oboHandler = new AcquireTokenOnBehalfHandler(nonDeviceCodeRd, new UserAssertion("jwt-token"));
+            var silentHandler = new AcquireTokenSilentHandler(nonDeviceCodeRd, testUser, null);
+
+            Assert.AreEqual(TestConstants.CorrelationId, deviceCodehandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, authCodeHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, interactiveHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, nonInteractiveHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, oboHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, silentHandler.CallState.CorrelationId);
+        } 
     }
 }
