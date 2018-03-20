@@ -98,7 +98,7 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test CorrelationId is being correctly set")]
+        [Description("Test CorrelationId is being correctly set correctly")]
         public void CorrelationIdTest()
         {
             DeviceCodeResult dcr = new DeviceCodeResult()
