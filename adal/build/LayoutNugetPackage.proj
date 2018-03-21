@@ -199,16 +199,16 @@
     <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(_PackToFolder)" />
 
     <!-- Copy the platform-ADAL.Net binary to the portable platform -->
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" />
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" />
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.xml" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" Condition="$(CopyXmlDocFiles)=='true'" />
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" />
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" />
-    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml" DestinationFolder="$(_PackToFolder)\lib\portable-net45+win" Condition="$(CopyXmlDocFiles)=='true'" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.xml" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" Condition="$(CopyXmlDocFiles)=='true'" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" />
+    <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml" DestinationFolder="$(_PackToFolder)\adal\lib\portable-net45+win" Condition="$(CopyXmlDocFiles)=='true'" />
 
 
     <!-- Copy the platform-specifc ADAL.Net binaries to the appropriate target platform folder -->
-    <Copy SourceFiles="%(SourceFile.Identity)" DestinationFolder="$(_PackToFolder)\lib\%(SourceFile.TargetFolder)" />
+    <Copy SourceFiles="%(SourceFile.Identity)" DestinationFolder="$(_PackToFolder)\adal\lib\%(SourceFile.TargetFolder)" />
 
     <!-- Copy the source files -->
     <!-- Note: we are copying the sources to "src\src" because NuGet expects the files to be under a folder called
