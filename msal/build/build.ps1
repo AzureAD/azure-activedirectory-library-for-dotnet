@@ -31,18 +31,18 @@ if ($isAppVeyor)
 
 # Restoring the test project will restore the product project packages too
 Log ("Restoring NuGet packages...")
-msbuild "$sourcePath\msal\tests\Test.MSAL.NET.Unit\Test.MSAL.NET.Unit.csproj" /m /t:restore /p:Configuration=$configuration $appVeyorLogger
+msbuild "$sourcePath\tests\Test.MSAL.NET.Unit\Test.MSAL.NET.Unit.csproj" /m /t:restore /p:Configuration=$configuration $appVeyorLogger
 ExitOnError
 
 Log ("Building product code...")
-msbuild "$sourcePath\msal\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" /m /t:build /p:Configuration=$configuration /p:TreatWarningsAsErrors=true $appVeyorLogger
+msbuild "$sourcePath\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" /m /t:build /p:Configuration=$configuration /p:TreatWarningsAsErrors=true $appVeyorLogger
 ExitOnError
 
 Log("Building tests...")
-msbuild "$sourcePath\msal\tests\Test.MSAL.NET.Unit\Test.MSAL.NET.Unit.csproj" /m /t:build /p:Configuration=$configuration /p:TreatWarningsAsErrors=true $appVeyorLogger
+msbuild "$sourcePath\tests\Test.MSAL.NET.Unit\Test.MSAL.NET.Unit.csproj" /m /t:build /p:Configuration=$configuration /p:TreatWarningsAsErrors=true $appVeyorLogger
 ExitOnError
 
 
 #Log("Building Packages")
-#msbuild "$sourcePath\msal\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" /t:pack /p:Configuration=$configuration /p:PackageOutputPath=$artifacts /p:NoPackageAnalysis=true /p:NuGetBuildTasksPackTargets="workaround" $appVeyorLogger
+#msbuild "$sourcePath\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" /t:pack /p:Configuration=$configuration /p:PackageOutputPath=$artifacts /p:NoPackageAnalysis=true /p:NuGetBuildTasksPackTargets="workaround" $appVeyorLogger
 #ExitOnError
