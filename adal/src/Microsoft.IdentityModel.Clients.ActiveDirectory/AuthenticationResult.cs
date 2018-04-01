@@ -40,6 +40,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string Oauth2AuthorizationHeader = "Bearer ";
         private readonly AdalResult _adalResult;
 
+        /// <summary>
+        /// Creates result returned from AcquireToken.
+        /// </summary>
         internal AuthenticationResult(AdalResult adalResult)
         {
             if (adalResult == null)
