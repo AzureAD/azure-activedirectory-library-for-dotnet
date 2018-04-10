@@ -25,9 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Globalization;
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class Logger : LoggerBase
@@ -41,12 +38,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         internal override void DefaultLog(LogLevel logLevel, string message)
         {
-#if NETSTANDARD1_3
-
-            Console.WriteLine(message);
-#else
             AdalEventSource.Error(message);
-#endif
         }
     }
 }
