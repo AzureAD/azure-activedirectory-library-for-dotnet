@@ -57,6 +57,7 @@ namespace Test.ADAL.NET.Common
         public static readonly string TokenEndPoint = "oauth2/token";
         public static readonly string UserRealmEndPoint = "userrealm";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
+        public static readonly Guid CorrelationId = new Guid("8efe4c4f-ec26-4044-b9e3-ab8cea76c418");
 
         public static string GetTokenEndpoint(string Authority)
         {

@@ -29,7 +29,11 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -59,7 +63,8 @@ namespace Test.ADAL.NET.Unit
                 Interval = 5,
                 Message = "get token here",
                 UserCode = "user-code",
-                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token"
+                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token",
+                CorrelationId = TestConstants.CorrelationId
             };
 
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
@@ -91,5 +96,58 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
         }
+
+        [TestMethod]
+        [Description("Test CorrelationId is being correctly set correctly")]
+        public void CorrelationIdTest()
+        {
+            DeviceCodeResult dcr = new DeviceCodeResult()
+            {
+                ClientId = TestConstants.DefaultClientId,
+                Resource = TestConstants.DefaultResource,
+                DeviceCode = "device-code",
+                ExpiresOn = (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10)),
+                Interval = 5,
+                Message = "get token here",
+                UserCode = "user-code",
+                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token",
+                CorrelationId = TestConstants.CorrelationId
+            };
+
+            RequestData deviceCodeRd = new RequestData
+            {
+                Authenticator = new Authenticator(TestConstants.DefaultAuthorityHomeTenant, false),
+                TokenCache = new TokenCache(),
+                ExtendedLifeTimeEnabled = false,
+                Resource = dcr.Resource,
+                ClientKey = new ClientKey(TestConstants.DefaultClientId),
+                CorrelationId = dcr.CorrelationId
+            };
+
+            RequestData nonDeviceCodeRd = new RequestData
+            {
+                Authenticator = new Authenticator(TestConstants.DefaultAuthorityHomeTenant, false),
+                TokenCache = new TokenCache(),
+                ExtendedLifeTimeEnabled = false,
+                Resource = TestConstants.DefaultResource,
+                ClientKey = new ClientKey(TestConstants.DefaultClientId),
+            };
+
+            UserIdentifier testUser = new UserIdentifier("user-id", UserIdentifierType.UniqueId);
+
+            var deviceCodehandler = new AcquireTokenByDeviceCodeHandler(deviceCodeRd, dcr);
+            var authCodeHandler = new AcquireTokenByAuthorizationCodeHandler(nonDeviceCodeRd, "auth-code", TestConstants.DefaultRedirectUri);
+            var interactiveHandler = new AcquireTokenInteractiveHandler(nonDeviceCodeRd, TestConstants.DefaultRedirectUri, null, testUser, null, null, null);
+            var nonInteractiveHandler = new AcquireTokenNonInteractiveHandler(nonDeviceCodeRd, new UserCredential("password"));
+            var oboHandler = new AcquireTokenOnBehalfHandler(nonDeviceCodeRd, new UserAssertion("jwt-token"));
+            var silentHandler = new AcquireTokenSilentHandler(nonDeviceCodeRd, testUser, null);
+
+            Assert.AreEqual(TestConstants.CorrelationId, deviceCodehandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, authCodeHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, interactiveHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, nonInteractiveHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, oboHandler.CallState.CorrelationId);
+            Assert.AreNotEqual(TestConstants.CorrelationId, silentHandler.CallState.CorrelationId);
+        } 
     }
 }

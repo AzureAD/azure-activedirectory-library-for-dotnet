@@ -77,5 +77,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Identifier of the target resource that would be the recipient of the token.
         /// </summary>
         public string Resource { get; internal set; }
+
+        /// <summary>
+        /// Identifier of the correlation id. Used in diagnostic purposes.
+        /// </summary>
+        public Guid CorrelationId { get; internal set; }
     }
 }

@@ -54,7 +54,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
             this.Authenticator = requestData.Authenticator;
-            this.CallState = CreateCallState(this.Authenticator.CorrelationId);
+            this.CallState = CreateCallState(requestData.CorrelationId != Guid.Empty
+                ? requestData.CorrelationId 
+                : this.Authenticator.CorrelationId);
             brokerHelper.CallState = this.CallState;
 
             var msg = string.Format(CultureInfo.CurrentCulture,
