@@ -1,3 +1,8 @@
+Version 3.19.3
+==============
+This hotfix release includes:
+- Fix for an issue with CoreCLR library writing to console by default (#1028)
+
 Version 3.19.2
 ==============
 This hotfix release includes:
