@@ -30,6 +30,8 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -136,9 +138,19 @@ namespace Test.ADAL.NET.Common.Mocks
                 extendedExpiresIn = "\"ext_expires_in\":\"7200\",";
             }
 
-            HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\",\"refresh_token\":\"something-encrypted\",\"id_token\":\"" +
-                                  CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) +
-                                  "\"}");
+            var clientInfo = new ClientInfo
+            {
+                UniqueIdentifier = TestConstants.DefaultUniqueIdentifier,
+                UniqueTenantIdentifier = TestConstants.DefaultUniqueTenantIdentifier
+            };
+            var base64EncodedSerializedClientInfo = Base64UrlEncoder.Encode(Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers.JsonHelper.EncodeToJson<ClientInfo>(clientInfo));
+
+
+            HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\"," +
+                                                    "\"refresh_token\":\"" + TestConstants.DefaultRefreshTokenValue + "\",\"id_token\":\"" +
+                                  CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) + "\"," +
+                                  "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
+
             responseMessage.Content = content;
             return responseMessage;
         }

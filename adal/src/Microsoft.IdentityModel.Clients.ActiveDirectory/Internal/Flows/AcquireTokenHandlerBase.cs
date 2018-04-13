@@ -31,6 +31,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -315,7 +316,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
-            var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
+            var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey)
+            {
+                { OAuth2Parameter.ClientInfo, "1" }
+            };
             this.AddAditionalRequestParameters(requestParameters);
             return await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }
