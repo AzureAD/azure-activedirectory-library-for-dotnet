@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,25 +25,26 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core.UI;
-
-namespace Microsoft.Identity.Client.Internal.UI
+namespace Microsoft.Identity.Core.Platforms.iOS
 {
-    internal class InteractiveWebUI : WebUI
+    internal class CoreBrokerConstants
     {
-        private WindowsFormsWebAuthenticationDialog dialog;
+        public const string ChallengeResponseHeader = "Authorization";
 
-        protected override AuthorizationResult OnAuthenticate()
-        {
-            AuthorizationResult result;
+        public const string ChallengeResponseType = "PKeyAuth";
 
-            using (dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow) {RequestContext = this.RequestContext})
-            {
-                result = dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
-            }
+        public const string ChallengeResponseToken = "AuthToken";
 
-            return result;
-        }
+        public const string ChallengeResponseContext = "Context";
+
+        public const string ChallengeResponseVersion = "Version";
+
+        public const string BrowserExtPrefix = "browser://";
+
+        public const string BrowserExtInstallPrefix = "msauth://";
+
+        public const string DeviceAuthChallengeRedirect = "urn:http-auth:PKeyAuth";
+        public const string ChallengeHeaderKey = "x-ms-PKeyAuth";
+        public const string ChallengeHeaderValue = "1.0";
     }
 }

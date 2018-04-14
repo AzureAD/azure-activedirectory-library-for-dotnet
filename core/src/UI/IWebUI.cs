@@ -25,12 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Client.Internal.Interfaces
+namespace Microsoft.Identity.Core.UI
 {
-    internal interface IWebUIFactory
+    internal interface IWebUI
     {
-        IWebUI CreateAuthenticationDialog(UIParent parent, RequestContext requestContext);
+        Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
     }
 }

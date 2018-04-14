@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,18 +25,14 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core;
+using UIKit;
 
-namespace Microsoft.Identity.Client.Internal.Interfaces
-{
-    internal interface IWebUI
+namespace Microsoft.Identity.Core.Platforms.iOS
+{ 
+    internal abstract class CoreAuthenticationAgentUINavigationController : UINavigationController
     {
-        RequestContext RequestContext { get; set; }
-
-        Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
+        public CoreAuthenticationAgentUINavigationController()
+        {
+        }
     }
 }

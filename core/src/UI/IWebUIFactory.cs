@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,25 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core.UI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Client.Internal.UI
+namespace Microsoft.Identity.Core.UI
 {
-    internal class InteractiveWebUI : WebUI
+    internal interface IWebUIFactory
     {
-        private WindowsFormsWebAuthenticationDialog dialog;
-
-        protected override AuthorizationResult OnAuthenticate()
-        {
-            AuthorizationResult result;
-
-            using (dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow) {RequestContext = this.RequestContext})
-            {
-                result = dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
-            }
-
-            return result;
-        }
+        IWebUI CreateAuthenticationDialog(CoreUIParent coreUIParent, RequestContext requestContext);
     }
 }

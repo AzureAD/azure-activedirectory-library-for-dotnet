@@ -1,5 +1,4 @@
-﻿//----------------------------------------------------------------------
-//
+﻿//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -25,21 +24,24 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Client.Internal.Interfaces;
-using Microsoft.Identity.Core;
+using System;
+using System.Collections.Generic;
+using CoreFoundation;
+using Foundation;
+using Microsoft.Identity.Core.Helpers;
+using UIKit;
 
-namespace Microsoft.Identity.Client.Internal.UI
+namespace Microsoft.Identity.Core.Platforms.iOS
 {
-    [Android.Runtime.Preserve(AllMembers = true)]
-    internal class WebUIFactory : IWebUIFactory
+    internal abstract class CoreAuthenticationAgentUIViewController : UIViewController
     {
-        public IWebUI CreateAuthenticationDialog(UIParent parent, RequestContext requestContext)
+        public CoreAuthenticationAgentUIViewController()
+        {}
+
+        private void CancelAuthentication(object sender, EventArgs e)
         {
-            return new WebUI(parent)
-            {
-                RequestContext = requestContext
-            };
+           // callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
+            this.DismissViewController(true, null);
         }
     }
 }
