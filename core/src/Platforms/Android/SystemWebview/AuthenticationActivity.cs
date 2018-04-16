@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
@@ -33,10 +32,8 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Support.CustomTabs;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
-using Microsoft.Identity.Core.UI.SystemWebview;
 using Uri = Android.Net.Uri;
 
 namespace Microsoft.Identity.Core.UI.SystemWebview

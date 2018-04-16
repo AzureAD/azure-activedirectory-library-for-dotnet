@@ -29,7 +29,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Net;
 using Microsoft.Identity.Client;
 using Uri = System.Uri;
 

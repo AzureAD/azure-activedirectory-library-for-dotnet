@@ -34,10 +34,8 @@ namespace Microsoft.Identity.Core.UI
 {
     internal class CoreUIParent
     {
-
         public CoreUIParent()
         {
-
         }
 
 #if ANDROID || IOS
@@ -82,6 +80,5 @@ namespace Microsoft.Identity.Core.UI
             OwnerWindow = ownerWindow;
         }
 #endif
-
     }
 }
