@@ -60,7 +60,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         private string _requestUrl;
         private int _requestId;
         private bool _restarted;
-        // private CustomTabsActivityManager _customTabsActivityManager;
 
         /// <summary>
         /// </summary>
