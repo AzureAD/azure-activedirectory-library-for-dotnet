@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Client.Internal
             CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
             IWebUIFactory obj = null;
 #if ANDROID
-obj = new Microsoft.Identity.Core.UI.WebUIFactory();
+            obj = new Microsoft.Identity.Core.UI.WebUIFactory();
 #else
             obj = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
 #endif
