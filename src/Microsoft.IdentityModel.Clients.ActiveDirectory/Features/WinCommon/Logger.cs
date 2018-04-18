@@ -38,13 +38,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         internal override void DefaultLog(LogLevel logLevel, string message)
         {
-            if (logLevel == LogLevel.Information)
-            {
-                AdalEventSource.Information(message);
-            }
-            else if (logLevel == LogLevel.Verbose)
+            if (logLevel == LogLevel.Verbose)
             {
                 AdalEventSource.Verbose(message);
+            }
+            else if (logLevel == LogLevel.Information)
+            {
+                AdalEventSource.Information(message);
             }
             else if (logLevel == LogLevel.Warning)
             {
