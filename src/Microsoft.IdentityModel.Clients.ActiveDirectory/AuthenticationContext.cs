@@ -682,6 +682,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 new ClientKey(clientCertificate, Authenticator), resource).ConfigureAwait(false);
         }
 
+#if !(ANDROID || iOS || WINDOWS_APP)
+        /// <summary>
+        /// Acquires security token from the authority using an authorization code previously received.
+        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
+        /// </summary>
+        /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
+        /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token. It can be null if provided earlier to acquire authorizationCode.</param>
+        /// <param name="sendX5c">This parameter enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
+        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via portal or powershell/CLI operation)</param>
+        /// <returns>It contains Access Token, its expiration time, user information.</returns>
+        public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
+            Uri redirectUri, IClientAssertionCertificate clientCertificate, string resource, bool sendX5c)
+        {
+            return await AcquireTokenByAuthorizationCodeCommonAsync(authorizationCode, redirectUri,
+                new ClientKey(clientCertificate, Authenticator) { SendX5c = sendX5c }, resource).ConfigureAwait(false);
+        }
+#endif
+
         /// <summary>
         /// Acquires an access token from the authority on behalf of a user. It requires using a user token previously received.
         /// </summary>
