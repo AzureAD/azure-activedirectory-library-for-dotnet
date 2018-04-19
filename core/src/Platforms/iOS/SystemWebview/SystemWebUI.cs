@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,27 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Foundation;
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.UI;
+using System;
+using System.Threading.Tasks;
 using SafariServices;
 using UIKit;
+using System.Threading;
+using Microsoft.Identity.Client;
 
-namespace Microsoft.Identity.Client
+namespace Microsoft.Identity.Core.UI.SystemWebview
 {
-    internal class WebUI : NSObject, IWebUI, ISFSafariViewControllerDelegate
+    internal class SystemWebUI : WebviewBase
     {
-        private static SemaphoreSlim returnedUriReady;
-        private static AuthorizationResult authorizationResult;
-        private SFSafariViewController safariViewController;
-        
         public RequestContext RequestContext { get; set; }
 
-        public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
+        public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
             UIViewController vc = null;
@@ -53,13 +47,14 @@ namespace Microsoft.Identity.Client
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
                 vc = FindCurrentViewController(window.RootViewController);
             });
-            
+
             returnedUriReady = new SemaphoreSlim(0);
             Authenticate(authorizationUri, redirectUri, vc, requestContext);
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
             //dismiss safariviewcontroller
             vc.InvokeOnMainThread(() =>
-            { safariViewController.DismissViewController(false, null);
+            {
+                safariViewController.DismissViewController(false, null);
             });
 
             return authorizationResult;
@@ -96,7 +91,7 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        [Foundation.Export("safariViewControllerDidFinish:")]
+        [Export("safariViewControllerDidFinish:")]
         public void DidFinish(SFSafariViewController controller)
         {
             controller.DismissViewController(true, null);
@@ -130,6 +125,6 @@ namespace Microsoft.Identity.Client
                 return rootViewController;
             }
         }
-
     }
 }
+
