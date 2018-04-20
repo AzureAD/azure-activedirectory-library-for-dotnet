@@ -152,8 +152,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private void CancelAuthentication(object sender, EventArgs e)
         {
+            callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
             this.DismissViewController(true, null);
-            callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));            
         }
 
         public override void DismissViewController(bool animated, Action completionHandler)
