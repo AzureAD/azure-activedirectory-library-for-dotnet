@@ -57,6 +57,8 @@ namespace Test.ADAL.NET.Common
         public static readonly string TokenEndPoint = "oauth2/token";
         public static readonly string UserRealmEndPoint = "userrealm";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
+        public static readonly string DefaultAuthorizationCode = "AwABAAAAvPM1KaPlrEqdFSBzjqfTGBCmLdgfSTLEMPGYuNHSUYBrqqf_ZT_p5uEAEJJ_nZ3UmphWygRNy2C3jJ239gV_DBnZ2syeg95Ki-374WHUP-i3yIhv5i-7KU2CEoPXwURQp6IVYMw-DjAOzn7C3JCu5wpngXmbZKtJdWmiBzHpcO2aICJPu1KvJrDLDP20chJBXzVYJtkfjviLNNW7l7Y3ydcHDsBRKZc3GuMQanmcghXPyoDg41g8XbwPudVh7uCmUponBQpIhbuffFP_tbV8SNzsPoFz9CLpBCZagJVXeqWoYMPe2dSsPiLO9Alf_YIe5zpi-zY4C3aLw5g9at35eZTfNd0gBRpR5ojkMIcZZ6IgAA";
+        public static readonly Guid CorrelationId = new Guid("8efe4c4f-ec26-4044-b9e3-ab8cea76c418");
 
         public static string GetTokenEndpoint(string Authority)
         {
