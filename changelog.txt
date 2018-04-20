@@ -1,3 +1,9 @@
+Version 3.19.4
+==============
+This hotfix release includes:
+- X5c claim added to AcquireTokenByAuthorizationCodeAsync for easy certificate rollover (#1043)
+- Filter logs for AdalEventSource based on log level in default log (#1039)
+
 Version 3.19.3
 ==============
 This hotfix release includes:
