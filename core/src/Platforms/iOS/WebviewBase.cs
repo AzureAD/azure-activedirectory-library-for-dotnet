@@ -39,5 +39,17 @@ namespace Microsoft.Identity.Core.UI
 
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext);
+
+        public static bool ContinueAuthentication(string url)
+        {
+            if (returnedUriReady == null)
+            {
+                return false;
+            }
+
+            authorizationResult = new AuthorizationResult(AuthorizationStatus.Success, url);
+            returnedUriReady.Release();
+            return true;
+        }
     }
 }

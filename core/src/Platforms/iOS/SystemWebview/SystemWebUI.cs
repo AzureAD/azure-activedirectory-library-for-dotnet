@@ -43,7 +43,8 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             RequestContext requestContext)
         {
             UIViewController vc = null;
-            InvokeOnMainThread(() => {
+            InvokeOnMainThread(() =>
+            {
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
                 vc = FindCurrentViewController(window.RootViewController);
             });
@@ -58,18 +59,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             });
 
             return authorizationResult;
-        }
-
-        public static bool ContinueAuthentication(string url)
-        {
-            if (returnedUriReady == null)
-            {
-                return false;
-            }
-
-            authorizationResult = new AuthorizationResult(AuthorizationStatus.Success, url);
-            returnedUriReady.Release();
-            return true;
         }
 
         public void Authenticate(Uri authorizationUri, Uri redirectUri, UIViewController vc, RequestContext requestContext)
