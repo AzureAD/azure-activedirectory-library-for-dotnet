@@ -36,7 +36,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -47,6 +46,7 @@ using Test.ADAL.Common.Unit;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+using Microsoft.Identity.Core.UI;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -62,7 +62,7 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
             HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
-            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto);
         }
 
         [TestMethod]

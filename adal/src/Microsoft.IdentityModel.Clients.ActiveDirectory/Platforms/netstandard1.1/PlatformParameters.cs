@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,14 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    interface IWebUI
+    /// <summary>
+    /// Additional parameters used in acquiring user's authorization
+    /// </summary>
+    public class PlatformParameters : IPlatformParameters
     {
-        Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
+        internal CoreUIParent GetCoreUIParent()
+        {
+            return new CoreUIParent();
+        }
     }
 }

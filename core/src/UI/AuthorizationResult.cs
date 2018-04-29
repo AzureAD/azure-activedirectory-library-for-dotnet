@@ -77,6 +77,8 @@ namespace Microsoft.Identity.Core.UI
         
         public string State { get; set; }
 
+        public string CloudInstanceHost { get; set; }
+
         public void ParseAuthorizeResponse(string webAuthenticationResult)
         {
             var resultUri = new Uri(webAuthenticationResult);

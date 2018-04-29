@@ -36,6 +36,7 @@ namespace Microsoft.Identity.Core.UI
         protected static SemaphoreSlim returnedUriReady;
         protected static AuthorizationResult authorizationResult;
         protected SFSafariViewController safariViewController;
+        //protected static PlatformParameters parameters;
 
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext);

@@ -29,6 +29,7 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.UI;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
@@ -224,7 +225,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return await this.AcquireTokenWithClaimsCommonAsync(resource, new ClientKey(clientId), redirectUri,
                     parameters,
-                    userId, extraQueryParameters, this.CreateWebAuthenticationDialog(parameters), claims)
+                    userId, extraQueryParameters, this.CreateWebAuthenticationDialog((PlatformParameters)parameters), claims)
                 .ConfigureAwait(false);
         }
 
@@ -407,9 +408,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
-        internal IWebUI CreateWebAuthenticationDialog(IPlatformParameters parameters)
+        internal IWebUI CreateWebAuthenticationDialog(PlatformParameters parameters)
         {
-            return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters);
+            return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters.GetCoreUIParent(), null);
         }
 
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
@@ -455,7 +456,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
             };
             var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
-                extraQueryParameters, this.CreateWebAuthenticationDialog(parameters), claims);
+                extraQueryParameters, this.CreateWebAuthenticationDialog((PlatformParameters)parameters), claims);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

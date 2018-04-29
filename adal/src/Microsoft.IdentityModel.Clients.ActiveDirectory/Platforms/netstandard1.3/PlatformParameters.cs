@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.UI;
+
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
@@ -32,5 +34,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public class PlatformParameters : IPlatformParameters
     {
+        internal CoreUIParent GetCoreUIParent()
+        {
+            return new CoreUIParent();
+        }
     }
 }

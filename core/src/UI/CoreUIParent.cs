@@ -29,6 +29,9 @@
 using System;
 using Android.App;
 #endif
+#if iOS
+using UIKit;
+#endif
 
 namespace Microsoft.Identity.Core.UI
 {
@@ -40,6 +43,37 @@ namespace Microsoft.Identity.Core.UI
 
 #if ANDROID || iOS
         internal bool UseEmbeddedWebview { get; set; }
+#endif
+
+#if iOS
+        /// <summary>
+        /// Caller UIViewController
+        /// </summary>
+        public UIViewController CallerViewController { get; set; }
+
+        /// <summary>
+        /// Sets the preferred status bar style for the login form view controller presented
+        /// </summary>
+        /// <value>The preferred status bar style.</value>
+        public UIStatusBarStyle PreferredStatusBarStyle { get; set; }
+
+        /// <summary>
+        /// Set the transition style used when the login form view is presented
+        /// </summary>
+        /// <value>The modal transition style.</value>
+        public UIModalTransitionStyle ModalTransitionStyle { get; set; }
+
+        /// <summary>
+        /// Sets the presentation style used when the login form view is presented
+        /// </summary>
+        /// <value>The modal presentation style.</value>
+        public UIModalPresentationStyle ModalPresentationStyle { get; set; }
+
+        /// <summary>
+        /// Sets a custom transitioning delegate to the login form view controller
+        /// </summary>
+        /// <value>The transitioning delegate.</value>
+        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
 #endif
 
 #if ANDROID
@@ -57,6 +91,11 @@ namespace Microsoft.Identity.Core.UI
            
             Activity = activity;
         }
+
+        /// <summary>
+        /// Caller Android Activity
+        /// </summary>
+        public Activity CallerActivity { get; set; }
 #endif
 
 #if DESKTOP || WINDOWS_APP

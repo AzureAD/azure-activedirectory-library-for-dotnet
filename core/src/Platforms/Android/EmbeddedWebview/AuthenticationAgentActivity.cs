@@ -32,10 +32,10 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Webkit;
-using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.Identity.Core.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
     [Activity(Label = "Sign in")]
     [CLSCompliant(false)]
@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     {
         private const string AboutBlankUri = "about:blank";
 
-        private AdalWebViewClient client;
+        private CoreWebViewClient client;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -69,7 +69,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             webSettings.UseWideViewPort = true;
             webSettings.BuiltInZoomControls = true;
 
-            this.client = new AdalWebViewClient(Intent.GetStringExtra("Callback"));
+            this.client = new CoreWebViewClient(Intent.GetStringExtra("Callback"));
             webView.SetWebViewClient(client);
             webView.LoadUrl(url);
 
@@ -88,11 +88,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             base.Finish();
         }
 
-        sealed class AdalWebViewClient : WebViewClient
+        sealed class CoreWebViewClient : WebViewClient
         {
             private readonly string callback;
 
-            public AdalWebViewClient(string callback)
+            public CoreWebViewClient(string callback)
             {
                 this.callback = callback;
             }
@@ -139,7 +139,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         query = query.Substring(1);
                     }
 
-                    Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
+                    Dictionary<string, string> keyPair = CoreHelpers.ParseKeyValueList(query, '&', true, false, null);
                     string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponse(keyPair).Result;
                     Dictionary<string, string> pkeyAuthEmptyResponse = new Dictionary<string, string>();
                     pkeyAuthEmptyResponse[BrokerConstants.ChallangeResponseHeader] = responseHeader;
@@ -158,7 +158,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     UriBuilder errorUri = new UriBuilder(callback);
                     errorUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
-                        AdalError.NonHttpsRedirectNotSupported, AdalErrorMessage.NonHttpsRedirectNotSupported);
+                        MsalError.NonHttpsRedirectNotSupported, MsalErrorMessage.NonHttpsRedirectNotSupported);
                     this.Finish(view, errorUri.ToString());
                     return true;
                 }

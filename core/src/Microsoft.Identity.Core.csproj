@@ -133,10 +133,6 @@
       <Version>25.4.0.2</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Platforms\Android\EmbeddedWebview\" />
-    <Folder Include="Platforms\iOS\EmbeddedWebview\" />
-  </ItemGroup>
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
   
 </Project>

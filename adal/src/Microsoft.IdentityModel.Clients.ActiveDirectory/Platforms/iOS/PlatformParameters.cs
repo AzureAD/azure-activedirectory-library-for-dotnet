@@ -25,10 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using UIKit;
 
@@ -39,7 +37,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     [CLSCompliant(false)]
     public class PlatformParameters : IPlatformParameters
-    {
+    {   
         private PlatformParameters()
         {
             UseBroker = false;
@@ -110,6 +108,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <value>The transitioning delegate.</value>
         public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
+
+        internal CoreUIParent GetCoreUIParent()
+        {
+            return new CoreUIParent()
+            {
+                CallerViewController = this.CallerViewController,
+                TransitioningDelegate = this.TransitioningDelegate,
+                PreferredStatusBarStyle = this.PreferredStatusBarStyle,
+                ModalTransitionStyle = this.ModalTransitionStyle,
+                ModalPresentationStyle = this.ModalPresentationStyle
+            };
+        }
 
         /// <summary>
         /// Gets prompt behavior. If <see cref="PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
