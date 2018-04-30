@@ -32,7 +32,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using Test.ADAL.Common;
-using System.Net;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
@@ -91,6 +90,8 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual(TestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
             // There should be one cached entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
         
         [TestMethod]
@@ -120,6 +121,8 @@ namespace Test.ADAL.NET.Integration
 
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -170,6 +173,8 @@ namespace Test.ADAL.NET.Integration
 
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -219,6 +224,8 @@ namespace Test.ADAL.NET.Integration
 
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
         
         [TestMethod]
@@ -275,6 +282,8 @@ namespace Test.ADAL.NET.Integration
 
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
         
         [TestMethod]
@@ -306,6 +315,8 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual(AdalError.FailedToRefreshToken, exc.ErrorCode);
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
         
         [TestMethod]
@@ -357,6 +368,8 @@ namespace Test.ADAL.NET.Integration
 
             // There should be only one cache entry.
             Assert.AreEqual(1, context.TokenCache.Count);
+
+            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
         }
     }
 }

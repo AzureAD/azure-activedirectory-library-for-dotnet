@@ -219,6 +219,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <param name="claims">Additional claims that are needed for authentication. Acquired from the AdalClaimChallengeException</param>
         /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
+#if ANDROID || iOS || WINDOWS_APP || NET45
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters,
             UserIdentifier userId, string extraQueryParameters, string claims)
@@ -228,6 +229,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     userId, extraQueryParameters, this.CreateWebAuthenticationDialog((PlatformParameters)parameters), claims)
                 .ConfigureAwait(false);
         }
+#endif
 
         /// <summary>
         /// Acquires security token without asking for user credential.
@@ -277,6 +279,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
+#if ANDROID || iOS || WINDOWS_APP || NET45
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters)
         {
@@ -284,6 +287,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 .AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser)
                 .ConfigureAwait(false);
         }
+#endif
 
         /// <summary>
         /// Acquires security token from the authority.
@@ -295,12 +299,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="userId">Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to pre-populate the username field in the authentication form. Please note that the end user can still edit the username field and authenticate as a different user.
         /// If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
+#if ANDROID || iOS || WINDOWS_APP || NET45
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters, UserIdentifier userId)
         {
             return await this.AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, userId)
                 .ConfigureAwait(false);
         }
+#endif
 
         /// <summary>
         /// Acquires security token from the authority.
@@ -313,13 +319,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="parameters">Parameters needed for interactive flow requesting authorization code. Pass an instance of PlatformParameters.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
+#if ANDROID || iOS || WINDOWS_APP || NET45
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
         {
             return await this.AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, userId,
                 extraQueryParameters).ConfigureAwait(false);
         }
-
+#endif
 
         internal async Task<Uri> GetAuthorizationRequestUrlCommonAsync(string resource, string clientId,
             Uri redirectUri,
@@ -408,11 +415,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
+#if ANDROID || iOS || WINDOWS_APP || NET45
         internal IWebUI CreateWebAuthenticationDialog(PlatformParameters parameters)
         {
             return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters.GetCoreUIParent(), null);
         }
-
+#endif
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
             UserCredential userCredential)
         {
@@ -443,6 +451,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
+#if ANDROID || iOS || WINDOWS_APP || NET45
         private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
             Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters = null,
             string claims = null)
@@ -459,6 +468,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 extraQueryParameters, this.CreateWebAuthenticationDialog((PlatformParameters)parameters), claims);
             return await handler.RunAsync().ConfigureAwait(false);
         }
+#endif
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(string resource, ClientKey clientKey,
             UserIdentifier userId, IPlatformParameters parameters)
