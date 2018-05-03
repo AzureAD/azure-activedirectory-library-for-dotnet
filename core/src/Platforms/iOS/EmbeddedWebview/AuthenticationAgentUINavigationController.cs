@@ -25,13 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using CoreGraphics;
-using Microsoft.Identity.Core;
-
-using CoreFoundation;
 using UIKit;
-using Foundation;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {

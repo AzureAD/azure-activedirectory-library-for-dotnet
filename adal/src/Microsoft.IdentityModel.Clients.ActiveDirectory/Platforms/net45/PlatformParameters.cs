@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-
 using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory

@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core.UI
         }
 
 #if ANDROID || iOS
-        internal bool UseEmbeddedWebview { get; set; }
+       internal bool UseEmbeddedWebview { get; set; }
 #endif
 
 #if iOS
@@ -50,6 +50,29 @@ namespace Microsoft.Identity.Core.UI
         /// Caller UIViewController
         /// </summary>
         public UIViewController CallerViewController { get; set; }
+
+        internal UIViewController FindCurrentViewController(UIViewController CallerViewController)
+        {
+            if (CallerViewController is UITabBarController)
+            {
+                UITabBarController tabBarController = (UITabBarController)CallerViewController;
+                return FindCurrentViewController(tabBarController.SelectedViewController);
+            }
+            else if (CallerViewController is UINavigationController)
+            {
+                UINavigationController navigationController = (UINavigationController)CallerViewController;
+                return FindCurrentViewController(navigationController.VisibleViewController);
+            }
+            else if (CallerViewController.PresentedViewController != null)
+            {
+                UIViewController presentedViewController = CallerViewController.PresentedViewController;
+                return FindCurrentViewController(presentedViewController);
+            }
+            else
+            {
+                return CallerViewController;
+            }
+        }
 
         /// <summary>
         /// Sets the preferred status bar style for the login form view controller presented
@@ -73,7 +96,7 @@ namespace Microsoft.Identity.Core.UI
         /// Sets a custom transitioning delegate to the login form view controller
         /// </summary>
         /// <value>The transitioning delegate.</value>
-        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
+        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }        
 #endif
 
 #if ANDROID

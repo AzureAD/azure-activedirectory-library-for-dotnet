@@ -92,28 +92,27 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             }
         }
 
-        private UIViewController FindCurrentViewController(UIViewController rootViewController)
+        private static UIViewController FindCurrentViewController(UIViewController CallerViewController)
         {
-            if (rootViewController is UITabBarController)
+            if (CallerViewController is UITabBarController)
             {
-                UITabBarController tabBarController = (UITabBarController)rootViewController;
+                UITabBarController tabBarController = (UITabBarController)CallerViewController;
                 return FindCurrentViewController(tabBarController.SelectedViewController);
             }
-            else if (rootViewController is UINavigationController)
+            else if (CallerViewController is UINavigationController)
             {
-                UINavigationController navigationController = (UINavigationController)rootViewController;
+                UINavigationController navigationController = (UINavigationController)CallerViewController;
                 return FindCurrentViewController(navigationController.VisibleViewController);
             }
-            else if (rootViewController.PresentedViewController != null)
+            else if (CallerViewController.PresentedViewController != null)
             {
-                UIViewController presentedViewController = rootViewController.PresentedViewController;
+                UIViewController presentedViewController = CallerViewController.PresentedViewController;
                 return FindCurrentViewController(presentedViewController);
             }
             else
             {
-                return rootViewController;
+                return CallerViewController;
             }
         }
     }
 }
-

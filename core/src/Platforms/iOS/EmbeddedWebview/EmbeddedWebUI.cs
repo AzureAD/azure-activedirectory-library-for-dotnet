@@ -28,6 +28,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
@@ -53,9 +54,15 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
         public void Authenticate(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
+            UIViewController vc = null;
+            InvokeOnMainThread(() =>
+            {
+                UIWindow window = UIApplication.SharedApplication.KeyWindow;
+                vc = CoreUIParent.FindCurrentViewController(window.RootViewController);
+            });
             try
             {
-                CoreUIParent.CallerViewController.InvokeOnMainThread(() =>
+                vc.InvokeOnMainThread(() =>
                 {
                     var navigationController =
                         new AuthenticationAgentUINavigationController(authorizationUri.AbsoluteUri,
@@ -63,9 +70,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
                     navigationController.ModalPresentationStyle = CoreUIParent.ModalPresentationStyle;
                     navigationController.ModalTransitionStyle = CoreUIParent.ModalTransitionStyle;
-                    navigationController.TransitioningDelegate = CoreUIParent.TransitioningDelegate;
+                    navigationController.TransitioningDelegate = vc.TransitioningDelegate;
 
-                    CoreUIParent.CallerViewController.PresentViewController(navigationController, true, null);
+                    vc.PresentViewController(navigationController, true, null);
                 });
             }
             catch (Exception ex)
