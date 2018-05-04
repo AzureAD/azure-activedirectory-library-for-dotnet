@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core.UI
         }
 
 #if ANDROID || iOS
-       internal bool UseEmbeddedWebview { get; set; }
+        internal bool UseEmbeddedWebview { get; set; }
 #endif
 
 #if iOS
@@ -110,9 +110,9 @@ namespace Microsoft.Identity.Core.UI
            if(activity == null)
            {		
                 throw new ArgumentException("passed in activity is null", nameof(activity));		
-           }	
-           
+           }
             Activity = activity;
+            CallerActivity = activity;
         }
 
         /// <summary>
