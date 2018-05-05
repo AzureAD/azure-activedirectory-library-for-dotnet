@@ -9,39 +9,37 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("Microsoft.IdentityModel.Clients.ActiveDirectory.Resource", IsApplication=false)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("Microsoft.Identity.Core.Resource", IsApplication=false)]
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Identity.Core
 {
 	
 	
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "1.0.0.0")]
 	public partial class Resource
 	{
-		
-		static Resource()
-		{
-			global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-		}
-		
-		public partial class Attribute
-		{
-			
-			static Attribute()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Attribute()
-			{
-			}
-		}
+
+        static Resource()
+        {
+            global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+        }
+
+        public partial class Attribute
+        {
+            static Attribute()
+            {
+                global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+            }
+
+            private Attribute()
+            {
+            }
+        }
 		
 		public partial class Id
-		{
-			
-			// aapt resource value: 0x7f040000
-			public static int agentWebView = 2130968576;
+		{			
+			// aapt resource value: 0x7f0a006d
+			public static int agentWebView = 2131361901;
 			
 			static Id()
 			{
@@ -52,12 +50,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 			{
 			}
 		}
-		
+	
 		public partial class Layout
 		{
-			
-			// aapt resource value: 0x7f020000
-			public static int WebAuthenticationBroker = 2130837504;
+			// aapt resource value: 0x7f03002e
+			public static int WebAuthenticationBroker = 2130903086;
 			
 			static Layout()
 			{
@@ -72,8 +69,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f030000
-			public static int ApplicationName = 2130903040;
+			// aapt resource value: 0x7f050021
+			public static int ApplicationName = 2131034145;
 			
 			static String()
 			{

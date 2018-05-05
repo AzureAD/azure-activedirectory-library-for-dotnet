@@ -33,7 +33,6 @@ using Android.Content;
 using Android.OS;
 using Android.Webkit;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
