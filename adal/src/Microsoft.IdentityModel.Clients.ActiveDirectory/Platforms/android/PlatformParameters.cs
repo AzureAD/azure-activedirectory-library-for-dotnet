@@ -87,8 +87,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets prompt behavior. If <see cref="PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
         /// </summary>
         public PromptBehavior PromptBehavior { get; set; }
-
-
+        
         internal CoreUIParent GetCoreUIParent()
         {
             return new CoreUIParent()

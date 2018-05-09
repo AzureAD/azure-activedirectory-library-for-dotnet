@@ -32,13 +32,16 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Webkit;
+using Android.Widget;
 using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
     [Activity(Label = "Sign in")]
     [CLSCompliant(false)]
+#pragma warning disable CS3019 // CLS compliance checking will not be performed because it is not visible from outside this assembly
     internal class AuthenticationAgentActivity : Activity
+#pragma warning restore CS3019 // CLS compliance checking will not be performed because it is not visible from outside this assembly
     {
         private const string AboutBlankUri = "about:blank";
 
@@ -47,14 +50,17 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
-
             // Create your application here
-
-            SetContentView(Resource.Layout.WebAuthenticationBroker);
+            
+            WebView webView = new WebView(ApplicationContext);
+            var linearLayout = new LinearLayout(ApplicationContext)
+            {
+                Orientation = Orientation.Vertical
+            };
+            linearLayout.AddView(webView);
+            SetContentView(linearLayout);
 
             string url = Intent.GetStringExtra("Url");
-
-            WebView webView = FindViewById<WebView>(Resource.Id.agentWebView);
             WebSettings webSettings = webView.Settings;
             string userAgent = webSettings.UserAgentString;
             webSettings.UserAgentString = 
@@ -71,7 +77,6 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             this.client = new CoreWebViewClient(Intent.GetStringExtra("Callback"));
             webView.SetWebViewClient(client);
             webView.LoadUrl(url);
-
         }
 
         public override void Finish()
