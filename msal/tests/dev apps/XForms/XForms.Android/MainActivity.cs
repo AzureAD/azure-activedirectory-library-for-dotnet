@@ -39,7 +39,7 @@ namespace XForms.Droid
 {
     [Activity(Label = "XForms", Icon = "@drawable/icon", Theme = "@style/MainTheme", MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
-    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
+    public class MainActivity : Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle bundle)
         {
@@ -48,9 +48,9 @@ namespace XForms.Droid
 
             base.OnCreate(bundle);
 
-            global::Xamarin.Forms.Forms.Init(this, bundle);
+			Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App());
-            App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity);
+            App.UIParent = new UIParent(this.BaseContext as Activity);
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
