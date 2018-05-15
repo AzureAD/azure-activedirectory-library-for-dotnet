@@ -123,7 +123,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
-    <Compile Include="Platforms\Android\**\*.cs" />
+    <Compile Include="Platforms\android\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
     <PackageReference Include="Xamarin.Android.Support.CustomTabs">
