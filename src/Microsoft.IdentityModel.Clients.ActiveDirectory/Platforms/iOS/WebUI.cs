@@ -118,6 +118,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private void CallbackMethod(AuthorizationResult result)
         {
             SetAuthorizationResult(result);
+            inBackground = false;
             DidEnterBackgroundNotification.Dispose();
             WillEnterForegroundNotification.Dispose();
         }
