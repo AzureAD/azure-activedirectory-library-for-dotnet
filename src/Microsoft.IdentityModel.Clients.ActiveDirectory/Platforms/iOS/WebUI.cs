@@ -39,8 +39,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private static AuthorizationResult authorizationResult;
         private PlatformParameters parameters;
         private nint taskId = 0;
-        private static bool inBackground;
-        NSObject DidEnterBackgroundNotification, WillEnterForegroundNotification;
+        private bool inBackground;
+        private NSObject DidEnterBackgroundNotification, WillEnterForegroundNotification;
 
         public WebUI(IPlatformParameters parameters)
         {
@@ -57,7 +57,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         void OnMoveToBackground(NSNotification notification)
         {
             taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
-                mutex.ReleaseMutex();
+                inBackground = false;
                 UIApplication.SharedApplication.EndBackgroundTask(taskId);
             });
 
