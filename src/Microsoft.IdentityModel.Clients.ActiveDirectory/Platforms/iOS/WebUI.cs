@@ -38,7 +38,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private static SemaphoreSlim returnedUriReady;
         private static AuthorizationResult authorizationResult;
         private PlatformParameters parameters;
-        private static Mutex mutex = new Mutex();
         private nint taskId = 0;
         private static bool inBackground;
         NSObject DidEnterBackgroundNotification, WillEnterForegroundNotification;
