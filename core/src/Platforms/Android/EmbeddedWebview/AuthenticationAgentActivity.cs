@@ -124,9 +124,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(BrokerConstants.BrowserExtPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     CoreLoggerBase.Default.Verbose("It is browser launch request");
-                    OpenLinkInBrowser(url, ((Activity)view.Context));
+                    OpenLinkInBrowser(url, Activity);
                     view.StopLoading();
-                    ((Activity)view.Context).Finish();
+                    Activity.Finish();
                     return true;
                 }
 
