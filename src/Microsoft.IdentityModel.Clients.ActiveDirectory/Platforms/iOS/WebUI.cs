@@ -25,9 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
+using Foundation;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -36,6 +38,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private static SemaphoreSlim returnedUriReady;
         private static AuthorizationResult authorizationResult;
         private PlatformParameters parameters;
+        private static Mutex mutex = new Mutex();
+        private nint taskId = 0;
+        private static bool inBackground;
+        NSObject DidEnterBackgroundNotification, WillEnterForegroundNotification;
 
         public WebUI(IPlatformParameters parameters)
         {
@@ -44,6 +50,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 throw new ArgumentException("parameters should be of type PlatformParameters", "parameters");
             }
+
+            DidEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
+            WillEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
+        }
+
+        void OnMoveToBackground(NSNotification notification)
+        {
+            taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
+                mutex.ReleaseMutex();
+                UIApplication.SharedApplication.EndBackgroundTask(taskId);
+            });
+
+            //After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background in order to prevent the system from reclaiming network resources from the app. 
+            //This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
+            new Task(() => {
+                inBackground = true;
+                while (inBackground) { }
+                UIApplication.SharedApplication.EndBackgroundTask(taskId);
+            }).Start();
+        }
+
+        void OnMoveToForeground(NSNotification notification)
+        {
+            inBackground = false;
         }
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
@@ -89,6 +119,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private void CallbackMethod(AuthorizationResult result)
         {
             SetAuthorizationResult(result);
+            DidEnterBackgroundNotification.Dispose();
+            WillEnterForegroundNotification.Dispose();
         }
     }
 }
