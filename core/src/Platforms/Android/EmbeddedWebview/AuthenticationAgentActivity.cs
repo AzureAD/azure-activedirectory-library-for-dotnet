@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         {
             base.OnCreate(bundle);
             // Create your application here
-            
+
             WebView webView = new WebView(ApplicationContext);
             var linearLayout = new LinearLayout(ApplicationContext)
             {
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             string url = Intent.GetStringExtra("Url");
             WebSettings webSettings = webView.Settings;
             string userAgent = webSettings.UserAgentString;
-            webSettings.UserAgentString = 
+            webSettings.UserAgentString =
                     userAgent + BrokerConstants.ClientTlsNotSupported;
             CoreLoggerBase.Default.Verbose("UserAgent:" + webSettings.UserAgentString);
 
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             webSettings.UseWideViewPort = true;
             webSettings.BuiltInZoomControls = true;
 
-            this.client = new CoreWebViewClient(Intent.GetStringExtra("Callback"));
+            this.client = new CoreWebViewClient(Intent.GetStringExtra("Callback"), this);
             webView.SetWebViewClient(client);
             webView.LoadUrl(url);
         }
@@ -95,10 +95,12 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         sealed class CoreWebViewClient : WebViewClient
         {
             private readonly string callback;
+            private Activity Activity { get; set; }
 
-            public CoreWebViewClient(string callback)
+            public CoreWebViewClient(string callback, Activity activity)
             {
                 this.callback = callback;
+                this.Activity = activity;
             }
 
             public Intent ReturnIntent { get; private set; }
@@ -110,8 +112,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(callback))
                 {
                     base.OnLoadResource(view, url);
-                    this.Finish(view, url);
+                    this.Finish(Activity, url);
                 }
+
             }
 
             [Obsolete]
@@ -131,7 +134,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 {
                     CoreLoggerBase.Default.Verbose("It is an azure authenticator install request");
                     view.StopLoading();
-                    this.Finish(view, url);
+                    this.Finish(Activity, url);
                     return true;
                 }
 
@@ -153,7 +156,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
                 if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
-                    this.Finish(view, url);
+                    this.Finish(Activity, url);
                     return true;
                 }
 
@@ -163,7 +166,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                     UriBuilder errorUri = new UriBuilder(callback);
                     errorUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
                         MsalError.NonHttpsRedirectNotSupported, MsalErrorMessage.NonHttpsRedirectNotSupported);
-                    this.Finish(view, errorUri.ToString());
+                    this.Finish(Activity, errorUri.ToString());
                     return true;
                 }
 
@@ -189,7 +192,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
                     base.OnPageFinished(view, url);
-                    this.Finish(view, url);
+                    this.Finish(Activity, url);
                 }
 
                 base.OnPageFinished(view, url);
@@ -205,17 +208,12 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 base.OnPageStarted(view, url, favicon);
             }
 
-            private void Finish(WebView view, string url)
+            private void Finish(Activity activity, string url)
             {
-                var activity = ((Activity)view.Context);
-                if (activity != null && !activity.IsFinishing)
-                {
-                    this.ReturnIntent = new Intent("Return");
-                    this.ReturnIntent.PutExtra("ReturnedUrl", url);
-                    ((Activity)view.Context).Finish();
-                }
+                this.ReturnIntent = new Intent("Return");
+                this.ReturnIntent.PutExtra("ReturnedUrl", url);
+                activity.Finish();
             }
-
         }
     }
 }
