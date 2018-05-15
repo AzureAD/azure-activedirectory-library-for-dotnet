@@ -26,8 +26,8 @@
 //------------------------------------------------------------------------------
 
 #if ANDROID
-using System;
 using Android.App;
+using Android.Content.PM;
 #endif
 
 using Microsoft.Identity.Core.UI;
@@ -50,6 +50,10 @@ namespace Microsoft.Identity.Client
         }
 
 #if ANDROID
+        private Activity Activity { get; set; }
+
+        private readonly string[] _chromePackages =
+        {"com.android.chrome", "com.chrome.beta", "com.chrome.dev"};
 
         /// <summary>
         /// Initializes an instance for a provided activity.
@@ -57,7 +61,29 @@ namespace Microsoft.Identity.Client
         /// <param name="activity">parent activity for the call. REQUIRED.</param>
         public UIParent(Activity activity)
         {
-            CoreUIParent = new CoreUIParent(activity);
+            Activity = activity;
+            CoreUIParent = new CoreUIParent(Activity);
+        }
+
+        public void SetWebview()
+        {
+            PackageManager packageManager = Activity.ApplicationContext.PackageManager;
+
+            string installedChromePackage = null;
+            try
+            {
+                for (int i = 0; i < _chromePackages.Length; i++)
+                {
+                    packageManager.GetPackageInfo(_chromePackages[i], PackageInfoFlags.Activities);
+                    installedChromePackage = _chromePackages[i];
+                }
+            }
+            catch (PackageManager.NameNotFoundException)
+            {
+                CoreUIParent.UseEmbeddedWebview = true;
+                return;
+            }
+            CoreUIParent.UseEmbeddedWebview = false;
         }
 #endif
 

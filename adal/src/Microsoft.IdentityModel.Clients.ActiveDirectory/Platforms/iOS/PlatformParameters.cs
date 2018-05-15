@@ -109,6 +109,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <value>The transitioning delegate.</value>
         public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
 
+        private bool UseEmbeddedWebview { get; set; } = true;
+
         internal CoreUIParent GetCoreUIParent()
         {
             return new CoreUIParent()
@@ -117,7 +119,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TransitioningDelegate = this.TransitioningDelegate,
                 PreferredStatusBarStyle = this.PreferredStatusBarStyle,
                 ModalTransitionStyle = this.ModalTransitionStyle,
-                ModalPresentationStyle = this.ModalPresentationStyle
+                ModalPresentationStyle = this.ModalPresentationStyle,
+                UseEmbeddedWebview = this.UseEmbeddedWebview
             };
         }
 
