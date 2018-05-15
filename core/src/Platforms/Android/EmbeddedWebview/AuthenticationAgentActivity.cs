@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             }
             else
             {
-                this.SetResult(Result.Canceled, new Intent("Return"));
+                this.SetResult(Result.Canceled, new Intent("ReturnFromEmbeddedWebview"));
             }
             base.Finish();
         }
@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
             private void Finish(Activity activity, string url)
             {
-                this.ReturnIntent = new Intent("Return");
+                this.ReturnIntent = new Intent("ReturnFromEmbeddedWebview");
                 this.ReturnIntent.PutExtra("ReturnedUrl", url);
                 activity.Finish();
             }

@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Client
 #if ANDROID
         private Activity Activity { get; set; }
 
-        private readonly string[] _chromePackages =
+        private static readonly string[] _chromePackages =
         {"com.android.chrome", "com.chrome.beta", "com.chrome.dev"};
 
         /// <summary>
@@ -65,9 +65,14 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent(Activity);
         }
 
-        public void SetWebview()
+        public UIParent(Activity activity, bool useEmbeddedWebview) :this(activity)
         {
-            PackageManager packageManager = Activity.ApplicationContext.PackageManager;
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+
+        public static bool IsSystemWebviewAvailable()
+        {
+            PackageManager packageManager = Application.Context.PackageManager;
 
             string installedChromePackage = null;
             try
@@ -80,10 +85,10 @@ namespace Microsoft.Identity.Client
             }
             catch (PackageManager.NameNotFoundException)
             {
-                CoreUIParent.UseEmbeddedWebview = true;
-                return;
+                return false;
             }
-            CoreUIParent.UseEmbeddedWebview = false;
+
+            return true;
         }
 #endif
 
