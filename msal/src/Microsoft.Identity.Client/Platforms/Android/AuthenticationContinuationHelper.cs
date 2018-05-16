@@ -90,15 +90,12 @@ namespace Microsoft.Identity.Client
             {
                 case AndroidConstants.AuthCodeReceived:
                     return CreateResultForOkResponse(data.GetStringExtra("com.microsoft.identity.client.finalUrl"));
-                    break;
 
                 case AndroidConstants.Cancel:
                     return new AuthorizationResult(AuthorizationStatus.UserCancel, null);
-                    break;
 
                 default:
                     return new AuthorizationResult(AuthorizationStatus.UnknownError, null);
-                    break;
             }
         }
 
