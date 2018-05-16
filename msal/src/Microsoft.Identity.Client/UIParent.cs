@@ -49,6 +49,13 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent();
         }
 
+#if iOS
+        public UIParent(bool useEmbeddedWebview)
+        {
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+#endif
+
 #if ANDROID
         private Activity Activity { get; set; }
 

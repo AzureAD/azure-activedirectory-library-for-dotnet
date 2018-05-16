@@ -75,15 +75,12 @@ namespace Microsoft.Identity.Client
             {
                 case (int)Result.Ok:
                     return new AuthorizationResult(AuthorizationStatus.Success, data.GetStringExtra("ReturnedUrl"));
-                    break;
 
                 case (int)Result.Canceled:
                     return new AuthorizationResult(AuthorizationStatus.UserCancel, null);
-                    break;
 
                 default:
                     return new AuthorizationResult(AuthorizationStatus.UnknownError, null);
-                    break;
             }
         }
 
