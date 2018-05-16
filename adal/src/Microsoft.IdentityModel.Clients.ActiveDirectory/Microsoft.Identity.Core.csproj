@@ -5,12 +5,12 @@
        which assembly to analyse. -->
   <PropertyGroup Condition="'$(TargetFramework)' != 'net45' ">
     <SonarQubeExclude>true</SonarQubeExclude>
-    <Configurations>Debug;Release;Appveyor</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
-    <Product>Microsoft.IdentityModel.Clients.ActiveDirectory ($(TargetFramework))</Product>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
+    <Product>Microsoft.Identity.Core ($(TargetFramework))</Product>
     <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
@@ -20,15 +20,14 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-	<DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>build\Core.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
     <!-- Workaround until Xamarin supports PPDB -->
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <DebugType>full</DebugType>
-  
-
 </PropertyGroup>
- <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
     <DefineConstants>$(DefineConstants);FACADE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
@@ -47,22 +46,28 @@
     <DefineConstants>$(DefineConstants);iOS</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
+  
   <ItemGroup>
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <Compile Remove="Resources\**\*.*" />
-    <EmbeddedResource Include="Properties\Microsoft.IdentityModel.Clients.ActiveDirectory.rd.xml" />
+    <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.1.0" PrivateAssets="All" />
+    <Folder Include="Platforms\Android\EmbeddedWebview\" />
+    <Folder Include="Platforms\iOS\EmbeddedWebview\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" Condition="'$(TargetFramework)' != 'netstandard1.1'" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
@@ -76,26 +81,19 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Compile Include="Features\Cache\**\*.cs" />
     <Compile Include="Platforms\net45\**\*.cs" />
-    <Compile Include="Features\WinCommon\**\*.cs" />
-	<Compile Include="Features\CertificateAssertion\**\*.cs" />
-    <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
-    <Compile Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
-    <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
-    <Compile Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
-    <Compile Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <Compile Include="Platforms\winrt\**\*.cs" />
-    <Compile Include="Features\WinCommon\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
+    <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
-    <Compile Include="Features\WinCommon\**\*.cs" />
-	<Compile Include="Features\CertificateAssertion\**\*.cs" />
+    <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />
@@ -103,6 +101,7 @@
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.3" />
     <PackageReference Include="System.Xml.XDocument" Version="4.0.11" />
   </ItemGroup>
+  
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Reference Include="System" />
     <Reference Include="System.Runtime" />
@@ -116,8 +115,8 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="Xamarin.iOS" />
     <Compile Include="Platforms\iOS\**\*.cs" />
-    <Compile Include="Features\NonWinCommon\**\*.cs" />
   </ItemGroup>
+  
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid7' ">
     <Reference Include="Mono.Android" />
     <Reference Include="System" />
@@ -132,24 +131,17 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
-    <Compile Include="Features\NonWinCommon\**\*.cs" />
-    <AndroidResource Include="Resources\**\*.axml" />
-    <AndroidResource Include="Resources\**\*.xml" />
+    <PackageReference Include="Xamarin.Android.Support.CustomTabs">
+      <Version>25.4.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
+      <Version>25.4.0.2</Version>
+    </PackageReference>
   </ItemGroup>
+
+  
+  
   
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
   
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\core\src\Microsoft.Identity.Core.csproj" />
-  </ItemGroup>
-  
- 
-  <!-- This is here to workaround designer issues so VS sees them appropriately -->
-  <ItemGroup>
-    <None Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
-    <None Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
-    <None Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
-    <None Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
-    <None Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
-  </ItemGroup>
 </Project>
