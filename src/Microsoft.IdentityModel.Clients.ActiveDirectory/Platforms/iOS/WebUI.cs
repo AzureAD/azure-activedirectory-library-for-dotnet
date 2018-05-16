@@ -59,14 +59,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             //This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
             this.taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
                 if (this.taskId != UIApplication.BackgroundTaskInvalid)
+                {
                     UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
+                    this.taskId = UIApplication.BackgroundTaskInvalid;
+                }
             });
         }
 
         void OnMoveToForeground(NSNotification notification)
         {
             if (this.taskId != UIApplication.BackgroundTaskInvalid)
+            {
                 UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
+                this.taskId = UIApplication.BackgroundTaskInvalid;
+            }
         }
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, CallState callState)
@@ -116,9 +122,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public void Dispose()
         {
-            if (this.taskId != UIApplication.BackgroundTaskInvalid)
-                UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
-
             this.didEnterBackgroundNotification.Dispose();
             this.willEnterForegroundNotification.Dispose();
         }
