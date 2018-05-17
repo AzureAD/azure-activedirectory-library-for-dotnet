@@ -56,11 +56,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Platforms\Android\EmbeddedWebview\" />
-    <Folder Include="Platforms\iOS\EmbeddedWebview\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -138,10 +133,5 @@
       <Version>25.4.0.2</Version>
     </PackageReference>
   </ItemGroup>
-
-  
-  
-  
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
-  
 </Project>
