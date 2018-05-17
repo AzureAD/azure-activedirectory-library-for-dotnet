@@ -1,7 +1,7 @@
 Version 3.19.5
 ==============
 This hotfix release includes:
-- Resolved issue with iOS 11.3 where network resources are reclaimed by the system when sending the app to the background.
+- Resolved issue with iOS 11.3 where network resources are reclaimed by the system when sending the app to the background (#1053)
 
 Version 3.19.4
 ==============
