@@ -11,11 +11,86 @@ echo args: %1%
 set bconfig=debug
 if '%1' NEQ '' (set bconfig=%1%)
 
-set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\net45
-echo config: %gotoFolder%
-pushd %gotoFolder%
+Rem echo config: %gotoFolder%
 
+Rem ADAL and Core
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\monoandroid7
+pushd %gotoFolder%
 sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
 sn.exe -Vr Microsoft.Identity.Core.dll
+popd
 
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\netstandard1.1
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\netstandard1.3
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\xamarin.ios10
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\netcore45
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\bin\%bconfig%\net45
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+Rem MSAL
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\monoandroid7
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\netstandard1.1
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\netstandard1.3
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\xamarin.ios10
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\netcore45
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\net45
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+sn.exe -Vr Microsoft.Identity.Core.dll
+popd
+
+delete ....
+
+set gotoFolder=msal\src\Microsoft.Identity.Client\bin\%bconfig%\net45
+pushd %gotoFolder%
+sn.exe -Vr Microsoft.Identity.Client.dll
 popd
