@@ -166,8 +166,6 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         public const string ChallangeTlsIncapableVersion = "1.0";
 
         public const string RedirectPrefix = "msauth";
-
-        //public const Object REDIRECT_DELIMETER_ENCODED = "%2C";
         
         public const string BrowserExtPrefix = "browser://";
         

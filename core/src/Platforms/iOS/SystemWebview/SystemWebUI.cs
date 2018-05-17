@@ -42,18 +42,18 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
-            UIViewController vc = null;
+            UIViewController viewController = null;
             InvokeOnMainThread(() =>
             {
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
-                vc = FindCurrentViewController(window.RootViewController);
+                viewController = CoreUIParent.FindCurrentViewController(window.RootViewController);
             });
 
             returnedUriReady = new SemaphoreSlim(0);
-            Authenticate(authorizationUri, redirectUri, vc, requestContext);
+            Authenticate(authorizationUri, redirectUri, viewController, requestContext);
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
             //dismiss safariviewcontroller
-            vc.InvokeOnMainThread(() =>
+            viewController.InvokeOnMainThread(() =>
             {
                 safariViewController.DismissViewController(false, null);
             });
@@ -89,29 +89,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             {
                 authorizationResult = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
                 returnedUriReady.Release();
-            }
-        }
-
-        private static UIViewController FindCurrentViewController(UIViewController CallerViewController)
-        {
-            if (CallerViewController is UITabBarController)
-            {
-                UITabBarController tabBarController = (UITabBarController)CallerViewController;
-                return FindCurrentViewController(tabBarController.SelectedViewController);
-            }
-            else if (CallerViewController is UINavigationController)
-            {
-                UINavigationController navigationController = (UINavigationController)CallerViewController;
-                return FindCurrentViewController(navigationController.VisibleViewController);
-            }
-            else if (CallerViewController.PresentedViewController != null)
-            {
-                UIViewController presentedViewController = CallerViewController.PresentedViewController;
-                return FindCurrentViewController(presentedViewController);
-            }
-            else
-            {
-                return CallerViewController;
             }
         }
     }

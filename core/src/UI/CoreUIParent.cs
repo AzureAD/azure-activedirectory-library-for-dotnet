@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.UI
         /// </summary>
         public UIViewController CallerViewController { get; set; }
 
-        internal UIViewController FindCurrentViewController(UIViewController CallerViewController)
+        internal static UIViewController FindCurrentViewController(UIViewController CallerViewController)
         {
             if (CallerViewController is UITabBarController)
             {
@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Core.UI
         /// Sets a custom transitioning delegate to the login form view controller
         /// </summary>
         /// <value>The transitioning delegate.</value>
-        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }        
+        public UIViewControllerTransitioningDelegate TransitioningDelegate { get; set; }
 #endif
 
 #if ANDROID

@@ -26,21 +26,16 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.UI;
+using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal static class WebUIFactoryProvider
+    public class PlatformParameters : IPlatformParameters
     {
-        static WebUIFactoryProvider()
+        // NetStandard1.3 does not have UI
+        internal CoreUIParent GetCoreUIParent()
         {
-
-#if ANDROID || iOS
-            WebUIFactory = new Microsoft.Identity.Core.UI.WebUIFactory();
-#else
-            WebUIFactory = new WebUIFactory();
-#endif
+            throw new NotImplementedException();
         }
-
-        public static IWebUIFactory WebUIFactory { get; set; }
     }
 }

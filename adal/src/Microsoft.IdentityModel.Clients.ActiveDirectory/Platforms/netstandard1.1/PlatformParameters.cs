@@ -32,6 +32,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     public class PlatformParameters : IPlatformParameters
     {
+        // NetStandard1.1 does not have UI
         internal CoreUIParent GetCoreUIParent()
         {
             throw new NotImplementedException();

@@ -63,8 +63,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             string url = Intent.GetStringExtra("Url");
             WebSettings webSettings = webView.Settings;
             string userAgent = webSettings.UserAgentString;
-            webSettings.UserAgentString =
-                    userAgent + BrokerConstants.ClientTlsNotSupported;
+            webSettings.UserAgentString = userAgent + BrokerConstants.ClientTlsNotSupported;
             CoreLoggerBase.Default.Verbose("UserAgent:" + webSettings.UserAgentString);
 
             webSettings.JavaScriptEnabled = true;

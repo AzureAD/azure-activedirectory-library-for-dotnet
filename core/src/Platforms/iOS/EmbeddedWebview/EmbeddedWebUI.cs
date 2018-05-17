@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Client;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,15 +55,15 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
         public void Authenticate(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
-            UIViewController vc = null;
+            UIViewController viewController = null;
             InvokeOnMainThread(() =>
             {
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
-                vc = CoreUIParent.FindCurrentViewController(window.RootViewController);
+                viewController = CoreUIParent.FindCurrentViewController(window.RootViewController);
             });
             try
             {
-                vc.InvokeOnMainThread(() =>
+                viewController.InvokeOnMainThread(() =>
                 {
                     var navigationController =
                         new AuthenticationAgentUINavigationController(authorizationUri.AbsoluteUri,
@@ -70,14 +71,14 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
                     navigationController.ModalPresentationStyle = CoreUIParent.ModalPresentationStyle;
                     navigationController.ModalTransitionStyle = CoreUIParent.ModalTransitionStyle;
-                    navigationController.TransitioningDelegate = vc.TransitioningDelegate;
+                    navigationController.TransitioningDelegate = viewController.TransitioningDelegate;
 
-                    vc.PresentViewController(navigationController, true, null);
+                    viewController.PresentViewController(navigationController, true, null);
                 });
             }
             catch (Exception ex)
             {
-                throw new Client.MsalException(MsalError.AuthenticationUiFailed, ex.ToString());
+                throw new MsalException(MsalError.AuthenticationUiFailed, ex.ToString());
             }
         }
 
