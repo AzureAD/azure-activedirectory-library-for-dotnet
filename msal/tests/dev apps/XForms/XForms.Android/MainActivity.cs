@@ -61,11 +61,13 @@ namespace XForms.Droid
             /*bool useEmbeddedWebview = UIParent.IsSystemWebviewAvailable();
             if (useEmbeddedWebview)
             {
-                App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity, true);
+                // Chrome present on device, use system browser
+                App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity);
             }
             else
             {
-                App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity);
+                // Chrome not present on device, use embedded webview
+                App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity, true);
             }*/
             #endregion
         }
