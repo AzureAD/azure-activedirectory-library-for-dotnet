@@ -10,6 +10,7 @@ echo args: %1%
 
 set bconfig=debug
 if '%1' NEQ '' (set bconfig=%1%)
+if '%1' EQU 'd' (set bconfig=debug)
 
 Rem echo config: %gotoFolder%
 
