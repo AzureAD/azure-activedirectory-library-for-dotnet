@@ -52,6 +52,7 @@ namespace Microsoft.Identity.Client
 #if iOS
         public UIParent(bool useEmbeddedWebview)
         {
+            CoreUIParent = new CoreUIParent();
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
 #endif
