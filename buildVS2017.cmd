@@ -1,11 +1,15 @@
-echo off
+@echo off
+echo Info:
 echo To Build Non WinRT, you will need the Developer Prompt/MSBuild for VS2017!
-echo Usage: (Note: Building both the WinRT and non WinRT works best in a std. command-prompt)
-echo param1 (configuration options): debug(d), release(r) .. default is debug
-echo param2 (target options): build(b), restore (r), clean(c) .. default is build 
-echo param3 (include sample apps): blank=components and utests, not blank=everything
-echo Calling args: configuration: %1%, target: %2%, sample: %3%
+echo To Build WinRT, you will need the Developer Prompt/MSBuild for VS2015 (and point to the vs2015 build script)!
 echo .
+echo Usage:
+echo   %%1  (configuration options): debug(d), release(r) .. default is debug
+echo   %%2  (target options)       : build(b), restore (r), clean(c) .. default is build 
+echo   %%3  (include sample apps)  : blank=components and utests, not blank=everything
+echo Calling args: configuration: %1%, target: %2%, sample: %3%
+
+if '%1' EQU 'h' (goto :eof) 
 
 set bconfig=debug
 if '%1' NEQ '' (set bconfig=%1%)
@@ -22,8 +26,8 @@ if '%3' NEQ '' (set bsampleapps=1)
 echo Building using: target: %btarget%, configuration: %bconfig%, sample: %bsampleapps%
 
 if %bsampleapps% EQU  1 (
-    msbuild Combined.NoWinRT.sln /t:%btarget% /p:configuration=%bconfig% 
+    msbuild Combined.NoWinRT.sln /m /t:%btarget% /p:configuration=%bconfig% 
  ) else (
-    msbuild CoreAndUTests.sln /t:%btarget% /p:configuration=%bconfig%
+    msbuild CoreAndUTests.sln /m /t:%btarget% /p:configuration=%bconfig%
   )
 )
