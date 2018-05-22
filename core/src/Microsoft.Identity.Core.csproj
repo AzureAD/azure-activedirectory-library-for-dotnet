@@ -127,10 +127,10 @@
     <Reference Include="System.Xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
     <PackageReference Include="Xamarin.Android.Support.CustomTabs">
-      <Version>25.4.0.2</Version>
+      <Version>27.0.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
-      <Version>25.4.0.2</Version>
+      <Version>27.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />

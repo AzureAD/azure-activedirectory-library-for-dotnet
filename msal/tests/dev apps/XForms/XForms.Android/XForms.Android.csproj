@@ -93,8 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
-    <PackageReference Include="Xamarin.Android.Support.V4" Version="25.4.0.2" />
-    <PackageReference Include="Xamarin.Android.Support.Compat" Version="25.4.0.2" />
+    <PackageReference Include="Xamarin.Android.Support.V4" Version="27.0.2" />
+    <PackageReference Include="Xamarin.Android.Support.Compat" Version="27.0.2" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StrongNamer">
