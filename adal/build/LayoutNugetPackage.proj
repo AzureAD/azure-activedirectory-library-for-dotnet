@@ -61,6 +61,9 @@
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.Identity.Core.pdb">
       <TargetFolder>MonoAndroid7</TargetFolder>
     </SourceFile>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.Identity.Core.xml">
+      <TargetFolder>MonoAndroid7</TargetFolder>
+    </SourceFile>
 
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.3\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
       <TargetFolder>netstandard1.3</TargetFolder>
@@ -76,6 +79,9 @@
       <TargetFolder>netstandard1.3</TargetFolder>
     </SourceFile>
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.3\Microsoft.Identity.Core.pdb">
+      <TargetFolder>netstandard1.3</TargetFolder>
+    </SourceFile>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.3\Microsoft.Identity.Core.xml">
       <TargetFolder>netstandard1.3</TargetFolder>
     </SourceFile>
 
@@ -95,7 +101,9 @@
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.1\Microsoft.Identity.Core.pdb">
       <TargetFolder>netstandard1.1</TargetFolder>
     </SourceFile>
-
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.1\Microsoft.Identity.Core.xml">
+      <TargetFolder>netstandard1.1</TargetFolder>
+    </SourceFile>
 
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
       <TargetFolder>net45</TargetFolder>
@@ -111,6 +119,9 @@
       <TargetFolder>net45</TargetFolder>
     </SourceFile>
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\net45\Microsoft.Identity.Core.pdb">
+      <TargetFolder>net45</TargetFolder>
+    </SourceFile>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\net45\Microsoft.Identity.Core.xml">
       <TargetFolder>net45</TargetFolder>
     </SourceFile>
 
@@ -131,6 +142,9 @@
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\Xamarin.iOS10\Microsoft.Identity.Core.pdb">
       <TargetFolder>Xamarin.iOS10</TargetFolder>
     </SourceFile>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\Xamarin.iOS10\Microsoft.Identity.Core.xml">
+      <TargetFolder>Xamarin.iOS10</TargetFolder>
+    </SourceFile>
 
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netcore45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
       <TargetFolder>netcore45</TargetFolder>
@@ -148,7 +162,9 @@
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netcore45\Microsoft.Identity.Core.pdb">
       <TargetFolder>netcore45</TargetFolder>
     </SourceFile>
-
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netcore45\Microsoft.Identity.Core.xml">
+      <TargetFolder>netcore45</TargetFolder>
+    </SourceFile>
 	<!-- Apply the same for Platform specific dll -->
     
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll">
@@ -243,8 +259,9 @@
     <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
     <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
     <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" Condition="$(CopyXmlDocFiles)=='true'" />
-	 <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.Identity.Core.dll" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
+	<Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.Identity.Core.dll" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
     <Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.Identity.Core.pdb" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
+	<Copy SourceFiles="$(AdalBinaryFolder)\Microsoft.Identity.Core.xml" DestinationFolder="$(_PackToFolder)\lib\adal\portable-net45+win" />
 
 
     <!-- Copy the platform-specifc ADAL.Net binaries to the appropriate target platform folder -->
