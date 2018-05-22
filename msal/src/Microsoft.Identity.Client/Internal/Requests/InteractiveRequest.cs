@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authenticationRequestParameters.RequestContext);
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
-                throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
+                throw new ArgumentException(CoreErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
             }
 
             _extraScopesToConsent = new SortedSet<string>();
@@ -202,8 +202,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 {
                     if (requestParameters.ContainsKey(kvp.Key))
                     {
-                        throw new MsalClientException(MsalClientException.DuplicateQueryParameterError,
-                            string.Format(CultureInfo.InvariantCulture, MsalErrorMessage.DuplicateQueryParameterTemplate,
+                        throw new CoreClientException(CoreClientException.DuplicateQueryParameterError,
+                            string.Format(CultureInfo.InvariantCulture, CoreErrorMessage.DuplicateQueryParameterTemplate,
                                 kvp.Key));
                     }
 
@@ -236,7 +236,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authorizationRequestParameters[OAuth2Parameter.CorrelationId] = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString();
             }
 
-            IDictionary<string, string> adalIdParameters = MsalIdHelper.GetMsalIdParameters();
+            IDictionary<string, string> adalIdParameters = CoreIdHelper.GetCoreIdParameters();
             foreach (KeyValuePair<string, string> kvp in adalIdParameters)
             {
                 authorizationRequestParameters[kvp.Key] = kvp.Value;
@@ -250,19 +250,19 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             if (_authorizationResult.Status == AuthorizationStatus.Success && !_state.Equals(_authorizationResult.State))
             {
-                throw new MsalClientException(MsalClientException.StateMismatchError,
+                throw new CoreClientException(CoreClientException.StateMismatchError,
                     string.Format(CultureInfo.InvariantCulture, "Returned state({0}) from authorize endpoint is not the same as the one sent({1})", _authorizationResult.State, _state));
             }
 
             if (_authorizationResult.Error == OAuth2Error.LoginRequired)
             {
-                throw new MsalUiRequiredException(MsalUiRequiredException.NoPromptFailedError,
-                    MsalErrorMessage.NoPromptFailedErrorMessage);
+                throw new CoreUiRequiredException(CoreUiRequiredException.NoPromptFailedError,
+                    CoreErrorMessage.NoPromptFailedErrorMessage);
             }
 
             if (_authorizationResult.Status != AuthorizationStatus.Success)
             {
-                throw new MsalServiceException(_authorizationResult.Error,
+                throw new CoreServiceException(_authorizationResult.Error,
                     _authorizationResult.ErrorDescription);
             }
         }

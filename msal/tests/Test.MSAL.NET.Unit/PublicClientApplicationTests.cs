@@ -105,12 +105,12 @@ namespace Test.MSAL.NET.Unit
             var mockApp = Substitute.For<IPublicClientApplication>();
             mockApp
                 .WhenForAnyArgs(x => x.AcquireTokenAsync(Arg.Any<string[]>()))
-                .Do(x => { throw new MsalServiceException("my error code", "my message"); });
+                .Do(x => { throw new CoreServiceException("my error code", "my message"); });
 
 
             // Now call the substitute and check the exception is thrown
-            MsalServiceException ex =
-                AssertException.Throws<MsalServiceException>(() => mockApp.AcquireTokenAsync(new string[] {"scope1"}));
+            CoreServiceException ex =
+                AssertException.Throws<CoreServiceException>(() => mockApp.AcquireTokenAsync(new string[] {"scope1"}));
             Assert.AreEqual("my error code", ex.ErrorCode);
             Assert.AreEqual("my message", ex.Message);
         }
@@ -171,10 +171,10 @@ namespace Test.MSAL.NET.Unit
                 AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
                 Assert.Fail("API should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalClientException.StateMismatchError, exc.ErrorCode);
+                Assert.AreEqual(CoreClientException.StateMismatchError, exc.ErrorCode);
             }
             finally
             {
@@ -213,10 +213,10 @@ namespace Test.MSAL.NET.Unit
                 AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
                 Assert.Fail("API should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalClientException.StateMismatchError, exc.ErrorCode);
+                Assert.AreEqual(CoreClientException.StateMismatchError, exc.ErrorCode);
             }
             finally
             {
@@ -257,10 +257,10 @@ namespace Test.MSAL.NET.Unit
             {
                 AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope).ConfigureAwait(false);
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalClientException.JsonParseError, exc.ErrorCode);
+                Assert.AreEqual(CoreClientException.JsonParseError, exc.ErrorCode);
                 Assert.AreEqual("client info is null", exc.Message);
             }
             finally
@@ -450,7 +450,7 @@ namespace Test.MSAL.NET.Unit
             }
             catch (AggregateException ex)
             {
-                MsalServiceException exc = (MsalServiceException) ex.InnerException;
+                CoreServiceException exc = (CoreServiceException) ex.InnerException;
                 Assert.IsNotNull(exc);
                 Assert.AreEqual("user_mismatch", exc.ErrorCode);
             }
@@ -652,9 +652,9 @@ namespace Test.MSAL.NET.Unit
                         })
                     .ConfigureAwait(false);
             }
-            catch (MsalUiRequiredException exc)
+            catch (CoreUiRequiredException exc)
             {
-                Assert.AreEqual(MsalUiRequiredException.NoTokensFoundError, exc.ErrorCode);
+                Assert.AreEqual(CoreUiRequiredException.NoTokensFoundError, exc.ErrorCode);
             }
             Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
                 anEvent[EventBase.EventNameKey].EndsWith("api_event") && anEvent[ApiEvent.ApiIdKey] == "30"
@@ -689,9 +689,9 @@ namespace Test.MSAL.NET.Unit
                         })
                     .ConfigureAwait(false);
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
-                Assert.AreEqual(MsalClientException.MultipleTokensMatchedError, exc.ErrorCode);
+                Assert.AreEqual(CoreClientException.MultipleTokensMatchedError, exc.ErrorCode);
             }
         }
 
@@ -947,9 +947,9 @@ namespace Test.MSAL.NET.Unit
             catch (AggregateException ex)
             {
                 Assert.IsNotNull(ex.InnerException);
-                Assert.IsTrue(ex.InnerException is MsalUiRequiredException);
-                var msalExc = (MsalUiRequiredException) ex.InnerException;
-                Assert.AreEqual(msalExc.ErrorCode, MsalUiRequiredException.InvalidGrantError);
+                Assert.IsTrue(ex.InnerException is CoreUiRequiredException);
+                var msalExc = (CoreUiRequiredException) ex.InnerException;
+                Assert.AreEqual(msalExc.ErrorCode, CoreUiRequiredException.InvalidGrantError);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
@@ -997,7 +997,7 @@ namespace Test.MSAL.NET.Unit
             MockHelpers.ConfigureMockWebUI(new MockWebUI()
             {
                 ExceptionToThrow =
-                    new MsalClientException(MsalClientException.AuthenticationUiFailedError,
+                    new CoreClientException(CoreClientException.AuthenticationUiFailedError,
                         "Failed to invoke webview", new Exception("some-inner-Exception"))
             });
 
@@ -1006,10 +1006,10 @@ namespace Test.MSAL.NET.Unit
                 AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
                 Assert.Fail("API should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalClientException.AuthenticationUiFailedError, exc.ErrorCode);
+                Assert.AreEqual(CoreClientException.AuthenticationUiFailedError, exc.ErrorCode);
                 Assert.AreEqual("some-inner-Exception", exc.InnerException.Message);
             }
             finally

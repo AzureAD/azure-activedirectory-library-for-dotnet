@@ -28,7 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
 
@@ -50,13 +49,13 @@ namespace Microsoft.Identity.Core.UI
         {
             if (Status == AuthorizationStatus.UserCancel)
             {
-                Error = MsalClientException.AuthenticationCanceledError;
-                ErrorDescription = MsalErrorMessage.AuthenticationCanceled;
+                Error = CoreClientException.AuthenticationCanceledError;
+                ErrorDescription = CoreErrorMessage.AuthenticationCanceled;
             }
             else if (Status == AuthorizationStatus.UnknownError)
             {
-                Error = MsalException.UnknownError;
-                ErrorDescription = MsalErrorMessage.Unknown;
+                Error = CoreException.UnknownError;
+                ErrorDescription = CoreErrorMessage.Unknown;
             }
             else
             {
@@ -121,8 +120,8 @@ namespace Microsoft.Identity.Core.UI
                 }
                 else
                 {
-                    Error = MsalError.AuthenticationFailed;
-                    ErrorDescription = MsalErrorMessage.AuthorizationServerInvalidResponse;
+                    Error = CoreError.AuthenticationFailed;
+                    ErrorDescription = CoreErrorMessage.AuthorizationServerInvalidResponse;
                     Status = AuthorizationStatus.UnknownError;
                 }
 
@@ -133,8 +132,8 @@ namespace Microsoft.Identity.Core.UI
             }
             else
             {
-                Error = MsalError.AuthenticationFailed;
-                ErrorDescription = MsalErrorMessage.AuthorizationServerInvalidResponse;
+                Error = CoreError.AuthenticationFailed;
+                ErrorDescription = CoreErrorMessage.AuthorizationServerInvalidResponse;
                 Status = AuthorizationStatus.UnknownError;
             }
         }

@@ -284,13 +284,13 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual("Exception type: System.Exception---> Exception type: System.Exception\r\n=== End of inner exception stack trace ===",
                 result);
 
-            MsalException msalException = new MsalException("Msal Exception");
+            CoreException msalException = new CoreException("Msal Exception");
             result = msalException.GetPiiScrubbedDetails();
-            Assert.AreEqual("Exception type: Microsoft.Identity.Client.MsalException, ErrorCode: Msal Exception", result);
+            Assert.AreEqual("Exception type: Microsoft.Identity.Core.CoreException, ErrorCode: Msal Exception", result);
 
-            MsalServiceException msalServiceException = new MsalServiceException("ErrorCode", "Msal Service Exception");
+            CoreServiceException msalServiceException = new CoreServiceException("ErrorCode", "Msal Service Exception");
             result = msalServiceException.GetPiiScrubbedDetails();
-            Assert.AreEqual("Exception type: Microsoft.Identity.Client.MsalServiceException, ErrorCode: ErrorCode, StatusCode: 0", result);
+            Assert.AreEqual("Exception type: Microsoft.Identity.Core.CoreServiceException, ErrorCode: ErrorCode, StatusCode: 0", result);
         }
     }
 }

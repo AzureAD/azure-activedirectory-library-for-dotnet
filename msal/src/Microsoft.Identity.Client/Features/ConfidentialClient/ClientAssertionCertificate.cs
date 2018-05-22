@@ -28,7 +28,6 @@
 using System;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 
@@ -51,7 +50,7 @@ namespace Microsoft.Identity.Client
             if (certificate.PublicKey. Key.KeySize < MinKeySizeInBits)
             {
                 throw new ArgumentOutOfRangeException(nameof(certificate),
-                    string.Format(CultureInfo.InvariantCulture, MsalErrorMessage.CertificateKeySizeTooSmallTemplate,
+                    string.Format(CultureInfo.InvariantCulture, CoreErrorMessage.CertificateKeySizeTooSmallTemplate,
                         MinKeySizeInBits));
             }
 #endif

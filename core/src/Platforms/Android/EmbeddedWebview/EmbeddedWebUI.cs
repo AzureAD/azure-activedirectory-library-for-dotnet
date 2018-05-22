@@ -29,7 +29,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
@@ -56,7 +55,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             }
             catch (Exception ex)
             {
-                throw new MsalClientException(MsalClientException.AuthenticationUiFailedError, "AuthenticationActivity failed to start", ex);
+                throw new CoreClientException(CoreClientException.AuthenticationUiFailedError, "AuthenticationActivity failed to start", ex);
             }
 
             await returnedUriReady.WaitAsync().ConfigureAwait(false);

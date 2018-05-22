@@ -32,7 +32,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.UI;
@@ -91,7 +90,7 @@ namespace Microsoft.Identity.Client.Internal.UI
             }
             else
             {
-                throw new MsalException(MsalError.InvalidOwnerWindowType,
+                throw new CoreException(CoreError.InvalidOwnerWindowType,
                     "Invalid owner window type. Expected types are IWin32Window or IntPtr (for window handle).");
             }
 
@@ -229,8 +228,8 @@ namespace Microsoft.Identity.Client.Internal.UI
                 RequestContext.Logger.ErrorPii(msg);
                 Result = new AuthorizationResult(AuthorizationStatus.ErrorHttp)
                 {
-                    Error = MsalClientException.NonHttpsRedirectNotSupported,
-                    ErrorDescription = MsalErrorMessage.NonHttpsRedirectNotSupported
+                    Error = CoreClientException.NonHttpsRedirectNotSupported,
+                    ErrorDescription = CoreErrorMessage.NonHttpsRedirectNotSupported
                 };
                 readyToClose = true;
             }
@@ -370,18 +369,18 @@ namespace Microsoft.Identity.Client.Internal.UI
 
         /// <summary>
         /// </summary>
-        protected MsalClientException CreateExceptionForAuthenticationUiFailed(int statusCode)
+        protected CoreClientException CreateExceptionForAuthenticationUiFailed(int statusCode)
         {
             if (NavigateErrorStatus.Messages.ContainsKey(statusCode))
             {
                 string format = "The browser based authentication dialog failed to complete. Reason: {0}";
                 string message = string.Format(CultureInfo.InvariantCulture, format, NavigateErrorStatus.Messages[statusCode]);
-                return new MsalClientException(MsalClientException.AuthenticationUiFailedError, message);
+                return new CoreClientException(CoreClientException.AuthenticationUiFailedError, message);
             }
 
             string formatUnknown = "The browser based authentication dialog failed to complete for an unknown reason. StatusCode: {0}";
             string messageUnknown = string.Format(CultureInfo.InvariantCulture, formatUnknown, statusCode);
-            return new MsalClientException(MsalClientException.AuthenticationUiFailedError, messageUnknown);
+            return new CoreClientException(CoreClientException.AuthenticationUiFailedError, messageUnknown);
         }
 
         private sealed class WindowsFormsWin32Window : IWin32Window

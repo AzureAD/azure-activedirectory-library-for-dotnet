@@ -30,7 +30,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal.UI
@@ -142,7 +141,7 @@ namespace Microsoft.Identity.Client.Internal.UI
         private void OnUserInteractionRequired()
         {
             SignalDone(
-                new MsalUiRequiredException(MsalUiRequiredException.NoPromptFailedError, MsalErrorMessage.NoPromptFailedErrorMessage));
+                new CoreUiRequiredException(CoreUiRequiredException.NoPromptFailedError, CoreErrorMessage.NoPromptFailedErrorMessage));
         }
 
         /// <summary>

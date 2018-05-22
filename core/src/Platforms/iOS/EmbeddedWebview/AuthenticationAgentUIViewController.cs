@@ -123,8 +123,8 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                  && !request.Url.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
                 {
                     AuthorizationResult result = new AuthorizationResult(AuthorizationStatus.ErrorHttp);
-                    result.Error = MsalError.NonHttpsRedirectNotSupported;
-                    result.ErrorDescription = MsalErrorMessage.NonHttpsRedirectNotSupported;
+                    result.Error = CoreError.NonHttpsRedirectNotSupported;
+                    result.ErrorDescription = CoreErrorMessage.NonHttpsRedirectNotSupported;
                     callbackMethod(result);
                     this.DismissViewController(true, null);
                     return false;

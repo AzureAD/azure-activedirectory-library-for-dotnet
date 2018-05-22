@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using System.Collections.Generic;
 using Microsoft.Identity.Core;
@@ -79,7 +78,7 @@ namespace Microsoft.Identity.Client
             base.ValidateRedirectUri(redirectUri, requestContext);
 
             if (PlatformInformationBase.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri))
-                throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + PlatformInformationBase.DefaultRedirectUri +
+                throw new CoreException(CoreError.RedirectUriValidationFailed, "Default redirect URI - " + PlatformInformationBase.DefaultRedirectUri +
                                         " can not be used on Android platform");
         }
 

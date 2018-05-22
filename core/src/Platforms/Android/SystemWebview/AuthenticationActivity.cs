@@ -31,7 +31,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.CustomTabs;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
 using Uri = Android.Net.Uri;
@@ -76,7 +75,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
             if (Intent == null)
             {
-                SendError(MsalClientException.UnresolvableIntentError, "Received null data intent from caller");
+                SendError(CoreClientException.UnresolvableIntentError, "Received null data intent from caller");
                 return;
             }
 
@@ -127,7 +126,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 string chromePackage = GetChromePackage();
                 if (string.IsNullOrEmpty(chromePackage))
                 {
-                    throw new MsalClientException(MsalClientException.ChromeNotInstalledError,
+                    throw new CoreClientException(CoreClientException.ChromeNotInstalledError,
                         "Chrome is not installed on the device, cannot proceed with authentication");
                 }
 

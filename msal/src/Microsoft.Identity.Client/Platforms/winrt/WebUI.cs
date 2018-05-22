@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Client.Internal.UI
             {
                 requestContext.Logger.Error(ex);
                 requestContext.Logger.ErrorPii(ex);
-                throw new MsalException(MsalClientException.AuthenticationUiFailedError, "WAB authentication failed",
+                throw new CoreException(CoreClientException.AuthenticationUiFailedError, "WAB authentication failed",
                     ex);
             }
 
@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Client.Internal.UI
                                NetworkConnectivityLevel.InternetAccess);
             if (!isConnected)
             {
-                throw new MsalClientException(MsalClientException.NetworkNotAvailableError, MsalErrorMessage.NetworkNotAvailable);
+                throw new CoreClientException(CoreClientException.NetworkNotAvailableError, CoreErrorMessage.NetworkNotAvailable);
             }
         }
 

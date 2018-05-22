@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using WebApi.Utils;
 
 namespace WebApi.Controllers
@@ -138,7 +139,7 @@ namespace WebApi.Controllers
 
                     result = await CallApi(MsGraphMeQuery, authResult.AccessToken);
                 }
-                catch (MsalException ex)
+                catch (CoreException ex)
                 {
                     result = "Web Api failed, MSAL Exception - " + ex.Message;
                 }

@@ -223,16 +223,16 @@ namespace DesktopTestApp
         private void CreateException(Exception ex)
         {
             string output = string.Empty;
-            MsalException exception = ex as MsalException;
+            CoreException exception = ex as CoreException;
 
             if (exception != null)
             {
                 output += string.Format("Error Code - {0}" + Environment.NewLine + "Message - {1}" + Environment.NewLine, exception.ErrorCode, exception.Message);
-                if (exception is MsalServiceException)
+                if (exception is CoreServiceException)
                 {
-                    output += string.Format("Status Code - {0}" + Environment.NewLine, ((MsalServiceException)exception).StatusCode);
-                    output += string.Format("Claims - {0}" + Environment.NewLine, ((MsalServiceException)exception).Claims);
-                    output += string.Format("Raw Response - {0}" + Environment.NewLine, ((MsalServiceException)exception).ResponseBody);
+                    output += string.Format("Status Code - {0}" + Environment.NewLine, ((CoreServiceException)exception).StatusCode);
+                    output += string.Format("Claims - {0}" + Environment.NewLine, ((CoreServiceException)exception).Claims);
+                    output += string.Format("Raw Response - {0}" + Environment.NewLine, ((CoreServiceException)exception).ResponseBody);
                 }
             }
             else

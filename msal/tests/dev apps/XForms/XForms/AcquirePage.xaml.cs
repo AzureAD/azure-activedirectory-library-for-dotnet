@@ -31,6 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -158,7 +159,7 @@ namespace XForms
 
                 acquireResponseLabel.Text = ToString(res);
             }
-            catch (MsalException exception)
+            catch (CoreException exception)
             {
                 acquireResponseLabel.Text = "MsalException - " + exception.Message;
             }
@@ -191,7 +192,7 @@ namespace XForms
                 acquireResponseLabel.Text = ToString(res);
                 RefreshUsers();
             }
-            catch (MsalException exception)
+            catch (CoreException exception)
             {
                 acquireResponseLabel.Text = "MsalException - " + exception.Message;
             }

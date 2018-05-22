@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 {
                     UriBuilder errorUri = new UriBuilder(callback);
                     errorUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
-                        MsalError.NonHttpsRedirectNotSupported, MsalErrorMessage.NonHttpsRedirectNotSupported);
+                        CoreError.NonHttpsRedirectNotSupported, CoreErrorMessage.NonHttpsRedirectNotSupported);
                     this.Finish(Activity, errorUri.ToString());
                     return true;
                 }

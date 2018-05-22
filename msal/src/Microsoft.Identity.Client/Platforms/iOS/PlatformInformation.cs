@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Client
 
         public override string GetAssemblyFileVersionAttribute()
         {
-            return typeof (MsalIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
+            return typeof (CoreIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
         }
 
         public override void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Client
             base.ValidateRedirectUri(redirectUri, requestContext);
 
             if (PlatformInformationBase.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri))
-                throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + PlatformInformationBase.DefaultRedirectUri +
+                throw new CoreException(CoreError.RedirectUriValidationFailed, "Default redirect URI - " + PlatformInformationBase.DefaultRedirectUri +
                                         " can not be used on iOS platform");
         }
 

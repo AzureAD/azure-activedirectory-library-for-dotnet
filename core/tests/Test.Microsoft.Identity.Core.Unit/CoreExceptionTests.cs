@@ -24,21 +24,21 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace Test.Microsoft.Identity.Unit.PublicApi
 {
     [TestClass]
-    public class MsalExceptionTests
+    public class CoreExceptionTests
     {
         [TestMethod]
         [TestCategory("MsalExceptionTests")]
         public void ExceptionsArePubliclyCreatable_MsalException()
         {
             var innerEx = new Exception();
-            var ex = new MsalException("code1", "msg1", innerEx);
+            var ex = new CoreException("code1", "msg1", innerEx);
 
             Assert.AreEqual("code1", ex.ErrorCode);
             Assert.AreEqual("msg1", ex.Message);
@@ -49,7 +49,7 @@ namespace Test.Microsoft.Identity.Unit.PublicApi
         [TestCategory("MsalExceptionTests")]
         public void ExceptionsArePubliclyCreatable_ServiceException()
         {
-            var ex = new MsalServiceException("code1", "msg1");
+            var ex = new CoreServiceException("code1", "msg1");
 
             Assert.AreEqual("code1", ex.ErrorCode);
             Assert.AreEqual("msg1", ex.Message);
@@ -60,7 +60,7 @@ namespace Test.Microsoft.Identity.Unit.PublicApi
         [TestCategory("MsalExceptionTests")]
         public void ExceptionsArePubliclyCreatable_MsalSilentTokenAcquisitionException()
         {
-            var ex = new MsalUiRequiredException(null, null);
+            var ex = new CoreUiRequiredException(null, null);
 
             Assert.IsNull(ex.InnerException);
         }

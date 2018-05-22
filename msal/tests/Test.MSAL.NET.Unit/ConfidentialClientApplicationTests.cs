@@ -127,11 +127,11 @@ namespace Test.MSAL.NET.Unit
             var mockApp = Substitute.For<IConfidentialClientApplication>();
             mockApp
                 .WhenForAnyArgs(x => x.AcquireTokenForClientAsync(Arg.Any<string[]>()))
-                .Do(x => { throw new MsalServiceException("my error code", "my message"); });
+                .Do(x => { throw new CoreServiceException("my error code", "my message"); });
 
 
             // Now call the substitute and check the exception is thrown
-            MsalServiceException ex = AssertException.Throws<MsalServiceException>(() => mockApp.AcquireTokenForClientAsync(new string[] { "scope1" }));
+            CoreServiceException ex = AssertException.Throws<CoreServiceException>(() => mockApp.AcquireTokenForClientAsync(new string[] { "scope1" }));
             Assert.AreEqual("my error code", ex.ErrorCode);
             Assert.AreEqual("my message", ex.Message);
         }
@@ -454,10 +454,10 @@ namespace Test.MSAL.NET.Unit
             }
             catch (Exception exc)
             {
-                Assert.IsTrue(exc.InnerException is MsalException);
-                Assert.AreEqual("duplicate_query_parameter", ((MsalException) exc.InnerException).ErrorCode);
+                Assert.IsTrue(exc.InnerException is CoreException);
+                Assert.AreEqual("duplicate_query_parameter", ((CoreException) exc.InnerException).ErrorCode);
                 Assert.AreEqual("Duplicate query parameter 'login_hint' in extraQueryParameters",
-                    ((MsalException) exc.InnerException).Message);
+                    ((CoreException) exc.InnerException).Message);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");

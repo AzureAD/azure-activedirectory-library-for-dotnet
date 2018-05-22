@@ -239,7 +239,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (ArgumentException ae)
             {
-                Assert.IsTrue(ae.Message.Contains(MsalErrorMessage.RedirectUriContainsFragment));
+                Assert.IsTrue(ae.Message.Contains(CoreErrorMessage.RedirectUriContainsFragment));
             }
         }
 
@@ -282,8 +282,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (Exception exc)
             {
-                Assert.IsTrue(exc.InnerException is MsalUiRequiredException);
-                Assert.AreEqual(MsalUiRequiredException.NoPromptFailedError, ((MsalUiRequiredException) exc.InnerException).ErrorCode);
+                Assert.IsTrue(exc.InnerException is CoreUiRequiredException);
+                Assert.AreEqual(CoreUiRequiredException.NoPromptFailedError, ((CoreUiRequiredException) exc.InnerException).ErrorCode);
             }
 
 
@@ -303,9 +303,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (Exception exc)
             {
-                Assert.IsTrue(exc.InnerException is MsalException);
-                Assert.AreEqual("invalid_request", ((MsalException) exc.InnerException).ErrorCode);
-                Assert.AreEqual("some error description", ((MsalException) exc.InnerException).Message);
+                Assert.IsTrue(exc.InnerException is CoreException);
+                Assert.AreEqual("invalid_request", ((CoreException) exc.InnerException).ErrorCode);
+                Assert.AreEqual("some error description", ((CoreException) exc.InnerException).Message);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
@@ -347,8 +347,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (Exception exc)
             {
-                Assert.IsTrue(exc.InnerException is MsalException);
-                Assert.AreEqual(MsalClientException.DuplicateQueryParameterError, ((MsalException) exc.InnerException).ErrorCode);
+                Assert.IsTrue(exc.InnerException is CoreException);
+                Assert.AreEqual(CoreClientException.DuplicateQueryParameterError, ((CoreException) exc.InnerException).ErrorCode);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
