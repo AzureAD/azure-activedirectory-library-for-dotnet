@@ -162,9 +162,6 @@
 	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netcore45\Microsoft.Identity.Core.pdb">
       <TargetFolder>netcore45</TargetFolder>
     </SourceFile>
-	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netcore45\Microsoft.Identity.Core.xml">
-      <TargetFolder>netcore45</TargetFolder>
-    </SourceFile>
 	<!-- Apply the same for Platform specific dll -->
     
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll">
