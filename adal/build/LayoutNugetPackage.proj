@@ -45,24 +45,24 @@
 
   <ItemGroup Label="Platform-specific files">
     
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.xml"
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.xml"
                 Condition="$(CopyXmlDocFiles)=='true'">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.Identity.Core.dll">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.Identity.Core.dll">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.Identity.Core.pdb">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.Identity.Core.pdb">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.Identity.Core.xml">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+	<SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.Identity.Core.xml">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
 
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.3\Microsoft.IdentityModel.Clients.ActiveDirectory.dll">
@@ -164,15 +164,15 @@
     </SourceFile>
 	<!-- Apply the same for Platform specific dll -->
     
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb">
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
-    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid7\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml"
+    <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\MonoAndroid8.1\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml"
                 Condition="$(CopyXmlDocFiles)=='true'">
-      <TargetFolder>MonoAndroid7</TargetFolder>
+      <TargetFolder>MonoAndroid8.1</TargetFolder>
     </SourceFile>
 
     <SourceFile Include="$(MSBuildThisFileDirectory)..\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\bin\$(Configuration)\netstandard1.3\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll">
