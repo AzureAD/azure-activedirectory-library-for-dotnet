@@ -49,8 +49,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public static async Task<string> CreateDeviceAuthChallengeResponseAsync(IDictionary<string, string> challengeData)
         {
             string authHeaderTemplate = "PKeyAuth {0}, Context=\"{1}\", Version=\"{2}\"";
-
-            X509Certificate2 certificate = FindCertificate(challengeData);
+            X509Certificate2 certificate = null;
+            try
+            {
+                certificate = FindCertificate(challengeData);
+            }
+            catch (AdalException ex)
+            {
+                if (ex.ErrorCode == AdalError.DeviceCertificateNotFound)
+                {
+                    return await Task.FromResult(string.Format(CultureInfo.InvariantCulture, @"PKeyAuth Context=""{0}"",Version=""{1}""", challengeData["Context"], challengeData["Version"])).ConfigureAwait(false);
+                }
+            }
             DeviceAuthJWTResponse response = new DeviceAuthJWTResponse(challengeData["SubmitUrl"],
                 challengeData["nonce"], Convert.ToBase64String(certificate.GetRawCertData()));
             CngKey key = CryptographyHelper.GetCngPrivateKey(certificate);
