@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Client
         /// User Mismatch.
         /// </summary>
         public const string UserMismatch = "user_mismatch";
-        
+
         /// <summary>
         /// Failed to refresh token.
         /// </summary>
@@ -92,5 +92,10 @@ namespace Microsoft.Identity.Client
         /// Non https redirect failed
         /// </summary>
         public const string NonHttpsRedirectNotSupported = "non_https_redirect_failed";
+
+        /// <summary>
+        /// Accessing WS Metadata Exchange Failed.
+        /// </summary>
+        public const string AccessingWsMetadataExchangeFailed = "accessing_ws_metadata_exchange_failed";
     }
 }
