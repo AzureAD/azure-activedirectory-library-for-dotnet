@@ -34,11 +34,20 @@ namespace AdalCoreCLRTestApp
 {
     class Program
     {
+
+        //private static string AUTHORITY = "https://login.microsoftonline.com/microsoft.onmicrosoft.com";
+        //private static string CLIENT_ID = "6d742d8f-5afd-4a88-b003-ae760656b0da";
+
+        private static string AUTHORITY = "https://login.microsoftonline.com/pesomka.onmicrosoft.com";
+        private static string CLIENT_ID = "07750a6f-a05a-411d-bac4-92e1ef446da3";
+
+        private static string RESOURCE = "https://graph.windows.net";
+
         static void Main(string[] args)
         {
             try
             {
-                AcquireTokenAsync().Wait();
+                AcquireTokenUsingIntegAuthFlow().Wait();
             }
             catch (AggregateException ae)
             {
@@ -51,14 +60,49 @@ namespace AdalCoreCLRTestApp
             }
         }
 
-        private static async Task AcquireTokenAsync()
+        private static async Task AcquireTokenUsingIntegAuthFlow()
         {
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
-            var certificate = GetCertificateByThumbprint("<CERT_THUMBPRINT>");
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", new ClientAssertionCertificate("<CLIENT_ID>", certificate));
+            AuthenticationContext context = new AuthenticationContext(AUTHORITY, true);
+            try
+            {
+                var result = await context.AcquireTokenAsync(RESOURCE, CLIENT_ID, new UserCredential("pesomka@microsoft.com"));
 
-            string token = result.AccessToken;
-            Console.WriteLine(token + "\n");
+               result = await context.AcquireTokenAsync(RESOURCE, CLIENT_ID, new Uri("http://local"), null);
+
+
+                result = await context.AcquireTokenSilentAsync(RESOURCE, CLIENT_ID);
+
+                Console.WriteLine(result.AccessToken + "\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+            }
+        }
+
+        private static async Task AcquireTokenUsingDeviceCodeFlow()
+        {
+            AuthenticationContext context = new AuthenticationContext(AUTHORITY, true);
+            //var certificate = GetCertificateByThumbprint("<CERT_THUMBPRINT>");
+            DeviceCodeResult codeResult;
+            try
+            {
+                codeResult = await context.AcquireDeviceCodeAsync(RESOURCE, CLIENT_ID);
+                string msg = codeResult.Message;
+
+                Console.WriteLine(msg + "\n");
+
+                var result = await context.AcquireTokenByDeviceCodeAsync(codeResult);
+
+
+                Console.WriteLine(result.AccessToken + "\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+            }
         }
 
         private static X509Certificate2 GetCertificateByThumbprint(string thumbprint)

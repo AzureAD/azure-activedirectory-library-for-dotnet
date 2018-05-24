@@ -38,12 +38,8 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Net;
-using Microsoft.Identity.Core.Cache;
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.OAuth2;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using TokenResponseClaim = Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2.TokenResponseClaim;
+using Microsoft.Identity.Core.UI;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -60,7 +56,8 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto);
+
             InstanceDiscovery.InstanceCache.Clear();
         }
 

@@ -26,29 +26,17 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Client.Internal.Interfaces;
+
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client.Internal
 {
-    internal static class PlatformPluginSwitch
-    {
-        static PlatformPluginSwitch()
-        {
-            DynamicallyLinkAssembly = true;
-        }
-
-        public static bool DynamicallyLinkAssembly { get; set; }
-    }
-
     internal static class PlatformPlugin
     {
         static PlatformPlugin()
         {
-            if (PlatformPluginSwitch.DynamicallyLinkAssembly)
-            {
-                InitializeByAssemblyDynamicLinking();
-            }
+            InitializeByAssemblyDynamicLinking();
         }
 
         public static IWebUIFactory WebUIFactory { get; set; }
@@ -59,8 +47,14 @@ namespace Microsoft.Identity.Client.Internal
         {
 #if !FACADE
             CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-            InjectDependecies(
-                (IWebUIFactory) new UI.WebUIFactory(),
+            IWebUIFactory obj = null;
+
+#if ANDROID || iOS
+            obj = new Microsoft.Identity.Core.UI.WebUIFactory();
+#else
+            obj = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
+#endif
+            InjectDependecies(obj,
                 (PlatformInformationBase) new PlatformInformation());
 #endif
         }
