@@ -1,4 +1,4 @@
-Version 3.19.6
+Version 3.19.6 
 ==============
 This hotfix release includes:
 - Updated ADAL to follow the Public Key Authentication spec when running on a non workplace joined device (#1058)
