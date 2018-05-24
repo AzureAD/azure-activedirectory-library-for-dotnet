@@ -64,6 +64,31 @@ namespace Microsoft.Identity.Core
                     "Failed to parse the returned client info.", exc);
             }
         }
+
+        public string ToEncodedJson() {
+            return Base64UrlHelpers.Encode(JsonHelper.SerializeToJson<ClientInfo>(this));
+        }
+
+        public static ClientInfo CreateFromUserIdentifier(string userIdentifier)
+        {
+            if (string.IsNullOrEmpty(userIdentifier))
+            {
+                return null;
+            }
+
+            string[] artifacts = userIdentifier.Split('.');
+
+            if (artifacts.Length == 0)
+            {
+                return null;
+            }
+
+            return new ClientInfo()
+            {
+                UniqueIdentifier = artifacts[0],
+                UniqueTenantIdentifier = artifacts[1]
+            };
+        }
         public static ClientInfo CreateFromEncodedString(string encodedUserIdentiier)
         {
             if (string.IsNullOrEmpty(encodedUserIdentiier))

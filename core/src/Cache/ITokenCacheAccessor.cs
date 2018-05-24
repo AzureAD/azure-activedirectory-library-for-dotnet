@@ -35,7 +35,15 @@ namespace Microsoft.Identity.Core.Cache
 
         void SaveRefreshToken(string cacheKey, string item);
 
+        void SaveIdToken(string cacheKey, string item);
+
+        void SaveAccount(string cacheKey, string item);
+
         string GetRefreshToken(string refreshTokenKey);
+
+        string GetIdToken(string idTokenKey);
+
+        string GetAccount(string accountKey);
 
         void DeleteAccessToken(string cacheKey);
 
@@ -44,6 +52,10 @@ namespace Microsoft.Identity.Core.Cache
         ICollection<string> GetAllAccessTokensAsString();
 
         ICollection<string> GetAllRefreshTokensAsString();
+
+        ICollection<string> GetAllIdTokensAsString();
+
+        ICollection<string> GetAllAccountsAsString();
 
         ICollection<string> GetAllAccessTokenKeys();
 

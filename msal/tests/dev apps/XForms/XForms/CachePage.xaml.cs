@@ -98,7 +98,8 @@ namespace XForms
             var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
 
             var tokenCache = App.MsalPublicClient.UserTokenCache;
-            tokenCache.DeleteAccessToken(accessTokenCacheItem);
+            // todo pass idToken instead of null
+            tokenCache.DeleteAccessToken(accessTokenCacheItem, null);
 
             RefreshCacheView();
         }
@@ -110,7 +111,7 @@ namespace XForms
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // invalidate refresh token
-            refreshTokenCacheItem.RefreshToken = "InvalidValue";
+            refreshTokenCacheItem.Secret = "InvalidValue";
 
             // update entry in the cache
             tokenCache.AddRefreshTokenCacheItem(refreshTokenCacheItem);
@@ -123,7 +124,8 @@ namespace XForms
             var mi = (MenuItem) sender;
             var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
 
-            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem));
+            // pass idtoken instead of null
+            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null));
         }
 
         public async Task ShowRefreshTokenDetails(object sender, EventArgs e)
@@ -131,7 +133,10 @@ namespace XForms
             var mi = (MenuItem)sender;
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
-            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem));
+            var accountCacheItem = App.MsalPublicClient.UserTokenCache.
+                GetAccountCacheItem(refreshTokenCacheItem.GetAccountItemKey());
+
+            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem, accountCacheItem));
         }
     }
 }

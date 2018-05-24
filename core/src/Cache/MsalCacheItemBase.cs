@@ -25,33 +25,56 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
     [DataContract]
     internal abstract class MsalCacheItemBase
     {
-        internal MsalTokenCacheItemBase(string userIdentifier, string environment)
-        {
-            if (string.IsNullOrEmpty(userIdentifier))
-            {
-                throw new ArgumentNullException(nameof(userIdentifier));
-            }
-            if (string.IsNullOrEmpty(environment))
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-            this.UserIdentifier = userIdentifier;
-            this.Environment = environment;
-        }
-
         [DataMember(Name = "unique_user_id", IsRequired = true)]
-        string UserIdentifier { get; }
+        internal string UserIdentifier { get; set; }
 
         [DataMember(Name = "environment", IsRequired = true)]
-        string Environment { get; }
+        internal string Environment { get; set; }
+
+        [DataMember(Name = "client_info")]
+        internal string RawClientInfo { get; set; }
+
+        public ClientInfo ClientInfo { get; set; }
+
+        internal void InitClientInfo()
+        {
+            if (RawClientInfo != null)
+            {
+                ClientInfo = ClientInfo.CreateFromJson(RawClientInfo);
+            }
+        }
+
+        internal void InitRawClientInfoDerivedProperties()
+        {
+            InitClientInfo();
+
+            UserIdentifier = GetUserIdentifier();
+        }
+
+        string GetUserIdentifier()
+        {
+            if (ClientInfo == null)
+            {
+                return null;
+            }
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", ClientInfo.UniqueIdentifier,
+                ClientInfo.UniqueTenantIdentifier);
+        }
+
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext context)
+        {
+            InitClientInfo();
+        }
     }
 }

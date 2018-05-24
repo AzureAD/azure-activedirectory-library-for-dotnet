@@ -37,6 +37,7 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -69,6 +70,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 AfterAccess = StorageDelegates.AfterAccess
             };
         }
+
+        internal TokenCacheAccessor TokenCacheAccessor = new TokenCacheAccessor();
 
         /// <summary>
         /// Default constructor.
@@ -446,7 +449,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         msg = "Checking MSAL cache for user token cache";
                         requestContext.Logger.Info(msg);
                         requestContext.Logger.InfoPii(msg);
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
+                            cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
                     }
                 }
 
@@ -493,10 +497,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 this.HasStateChanged = true;
 
+                IdToken idToken = IdToken.Parse(result.Result.IdToken);
+
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
-                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == AuthorityType.AAD)
+                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
-                    CacheFallbackOperations.WriteMsalRefreshToken(result, authority, clientId, displayableId, result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName);
+                    CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
+                        result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName,
+                        result.Result.UserInfo.FamilyName, idToken.ObjectId);
                 }
             }
         }
@@ -585,7 +593,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     // check if the token was issued by AAD
                     if (returnValue != null &&
-                        Authenticator.DetectAuthorityType(returnValue.Value.Key.Authority) == AuthorityType.ADFS)
+                        Authenticator.DetectAuthorityType(returnValue.Value.Key.Authority) == Internal.Instance.AuthorityType.ADFS)
                     {
                         returnValue = null;
                     }

@@ -25,13 +25,31 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache.U
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Microsoft.Identity.Core.Cache
 {
-    internal enum AuthorityType
+    internal class MsalAccountCacheKey : MsalCacheKeyBase
     {
-        AAD,
-        MSA,
-        MSSTS,
-        OTHER
+        public MsalAccountCacheKey(string environment, string tenantId, string userIdentifier) : base(environment, userIdentifier)
+        {
+            TenantId = tenantId;
+        }
+        internal string TenantId { get; set; }
+
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append(UserIdentifier + CacheKeyDelimiter);
+            stringBuilder.Append(Environment + CacheKeyDelimiter);
+            stringBuilder.Append(TenantId);
+
+            return stringBuilder.ToString();
+        }
     }
 }

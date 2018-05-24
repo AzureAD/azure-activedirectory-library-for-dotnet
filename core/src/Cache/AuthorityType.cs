@@ -25,36 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class MsalAccountCacheKey : MsalCacheKeyBase
+    internal enum AuthorityType
     {
-        public MsalAccountCacheKey(string environment, string realm, string userIdentifier) : base(environment, realm, userIdentifier)
-        {
-            if (string.IsNullOrEmpty(userIdentifier))
-            {
-                throw new ArgumentNullException(nameof(userIdentifier));
-            }
-            if (string.IsNullOrEmpty(environment))
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-        }
-        public override string ToString()
-        {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(UserIdentifier + CacheKeyDelimiter);
-            stringBuilder.Append(this.Environment + CacheKeyDelimiter);
-            stringBuilder.Append(Realm ?? "");
-
-            return stringBuilder.ToString();
-        }
+        AAD,
+        MSA,
+        MSSTS,
+        OTHER
     }
 }

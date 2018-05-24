@@ -38,6 +38,8 @@ namespace Microsoft.Identity.Core
     {
         private const string AccessTokenServiceId = "com.microsoft.identity.client.accessToken";
         private const string RefreshTokenServiceId = "com.microsoft.identity.client.refreshToken";
+        private const string IdTokenServiceId = "com.microsoft.identity.client.idToken";
+        private const string AccountServiceId = "com.microsoft.identity.client.Account";
 
         private const bool _defaultSyncSetting = false;
         private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
@@ -86,6 +88,16 @@ namespace Microsoft.Identity.Core
         public ICollection<string> GetAllRefreshTokensAsString()
         {
             return GetValues(RefreshTokenServiceId);
+        }
+
+        public ICollection<string> GetAllIdTokensAsString()
+        {
+            return GetValues(IdTokenServiceId);
+        }
+
+        public ICollection<string> GetAllAccountsAsString()
+        {
+            return GetValues(AccountServiceId);
         }
 
         public ICollection<string> GetAllAccessTokenKeys()
@@ -222,6 +234,26 @@ namespace Microsoft.Identity.Core
             {
                 DeleteRefreshToken(key);
             }
+        }
+
+        public void SaveIdToken(string cacheKey, string item)
+        {
+            SetValueForKey(cacheKey, item, IdTokenServiceId);
+        }
+
+        public void SaveAccount(string cacheKey, string item)
+        {
+            SetValueForKey(cacheKey, item, AccountServiceId);
+        }
+
+        public string GetIdToken(string idTokenKey)
+        {
+            return GetValue(idTokenKey, IdTokenServiceId);
+        }
+
+        public string GetAccount(string accountKey)
+        {
+            return GetValue(accountKey, AccountServiceId);
         }
     }
 }

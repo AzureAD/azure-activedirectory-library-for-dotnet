@@ -42,8 +42,14 @@ namespace Microsoft.Identity.Core
         private const int MaxCompositeValueLength = 1024;
         private const string LocalSettingsTokenContainerName = "MicrosoftAuthenticationLibrary.AccessTokens";
         private const string LocalSettingsRefreshTokenContainerName = "MicrosoftAuthenticationLibrary.RefreshTokens";
+        private const string LocalSettingsIdTokenContainerName = "MicrosoftAuthenticationLibrary.IdTokens";
+        private const string LocalSettingsAccountContainerName = "MicrosoftAuthenticationLibrary.Accounts";
+
         private ApplicationDataContainer _refreshTokenContainer = null;
         private ApplicationDataContainer _accessTokenContainer = null;
+        private ApplicationDataContainer _idTokenContainer = null;
+        private ApplicationDataContainer _accountContainer = null;
+
         private RequestContext _requestContext;
 
         public TokenCacheAccessor()
@@ -53,6 +59,12 @@ namespace Microsoft.Identity.Core
                 localSettings.CreateContainer(LocalSettingsTokenContainerName, ApplicationDataCreateDisposition.Always);
             _refreshTokenContainer =
                 localSettings.CreateContainer(LocalSettingsRefreshTokenContainerName,
+                    ApplicationDataCreateDisposition.Always);
+            _idTokenContainer = 
+                localSettings.CreateContainer(LocalSettingsIdTokenContainerName, 
+                    ApplicationDataCreateDisposition.Always);
+            _accountContainer =
+                localSettings.CreateContainer(LocalSettingsAccountContainerName,
                     ApplicationDataCreateDisposition.Always);
         }
         public TokenCacheAccessor(RequestContext requestContext) : this()
@@ -106,6 +118,28 @@ namespace Microsoft.Identity.Core
         {
             ICollection<string> list = new List<string>();
             foreach (ApplicationDataCompositeValue item in _refreshTokenContainer.Values.Values)
+            {
+                list.Add(CoreHelpers.CreateString(GetCacheValue(item)));
+            }
+
+            return list;
+        }
+
+        public ICollection<string> GetAllIdTokensAsString()
+        {
+            ICollection<string> list = new List<string>();
+            foreach (ApplicationDataCompositeValue item in _idTokenContainer.Values.Values)
+            {
+                list.Add(CoreHelpers.CreateString(GetCacheValue(item)));
+            }
+
+            return list;
+        }
+
+        public ICollection<string> GetAllAccountsAsString()
+        {
+            ICollection<string> list = new List<string>();
+            foreach (ApplicationDataCompositeValue item in _accountContainer.Values.Values)
             {
                 list.Add(CoreHelpers.CreateString(GetCacheValue(item)));
             }
@@ -184,6 +218,34 @@ namespace Microsoft.Identity.Core
             {
                 _refreshTokenContainer.Values.Remove(rtKey);
             }
+        }
+
+        public void SaveIdToken(string cacheKey, string item)
+        {
+            ApplicationDataCompositeValue composite = new ApplicationDataCompositeValue();
+            SetCacheValue(composite, item);
+            _idTokenContainer.Values[CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
+        }
+
+        public void SaveAccount(string cacheKey, string item)
+        {
+            ApplicationDataCompositeValue composite = new ApplicationDataCompositeValue();
+            SetCacheValue(composite, item);
+            _accountContainer.Values[CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)] = composite;
+        }
+
+        public string GetIdToken(string idTokenKey)
+        {
+            return CoreHelpers.ByteArrayToString(
+                GetCacheValue((ApplicationDataCompositeValue)_idTokenContainer.Values[
+                    CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(idTokenKey)]));
+        }
+
+        public string GetAccount(string accountKey)
+        {
+            return CoreHelpers.ByteArrayToString(
+                GetCacheValue((ApplicationDataCompositeValue)_accountContainer.Values[
+                    CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(accountKey)]));
         }
     }
 }

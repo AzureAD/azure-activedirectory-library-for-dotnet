@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -31,23 +31,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
-    internal abstract class MsalCacheKeyBase
+    internal interface ILegacyCachePersistance
     {
-        public const string CacheKeyDelimiter = "-";
+        byte[] LoadCache();
 
-        internal MsalCacheKeyBase(string environment, string realm, string userIdentifier)
-        {
-            Environment = environment;
-            Realm = realm;
-            UserIdentifier = userIdentifier;
-        }
-
-        internal string Environment { get; set; }
-
-        internal string Realm { get; set; }
-
-        internal string UserIdentifier { get; set; }
+        void WriteCache(byte[] serializedCache);
     }
 }

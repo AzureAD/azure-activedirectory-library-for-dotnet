@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,40 +27,48 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Http;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
-    internal class MsalCredentialCacheItemBase : MsalCacheItemBase
+    internal static class AdalHttpMessageHandlerFactory
     {
-        internal MsalCredentialCacheItemBase(string userIdentifier, string environment, string clientId, string secret) 
-            : base(userIdentifier, environment)
+        internal static HttpMessageHandler GetMessageHandler(bool useDefaultCredentials)
         {
-            if (string.IsNullOrEmpty(clientId))
+            if (UseMocks)
             {
-                throw new ArgumentNullException(nameof(clientId));
+                if (MockHandlerQueue.Count > 0)
+                {
+                    return MockHandlerQueue.Dequeue();
+                }
+
+                throw new ArgumentException("No mocks available to consume");
             }
-            if (string.IsNullOrEmpty(secret))
-            {
-                throw new ArgumentNullException(nameof(secret));
-            }
-            this.ClientId = clientId;
-            this.Secret = secret;
+
+            return new HttpClientHandler { UseDefaultCredentials = useDefaultCredentials, Proxy = WebProxyProvider.DefaultWebProxy};
         }
 
-        [DataMember(Name = "credential_type", IsRequired = true)]
-        CredentialType CredentialType { get; }
+        private static readonly Queue<HttpMessageHandler> MockHandlerQueue = new Queue<HttpMessageHandler>();
 
-        [DataMember(Name = "client_id", IsRequired = true)]
-        public CredentialType ClientId { get; set; }
+        public static void AddMockHandler(HttpMessageHandler mockHandler)
+        {
+            MockHandlerQueue.Enqueue(mockHandler);
+        }
 
-        [DataMember(Name = "secret", IsRequired = true)]
-        public CredentialType Secret { get; set; }
+        public static void InitializeMockProvider()
+        {
+            UseMocks = true;
+            MockHandlerQueue.Clear();
+        }
 
-        [DataMember(Name = "client_info")]
-        public string ClientInfo { get; set; }
+        public static int MockHandlersCount()
+        {
+            return MockHandlerQueue.Count;
+        }
+
+        public static bool UseMocks
+        {
+            get; set;
+        }
     }
 }

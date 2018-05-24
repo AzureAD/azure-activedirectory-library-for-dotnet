@@ -34,24 +34,25 @@ namespace XForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class AccessTokenCacheItemDetails : ContentPage
     {
-        internal AccessTokenCacheItemDetails(MsalAccessTokenCacheItem msalAccessTokenCacheItem)
+        internal AccessTokenCacheItemDetails(MsalAccessTokenCacheItem msalAccessTokenCacheItem, 
+            MsalIdTokenCacheItem msalIdTokenCacheItem)
         {
             InitializeComponent();
 
             authorityLabel.Text = msalAccessTokenCacheItem.Authority;
             clientIdLabel.Text = msalAccessTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = msalAccessTokenCacheItem.IdToken.PreferredUsername;
-            userNameLabel.Text = msalAccessTokenCacheItem.IdToken.Name;
-            userIdentityProviderLabel.Text = msalAccessTokenCacheItem.IdToken.Issuer;
+            userDisplayableIdLabel.Text = msalIdTokenCacheItem.IdToken.PreferredUsername;
+            userNameLabel.Text = msalIdTokenCacheItem.IdToken.Name;
+            userIdentityProviderLabel.Text = msalIdTokenCacheItem.IdToken.Issuer;
 
             expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
-            scopesLabel.Text = msalAccessTokenCacheItem.Scope;
+            scopesLabel.Text = msalAccessTokenCacheItem.Scopes;
 
             clientInfoUniqueIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueIdentifier;
             clientInfoUniqueTenantIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
 
-            accessTokenLabel.Text = StringShortenerConverter.GetShortStr(msalAccessTokenCacheItem.AccessToken, 100);
+            accessTokenLabel.Text = StringShortenerConverter.GetShortStr(msalAccessTokenCacheItem.Secret, 100);
         }
     }
 }

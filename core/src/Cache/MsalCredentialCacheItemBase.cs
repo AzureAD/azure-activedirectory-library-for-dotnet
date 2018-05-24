@@ -26,19 +26,25 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class LegacyCachePersistance : ILegacyCachePersistance
+    [DataContract]
+    internal class MsalCredentialCacheItemBase : MsalCacheItemBase
     {
-        //this class is an empty implementation to facilitate testing of forward/backward cache compat testing.
-        byte[] ILegacyCachePersistance.LoadCache()
-        {
-            return null;
-        }
+        [DataMember(Name = "credential_type", IsRequired = true)]
+        internal string CredentialType { get; set; }
 
-        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
-        {
-        }
+        [DataMember(Name = "client_id", IsRequired = true)]
+        public string ClientId { get; set; }
+
+        [DataMember(Name = "secret", IsRequired = true)]
+        public string Secret { get; set; }
     }
 }

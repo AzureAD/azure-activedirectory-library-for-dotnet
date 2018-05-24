@@ -25,27 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class MsalIdTokenCacheItem : MsalCredentialCacheItemBase
+    internal enum CredentialType
     {
-        internal MsalIdTokenCacheItem(string userIdentifier, string environment, string clientId, string secret)
-            : base(userIdentifier, environment, clientId, secret)
-        {
-            this.CredentialType = CredentialType.IdToken;
-        }
-
-        [DataMember(Name = "realm")]
-        public string Realm { get; set; }
-
-        [DataMember(Name = "authority")]
-        string Authority { get; set; }
+        IdToken,
+        AccessToken,
+        RefreshToken
     }
 }

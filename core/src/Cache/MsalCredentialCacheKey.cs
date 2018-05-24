@@ -27,28 +27,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Instance;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class MsalCredentialCacheKey : MsalCacheKeyBase
+    abstract class MsalCredentialCacheKey : MsalCacheKeyBase
     {
         public const string ScopesDelimiter = " ";
 
-        internal MsalCredentialCacheKey(string environment, string realm, string userIdentifier,
+        internal MsalCredentialCacheKey(string environment, string tenantId, string userIdentifier,
             CredentialType credentialType, string clientId, SortedSet<string> scopes)
-            : base(environment, realm, userIdentifier)
+            : base(environment, userIdentifier)
         {
-            if (string.IsNullOrEmpty(environment))
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-
             if (string.IsNullOrEmpty(clientId))
             {
                 throw new ArgumentNullException(nameof(clientId));
@@ -57,24 +51,27 @@ namespace Microsoft.Identity.Core.Cache.U
             this.CredentialType = credentialType;
             this.ClientId = clientId;
             this.Scopes = scopes;
+            this.TenantId = tenantId;
         }
 
-        CredentialType CredentialType { get; set; }
+        internal CredentialType CredentialType { get; set; }
 
-        string ClientId { get; set; }
+        internal string ClientId { get; set; }
 
-        SortedSet<string> Scopes { get; set; }
+        internal SortedSet<string> Scopes { get; set; }
+
+        internal string TenantId { get; set; }
 
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.Append(UserIdentifier ?? "" + CacheKeyDelimiter);
+            stringBuilder.Append((UserIdentifier ?? "") + CacheKeyDelimiter);
             stringBuilder.Append(this.Environment + CacheKeyDelimiter);
             stringBuilder.Append(CredentialType + CacheKeyDelimiter);
             stringBuilder.Append(ClientId + CacheKeyDelimiter);
-            stringBuilder.Append(Realm ?? "" + CacheKeyDelimiter);
-            stringBuilder.Append(scopes != null ? string.Join(ScopesDelimiter, Scopes) : "");
+            stringBuilder.Append(TenantId ?? "" + CacheKeyDelimiter);
+            stringBuilder.Append(Scopes != null ? string.Join(ScopesDelimiter, Scopes) : "");
 
             return stringBuilder.ToString();
         }

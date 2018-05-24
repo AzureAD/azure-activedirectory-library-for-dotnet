@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,48 +27,41 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Net.Http;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Client.Internal.Interfaces;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
+using NSubstitute;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
+namespace Test.MSAL.NET.Unit.Mocks
 {
-    internal static class HttpMessageHandlerFactory
+    internal static class MsalMockHelpers
     {
-        internal static HttpMessageHandler GetMessageHandler(bool useDefaultCredentials)
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult)
         {
-            if (UseMocks)
-            {
-                if (MockHandlerQueue.Count > 0)
-                {
-                    return MockHandlerQueue.Dequeue();
-                }
-
-                throw new ArgumentException("No mocks available to consume");
-            }
-
-            return new HttpClientHandler { UseDefaultCredentials = useDefaultCredentials, Proxy = WebProxyProvider.DefaultWebProxy};
+            ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
         }
 
-        private static readonly Queue<HttpMessageHandler> MockHandlerQueue = new Queue<HttpMessageHandler>();
-
-        public static void AddMockHandler(HttpMessageHandler mockHandler)
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
         {
-            MockHandlerQueue.Enqueue(mockHandler);
+            MockWebUI webUi = new MockWebUI();
+            webUi.QueryParamsToValidate = queryParamsToValidate;
+            webUi.MockResult = authorizationResult;
+
+            ConfigureMockWebUI(webUi);
         }
 
-        public static void InitializeMockProvider()
-        {
-            UseMocks = true;
-            MockHandlerQueue.Clear();
-        }
 
-        public static int MockHandlersCount()
+        public static void ConfigureMockWebUI(MockWebUI webUi)
         {
-            return MockHandlerQueue.Count;
-        }
-
-        public static bool UseMocks
-        {
-            get; set;
+            IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
+            mockFactory.CreateAuthenticationDialog(Arg.Any<UIParent>(), Arg.Any<RequestContext>()).Returns(webUi);
+            PlatformPlugin.WebUIFactory = mockFactory;
         }
     }
 }

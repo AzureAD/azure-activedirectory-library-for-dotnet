@@ -25,24 +25,65 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.OAuth2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class MsalRefreshTokenCacheItem : MsalCredentialCacheItemBase
+    [DataContract]
+    internal class MsalIdTokenCacheItem : MsalCredentialCacheItemBase
     {
-        internal MsalRefreshTokenCacheItem(string userIdentifier, string environment, string clientId, string secret)
-            : base(userIdentifier, environment, clientId, secret)
+        internal MsalIdTokenCacheItem()
         {
-            this.CredentialType = CredentialType.RefreshToken;
+        }
+        internal MsalIdTokenCacheItem(Authority authority, string clientId, MsalTokenResponse response, string tenantId)
+        {
+            CredentialType = Cache.CredentialType.IdToken.ToString();
+            Authority = authority.CanonicalAuthority;
+
+            Environment = authority.Host;
+            TenantId = tenantId;
+
+            ClientId = clientId;
+
+            Secret = response.IdToken;
+
+            RawClientInfo = response.ClientInfo;
+
+            CreateDerivedProperties();
         }
 
-        [DataMember(Name = "target")]
-        string Scopes { get; set; }
+        [DataMember(Name = "realm")]
+        internal string TenantId { get; set; }
+
+        [DataMember(Name = "authority")]
+        internal string Authority { get; set; }
+
+        internal IdToken IdToken { get; set; }
+
+        internal void CreateDerivedProperties()
+        {
+            IdToken = IdToken.Parse(Secret);
+
+            InitRawClientInfoDerivedProperties();
+        }
+
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext context)
+        {
+            CreateDerivedProperties();
+        }
+
+        internal string GetIdTokenItemKey()
+        {
+            return new MsalIdTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId).ToString();
+        }
     }
 }

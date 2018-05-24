@@ -442,7 +442,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected void ValidateAuthorityType()
         {
-            if (!SupportADFS && Authenticator.AuthorityType == AuthorityType.ADFS)
+            if (!SupportADFS && Authenticator.AuthorityType == Instance.AuthorityType.ADFS)
             {
                 throw new AdalException(AdalError.InvalidAuthorityType,
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.InvalidAuthorityTypeTemplate,

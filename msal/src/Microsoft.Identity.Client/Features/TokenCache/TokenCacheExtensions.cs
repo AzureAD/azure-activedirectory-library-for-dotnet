@@ -102,6 +102,22 @@ namespace Microsoft.Identity.Client
                         tokenCache.AddRefreshTokenCacheItem(JsonHelper.DeserializeFromJson<MsalRefreshTokenCacheItem>(rtItem));
                     }
                 }
+
+                if (cacheDict.ContainsKey("id_tokens"))
+                {
+                    foreach (var idItem in cacheDict["id_tokens"])
+                    {
+                        tokenCache.AddIdTokenCacheItem(JsonHelper.DeserializeFromJson<MsalIdTokenCacheItem>(idItem));
+                    }
+                }
+
+                if (cacheDict.ContainsKey("accounts"))
+                {
+                    foreach (var account in cacheDict["accounts"])
+                    {
+                        tokenCache.AddAccountCacheItem(JsonHelper.DeserializeFromJson<MsalAccountCacheItem>(account));
+                    }
+                }
             }
         }
 
@@ -119,6 +135,8 @@ namespace Microsoft.Identity.Client
                 Dictionary<string, IEnumerable<string>> cacheDict = new Dictionary<string, IEnumerable<string>>();
                 cacheDict["access_tokens"] = tokenCache.GetAllAccessTokenCacheItems(requestContext);
                 cacheDict["refresh_tokens"] = tokenCache.GetAllRefreshTokenCacheItems(requestContext);
+                cacheDict["id_tokens"] = tokenCache.GetAllIdTokenCacheItems(requestContext);
+                cacheDict["accounts"] = tokenCache.GetAllAccountCacheItems(requestContext);
                 return JsonHelper.SerializeToJson(cacheDict).ToByteArray();
             }
         }

@@ -59,8 +59,8 @@ namespace Test.ADAL.NET.Common
         public static readonly string DiscoveryEndPoint = "discovery/instance";
         public static readonly string DefaultRefreshTokenValue = "RefreshTokenValue";
 
-        public static readonly string DefaultUniqueIdentifier = "testUniqueIdentifier ";
-        public static readonly string DefaultUniqueTenantIdentifier = "testUniqueTenantIdentifier ";
+        public static readonly string DefaultUniqueIdentifier = "testUniqueIdentifier";
+        public static readonly string DefaultUniqueTenantIdentifier = "testUniqueTenantIdentifier";
 
         public static string GetTokenEndpoint(string Authority)
         {

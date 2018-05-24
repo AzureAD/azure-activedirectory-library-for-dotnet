@@ -39,7 +39,13 @@ namespace Microsoft.Identity.Core
 
         internal readonly IDictionary<string, string> RefreshTokenCacheDictionary =
             new ConcurrentDictionary<string, string>();
-        
+
+        internal readonly IDictionary<string, string> IdTokenCacheDictionary =
+            new ConcurrentDictionary<string, string>();
+
+        internal readonly IDictionary<string, string> AccountCacheDictionary =
+            new ConcurrentDictionary<string, string>();
+
         public void SaveAccessToken(string cacheKey, string item)
         {
             AccessTokenCacheDictionary[cacheKey] = item;
@@ -49,7 +55,17 @@ namespace Microsoft.Identity.Core
         {
             RefreshTokenCacheDictionary[cacheKey] = item;
         }
-        
+
+        public void SaveIdToken(string cacheKey, string item)
+        {
+            IdTokenCacheDictionary[cacheKey] = item;
+        }
+
+        public void SaveAccount(string cacheKey, string item)
+        {
+            AccountCacheDictionary[cacheKey] = item;
+        }
+
         public string GetRefreshToken(string refreshTokenKey)
         {
             if (!RefreshTokenCacheDictionary.ContainsKey(refreshTokenKey))
@@ -84,6 +100,20 @@ namespace Microsoft.Identity.Core
                     RefreshTokenCacheDictionary.Values.ToList());
         }
 
+        public ICollection<string> GetAllIdTokensAsString()
+        {
+            return
+                new ReadOnlyCollection<string>(
+                   IdTokenCacheDictionary.Values.ToList());
+        }
+
+        public ICollection<string> GetAllAccountsAsString()
+        {
+            return
+                new ReadOnlyCollection<string>(
+                   AccountCacheDictionary.Values.ToList());
+        }
+
         public ICollection<string> GetAllAccessTokenKeys()
         {
             return
@@ -109,6 +139,27 @@ namespace Microsoft.Identity.Core
             {
                 DeleteRefreshToken(key);
             }
+        }
+
+        // todo implement
+        public string GetIdToken(string idTokenKey)
+        {
+            if (!IdTokenCacheDictionary.ContainsKey(idTokenKey))
+            {
+                return null;
+            }
+
+            return IdTokenCacheDictionary[idTokenKey];
+        }
+
+        public string GetAccount(string accountKey)
+        {
+            if (!AccountCacheDictionary.ContainsKey(accountKey))
+            {
+                return null;
+            }
+
+            return AccountCacheDictionary[accountKey];
         }
     }
 }

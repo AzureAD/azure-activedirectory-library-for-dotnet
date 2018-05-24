@@ -25,46 +25,59 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.OAuth2;
+using System;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Identity.Core.Cache.U
+namespace Microsoft.Identity.Core.Cache
 {
+    [DataContract]
     internal class MsalAccountCacheItem : MsalCacheItemBase
     {
-        internal MsalAccountCacheItem(string userIdentifier, string environment, 
-            string realm, string authorityAccountId, string username, AuthorityType authorityType)
-            : base(userIdentifier, environment)
-        {
-            if (string.IsNullOrEmpty(realm))
-            {
-                throw new ArgumentNullException(nameof(realm));
-            }
-            if (string.IsNullOrEmpty(authorityAccountId))
-            {
-                throw new ArgumentNullException(nameof(authorityAccountId));
-            }
-            if (string.IsNullOrEmpty(username))
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
-
-            this.Realm = realm;
-            this.AuthorityAccountId = authorityAccountId;
-            this.Username = username;
-            this.authorityType = authorityType;
+        internal MsalAccountCacheItem(){
+            AuthorityType = Cache.AuthorityType.MSSTS.ToString();
         }
+        internal MsalAccountCacheItem(Authority authority, string localAccountId, MsalTokenResponse response)
+        {
+            AuthorityType = Cache.AuthorityType.MSSTS.ToString();
+            Environment = authority.Host;
 
+            IdToken idToken = IdToken.Parse(response.IdToken);
+            PreferredUsername = idToken.PreferredUsername;
+            Name = idToken.Name;
+            TenantId = idToken.TenantId;
+
+            LocalAccountId = localAccountId;
+
+            RawClientInfo = response.ClientInfo;
+            InitRawClientInfoDerivedProperties();
+        }
         [DataMember(Name = "realm")]
-        string Realm { get; set; }
+        internal string TenantId { get; set; }
 
         [DataMember(Name = "username")]
-        string Username { get; set; }
+        internal string PreferredUsername { get; set; }
 
-        [DataMember(Name = "authority_account_id")]
-        string AuthorityAccountId { get; set; }
+        [DataMember(Name = "name")]
+        internal string Name { get; set; }
+
+        [DataMember(Name = "given_name")]
+        internal string GivenName { get; set; }
+
+        [DataMember(Name = "family_name")]
+        internal string FamilyName { get; set; }
+
+        [DataMember(Name = "local_account_id")]
+        internal string LocalAccountId { get; set; }
 
         [DataMember(Name = "authority_type")]
-        AuthorityType AuthorityType { get; set; }
+        internal string AuthorityType { get; set; }
 
+        internal string GetAccountItemKey()
+        {
+            return new MsalAccountCacheKey(Environment, TenantId, UserIdentifier).ToString();
+        }
     }
 }

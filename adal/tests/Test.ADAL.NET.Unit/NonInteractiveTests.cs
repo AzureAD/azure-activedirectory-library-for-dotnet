@@ -61,18 +61,18 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
         [Description("Get WsTrust Address from mex")]
         public async Task MexParserGetWsTrustAddressTest()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityCommonTenant)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -85,7 +85,7 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(address);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace Test.ADAL.NET.Unit
                 + TestConstants.DefaultDisplayableId, new TokenCache());
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" 
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" 
                 + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
@@ -118,7 +118,7 @@ namespace Test.ADAL.NET.Unit
                 new RequestContext(new AdalLogger(new Guid())));
             VerifyUserRealmResponse(userRealmResponse, "Federated");
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
                 + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
@@ -134,7 +134,7 @@ namespace Test.ADAL.NET.Unit
             userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(context.Authenticator.UserRealmUri, TestConstants.DefaultDisplayableId, new RequestContext(new AdalLogger(new Guid())));
             VerifyUserRealmResponse(userRealmResponse, "Unknown");
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
                 + null)
             {
                 Method = HttpMethod.Get,
@@ -147,7 +147,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(AdalError.UnknownUser, ex.Message);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/"
                 + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
@@ -185,7 +185,7 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -199,7 +199,7 @@ namespace Test.ADAL.NET.Unit
             VerifyCloudInstanceUrnResponse("urn:federation:Blackforest", userRealmResponse.CloudAudienceUrn);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -209,7 +209,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant);
             await context.Authenticator.UpdateFromTemplateAsync(null);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetUserRealmEndpoint(TestConstants.DefaultAuthorityCommonTenant) + "/" + TestConstants.DefaultDisplayableId)
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -235,7 +235,7 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler("https://some/address/usernamemixed")
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -249,7 +249,7 @@ namespace Test.ADAL.NET.Unit
             VerifyCloudInstanceUrnResponse("urn:federation:MicrosoftOnline", userRealmResponse.CloudAudienceUrn);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -278,7 +278,7 @@ namespace Test.ADAL.NET.Unit
         [Description("WS-Trust Request Test")]
         public async Task WsTrustRequestTest()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
 
             string URI = "https://some/address/usernamemixed";
             WsTrustAddress address = new WsTrustAddress()
@@ -287,7 +287,7 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -296,7 +296,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -312,14 +312,14 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(wstResponse.Token);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
         [Description("WS-Trust Request Generic Cloud Urn Test")]
         public async Task WsTrustRequestGenericCloudUrnTest()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
 
             string URI = "https://some/address/usernamemixed";
 
@@ -329,7 +329,7 @@ namespace Test.ADAL.NET.Unit
                 Version = WsTrustVersion.WsTrust13
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -338,7 +338,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(URI)
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -354,7 +354,7 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(wstResponse.Token);
 
             // All mocks are consumed
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]

@@ -25,12 +25,31 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache.U
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Microsoft.Identity.Core.Cache
 {
-    internal enum CredentialType
+    internal abstract class MsalCacheKeyBase
     {
-        IdToken,
-        AccessToken,
-        RefreshToken
+        public const string CacheKeyDelimiter = "-";
+
+        internal MsalCacheKeyBase(string environment, string userIdentifier)
+        {
+            if (string.IsNullOrEmpty(environment))
+            {
+                throw new ArgumentNullException(nameof(environment));
+            }
+
+            Environment = environment;
+            UserIdentifier = userIdentifier;
+        }
+
+        internal string Environment { get; set; }
+
+        internal string UserIdentifier { get; set; }
     }
 }
