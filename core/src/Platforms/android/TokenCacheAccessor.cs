@@ -27,7 +27,6 @@ using Android.App;
 using Android.Content;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
@@ -49,7 +48,7 @@ namespace Microsoft.Identity.Core
 
             if (_accessTokenSharedPreference == null || _refreshTokenSharedPreference == null)
             {
-                throw new MsalException("Fail to create SharedPreference");
+                throw new CoreException("Fail to create SharedPreference");
             }
         }
 

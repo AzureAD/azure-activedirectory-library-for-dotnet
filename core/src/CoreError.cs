@@ -30,13 +30,12 @@ namespace Microsoft.Identity.Core
     /// <summary>
     /// Error code returned as a property in MsalException
     /// </summary>
-    internal static class MsalError
+    internal static class CoreError
     {
         /// <summary>
         /// Authentication failed.
         /// </summary>
         public const string AuthenticationFailed = "authentication_failed";
-
 
         /// <summary>
         /// Authority validation failed.

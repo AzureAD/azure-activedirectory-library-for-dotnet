@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using WebApp.Utils;
 
 namespace WebApp.Controllers
@@ -126,7 +127,7 @@ namespace WebApp.Controllers
 
                     result = await CallApi(MsGraphMeQuery, authenticationResult.AccessToken);
                 }
-                catch (MsalException ex)
+                catch (CoreException ex)
                 {
                     result = "WebApp failed to call GraphMeQuery, MsalException - " + ex.Message;
                 }
@@ -197,7 +198,7 @@ namespace WebApp.Controllers
 
                     result = await CallApi(MsGraphUsersQuery, authenticationResult.AccessToken);
                 }
-                catch (MsalException ex)
+                catch (CoreException ex)
                 {
                     result = "WebApp failed to call GraphUsersQuery, MsalException - " + ex.Message;
                 }
@@ -234,7 +235,7 @@ namespace WebApp.Controllers
 
                     result = await CallApi(WebApiUserProfileQuery, authenticationResult.AccessToken);
                 }
-                catch (MsalException ex)
+                catch (CoreException ex)
                 {
                     result = "WebApp failed to call WebApiUserProfileQuery, MsalException - " + ex.Message;
                 }

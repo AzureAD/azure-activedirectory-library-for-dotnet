@@ -88,9 +88,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 new SilentRequest(parameters, false);
                 Assert.Fail("MsalUiRequiredException should have been thrown here");
             }
-            catch (MsalUiRequiredException exc)
+            catch (CoreUiRequiredException exc)
             {
-                Assert.AreEqual(exc.ErrorCode, MsalUiRequiredException.UserNullError);
+                Assert.AreEqual(exc.ErrorCode, CoreUiRequiredException.UserNullError);
             }
 
             parameters.User = new User()
@@ -192,9 +192,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (AggregateException ae)
             {
-                MsalUiRequiredException exc = ae.InnerException as MsalUiRequiredException;
+                CoreUiRequiredException exc = ae.InnerException as CoreUiRequiredException;
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalUiRequiredException.TokenCacheNullError, exc.ErrorCode);
+                Assert.AreEqual(CoreUiRequiredException.TokenCacheNullError, exc.ErrorCode);
             }
         }
 
@@ -234,9 +234,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (AggregateException ae)
             {
-                MsalUiRequiredException exc = ae.InnerException as MsalUiRequiredException;
+                CoreUiRequiredException exc = ae.InnerException as CoreUiRequiredException;
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalUiRequiredException.NoTokensFoundError, exc.ErrorCode);
+                Assert.AreEqual(CoreUiRequiredException.NoTokensFoundError, exc.ErrorCode);
             }
         }
     }

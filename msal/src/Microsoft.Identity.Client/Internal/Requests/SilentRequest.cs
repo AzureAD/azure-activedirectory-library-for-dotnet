@@ -25,8 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.OAuth2;
 
@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             if (authenticationRequestParameters.User == null)
             {
-                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, "Null user was passed in AcquiretokenSilent API. Pass in " +
+                throw new CoreUiRequiredException(CoreUiRequiredException.UserNullError, "Null user was passed in AcquiretokenSilent API. Pass in " +
                                                                                          "a user object or call acquireToken authenticate.");
             }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             if (!LoadFromCache)
             {
-                throw new MsalUiRequiredException(MsalUiRequiredException.TokenCacheNullError,
+                throw new CoreUiRequiredException(CoreUiRequiredException.TokenCacheNullError,
                     "Token cache is set to null. Silent requests cannot be executed.");
             }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     AuthenticationRequestParameters.RequestContext.Logger.Verbose(msg);
                     AuthenticationRequestParameters.RequestContext.Logger.VerbosePii(msg);
 
-                    throw new MsalUiRequiredException(MsalUiRequiredException.NoTokensFoundError,
+                    throw new CoreUiRequiredException(CoreUiRequiredException.NoTokensFoundError,
                         "No Refresh Token found in the cache");
                 }
 

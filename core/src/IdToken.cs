@@ -31,7 +31,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Core
 {
     internal class IdTokenClaim
     {
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Client.Internal
 
             if (idTokenSegments.Length < 2)
             {
-                throw new MsalClientException(MsalClientException.InvalidJwtError, "ID Token must contain at least 2 parts.");
+                throw new CoreClientException(CoreClientException.InvalidJwtError, "ID Token must contain at least 2 parts.");
             }
 
             try
@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Client.Internal
             }
             catch (Exception exc)
             {
-                throw new MsalClientException(MsalClientException.JsonParseError,
+                throw new CoreClientException(CoreClientException.JsonParseError,
                     "Failed to parse the returned id token.", exc);
             }
 

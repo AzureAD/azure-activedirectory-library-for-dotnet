@@ -28,17 +28,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
-using Telemetry = Microsoft.Identity.Client.Telemetry;
 
 namespace Microsoft.Identity.Core.OAuth2
 {
@@ -47,7 +44,7 @@ namespace Microsoft.Identity.Core.OAuth2
         private readonly Dictionary<string, string> _bodyParameters = new Dictionary<string, string>();
 
         private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
+            new Dictionary<string, string>(CoreIdHelper.GetCoreIdParameters());
 
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
 
@@ -137,29 +134,29 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
-            MsalServiceException serviceEx;
+            CoreServiceException serviceEx;
             try
             {
                 MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
 
-                if (MsalUiRequiredException.InvalidGrantError.Equals(msalTokenResponse.Error,
+                if (CoreUiRequiredException.InvalidGrantError.Equals(msalTokenResponse.Error,
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new MsalUiRequiredException(MsalUiRequiredException.InvalidGrantError,
+                    throw new CoreUiRequiredException(CoreUiRequiredException.InvalidGrantError,
                         msalTokenResponse.ErrorDescription)
                     {
                         Claims = msalTokenResponse.Claims
                     };
                 }
 
-                serviceEx = new MsalServiceException(msalTokenResponse.Error, msalTokenResponse.ErrorDescription, (int)response.StatusCode, msalTokenResponse.Claims, null)
+                serviceEx = new CoreServiceException(msalTokenResponse.Error, msalTokenResponse.ErrorDescription, (int)response.StatusCode, msalTokenResponse.Claims, null)
                 {
                     ResponseBody =  response.Body
                 };
             }
             catch (SerializationException)
             {
-                serviceEx = new MsalServiceException(MsalException.UnknownError, response.Body, (int)response.StatusCode);
+                serviceEx = new CoreServiceException(CoreException.UnknownError, response.Body, (int)response.StatusCode);
             }
 
             requestContext.Logger.Error(serviceEx);

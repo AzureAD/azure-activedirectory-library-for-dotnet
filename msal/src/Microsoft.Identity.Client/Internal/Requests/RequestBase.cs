@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 apiEvent.WasSuccessful = true;
                 return result;
             }
-            catch (MsalException ex)
+            catch (CoreException ex)
             {
                 apiEvent.ApiErrorCode = ex.ErrorCode;
                 AuthenticationRequestParameters.RequestContext.Logger.Error(ex);
@@ -215,7 +215,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user" +
                                                                                 "identifier");
 
-                    throw new MsalServiceException("user_mismatch", "Returned user identifier does not match the sent user identifier");
+                    throw new CoreServiceException("user_mismatch", "Returned user identifier does not match the sent user identifier");
                 }
             }
 

@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Identity.Core
 {
-    internal static class MsalIdParameter
+    internal static class CoreIdParameter
     {
         /// <summary>
         /// MSAL Flavor: .NET or WinRT
@@ -64,40 +64,40 @@ namespace Microsoft.Identity.Core
     /// This class adds additional query parameters or headers to the requests sent to STS. This can help us in
     /// collecting statistics and potentially on diagnostics.
     /// </summary>
-    internal static class MsalIdHelper
+    internal static class CoreIdHelper
     {
-        public static IDictionary<string, string> GetMsalIdParameters()
+        public static IDictionary<string, string> GetCoreIdParameters()
         {
             var parameters = new Dictionary<string, string>
             {
-                [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
-                [MsalIdParameter.Version] = GetMsalVersion()
+                [CoreIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
+                [CoreIdParameter.Version] = GetCoreVersion()
             };
 
             var processorInofrmation = CorePlatformInformationBase.Instance.GetProcessorArchitecture();
             if (processorInofrmation != null)
             {
-                parameters[MsalIdParameter.CpuPlatform] = processorInofrmation;
+                parameters[CoreIdParameter.CpuPlatform] = processorInofrmation;
             }
 
             var osInformation = CorePlatformInformationBase.Instance.GetOperatingSystem();
             if (osInformation != null)
             {
-                parameters[MsalIdParameter.OS] = osInformation;
+                parameters[CoreIdParameter.OS] = osInformation;
             }
 
             var deviceInformation = CorePlatformInformationBase.Instance.GetDeviceModel();
             if (deviceInformation != null)
             {
-                parameters[MsalIdParameter.DeviceModel] = deviceInformation;
+                parameters[CoreIdParameter.DeviceModel] = deviceInformation;
             }
 
             return parameters;
         }
 
-        public static string GetMsalVersion()
+        public static string GetCoreVersion()
         {
-            string fullVersion = typeof (MsalIdHelper).GetTypeInfo().Assembly.FullName;
+            string fullVersion = typeof (CoreIdHelper).GetTypeInfo().Assembly.FullName;
             Regex regex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+");
             Match match = regex.Match(fullVersion);
             if (match.Success)
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Core
         public static string GetAssemblyInformationalVersion()
         {
             AssemblyInformationalVersionAttribute attribute =
-                typeof (MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                typeof (CoreIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             return (attribute != null) ? attribute.InformationalVersion : string.Empty;
         }
     }

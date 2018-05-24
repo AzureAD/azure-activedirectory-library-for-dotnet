@@ -28,12 +28,12 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.Identity.Client
+namespace Microsoft.Identity.Core
 {
     /// <summary>
     /// The exception type thrown when service returns and error response or other networking errors occur.
     /// </summary>
-    public class MsalServiceException : MsalException
+    public class CoreServiceException : CoreException
     {
         /// <summary>
         /// Service is unavailable and returned HTTP error code within the range of 500-599.
@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Client
         /// can rely on for exception handling.
         /// </param>
         /// <param name="errorMessage">The error message that explains the reason for the exception.</param>
-        public MsalServiceException(string errorCode, string errorMessage)
+        public CoreServiceException(string errorCode, string errorMessage)
             : base(
                 errorCode, errorMessage)
         {
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Client
         /// </param>
         /// <param name="errorMessage">The error message that explains the reason for the exception.</param>
         /// <param name="statusCode">Status code of the resposne received from the service.</param>
-        public MsalServiceException(string errorCode, string errorMessage, int statusCode)
+        public CoreServiceException(string errorCode, string errorMessage, int statusCode)
             : this(errorCode, errorMessage)
         {
             StatusCode = statusCode;
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Client
         /// The exception that is the cause of the current exception, or a null reference if no inner
         /// exception is specified.
         /// </param>
-        public MsalServiceException(string errorCode, string errorMessage,
+        public CoreServiceException(string errorCode, string errorMessage,
             Exception innerException)
             : base(
                 errorCode, errorMessage, innerException)
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Client
         /// The exception that is the cause of the current exception, or a null reference if no inner
         /// exception is specified.
         /// </param>
-        public MsalServiceException(string errorCode, string errorMessage, int statusCode,
+        public CoreServiceException(string errorCode, string errorMessage, int statusCode,
             Exception innerException)
             : base(
                 errorCode, errorMessage, innerException)
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Client
         /// The exception that is the cause of the current exception, or a null reference if no inner
         /// exception is specified.
         /// </param>
-        public MsalServiceException(string errorCode, string errorMessage, int statusCode, string claims,
+        public CoreServiceException(string errorCode, string errorMessage, int statusCode, string claims,
             Exception innerException)
             : this(
                 errorCode, errorMessage, statusCode, innerException)

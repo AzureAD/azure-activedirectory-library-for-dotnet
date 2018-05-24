@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 AuthenticationRequestParameters.RequestContext);
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
-                throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
+                throw new ArgumentException(CoreErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
             }
 
             LoadFromCache = false;

@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Instance
                             .ConfigureAwait(false);
                 if (discoveryResponse.TenantDiscoveryEndpoint == null)
                 {
-                    throw new MsalServiceException(discoveryResponse.Error, discoveryResponse.ErrorDescription);
+                    throw new CoreServiceException(discoveryResponse.Error, discoveryResponse.ErrorDescription);
                 }
 
                 return discoveryResponse.TenantDiscoveryEndpoint;

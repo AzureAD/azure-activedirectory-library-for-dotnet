@@ -75,8 +75,8 @@ namespace Microsoft.Identity.Client
 
             var msg = string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                new PlatformInformation().GetProductName(), MsalIdHelper.GetMsalVersion(),
-                MsalIdHelper.GetAssemblyFileVersion(), MsalIdHelper.GetAssemblyInformationalVersion());
+                new PlatformInformation().GetProductName(), CoreIdHelper.GetCoreVersion(),
+                CoreIdHelper.GetAssemblyFileVersion(), CoreIdHelper.GetAssemblyInformationalVersion());
             requestContext.Logger.Info(msg);
             requestContext.Logger.InfoPii(msg);
         }

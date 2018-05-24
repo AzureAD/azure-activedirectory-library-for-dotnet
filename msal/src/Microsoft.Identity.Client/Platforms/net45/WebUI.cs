@@ -26,9 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
@@ -102,7 +100,7 @@ namespace Microsoft.Identity.Client.Internal.UI
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {
-                throw new MsalClientException(MsalClientException.NetworkNotAvailableError, MsalErrorMessage.NetworkNotAvailable);
+                throw new CoreClientException(CoreClientException.NetworkNotAvailableError, CoreErrorMessage.NetworkNotAvailable);
             }
         }
 

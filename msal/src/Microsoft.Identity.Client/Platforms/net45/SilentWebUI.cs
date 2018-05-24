@@ -28,7 +28,6 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
 
@@ -174,8 +173,8 @@ namespace Microsoft.Identity.Client.Internal.UI
 
             if (result == null)
             {
-                throw new MsalUiRequiredException(MsalUiRequiredException.NoPromptFailedError,
-                    MsalErrorMessage.NoPromptFailedErrorMessage);
+                throw new CoreUiRequiredException(CoreUiRequiredException.NoPromptFailedError,
+                    CoreErrorMessage.NoPromptFailedErrorMessage);
             }
 
             return result;

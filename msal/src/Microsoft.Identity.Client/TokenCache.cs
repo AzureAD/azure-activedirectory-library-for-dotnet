@@ -318,8 +318,8 @@ namespace Microsoft.Identity.Client
                         requestParams.RequestContext.Logger.ErrorPii(msg + " :- " + filteredItems
                                 .Select(tci => tci.Authority)
                                 .AsSingleString());
-                        throw new MsalClientException(MsalClientException.MultipleTokensMatchedError,
-                            MsalErrorMessage.MultipleTokensMatched);
+                        throw new CoreClientException(CoreClientException.MultipleTokensMatchedError,
+                            CoreErrorMessage.MultipleTokensMatched);
                     }
                     else
                     {
@@ -338,7 +338,7 @@ namespace Microsoft.Identity.Client
                             requestParams.RequestContext.Logger.Error(msg);
                             requestParams.RequestContext.Logger.ErrorPii(msg + " :- " + authorityList.AsSingleString());
 
-                            throw new MsalClientException(MsalClientException.MultipleTokensMatchedError,
+                            throw new CoreClientException(CoreClientException.MultipleTokensMatchedError,
                                 "Multiple authorities found in the cache. Pass in authority in the API overload.");
                         }
 
@@ -380,8 +380,8 @@ namespace Microsoft.Identity.Client
                         requestParams.RequestContext.Logger.Error(msg);
                         requestParams.RequestContext.Logger.ErrorPii(msg);
                         
-                        throw new MsalClientException(MsalClientException.MultipleTokensMatchedError,
-                            MsalErrorMessage.MultipleTokensMatched);
+                        throw new CoreClientException(CoreClientException.MultipleTokensMatchedError,
+                            CoreErrorMessage.MultipleTokensMatched);
                     }
                 }
 

@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Client.Internal.Jwt
             // Length check before sign
             if (MaxTokenLength < token.Length)
             {
-                throw new MsalException(MsalError.EncodedTokenTooLong);
+                throw new CoreException(CoreError.EncodedTokenTooLong);
             }
 
             return string.Concat(token, ".", UrlEncodeSegment(credential.Sign(token)));

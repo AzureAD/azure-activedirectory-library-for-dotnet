@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Core.Helpers
 {
@@ -194,15 +193,15 @@ namespace Microsoft.Identity.Core.Helpers
 
                 sb.Append(String.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is MsalException)
+                if (ex is CoreException)
                 {
-                    MsalException msalException = (MsalException) ex;
+                    CoreException msalException = (CoreException) ex;
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", msalException.ErrorCode));
                 }
 
-                if (ex is MsalServiceException)
+                if (ex is CoreServiceException)
                 {
-                    MsalServiceException msalServiceException = (MsalServiceException)ex;
+                    CoreServiceException msalServiceException = (CoreServiceException)ex;
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}",
                         msalServiceException.StatusCode));
                 }

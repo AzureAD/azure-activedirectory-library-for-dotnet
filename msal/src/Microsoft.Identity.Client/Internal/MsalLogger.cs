@@ -97,14 +97,14 @@ namespace Microsoft.Identity.Client.Internal
                 : " - " + CorrelationId;
 
             string os = "N/A";
-            if (MsalIdHelper.GetMsalIdParameters().ContainsKey(MsalIdParameter.OS))
+            if (CoreIdHelper.GetCoreIdParameters().ContainsKey(CoreIdParameter.OS))
             {
-                os = MsalIdHelper.GetMsalIdParameters()[MsalIdParameter.OS];
+                os = CoreIdHelper.GetCoreIdParameters()[CoreIdParameter.OS];
             }
 
             string log = string.Format(CultureInfo.InvariantCulture, "MSAL {0} {1} {2} [{3}{4}]{5} {6}",
-                MsalIdHelper.GetMsalVersion(),
-                MsalIdHelper.GetMsalIdParameters()[MsalIdParameter.Product],
+                CoreIdHelper.GetCoreVersion(),
+                CoreIdHelper.GetCoreIdParameters()[CoreIdParameter.Product],
                 os, DateTime.UtcNow, correlationId, Component, logMessage);
 
             if (MsalLoggerSettings.PiiLoggingEnabled && containsPii)
