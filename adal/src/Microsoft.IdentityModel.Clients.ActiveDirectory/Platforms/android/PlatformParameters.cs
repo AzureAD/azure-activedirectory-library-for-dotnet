@@ -99,9 +99,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public PromptBehavior PromptBehavior { get; set; }
 
         /// <summary>
-        /// Used to set embedded 
-        /// ADAL only supports embedded webview.
+        /// Flag to enable or disable embedded webview. Set to TRUE.
         /// </summary>
+        /// <remarks>
+        /// ADAL only supports embedded webview.
+        /// </remarks>
         private bool UseEmbeddedWebview { get; set; } = true;
 
         internal CoreUIParent GetCoreUIParent()
