@@ -44,6 +44,7 @@ using System.Net.Http;
 using Microsoft.Identity.Core.Cache;
 using NSubstitute;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Microsoft.Identity.Core.UI;
 
 namespace Test.MSAL.NET.Unit
 {

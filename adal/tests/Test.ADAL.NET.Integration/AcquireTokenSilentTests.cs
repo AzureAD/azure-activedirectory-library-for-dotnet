@@ -86,7 +86,7 @@ namespace Test.ADAL.NET.Integration
 
             // There should be one cached entry.
             Assert.AreEqual(1, context.TokenCache.Count);
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -116,7 +116,7 @@ namespace Test.ADAL.NET.Integration
 
             // There should be one cached entry.
             Assert.AreEqual(1, context.TokenCache.Count);
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -169,7 +169,7 @@ namespace Test.ADAL.NET.Integration
                     new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result);
 
-            Assert.AreEqual(0, HttpMessageHandlerFactory.MockHandlersCount());
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
     }
 }

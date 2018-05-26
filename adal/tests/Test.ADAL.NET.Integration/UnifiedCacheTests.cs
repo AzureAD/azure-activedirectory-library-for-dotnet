@@ -40,6 +40,7 @@ using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using NSubstitute;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.UI;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -52,7 +53,7 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto);
             InstanceDiscovery.InstanceCache.Clear();
         }
 
