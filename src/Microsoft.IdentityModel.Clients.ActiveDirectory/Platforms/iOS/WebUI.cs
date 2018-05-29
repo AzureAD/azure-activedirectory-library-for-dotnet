@@ -25,17 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
+using Foundation;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UIKit;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class WebUI : IWebUI
+    internal class WebUI : IWebUI, IDisposable
     {
         private static SemaphoreSlim returnedUriReady;
         private static AuthorizationResult authorizationResult;
         private PlatformParameters parameters;
+        private nint taskId = UIApplication.BackgroundTaskInvalid;
+        private NSObject didEnterBackgroundNotification, willEnterForegroundNotification;
 
         public WebUI(IPlatformParameters parameters)
         {
@@ -43,6 +47,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (this.parameters == null)
             {
                 throw new ArgumentException("parameters should be of type PlatformParameters", "parameters");
+            }
+
+            this.didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
+            this.willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
+        }
+
+        void OnMoveToBackground(NSNotification notification)
+        {
+            //After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background in order to prevent the system from reclaiming network resources from the app. 
+            //This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
+            this.taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
+                if (this.taskId != UIApplication.BackgroundTaskInvalid)
+                {
+                    UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
+                    this.taskId = UIApplication.BackgroundTaskInvalid;
+                }
+            });
+        }
+
+        void OnMoveToForeground(NSNotification notification)
+        {
+            if (this.taskId != UIApplication.BackgroundTaskInvalid)
+            {
+                UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
+                this.taskId = UIApplication.BackgroundTaskInvalid;
             }
         }
 
@@ -89,6 +118,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private void CallbackMethod(AuthorizationResult result)
         {
             SetAuthorizationResult(result);
+        }
+
+        public void Dispose()
+        {
+            this.didEnterBackgroundNotification.Dispose();
+            this.willEnterForegroundNotification.Dispose();
         }
     }
 }
