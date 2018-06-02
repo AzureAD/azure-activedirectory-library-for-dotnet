@@ -68,6 +68,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 BeforeAccess = StorageDelegates.BeforeAccess,
                 AfterAccess = StorageDelegates.AfterAccess
             };
+
+            if (CoreLoggerBase.Default == null)
+                CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
         }
 
         /// <summary>
@@ -76,6 +79,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public TokenCache()
         {
             this.tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
+            if (CoreLoggerBase.Default == null)
+                CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
         }
 
         /// <summary>
@@ -85,6 +90,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             : this()
         {
             this.Deserialize(state);
+            if (CoreLoggerBase.Default == null)
+                CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
         }
 
         /// <summary>
