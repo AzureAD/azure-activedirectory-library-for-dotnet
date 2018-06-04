@@ -85,13 +85,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.Password;
             requestParameters[OAuthParameter.Username] = this.UserName;
             requestParameters[OAuthParameter.Password] = new string(PasswordToCharArray());
-            
-            if (SecurePassword != null && !SecurePassword.IsReadOnly())
-            {
-                SecurePassword.Clear();
-            }
 
-            SecurePassword = null;
+            if (SecurePassword != null && !SecurePassword.IsReadOnly()) 
+            { 
+
+                SecurePassword.Clear(); 
+            } 
+            SecurePassword = null; 
         }
     }
 }

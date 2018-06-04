@@ -37,6 +37,8 @@ using Windows.Storage;
 using Windows.System.UserProfile;
 using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+// TODO: Only for Win10 (UAP10.0)
+using Windows.System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -55,6 +57,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public override async Task<string> GetUserPrincipalNameAsync()
         {
+#if WIN_81
+
             if (!UserInformation.NameAccessAllowed)
             {
                 throw new AdalException(AdalErrorEx.CannotAccessUserInformation, AdalErrorMessageEx.CannotAccessUserInformation);
@@ -68,6 +72,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 throw new AdalException(AdalErrorEx.UnauthorizedUserInformationAccess, AdalErrorMessageEx.UnauthorizedUserInformationAccess, ex);
             }
+#else
+            // Apps on Win10 are now requered to request concent from the user to access user information. 
+            // User information is gathered on Win10 using the user object.
+            // var users = await User.FindAllAsync(UserType.LocalUser);
+            // For now simly return an exception
+            throw new AdalException(AdalErrorEx.UnauthorizedUserInformationAccess, AdalErrorMessageEx.UnauthorizedUserInformationAccess, null);
+#endif
         }
 
         public override string GetProcessorArchitecture()
@@ -90,6 +101,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)
         {
+#if WIN_81
             if (!UserInformation.NameAccessAllowed)
             {
                 // The access is not allowed and we cannot determine whether this is a local user or not. So, we do NOT add form auth parameter.
@@ -117,6 +129,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // we return true to add form auth parameter in the caller.
                 return true;
             }            
+#else
+            return false;
+#endif
         }
 
         public override bool IsDomainJoined()
