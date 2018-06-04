@@ -36,6 +36,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string CannotAccessUserInformation = "user_information_access_failed";
         public const string NeedToSetCallbackUriAsLocalSetting = "need_to_set_callback_uri_as_local_setting";
         public const string DeviceCodeAuthorizationPendingError = "authorization_pending";
+        public const string UserInformationIsNotAvailbleWithoutUserConcent = "UserInformationIsNotAvailbleWithoutUserConcent";
     }
 
     internal static class AdalErrorMessageEx

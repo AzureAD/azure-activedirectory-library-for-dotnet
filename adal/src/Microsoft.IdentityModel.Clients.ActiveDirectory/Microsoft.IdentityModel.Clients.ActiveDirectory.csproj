@@ -33,6 +33,14 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <DefineConstants>$(DefineConstants);WINDOWS_APP</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'win81'">
+    <DefineConstants>$(DefineConstants);WIN_81</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">
+    <DefineConstants>$(DefineConstants);WIN_10_0</DefineConstants>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid8.1'">
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
@@ -53,9 +61,6 @@
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
     <EmbeddedResource Include="Properties\Microsoft.IdentityModel.Clients.ActiveDirectory.rd.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.5.4" PrivateAssets="All" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3'">
