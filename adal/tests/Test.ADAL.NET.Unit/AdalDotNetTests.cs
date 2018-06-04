@@ -56,7 +56,7 @@ namespace Test.ADAL.NET.Unit
     {
         private PlatformParameters _platformParameters;
 
-        public AuthenticationContext context;
+        private AuthenticationContext context;
 
         [TestInitialize]
         public void Initialize()
