@@ -77,6 +77,11 @@ namespace Microsoft.Identity.Client
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
 
+        /// <summary>
+        /// Checks Android device for chrome packages.
+        /// Returns true if chrome package for launching system webview is enabled on device.
+        /// Returns false if chrome package is not found.
+        /// </summary>
         public static bool IsSystemWebviewAvailable()
         {
             PackageManager packageManager = Application.Context.PackageManager;
