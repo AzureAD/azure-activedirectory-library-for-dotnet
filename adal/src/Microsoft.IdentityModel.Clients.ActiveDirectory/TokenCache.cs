@@ -68,9 +68,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 BeforeAccess = StorageDelegates.BeforeAccess,
                 AfterAccess = StorageDelegates.AfterAccess
             };
-
-            if (CoreLoggerBase.Default == null)
-                CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
         }
 
         /// <summary>
@@ -78,6 +75,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public TokenCache()
         {
+            if (CoreLoggerBase.Default == null)
+                CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
+
             this.tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
         }
 
