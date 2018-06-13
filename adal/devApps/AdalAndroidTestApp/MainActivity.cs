@@ -105,13 +105,13 @@ namespace AdalAndroidTestApp
             string value = null;
             try
             {
-                string clientId = "b7ef0cbd-fee5-420a-9ec0-6d29549f950b";
+                string clientId = "b583b6cb-f44c-48b7-93b2-29365b363784";
                 Uri redirectUri = new Uri("https://todolistclient");
                 string resource = "https://graph.microsoft.com"; // "https://graph.windows.net"
 
                 AuthenticationResult result = await ctx
                     .AcquireTokenAsync(resource, clientId, redirectUri,
-                        new PlatformParameters(this, false, false)).ConfigureAwait(false);
+                        new PlatformParameters(this, false)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -123,7 +123,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            this.accessTokenTextView.Text = value;
+            this.accessTokenTextView.Text = "success! access token = " + value;
         }
 
         private async void clearCacheButton_Click(object sender, EventArgs e)
