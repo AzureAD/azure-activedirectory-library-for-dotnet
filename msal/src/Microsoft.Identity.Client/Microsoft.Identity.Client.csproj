@@ -8,30 +8,6 @@
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
-  <!-- Copy all artifacts needed to generate the nuget package. This should be replaced with msbuild /t:pack, however
-  bug https://github.com/NuGet/Home/issues/3891 blocks this, espcially that packaging rebuilds the Core assemblies, so we cannot sign it.-->
-  <Target Name="LayoutNuGet">
-    <PropertyGroup>
-      
-      <NugetPackageRootFolder Condition="'$(NugetPackageRootFolder)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "layout"))</NugetPackageRootFolder>
-      <PackagePdb Condition="'$(PackagePdb)'==''">false</PackagePdb>
-      <NuspecFilePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "build", "Microsoft.Identity.Client.nuspec"))</NuspecFilePath>
-    </PropertyGroup>
-    <ItemGroup>
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.dll" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.xml" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.pdb" Condition="'$(PackagePdb)' == 'true' " />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.dll" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.xml" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.pdb" Condition="'$(PackagePdb)' == 'true' " />
-    </ItemGroup>
-    
-    <RemoveDir Directories="$(NugetPackageRootFolder)" />
-    <Copy SourceFiles="@(FilesToPack)" DestinationFiles="$(NugetPackageRootFolder)\lib\%(RecursiveDir)%(FileName)%(Extension)" />
-    <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(NugetPackageRootFolder)" />
-  </Target>
-  
-
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid8.1;Xamarin.iOS10</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -157,8 +133,6 @@
   </ItemGroup>
 
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
-
-  
   
   <!-- This is here to workaround designer issues so VS sees them appropriately -->
   <ItemGroup>
@@ -169,4 +143,26 @@
     <None Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
   </ItemGroup>
 
+  <!-- Copy all artifacts needed to generate the nuget package. This should be replaced with msbuild /t:pack, however
+  bug https://github.com/NuGet/Home/issues/3891 blocks this, espcially that packaging rebuilds the Core assemblies, so we cannot sign it.-->
+  <Target Name="LayoutNuGet">
+    <PropertyGroup>
+      <NugetPackageRootFolder Condition="'$(NugetPackageRootFolder)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "layout"))</NugetPackageRootFolder>
+      <PackagePdb Condition="'$(PackagePdb)'==''">false</PackagePdb>
+      <NuspecFilePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "build", "Microsoft.Identity.Client.nuspec"))</NuspecFilePath>
+    </PropertyGroup>
+    <ItemGroup>
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.dll" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.xml" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.pdb" Condition="'$(PackagePdb)' == 'true' " />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.dll" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.xml" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.pdb" Condition="'$(PackagePdb)' == 'true' " />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(NugetPackageRootFolder)" />
+    <Copy SourceFiles="@(FilesToPack)" DestinationFiles="$(NugetPackageRootFolder)\lib\%(RecursiveDir)%(FileName)%(Extension)" />
+    <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(NugetPackageRootFolder)" />
+  </Target>
+  
 </Project>
