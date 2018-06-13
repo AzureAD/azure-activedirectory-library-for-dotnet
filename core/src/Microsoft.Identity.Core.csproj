@@ -20,6 +20,17 @@
     <DebugType>full</DebugType>
 </PropertyGroup>
 
+  <PropertyGroup Label="GenerateAssemblyInfo inputs">
+    <!-- This should be passed from the VSTS build -->
+    <CoreSemVer Condition="'$(CoreSemVer)' == '1.0.0-privatebuild'"></CoreSemVer>
+
+    <!-- This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion -->
+    <Version>$(CoreSemVer)</Version>
+
+    <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
+    <Company>Microsoft Corporation</Company>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
     <DefineConstants>$(DefineConstants);FACADE</DefineConstants>
   </PropertyGroup>
