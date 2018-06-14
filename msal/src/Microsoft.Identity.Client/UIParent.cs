@@ -35,8 +35,10 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// 
-    /// </summary>
+    /// Checks Android device for chrome packages.
+    /// Returns true if chrome package for launching system webview is enabled on device.
+    /// Returns false if chrome package is not found.
+    /// </summary> 
     public sealed class UIParent
     {
         internal CoreUIParent CoreUIParent { get; private set; }
