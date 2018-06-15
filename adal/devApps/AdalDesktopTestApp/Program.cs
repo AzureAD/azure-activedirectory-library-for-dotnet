@@ -37,62 +37,100 @@ namespace AdalDesktopTestApp
         public static IPlatformParameters Parameters { get; set; }
         private static readonly AppLogger AppLogger = new AppLogger();
 
-        //private static string AUTHORITY = "https://login.microsoftonline.com/microsoft.onmicrosoft.com";
-        //private static string CLIENT_ID = "6d742d8f-5afd-4a88-b003-ae760656b0da";
-
-        private static string AUTHORITY = "https://login.microsoftonline.com/pesomka.onmicrosoft.com";
-        private static string CLIENT_ID = "07750a6f-a05a-411d-bac4-92e1ef446da3";
-
-        private static string RESOURCE = "https://graph.windows.net";
-        private static string RESOURCE1 = "https://management.core.windows.net/";
-
         [STAThread]
         static void Main(string[] args)
         {
-            try
+            LoggerCallbackHandler.LogCallback = AppLogger.Log;
+            while (true)
             {
-                AcquireTokenUsingIntegAuthFlow().Wait();
-            }
-            catch (AggregateException ae)
-            {
-                Console.WriteLine(ae.InnerException.Message);
-                Console.WriteLine(ae.InnerException.StackTrace);
-            }
-            finally
-            {
-                Console.ReadKey();
+                // display menu
+                // clear display
+                Console.Clear();
+
+                Console.WriteLine("\n\t1. Acquire Token\n\t2. Acquire Token with Pii logging enabled\n\t" +
+                                  "3. Acquire Token Conditional Access Policy\n\t0. Exit App");
+                Console.WriteLine("\n\tEnter your Selection: ");
+
+                int.TryParse(Console.ReadLine(), out var selection);
+
+                switch (selection)
+                {
+                    case 1: // acquire token
+                        try
+                        {
+                            LoggerCallbackHandler.PiiLoggingEnabled = false;
+                            AcquireTokenAsync().Wait();
+                        }
+                        catch (AggregateException ae)
+                        {
+                            Console.WriteLine(ae.InnerException.Message);
+                            Console.WriteLine(ae.InnerException.StackTrace);
+                        }
+                        break;
+                    case 2: // acquire token with pii logging enabled
+                        try
+                        {
+                            LoggerCallbackHandler.PiiLoggingEnabled = true;
+                            AcquireTokenAsync().Wait();
+                        }
+                        catch (AggregateException ae)
+                        {
+                            Console.WriteLine(ae.InnerException.Message);
+                            Console.WriteLine(ae.InnerException.StackTrace);
+                        }
+                        break;
+                    case 3: // acquire token with claims
+                        try
+                        {
+                            AcquireTokenWithClaimsAsync().Wait();
+                        }
+                        catch (AggregateException ae)
+                        {
+                            Console.WriteLine(ae.InnerException.Message);
+                            Console.WriteLine(ae.InnerException.StackTrace);
+                        }
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        break;
+                }
+
+                Console.WriteLine("\n\nHit 'ENTER' to continue...");
+                Console.ReadLine();
             }
         }
 
-        private static async Task AcquireTokenUsingIntegAuthFlow()
+        private static async Task AcquireTokenAsync()
         {
-            AuthenticationContext context = new AuthenticationContext(AUTHORITY, true);
-            try
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<USER>"));
+
+            string token = result.AccessToken;
+            string logMessage = "\n\n" + "Pii Logging Enabled: " +
+                                LoggerCallbackHandler.PiiLoggingEnabled + "\n\n" +
+                                AppLogger.GetAdalLogs();
+
+            if (!LoggerCallbackHandler.PiiLoggingEnabled)
             {
-                var result = await context.AcquireTokenAsync(RESOURCE, CLIENT_ID, new UserCredential("pesomka@microsoft.com"));
-
-                result = await context.AcquireTokenAsync(RESOURCE, CLIENT_ID, new Uri("http://local"), new PlatformParameters(PromptBehavior.Always));
-
-                try
-                {
-                    result = await context.AcquireTokenSilentAsync(RESOURCE, CLIENT_ID);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-
-                }
-
-                result = await context.AcquireTokenSilentAsync(RESOURCE1, CLIENT_ID);
-
-                Console.WriteLine(result.AccessToken + "\n");
+                Console.WriteLine(token + "\n\n" + "====ADAL Logs====" + logMessage);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex);
-
+                Console.WriteLine(token + "\n\n" + "====ADAL Logs Pii Enabled====" + logMessage);
             }
         }
 
+        private static async Task AcquireTokenWithClaimsAsync()
+        {
+            string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
+
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>",
+                new Uri("<REDIRECT_URI>"), new PlatformParameters(PromptBehavior.Auto), new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
+
+            string token = result.AccessToken;
+            Console.WriteLine(token + "\n");
+        }
     }
 }
