@@ -85,7 +85,17 @@ namespace Microsoft.Identity.Core
         {
             RefreshTokenCacheDictionary.Remove(cacheKey);
         }
-        
+
+        public void DeleteIdToken(string cacheKey)
+        {
+            IdTokenCacheDictionary.Remove(cacheKey);
+        }
+
+        public void DeleteAccount(string cacheKey)
+        {
+            AccountCacheDictionary.Remove(cacheKey);
+        }
+
         public ICollection<string> GetAllAccessTokensAsString()
         {
             return
@@ -128,6 +138,20 @@ namespace Microsoft.Identity.Core
                     RefreshTokenCacheDictionary.Keys.ToList());
         }
 
+        public ICollection<string> GetAllIdTokenKeys()
+        {
+            return
+                new ReadOnlyCollection<string>(
+                    IdTokenCacheDictionary.Keys.ToList());
+        }
+
+        public ICollection<string> GetAllAccountKeys()
+        {
+            return
+                new ReadOnlyCollection<string>(
+                    AccountCacheDictionary.Keys.ToList());
+        }
+
         public void Clear()
         {
             foreach (var key in GetAllAccessTokenKeys())
@@ -139,9 +163,18 @@ namespace Microsoft.Identity.Core
             {
                 DeleteRefreshToken(key);
             }
+
+            foreach (var key in GetAllIdTokenKeys())
+            {
+                DeleteIdToken(key);
+            }
+
+            foreach (var key in GetAllAccountKeys())
+            {
+                DeleteAccount(key);
+            }
         }
 
-        // todo implement
         public string GetIdToken(string idTokenKey)
         {
             if (!IdTokenCacheDictionary.ContainsKey(idTokenKey))
@@ -150,6 +183,16 @@ namespace Microsoft.Identity.Core
             }
 
             return IdTokenCacheDictionary[idTokenKey];
+        }
+
+        public string GetAccessToken(string accessTokenKey)
+        {
+            if (!AccessTokenCacheDictionary.ContainsKey(accessTokenKey))
+            {
+                return null;
+            }
+
+            return IdTokenCacheDictionary[accessTokenKey];
         }
 
         public string GetAccount(string accountKey)

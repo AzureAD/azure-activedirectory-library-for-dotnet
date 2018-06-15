@@ -65,12 +65,11 @@ namespace Microsoft.Identity.Core.Cache
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
-
             stringBuilder.Append((UserIdentifier ?? "") + CacheKeyDelimiter);
             stringBuilder.Append(this.Environment + CacheKeyDelimiter);
             stringBuilder.Append(CredentialType + CacheKeyDelimiter);
             stringBuilder.Append(ClientId + CacheKeyDelimiter);
-            stringBuilder.Append(TenantId ?? "" + CacheKeyDelimiter);
+            stringBuilder.Append((TenantId ?? "") + CacheKeyDelimiter);
             stringBuilder.Append(Scopes != null ? string.Join(ScopesDelimiter, Scopes) : "");
 
             return stringBuilder.ToString();

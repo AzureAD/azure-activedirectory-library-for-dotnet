@@ -47,14 +47,14 @@ namespace XForms
             environmentLabel.Text = msalRefreshTokenCacheItem.Environment;
             clientIdLabel.Text = msalRefreshTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = MsalAccountCacheItem.PreferredUsername;
-            userNameLabel.Text = MsalAccountCacheItem.Name;
-            //userIdentityProviderLabel.Text = MsalAccountCacheItem.IdentityProvider;
+            credentialTypeLabel.Text = msalRefreshTokenCacheItem.CredentialType;
+            userIdentifierLabel.Text = msalRefreshTokenCacheItem.UserIdentifier;
+            rawClientInfoLabel.Text = msalRefreshTokenCacheItem.RawClientInfo;
 
             clientInfoUniqueIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueIdentifier;
             clientInfoUniqueTenantIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
 
-            refreshTokenLabel.Text = StringShortenerConverter.GetShortStr(msalRefreshTokenCacheItem.Secret, 100);
+            secretLabel.Text = StringShortenerConverter.GetShortStr(msalRefreshTokenCacheItem.Secret, 100);
         }
     }
 }

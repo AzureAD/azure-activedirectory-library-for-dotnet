@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Cache;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.Identity.Core
 {
@@ -98,6 +99,16 @@ namespace Microsoft.Identity.Core
             Delete(cacheKey, _refreshTokenSharedPreference.Edit());
         }
 
+        public void DeleteIdToken(string cacheKey)
+        {
+            Delete(cacheKey, _idTokenSharedPreference.Edit());
+        }
+
+        public void DeleteAccount(string cacheKey)
+        {
+            Delete(cacheKey, _accountSharedPreference.Edit());
+        }
+
         private void Delete(string key, ISharedPreferencesEditor editor)
         {
             editor.Remove(key);
@@ -134,6 +145,16 @@ namespace Microsoft.Identity.Core
             return _refreshTokenSharedPreference.All.Keys.ToList();
         }
 
+        public ICollection<string> GetAllIdTokenKeys()
+        {
+            return _idTokenSharedPreference.All.Keys.ToList();
+        }
+
+        public ICollection<string> GetAllAccountKeys()
+        {
+            return _accountSharedPreference.All.Keys.ToList();
+        }
+
         public void Clear()
         {
             foreach (var key in GetAllAccessTokenKeys())
@@ -144,6 +165,15 @@ namespace Microsoft.Identity.Core
             foreach (var key in GetAllRefreshTokenKeys())
             {
                 DeleteRefreshToken(key);
+            }
+
+            foreach (var key in GetAllIdTokenKeys())
+            {
+                DeleteIdToken(key);
+            }
+            foreach (var key in GetAllAccountKeys())
+            {
+                DeleteAccount(key);
             }
         }
 
@@ -164,6 +194,11 @@ namespace Microsoft.Identity.Core
         public string GetIdToken(string idTokenKey)
         {
             return _idTokenSharedPreference.GetString(idTokenKey, null);
+        }
+
+        public string GetAccessToken(string accessTokenKey)
+        {
+            return _accessTokenSharedPreference.GetString(accessTokenKey, null);
         }
 
         public string GetAccount(string accountKey)

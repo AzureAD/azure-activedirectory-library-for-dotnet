@@ -235,7 +235,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 // todo should we return idToken from SaveAccessAndRefreshToken as well ?
                 // problem - if AT is not stored we will fail  ?
                 MsalAccessTokenItem = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
-                MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey());
+                MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey(), AuthenticationRequestParameters.RequestContext);
             }
 
             MsalAccessTokenItem =  new MsalAccessTokenCacheItem(AuthenticationRequestParameters.Authority,

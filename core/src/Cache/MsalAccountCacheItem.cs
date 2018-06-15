@@ -39,9 +39,8 @@ namespace Microsoft.Identity.Core.Cache
         internal MsalAccountCacheItem(){
             AuthorityType = Cache.AuthorityType.MSSTS.ToString();
         }
-        internal MsalAccountCacheItem(Authority authority, string localAccountId, MsalTokenResponse response)
+        internal MsalAccountCacheItem(Authority authority, string localAccountId, MsalTokenResponse response) : this()
         {
-            AuthorityType = Cache.AuthorityType.MSSTS.ToString();
             Environment = authority.Host;
 
             IdToken idToken = IdToken.Parse(response.IdToken);
@@ -58,7 +57,7 @@ namespace Microsoft.Identity.Core.Cache
         internal string TenantId { get; set; }
 
         [DataMember(Name = "username")]
-        internal string PreferredUsername { get; set; }
+        public string PreferredUsername { get; internal set; }
 
         [DataMember(Name = "name")]
         internal string Name { get; set; }

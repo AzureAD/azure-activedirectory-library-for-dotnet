@@ -64,6 +64,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         static TokenCache()
         {
+            // to do - consider other options
+            // init default logger
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(AdalLogger).TypeHandle);
+
             DefaultShared = new TokenCache
             {
                 BeforeAccess = StorageDelegates.BeforeAccess,
@@ -144,7 +148,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 lock (cacheLock)
                 {
-                    return this.tokenCacheDictionary.Count;
+                    TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+                    this.OnBeforeAccess(args);
+
+                    var count = this.tokenCacheDictionary.Count;
+
+                    this.OnAfterAccess(args);
+
+                    return count;
                 }
             }
         }
@@ -250,7 +261,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
                 this.OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", this.Count));
+                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", 
+                    this.tokenCacheDictionary.Count));
                 this.tokenCacheDictionary.Clear();
                 CoreLoggerBase.Default.Info("Successfully Cleared Cache");
                 this.HasStateChanged = true;

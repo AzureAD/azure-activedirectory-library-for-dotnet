@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,54 +26,29 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Globalization;
-using System.Runtime.Serialization;
-using Microsoft.Identity.Core.Helpers;
+using System.Threading.Tasks;
+using Windows.UI.Core;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    [DataContract]
-    internal abstract class MsalCacheItemBase
+    internal static class DispatcherTaskExtensions
     {
-        [DataMember(Name = "unique_user_id", IsRequired = true)]
-        public string UserIdentifier { get; internal set; }
-
-        [DataMember(Name = "environment", IsRequired = true)]
-        internal string Environment { get; set; }
-
-        [DataMember(Name = "client_info")]
-        internal string RawClientInfo { get; set; }
-
-        public ClientInfo ClientInfo { get; set; }
-
-        internal void InitClientInfo()
+        public static async Task<T> RunTaskAsync<T>(this CoreDispatcher dispatcher,
+            Func<Task<T>> func, CoreDispatcherPriority priority = CoreDispatcherPriority.Normal)
         {
-            if (RawClientInfo != null)
+            var taskCompletionSource = new TaskCompletionSource<T>();
+            await dispatcher.RunAsync(priority, async () =>
             {
-                ClientInfo = ClientInfo.CreateFromJson(RawClientInfo);
-            }
-        }
-
-        internal void InitRawClientInfoDerivedProperties()
-        {
-            InitClientInfo();
-
-            UserIdentifier = GetUserIdentifier();
-        }
-
-        string GetUserIdentifier()
-        {
-            if (ClientInfo == null)
-            {
-                return null;
-            }
-            return ClientInfo.ToUserIdentifier();
-        }
-
-        [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
-        {
-            InitClientInfo();
+                try
+                {
+                    taskCompletionSource.SetResult(await func());
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                }
+            });
+            return await taskCompletionSource.Task;
         }
     }
 }

@@ -146,8 +146,9 @@ namespace Microsoft.Identity.Client
                     foreach (var accessTokenString in TokenCacheAccessor.GetAllAccessTokensAsString())
                     {
                         MsalAccessTokenCacheItem msalAccessTokenItem =
-                            JsonHelper.DeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString);
-                        if (msalAccessTokenItem.ClientId.Equals(ClientId) &&
+                            JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestParams.RequestContext);
+
+                        if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId) &&
                             msalAccessTokenItem.Authority.Equals(requestParams.TenantUpdatedCanonicalAuthority) &&
                             msalAccessTokenItem.ScopeSet.ScopeIntersects(msalAccessTokenCacheItem.ScopeSet))
                         {
@@ -471,8 +472,8 @@ namespace Microsoft.Identity.Client
 
                 OnBeforeAccess(args);
                 MsalRefreshTokenCacheItem msalRefreshTokenCacheItem =
-                    JsonHelper.DeserializeFromJson<MsalRefreshTokenCacheItem>(
-                        TokenCacheAccessor.GetRefreshToken(key.ToString()));
+                    JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(
+                        TokenCacheAccessor.GetRefreshToken(key.ToString()), requestParam.RequestContext);
                 OnAfterAccess(args);
 
                 msg = "Refresh token found in the cache? - " + (msalRefreshTokenCacheItem != null);
@@ -487,10 +488,12 @@ namespace Microsoft.Identity.Client
                 requestParam.RequestContext.Logger.Info("Checking ADAL cache for matching RT");
                 requestParam.RequestContext.Logger.InfoPii("Checking ADAL cache for matching RT");
 
-                var rawClientInfo = ClientInfo.CreateFromUserIdentifier(requestParam.User?.Identifier)?.ToEncodedJson();
-
+                if (requestParam.User == null)
+                {
+                    return null;
+                }
                 return CacheFallbackOperations.GetAdalEntryForMsal(legacyCachePersistance, 
-                    requestParam.Authority.Host, requestParam.ClientId, requestParam.LoginHint, rawClientInfo);
+                    requestParam.Authority.Host, requestParam.ClientId, requestParam.LoginHint, requestParam.User.Identifier, null);
             }
         }
 
@@ -530,13 +533,13 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = new User(msalIdTokenCacheItem.UserIdentifier,
+                        User = new User(msalAccessTokenCacheItem.UserIdentifier,
                             msalIdTokenCacheItem.IdToken?.PreferredUsername, msalIdTokenCacheItem.IdToken?.Name)
                     };
 
                     OnBeforeAccess(args);
                     OnBeforeWrite(args);
-                    TokenCacheAccessor.DeleteAccessToken(msalAccessTokenCacheItem.GetAccessTokenItemKey().ToString());
+                    TokenCacheAccessor.DeleteAccessToken(msalAccessTokenCacheItem.GetAccessTokenItemKey());
                     OnAfterAccess(args);
                 }
                 finally
@@ -545,8 +548,45 @@ namespace Microsoft.Identity.Client
                 }
             }
         }
+        internal MsalAccessTokenCacheItem GetAccessTokenCacheItem(string msalAccessTokenCacheItemKey, RequestContext requestContext)
+        {
+            lock (LockObject)
+            {
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
+                {
+                    TokenCache = this,
+                    ClientId = ClientId,
+                    User = null
+                };
 
-        internal MsalIdTokenCacheItem GetIdTokenCacheItem(string msalIdTokenCacheItemKey)
+                OnBeforeAccess(args);
+                var accessTokenStr = TokenCacheAccessor.GetAccessToken(msalAccessTokenCacheItemKey);
+                OnAfterAccess(args);
+
+                return JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenStr, requestContext);
+            }
+        }
+
+        internal MsalRefreshTokenCacheItem GetRefreshTokenCacheItem(string msalRefreshTokenCacheItemKey, RequestContext requestContext)
+        {
+            lock (LockObject)
+            {
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
+                {
+                    TokenCache = this,
+                    ClientId = ClientId,
+                    User = null
+                };
+
+                OnBeforeAccess(args);
+                var refreshTokenStr = TokenCacheAccessor.GetRefreshToken(msalRefreshTokenCacheItemKey);
+                OnAfterAccess(args);
+
+                return JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(refreshTokenStr, requestContext);
+            }
+        }
+
+        internal MsalIdTokenCacheItem GetIdTokenCacheItem(string msalIdTokenCacheItemKey, RequestContext requestContext)
         {
             lock (LockObject)
             {
@@ -561,11 +601,11 @@ namespace Microsoft.Identity.Client
                 var idTokenStr = TokenCacheAccessor.GetIdToken(msalIdTokenCacheItemKey);
                 OnAfterAccess(args);
 
-                return JsonHelper.DeserializeFromJson<MsalIdTokenCacheItem>(idTokenStr);
+                return JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(idTokenStr, requestContext);
             }
         }
 
-        internal MsalAccountCacheItem GetAccountCacheItem(string msalAccountCacheItemKey)
+        internal MsalAccountCacheItem GetAccountCacheItem(string msalAccountCacheItemKey, RequestContext requestContext)
         {
             lock (LockObject)
             {
@@ -580,7 +620,7 @@ namespace Microsoft.Identity.Client
                 var accountStr = TokenCacheAccessor.GetAccount(msalAccountCacheItemKey);
                 OnAfterAccess(args);
 
-                return JsonHelper.DeserializeFromJson<MsalAccountCacheItem>(accountStr);
+                return JsonHelper.TryToDeserializeFromJson<MsalAccountCacheItem>(accountStr, requestContext);
             }
         }
 
@@ -606,7 +646,7 @@ namespace Microsoft.Identity.Client
                         rtItem.Environment, StringComparison.OrdinalIgnoreCase))
                     {
 
-                        MsalAccountCacheItem accountItem = GetAccountCacheItem(rtItem.GetAccountItemKey());
+                        MsalAccountCacheItem accountItem = GetAccountCacheItem(rtItem.GetAccountItemKey(), requestContext);
 
                         if (accountItem != null)
                         {
@@ -621,19 +661,14 @@ namespace Microsoft.Identity.Client
                     return allUsers.Values;
                 }
 
-                foreach (MsalRefreshTokenCacheItem rtItem in CacheFallbackOperations.GetAllAdalUsersForMsal(
+                foreach (KeyValuePair<string, AdalUserInfo> pair in CacheFallbackOperations.GetAllAdalUsersForMsal(
                     legacyCachePersistance, environment, ClientId))
                 {
-                    //only return ADAL users if they have client info
-                    if (!string.IsNullOrEmpty(rtItem.RawClientInfo))
-                    {
-                        MsalIdTokenCacheItem idTokenCacheItem = GetIdTokenCacheItem(rtItem.GetIdTokenItemKey());
+                    string userIdentifier = ClientInfo.CreateFromJson(pair.Key).ToUserIdentifier();
 
-                        User user = new User(idTokenCacheItem.UserIdentifier,
-                            idTokenCacheItem.IdToken.PreferredUsername,
-                            idTokenCacheItem.IdToken.Name);
-                        allUsers[rtItem.UserIdentifier] = user;
-                    }
+                    User user = new User(userIdentifier, pair.Value.DisplayableId, pair.Value.GivenName + " " + pair.Value.FamilyName);
+
+                    allUsers[userIdentifier] = user;
                 }
 
                 return allUsers.Values;
@@ -648,8 +683,9 @@ namespace Microsoft.Identity.Client
                 foreach (var refreshTokenString in TokenCacheAccessor.GetAllRefreshTokensAsString())
                 {
                     MsalRefreshTokenCacheItem msalRefreshTokenCacheItem =
-                        JsonHelper.DeserializeFromJson<MsalRefreshTokenCacheItem>(refreshTokenString);
-                    if (msalRefreshTokenCacheItem.ClientId.Equals(ClientId))
+                    JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(refreshTokenString, requestContext);
+
+                    if (msalRefreshTokenCacheItem != null && msalRefreshTokenCacheItem.ClientId.Equals(ClientId))
                     {
                         allRefreshTokens.Add(msalRefreshTokenCacheItem);
                     }
@@ -664,17 +700,58 @@ namespace Microsoft.Identity.Client
             lock (LockObject)
             {
                 ICollection<MsalAccessTokenCacheItem> allAccessTokens = new List<MsalAccessTokenCacheItem>();
+
                 foreach (var accessTokenString in TokenCacheAccessor.GetAllAccessTokensAsString())
                 {
                     MsalAccessTokenCacheItem msalAccessTokenCacheItem =
-                        JsonHelper.DeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString);
-                    if (msalAccessTokenCacheItem.ClientId.Equals(ClientId))
+                    JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestContext);
+                    if (msalAccessTokenCacheItem != null && msalAccessTokenCacheItem.ClientId.Equals(ClientId))
                     {
                         allAccessTokens.Add(msalAccessTokenCacheItem);
                     }
                 }
 
                 return allAccessTokens;
+            }
+        }
+
+        internal ICollection<MsalIdTokenCacheItem> GetAllIdTokensForClient(RequestContext requestContext)
+        {
+            lock (LockObject)
+            {
+                ICollection<MsalIdTokenCacheItem> allIdTokens = new List<MsalIdTokenCacheItem>();
+
+                foreach (var idTokenString in TokenCacheAccessor.GetAllIdTokensAsString())
+                {
+                    MsalIdTokenCacheItem msalIdTokenCacheItem =
+                    JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(idTokenString, requestContext);
+                    if (msalIdTokenCacheItem != null && msalIdTokenCacheItem.ClientId.Equals(ClientId))
+                    {
+                        allIdTokens.Add(msalIdTokenCacheItem);
+                    }
+                }
+
+                return allIdTokens;
+            }
+        }
+
+        internal ICollection<MsalAccountCacheItem> GetAllAccounts(RequestContext requestContext)
+        {
+            lock (LockObject)
+            {
+                ICollection<MsalAccountCacheItem> allAccounts = new List<MsalAccountCacheItem>();
+
+                foreach (var accountString in TokenCacheAccessor.GetAllAccountsAsString())
+                {
+                    MsalAccountCacheItem msalAccountCacheItem =
+                    JsonHelper.TryToDeserializeFromJson<MsalAccountCacheItem>(accountString, requestContext);
+                    if (msalAccountCacheItem != null)
+                    {
+                        allAccounts.Add(msalAccountCacheItem);
+                    }
+                }
+
+                return allAccounts;
             }
         }
 
@@ -692,7 +769,7 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = null
+                        User = user
                     };
 
                     OnBeforeAccess(args);
@@ -714,12 +791,37 @@ namespace Microsoft.Identity.Client
 
                     foreach (MsalAccessTokenCacheItem accessTokenCacheItem in allAccessTokens)
                     {
-                        TokenCacheAccessor.DeleteAccessToken(accessTokenCacheItem.GetAccessTokenItemKey().ToString(), requestContext);
+                        TokenCacheAccessor.DeleteAccessToken(accessTokenCacheItem.GetAccessTokenItemKey(), requestContext);
                     }
 
                     msg = "Deleted access token count - " + allAccessTokens.Count;
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
+
+                    IList<MsalIdTokenCacheItem> allIdTokens = GetAllIdTokensForClient(requestContext)
+                        .Where(item => item.UserIdentifier.Equals(user.Identifier)).ToList();
+
+                    foreach (MsalIdTokenCacheItem idTokenCacheItem in allIdTokens)
+                    {
+                        TokenCacheAccessor.DeleteIdToken(idTokenCacheItem.GetIdTokenItemKey(), requestContext);
+                    }
+
+                    msg = "Deleted Id token count - " + allIdTokens.Count;
+                    requestContext.Logger.Info(msg);
+                    requestContext.Logger.InfoPii(msg);
+
+                    IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
+                        .Where(item => item.UserIdentifier.Equals(user.Identifier)).ToList();
+
+                    foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
+                    {
+                        TokenCacheAccessor.DeleteAccount(accountCacheItem.GetAccountItemKey(), requestContext);
+                    }
+
+                    msg = "Deleted Account count - " + allIdTokens.Count;
+                    requestContext.Logger.Info(msg);
+                    requestContext.Logger.InfoPii(msg);
+
                     OnAfterAccess(args);
                 }
                 finally

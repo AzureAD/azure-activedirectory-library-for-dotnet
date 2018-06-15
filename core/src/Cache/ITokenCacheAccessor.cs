@@ -41,6 +41,8 @@ namespace Microsoft.Identity.Core.Cache
 
         string GetRefreshToken(string refreshTokenKey);
 
+        string GetAccessToken(string accessTokenKey);
+
         string GetIdToken(string idTokenKey);
 
         string GetAccount(string accountKey);
@@ -48,6 +50,10 @@ namespace Microsoft.Identity.Core.Cache
         void DeleteAccessToken(string cacheKey);
 
         void DeleteRefreshToken(string cacheKey);
+
+        void DeleteIdToken(string cacheKey);
+
+        void DeleteAccount(string cacheKey);
 
         ICollection<string> GetAllAccessTokensAsString();
 
@@ -60,6 +66,10 @@ namespace Microsoft.Identity.Core.Cache
         ICollection<string> GetAllAccessTokenKeys();
 
         ICollection<string> GetAllRefreshTokenKeys();
+
+        ICollection<string> GetAllIdTokenKeys();
+
+        ICollection<string> GetAllAccountKeys();
 
         void Clear();
     }

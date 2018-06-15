@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 = TokenCache.FindAccessToken(AuthenticationRequestParameters);
             if (MsalAccessTokenItem != null)
             {
-                MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey());
+                MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey(), AuthenticationRequestParameters.RequestContext);
             }
 
             if (ForceRefresh)

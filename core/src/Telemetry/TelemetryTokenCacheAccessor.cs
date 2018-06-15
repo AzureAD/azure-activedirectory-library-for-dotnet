@@ -117,5 +117,33 @@ namespace Microsoft.Identity.Core.Telemetry
                 Client.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, cacheEvent);
             }
         }
+
+        public void DeleteIdToken(string cacheKey, RequestContext requestContext)
+        {
+            var cacheEvent = new CacheEvent(CacheEvent.TokenCacheDelete) { TokenType = CacheEvent.TokenTypes.ID };
+            Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, cacheEvent);
+            try
+            {
+                DeleteIdToken(cacheKey);
+            }
+            finally
+            {
+                Client.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, cacheEvent);
+            }
+        }
+
+        public void DeleteAccount(string cacheKey, RequestContext requestContext)
+        {
+            var cacheEvent = new CacheEvent(CacheEvent.TokenCacheDelete) { TokenType = CacheEvent.TokenTypes.ACCOUNT };
+            Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, cacheEvent);
+            try
+            {
+                DeleteAccount(cacheKey);
+            }
+            finally
+            {
+                Client.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, cacheEvent);
+            }
+        }
     }
 }

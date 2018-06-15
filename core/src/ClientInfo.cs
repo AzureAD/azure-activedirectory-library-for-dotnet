@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
@@ -67,6 +68,11 @@ namespace Microsoft.Identity.Core
 
         public string ToEncodedJson() {
             return Base64UrlHelpers.Encode(JsonHelper.SerializeToJson<ClientInfo>(this));
+        }
+
+        public string ToUserIdentifier()
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", UniqueIdentifier, UniqueTenantIdentifier);
         }
 
         public static ClientInfo CreateFromUserIdentifier(string userIdentifier)

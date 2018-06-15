@@ -31,6 +31,7 @@ using Security;
 using Foundation;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.Identity.Core
 {
@@ -80,6 +81,16 @@ namespace Microsoft.Identity.Core
             Remove(cacheKey, RefreshTokenServiceId);
         }
 
+        public void DeleteIdToken(string cacheKey)
+        {
+            Remove(cacheKey, IdTokenServiceId);
+        }
+
+        public void DeleteAccount(string cacheKey)
+        {
+            Remove(cacheKey, AccountServiceId);
+        }
+
         public ICollection<string> GetAllAccessTokensAsString()
         {
             return GetValues(AccessTokenServiceId);
@@ -108,6 +119,16 @@ namespace Microsoft.Identity.Core
         public ICollection<string> GetAllRefreshTokenKeys()
         {
             return GetKeys(RefreshTokenServiceId);
+        }
+
+        public ICollection<string> GetAllIdTokenKeys()
+        {
+            return GetKeys(IdTokenServiceId);
+        }
+
+        public ICollection<string> GetAllAccountKeys()
+        {
+            return GetKeys(AccountServiceId);
         }
 
         private string GetValue(string key, string service)
@@ -234,6 +255,16 @@ namespace Microsoft.Identity.Core
             {
                 DeleteRefreshToken(key);
             }
+
+            foreach (var key in GetAllIdTokenKeys())
+            {
+                DeleteIdToken(key);
+            }
+
+            foreach (var key in GetAllAccountKeys())
+            {
+                DeleteAccount(key);
+            }
         }
 
         public void SaveIdToken(string cacheKey, string item)
@@ -249,6 +280,11 @@ namespace Microsoft.Identity.Core
         public string GetIdToken(string idTokenKey)
         {
             return GetValue(idTokenKey, IdTokenServiceId);
+        }
+
+        public string GetAccessToken(string accessTokenKey)
+        {
+            return GetValue(accessTokenKey, AccessTokenServiceId);
         }
 
         public string GetAccount(string accountKey)

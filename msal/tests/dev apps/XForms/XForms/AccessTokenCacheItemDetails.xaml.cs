@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -42,17 +43,23 @@ namespace XForms
             authorityLabel.Text = msalAccessTokenCacheItem.Authority;
             clientIdLabel.Text = msalAccessTokenCacheItem.ClientId;
 
-            userDisplayableIdLabel.Text = msalIdTokenCacheItem.IdToken.PreferredUsername;
-            userNameLabel.Text = msalIdTokenCacheItem.IdToken.Name;
-            userIdentityProviderLabel.Text = msalIdTokenCacheItem.IdToken.Issuer;
+            credentialTypeLabel.Text = msalAccessTokenCacheItem.CredentialType;
+            environmentLabel.Text = msalAccessTokenCacheItem.Environment;
+            tenantIdLabel.Text = msalAccessTokenCacheItem.TenantId;
+
+            userIdentifierLabel.Text = msalAccessTokenCacheItem.UserIdentifier;
+            userAssertionHashLabel.Text = msalAccessTokenCacheItem.UserAssertionHash;
 
             expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
             scopesLabel.Text = msalAccessTokenCacheItem.Scopes;
 
+            cachedAtLabel.Text = CoreHelpers.UnixTimestampToDateTime(msalAccessTokenCacheItem.CachedAt).ToString();
+
+            rawClientInfoLabel.Text = msalAccessTokenCacheItem.RawClientInfo;
             clientInfoUniqueIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueIdentifier;
             clientInfoUniqueTenantIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueTenantIdentifier;
 
-            accessTokenLabel.Text = StringShortenerConverter.GetShortStr(msalAccessTokenCacheItem.Secret, 100);
+            secretLabel.Text = StringShortenerConverter.GetShortStr(msalAccessTokenCacheItem.Secret, 100);
         }
     }
 }

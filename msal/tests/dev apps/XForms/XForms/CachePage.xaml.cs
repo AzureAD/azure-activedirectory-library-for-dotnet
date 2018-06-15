@@ -50,9 +50,39 @@ namespace XForms
         private void RefreshCacheView()
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
-            accessTokenCacheItems.ItemsSource = tokenCache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
 
-            refreshTokenCacheItems.ItemsSource = tokenCache.GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+
+            IDictionary<string, MsalAccessTokenCacheItem> accessTokens = new Dictionary<string, MsalAccessTokenCacheItem>();
+            foreach (var key in tokenCache.TokenCacheAccessor.GetAllAccessTokenKeys())
+            {
+                accessTokens.Add(key, tokenCache.GetAccessTokenCacheItem(key, requestContext));
+            }
+            accessTokenCacheItems.ItemsSource = accessTokens;
+
+            IDictionary<string, MsalRefreshTokenCacheItem> refreshTokens = new Dictionary<string, MsalRefreshTokenCacheItem>();
+            foreach (var key in tokenCache.TokenCacheAccessor.GetAllRefreshTokenKeys())
+            {
+                refreshTokens.Add(key, tokenCache.GetRefreshTokenCacheItem(key, requestContext));
+            }
+
+            refreshTokenCacheItems.ItemsSource = refreshTokens;
+
+            IDictionary<string, MsalIdTokenCacheItem> idTokens = new Dictionary<string, MsalIdTokenCacheItem>();
+            foreach (var key in tokenCache.TokenCacheAccessor.GetAllIdTokenKeys())
+            {
+                idTokens.Add(key, tokenCache.GetIdTokenCacheItem(key, requestContext));
+            }
+
+            idTokenCacheItems.ItemsSource = idTokens;
+
+            IDictionary<string, MsalAccountCacheItem> accounts = new Dictionary<string, MsalAccountCacheItem>();
+            foreach (var key in tokenCache.TokenCacheAccessor.GetAllAccountKeys())
+            {
+                accounts.Add(key, tokenCache.GetAccountCacheItem(key, requestContext));
+            }
+
+            accountsCacheItems.ItemsSource = accounts;
         }
 
         protected override void OnAppearing()
@@ -134,9 +164,28 @@ namespace XForms
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
             var accountCacheItem = App.MsalPublicClient.UserTokenCache.
-                GetAccountCacheItem(refreshTokenCacheItem.GetAccountItemKey());
+                GetAccountCacheItem(refreshTokenCacheItem.GetAccountItemKey(), 
+                new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
 
             await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem, accountCacheItem));
+        }
+
+        public async Task ShowIdTokenDetails(object sender, EventArgs e)
+        {
+            var mi = (MenuItem)sender;
+            var idTokenCacheItem = (MsalIdTokenCacheItem)mi.CommandParameter;
+
+            // pass idtoken instead of null
+            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem));
+        }
+
+        public async Task ShowAccountDetails(object sender, EventArgs e)
+        {
+            var mi = (MenuItem)sender;
+            var accountCacheItem = (MsalAccountCacheItem)mi.CommandParameter;
+
+            // pass idtoken instead of null
+            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem));
         }
     }
 }

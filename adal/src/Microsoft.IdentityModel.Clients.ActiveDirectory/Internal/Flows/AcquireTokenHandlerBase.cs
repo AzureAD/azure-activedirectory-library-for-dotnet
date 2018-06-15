@@ -71,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 "=== Token Acquisition started: \n\tCacheType: {0}\n\tAuthentication Target: {1}\n\t",
                 tokenCache != null
                     ? tokenCache.GetType().FullName +
-                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.tokenCacheDictionary.Count)
                     : "null",
                 requestData.SubjectType);
             if (InstanceDiscovery.IsWhitelisted(requestData.Authenticator.GetAuthorityHost()))
@@ -88,7 +88,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
                 (tokenCache != null)
                     ? tokenCache.GetType().FullName +
-                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.Count)
+                      string.Format(CultureInfo.CurrentCulture, " ({0} items)", tokenCache.tokenCacheDictionary.Count)
                     : "null",
                 requestData.SubjectType);
             RequestContext.Logger.InfoPii(piiMsg);
@@ -330,6 +330,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
+            requestParameters[OAuth2Parameter.ClientInfo] = "1";
 
             AdalResultWrapper result = await this.SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
 

@@ -69,13 +69,13 @@ namespace Microsoft.Identity.Core.Cache
         internal string TenantId { get; set; }
 
         [DataMember(Name = "target", IsRequired = true)]
-        internal string Scopes { get; set; }
+        public string Scopes { get; internal set; }
 
         [DataMember(Name = "cached_at", IsRequired = true)]
         internal long CachedAt { get; set; }
 
         [DataMember(Name = "expires_on", IsRequired = true)]
-        internal long ExpiresOnUnixTimestamp { get; set; }
+        public long ExpiresOnUnixTimestamp { get; internal set; }
 
         /*
         [DataMember(Name = "extended_expires_on")]
@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Core.Cache
         public string UserAssertionHash { get; set; }
 
         [DataMember(Name = "authority")]
-        internal string Authority { get; set; }
+        public string Authority { get; internal set; }
 
         [DataMember(Name = "access_token_type")]
         internal string TokenType { get; set; }
@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Core.Cache
             return new MsalIdTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId).ToString();
         }
 
-        internal DateTimeOffset ExpiresOn
+        public DateTimeOffset ExpiresOn
         {
             get
             {
