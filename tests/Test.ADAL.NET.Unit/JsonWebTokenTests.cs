@@ -126,6 +126,10 @@ namespace Test.ADAL.NET.Unit
             result = await context.AcquireTokenByAuthorizationCodeAsync(TestConstants.DefaultAuthorizationCode, TestConstants.DefaultRedirectUri, clientAssertion, TestConstants.DefaultResource, true).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
+            HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token"), true).ConfigureAwait(false);
+            Assert.IsNotNull(result.AccessToken);
+
             //Check for empty x5c claim
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             context.TokenCache.Clear();
@@ -134,6 +138,10 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             result = await context.AcquireTokenByAuthorizationCodeAsync(TestConstants.DefaultAuthorizationCode, TestConstants.DefaultRedirectUri, clientAssertion, TestConstants.DefaultResource, false).ConfigureAwait(false);
+            Assert.IsNotNull(result.AccessToken);
+
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token"), true).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
 
@@ -152,6 +160,10 @@ namespace Test.ADAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             result = await context.AcquireTokenByAuthorizationCodeAsync(TestConstants.DefaultAuthorizationCode, TestConstants.DefaultRedirectUri, clientAssertion, TestConstants.DefaultResource).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
+
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token")).ConfigureAwait(false);
+            Assert.IsNotNull(result.AccessToken); 
         }
 
         [TestMethod]
@@ -168,6 +180,10 @@ namespace Test.ADAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             result = await context.AcquireTokenByAuthorizationCodeAsync(TestConstants.DefaultAuthorizationCode, TestConstants.DefaultRedirectUri, clientAssertion, TestConstants.DefaultResource, true).ConfigureAwait(false);
+            Assert.IsNotNull(result.AccessToken);
+
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token"), true).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
     }
