@@ -141,7 +141,7 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(result.AccessToken);
 
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
-            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token"), true).ConfigureAwait(false);
+            result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion, new UserAssertion("Access Token"), false).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
         }
 
