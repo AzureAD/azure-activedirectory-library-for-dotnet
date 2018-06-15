@@ -1,3 +1,14 @@
+Version 3.19.8
+==============
+This hotfix release includes:
+- Increasing API Surface for Subject Issuer Auth(#1091)
+
+Version 3.19.7
+==============
+This hotfix release includes:
+- No longer clear SecurePassword after the username password grant flow (#1087)
+- Keep whitespaces inside a SAML token. This will bring better interoperability with other federated IDPs. (#1087)
+
 Version 3.19.6
 ==============
 This hotfix release includes:
