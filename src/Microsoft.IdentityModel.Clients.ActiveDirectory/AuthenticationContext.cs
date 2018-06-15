@@ -380,7 +380,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = this.TokenCache,
                 Resource = resource,
                 ClientKey = clientKey,
-                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
+                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
 
             var handler = new AcquireTokenOnBehalfHandler(requestData, userAssertion);
@@ -435,7 +435,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = this.TokenCache,
                 Resource = resource,
                 ClientKey = new ClientKey(clientId),
-                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
+                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
             var handler = new AcquireTokenNonInteractiveHandler(requestData, userAssertion);
             return await handler.RunAsync().ConfigureAwait(false);
@@ -451,7 +451,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCache = this.TokenCache,
                 Resource = resource,
                 ClientKey = new ClientKey(clientId),
-                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
+                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
             var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
                 extraQueryParameters, this.CreateWebAuthenticationDialog(parameters), claims);
