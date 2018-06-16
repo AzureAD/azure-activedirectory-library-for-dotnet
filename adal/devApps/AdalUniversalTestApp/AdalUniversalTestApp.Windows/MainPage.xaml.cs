@@ -52,7 +52,7 @@ namespace AdalUniversalTestApp
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net",
-                    "e0430aec-5970-4903-992a-eb93a6c62231", new Uri("http://localhost"),
+                    "<CLIENT-ID>", new Uri("<REDIRECT-URI>"),
                     new PlatformParameters(PromptBehavior.Auto, false));
 
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
