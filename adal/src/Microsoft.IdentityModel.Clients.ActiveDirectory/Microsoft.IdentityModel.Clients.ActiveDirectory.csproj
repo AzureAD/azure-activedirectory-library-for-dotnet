@@ -17,6 +17,7 @@
     <!-- Workaround until Xamarin supports PPDB -->
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <DebugType>full</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Label="GenerateAssemblyInfo inputs">
@@ -139,29 +140,5 @@
     <None Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
     <None Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
   </ItemGroup>
-
-  <!-- Copies all artifacts needed to generate the nuget package. This should be replaced with msbuild /t:pack, however
-  bug https://github.com/NuGet/Home/issues/3891 blocks this, espcially that packaging rebuilds the Core assemblies, so we cannot sign it.-->
-  <Target Name="LayoutNuGet">
-    <PropertyGroup>
-      <NugetPackageRootFolder Condition="'$(NugetPackageRootFolder)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", ".nugetlayout"))</NugetPackageRootFolder>
-      <NuspecFilePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "build", "Microsoft.IdentityModel.Clients.ActiveDirectory.nuspec"))</NuspecFilePath>
-    </PropertyGroup>
-    
-    <ItemGroup>
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.xml" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.pdb" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.xml" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.pdb" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.dll" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.xml" />
-      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.pdb" />
-    </ItemGroup>
-
-    <RemoveDir Directories="$(NugetPackageRootFolder)" />
-    <Copy SourceFiles="@(FilesToPack)" DestinationFiles="$(NugetPackageRootFolder)\lib\%(RecursiveDir)%(FileName)%(Extension)" />
-    <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(NugetPackageRootFolder)" />
-  </Target>
+  
 </Project>
