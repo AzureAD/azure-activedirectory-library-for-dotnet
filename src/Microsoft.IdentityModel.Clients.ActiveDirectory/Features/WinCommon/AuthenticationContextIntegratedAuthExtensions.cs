@@ -45,7 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="userCredential">The user credential to use for token acquisition.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        public static async Task<AuthenticationResult> AcquireTokenAsync(this AuthenticationContext ctx, string resource, string clientId, UserCredential userCredential)
+        public static async Task<AuthenticationResult> AcquireTokenAsync(AuthenticationContext ctx, string resource, string clientId, UserCredential userCredential)
         {
             return await ctx.AcquireTokenCommonAsync(resource, clientId, userCredential).ConfigureAwait(false);
         }

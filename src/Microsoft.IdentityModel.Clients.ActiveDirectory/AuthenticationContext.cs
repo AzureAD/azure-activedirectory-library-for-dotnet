@@ -412,6 +412,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters);
         }
 
+        // Added for fixing backwards binary compat with ADAL 2.x!
+        public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, UserCredential userCredential)
+        {
+            return await AcquireTokenCommonAsync(resource, clientId, userCredential).ConfigureAwait(false);
+        }
+
         internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
             UserCredential userCredential)
         {
