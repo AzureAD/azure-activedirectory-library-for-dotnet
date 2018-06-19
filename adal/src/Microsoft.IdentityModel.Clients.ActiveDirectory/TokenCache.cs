@@ -37,6 +37,7 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -63,12 +64,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         static TokenCache()
         {
+            // to do - consider other options
+            // init default logger
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(AdalLogger).TypeHandle);
+
             DefaultShared = new TokenCache
             {
                 BeforeAccess = StorageDelegates.BeforeAccess,
                 AfterAccess = StorageDelegates.AfterAccess
             };
         }
+
+        internal TokenCacheAccessor TokenCacheAccessor = new TokenCacheAccessor();
 
         /// <summary>
         /// Default constructor.
@@ -144,7 +151,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 lock (cacheLock)
                 {
-                    return this.tokenCacheDictionary.Count;
+                    TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+                    this.OnBeforeAccess(args);
+
+                    var count = this.tokenCacheDictionary.Count;
+
+                    this.OnAfterAccess(args);
+
+                    return count;
                 }
             }
         }
@@ -250,7 +264,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
                 this.OnBeforeAccess(args);
                 this.OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", this.Count));
+                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", 
+                    this.tokenCacheDictionary.Count));
                 this.tokenCacheDictionary.Clear();
                 CoreLoggerBase.Default.Info("Successfully Cleared Cache");
                 this.HasStateChanged = true;
@@ -449,7 +464,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         msg = "Checking MSAL cache for user token cache";
                         requestContext.Logger.Info(msg);
                         requestContext.Logger.InfoPii(msg);
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
+                            cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
                     }
                 }
 
@@ -496,10 +512,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 this.HasStateChanged = true;
 
+                IdToken idToken = IdToken.Parse(result.Result.IdToken);
+
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
-                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == AuthorityType.AAD)
+                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
-                    CacheFallbackOperations.WriteMsalRefreshToken(result, authority, clientId, displayableId, result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName);
+                    CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
+                        result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName,
+                        result.Result.UserInfo.FamilyName, idToken.ObjectId);
                 }
             }
         }
@@ -588,7 +608,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     // check if the token was issued by AAD
                     if (returnValue != null &&
-                        Authenticator.DetectAuthorityType(returnValue.Value.Key.Authority) == AuthorityType.ADFS)
+                        Authenticator.DetectAuthorityType(returnValue.Value.Key.Authority) == Internal.Instance.AuthorityType.ADFS)
                     {
                         returnValue = null;
                     }
