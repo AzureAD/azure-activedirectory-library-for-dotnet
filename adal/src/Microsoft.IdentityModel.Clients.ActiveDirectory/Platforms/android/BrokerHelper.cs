@@ -109,7 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
 
                 PlatformParameters pp = PlatformParameters as PlatformParameters;
-                pp.CallerActivity.StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse(keyPair["app_link"])));
+                pp.CallerActivity.StartActivityForResult(new Intent(Intent.ActionView, Android.Net.Uri.Parse(keyPair["app_link"])), pp.BrokerRequestCode);
 
                 throw new AdalException(AdalErrorAndroidEx.BrokerApplicationRequired, AdalErrorMessageAndroidEx.BrokerApplicationRequired);
             }
