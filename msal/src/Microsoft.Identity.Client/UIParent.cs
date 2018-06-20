@@ -26,10 +26,11 @@
 //------------------------------------------------------------------------------
 
 #if ANDROID
-using System;
 using Android.App;
+using Android.Content.PM;
 #endif
 
+using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client
 {
@@ -38,15 +39,28 @@ namespace Microsoft.Identity.Client
     /// </summary>
     public sealed class UIParent
     {
+        internal CoreUIParent CoreUIParent { get; private set; }
+
         /// <summary>
         /// Default constructor.
         /// </summary>
         public UIParent()
         {
+            CoreUIParent = new CoreUIParent();
         }
 
+#if iOS
+        public UIParent(bool useEmbeddedWebview) : this()
+        {
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+#endif
+
 #if ANDROID
-        internal Activity Activity { get; set; }
+        private Activity Activity { get; set; }
+
+        private static readonly string[] _chromePackages =
+        {"com.android.chrome", "com.chrome.beta", "com.chrome.dev"};
 
         /// <summary>
         /// Initializes an instance for a provided activity.
@@ -54,21 +68,50 @@ namespace Microsoft.Identity.Client
         /// <param name="activity">parent activity for the call. REQUIRED.</param>
         public UIParent(Activity activity)
         {
-           if(activity == null)
-           {		
-                throw new ArgumentException("passed in activity is null", nameof(activity));		
-           }	
-           
             Activity = activity;
+            CoreUIParent = new CoreUIParent(Activity);
+        }
+
+        public UIParent(Activity activity, bool useEmbeddedWebview) : this(activity)
+        {
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+
+        public static bool IsSystemWebviewAvailable()
+        {
+            PackageManager packageManager = Application.Context.PackageManager;
+
+            int counter = 0;
+
+            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(_chromePackages[0], 0);
+
+            for (int i = 0; i < _chromePackages.Length; i++)
+            {
+                try
+                {
+                    packageManager.GetPackageInfo(_chromePackages[i], PackageInfoFlags.Activities);
+                    counter++;
+                }
+                catch (PackageManager.NameNotFoundException)
+                {
+                }
+            }
+            if (counter > 0 && applicationInfo.Enabled == true)
+            {
+                return true;
+            }
+            else
+                return false;
         }
 #endif
 
 #if DESKTOP || WINRT
         //hidden webview can be used in both WinRT and desktop applications.
-        internal bool UseHiddenBrowser { get; set; }
+        internal bool UseHiddenBrowser { get { return CoreUIParent.UseHiddenBrowser; } set { CoreUIParent.UseHiddenBrowser = value; } }
 
 #if WINRT
-        internal bool UseCorporateNetwork { get; set; }
+        internal bool UseCorporateNetwork { get { return CoreUIParent.UseCorporateNetwork; } set { CoreUIParent.UseCorporateNetwork = value; } }
+
 #endif
 
 #if DESKTOP
@@ -80,7 +123,7 @@ namespace Microsoft.Identity.Client
         /// <param name="ownerWindow">Parent window object reference. OPTIONAL.</param>
         public UIParent(object ownerWindow)
         {
-            OwnerWindow = ownerWindow;
+            CoreUIParent = new CoreUIParent(ownerWindow);
         }
 #endif
 #endif

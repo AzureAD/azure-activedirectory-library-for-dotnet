@@ -31,15 +31,10 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core;
-using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
@@ -55,9 +50,9 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
             platformParameters = new PlatformParameters(PromptBehavior.Auto);
         }
 
@@ -71,7 +66,7 @@ namespace Test.ADAL.NET.Unit
 
             var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -107,7 +102,7 @@ namespace Test.ADAL.NET.Unit
 
             var validCertClaim = "\"x5c\":\"" + Convert.ToBase64String(certificate.GetRawCertData());
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.TenantSpecificAuthority))
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)

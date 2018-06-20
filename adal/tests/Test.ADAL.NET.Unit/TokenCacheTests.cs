@@ -33,7 +33,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
@@ -824,6 +823,19 @@ namespace Test.ADAL.Common.Unit
         {
             Assert.AreEqual(1, _count);
             _count--;
+        }
+
+        public static void TokenCacheClearTest(byte[] oldcache)
+        {
+            CoreLoggerBase.Default = null;
+            TokenCache cache = new TokenCache();
+            //Verifying default constructor sets CoreLoggerBase.Default
+            cache.Clear();
+
+            CoreLoggerBase.Default = null;
+            TokenCache cache2 = new TokenCache(oldcache);
+            //Verifying overloaded constructor sets CoreLoggerBase.Default
+            cache.Clear();
         }
     }
 }

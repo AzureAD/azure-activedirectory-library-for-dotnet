@@ -43,9 +43,9 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -125,6 +125,14 @@ namespace Test.ADAL.NET.Unit
         public void ParallelStoreTest()
         {
             TokenCacheTests.ParallelStorePositiveTest(File.ReadAllBytes("oldcache.serialized"));
+        }
+
+        [TestMethod]
+        [Description("Test to ensure the token cache doesnt throw an exception when cleared")]
+        [TestCategory("AdalDotNet.Unit")]
+        public void TokenCacheClearTest()
+        {
+            TokenCacheTests.TokenCacheClearTest(File.ReadAllBytes("oldcache.serialized"));
         }
     }
 }

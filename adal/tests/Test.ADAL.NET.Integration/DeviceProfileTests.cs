@@ -43,9 +43,9 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
-            HttpMessageHandlerFactory.InitializeMockProvider();
+            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            HttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
+            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -55,6 +55,7 @@ namespace Test.ADAL.NET.Integration
             {
                 ClientId = TestConstants.DefaultClientId,
                 Resource = TestConstants.DefaultResource,
+
                 DeviceCode = "device-code",
                 ExpiresOn = (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10)),
                 Interval = 5,
@@ -76,8 +77,8 @@ namespace Test.ADAL.NET.Integration
                                                                            "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = "https://login.microsoftonline.com/home/oauth2/token",
@@ -91,6 +92,8 @@ namespace Test.ADAL.NET.Integration
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -104,7 +107,7 @@ namespace Test.ADAL.NET.Integration
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
@@ -119,8 +122,8 @@ namespace Test.ADAL.NET.Integration
                                                                "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
@@ -146,6 +149,8 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-access-token", result.AccessToken);
             // There should be one cached entry.
             Assert.AreEqual(1, ctx.TokenCache.Count);
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -158,13 +163,15 @@ namespace Test.ADAL.NET.Integration
                 ResponseMessage = MockHelpers.CreateDeviceCodeErrorResponse()
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
             DeviceCodeResult dcr;
             AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await ctx.AcquireDeviceCodeAsync("some-resource", "some-client"));
             Assert.IsTrue(ex.Message.Contains("some error message"));
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
         [TestMethod]
@@ -177,7 +184,7 @@ namespace Test.ADAL.NET.Integration
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage("1")
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
@@ -192,7 +199,7 @@ namespace Test.ADAL.NET.Integration
                                                                "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
             };
 
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
@@ -200,7 +207,7 @@ namespace Test.ADAL.NET.Integration
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
                 ResponseMessage = MockHelpers.CreateDeviceCodeExpirationErrorResponse()
             };
-            HttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             TokenCache cache = new TokenCache();
             AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
@@ -210,6 +217,8 @@ namespace Test.ADAL.NET.Integration
             AuthenticationResult result;
             AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await ctx.AcquireTokenByDeviceCodeAsync(dcr));
             Assert.IsTrue(ex.Message.Contains("Verification code expired"));
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
     }
 }

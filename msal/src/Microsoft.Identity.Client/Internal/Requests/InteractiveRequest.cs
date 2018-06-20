@@ -30,11 +30,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal.Interfaces;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
@@ -165,7 +165,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     requestParameters[OAuth2Parameter.LoginHint] = AuthenticationRequestParameters.User.DisplayableId;
                 }
 
-                AuthenticationRequestParameters.ClientInfo = ClientInfo.CreateFromEncodedString(AuthenticationRequestParameters.User.Identifier);
+                AuthenticationRequestParameters.ClientInfo = ClientInfo.CreateFromUserIdentifier(AuthenticationRequestParameters.User.Identifier);
 
                 if (!string.IsNullOrEmpty(AuthenticationRequestParameters.ClientInfo.UniqueIdentifier))
                 {

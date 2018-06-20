@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Android.App;
+using Microsoft.Identity.Core.UI;
 using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -36,6 +37,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     [CLSCompliant(false)]
     public class PlatformParameters : IPlatformParameters
     {
+        internal CoreUIParent CoreUIParent { get; private set; }
+
+        public PlatformParameters()
+        {
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -104,5 +111,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// RequestCode provided to broker launched by ADAL
         /// </summary>
         public int BrokerRequestCode { get; set; }
+
+		/// <summary>
+        /// Flag to enable or disable embedded webview. Set to TRUE.
+        /// </summary>
+        /// <remarks>
+        /// ADAL only supports embedded webview.
+        /// </remarks>
+        private bool UseEmbeddedWebview { get; set; } = true;
+
+        internal CoreUIParent GetCoreUIParent()
+        {
+            return new CoreUIParent()
+            {
+                CallerActivity = this.CallerActivity,
+                RequestCode = this.RequestCode,
+                BrokerRequestCode = this.BrokerRequestCode,
+                UseEmbeddedWebview = this.UseEmbeddedWebview
+            };
+        }
     }
 }

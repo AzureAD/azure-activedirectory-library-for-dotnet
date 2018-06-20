@@ -34,7 +34,6 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
 using Test.MSAL.NET.Unit.Mocks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -44,6 +43,8 @@ using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Test.Microsoft.Identity.Core.Unit;
+using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Microsoft.Identity.Core.UI;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
 {
@@ -149,18 +150,17 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             MsalAccessTokenCacheItem atItem = new MsalAccessTokenCacheItem()
             {
                 Authority = TestConstants.AuthorityHomeTenant,
+                Environment = TestConstants.ProductionEnvironment,
                 ClientId = TestConstants.ClientId,
-                RawIdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 RawClientInfo = MockHelpers.CreateClientInfo(),
                 TokenType = "Bearer",
                 ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(DateTime.UtcNow + TimeSpan.FromSeconds(3599)),
                 ScopeSet = TestConstants.Scope
             };
-            atItem.IdToken = IdToken.Parse(atItem.RawIdToken);
-            atItem.ClientInfo = ClientInfo.CreateFromJson(atItem.RawClientInfo);
-            MsalAccessTokenCacheKey atKey = atItem.GetAccessTokenItemKey();
-            atItem.AccessToken = atKey.ToString();
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey.ToString()] = JsonHelper.SerializeToJson(atItem);
+            atItem.CreateDerivedProperties();
+            string atKey = atItem.GetAccessTokenItemKey();
+            atItem.Secret = atKey;
+            cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey] = JsonHelper.SerializeToJson(atItem);
 
             MockWebUI ui = new MockWebUI()
             {
