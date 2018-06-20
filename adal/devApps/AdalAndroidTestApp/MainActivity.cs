@@ -38,6 +38,9 @@ namespace AdalAndroidTestApp
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
+        private const int acquireTokenRequestCode = 4001;
+        private const int brokerRequestCode = 5001;
+
         private UITextView accessTokenTextView;
 
         protected override void OnCreate(Bundle bundle)
@@ -68,8 +71,11 @@ namespace AdalAndroidTestApp
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-            AuthenticationAgentContinuationHelper.SetAuthenticationAgentContinuationEventArgs(requestCode, resultCode,
-                data);
+            if (requestCode == acquireTokenRequestCode ||
+                requestCode == brokerRequestCode)
+            {
+                AuthenticationAgentContinuationHelper.SetAuthenticationAgentContinuationEventArgs(requestCode, resultCode, data);
+            }
         }
 
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
@@ -82,7 +88,7 @@ namespace AdalAndroidTestApp
                 AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
                 AuthenticationResult result = await ctx
                     .AcquireTokenSilentAsync("https://graph.windows.net", "<CLIENT_ID>", UserIdentifier.AnyUser,
-                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                        new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -111,7 +117,7 @@ namespace AdalAndroidTestApp
 
                 AuthenticationResult result = await ctx
                     .AcquireTokenAsync(resource, clientId, redirectUri,
-                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                        new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -147,7 +153,7 @@ namespace AdalAndroidTestApp
                 AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
                 AuthenticationResult result = await ctx
                     .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
-                        new PlatformParameters(this, false),
+                        new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode),
                         new UserIdentifier(email.Text, UserIdentifierType.OptionalDisplayableId), null, claim)
                     .ConfigureAwait(false);
                 value = result.AccessToken;
