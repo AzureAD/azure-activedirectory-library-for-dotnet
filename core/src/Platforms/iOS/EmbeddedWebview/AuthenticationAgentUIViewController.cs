@@ -25,12 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-using CoreFoundation;
 using Foundation;
-using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Platforms.iOS.EmbeddedWebview;
 using System;
-using System.Collections.Generic;
 using UIKit;
 using WebKit;
 using static Microsoft.Identity.Core.Platforms.iOS.EmbeddedWebview.WKWebNavigationDelegate;
@@ -70,7 +67,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
             this.NavigationItem.LeftBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Cancel,
                 CancelAuthentication);
-
+            
             wkWebView.LoadRequest(new NSUrlRequest(new NSUrl(this.url)));
         }
 
@@ -81,7 +78,8 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             wkWebView = new WKWebView(View.Bounds, wkconfg)
             {
                 UIDelegate = new WKWebViewUIDelegate(this),
-                NavigationDelegate = new WKWebNavigationDelegate(this)
+                NavigationDelegate = new WKWebNavigationDelegate(this),
+                AutoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
             };
 
             return wkWebView;
@@ -91,12 +89,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         {
             WKJavascriptEvaluationResult handler = HandleWKJavascriptEvaluationResult;
 
-            // If the title is too long, iOS automatically truncates it and adds ...
-            this.Title = (NSString)@"Sign in";
-            //?? "Sign in";
-
-            wkWebView.EvaluateJavaScript(this.Title, handler);
-
+            wkWebView.EvaluateJavaScript((NSString)@"navigator.userAgent", handler);
         }
 
         static void HandleWKJavascriptEvaluationResult(NSObject result, NSError err)
