@@ -135,7 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 if (url.StartsWith(BrokerConstants.ClientTlsRedirect, StringComparison.OrdinalIgnoreCase))
                 {
                     string query = uri.Query;
-                    if (query.StartsWith("?"))
+                    if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
                     {
                         query = query.Substring(1);
                     }
