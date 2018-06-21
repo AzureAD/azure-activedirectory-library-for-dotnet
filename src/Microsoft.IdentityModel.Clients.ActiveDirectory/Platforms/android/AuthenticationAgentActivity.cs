@@ -104,7 +104,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 base.OnLoadResource(view, url);
 
-                if (url.StartsWith(callback))
+                if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
                     base.OnLoadResource(view, url);
                     this.Finish(view, url);
