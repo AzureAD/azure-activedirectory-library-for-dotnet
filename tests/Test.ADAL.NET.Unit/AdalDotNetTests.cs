@@ -660,7 +660,7 @@ namespace Test.ADAL.NET.Unit
             var exc = AssertException.TaskThrows<ArgumentException>(() =>
                 context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                     TestConstants.DefaultRedirectUri, _platformParameters, null));
-            Assert.IsTrue(exc.Message.StartsWith(AdalErrorMessage.SpecifyAnyUser));
+            Assert.IsTrue(exc.Message.StartsWith(AdalErrorMessage.SpecifyAnyUser, StringComparison.OrdinalIgnoreCase));
 
 
             // this should hit the cache
