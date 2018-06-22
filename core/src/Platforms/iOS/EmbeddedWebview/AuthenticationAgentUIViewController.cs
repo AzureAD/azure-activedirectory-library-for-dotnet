@@ -29,6 +29,7 @@ using Foundation;
 using System;
 using UIKit;
 using WebKit;
+using static Microsoft.Identity.Core.UI.EmbeddedWebview.WKWebNavigationDelegate;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
