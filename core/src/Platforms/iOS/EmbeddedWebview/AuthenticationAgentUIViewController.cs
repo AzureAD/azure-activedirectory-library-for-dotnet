@@ -26,11 +26,9 @@
 //------------------------------------------------------------------------------
 
 using Foundation;
-using Microsoft.Identity.Core.Platforms.iOS.EmbeddedWebview;
 using System;
 using UIKit;
 using WebKit;
-using static Microsoft.Identity.Core.Platforms.iOS.EmbeddedWebview.WKWebNavigationDelegate;
 
 namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {

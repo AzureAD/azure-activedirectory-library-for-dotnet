@@ -30,12 +30,10 @@ using System.Collections.Generic;
 using CoreFoundation;
 using Foundation;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.UI;
-using Microsoft.Identity.Core.UI.EmbeddedWebview;
 using UIKit;
 using WebKit;
 
-namespace Microsoft.Identity.Core.Platforms.iOS.EmbeddedWebview
+namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 {
     internal class WKWebNavigationDelegate : WKNavigationDelegate
     {
