@@ -79,6 +79,9 @@ namespace Microsoft.Identity.Client
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
 
+        /// <summary>
+        /// Returns true if the system web view is available
+        /// </summary>
         public static bool IsSystemWebviewAvailable()
         {
             PackageManager packageManager = Application.Context.PackageManager;
