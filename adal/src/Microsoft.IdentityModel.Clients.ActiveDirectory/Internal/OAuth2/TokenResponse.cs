@@ -141,7 +141,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 Resource = responseDictionary["resource"],
                 ExpiresOn = long.Parse(responseDictionary["expires_on"].Split('.')[0], CultureInfo.CurrentCulture),
                 ClientInfo = responseDictionary.ContainsKey("client_info")
-                ? Authenticator.EnsureUrlEndsWithForwardSlash(EncodingHelper.UrlDecode(responseDictionary["client_info"]))
+                ? responseDictionary["client_info"]
                 : null,
             };
         }
