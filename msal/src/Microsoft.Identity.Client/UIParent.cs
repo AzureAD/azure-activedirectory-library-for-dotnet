@@ -35,9 +35,7 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Checks Android device for chrome packages.
-    /// Returns true if chrome package for launching system webview is enabled on device.
-    /// Returns false if chrome package is not found.
+    /// Contains UI properties for interactive flows
     /// </summary> 
     public sealed class UIParent
     {
@@ -74,13 +72,19 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent(Activity);
         }
 
+        /// <summary>
+        /// Initializes an instance for a provided activity with flag for enabling 
+        /// embedded webview.
+        /// </summary>
         public UIParent(Activity activity, bool useEmbeddedWebview) : this(activity)
         {
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
 
         /// <summary>
-        /// Returns true if the system web view is available
+        /// Checks Android device for chrome packages.
+        /// Returns true if chrome package for launching system webview is enabled on device.
+        /// Returns false if chrome package is not found.
         /// </summary>
         public static bool IsSystemWebviewAvailable()
         {
