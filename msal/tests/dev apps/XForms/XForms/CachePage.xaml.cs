@@ -163,11 +163,7 @@ namespace XForms
             var mi = (MenuItem)sender;
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
-            var accountCacheItem = App.MsalPublicClient.UserTokenCache.
-                GetAccountCacheItem(refreshTokenCacheItem.GetAccountItemKey(), 
-                new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
-
-            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem, accountCacheItem));
+            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem));
         }
 
         public async Task ShowIdTokenDetails(object sender, EventArgs e)

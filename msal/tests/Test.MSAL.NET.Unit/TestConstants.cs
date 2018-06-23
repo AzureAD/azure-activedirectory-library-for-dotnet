@@ -73,7 +73,7 @@ namespace Test.MSAL.NET.Unit
         {
             DisplayableId = DisplayableId,
             Identifier = UserIdentifier,
-            Name = Name,
+            Environment = ProductionEnvironment,
         };
 
         public static readonly string OnPremiseAuthority = "https://fs.contoso.com/adfs/";

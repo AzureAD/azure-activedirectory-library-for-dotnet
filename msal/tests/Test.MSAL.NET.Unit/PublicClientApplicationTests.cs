@@ -573,8 +573,7 @@ namespace Test.MSAL.NET.Unit
                 Environment = TestConstants.ProductionEnvironment,
                 ClientId = TestConstants.ClientId,
                 Secret = "someRT",
-                RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1"),
-                TenantId = "uTId1"
+                RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1")
             };
             rtItem.InitRawClientInfoDerivedProperties();
 
@@ -1085,7 +1084,7 @@ namespace Test.MSAL.NET.Unit
 
             Assert.AreEqual(userToFind.DisplayableId, fetchedUser.DisplayableId);
             Assert.AreEqual(userToFind.Identifier, fetchedUser.Identifier);
-            Assert.AreEqual(userToFind.Name, fetchedUser.Name);
+            Assert.AreEqual(userToFind.Environment, fetchedUser.Environment);
         }
     }
 }

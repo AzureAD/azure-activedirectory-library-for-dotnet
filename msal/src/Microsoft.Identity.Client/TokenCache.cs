@@ -207,7 +207,6 @@ namespace Microsoft.Identity.Client
                         // create the refresh token cache item
                        msalRefreshTokenCacheItem = new MsalRefreshTokenCacheItem(
                             requestParams.Authority.Host,
-                            idToken?.TenantId,
                             requestParams.ClientId,
                             response);
                         msg = "Saving RT in cache...";
@@ -637,6 +636,7 @@ namespace Microsoft.Identity.Client
 
                 OnBeforeAccess(args);
                 ICollection<MsalRefreshTokenCacheItem> tokenCacheItems = GetAllRefreshTokensForClient(requestContext);
+                ICollection<MsalAccountCacheItem> accountCacheItems = GetAllAccounts(requestContext);
                 OnAfterAccess(args);
 
                 IDictionary<string, User> allUsers = new Dictionary<string, User>();
@@ -645,13 +645,14 @@ namespace Microsoft.Identity.Client
                     if (environment.Equals(
                         rtItem.Environment, StringComparison.OrdinalIgnoreCase))
                     {
-
-                        MsalAccountCacheItem accountItem = GetAccountCacheItem(rtItem.GetAccountItemKey(), requestContext);
-
-                        if (accountItem != null)
+                        foreach (MsalAccountCacheItem account in accountCacheItems)
                         {
-                            User user = new User(accountItem.UserIdentifier, accountItem.PreferredUsername, accountItem.Name);
-                            allUsers[rtItem.UserIdentifier] = user;
+                            if (rtItem.UserIdentifier.Equals(account.UserIdentifier) && rtItem.Environment.Equals(account.Environment))
+                            {
+                                User user = new User(account.UserIdentifier, account.PreferredUsername, account.Environment);
+                                allUsers[rtItem.UserIdentifier] = user;
+                                break;
+                            }
                         }
                     }
                 }
@@ -690,7 +691,6 @@ namespace Microsoft.Identity.Client
                         allRefreshTokens.Add(msalRefreshTokenCacheItem);
                     }
                 }
-
                 return allRefreshTokens;
             }
         }
@@ -733,6 +733,30 @@ namespace Microsoft.Identity.Client
 
                 return allIdTokens;
             }
+        }
+
+        internal MsalAccountCacheItem GetAccount(MsalRefreshTokenCacheItem refreshTokenCacheItem, RequestContext requestContext)
+        {
+            TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
+            {
+                TokenCache = this,
+                ClientId = ClientId,
+                User = null
+            };
+
+            OnBeforeAccess(args);
+            ICollection<MsalAccountCacheItem> accounts = GetAllAccounts(requestContext);
+            OnAfterAccess(args);
+
+            foreach (MsalAccountCacheItem account in accounts)
+            {
+                if (refreshTokenCacheItem.UserIdentifier.Equals(account.UserIdentifier) &&
+                    refreshTokenCacheItem.Environment.Equals(account.Environment))
+                {
+                    return account;
+                }
+            }
+            return null;
         }
 
         internal ICollection<MsalAccountCacheItem> GetAllAccounts(RequestContext requestContext)

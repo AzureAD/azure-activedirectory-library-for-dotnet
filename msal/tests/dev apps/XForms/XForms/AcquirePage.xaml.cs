@@ -99,7 +99,7 @@ namespace XForms
 
             sb.AppendLine("user.DisplayableId : " + user.DisplayableId);
             //sb.AppendLine("user.IdentityProvider : " + user.IdentityProvider);
-            sb.AppendLine("user.Name : " + user.Name);
+            sb.AppendLine("user.Environment : " + user.Environment);
 
             return sb.ToString();
         }

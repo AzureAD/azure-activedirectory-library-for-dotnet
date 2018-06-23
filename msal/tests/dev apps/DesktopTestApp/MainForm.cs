@@ -296,12 +296,8 @@ namespace DesktopTestApp
             foreach (MsalRefreshTokenCacheItem rtItem in _publicClientHandler.PublicClientApplication.UserTokenCache
                 .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
             {
-                MsalAccountCacheItem accountItem =
-                    _publicClientHandler.PublicClientApplication.UserTokenCache.GetAccountCacheItem(rtItem.GetAccountItemKey(),
-                    new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
-
                 AddControlToCachePageTableLayout(
-                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache, rtItem, accountItem)
+                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache, rtItem)
                     {
                         RefreshViewDelegate = LoadCacheTabPage
                     });

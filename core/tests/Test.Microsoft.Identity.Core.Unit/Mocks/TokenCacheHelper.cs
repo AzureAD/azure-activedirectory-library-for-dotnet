@@ -129,8 +129,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 Environment = TestConstants.ProductionEnvironment,
                 ClientId = TestConstants.ClientId,
                 Secret = "someRT",
-                RawClientInfo = MockHelpers.CreateClientInfo(uid, utid),
-                TenantId = TestConstants.Utid
+                RawClientInfo = MockHelpers.CreateClientInfo(uid, utid)
             };
             rtItem.InitRawClientInfoDerivedProperties();
 

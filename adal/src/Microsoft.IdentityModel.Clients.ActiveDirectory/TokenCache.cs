@@ -465,7 +465,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         requestContext.Logger.Info(msg);
                         requestContext.Logger.InfoPii(msg);
                         resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
-                            cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId);
+                            cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
                     }
                 }
 

@@ -63,8 +63,7 @@ namespace Microsoft.Identity.Core.Cache
                 Environment = new Uri(authority).Host,
                 Secret = resultWrapper.RefreshToken,
                 ClientId = clientId,
-                RawClientInfo = resultWrapper.RawClientInfo,
-                TenantId = resultWrapper.Result.TenantId
+                RawClientInfo = resultWrapper.RawClientInfo
             };
             rtItem.InitRawClientInfoDerivedProperties();
 
@@ -238,29 +237,46 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public static AdalResultWrapper FindMsalEntryForAdal(ITokenCacheAccessor tokenCacheAccessor, string authority,
-            string clientId, string upn)
+            string clientId, string upn, RequestContext requestContext)
         {
-            foreach (var rtString in tokenCacheAccessor.GetAllRefreshTokensAsString())
+            var environment = new Uri(authority).Host;
+
+            List<MsalAccountCacheItem> accounts = new List<MsalAccountCacheItem>();
+            foreach (string accountStr in tokenCacheAccessor.GetAllAccountsAsString())
             {
-                var rtCacheItem =
-                    JsonHelper.DeserializeFromJson<MsalRefreshTokenCacheItem>(rtString);
-
-                var accountStr = tokenCacheAccessor.GetAccount(rtCacheItem.GetAccountItemKey());
-
-                var accountItem =
-                    JsonHelper.DeserializeFromJson<MsalAccountCacheItem>(accountStr);
-
-                //TODO - authority check needs to be updated for alias check
-                if (new Uri(authority).Host.Equals(rtCacheItem.Environment) && rtCacheItem.ClientId.Equals(clientId) &&
-                    accountItem.PreferredUsername.Equals(upn))
-                    return new AdalResultWrapper
-                    {
-                        Result = new AdalResult(null, null, DateTimeOffset.MinValue),
-                        RefreshToken = rtCacheItem.Secret,
-                        RawClientInfo = rtCacheItem.RawClientInfo
-                    };
+                var accountItem = JsonHelper.TryToDeserializeFromJson<MsalAccountCacheItem>(accountStr, requestContext);
+                if (accountItem != null && accountItem.Environment.Equals(environment))
+                {
+                    accounts.Add(accountItem);
+                }
             }
+            if (accounts.Count > 0)
+            {
+                foreach (var rtString in tokenCacheAccessor.GetAllRefreshTokensAsString())
+                {
+                    var rtCacheItem =
+                        JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(rtString, requestContext);
 
+                    //TODO - authority check needs to be updated for alias check
+                    if (rtCacheItem != null && environment.Equals(rtCacheItem.Environment)
+                        && rtCacheItem.ClientId.Equals(clientId))
+                    {
+                        foreach (MsalAccountCacheItem accountCacheItem in accounts)
+                        {
+                            if (rtCacheItem.UserIdentifier.Equals(accountCacheItem.UserIdentifier) 
+                                && accountCacheItem.PreferredUsername.Equals(upn))
+                            {
+                                return new AdalResultWrapper
+                                {
+                                    Result = new AdalResult(null, null, DateTimeOffset.MinValue),
+                                    RefreshToken = rtCacheItem.Secret,
+                                    RawClientInfo = rtCacheItem.RawClientInfo
+                                };
+                            }
+                        }
+                    }
+                }
+            }
             return null;
         }
     }

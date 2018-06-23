@@ -39,8 +39,7 @@ namespace XForms
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class RefreshTokenCacheItemDetails : ContentPage
     {
-        internal RefreshTokenCacheItemDetails(MsalRefreshTokenCacheItem msalRefreshTokenCacheItem, 
-            MsalAccountCacheItem MsalAccountCacheItem)
+        internal RefreshTokenCacheItemDetails(MsalRefreshTokenCacheItem msalRefreshTokenCacheItem)
         {
             InitializeComponent();
 

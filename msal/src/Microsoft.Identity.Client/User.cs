@@ -42,11 +42,11 @@ namespace Microsoft.Identity.Client
         {
             DisplayableId = other.DisplayableId;
             Identifier = other.Identifier;
-            Name = other.Name;
+            Environment = other.Environment;
             //IdentityProvider = other.IdentityProvider;
         }
 
-        public User(string identifier, string displayableId, string name/*, string identityProvider*/)
+        public User(string identifier, string displayableId, string environment)
         {
             if (string.IsNullOrWhiteSpace(identifier))
             {
@@ -54,8 +54,7 @@ namespace Microsoft.Identity.Client
             }
 
             DisplayableId = displayableId;
-            Name = name;
-            //IdentityProvider = identityProvider;
+            Environment = environment;
             Identifier = identifier;
         }
 
@@ -67,12 +66,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Gets given name of the user if provided by the service. If not, the value is null.
         /// </summary>
-        public string Name { get; internal set; }
-
-        /// <summary>
-        /// Gets identity provider if returned by the service. If not, the value is null.
-        /// </summary>
-       // public string IdentityProvider { get; internal set; }
+        public string Environment { get; internal set; }
 
         public string Identifier { get; internal set; }
     }

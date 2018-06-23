@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Core.Cache
     [DataContract]
     internal abstract class MsalCacheItemBase
     {
-        [DataMember(Name = "unique_user_id", IsRequired = true)]
+        [DataMember(Name = "home_account_id", IsRequired = true)]
         public string UserIdentifier { get; internal set; }
 
         [DataMember(Name = "environment", IsRequired = true)]
