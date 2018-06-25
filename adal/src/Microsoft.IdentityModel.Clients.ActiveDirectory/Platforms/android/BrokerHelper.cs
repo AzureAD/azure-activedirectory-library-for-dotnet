@@ -32,7 +32,6 @@ using System.Threading.Tasks;
 using Android.Accounts;
 using Android.App;
 using Android.Content;
-using Java.IO;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -102,7 +101,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
                 Uri uri = new Uri(url);
                 string query = uri.Query;
-                if (query.StartsWith("?"))
+                if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
                 {
                     query = query.Substring(1);
                 }

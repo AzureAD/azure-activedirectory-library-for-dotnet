@@ -1,42 +1,46 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
 
   <!-- Exclude the analysis of this framework type: workaround for https://jira.sonarsource.com/browse/SONARMSBRU-317 -->
   <!-- NB this property has no effect on the assemblies that are built - it is only to tell the VSTS SonarQube analysis tasks
        which assembly to analyse. -->
   <PropertyGroup Condition="'$(TargetFramework)' != 'net45' ">
     <SonarQubeExclude>true</SonarQubeExclude>
-    <Configurations>Debug;Release;Appveyor</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid7;Xamarin.iOS10</TargetFrameworks>        
-    <Authors>Microsoft</Authors>
-    <PackageTitle>Microsoft Authentication Library</PackageTitle>
-    <PackageLicenseUrl>https://go.microsoft.com/fwlink/?linkid=844762</PackageLicenseUrl>
-    <PackageProjectUrl>https://go.microsoft.com/fwlink/?linkid=844761</PackageProjectUrl>
-    <MinClientVersion>2.12</MinClientVersion>
-    <Description>This package contains the binaries of the Microsoft Authentication Library (MSAL). MSAL makes it easy to obtain tokens from Azure AD v2 (work &amp; school accounts, MSA) and Azure AD B2C, gaining access to Microsoft Cloud API and any other API secured by Microsoft identities. This version supports adding authentication functionality to your .NET based client on Windows desktop (.NET 4.5+), UWP, .NET Core, Xamarin iOS and Xamarin Android.</Description>
-    <Summary>This package contains the binaries of the Microsoft Authentication Library (MSAL). MSAL makes it easy to obtain tokens from Azure AD v2 (work &amp; school accounts, MSA) and Azure AD B2C, gaining access to Microsoft Cloud API and any other API secured by Microsoft identities. This version supports adding authentication functionality to your .NET based client on Windows desktop (.NET 4.5+), UWP, .NET Core, Xamarin iOS and Xamarin Android.</Summary>
-    <Copyright>(C) Microsoft Corporation. All rights reserved.</Copyright>
-    <PackageTags>Microsoft Authentication Library;MSA;MSAL;B2C;Azure Active Directory;AAD;Identity;Authentication;.NET;Windows Store;Xamarin iOS;Android</PackageTags>
-    <Product>Microsoft.Identity.Client ($(TargetFramework))</Product>
-    <IncludeSymbols>true</IncludeSymbols>
-    <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid8.1;Xamarin.iOS10</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\build\MSAL.snk</AssemblyOriginatorKeyFile>
-    <!-- Workaround until Xamarin supports PPDB -->
-    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <DebugType>full</DebugType>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
+  
+  <PropertyGroup Label="GenerateAssemblyInfo inputs">
+    <!-- This should be passed from the VSTS build -->
+    <MsalClientSemVer Condition="'$(MsalClientSemVer)' == ''">1.0.0-localbuild</MsalClientSemVer>
+    
+    <!-- This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion -->
+    <Version>$(MsalClientSemVer)</Version>
+    
+    <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
+    <Company>Microsoft Corporation</Company>
+    <Product>Microsoft Authentication Library</Product>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
     <DefineConstants>$(DefineConstants);FACADE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
     <DefineConstants>$(DefineConstants);WINRT</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid8.1'">
     <DefineConstants>$(DefineConstants);ANDROID</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
     <DefineConstants>$(DefineConstants);DESKTOP</DefineConstants>
@@ -46,16 +50,16 @@
     <DefineConstants>$(DefineConstants);iOS</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\Microsoft.Identity.Core.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Client.rd.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.1.0-preview.2.build.8" PrivateAssets="All" />
-    <PackageReference Include="GitVersionTask" Version="4.0.0-beta0012" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
@@ -105,48 +109,38 @@
     <Compile Include="Features\TokenCache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="5.2.2" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.3" />
     <PackageReference Include="System.Xml.XDocument" Version="4.0.11" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Reference Include="System" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Core" />    
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="Xamarin.iOS" />
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid7' ">
-    <Reference Include="Mono.Android" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">
     <Reference Include="System" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <PackageReference Include="Xamarin.Android.Support.CustomTabs">
+      <Version>27.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
+      <Version>27.0.2</Version>
+    </PackageReference>
     <Compile Include="Platforms\Android\**\*.cs" />
-    <AndroidResource Include="Resources\**\*.axml" />
-    <AndroidResource Include="Resources\**\*.xml" />
   </ItemGroup>
-  
+
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\core\src\Microsoft.Identity.Core.csproj" />
-  </ItemGroup>
   
   <!-- This is here to workaround designer issues so VS sees them appropriately -->
   <ItemGroup>
@@ -156,12 +150,26 @@
     <None Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
     <None Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid7'">
-    <PackageReference Include="Xamarin.Android.Support.CustomTabs">
-      <Version>25.4.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
-      <Version>25.4.0.2</Version>
-    </PackageReference>
-  </ItemGroup>
+
+  <!-- Copies all artifacts needed to generate the nuget package. This should be replaced with msbuild /t:pack, however
+  bug https://github.com/NuGet/Home/issues/3891 blocks this, espcially that packaging rebuilds the Core assemblies, so we cannot sign it.-->
+  <Target Name="LayoutNuGet">
+    <PropertyGroup>
+      <NugetPackageRootFolder Condition="'$(NugetPackageRootFolder)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..",".nugetlayout"))</NugetPackageRootFolder>
+      <NuspecFilePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), "..", "..", "build", "Microsoft.Identity.Client.nuspec"))</NuspecFilePath>
+    </PropertyGroup>
+    <ItemGroup>
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.dll" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.xml" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Client.pdb" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.dll" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.xml" />
+      <FilesToPack Include="bin\$(Configuration)\**\Microsoft.Identity.Core.pdb" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(NugetPackageRootFolder)" />
+    <Copy SourceFiles="@(FilesToPack)" DestinationFiles="$(NugetPackageRootFolder)\lib\%(RecursiveDir)%(FileName)%(Extension)" />
+    <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(NugetPackageRootFolder)" />
+  </Target>
+  
 </Project>

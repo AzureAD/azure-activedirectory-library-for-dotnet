@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Android.App;
+using Microsoft.Identity.Core.UI;
 using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -36,6 +37,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     [CLSCompliant(false)]
     public class PlatformParameters : IPlatformParameters
     {
+        internal CoreUIParent CoreUIParent { get; private set; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public PlatformParameters()
+        {
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -80,5 +90,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Gets prompt behavior. If <see cref="PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
         /// </summary>
         public PromptBehavior PromptBehavior { get; set; }
+
+        /// <summary>
+        /// Flag to enable or disable embedded webview. Set to TRUE.
+        /// </summary>
+        /// <remarks>
+        /// ADAL only supports embedded webview.
+        /// </remarks>
+        private bool UseEmbeddedWebview { get; set; } = true;
+
+        internal CoreUIParent GetCoreUIParent()
+        {
+            return new CoreUIParent()
+            {
+                CallerActivity = this.CallerActivity,
+                UseEmbeddedWebview = this.UseEmbeddedWebview
+            };
+        }
     }
 }

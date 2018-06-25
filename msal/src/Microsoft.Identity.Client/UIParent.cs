@@ -26,8 +26,8 @@
 //------------------------------------------------------------------------------
 
 #if ANDROID
-using System;
 using Android.App;
+using Android.Content.PM;
 #endif
 
 using Microsoft.Identity.Core.UI;
@@ -35,8 +35,8 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// 
-    /// </summary>
+    /// Contains UI properties for interactive flows
+    /// </summary> 
     public sealed class UIParent
     {
         internal CoreUIParent CoreUIParent { get; private set; }
@@ -49,7 +49,18 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent();
         }
 
+#if iOS
+        public UIParent(bool useEmbeddedWebview) : this()
+        {
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+#endif
+
 #if ANDROID
+        private Activity Activity { get; set; }
+
+        private static readonly string[] _chromePackages =
+        {"com.android.chrome", "com.chrome.beta", "com.chrome.dev"};
 
         /// <summary>
         /// Initializes an instance for a provided activity.
@@ -57,7 +68,49 @@ namespace Microsoft.Identity.Client
         /// <param name="activity">parent activity for the call. REQUIRED.</param>
         public UIParent(Activity activity)
         {
-            CoreUIParent = new CoreUIParent(activity);
+            Activity = activity;
+            CoreUIParent = new CoreUIParent(Activity);
+        }
+
+        /// <summary>
+        /// Initializes an instance for a provided activity with flag for enabling 
+        /// embedded webview.
+        /// </summary>
+        public UIParent(Activity activity, bool useEmbeddedWebview) : this(activity)
+        {
+            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+
+        /// <summary>
+        /// Checks Android device for chrome packages.
+        /// Returns true if chrome package for launching system webview is enabled on device.
+        /// Returns false if chrome package is not found.
+        /// </summary>
+        public static bool IsSystemWebviewAvailable()
+        {
+            PackageManager packageManager = Application.Context.PackageManager;
+
+            int counter = 0;
+
+            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(_chromePackages[0], 0);
+
+            for (int i = 0; i < _chromePackages.Length; i++)
+            {
+                try
+                {
+                    packageManager.GetPackageInfo(_chromePackages[i], PackageInfoFlags.Activities);
+                    counter++;
+                }
+                catch (PackageManager.NameNotFoundException)
+                {
+                }
+            }
+            if (counter > 0 && applicationInfo.Enabled == true)
+            {
+                return true;
+            }
+            else
+                return false;
         }
 #endif
 
