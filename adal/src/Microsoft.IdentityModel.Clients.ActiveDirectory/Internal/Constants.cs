@@ -50,6 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
     {
         public const string MsAppScheme = "ms-app";
         public static readonly Uri SsoPlaceHolderUri = new Uri("https://sso");
+        public const string FormPostPrefix = "formpost://";
     }
 
     /// <summary>
