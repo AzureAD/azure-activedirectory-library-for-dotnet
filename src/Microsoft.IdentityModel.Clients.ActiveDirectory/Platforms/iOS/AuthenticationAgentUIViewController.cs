@@ -93,8 +93,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 if (requestUrlString.StartsWith(callback, StringComparison.OrdinalIgnoreCase) || 
                     requestUrlString.StartsWith(BrokerConstants.BrowserExtInstallPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    callbackMethod(new AuthorizationResult(AuthorizationStatus.Success, request.Url.ToString()));
-                    this.DismissViewController(true, null);
+                    this.DismissViewController(true, () =>
+                        callbackMethod(new AuthorizationResult(AuthorizationStatus.Success, request.Url.ToString())));
                     return false;
                 }
 
@@ -123,8 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     AuthorizationResult result = new AuthorizationResult(AuthorizationStatus.ErrorHttp);
                     result.Error = AdalError.NonHttpsRedirectNotSupported;
                     result.ErrorDescription = AdalErrorMessage.NonHttpsRedirectNotSupported;
-                    callbackMethod(result);
-                    this.DismissViewController(true, null);
+                    this.DismissViewController(true, () => callbackMethod(result));
                     return false;
                 }
 
@@ -150,8 +149,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private void CancelAuthentication(object sender, EventArgs e)
         {
-            this.DismissViewController(true, null);
-            callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
+            this.DismissViewController(true, () =>
+                callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null)));
         }
 
         public override void DismissViewController(bool animated, Action completionHandler)
