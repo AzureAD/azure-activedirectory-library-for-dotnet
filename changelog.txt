@@ -1,3 +1,19 @@
+Version 3.19.6
+==============
+This hotfix release includes:
+- Updated ADAL to follow the Public Key Authentication spec when running on a non workplace joined device (#1058)
+
+Version 3.19.5
+==============
+This hotfix release includes:
+- Resolved issue with iOS 11.3 where network resources are reclaimed by the system when sending the app to the background (#1053)
+
+Version 3.19.4
+==============
+This hotfix release includes:
+- X5c claim added to AcquireTokenByAuthorizationCodeAsync for easy certificate rollover (#1043)
+- Filter logs for AdalEventSource based on log level in default log (#1039)
+
 Version 3.19.3
 ==============
 This hotfix release includes:
