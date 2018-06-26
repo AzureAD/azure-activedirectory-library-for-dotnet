@@ -56,7 +56,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         {
             Assert.AreEqual(TestConstants.ProductionEnvironment, key.Environment);
             Assert.AreEqual(TestConstants.Utid, key.TenantId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.UserIdentifier);
+            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
             Assert.AreEqual(CredentialType.AccessToken, key.CredentialType);
             Assert.AreEqual(TestConstants.ClientId, key.ClientId);
             Assert.AreEqual(TestConstants.Scope, key.Scopes);

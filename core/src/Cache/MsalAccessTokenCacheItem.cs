@@ -41,18 +41,19 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalAccessTokenCacheItem()
         {
-            CredentialType = Cache.CredentialType.AccessToken.ToString();
+            CredentialType = Cache.CredentialType.accesstoken.ToString();
         }
 
         internal MsalAccessTokenCacheItem
-            (Authority authority, string clientId, MsalTokenResponse response, string tenantId){
-
-            CredentialType = Cache.CredentialType.AccessToken.ToString();
+            (Authority authority, string clientId, MsalTokenResponse response, string tenantId)
+        {
+            CredentialType = Cache.CredentialType.accesstoken.ToString();
 
             ClientId = clientId;
             TokenType = response.TokenType;
-            Scopes = response.Scope;
-            Authority = authority.CanonicalAuthority;
+
+            // store scopes in sorted order
+            Scopes = response.Scope.AsLowerCaseSortedSet().AsSingleString();
 
             TenantId = tenantId;
             Environment = authority.Host;
@@ -85,21 +86,26 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "user_assertion_hash")]
         public string UserAssertionHash { get; set; }
 
-        [DataMember(Name = "authority")]
-        public string Authority { get; internal set; }
+        public string Authority
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId);
+            }
+        }
 
         [DataMember(Name = "access_token_type")]
         internal string TokenType { get; set; }
 
         internal SortedSet<string> ScopeSet { get; set; }
 
-        internal string GetAccessTokenItemKey()
+        internal MsalAccessTokenCacheKey GetKey()
         {
-            return new MsalAccessTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId, ScopeSet).ToString();
+            return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, Scopes);
         }
-        internal string GetIdTokenItemKey()
+        internal MsalIdTokenCacheKey GetIdTokenItemKey()
         {
-            return new MsalIdTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId).ToString();
+            return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);
         }
 
         public DateTimeOffset ExpiresOn
@@ -113,7 +119,7 @@ namespace Microsoft.Identity.Core.Cache
 
         internal void CreateDerivedProperties()
         {
-            ScopeSet = Scopes.AsSet();
+            ScopeSet = Scopes.AsLowerCaseSortedSet();
 
             InitRawClientInfoDerivedProperties();
         }

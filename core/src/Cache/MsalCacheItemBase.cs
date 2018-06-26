@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Core.Cache
     internal abstract class MsalCacheItemBase
     {
         [DataMember(Name = "home_account_id", IsRequired = true)]
-        public string UserIdentifier { get; internal set; }
+        public string HomeAccountId { get; internal set; }
 
         [DataMember(Name = "environment", IsRequired = true)]
         internal string Environment { get; set; }
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             InitClientInfo();
 
-            UserIdentifier = GetUserIdentifier();
+            HomeAccountId = GetUserIdentifier();
         }
 
         string GetUserIdentifier()

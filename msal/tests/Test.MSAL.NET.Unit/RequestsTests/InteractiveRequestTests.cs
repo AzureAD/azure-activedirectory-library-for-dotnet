@@ -158,7 +158,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ScopeSet = TestConstants.Scope
             };
             atItem.CreateDerivedProperties();
-            string atKey = atItem.GetAccessTokenItemKey();
+            string atKey = atItem.GetKey().ToString();
             atItem.Secret = atKey;
             cache.TokenCacheAccessor.AccessTokenCacheDictionary[atKey] = JsonHelper.SerializeToJson(atItem);
 

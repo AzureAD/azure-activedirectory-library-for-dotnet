@@ -45,7 +45,7 @@ namespace DesktopTestApp
         private void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
             _cache.Remove(
-                new User(_rtItem.UserIdentifier, _accountItem.PreferredUsername, _accountItem.Environment), 
+                new User(_rtItem.HomeAccountId, _accountItem.PreferredUsername, _accountItem.Environment), 
                     new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
             RefreshViewDelegate?.Invoke();
         }

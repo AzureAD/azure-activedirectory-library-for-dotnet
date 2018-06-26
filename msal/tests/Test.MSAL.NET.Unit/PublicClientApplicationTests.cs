@@ -561,8 +561,8 @@ namespace Test.MSAL.NET.Unit
                 ScopeSet = TestConstants.Scope
             };
             item.CreateDerivedProperties();
-            item.Secret = item.GetAccessTokenItemKey().ToString();
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary[item.GetAccessTokenItemKey().ToString()] =
+            item.Secret = item.GetKey().ToString();
+            cache.TokenCacheAccessor.AccessTokenCacheDictionary[item.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(item);
 
 
@@ -577,7 +577,7 @@ namespace Test.MSAL.NET.Unit
             };
             rtItem.InitRawClientInfoDerivedProperties();
 
-            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetRefreshTokenItemKey().ToString()] =
+            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
 
             MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem()
@@ -590,7 +590,7 @@ namespace Test.MSAL.NET.Unit
                 Secret = MockHelpers.CreateIdToken(TestConstants.UniqueId + "more", TestConstants.DisplayableId)
             };
             idTokenCacheItem.CreateDerivedProperties();
-            cache.TokenCacheAccessor.IdTokenCacheDictionary[idTokenCacheItem.GetIdTokenItemKey()] = JsonHelper.SerializeToJson(idTokenCacheItem);
+            cache.TokenCacheAccessor.IdTokenCacheDictionary[idTokenCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(idTokenCacheItem);
 
 
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem()
@@ -600,7 +600,7 @@ namespace Test.MSAL.NET.Unit
                 RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1"),
             };
             accountCacheItem.InitRawClientInfoDerivedProperties();
-            cache.TokenCacheAccessor.AccountCacheDictionary[accountCacheItem.GetAccountItemKey()] = JsonHelper.SerializeToJson(accountCacheItem);
+            cache.TokenCacheAccessor.AccountCacheDictionary[accountCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(accountCacheItem);
 
 
             Assert.AreEqual(2, cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
@@ -618,7 +618,7 @@ namespace Test.MSAL.NET.Unit
             };
             rtItem.ClientInfo = ClientInfo.CreateFromJson(rtItem.RawClientInfo);
 
-            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetRefreshTokenItemKey().ToString()] =
+            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
             Assert.AreEqual(3, cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
             users = app.Users;

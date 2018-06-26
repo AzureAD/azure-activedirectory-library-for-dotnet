@@ -47,7 +47,7 @@ namespace XForms
             clientIdLabel.Text = msalRefreshTokenCacheItem.ClientId;
 
             credentialTypeLabel.Text = msalRefreshTokenCacheItem.CredentialType;
-            userIdentifierLabel.Text = msalRefreshTokenCacheItem.UserIdentifier;
+            userIdentifierLabel.Text = msalRefreshTokenCacheItem.HomeAccountId;
             rawClientInfoLabel.Text = msalRefreshTokenCacheItem.RawClientInfo;
 
             clientInfoUniqueIdentifierLabel.Text = msalRefreshTokenCacheItem.ClientInfo.UniqueIdentifier;

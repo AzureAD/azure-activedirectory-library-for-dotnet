@@ -52,9 +52,9 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 ScopeSet = TestConstants.Scope
             };
             atItem.CreateDerivedProperties();
-            atItem.Secret = atItem.GetAccessTokenItemKey().ToString();
+            atItem.Secret = atItem.GetKey().ToString();
 
-            accessor.AccessTokenCacheDictionary[atItem.GetAccessTokenItemKey()] = JsonHelper.SerializeToJson(atItem);
+            accessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] = JsonHelper.SerializeToJson(atItem);
         }
 
         internal static void PopulateCache(TokenCacheAccessor accessor)
@@ -72,10 +72,10 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 ScopeSet = TestConstants.Scope
             };
             atItem.CreateDerivedProperties();
-            atItem.Secret = atItem.GetAccessTokenItemKey().ToString();
+            atItem.Secret = atItem.GetKey().ToString();
 
             //add access token
-            accessor.AccessTokenCacheDictionary[atItem.GetAccessTokenItemKey()] = JsonHelper.SerializeToJson(atItem);
+            accessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] = JsonHelper.SerializeToJson(atItem);
 
             MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem()
             {
@@ -87,7 +87,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 Secret = MockHelpers.CreateIdToken(TestConstants.UniqueId + "more", TestConstants.DisplayableId)
             };
             idTokenCacheItem.CreateDerivedProperties();
-            accessor.IdTokenCacheDictionary[idTokenCacheItem.GetIdTokenItemKey()] = JsonHelper.SerializeToJson(idTokenCacheItem);
+            accessor.IdTokenCacheDictionary[idTokenCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(idTokenCacheItem);
 
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem()
             {
@@ -96,7 +96,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 RawClientInfo = MockHelpers.CreateClientInfo(),
             };
             accountCacheItem.InitRawClientInfoDerivedProperties();
-            accessor.AccountCacheDictionary[accountCacheItem.GetAccountItemKey()] = JsonHelper.SerializeToJson(accountCacheItem);
+            accessor.AccountCacheDictionary[accountCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(accountCacheItem);
 
             atItem = new MsalAccessTokenCacheItem()
             {
@@ -114,10 +114,10 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             //item.IdToken = IdToken.Parse(item.RawIdToken);
             //item.ClientInfo = ClientInfo.CreateFromJson(item.RawClientInfo);
             atItem.CreateDerivedProperties();
-            atItem.Secret = atItem.GetAccessTokenItemKey().ToString();
+            atItem.Secret = atItem.GetKey().ToString();
 
             //add another access token
-            accessor.AccessTokenCacheDictionary[atItem.GetAccessTokenItemKey().ToString()] = JsonHelper.SerializeToJson(atItem);
+            accessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] = JsonHelper.SerializeToJson(atItem);
 
             AddRefreshTokenToCache(accessor, TestConstants.Uid, TestConstants.Utid, TestConstants.Name);
         }
@@ -133,7 +133,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             };
             rtItem.InitRawClientInfoDerivedProperties();
 
-            accessor.RefreshTokenCacheDictionary[rtItem.GetRefreshTokenItemKey().ToString()] =
+            accessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
         }
 
@@ -149,7 +149,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 Secret = MockHelpers.CreateIdToken(uid, TestConstants.DisplayableId)
             };
             idTokenCacheItem.CreateDerivedProperties();
-            accessor.IdTokenCacheDictionary[idTokenCacheItem.GetIdTokenItemKey()] = JsonHelper.SerializeToJson(idTokenCacheItem);
+            accessor.IdTokenCacheDictionary[idTokenCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(idTokenCacheItem);
         }
 
         public static void AddAccountToCache(TokenCacheAccessor accessor, string uid, string utid)
@@ -161,7 +161,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 RawClientInfo = MockHelpers.CreateClientInfo(uid, utid),
             };
             accountCacheItem.InitRawClientInfoDerivedProperties();
-            accessor.AccountCacheDictionary[accountCacheItem.GetAccountItemKey()] = JsonHelper.SerializeToJson(accountCacheItem);
+            accessor.AccountCacheDictionary[accountCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(accountCacheItem);
         }
     }
 }

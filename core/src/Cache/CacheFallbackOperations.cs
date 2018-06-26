@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Core.Cache
             };
             rtItem.InitRawClientInfoDerivedProperties();
 
-            tokenCacheAccessor.SaveRefreshToken(rtItem.GetRefreshTokenItemKey().ToString(), JsonHelper.SerializeToJson(rtItem));
+            tokenCacheAccessor.SaveRefreshToken(rtItem);
 
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem()
             {
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Cache
             };
             accountCacheItem.InitRawClientInfoDerivedProperties();
 
-            tokenCacheAccessor.SaveAccount(accountCacheItem.GetAccountItemKey(), JsonHelper.SerializeToJson(accountCacheItem));
+            tokenCacheAccessor.SaveAccount(accountCacheItem);
         }
 
         public static void WriteAdalRefreshToken(ILegacyCachePersistance legacyCachePersistance, MsalRefreshTokenCacheItem rtItem, MsalIdTokenCacheItem idItem,
@@ -263,7 +263,7 @@ namespace Microsoft.Identity.Core.Cache
                     {
                         foreach (MsalAccountCacheItem accountCacheItem in accounts)
                         {
-                            if (rtCacheItem.UserIdentifier.Equals(accountCacheItem.UserIdentifier) 
+                            if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId) 
                                 && accountCacheItem.PreferredUsername.Equals(upn))
                             {
                                 return new AdalResultWrapper

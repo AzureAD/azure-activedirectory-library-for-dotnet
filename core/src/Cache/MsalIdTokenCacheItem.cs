@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Core.Cache
         }
         internal MsalIdTokenCacheItem(Authority authority, string clientId, MsalTokenResponse response, string tenantId)
         {
-            CredentialType = Cache.CredentialType.IdToken.ToString();
+            CredentialType = Cache.CredentialType.idtoken.ToString();
             Authority = authority.CanonicalAuthority;
 
             Environment = authority.Host;
@@ -81,9 +81,9 @@ namespace Microsoft.Identity.Core.Cache
             CreateDerivedProperties();
         }
 
-        internal string GetIdTokenItemKey()
+        internal MsalIdTokenCacheKey GetKey()
         {
-            return new MsalIdTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId).ToString();
+            return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);
         }
     }
 }

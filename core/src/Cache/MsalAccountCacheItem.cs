@@ -74,9 +74,9 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "authority_type")]
         internal string AuthorityType { get; set; }
 
-        internal string GetAccountItemKey()
+        internal MsalAccountCacheKey GetKey()
         {
-            return new MsalAccountCacheKey(Environment, TenantId, UserIdentifier).ToString();
+            return new MsalAccountCacheKey(Environment, TenantId, HomeAccountId);
         }
     }
 }
