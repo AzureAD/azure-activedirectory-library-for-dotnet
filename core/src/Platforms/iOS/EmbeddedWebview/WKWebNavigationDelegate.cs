@@ -72,7 +72,6 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             if (requestUrlString.StartsWith(AuthenticationAgentUIViewController.callback, StringComparison.OrdinalIgnoreCase) ||
                    requestUrlString.StartsWith(BrokerConstants.BrowserExtInstallPrefix, StringComparison.OrdinalIgnoreCase))
             {
-                AuthenticationAgentUIViewController.callbackMethod(new AuthorizationResult(AuthorizationStatus.Success, requestUrlString));
                 AuthenticationAgentUIViewController.DismissViewController(true, () =>
                     AuthenticationAgentUIViewController.callbackMethod(new AuthorizationResult(AuthorizationStatus.Success, requestUrlString)));
                 decisionHandler(WKNavigationActionPolicy.Cancel);
