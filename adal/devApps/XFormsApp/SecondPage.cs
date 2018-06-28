@@ -45,12 +45,14 @@ namespace XFormsApp
         }
 
         private Label result;
+        private Label testResult;
 
         public SecondPage()
         {
             var acquireTokenButton = new Button
             {
-                Text = "Acquire Token"
+                Text = "Acquire Token",
+                AutomationId = "acquireToken"
             };
 
             var acquireTokenSilentButton = new Button
@@ -68,6 +70,13 @@ namespace XFormsApp
                 Text = "Clear Cache"
             };
 
+            testResult = new Label()
+            {
+                Text = "Succsess:",
+                VerticalOptions = LayoutOptions.FillAndExpand,
+                AutomationId = "testResult"
+            };
+
             result = new Label()
             {
                 VerticalOptions = LayoutOptions.FillAndExpand
@@ -81,6 +90,7 @@ namespace XFormsApp
                     VerticalOptions = LayoutOptions.FillAndExpand,
                     Children =
                     {
+                        testResult,
                         result
                     }
                 }
@@ -156,14 +166,17 @@ namespace XFormsApp
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
+            string accessToken = String.Empty;
+            this.testResult.Text = "Succsess:";
             try
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.windows.net", "de49ddaf-c7f8-4a06-8463-3c6ae124fe52",
-                            new Uri("adaliosapp://com.yourcompany.xformsapp"),
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", "b583b6cb-f44c-48b7-93b2-29365b363784",
+                            new Uri("https://todolistclient"),
                             Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
             }
             catch (Exception exc)
             {
@@ -173,6 +186,8 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Succsess: False" : "Succsess: True";
+                    //this.testResult.Text = "Succsess: True";
                     this.result.Text += "Result : " + output;
 
                     this.result.Text += "Logs : " + DrainLogs();
