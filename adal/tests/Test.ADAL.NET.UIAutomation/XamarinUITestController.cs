@@ -1,8 +1,10 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Test.ADAL.NET.UIAutomation.Infrastructure;
 using Xamarin.UITest;
 
 namespace Test.ADAL.NET.UIAutomation
@@ -17,6 +19,7 @@ namespace Test.ADAL.NET.UIAutomation
         const int defaultRetryFrequencySec = 1;
         const int defaultPostTimeoutSec = 1;
         const string CSSIDSelector = "[id|={0}]";
+        private readonly ILabService _labService;
 
         public XamarinUITestController(IApp app)
         {
@@ -24,6 +27,12 @@ namespace Test.ADAL.NET.UIAutomation
             this.defaultSearchTimeout = new TimeSpan(0, 0, defaultSearchTimeoutSec);
             this.defaultRetryFrequency = new TimeSpan(0, 0, defaultRetryFrequencySec);
             this.defaultPostTimeout = new TimeSpan(0, 0, defaultPostTimeoutSec);
+            _labService = new LabServiceApi();
+        }
+
+        public void Tap(string elementID)
+        {
+            Tap(elementID, false, defaultSearchTimeout);
         }
 
         public void Tap(string elementID, bool isWebElement)
@@ -90,6 +99,20 @@ namespace Test.ADAL.NET.UIAutomation
         {
             app.WaitForElement(elementID, "Could not find element", defaultSearchTimeout, defaultRetryFrequency, defaultPostTimeout);
             return app.Query(x => x.Marked(elementID)).FirstOrDefault().Text;
+        }
+
+
+        /// <summary>
+        /// Returns a test user account for use in testing.
+        /// An exception is thrown if no matching user is found.
+        /// </summary>
+        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
+        /// <returns>A single user that matches the given query parameters.</returns>
+        public IUser GetUser(UserQueryParameters query)
+        {
+            var availableUsers = _labService.GetUsers(query);
+            Assert.AreNotEqual(0, availableUsers.Count(), "Found no users for the given query.");
+            return availableUsers.First();
         }
     }
 }

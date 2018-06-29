@@ -13,6 +13,7 @@ namespace Test.ADAL.NET.UIAutomation
     {
         IApp app;
         Platform platform;
+        ITestController xamarinController;
 
         public XamarinDroidTests(Platform platform)
         {
@@ -23,12 +24,14 @@ namespace Test.ADAL.NET.UIAutomation
         public void BeforeEachTest()
         {
             app = AppInitializer.StartApp(platform);
+            if (xamarinController == null)
+                xamarinController = new XamarinUITestController(app);
         }
 
         [Test]
         public void AcquireTokenTest()
         {
-            CoreMobileTests.AcquireTokenTest(new XamarinUITestController(app));
+            CoreMobileTests.AcquireTokenTest(xamarinController);
         }
     }
 }
