@@ -362,6 +362,14 @@ namespace Microsoft.Identity.Client
             var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
+#if iOS || ANDROID
+            if(!parent.CoreUIParent.UseEmbeddedWebview)
+            {
+                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri,
+                    requestParams.RequestContext);
+            }
+#endif
+
             var handler =
                 new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext)){ApiId = apiId};
