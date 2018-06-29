@@ -5,8 +5,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <RootNamespace>Test.ADAL.ApiCheck</RootNamespace>
-    <AssemblyName>Test.ADAL.ApiCheck</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <DelaySign>true</DelaySign>
