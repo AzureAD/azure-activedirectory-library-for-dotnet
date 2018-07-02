@@ -39,6 +39,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     {
         internal CoreUIParent CoreUIParent { get; private set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PlatformParameters()
         {
         }
@@ -58,16 +61,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="useBroker">flag to enable or disable broker flow. FALSE by default.</param>
         public PlatformParameters(Activity callerActivity, bool useBroker):this(callerActivity, useBroker, PromptBehavior.Auto)
         {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="callerActivity">activity calling ADAL to acquire token</param>
-        /// <param name="useBroker">flag to enable or disable broker flow. FALSE by default.</param>
-        public PlatformParameters(Activity callerActivity, bool useBroker, bool useEmbeddedWebView) : this(callerActivity, useBroker, PromptBehavior.Auto)
-        {
-            this.UseEmbeddedWebview = useEmbeddedWebView;
         }
 
         /// <summary>
