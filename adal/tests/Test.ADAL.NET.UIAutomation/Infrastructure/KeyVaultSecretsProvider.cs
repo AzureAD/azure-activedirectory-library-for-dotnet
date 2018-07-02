@@ -25,7 +25,9 @@ namespace Test.ADAL.NET.UIAutomation
 
         private KeyVaultConfiguration _config;
 
-        private readonly string keyVaultClientID = "1950a258-227b-4e31-a9cf-717495945fc2";
+        private readonly string keyVaultClientID = "ebe49c8f-61de-4357-9194-7a786f6402b4";
+
+        private readonly string keyVaultThumbPrint = "440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269";
 
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
@@ -54,12 +56,12 @@ namespace Test.ADAL.NET.UIAutomation
         ///         "clientId": [client ID]
         /// </para>
         /// </remarks>
-        /// <param name="section">Configuration section for Key Vault</param>
         public KeyVaultSecretsProvider()
         {
             _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.UserCredential;
+            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
             _config.ClientId = keyVaultClientID;
+            _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
         }
 
