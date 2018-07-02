@@ -1,4 +1,11 @@
 ﻿
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.KeyVault.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System;
+using System.Threading.Tasks;
+
 namespace Test.ADAL.NET.UIAutomation
 {
     public class KeyVaultSecretsProvider
@@ -10,13 +17,15 @@ namespace Test.ADAL.NET.UIAutomation
         /// test infrastructure can't end up in the cache being used by the tests (the UI-less
         /// Desktop test app runs in the same AppDomain as the infrastructure and uses the
         /// default cache).</remarks>
-        private readonly TokenCache keyVaultTokenCache = new TokenCache();
+        private readonly static TokenCache keyVaultTokenCache = new TokenCache();
 
         private KeyVaultClient _keyVaultClient;
 
         private ClientAssertionCertificate _assertionCert;
 
         private KeyVaultConfiguration _config;
+
+        private readonly string keyVaultClientID = "1950a258-227b-4e31-a9cf-717495945fc2";
 
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
@@ -46,23 +55,20 @@ namespace Test.ADAL.NET.UIAutomation
         /// </para>
         /// </remarks>
         /// <param name="section">Configuration section for Key Vault</param>
-        public static void Initialize(IConfigurationSection section)
+        public KeyVaultSecretsProvider()
         {
-            if (section == null)
-            {
-                throw new ArgumentNullException(nameof(section));
-            }
-
-            _config = new KeyVaultConfiguration(section);
+            _config = new KeyVaultConfiguration();
+            _config.AuthType = KeyVaultAuthenticationType.UserCredential;
+            _config.ClientId = keyVaultClientID;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
         }
 
-        public static SecretBundle GetSecret(string secretUrl)
+        public SecretBundle GetSecret(string secretUrl)
         {
             return _keyVaultClient.GetSecretAsync(secretUrl).GetAwaiter().GetResult();
         }
 
-        private static async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
+        private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
         {
             var authContext = new AuthenticationContext(authority, keyVaultTokenCache);
 

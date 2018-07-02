@@ -10,6 +10,13 @@ namespace Test.ADAL.NET.UIAutomation
 {
     public class LabUser : IUser
     {
+        private KeyVaultSecretsProvider keyVault;
+
+        public LabUser()
+        {
+            keyVault = new KeyVaultSecretsProvider();
+        }
+
         [JsonProperty("objectId")]
         public Guid ObjectId { get; set; }
 
@@ -79,7 +86,8 @@ namespace Test.ADAL.NET.UIAutomation
                 throw new Exception("Error: CredentialUrl is not set on user. Password retrieval failed.");
             }
 
-            return KeyVaultSecretsProvider.GetSecret(CredentialUrl).Value;
+
+            return keyVault.GetSecret(CredentialUrl).Value;
         }
     }
 

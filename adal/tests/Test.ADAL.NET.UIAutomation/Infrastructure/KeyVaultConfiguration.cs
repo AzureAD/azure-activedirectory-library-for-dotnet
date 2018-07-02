@@ -9,16 +9,6 @@ namespace Test.ADAL.NET.UIAutomation
 {
     public class KeyVaultConfiguration
     {
-        public KeyVaultConfiguration(IConfigurationSection section)
-        {
-            if (section == null)
-            {
-                throw new ArgumentNullException(nameof(section));
-            }
-
-            section.Bind(this);
-        }
-
         /// <summary>
         /// The URL of the Key Vault instance.
         /// </summary>

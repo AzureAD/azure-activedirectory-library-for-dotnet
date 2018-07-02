@@ -172,8 +172,8 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.microsoft.com", "b583b6cb-f44c-48b7-93b2-29365b363784",
-                            new Uri("https://todolistclient"),
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", "d3590ed6-52b3-4102-aeff-aad2292ab01c",
+                            new Uri("urn:ietf:wg:oauth:2.0:oob"),
                             Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
