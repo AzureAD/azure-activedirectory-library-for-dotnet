@@ -28,7 +28,7 @@ namespace Test.ADAL.NET.UIAutomation
             controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
             controller.Tap("idSIButton9", true);
 
-            Assert.IsTrue(controller.GetResultText("testResult") == "Succsess: True");
+            Assert.IsTrue(controller.GetResultText("testResult") == "Success: True");
         }
 	}
 }
