@@ -23,7 +23,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// The ID of the test harness client.
         /// </summary>
         /// <remarks>
-        /// This should be configured as as having access to the Key Vault instance specified at <see cref="Url"/>.
+        /// This should be configured as having access to the Key Vault instance specified at <see cref="Url"/>.
         /// </remarks>
         public string ClientId { get; set; }
 
