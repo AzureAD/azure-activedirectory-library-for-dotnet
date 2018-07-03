@@ -186,7 +186,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Succsess: False" : "Succsess: True";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Success: False" : "Success: True";
                     this.result.Text += "Result : " + output;
 
                     this.result.Text += "Logs : " + DrainLogs();
