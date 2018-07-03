@@ -154,7 +154,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 _state = Guid.NewGuid().ToString();
                 requestParameters[OAuth2Parameter.State] = _state;
             }
-
             //add uid/utid values to QP if user object was passed in.
             if (AuthenticationRequestParameters.User != null)
             {

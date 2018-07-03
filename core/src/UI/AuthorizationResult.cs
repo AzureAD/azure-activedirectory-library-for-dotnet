@@ -51,7 +51,6 @@ namespace Microsoft.Identity.Core.UI
             if (Status == AuthorizationStatus.UserCancel)
             {
                 Error = MsalClientException.AuthenticationCanceledError;
-                ErrorDescription = MsalErrorMessage.AuthenticationCanceled;
             }
             else if (Status == AuthorizationStatus.UnknownError)
             {
