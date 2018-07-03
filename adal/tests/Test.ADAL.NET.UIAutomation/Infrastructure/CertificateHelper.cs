@@ -11,7 +11,7 @@ namespace Test.ADAL.NET.UIAutomation
     {
         /// <summary>
         /// Try and locate a certificate matching the given <paramref name="thumbprint"/> by searching in 
-        /// the in the <see cref="StoreName.My"/> store name for all all available <see cref="StoreLocation"/>s.
+        /// the <see cref="StoreName.My"/> store name for all available <see cref="StoreLocation"/>s.
         /// </summary>
         /// <param name="thumbprint">Thumbprint of certificate to locate</param>
         /// <returns><see cref="X509Certificate2"/> with <paramref name="thumbprint"/>, or null if no matching certificate was found</returns>
