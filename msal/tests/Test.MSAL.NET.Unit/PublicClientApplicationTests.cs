@@ -1117,7 +1117,7 @@ namespace Test.MSAL.NET.Unit
             catch (MsalClientException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual("user_canceled_authentication", exc.ErrorCode);
+                Assert.AreEqual("authentication_canceled", exc.ErrorCode);
                 return;
             }
             finally

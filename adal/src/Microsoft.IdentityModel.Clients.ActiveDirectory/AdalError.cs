@@ -55,7 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Authentication canceled.
         /// </summary>
-        public const string AuthenticationCanceled = "user_canceled_authentication";
+        public const string AuthenticationCanceled = "authentication_canceled";
 
         /// <summary>
         /// Unauthorized response expected from resource server.

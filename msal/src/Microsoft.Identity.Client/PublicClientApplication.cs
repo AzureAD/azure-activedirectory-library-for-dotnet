@@ -354,8 +354,7 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri,
-                    requestParams.RequestContext);
+                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 
@@ -374,8 +373,7 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if(!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri,
-                    requestParams.RequestContext);
+                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 

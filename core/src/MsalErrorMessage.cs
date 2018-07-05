@@ -95,7 +95,8 @@ namespace Microsoft.Identity.Core
 
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";
-        
+
+        public const string AuthenticationCanceled = "User canceled authentication";
         public const string UserMismatch = "User '{0}' returned by service does not match user '{1}' in the request";
         public const string UserCredentialAssertionTypeEmpty = "credential.AssertionType cannot be empty";
 
