@@ -53,13 +53,12 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             // Create your application here
 
             WebView webView = new WebView(ApplicationContext);
-            var linearLayout = new LinearLayout(ApplicationContext)
-            {
-                Orientation = Orientation.Vertical
-            };
-            linearLayout.AddView(webView);
-            SetContentView(linearLayout);
+            var relativeLayout = new RelativeLayout(ApplicationContext);
+            webView.LayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MatchParent, RelativeLayout.LayoutParams.MatchParent);
 
+            relativeLayout.AddView(webView);
+            SetContentView(relativeLayout);
+            
             string url = Intent.GetStringExtra("Url");
             WebSettings webSettings = webView.Settings;
             string userAgent = webSettings.UserAgentString;
@@ -108,7 +107,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             {
                 base.OnLoadResource(view, url);
 
-                if (url.StartsWith(callback))
+                if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
                     base.OnLoadResource(view, url);
                     this.Finish(Activity, url);
@@ -140,7 +139,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(BrokerConstants.ClientTlsRedirect, StringComparison.OrdinalIgnoreCase))
                 {
                     string query = uri.Query;
-                    if (query.StartsWith("?"))
+                    if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
                     {
                         query = query.Substring(1);
                     }
