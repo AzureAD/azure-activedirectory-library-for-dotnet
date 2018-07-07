@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B19C892E-2628-4CA7-AD27-08D406A3B14B}</ProjectGuid>
+    <ProjectGuid>{3DC6EC76-D350-4D43-B206-A4CEC8AA36D4}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Test.ADAL.NET.UIAutomation</RootNamespace>
-    <AssemblyName>Test.ADAL.NET.UIAutomation</AssemblyName>
+    <RootNamespace>Test.Microsoft.Identity.Core.UIAutomation</RootNamespace>
+    <AssemblyName>Test.Microsoft.Identity.Core.UIAutomation</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -40,23 +40,28 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.UIAutomation\Test.Microsoft.Identity.Core.UIAutomation.csproj">
-      <Project>{3DC6EC76-D350-4D43-B206-A4CEC8AA36D4}</Project>
-      <Name>Test.Microsoft.Identity.Core.UIAutomation</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\msal\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj">
       <Project>{60117A9B-4BB8-472E-BFFF-52CBF67CA95A}</Project>
       <Name>Microsoft.Identity.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
+    <ProjectReference Include="..\..\..\adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
       <Project>{AECE489D-9ED4-442D-8D8F-0F383AEBB781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreMobileADALTests.cs" />
-    <Compile Include="AppFactory.cs" />
-    <Compile Include="XamarinDroidADALTests.cs" />
+    <Compile Include="Infrastructure\CertificateHelper.cs" />
+    <Compile Include="Infrastructure\FederationProvider.cs" />
+    <Compile Include="Infrastructure\ILabService.cs" />
+    <Compile Include="Infrastructure\IUser.cs" />
+    <Compile Include="Infrastructure\KeyVaultConfiguration.cs" />
+    <Compile Include="Infrastructure\KeyVaultSecretsProvider.cs" />
+    <Compile Include="Infrastructure\ITestController.cs" />
+    <Compile Include="Infrastructure\LabServiceApi.cs" />
+    <Compile Include="Infrastructure\LabUser.cs" />
+    <Compile Include="Infrastructure\UserQueryParameters.cs" />
+    <Compile Include="Infrastructure\UserType.cs" />
+    <Compile Include="XamarinUITestController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

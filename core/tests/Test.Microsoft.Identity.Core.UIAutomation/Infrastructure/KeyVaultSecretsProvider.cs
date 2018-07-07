@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Threading.Tasks;
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
 {
     public class KeyVaultSecretsProvider
     {

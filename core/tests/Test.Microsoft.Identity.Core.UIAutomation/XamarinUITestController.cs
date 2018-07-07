@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Test.ADAL.NET.UIAutomation.Infrastructure;
+using Test.Microsoft.Identity.Core.UIAutomation.infrastructure;
 using Xamarin.UITest;
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class XamarinUITestController : ITestController
     {
@@ -95,19 +95,12 @@ namespace Test.ADAL.NET.UIAutomation
             }
         }
 
-        public string GetResultText(string elementID)
+        public string GetText(string elementID)
         {
             app.WaitForElement(elementID, "Could not find element", defaultSearchTimeout, defaultRetryFrequency, defaultPostTimeout);
             return app.Query(x => x.Marked(elementID)).FirstOrDefault().Text;
         }
 
-
-        /// <summary>
-        /// Returns a test user account for use in testing.
-        /// An exception is thrown if no matching user is found.
-        /// </summary>
-        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
-        /// <returns>A single user that matches the given query parameters.</returns>
         public IUser GetUser(UserQueryParameters query)
         {
             var availableUsers = _labService.GetUsers(query);

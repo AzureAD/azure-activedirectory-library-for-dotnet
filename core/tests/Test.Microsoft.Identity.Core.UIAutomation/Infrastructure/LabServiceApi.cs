@@ -6,9 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Test.ADAL.NET.UIAutomation.Infrastructure;
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
 {
     /// <summary>
     /// Wrapper for new lab service API

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Test.ADAL.NET.UIAutomation.Infrastructure
+namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
 {
     public class UserQueryParameters
     {

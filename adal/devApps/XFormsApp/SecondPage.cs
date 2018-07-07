@@ -67,7 +67,8 @@ namespace XFormsApp
 
             var clearButton = new Button
             {
-                Text = "Clear Cache"
+                Text = "Clear Cache",
+                AutomationId = "clearCache"
             };
 
             testResult = new Label()

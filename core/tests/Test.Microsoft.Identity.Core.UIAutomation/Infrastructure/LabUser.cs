@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Test.ADAL.NET.UIAutomation.Infrastructure;
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
 {
     public class LabUser : IUser
     {
@@ -79,6 +78,10 @@ namespace Test.ADAL.NET.UIAutomation
             labHomeUser.Upn = HomeUPN;
         }
 
+        /// <summary>
+        /// Gets password from MSID Lab Keyvault
+        /// </summary>
+        /// <returns>password</returns>
         public string GetPassword()
         {
             if (String.IsNullOrWhiteSpace(CredentialUrl))
