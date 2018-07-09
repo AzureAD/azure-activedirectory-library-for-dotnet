@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Client
             if (_msalAccessTokenCacheItem.HomeAccountId != null)
             {
                 User = new User(_msalAccessTokenCacheItem.HomeAccountId,
-                    _msalIdTokenCacheItem.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                    _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
             }
         }
 

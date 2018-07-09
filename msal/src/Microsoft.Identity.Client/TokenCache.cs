@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Client
                         TokenCacheAccessor.SaveIdToken(msalIdTokenCacheItem, requestParams.RequestContext);
 
                         var msalAccountCacheItem =
-                            new MsalAccountCacheItem(requestParams.Authority, idToken?.ObjectId, response);
+                            new MsalAccountCacheItem(requestParams.Authority, response);
 
                         TokenCacheAccessor.SaveAccount(msalAccountCacheItem, requestParams.RequestContext);
                     }

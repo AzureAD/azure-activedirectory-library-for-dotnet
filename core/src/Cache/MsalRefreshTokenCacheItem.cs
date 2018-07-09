@@ -43,24 +43,24 @@ namespace Microsoft.Identity.Core.Cache
         {
             CredentialType = Cache.CredentialType.refreshtoken.ToString();
         }
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response) : this()
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response) : 
+            this(environment, clientId, response.RefreshToken, response.ClientInfo)
+        {
+        }
+
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo) : this()
         {
             ClientId = clientId;
             Environment = environment;
+            Secret = secret;
+            RawClientInfo = rawClientInfo;
 
-            Secret = response.RefreshToken;
-        
-            RawClientInfo = response.ClientInfo;;
-
-            InitRawClientInfoDerivedProperties();
+            InitUserIdentifier();
         }
 
         internal MsalRefreshTokenCacheKey GetKey()
         {
             return new MsalRefreshTokenCacheKey(Environment, ClientId, HomeAccountId);
         }
-
-        [DataMember(Name = "target")]
-        internal string Scopes { get; set; }
     }
 }

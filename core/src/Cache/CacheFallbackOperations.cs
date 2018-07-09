@@ -59,27 +59,12 @@ namespace Microsoft.Identity.Core.Cache
             }
 
             var rtItem = new MsalRefreshTokenCacheItem
-            {
-                Environment = new Uri(authority).Host,
-                Secret = resultWrapper.RefreshToken,
-                ClientId = clientId,
-                RawClientInfo = resultWrapper.RawClientInfo
-            };
-            rtItem.InitRawClientInfoDerivedProperties();
+                (new Uri(authority).Host, clientId, resultWrapper.RefreshToken, resultWrapper.RawClientInfo);
 
             tokenCacheAccessor.SaveRefreshToken(rtItem);
 
-            MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem()
-            {
-                Environment = new Uri(authority).Host,
-                TenantId = resultWrapper.Result.TenantId,
-                RawClientInfo = resultWrapper.RawClientInfo,
-                PreferredUsername = displayableId,
-                GivenName = givenName,
-                FamilyName = familyName,
-                LocalAccountId = objectId
-            };
-            accountCacheItem.InitRawClientInfoDerivedProperties();
+            MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
+                (new Uri(authority).Host, objectId, resultWrapper.RawClientInfo, null, displayableId, resultWrapper.Result.TenantId);
 
             tokenCacheAccessor.SaveAccount(accountCacheItem);
         }
@@ -209,15 +194,8 @@ namespace Microsoft.Identity.Core.Cache
                 List<MsalRefreshTokenCacheItem> list = new List<MsalRefreshTokenCacheItem>();
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
                 {
-                    list.Add(
-                        new MsalRefreshTokenCacheItem()
-                        {
-                            RawClientInfo = pair.Value.RawClientInfo,
-                            Secret = pair.Value.RefreshToken,
-                            ClientId = pair.Key.ClientId,
-                            Environment = environment,
-                            ClientInfo = ClientInfo.CreateFromJson(pair.Value.RawClientInfo)
-                        });
+                    list.Add(new MsalRefreshTokenCacheItem
+                        (environment, pair.Key.ClientId, pair.Value.RefreshToken, pair.Value.RawClientInfo));
                 }
 
                 return list;
@@ -261,6 +239,7 @@ namespace Microsoft.Identity.Core.Cache
                     if (rtCacheItem != null && environment.Equals(rtCacheItem.Environment)
                         && rtCacheItem.ClientId.Equals(clientId))
                     {
+                        // join refresh token cache item to corresponding account cache item to get upn
                         foreach (MsalAccountCacheItem accountCacheItem in accounts)
                         {
                             if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId) 

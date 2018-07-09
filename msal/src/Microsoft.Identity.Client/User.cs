@@ -43,7 +43,6 @@ namespace Microsoft.Identity.Client
             DisplayableId = other.DisplayableId;
             Identifier = other.Identifier;
             Environment = other.Environment;
-            //IdentityProvider = other.IdentityProvider;
         }
 
         public User(string identifier, string displayableId, string environment)

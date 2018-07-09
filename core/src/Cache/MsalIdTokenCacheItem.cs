@@ -42,22 +42,23 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalIdTokenCacheItem()
         {
+            CredentialType = Cache.CredentialType.idtoken.ToString();
         }
         internal MsalIdTokenCacheItem(Authority authority, string clientId, MsalTokenResponse response, string tenantId)
+            : this(authority, clientId, response.IdToken, response.ClientInfo, tenantId)
         {
-            CredentialType = Cache.CredentialType.idtoken.ToString();
+        }
+        internal MsalIdTokenCacheItem
+            (Authority authority, string clientId, string secret, string rawClientInfo, string tenantId) : this()
+        {
             Authority = authority.CanonicalAuthority;
-
             Environment = authority.Host;
             TenantId = tenantId;
-
             ClientId = clientId;
+            Secret = secret;
+            RawClientInfo = rawClientInfo;
 
-            Secret = response.IdToken;
-
-            RawClientInfo = response.ClientInfo;
-
-            CreateDerivedProperties();
+            InitUserIdentifier();
         }
 
         [DataMember(Name = "realm")]
@@ -66,19 +67,11 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "authority")]
         internal string Authority { get; set; }
 
-        internal IdToken IdToken { get; set; }
-
-        internal void CreateDerivedProperties()
-        {
-            IdToken = IdToken.Parse(Secret);
-
-            InitRawClientInfoDerivedProperties();
-        }
-
-        [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
-        {
-            CreateDerivedProperties();
+        internal IdToken IdToken {
+            get
+            {
+                return IdToken.Parse(Secret);
+            }
         }
 
         internal MsalIdTokenCacheKey GetKey()

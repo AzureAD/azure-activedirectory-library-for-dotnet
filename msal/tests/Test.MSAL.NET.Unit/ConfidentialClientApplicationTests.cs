@@ -541,7 +541,7 @@ namespace Test.MSAL.NET.Unit
             var cache = new TokenCache();
             TokenCacheHelper.PopulateCacheForClientCredential(cache.TokenCacheAccessor);
 
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false).CanonicalAuthority;
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
             var app = new ConfidentialClientApplication(TestConstants.ClientId, authority,
                 TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
                 null, cache)
@@ -575,7 +575,7 @@ namespace Test.MSAL.NET.Unit
             var cache = new TokenCache();
             TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
 
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false).CanonicalAuthority;
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
             var app = new ConfidentialClientApplication(TestConstants.ClientId, authority,
                 TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
                 null, cache)
