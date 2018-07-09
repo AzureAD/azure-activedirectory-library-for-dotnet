@@ -26,14 +26,13 @@ namespace Test.ADAL.NET.UIAutomation
         }
 
         /// <summary>
-        /// Initializes test controller
+        /// Initializes app and test controller before each test
         /// </summary>
         [SetUp]
-        public void BeforeEachTest()
+        public void InitializeBeforeTest()
         {
-            app = AppFactory.StartApp(platform);
-            if (xamarinController == null)
-                xamarinController = new XamarinUITestController(app);
+            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.ADAL");
+            xamarinController = new XamarinUITestController(app);
         }
 
         /// <summary>

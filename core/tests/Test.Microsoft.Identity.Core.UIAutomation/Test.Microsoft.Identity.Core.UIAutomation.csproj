@@ -50,6 +50,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppFactory.cs" />
     <Compile Include="Infrastructure\CertificateHelper.cs" />
     <Compile Include="Infrastructure\FederationProvider.cs" />
     <Compile Include="Infrastructure\ILabService.cs" />

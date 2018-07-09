@@ -188,7 +188,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button  Text="Clear"  Clicked="OnClearClicked" TextColor="Blue" Font="Bold,15" AutomationId="clearCacheButton"/>
+        <Button  Text="Clear"  Clicked="OnClearClicked" TextColor="Blue" Font="Bold,15"/>
 
     </StackLayout>
 </ContentPage>

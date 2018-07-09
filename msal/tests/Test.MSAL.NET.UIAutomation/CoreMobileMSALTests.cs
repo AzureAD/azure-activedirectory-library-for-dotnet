@@ -29,10 +29,10 @@ namespace Test.MSAL.NET.UIAutomation
                 });
 
             //Clear Cache
-            controller.Tap("clearCacheButton");
+            controller.Tap("clearCache");
 
             //Acquire token flow
-            controller.Tap("acquireButton");
+            controller.Tap("acquireToken");
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText("i0116", 20, user.Upn, true);
             //idSIButton9 = Sign in button

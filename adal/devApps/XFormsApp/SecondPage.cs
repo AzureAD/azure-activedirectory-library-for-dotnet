@@ -57,12 +57,14 @@ namespace XFormsApp
 
             var acquireTokenSilentButton = new Button
             {
-                Text = "Acquire Token Silent"
+                Text = "Acquire Token Silent",
+                AutomationId = "acquireTokenSilent"
             };
 
             var conditionalAccessButton = new Button
             {
-                Text = "Conditional Access"
+                Text = "Conditional Access",
+                AutomationId = "conditionalAccess"
             };
 
             var clearButton = new Button
