@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Client
         {
             return
                 await
-                    AcquireTokenForClientCommonAsync(scopes, false, ApiEvent.ApiIds.AcquireTokenForClientWithScope).ConfigureAwait(false);
+                    AcquireTokenForClientCommonAsync(scopes, false, ApiEvent.ApiIds.AcquireTokenForClientWithScope, false).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -150,7 +150,42 @@ namespace Microsoft.Identity.Client
         {
             return
                 await
-                    AcquireTokenForClientCommonAsync(scopes, forceRefresh, ApiEvent.ApiIds.AcquireTokenForClientWithScopeRefresh).ConfigureAwait(false);
+                    AcquireTokenForClientCommonAsync(scopes, forceRefresh, ApiEvent.ApiIds.AcquireTokenForClientWithScopeRefresh, false).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires token from the service for the confidential client. This method attempts to look up valid access token in the cache.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="subjectNameIssuerAuth">This parameter enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
+        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via portal or powershell/CLI operation)</param>
+        /// <returns>Authentication result containing application token for the requested scopes</returns>
+        public async Task<AuthenticationResult> AcquireTokenForClientAsync(bool subjectNameIssuerAuth, IEnumerable<string> scopes)
+        {
+            return
+                await
+                    AcquireTokenForClientCommonAsync(scopes, false, ApiEvent.ApiIds.AcquireTokenForClientWithScope, subjectNameIssuerAuth).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires token from the service for the confidential client. This method attempts to look up valid access token in the cache.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using client credentials</param>
+        /// <param name="subjectNameIssuerAuth">This parameter enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
+        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via portal or powershell/CLI operation)</param>
+        /// <returns>Authentication result containing application token for the requested scopes</returns>
+        public async Task<AuthenticationResult> AcquireTokenForClientAsync(bool subjectNameIssuerAuth, IEnumerable<string> scopes, bool forceRefresh)
+        {
+            return
+                await
+                    AcquireTokenForClientCommonAsync(scopes, forceRefresh, ApiEvent.ApiIds.AcquireTokenForClientWithScopeRefresh, subjectNameIssuerAuth).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -203,12 +238,13 @@ namespace Microsoft.Identity.Client
 
         internal TokenCache AppTokenCache { get; }
 
-        private async Task<AuthenticationResult> AcquireTokenForClientCommonAsync(IEnumerable<string> scopes, bool forceRefresh, ApiEvent.ApiIds apiId)
+        private async Task<AuthenticationResult> AcquireTokenForClientCommonAsync(IEnumerable<string> scopes, bool forceRefresh, ApiEvent.ApiIds apiId, bool subjectNameIssuerAuth)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             AuthenticationRequestParameters parameters = CreateRequestParameters(authority, scopes, null,
                 AppTokenCache);
             parameters.IsClientCredentialRequest = true;
+            parameters.SendX5c = subjectNameIssuerAuth;
             var handler = new ClientCredentialRequest(parameters, forceRefresh){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync().ConfigureAwait(false);
         }

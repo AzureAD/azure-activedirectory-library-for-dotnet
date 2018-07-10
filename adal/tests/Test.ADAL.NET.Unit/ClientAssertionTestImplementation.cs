@@ -25,41 +25,40 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Identity.Client;
+using System.Text;
+using System.Threading.Tasks;
+using Test.ADAL.NET.Common;
 
-namespace NetCoreTestApp
+namespace Test.ADAL.NET.Unit
 {
-    class Program
+    /// <summary>
+    /// Test implementation of IClientAssertionCertificate.
+    /// </summary>
+    [DeploymentItem("valid_cert.pfx")]
+    public class ClientAssertionTestImplementation : IClientAssertionCertificate
     {
-        static void Main(string[] args)
+        public string ClientId { get { return TestConstants.DefaultClientId; } }
+
+        public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }
+
+        public byte[] Sign(string message)
         {
-            ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(GetCertificateByThumbprint("D085C43E7FB1F9D49B4D3F18B17A902524940CA0")));
-            ConfidentialClientApplication app = new ConfidentialClientApplication("<client-id>", "http://localhost", cc, new TokenCache(), new TokenCache());
-            try
-            {
-                AuthenticationResult result = app.AcquireTokenForClientAsync(true, new string[] { "User.Read.All" }, true).Result;
-            }
-            catch (Exception exc)
-            {
-                Console.WriteLine(exc.Message);
-            }
-            finally { Console.ReadKey(); }
+            return SigningHelper.SignWithCertificate(message, this.Certificate);
         }
 
-        private static X509Certificate2 GetCertificateByThumbprint(string thumbprint)
+        public X509Certificate2 Certificate { get; }
+
+        public ClientAssertionTestImplementation()
         {
-            using (var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
-            {
-                store.Open(OpenFlags.ReadOnly);
-                var certs = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, false);
-                if (certs.Count > 0)
-                {
-                    return certs[0];
-                }
-                throw new Exception($"Cannot find certificate with thumbprint '{thumbprint}'");
-            }
+            this.Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
         }
     }
 }
