@@ -18,7 +18,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 case Platform.iOS:
                     return ConfigureApp.iOS.StartApp();
                 default:
-                    throw new Exception("Platform not supported.");
+                    throw new PlatformNotSupportedException();
             }
         }
     }
