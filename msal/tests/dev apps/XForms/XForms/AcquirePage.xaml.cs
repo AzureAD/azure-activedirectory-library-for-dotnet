@@ -32,6 +32,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -74,7 +76,7 @@ namespace XForms
             };
 
             UIBehaviorPicker.ItemsSource = options;
-            UIBehaviorPicker.SelectedItem = UIBehavior.SelectAccount.PromptValue;
+            UIBehaviorPicker.SelectedItem = UIBehavior.ForceLogin.PromptValue;
         }
 
         private UIBehavior GetUIBehavior()
@@ -185,7 +187,12 @@ namespace XForms
                         GetExtraQueryParams(), App.UIParent);
                 }
 
-                acquireResponseLabel.Text = ToString(res);
+                var resText = ToString(res);
+
+                if (resText.Contains("AccessToken"))
+                    acquireResponseTitleLabel.Text = "Result: Success";
+
+                acquireResponseLabel.Text = resText;
                 RefreshUsers();
             }
             catch (Exception exception)
@@ -197,6 +204,20 @@ namespace XForms
         private void OnClearClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "";
+            acquireResponseTitleLabel.Text = "Result:";
+        }
+
+        private void OnClearCacheClicked(object sender, EventArgs e)
+        {
+            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var users = tokenCache.GetUsers(new Uri(App.Authority).Host, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            foreach (var user in users)
+            {
+                tokenCache.Remove(user, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            }
+
+            acquireResponseLabel.Text = "";
+            acquireResponseTitleLabel.Text = "Result:";
         }
 
         private void CreateExceptionMessage(Exception exception)
