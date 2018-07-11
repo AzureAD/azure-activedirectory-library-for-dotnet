@@ -60,8 +60,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
             UIBehavior UIBehavior, IWebUI webUI)
             : base(authenticationRequestParameters)
         {
-            PlatformPlugin.PlatformInformation.ValidateRedirectUri(authenticationRequestParameters.RedirectUri,
-                authenticationRequestParameters.RequestContext);
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
                 throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
@@ -116,6 +114,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         AuthenticationRequestParameters.RequestContext)
                         .ConfigureAwait(false);
                 uiEvent.UserCancelled = _authorizationResult.Status == AuthorizationStatus.UserCancel;
+                uiEvent.AccessDenied = _authorizationResult.Status == AuthorizationStatus.ProtocolError;
             }
             finally
             {
@@ -156,7 +155,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 _state = Guid.NewGuid().ToString();
                 requestParameters[OAuth2Parameter.State] = _state;
             }
-            
             //add uid/utid values to QP if user object was passed in.
             if (AuthenticationRequestParameters.User != null)
             {
@@ -260,10 +258,16 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     MsalErrorMessage.NoPromptFailedErrorMessage);
             }
 
+            if (_authorizationResult.Status == AuthorizationStatus.UserCancel)
+            {
+                throw new MsalClientException(_authorizationResult.Error,
+                _authorizationResult.ErrorDescription);
+            }
+
             if (_authorizationResult.Status != AuthorizationStatus.Success)
             {
                 throw new MsalServiceException(_authorizationResult.Error,
-                    _authorizationResult.ErrorDescription);
+                _authorizationResult.ErrorDescription);
             }
         }
     }

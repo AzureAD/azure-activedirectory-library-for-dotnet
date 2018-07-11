@@ -971,7 +971,6 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Only used by dev test apps
         /// </summary>
-        /// <param name="msalAccessTokenCacheItem"></param>
         internal void SaveAccesTokenCacheItem(MsalAccessTokenCacheItem msalAccessTokenCacheItem, MsalIdTokenCacheItem msalIdTokenCacheItem)
         {
             lock (LockObject)
