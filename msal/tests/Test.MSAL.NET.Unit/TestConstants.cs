@@ -53,6 +53,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly ClientCredential CredentialWithSecret = new ClientCredential(ClientSecret);
         public static readonly string Uid = "my-UID";
         public static readonly string Utid = "my-UTID";
+        public static readonly string DefaultPassword = "password";
 
         public static readonly string UserIdentifier = CreateUserIdentifer();
 
