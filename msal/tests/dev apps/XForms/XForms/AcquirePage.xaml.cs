@@ -127,7 +127,7 @@ namespace XForms
 
         private string[] GetScopes()
         {
-            return ScopesEntry.Text.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            return ScopesEntry.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private string GetSelectedUserId()
@@ -159,13 +159,9 @@ namespace XForms
 
                 acquireResponseLabel.Text = ToString(res);
             }
-            catch (MsalException exception)
-            {
-                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
-            }
             catch (Exception exception)
             {
-                acquireResponseLabel.Text = "Exception - " + exception.Message;
+                CreateExceptionMessage(exception);
             }
         }
 
@@ -192,19 +188,28 @@ namespace XForms
                 acquireResponseLabel.Text = ToString(res);
                 RefreshUsers();
             }
-            catch (MsalException exception)
-            {
-                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
-            }
             catch (Exception exception)
             {
-                acquireResponseLabel.Text = "Exception - " + exception.Message;
+                CreateExceptionMessage(exception);
             }
         }
 
         private void OnClearClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "";
+        }
+
+        private void CreateExceptionMessage(Exception exception)
+        {
+            if (exception is MsalException msalException)
+            {
+                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}",
+                    msalException.ErrorCode, msalException.Message);
+            }
+            else
+            {
+                acquireResponseLabel.Text = "Exception - " + exception.Message;
+            }
         }
     }
 }
