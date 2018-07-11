@@ -35,7 +35,7 @@ namespace NetCoreTestApp
     {
         static void Main(string[] args)
         {
-            ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(GetCertificateByThumbprint("D085C43E7FB1F9D49B4D3F18B17A902524940CA0")));
+            ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(GetCertificateByThumbprint("<THUMBPRINT>")));
             ConfidentialClientApplication app = new ConfidentialClientApplication("<client-id>", "http://localhost", cc, new TokenCache(), new TokenCache());
             try
             {
