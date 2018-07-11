@@ -16,7 +16,7 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <!-- Workaround until Xamarin supports PPDB -->
     <DebugType>full</DebugType>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
   </PropertyGroup>
