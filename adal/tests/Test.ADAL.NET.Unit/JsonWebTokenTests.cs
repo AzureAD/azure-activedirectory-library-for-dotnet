@@ -53,37 +53,26 @@ namespace Test.ADAL.NET.Unit
     {
         private PlatformParameters platformParameters;
 
-        MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
+        MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler(request =>
+        {
+            var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+
+            // Check presence of client_assertion in request
+            Assert.IsTrue(formsData.TryGetValue("client_assertion", out string encodedJwt), "Missing client_assertion from request");
+
+            // Check presence of x5c cert claim. It should exist.
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(encodedJwt);
+            var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
+            Assert.IsTrue(x5c.Key == "x5c");
+        })
         {
             Method = HttpMethod.Post,
-            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-            },
-            AdditionalRequestValidation = request =>
-            {
-                var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
+            ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
+    };
 
-                // Check presence of client_assertion in request
-                Assert.IsTrue(formsData.TryGetValue("client_assertion", out string encodedJwt), "Missing client_assertion from request");
-
-                // Check presence of x5c cert claim. It should exist.
-                var handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadJwtToken(encodedJwt);
-                var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
-                Assert.IsTrue(x5c.Key == "x5c");
-            }
-        };
-
-        MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
-        {
-            Method = HttpMethod.Post,
-            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-            },
-            AdditionalRequestValidation = request =>
+        MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler(request =>
             {
                 var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 var formsData = EncodingHelper.ParseKeyValueList(requestContent, '&', true, null);
@@ -96,8 +85,11 @@ namespace Test.ADAL.NET.Unit
                 var jsonToken = handler.ReadJwtToken(encodedJwt);
                 var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
                 Assert.IsTrue(x5c.Key != "x5c");
-            }
-        };
+            })
+        {
+            Method = HttpMethod.Post,
+            ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId, TestConstants.DefaultResource)
+    };
 
         [TestInitialize]
         public void Initialize()
@@ -106,6 +98,8 @@ namespace Test.ADAL.NET.Unit
             InstanceDiscovery.InstanceCache.Clear();
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
             platformParameters = new PlatformParameters(PromptBehavior.Auto);
+
+            //var res = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId, TestConstants.DefaultResource);
         }
 
         [TestMethod]
