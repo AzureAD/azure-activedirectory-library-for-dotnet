@@ -208,7 +208,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             var authorityUri = new Uri(authority);
             string path = authorityUri.AbsolutePath.Substring(1);
             string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
-            if (tenant.ToLower(CultureInfo.InvariantCulture).Equals("common", StringComparison.OrdinalIgnoreCase))
+            if (tenant.ToLowerInvariant().Equals("common", StringComparison.OrdinalIgnoreCase))
             {
                 tenant = "{tenant}";
             }

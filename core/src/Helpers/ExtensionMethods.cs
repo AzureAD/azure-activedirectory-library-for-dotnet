@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Core.Helpers
                 return new SortedSet<string>();
             }
 
-            return new SortedSet<string>(singleString.ToLower().Split(new[] { " " }, StringSplitOptions.None));
+            return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
         }
 
         internal static string[] AsArray(this string singleString)

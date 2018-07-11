@@ -390,7 +390,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (!string.IsNullOrEmpty(signatureDigest))
             {
                 return string.Format(CultureInfo.InvariantCulture, "{0}://{1}/{2}", RedirectUriScheme,
-                    packageName.ToLower(CultureInfo.InvariantCulture), signatureDigest);
+                    packageName.ToLowerInvariant(), signatureDigest);
             }
 
             return string.Empty;
