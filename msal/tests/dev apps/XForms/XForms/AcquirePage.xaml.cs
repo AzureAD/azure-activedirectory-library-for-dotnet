@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -160,7 +161,7 @@ namespace XForms
             }
             catch (MsalException exception)
             {
-                acquireResponseLabel.Text = String.Format("MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
+                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
             }
             catch (Exception exception)
             {
@@ -193,7 +194,7 @@ namespace XForms
             }
             catch (MsalException exception)
             {
-                acquireResponseLabel.Text = String.Format("MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
+                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}", exception.ErrorCode, exception.Message);
             }
             catch (Exception exception)
             {
