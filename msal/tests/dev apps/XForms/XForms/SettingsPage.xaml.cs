@@ -69,9 +69,21 @@ namespace XForms
             App.InitPublicClient();
         }
 
-        private void OnClearCache(object sender, EventArgs e)
+        private void OnClearAllCache(object sender, EventArgs e)
         {
             App.MsalPublicClient.UserTokenCache.ClearCache();
+            RefreshView();
+        }
+
+        private void OnClearAdalCache(object sender, EventArgs e)
+        {
+            App.MsalPublicClient.UserTokenCache.ClearAdalCache();
+            RefreshView();
+        }
+
+        private void OnClearMsalCache(object sender, EventArgs e)
+        {
+            App.MsalPublicClient.UserTokenCache.ClearMsalCache();
             RefreshView();
         }
 

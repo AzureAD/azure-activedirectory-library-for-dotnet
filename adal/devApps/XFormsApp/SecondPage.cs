@@ -63,9 +63,9 @@ namespace XFormsApp
                 Text = "Conditional Access"
             };
 
-            var clearButton = new Button
+            var clearAllCacheButton = new Button
             {
-                Text = "Clear Cache"
+                Text = "Clear All Cache"
             };
 
             result = new Label()
@@ -89,7 +89,7 @@ namespace XFormsApp
             acquireTokenButton.Clicked += browseButton_Clicked;
             acquireTokenSilentButton.Clicked += acquireTokenSilentButton_Clicked;
             conditionalAccessButton.Clicked += conditionalAccessButton_Clicked;
-            clearButton.Clicked += clearButton_Clicked;
+            clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
 
             Thickness padding;
             switch (Device.RuntimePlatform)
@@ -110,7 +110,7 @@ namespace XFormsApp
                     acquireTokenButton,
                     acquireTokenSilentButton,
                     conditionalAccessButton,
-                    clearButton,
+                    clearAllCacheButton,
                     scrollView
                 }
             };
@@ -211,7 +211,7 @@ namespace XFormsApp
             }
         }
 
-        void clearButton_Clicked(object sender, EventArgs e)
+        void ClearAllCacheButton_Clicked(object sender, EventArgs e)
         {
             Device.BeginInvokeOnMainThread(() =>
             {

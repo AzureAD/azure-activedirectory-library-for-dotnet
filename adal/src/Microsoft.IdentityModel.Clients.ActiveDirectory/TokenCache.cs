@@ -261,16 +261,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
-                this.OnBeforeAccess(args);
-                this.OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", 
-                    this.tokenCacheDictionary.Count));
-                this.tokenCacheDictionary.Clear();
-                CoreLoggerBase.Default.Info("Successfully Cleared Cache");
-                this.HasStateChanged = true;
-                this.OnAfterAccess(args);
+                ClearAdalCache();
+                ClearMsalCache();
             }
+        }
+
+        internal void ClearAdalCache()
+        {
+            TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+            this.OnBeforeAccess(args);
+            this.OnBeforeWrite(args);
+            CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
+                this.tokenCacheDictionary.Count));
+            this.tokenCacheDictionary.Clear();
+            CoreLoggerBase.Default.Info("Successfully Cleared Cache");
+            this.HasStateChanged = true;
+            this.OnAfterAccess(args);
+        }
+
+        internal void ClearMsalCache()
+        {
+            TokenCacheAccessor.Clear();
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)

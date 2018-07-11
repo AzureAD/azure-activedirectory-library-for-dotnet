@@ -655,19 +655,15 @@ namespace Microsoft.Identity.Client
                     }
                 }
 
-                if (allUsers.Count > 0)
-                {
-                    return allUsers.Values;
-                }
-
                 foreach (KeyValuePair<string, AdalUserInfo> pair in CacheFallbackOperations.GetAllAdalUsersForMsal(
                     legacyCachePersistance, environment, ClientId))
                 {
                     string userIdentifier = ClientInfo.CreateFromJson(pair.Key).ToUserIdentifier();
 
-                    User user = new User(userIdentifier, pair.Value.DisplayableId, environment);
-
-                    allUsers[userIdentifier] = user;
+                    if (!allUsers.ContainsKey(userIdentifier))
+                    {
+                        allUsers[userIdentifier] = new User(userIdentifier, pair.Value.DisplayableId, environment); ;
+                    }
                 }
 
                 return allUsers.Values;
@@ -785,6 +781,19 @@ namespace Microsoft.Identity.Client
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
 
+                RemoveMsalUser(user, requestContext);
+                RemoveAdalUser(user);
+            }
+        }
+
+        internal void RemoveMsalUser(IUser user, RequestContext requestContext)
+        {
+            lock (LockObject)
+            {
+                var msg = "Removing user from cache..";
+                requestContext.Logger.Info(msg);
+                requestContext.Logger.InfoPii(msg);
+
                 try
                 {
                     TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
@@ -851,6 +860,11 @@ namespace Microsoft.Identity.Client
                     HasStateChanged = false;
                 }
             }
+        }
+
+        internal void RemoveAdalUser(IUser user)
+        {
+            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, user.DisplayableId, user.Environment, user.Identifier);
         }
 
         internal ICollection<string> GetAllAccessTokenCacheItems(RequestContext requestContext)
@@ -945,26 +959,39 @@ namespace Microsoft.Identity.Client
         {
             lock (LockObject)
             {
-                try
+                ClearMsalCache();
+                ClearAdalCache();
+            }
+        }
+
+        internal void ClearAdalCache()
+        {
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
+            dictionary.Clear();
+            legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
+        }
+
+        internal void ClearMsalCache()
+        {
+            try
+            {
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
                 {
-                    TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
-                    {
-                        TokenCache = this,
-                        ClientId = ClientId,
-                        User = null
-                    };
+                    TokenCache = this,
+                    ClientId = ClientId,
+                    User = null
+                };
 
-                    OnBeforeAccess(args);
-                    OnBeforeWrite(args);
+                OnBeforeAccess(args);
+                OnBeforeWrite(args);
 
-                    TokenCacheAccessor.Clear();
+                TokenCacheAccessor.Clear();
 
-                    OnAfterAccess(args);
-                }
-                finally
-                {
-                    HasStateChanged = false;
-                }
+                OnAfterAccess(args);
+            }
+            finally
+            {
+                HasStateChanged = false;
             }
         }
 
