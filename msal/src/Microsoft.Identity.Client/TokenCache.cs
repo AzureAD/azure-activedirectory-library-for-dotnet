@@ -148,8 +148,8 @@ namespace Microsoft.Identity.Client
                         MsalAccessTokenCacheItem msalAccessTokenItem =
                             JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestParams.RequestContext);
 
-                        if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId) &&
-                            msalAccessTokenItem.Authority.Equals(requestParams.TenantUpdatedCanonicalAuthority) &&
+                        if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
+                            msalAccessTokenItem.Authority.Equals(requestParams.TenantUpdatedCanonicalAuthority, StringComparison.OrdinalIgnoreCase) &&
                             msalAccessTokenItem.ScopeSet.ScopeIntersects(msalAccessTokenCacheItem.ScopeSet))
                         {
                             msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
@@ -168,7 +168,7 @@ namespace Microsoft.Identity.Client
                         //filter by identifer of the user instead
                         accessTokenItemList =
                             accessTokenItemList.Where(
-                                    item => item.HomeAccountId.Equals(msalAccessTokenCacheItem.HomeAccountId))
+                                    item => item.HomeAccountId.Equals(msalAccessTokenCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                                 .ToList();
                         msg = "Matching entries after filtering by user - " + accessTokenItemList.Count;
                         requestParams.RequestContext.Logger.Info(msg);
@@ -276,7 +276,7 @@ namespace Microsoft.Identity.Client
                         tokenCacheItems.Where(
                                 item =>
                                     !string.IsNullOrEmpty(item.UserAssertionHash) &&
-                                    item.UserAssertionHash.Equals(requestParams.UserAssertion.AssertionHash))
+                                    item.UserAssertionHash.Equals(requestParams.UserAssertion.AssertionHash, StringComparison.OrdinalIgnoreCase))
                             .ToList();
                 }
                 else
@@ -289,7 +289,7 @@ namespace Microsoft.Identity.Client
                         //filter by identifier of the user instead
                         tokenCacheItems =
                             tokenCacheItems
-                                .Where(item => item.HomeAccountId.Equals(requestParams.User?.Identifier))
+                                .Where(item => item.HomeAccountId.Equals(requestParams.User?.Identifier, StringComparison.OrdinalIgnoreCase))
                                 .ToList();
                     }
                 }
@@ -379,7 +379,7 @@ namespace Microsoft.Identity.Client
                     filteredItems =
                         filteredItems.Where(
                                 item =>
-                                    item.Authority.Equals(requestParams.Authority.CanonicalAuthority))
+                                    item.Authority.Equals(requestParams.Authority.CanonicalAuthority, StringComparison.OrdinalIgnoreCase))
                             .ToList();
 
                     //no match
@@ -645,7 +645,7 @@ namespace Microsoft.Identity.Client
                     {
                         foreach (MsalAccountCacheItem account in accountCacheItems)
                         {
-                            if (rtItem.HomeAccountId.Equals(account.HomeAccountId) && rtItem.Environment.Equals(account.Environment))
+                            if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) && rtItem.Environment.Equals(account.Environment, StringComparison.OrdinalIgnoreCase))
                             {
                                 User user = new User(account.HomeAccountId, account.PreferredUsername, account.Environment);
                                 allUsers[rtItem.HomeAccountId] = user;
@@ -684,7 +684,7 @@ namespace Microsoft.Identity.Client
                     MsalRefreshTokenCacheItem msalRefreshTokenCacheItem =
                     JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(refreshTokenString, requestContext);
 
-                    if (msalRefreshTokenCacheItem != null && msalRefreshTokenCacheItem.ClientId.Equals(ClientId))
+                    if (msalRefreshTokenCacheItem != null && msalRefreshTokenCacheItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase))
                     {
                         allRefreshTokens.Add(msalRefreshTokenCacheItem);
                     }
@@ -703,7 +703,7 @@ namespace Microsoft.Identity.Client
                 {
                     MsalAccessTokenCacheItem msalAccessTokenCacheItem =
                     JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestContext);
-                    if (msalAccessTokenCacheItem != null && msalAccessTokenCacheItem.ClientId.Equals(ClientId))
+                    if (msalAccessTokenCacheItem != null && msalAccessTokenCacheItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase))
                     {
                         allAccessTokens.Add(msalAccessTokenCacheItem);
                     }
@@ -723,7 +723,7 @@ namespace Microsoft.Identity.Client
                 {
                     MsalIdTokenCacheItem msalIdTokenCacheItem =
                     JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(idTokenString, requestContext);
-                    if (msalIdTokenCacheItem != null && msalIdTokenCacheItem.ClientId.Equals(ClientId))
+                    if (msalIdTokenCacheItem != null && msalIdTokenCacheItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase))
                     {
                         allIdTokens.Add(msalIdTokenCacheItem);
                     }
@@ -748,8 +748,8 @@ namespace Microsoft.Identity.Client
 
             foreach (MsalAccountCacheItem account in accounts)
             {
-                if (refreshTokenCacheItem.HomeAccountId.Equals(account.HomeAccountId) &&
-                    refreshTokenCacheItem.Environment.Equals(account.Environment))
+                if (refreshTokenCacheItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
+                    refreshTokenCacheItem.Environment.Equals(account.Environment, StringComparison.OrdinalIgnoreCase))
                 {
                     return account;
                 }
@@ -797,7 +797,7 @@ namespace Microsoft.Identity.Client
                     OnBeforeAccess(args);
                     OnBeforeWrite(args);
                     IList<MsalRefreshTokenCacheItem> allRefreshTokens = GetAllRefreshTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier))
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase))
                         .ToList();
                     foreach (MsalRefreshTokenCacheItem refreshTokenCacheItem in allRefreshTokens)
                     {
@@ -808,7 +808,7 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
                     IList<MsalAccessTokenCacheItem> allAccessTokens = GetAllAccessTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier))
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     foreach (MsalAccessTokenCacheItem accessTokenCacheItem in allAccessTokens)
@@ -821,7 +821,7 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalIdTokenCacheItem> allIdTokens = GetAllIdTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier)).ToList();
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase)).ToList();
 
                     foreach (MsalIdTokenCacheItem idTokenCacheItem in allIdTokens)
                     {
@@ -833,7 +833,7 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier)).ToList();
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase)).ToList();
 
                     foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
                     {

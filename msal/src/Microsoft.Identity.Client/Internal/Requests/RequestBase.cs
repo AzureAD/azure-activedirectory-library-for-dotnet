@@ -203,9 +203,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             if (fromServer!= null && AuthenticationRequestParameters.ClientInfo != null)
             {
-                if (!fromServer.UniqueIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueIdentifier) ||
-                    !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.ClientInfo
-                        .UniqueTenantIdentifier))
+                if (!fromServer.UniqueIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueIdentifier, StringComparison.OrdinalIgnoreCase) ||
+                    !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier, StringComparison.OrdinalIgnoreCase))
                 {
                     AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(String.Format(
                         CultureInfo.InvariantCulture,

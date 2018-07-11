@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId) && environment.Equals(new Uri(p.Key.Authority).Host)).ToList();
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) && environment.Equals(new Uri(p.Key.Authority).Host, StringComparison.OrdinalIgnoreCase)).ToList();
 
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
                 {
@@ -156,13 +156,13 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId) && environment.Equals(new Uri(p.Key.Authority).Host)).ToList();
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) && environment.Equals(new Uri(p.Key.Authority).Host, StringComparison.OrdinalIgnoreCase)).ToList();
 
                 //if client info is provided then use it to filter
                 if (!string.IsNullOrEmpty(rawClientInfo))
                 {
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> clientInfoEntries =
-                        listToProcess.Where(p => rawClientInfo.Equals(p.Value.RawClientInfo)).ToList();
+                        listToProcess.Where(p => rawClientInfo.Equals(p.Value.RawClientInfo, StringComparison.OrdinalIgnoreCase)).ToList();
                     if (clientInfoEntries.Any())
                     {
                         listToProcess = clientInfoEntries;
@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Core.Cache
                 if (!string.IsNullOrEmpty(upn))
                 {
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> upnEntries =
-                        listToProcess.Where(p => upn.Equals(p.Key.DisplayableId)).ToList();
+                        listToProcess.Where(p => upn.Equals(p.Key.DisplayableId, StringComparison.OrdinalIgnoreCase)).ToList();
                     if (upnEntries.Any())
                     {
                         listToProcess = upnEntries;
@@ -184,7 +184,7 @@ namespace Microsoft.Identity.Core.Cache
                 if (!string.IsNullOrEmpty(uniqueId))
                 {
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> uniqueIdEntries =
-                        listToProcess.Where(p => uniqueId.Equals(p.Key.UniqueId)).ToList();
+                        listToProcess.Where(p => uniqueId.Equals(p.Key.UniqueId, StringComparison.OrdinalIgnoreCase)).ToList();
                     if (uniqueIdEntries.Any())
                     {
                         listToProcess = uniqueIdEntries;
@@ -223,7 +223,7 @@ namespace Microsoft.Identity.Core.Cache
             foreach (string accountStr in tokenCacheAccessor.GetAllAccountsAsString())
             {
                 var accountItem = JsonHelper.TryToDeserializeFromJson<MsalAccountCacheItem>(accountStr, requestContext);
-                if (accountItem != null && accountItem.Environment.Equals(environment))
+                if (accountItem != null && accountItem.Environment.Equals(environment, StringComparison.OrdinalIgnoreCase))
                 {
                     accounts.Add(accountItem);
                 }
@@ -236,14 +236,14 @@ namespace Microsoft.Identity.Core.Cache
                         JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(rtString, requestContext);
 
                     //TODO - authority check needs to be updated for alias check
-                    if (rtCacheItem != null && environment.Equals(rtCacheItem.Environment)
-                        && rtCacheItem.ClientId.Equals(clientId))
+                    if (rtCacheItem != null && environment.Equals(rtCacheItem.Environment, StringComparison.OrdinalIgnoreCase)
+                        && rtCacheItem.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase))
                     {
                         // join refresh token cache item to corresponding account cache item to get upn
                         foreach (MsalAccountCacheItem accountCacheItem in accounts)
                         {
-                            if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId) 
-                                && accountCacheItem.PreferredUsername.Equals(upn))
+                            if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase) 
+                                && accountCacheItem.PreferredUsername.Equals(upn, StringComparison.OrdinalIgnoreCase))
                             {
                                 return new AdalResultWrapper
                                 {

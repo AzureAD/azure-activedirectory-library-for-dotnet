@@ -374,7 +374,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                                                          DateTime.UtcNow);
 
                     //check for cross-tenant authority
-                    if (!cacheKey.Authority.Equals(cacheQueryData.Authority))
+                    if (!cacheKey.Authority.Equals(cacheQueryData.Authority, StringComparison.OrdinalIgnoreCase))
                     {
                         // this is a cross-tenant result. use RT only
                         resultEx.Result.AccessToken = null;
@@ -643,7 +643,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             && (string.IsNullOrWhiteSpace(displayableId) || p.Key.DisplayableIdEquals(displayableId))
                             && p.Key.TokenSubjectType == subjectType &&
                             (string.IsNullOrWhiteSpace(assertionHash) ||
-                             assertionHash.Equals(p.Value.UserAssertionHash)))
+                             assertionHash.Equals(p.Value.UserAssertionHash, StringComparison.OrdinalIgnoreCase)))
                     .ToList();
             }
         }
