@@ -305,7 +305,7 @@ namespace DesktopTestApp
                 foreach (MsalAccessTokenCacheItem atItem in _publicClientHandler.PublicClientApplication.UserTokenCache
                     .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
                 {
-                    if (atItem.HomeAccountId.Equals(rtItem.HomeAccountId))
+                    if (atItem.HomeAccountId.Equals(rtItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                     {
                         AddControlToCachePageTableLayout(
                             new MsalUserAccessTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache,
