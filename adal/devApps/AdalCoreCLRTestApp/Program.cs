@@ -55,7 +55,7 @@ namespace AdalCoreCLRTestApp
         {
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
             var certificate = GetCertificateByThumbprint("<CERT_THUMBPRINT>");
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", new ClientAssertionCertificate("<CLIENT_ID>", certificate));
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", new ClientAssertionCertificate("<CLIENT_ID>", certificate)).ConfigureAwait(false);
 
             string token = result.AccessToken;
             Console.WriteLine(token + "\n");

@@ -216,16 +216,16 @@ namespace Test.ADAL.Common.Unit
             var userIdUpper = new UserIdentifier(displayableId.ToUpper(CultureInfo.InvariantCulture), UserIdentifierType.RequiredDisplayableId);
 
             var parameters = new PlatformParameters(PromptBehavior.Auto);
-            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId);
+            var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userIdUpper);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
         }
 
@@ -255,7 +255,7 @@ namespace Test.ADAL.Common.Unit
             AddToDictionary(localCache, tokenCacheKey, authenticationResult);
             AuthenticationContext acWithLocalCache = new AuthenticationContext(authority, false, localCache);
             AuthenticationResult authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenAsync(resource, clientId, credential);
+                await acWithLocalCache.AcquireTokenAsync(resource, clientId, credential).ConfigureAwait(false);
             AreAuthenticationResultsEqual(new AuthenticationResult(authenticationResult.Result), authenticationResultFromCache);
 
             // Duplicate throws error
@@ -274,7 +274,7 @@ namespace Test.ADAL.Common.Unit
             adae = AssertException.TaskThrows<AdalException>(async () =>
             {
                 AuthenticationContext acWithDefaultCache = new AuthenticationContext(authority, false);
-                await acWithDefaultCache.AcquireTokenAsync(resource, clientId, credential);
+                await acWithDefaultCache.AcquireTokenAsync(resource, clientId, credential).ConfigureAwait(false);
                 Assert.Fail("Exception expected");
             });
             Assert.IsTrue(adae.ErrorCode == "multiple_matching_tokens_detected" &&
@@ -294,7 +294,7 @@ namespace Test.ADAL.Common.Unit
             AddToDictionary(localCache, tempKey, cacheValue);
 
             authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters);
+                await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
             // @resource && @clientId && userId
@@ -312,14 +312,14 @@ namespace Test.ADAL.Common.Unit
             var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
             var userIdUpper = new UserIdentifier(displayableId.ToUpper(), UserIdentifierType.RequiredDisplayableId);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
             authenticationResultFromCache =
-                await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper);
+                await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
-            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId);
+            authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
         }
 #endif

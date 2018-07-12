@@ -60,7 +60,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNetUnit")]
         public async Task TestUniqueIdDisplayableIdLookup()
         {
-            await TokenCacheTests.TestUniqueIdDisplayableIdLookup();
+            await TokenCacheTests.TestUniqueIdDisplayableIdLookup().ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNetUnit")]
         public async Task TokenCacheKeyTestAsync()
         {
-            await TokenCacheTests.TokenCacheKeyTestAsync(new PlatformParameters(PromptBehavior.Auto, null));
+            await TokenCacheTests.TokenCacheKeyTestAsync(new PlatformParameters(PromptBehavior.Auto, null)).ConfigureAwait(false);
         }
 
         [TestMethod]

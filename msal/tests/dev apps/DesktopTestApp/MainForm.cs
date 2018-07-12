@@ -153,7 +153,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractive(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractive(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent()).ConfigureAwait(false);
 
                 SetResultPageInfo(authenticationResult);
                 RefreshUserList();
@@ -181,7 +181,7 @@ namespace DesktopTestApp
             try
             {
                 AuthenticationResult authenticationResult =
-                    await _publicClientHandler.AcquireTokenSilent(scopes.Text.AsArray());
+                    await _publicClientHandler.AcquireTokenSilent(scopes.Text.AsArray()).ConfigureAwait(false);
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -209,7 +209,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthority(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthority(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent()).ConfigureAwait(false);
 
                 SetResultPageInfo(authenticationResult);
             }

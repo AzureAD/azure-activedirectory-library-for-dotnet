@@ -159,7 +159,7 @@ namespace XForms
             var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null));
+            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null)).ConfigureAwait(false);
         }
 
         public async Task ShowRefreshTokenDetails(object sender, EventArgs e)
@@ -167,7 +167,7 @@ namespace XForms
             var mi = (MenuItem)sender;
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
-            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem));
+            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem)).ConfigureAwait(false);
         }
 
         public async Task ShowIdTokenDetails(object sender, EventArgs e)
@@ -176,7 +176,7 @@ namespace XForms
             var idTokenCacheItem = (MsalIdTokenCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem));
+            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem)).ConfigureAwait(false);
         }
 
         public async Task ShowAccountDetails(object sender, EventArgs e)
@@ -185,7 +185,7 @@ namespace XForms
             var accountCacheItem = (MsalAccountCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem));
+            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem)).ConfigureAwait(false);
         }
     }
 }

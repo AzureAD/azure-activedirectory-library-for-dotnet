@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <Configurations>Debug;Release;Appveyor</Configurations>
+    <CodeAnalysisRuleSet>../../../core/ConfigureAwait.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Label="SonarQube analysis settings">

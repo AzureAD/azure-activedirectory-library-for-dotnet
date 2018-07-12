@@ -220,7 +220,7 @@ namespace WinFormsAutomationApp
                 deviceCodeResult.ExpiresOn = DateTime.Parse(input["expires_on"]);
 
                 //Try to get access token form given device code.
-                AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(deviceCodeResult);
+                AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(deviceCodeResult).ConfigureAwait(false);
                 res.Add("unique_id", result.UserInfo.UniqueId);
                 res.Add("access_token", result.AccessToken);
                 res.Add("tenant_id", result.TenantId);
@@ -239,7 +239,7 @@ namespace WinFormsAutomationApp
             DeviceCodeResult result;
             try
             {
-                result = await ctx.AcquireDeviceCodeAsync(input["resource"], input["client_id"]);
+                result = await ctx.AcquireDeviceCodeAsync(input["resource"], input["client_id"]).ConfigureAwait(false);
                 res.Add("device_code", result.DeviceCode);
                 res.Add("verification_url", result.VerificationUrl);
                 res.Add("user_code", result.UserCode);

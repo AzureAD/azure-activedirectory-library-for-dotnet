@@ -42,7 +42,7 @@ namespace WinFormsAutomationApp
 
         private async void requestGo_Click(object sender, EventArgs e)
         {
-             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
+             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text))).ConfigureAwait(false);
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -75,7 +75,7 @@ namespace WinFormsAutomationApp
 
         private async void readCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ReadCache(); ;
+            string output = await AuthenticationHelper.ReadCache().ConfigureAwait(false);
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -83,7 +83,7 @@ namespace WinFormsAutomationApp
 
         private async void clearCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ClearCache(null);
+            string output = await AuthenticationHelper.ClearCache(null).ConfigureAwait(false);
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();

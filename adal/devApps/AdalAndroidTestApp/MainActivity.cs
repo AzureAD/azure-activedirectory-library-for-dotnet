@@ -132,7 +132,7 @@ namespace AdalAndroidTestApp
             {
                 TokenCache.DefaultShared.Clear();
                 this.accessTokenTextView.Text = "Cache cleared";
-            });
+            }).ConfigureAwait(false);
         }
 
         private async void conditionalAccessButton_Click(object sender, EventArgs e)
