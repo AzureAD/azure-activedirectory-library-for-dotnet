@@ -75,7 +75,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
         }
 
-        internal TokenCacheAccessor TokenCacheAccessor = new TokenCacheAccessor();
+        internal TokenCacheAccessor tokenCacheAccessor = new TokenCacheAccessor();
 
         /// <summary>
         /// Default constructor.
@@ -281,7 +281,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void ClearMsalCache()
         {
-            TokenCacheAccessor.Clear();
+            tokenCacheAccessor.Clear();
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)
@@ -475,7 +475,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         msg = "Checking MSAL cache for user token cache";
                         requestContext.Logger.Info(msg);
                         requestContext.Logger.InfoPii(msg);
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(tokenCacheAccessor,
                             cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
                     }
                 }
@@ -528,7 +528,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
-                    CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
+                    CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName,
                         result.Result.UserInfo.FamilyName, idToken.ObjectId);
                 }

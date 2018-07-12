@@ -49,13 +49,13 @@ namespace XForms
             authority.Text = App.Authority;
             clientIdEntry.Text = App.ClientId;
 
-            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccessTokensAsString()
+            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString()
                 .Count.ToString();
-            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllRefreshTokensAsString()
+            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString()
                 .Count.ToString();
-            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllIdTokensAsString()
+            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllIdTokensAsString()
                 .Count.ToString();
-            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccountsAsString()
+            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccountsAsString()
                 .Count.ToString();
 
             validateAuthority.IsToggled = App.ValidateAuthority;
@@ -71,7 +71,7 @@ namespace XForms
 
         private void OnClearAllCache(object sender, EventArgs e)
         {
-            App.MsalPublicClient.UserTokenCache.ClearCache();
+            App.MsalPublicClient.UserTokenCache.Clear();
             RefreshView();
         }
 
