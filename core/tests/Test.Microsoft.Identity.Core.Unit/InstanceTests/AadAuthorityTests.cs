@@ -92,7 +92,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Aad);
             Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 })
                 .GetAwaiter()
                 .GetResult();
@@ -123,7 +123,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Aad);
             Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 })
                 .GetAwaiter()
                 .GetResult();
@@ -172,7 +172,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();
@@ -211,7 +211,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();
@@ -245,7 +245,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             {
                 Task.Run(async () =>
                     {
-                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                        await instance.ResolveEndpointsAsync(null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                     })
                     .GetAwaiter()
                     .GetResult();

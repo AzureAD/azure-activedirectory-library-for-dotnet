@@ -123,7 +123,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         
         [TestMethod]
         [TestCategory("HttpRequestTests")]
-        public async Task TestSendGetWithHttp500TypeFailureAsync()
+        public async Task TestSendGetWithHttp500TypeFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -154,7 +154,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpRequestTests")]
-        public async Task TestSendPostWithHttp500TypeFailureAsync()
+        public async Task TestSendPostWithHttp500TypeFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -185,7 +185,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpRequestTests")]
-        public async Task TestSendGetWithRetryOnTimeoutFailureAsync()
+        public async Task TestSendGetWithRetryOnTimeoutFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -219,7 +219,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpRequestTests")]
-        public async Task TestSendPostWithRetryOnTimeoutFailureAsync()
+        public async Task TestSendPostWithRetryOnTimeoutFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {

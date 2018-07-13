@@ -70,14 +70,14 @@ namespace DesktopTestApp
             {
                 result = await PublicClientApplication.AcquireTokenAsync(scopes, CurrentUser, uiBehavior,
                     extraQueryParams,
-                    uiParent).ConfigureAwait(false);
+                    uiParent);
             }
             else
             {
                 result =
                     await PublicClientApplication.AcquireTokenAsync(scopes, LoginHint, uiBehavior,
                         extraQueryParams,
-                        uiParent).ConfigureAwait(false);
+                        uiParent);
             }
 
             CurrentUser = result.User;
@@ -93,14 +93,14 @@ namespace DesktopTestApp
             {
                 result = await PublicClientApplication.AcquireTokenAsync(scopes, CurrentUser, uiBehavior,
                     extraQueryParams, null, AuthorityOverride,
-                    uiParent).ConfigureAwait(false);
+                    uiParent);
             }
             else
             {
                 result =
                     await PublicClientApplication.AcquireTokenAsync(scopes, LoginHint, uiBehavior,
                         extraQueryParams, null, AuthorityOverride,
-                        uiParent).ConfigureAwait(false);
+                        uiParent);
             }
 
             CurrentUser = result.User;
@@ -110,7 +110,7 @@ namespace DesktopTestApp
         public async Task<AuthenticationResult> AcquireTokenSilent(string[] scopes)
         {
             return await PublicClientApplication.AcquireTokenSilentAsync(scopes, CurrentUser, AuthorityOverride,
-                        false).ConfigureAwait(false);
+                        false);
         }
 
         private void CreatePublicClientApplication(string interactiveAuthority, string applicationId)

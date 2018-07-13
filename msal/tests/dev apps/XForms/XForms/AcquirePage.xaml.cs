@@ -143,7 +143,7 @@ namespace XForms
         private async void OnAcquireSilentlyClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
-            await Task.Delay(700).ConfigureAwait(false);
+            await Task.Delay(700);
 
             try
             {
@@ -157,7 +157,7 @@ namespace XForms
                 var authority = PassAuthoritySwitch.IsToggled ? App.Authority : null;
 
                 var res = await App.MsalPublicClient.AcquireTokenSilentAsync(GetScopes(),
-                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled).ConfigureAwait(false);
+                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled);
 
                 acquireResponseLabel.Text = ToString(res);
             }
@@ -178,13 +178,13 @@ namespace XForms
                     res =
                         await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), loginHint, GetUIBehavior(),
                             GetExtraQueryParams(),
-                            App.UIParent).ConfigureAwait(false);
+                            App.UIParent);
                 }
                 else
                 {
                     var user = getUserByDisplayableId(GetSelectedUserId());
                     res = await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), user, GetUIBehavior(),
-                        GetExtraQueryParams(), App.UIParent).ConfigureAwait(false);
+                        GetExtraQueryParams(), App.UIParent);
                 }
 
                 var resText = ToString(res);

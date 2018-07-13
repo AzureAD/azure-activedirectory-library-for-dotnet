@@ -512,7 +512,7 @@ namespace Test.MSAL.NET.Unit
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         [ExpectedException(typeof(HttpRequestException), "Cannot write more bytes to the buffer than the configured maximum buffer size: 1048576.")]
-        public async Task HttpRequestExceptionIsNotSuppressedAsync()
+        public async Task HttpRequestExceptionIsNotSuppressed()
         {
             var app = new ConfidentialClientApplication(TestConstants.ClientId,
                 TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
@@ -531,12 +531,12 @@ namespace Test.MSAL.NET.Unit
                 }
             });
 
-            await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray()).ConfigureAwait(false);
+            await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
-        public void ForceRefreshParameterFalseTest()
+        public void ForceRefreshParameterFalseTestAsync()
         {
             var cache = new TokenCache();
             TokenCacheHelper.PopulateCacheForClientCredential(cache.tokenCacheAccessor);
@@ -599,7 +599,7 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage(tokenRetrievedFromNetCall)
             });
 
-            var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true).ConfigureAwait(false);
+            var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true);
             Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
 
             // make sure token in Cache was updated
@@ -618,7 +618,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
-        public async Task AuthorizationCodeRequestTestAsync()
+        public async Task AuthorizationCodeRequestTest()
         {
             TokenCache cache = new TokenCache()
             {

@@ -42,7 +42,7 @@ namespace WinFormsAutomationApp
 
         private async void requestGo_Click(object sender, EventArgs e)
         {
-             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text))).ConfigureAwait(false);
+             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -75,10 +75,7 @@ namespace WinFormsAutomationApp
 
         private async void readCache_Click(object sender, EventArgs e)
         {
-#pragma warning disable UseConfigureAwait // Use ConfigureAwait
-            //TODO: Using ConfigureAwait(false) here causes a cross threading issue, Needs Investigation
             string output = await AuthenticationHelper.ReadCache(); ;
-#pragma warning restore UseConfigureAwait // Use ConfigureAwait
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -86,7 +83,7 @@ namespace WinFormsAutomationApp
 
         private async void clearCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ClearCache(null).ConfigureAwait(false);
+            string output = await AuthenticationHelper.ClearCache(null);
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();

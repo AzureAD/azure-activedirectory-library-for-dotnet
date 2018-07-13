@@ -108,7 +108,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
             {
-                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
             }).GetAwaiter().GetResult();
 
             Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/",
@@ -126,7 +126,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
             {
-                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
             }).GetAwaiter().GetResult();
 
             Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/",
@@ -192,7 +192,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
             {
-                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
             }).GetAwaiter().GetResult();
 
             Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/",
@@ -221,7 +221,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
             {
-                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
             }).GetAwaiter().GetResult();
 
             Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/",
@@ -270,7 +270,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             {
                 Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 }).GetAwaiter().GetResult();
                 Assert.Fail("ResolveEndpointsAsync should have failed here");
             }
@@ -319,7 +319,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             {
                 Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 }).GetAwaiter().GetResult();
                 Assert.Fail("ResolveEndpointsAsync should have failed here");
             }
@@ -354,7 +354,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             {
                 Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 }).GetAwaiter().GetResult();
                 Assert.Fail("ResolveEndpointsAsync should have failed here");
             }
@@ -385,7 +385,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             {
                 Task.Run(async () =>
                 {
-                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                    await instance.ResolveEndpointsAsync(TestConstants.FabrikamDisplayableId, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
                 }).GetAwaiter().GetResult();
                 Assert.Fail("validation should have failed here");
             }

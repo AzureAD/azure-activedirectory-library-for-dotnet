@@ -88,7 +88,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion).ConfigureAwait(false);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
             Assert.IsNotNull(result.AccessToken);
         }
 
@@ -124,7 +124,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion).ConfigureAwait(false);
+            AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
             Assert.IsNotNull(result.AccessToken);
         }
     }

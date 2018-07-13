@@ -75,7 +75,7 @@ namespace Test.ADAL.NET.Integration
                         Method = HttpMethod.Post,
                         ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
                     });
-                    await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+                    await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
                 });
             
             Assert.AreEqual(AdalError.FailedToAcquireTokenSilently, ex.ErrorCode);
@@ -109,7 +109,7 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
-                    context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+                    context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -127,7 +127,7 @@ namespace Test.ADAL.NET.Integration
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
             AuthenticationResult result;
             AdalSilentTokenAcquisitionException ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () => 
-            result = await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false));
+            result = await context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)));
 
             Assert.AreEqual(ex.ErrorCode, AdalError.FailedToAcquireTokenSilently);
             Assert.AreEqual(ex.Message, AdalErrorMessage.FailedToAcquireTokenSilently);

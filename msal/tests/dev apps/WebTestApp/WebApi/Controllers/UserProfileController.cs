@@ -119,7 +119,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<string> Get()
         {
-            await Semaphore.WaitAsync().ConfigureAwait(false);
+            await Semaphore.WaitAsync();
             try
             {
                 ClearLog();
@@ -134,9 +134,9 @@ namespace WebApi.Controllers
                 {
                     var authResult =
                         await GetConfidentialClient().AcquireTokenOnBehalfOfAsync(new[] {MsGraphUserReadScope},
-                            userAssertion).ConfigureAwait(false);
+                            userAssertion);
 
-                    result = await CallApi(MsGraphMeQuery, authResult.AccessToken).ConfigureAwait(false);
+                    result = await CallApi(MsGraphMeQuery, authResult.AccessToken);
                 }
                 catch (MsalException ex)
                 {
@@ -160,12 +160,12 @@ namespace WebApi.Controllers
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await client.SendAsync(request).ConfigureAwait(false);
+            var response = await client.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.StatusCode.ToString());
 
-            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

@@ -20,7 +20,6 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-	<CodeAnalysisRuleSet>../../../core/ConfigureAwait.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -114,7 +113,6 @@
       <Project>{aece489d-9ed4-442d-8d8f-0f383aebb781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
-    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

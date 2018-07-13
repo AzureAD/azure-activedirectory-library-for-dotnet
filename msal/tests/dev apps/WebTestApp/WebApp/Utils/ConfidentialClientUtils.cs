@@ -91,7 +91,7 @@ namespace WebApp.Utils
         {
             var confidentialClient = GetConfidentialClientWithExtraParams(clientCredential, Startup.Configuration["AzureAd:CommonAuthority"], userId, session);
 
-            return await confidentialClient.AcquireTokenByAuthorizationCodeAsync(authorizationCode, scopes).ConfigureAwait(false);
+            return await confidentialClient.AcquireTokenByAuthorizationCodeAsync(authorizationCode, scopes);
         }
 
         public static async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, string userName, ISession session, 
@@ -100,7 +100,7 @@ namespace WebApp.Utils
             var confidentialClient = GetConfidentialClientWithExtraParams(clientCredential, Startup.Configuration["AzureAd:CommonAuthority"], userId, session);
             var user = confidentialClient.Users.FirstOrDefault(u => u.DisplayableId.Equals(userName, StringComparison.OrdinalIgnoreCase));
 
-            return await confidentialClient.AcquireTokenSilentAsync(scopes, user).ConfigureAwait(false);
+            return await confidentialClient.AcquireTokenSilentAsync(scopes, user);
         }
 
         public static async Task<AuthenticationResult> AcquireTokenForClientAsync(IEnumerable<string> scopes,
@@ -109,7 +109,7 @@ namespace WebApp.Utils
             var appAuthority = string.Format(Startup.Configuration["AzureAd:AuthorityForApplication"], Startup.Configuration["AzureAd:Tenant"]);
             var confidentialClient = GetConfidentialClientWithExtraParams(clientCredential, appAuthority, userId, session);
 
-            return await confidentialClient.AcquireTokenForClientAsync(scopes).ConfigureAwait(false);
+            return await confidentialClient.AcquireTokenForClientAsync(scopes);
         }
 
         private static IConfidentialClientApplication GetConfidentialClientWithExtraParams(ClientCredential clientCredential, string authority, string userId, ISession session)

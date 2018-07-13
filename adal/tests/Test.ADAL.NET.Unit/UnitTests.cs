@@ -332,7 +332,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
             HttpClientWrapper wrapper = new HttpClientWrapper(TestConstants.DefaultAuthorityCommonTenant, null);
-            await wrapper.GetResponseAsync().ConfigureAwait(false);
+            await wrapper.GetResponseAsync();
         }
 
         private static void RunAuthenticationParametersPositive(string authenticateHeader, string expectedAuthority, string excepectedResource)

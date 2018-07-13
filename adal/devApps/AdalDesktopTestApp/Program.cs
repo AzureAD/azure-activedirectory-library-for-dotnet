@@ -103,7 +103,7 @@ namespace AdalDesktopTestApp
         private static async Task AcquireTokenAsync()
         {
             AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
-            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<USER>")).ConfigureAwait(false);
+            var result = await context.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new UserCredential("<USER>"));
 
             string token = result.AccessToken;
             string logMessage = "\n\n" + "Pii Logging Enabled: " +

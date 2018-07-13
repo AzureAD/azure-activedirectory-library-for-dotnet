@@ -254,7 +254,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "login.microsoftonline.com";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -274,7 +274,7 @@ namespace Test.ADAL.NET.Unit
                 SubjectType = TokenSubjectType.Client,
                 ExtendedLifeTimeEnabled = false
             }));
-            await ((Task)privateObject.Invoke("SendTokenRequestAsync")).ConfigureAwait(false);
+            await (Task)privateObject.Invoke("SendTokenRequestAsync");
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
@@ -287,7 +287,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "login.microsoftonline.com";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -309,7 +309,7 @@ namespace Test.ADAL.NET.Unit
             };
             var privateObject = new PrivateObject(new AcquireTokenNonInteractiveHandler(
                 requestData, new UserPasswordCredential("johndoe@contoso.com", "fakepassword")));
-            await ((Task)privateObject.Invoke("PreTokenRequest")).ConfigureAwait(false);
+            await (Task)privateObject.Invoke("PreTokenRequest");
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
@@ -322,7 +322,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "login.microsoftonline.com";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -335,7 +335,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             var handler = new AcquireDeviceCodeHandler(authenticator, "resource1", "clientId", null);
-            await handler.RunHandlerAsync().ConfigureAwait(false);
+            await handler.RunHandlerAsync();
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }

@@ -150,10 +150,4 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <!-- Import the Xamarin targets workaround -->
   <Import Project="..\Patch.Xamarin.Common.targets" />
-  <PropertyGroup>
-    <CodeAnalysisRuleSet>../../../../../core/ConfigureAwait.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
-  </ItemGroup>
 </Project>

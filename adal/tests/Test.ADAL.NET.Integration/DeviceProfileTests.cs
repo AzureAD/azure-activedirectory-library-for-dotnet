@@ -100,7 +100,7 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
+            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
 
@@ -145,7 +145,7 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false);
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client");
 
             Assert.IsNotNull(dcr);
             Assert.AreEqual("some-device-code", dcr.DeviceCode);
@@ -155,7 +155,7 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-message", dcr.Message);
             Assert.AreEqual("some-client", dcr.ClientId);
 
-            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
+            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
             // There should be one cached entry.
@@ -179,7 +179,7 @@ namespace Test.ADAL.NET.Integration
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
             DeviceCodeResult dcr;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false));
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client"));
             Assert.IsTrue(ex.Message.Contains("some error message"));
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
@@ -222,11 +222,11 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority").ConfigureAwait(false);
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority");
 
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false));
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
             Assert.IsTrue(ex.Message.Contains("Verification code expired"));
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());

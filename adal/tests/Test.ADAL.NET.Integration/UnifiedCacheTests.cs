@@ -79,7 +79,7 @@ namespace Test.ADAL.NET.Integration
             var result =
                 await
                     adalContext.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                        TestConstants.DefaultRedirectUri, _platformParameters);
 
             Assert.IsTrue(adalTokenCache.Count > 0);
             Assert.IsNotNull(result);
@@ -112,7 +112,7 @@ namespace Test.ADAL.NET.Integration
                 await
                     adalContext.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, _platformParameters,
-                        new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
+                        new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId));
 
             //ps todo validate that state in adal is same as was before adal cache clean
             Assert.IsNotNull(result);
