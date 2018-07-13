@@ -186,13 +186,17 @@ namespace Test.ADAL.NET.Integration
         }
 
         [TestMethod]
-        public async Task NegativeDeviceCodeTimeoutTest()
+        public async Task NegativeDeviceCodeTimeoutTest_WithOneRetry()
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
                 Method = HttpMethod.Get,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
-                ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage("1")
+                ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
+                    // do not lower this to 1-2s as test execution may be slow and the flow 
+                    // will never call the server
+                    expirationTimeInSeconds: 3, 
+                    retryInternvalInSeconds: 2)
             };
 
             AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
@@ -218,6 +222,32 @@ namespace Test.ADAL.NET.Integration
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/token",
                 ResponseMessage = MockHelpers.CreateDeviceCodeExpirationErrorResponse()
             };
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+
+            TokenCache cache = new TokenCache();
+            context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority");
+
+            Assert.IsNotNull(dcr);
+            AuthenticationResult result;
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
+            Assert.IsTrue(ex.Message.Contains("Verification code expired"));
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+        }
+
+        [TestMethod]
+        public async Task NegativeDeviceCodeTimeoutTest_WithZeroRetries()
+        {
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Get,
+                Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
+                ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
+                    expirationTimeInSeconds: 0,
+                    retryInternvalInSeconds: 1)
+            };
+
             AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             TokenCache cache = new TokenCache();
