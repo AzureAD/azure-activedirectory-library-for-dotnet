@@ -75,7 +75,10 @@ namespace WinFormsAutomationApp
 
         private async void readCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ReadCache().ConfigureAwait(false);
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
+            //Using ConfigureAwait(false) here causes a cross threading issue
+            string output = await AuthenticationHelper.ReadCache(); ;
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
