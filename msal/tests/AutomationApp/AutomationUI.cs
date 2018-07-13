@@ -88,7 +88,10 @@ namespace AutomationApp
                 }
                 else
                 {
-                    AuthenticationResult authenticationResult = await _commandToRun(dict).ConfigureAwait(false);
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
+                    //TODO: Using ConfigureAwait(false) here causes a cross threading issue, Needs Investigation
+                    AuthenticationResult authenticationResult = await _commandToRun(dict);
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
                     SetResultPageInfo(authenticationResult);
                 }
             }
