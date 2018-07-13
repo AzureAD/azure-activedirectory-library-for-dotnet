@@ -501,7 +501,7 @@ namespace DesktopTestApp
             this.acquireTokenInteractive.TabIndex = 9;
             this.acquireTokenInteractive.Text = "Acquire Token Interactive";
             this.acquireTokenInteractive.UseVisualStyleBackColor = true;
-            this.acquireTokenInteractive.Click += new System.EventHandler(this.acquireTokenInteractive_Click);
+            this.acquireTokenInteractive.Click += new System.EventHandler(this.AcquireTokenInteractive_ClickAsync);
             // 
             // acquireTokenSilent
             // 
@@ -512,7 +512,7 @@ namespace DesktopTestApp
             this.acquireTokenSilent.TabIndex = 10;
             this.acquireTokenSilent.Text = "Acquire Token Silent";
             this.acquireTokenSilent.UseVisualStyleBackColor = true;
-            this.acquireTokenSilent.Click += new System.EventHandler(this.acquireTokenSilent_Click);
+            this.acquireTokenSilent.Click += new System.EventHandler(this.acquireTokenSilent_ClickAsync);
             // 
             // label7
             // 
@@ -667,7 +667,7 @@ namespace DesktopTestApp
             this.acquireTokenInteractiveAuthority.TabIndex = 30;
             this.acquireTokenInteractiveAuthority.Text = "Acquire Token Interactive with Authority Override";
             this.acquireTokenInteractiveAuthority.UseVisualStyleBackColor = true;
-            this.acquireTokenInteractiveAuthority.Click += new System.EventHandler(this.acquireTokenInteractiveAuthority_Click);
+            this.acquireTokenInteractiveAuthority.Click += new System.EventHandler(this.acquireTokenInteractiveAuthority_ClickAsync);
             // 
             // acquireTokenSilentAuthority
             // 
