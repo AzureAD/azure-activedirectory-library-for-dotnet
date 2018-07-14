@@ -44,7 +44,7 @@ namespace SampleApp
             tabControl1.ItemSize = new Size(0, 1);
             tabControl1.SizeMode = TabSizeMode.Fixed;
             user = _msalHelper.Application.Users.First();
-            tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChangedAsync;
+            tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
 
             signInPage.BackColor = Color.FromArgb(255, 67, 143, 255);
             if (user != null)
@@ -52,9 +52,8 @@ namespace SampleApp
                 tabControl1.SelectedTab = calendarPage;
             }
         }
-
-        // Return void because this is an event handler
-        private async void TabControl1_SelectedIndexChangedAsync(object sender, EventArgs e)
+        
+        private async void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if((sender as TabControl).TabIndex == 1)
             {
@@ -63,9 +62,8 @@ namespace SampleApp
                 DisplayUserInformationFromGraph(token);
             }
         }
-
-        // Return void because this is an event handler
-        private async void pictureBox1_ClickAsync(object sender, EventArgs e)
+        
+        private async void pictureBox1_Click(object sender, EventArgs e)
         {
             user = await _msalHelper.SignInAsync().ConfigureAwait(false);
             if (user!=null)

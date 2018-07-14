@@ -135,8 +135,7 @@ namespace DesktopTestApp
         #endregion
 
         #region PublicClientApplication Acquire Token
-        // Return void because this is an event handler
-        private async void AcquireTokenInteractive_ClickAsync(object sender, EventArgs e)
+        private async void AcquireTokenInteractive_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
             _publicClientHandler.LoginHint = loginHintTextBox.Text;
@@ -164,9 +163,8 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-
-        // Return void because this is an event handler
-        private async void acquireTokenSilent_ClickAsync(object sender, EventArgs e)
+        
+        private async void acquireTokenSilent_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
 
@@ -192,9 +190,8 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-
-        // Return void because this is an event handler
-        private async void acquireTokenInteractiveAuthority_ClickAsync(object sender, EventArgs e)
+        
+        private async void acquireTokenInteractiveAuthority_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
             _publicClientHandler.LoginHint = loginHintTextBox.Text;

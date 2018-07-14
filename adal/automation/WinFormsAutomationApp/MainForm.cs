@@ -39,9 +39,8 @@ namespace WinFormsAutomationApp
             _commandToRun = AuthenticationHelper.AcquireTokenAsync;
             pageControl1.SelectedTab = dataInputPage;
         }
-
-        // Return void because this is an event handler
-        private async void RequestGo_ClickAsync(object sender, EventArgs e)
+        
+        private async void RequestGo_Click(object sender, EventArgs e)
         {
              string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
             pageControl1.SelectedTab = resultPage;
