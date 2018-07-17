@@ -103,8 +103,8 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test for client assertion with X509 public certificate using sendX5C")]
-        public async Task JsonWebTokenWithX509PublicCertSendX5CTestAsync()
+        [Description("Test for Json Web Token with client assertion and a X509 public certificate claim")]
+        public async Task JsonWebTokenWithX509PublicCertClaimTestAsync()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionCertificate(TestConstants.DefaultClientId, certificate);
