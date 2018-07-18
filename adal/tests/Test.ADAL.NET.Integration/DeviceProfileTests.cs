@@ -29,6 +29,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
@@ -195,7 +196,7 @@ namespace Test.ADAL.NET.Integration
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
                     // do not lower this to 1-2s as test execution may be slow and the flow 
                     // will never call the server
-                    expirationTimeInSeconds: 3, 
+                    expirationTimeInSeconds: 30, 
                     retryInternvalInSeconds: 2)
             };
 
@@ -231,7 +232,7 @@ namespace Test.ADAL.NET.Integration
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
             AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
-            Assert.IsTrue(ex.Message.Contains("Verification code expired"));
+            Assert.AreEqual(AdalErrorEx.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
@@ -257,7 +258,7 @@ namespace Test.ADAL.NET.Integration
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
             AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
-            Assert.IsTrue(ex.Message.Contains("Verification code expired"));
+            Assert.AreEqual(AdalErrorEx.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
