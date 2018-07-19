@@ -37,24 +37,24 @@ namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal class NonInteractiveRequest : RequestBase
     {
-        protected UserCred UserCred;
+        protected UserCredential UserCredential;
         public UserAssertion UserAssertion;
 
-        public NonInteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters, UserCred userCred)
+        public NonInteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters, UserCredential userCredential)
             : base(authenticationRequestParameters)
         {
-            UserCred = userCred;
+            UserCredential = userCredential;
         }
 
         protected override async Task SendTokenRequestAsync()
         {
-            if (UserCred != null)
+            if (UserCredential != null)
             {
-                if (string.IsNullOrWhiteSpace(UserCred.UserName))
+                if (string.IsNullOrWhiteSpace(UserCredential.UserName))
                 {
-                    UserCred.UserName = await PlatformPlugin.PlatformInformation.GetUserPrincipalNameAsync().ConfigureAwait(false);
+                    UserCredential.UserName = await PlatformPlugin.PlatformInformation.GetUserPrincipalNameAsync().ConfigureAwait(false);
                     string msg;
-                    if (string.IsNullOrWhiteSpace(UserCred.UserName))
+                    if (string.IsNullOrWhiteSpace(UserCredential.UserName))
                     {
                         msg = "Could not find UPN for logged in user";
                         AuthenticationRequestParameters.RequestContext.Logger.Info(msg);
@@ -67,7 +67,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     AuthenticationRequestParameters.RequestContext.Logger.Verbose(msg);
 
                     var piiMsg = msg + string.Format(CultureInfo.CurrentCulture, " with user name '{0}'",
-                                     UserCred.UserName);
+                                     UserCredential.UserName);
                     AuthenticationRequestParameters.RequestContext.Logger.VerbosePii(piiMsg);
                 }
             }
@@ -75,14 +75,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 var userRealmResponse = await Core.Realm.UserRealmDiscoveryResponse.CreateByDiscoveryAsync(
                     string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm/", AuthenticationRequestParameters.Authority.Host),
-                    this.UserCred.UserName, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+                    this.UserCredential.UserName, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
                 if (userRealmResponse == null)
                 {
                     throw new MsalException(MsalError.UserRealmDiscoveryFailed);
                 }
 
                 AuthenticationRequestParameters.RequestContext.Logger.InfoPii(string.Format(CultureInfo.CurrentCulture,
-                    " User with user name '{0}' detected as '{1}'", UserCred.UserName,
+                    " User with user name '{0}' detected as '{1}'", UserCredential.UserName,
                     userRealmResponse.AccountType));
 
                 if (string.Compare(userRealmResponse.AccountType, "federated", StringComparison.OrdinalIgnoreCase) == 0)
@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     try
                     {
                         wsTrustAddress = await MexParser.FetchWsTrustAddressFromMexAsync(
-                            userRealmResponse.FederationMetadataUrl, UserCred.UserAuthType, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+                            userRealmResponse.FederationMetadataUrl, UserCredential.UserAuthType, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
                         if (wsTrustAddress == null)
                         {
                             throw new MsalException(MsalError.WsTrustEndpointNotFoundInMetadataDocument);
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     try
                     {
                         wsTrustResponse = await WsTrustRequest.SendRequestAsync(
-                            wsTrustAddress, UserCred, AuthenticationRequestParameters.RequestContext, userRealmResponse.CloudAudienceUrn).ConfigureAwait(false);
+                            wsTrustAddress, UserCredential, AuthenticationRequestParameters.RequestContext, userRealmResponse.CloudAudienceUrn).ConfigureAwait(false);
                     }
                     catch (System.Xml.XmlException ex)
                     {
@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 {
                     /*
                     // handle password grant flow for the managed user
-                    if (UserCred.PasswordToCharArray() == null)
+                    if (UserCredential.PasswordToCharArray() == null)
                     {
                         throw new MsalException(MsalError.PasswordRequiredForManagedUserError);
                     }
