@@ -37,6 +37,13 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
+        static string ClientId = "de49ddaf-c7f8-4a06-8463-3c6ae124fe52";
+
+        //static string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
+        //string RedirectURI = AndroidBrokerRedirectURI;
+
+        string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
+
         public string DrainLogs()
         {
             string output = _logs.ToString();
@@ -143,7 +150,7 @@ namespace XFormsApp
             string output = string.Empty;
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.windows.net", "de49ddaf-c7f8-4a06-8463-3c6ae124fe52").ConfigureAwait(false);
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.windows.net", ClientId).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -175,8 +182,8 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.microsoft.com", "d3590ed6-52b3-4102-aeff-aad2292ab01c",
-                            new Uri("urn:ietf:wg:oauth:2.0:oob"),
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientId,
+                            new Uri(RedirectURI),
                             Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
@@ -207,7 +214,7 @@ namespace XFormsApp
             
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>",
+                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net", ClientId,
                         new Uri("adaliosapp://com.yourcompany.xformsapp"),
                         Parameters, new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
                 output = "Access Token: " + result.AccessToken;
