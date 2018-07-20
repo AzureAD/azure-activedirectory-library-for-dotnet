@@ -28,6 +28,7 @@
 using System;
 using System.Globalization;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Exceptions;
 
 namespace Microsoft.Identity.Client
 {
@@ -36,7 +37,6 @@ namespace Microsoft.Identity.Client
     /// </summary>
     public class MsalException : Exception
     {
-
         /// <summary>
         /// Unknown Error occured.
         /// </summary>
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Client
         /// Initializes a new instance of the exception class.
         /// </summary>
         public MsalException()
-            : base(MsalErrorMessage.Unknown)
+            : base(CoreErrorMessages.Unknown)
         {
             ErrorCode = UnknownError;
         }
@@ -104,6 +104,11 @@ namespace Microsoft.Identity.Client
         /// exception handling.
         /// </summary>
         public string ErrorCode { get; }
+
+        /// <summary>
+        /// Details about the exception from core, if any. Inspect this for the actual stack trace.
+        /// </summary>
+        internal CoreException CoreException { get; set; }
 
         /// <summary>
         /// Creates and returns a string representation of the current exception.
