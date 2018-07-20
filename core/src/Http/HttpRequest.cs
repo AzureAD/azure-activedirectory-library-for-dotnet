@@ -126,7 +126,6 @@ namespace Microsoft.Identity.Core.Http
                 requestContext.Logger.InfoPii(message);
                 if (toThrow != null)
                 {
-                    //throw new MsalServiceException(MsalServiceException.RequestTimeout, "Request to the endpoint timed out.", toThrow);
                     throw new CoreServiceException(CoreErrorCodes.RequestTimeout, "Request to the endpoint timed out.", toThrow);
                 }
 

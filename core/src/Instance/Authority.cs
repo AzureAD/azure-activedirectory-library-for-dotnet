@@ -133,7 +133,6 @@ namespace Microsoft.Identity.Core.Instance
 
             if (isAdfsAuthority)
             {
-                //throw new MsalException(MsalError.InvalidAuthorityType, "ADFS is not a supported authority");
                 throw new CoreClientException(CoreErrorCodes.InvalidAuthorityType, "ADFS is not a supported authority");
             }
 
