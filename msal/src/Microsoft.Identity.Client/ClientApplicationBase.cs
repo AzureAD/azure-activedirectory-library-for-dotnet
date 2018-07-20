@@ -36,6 +36,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Exceptions;
 
 namespace Microsoft.Identity.Client
 {
@@ -138,16 +139,23 @@ namespace Microsoft.Identity.Client
         {
             get
             {
-                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-                if (UserTokenCache == null)
+                try
                 {
-                    const string msg = "Token cache is null or empty. Returning empty list of users.";
-                    requestContext.Logger.Info(msg);
-                    requestContext.Logger.InfoPii(msg);
-                    return Enumerable.Empty<User>();
-                }
+                    RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
+                    if (UserTokenCache == null)
+                    {
+                        const string msg = "Token cache is null or empty. Returning empty list of users.";
+                        requestContext.Logger.Info(msg);
+                        requestContext.Logger.InfoPii(msg);
+                        return Enumerable.Empty<User>();
+                    }
 
-                return UserTokenCache.GetUsers(new Uri(Authority).Host, requestContext);
+                    return UserTokenCache.GetUsers(new Uri(Authority).Host, requestContext);
+                }
+                catch (CoreException coreException)
+                {
+                    throw MsalExceptionAdapter.FromCoreException(coreException);
+                }
             }
         }
 
@@ -157,7 +165,14 @@ namespace Microsoft.Identity.Client
         /// <param name="identifier">user identifier</param>
         public IUser GetUser(string identifier)
         {
-            return Users.FirstOrDefault(user => user.Identifier.Equals(identifier, StringComparison.OrdinalIgnoreCase));
+            try
+            {
+                return Users.FirstOrDefault(user => user.Identifier.Equals(identifier, StringComparison.OrdinalIgnoreCase));
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -170,10 +185,17 @@ namespace Microsoft.Identity.Client
         /// <returns></returns>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IUser user)
         {
-            return
-                await
-                    AcquireTokenSilentCommonAsync(null, scopes, user, false, ApiEvent.ApiIds.AcquireTokenSilentWithoutAuthority)
-                        .ConfigureAwait(false);
+            try
+            {
+                return
+                    await
+                        AcquireTokenSilentCommonAsync(null, scopes, user, false, ApiEvent.ApiIds.AcquireTokenSilentWithoutAuthority)
+                            .ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -189,16 +211,23 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IUser user,
             string authority, bool forceRefresh)
         {
-            Authority authorityInstance = null;
-            if (!string.IsNullOrEmpty(authority))
+            try
             {
-                authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            }
+                Authority authorityInstance = null;
+                if (!string.IsNullOrEmpty(authority))
+                {
+                    authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                }
 
-            return
-                await
-                    AcquireTokenSilentCommonAsync(authorityInstance, scopes, user,
-                        forceRefresh, ApiEvent.ApiIds.AcquireTokenSilentWithAuthority).ConfigureAwait(false);
+                return
+                    await
+                        AcquireTokenSilentCommonAsync(authorityInstance, scopes, user,
+                            forceRefresh, ApiEvent.ApiIds.AcquireTokenSilentWithAuthority).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -207,13 +236,20 @@ namespace Microsoft.Identity.Client
         /// <param name="user">instance of the user that needs to be removed</param>
         public void Remove(IUser user)
         {
-            RequestContext requestContext = CreateRequestContext(Guid.Empty);
-            if (user == null || UserTokenCache == null)
+            try
             {
-                return;
-            }
+                RequestContext requestContext = CreateRequestContext(Guid.Empty);
+                if (user == null || UserTokenCache == null)
+                {
+                    return;
+                }
 
-            UserTokenCache.Remove(user, requestContext);
+                UserTokenCache.Remove(user, requestContext);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
@@ -234,7 +270,7 @@ namespace Microsoft.Identity.Client
             {
                 SliceParameters = SliceParameters,
                 Authority = authority,
-                ClientId =  ClientId,
+                ClientId = ClientId,
                 TokenCache = cache,
                 User = user,
                 Scope = scopes.CreateSetFromEnumerable(),

@@ -32,6 +32,7 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Support.CustomTabs;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
 using Uri = Android.Net.Uri;
@@ -76,7 +77,8 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
             if (Intent == null)
             {
-                SendError(MsalClientException.UnresolvableIntentError, "Received null data intent from caller");
+                // SendError(MsalClientException.UnresolvableIntentError, "Received null data intent from caller");
+                SendError(CoreErrorMessages.UnresolvableIntentError, "Received null data intent from caller");
                 return;
             }
 
@@ -128,7 +130,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 if (string.IsNullOrEmpty(chromePackage))
                 {
                     const string chromeNotInstalledMessage = " Chrome is not installed on the device, cannot proceed with authentication";
-                    throw new MsalClientException(MsalClientException.ChromeNotInstalledError, chromeNotInstalledMessage);
+                    throw new CoreClientException(CoreErrorCodes.ChromeNotInstalledError, chromeNotInstalledMessage);
                 }
 
                 Intent browserIntent = new Intent(Intent.ActionView);
@@ -142,7 +144,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 catch (ActivityNotFoundException ex)
                 {
                     const string chromeDisabledMessage = "Chrome is disabled on the device, cannot proceed with authentication ";
-                    throw new MsalClientException(MsalClientException.ChromeDisabledError, chromeDisabledMessage + ex.InnerException);
+                    throw new CoreClientException(CoreErrorCodes.ChromeDisabledError, chromeDisabledMessage + ex.InnerException);
                 }
             }
             else

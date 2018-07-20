@@ -27,7 +27,8 @@
 
 namespace Microsoft.Identity.Core.UI.SystemWebview
 {
-    internal static class MsalErrorAndroidEx
+    // TODO: rename this as "core" ?
+    internal static class MsalErrorAndroidEx 
     {
         public const string InvalidRequest = "invalid_request";
         public const string MissingPackagePermission = "missing_package_permission";
@@ -42,6 +43,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         public const string BrokerApplicationRequired = "broker_application_required";
     }
 
+    // TODO: rename these as core?
     internal static class MsalErrorMessageAndroidEx
     {
         public const string MissingPackagePermissionTemplate = "Permission {0} is missing from package manifest";

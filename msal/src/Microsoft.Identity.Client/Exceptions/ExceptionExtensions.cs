@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Client
                     if (msalException.CoreException != null)
                     {
                         sb.Append("---> " + GetPiiScrubbedDetails(msalException.CoreException) + Environment.NewLine +
-                              "=== End of core exception stack trace ===");
+                              "=== End of core exception stack trace (this is the original stack trace) ===");
                     }
                 }
 

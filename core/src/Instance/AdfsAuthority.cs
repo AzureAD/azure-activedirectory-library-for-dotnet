@@ -33,6 +33,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
@@ -52,7 +53,7 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (string.IsNullOrEmpty(userPrincipalName))
             {
-                throw new MsalException("UPN is required for ADFS authority validation.");
+                throw new CoreException("UPN is required for ADFS authority validation.");
             }
 
             return ValidatedAuthorities.ContainsKey(CanonicalAuthority) &&
@@ -67,12 +68,12 @@ namespace Microsoft.Identity.Core.Instance
                 DrsMetadataResponse drsResponse = await GetMetadataFromEnrollmentServer(userPrincipalName, requestContext).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(drsResponse.Error))
                 {
-                    throw new MsalServiceException(drsResponse.Error, drsResponse.ErrorDescription);
+                    throw new CoreServiceException(drsResponse.Error, drsResponse.ErrorDescription);
                 }
 
                 if (drsResponse.IdentityProviderService?.PassiveAuthEndpoint == null)
                 {
-                    throw new MsalServiceException("missing_passive_auth_endpoint", "missing_passive_auth_endpoint");
+                    throw new CoreServiceException("missing_passive_auth_endpoint", "missing_passive_auth_endpoint");
                 }
 
                 string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
@@ -86,7 +87,7 @@ namespace Microsoft.Identity.Core.Instance
 
                 if (httpResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    throw new MsalServiceException("invalid_authority", "authority validation failed.");
+                    throw new CoreServiceException("invalid_authority", "authority validation failed.");
                 }
 
                 AdfsWebFingerResponse wfr = OAuth2Client.CreateResponse<AdfsWebFingerResponse>(httpResponse, requestContext,
@@ -97,7 +98,7 @@ namespace Microsoft.Identity.Core.Instance
                             (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
                              a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase))) == null)
                 {
-                    throw new MsalException("invalid_authority");
+                    throw new CoreServiceException("invalid_authority", "invalid authority while getting the open id config endpoint");
                 }
             }
 
@@ -134,7 +135,7 @@ namespace Microsoft.Identity.Core.Instance
             catch (Exception exc)
             {
                 const string msg = "On-Premise ADFS enrollment server endpoint lookup failed. Error - ";
-                string noPiiMsg = exc.GetPiiScrubbedDetails();
+                string noPiiMsg = exc.GetCorePiiScrubbedDetails();
                 requestContext.Logger.Info(msg + noPiiMsg);
                 requestContext.Logger.InfoPii(msg + exc);
             }

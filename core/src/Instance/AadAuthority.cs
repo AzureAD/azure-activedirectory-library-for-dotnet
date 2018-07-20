@@ -31,6 +31,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Core.Instance
@@ -83,7 +84,7 @@ namespace Microsoft.Identity.Core.Instance
                             .ConfigureAwait(false);
                 if (discoveryResponse.TenantDiscoveryEndpoint == null)
                 {
-                    throw new MsalServiceException(discoveryResponse.Error, discoveryResponse.ErrorDescription);
+                    throw new CoreServiceException(discoveryResponse.Error, discoveryResponse.ErrorDescription);
                 }
 
                 return discoveryResponse.TenantDiscoveryEndpoint;

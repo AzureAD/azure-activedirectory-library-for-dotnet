@@ -154,7 +154,7 @@ namespace Microsoft.Identity.Client
         /// http://msdn.microsoft.com/en-us/library/bb268233(v=vs.85).aspx).
         /// You can use this code for purposes such as implementing retry logic or error investigation.
         /// </summary>
-        public int StatusCode { get; } = 0;
+        public int StatusCode { get; internal set; } = 0;
 
         /// <summary>
         /// 

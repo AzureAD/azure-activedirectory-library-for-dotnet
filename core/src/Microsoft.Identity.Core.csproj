@@ -59,6 +59,10 @@
     <None Remove="Cache\MsalIdTokenCacheKey.cs" />
     <None Remove="Cache\MsalRefreshTokenCacheKey.cs" />
     <None Remove="ConfigureAwait.ruleset" />
+    <None Remove="Exceptions\CoreClientException.cs" />
+    <None Remove="Exceptions\CoreErrorCodes.cs" />
+    <None Remove="Exceptions\CoreErrorMessages.cs" />
+    <None Remove="Exceptions\CoreServiceException.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
 
