@@ -34,6 +34,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.Exceptions;
 
 namespace Microsoft.Identity.Client
 {
@@ -80,12 +81,20 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
+                            UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
+
 
         /// <summary>
         /// Interactive request to acquire token. 
@@ -95,11 +104,18 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeHint).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
+                            UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeHint).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -112,11 +128,18 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> scopes,
             IUser user)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, user,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeUser).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForUserCommonAsync(authority, scopes, null, user,
+                            UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeUser).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -130,11 +153,18 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
+                            behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -146,13 +176,20 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
-            UIBehavior behavior, string extraQueryParameters)
+        UIBehavior behavior, string extraQueryParameters)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, user, behavior,
-                        extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForUserCommonAsync(authority, scopes, null, user, behavior,
+                            extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -168,11 +205,18 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
-                        loginHint, behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority).ConfigureAwait(false);
+            try
+            {
+                Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
+                            loginHint, behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -188,11 +232,18 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, user,
-                        behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
+            try
+            {
+                Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, user,
+                            behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 #endif
 
@@ -204,11 +255,18 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
-                        UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            try
+            {
+                Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+                return
+                    await
+                        AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
+                            UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -220,11 +278,17 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint, UIParent parent)
         {
+            try { 
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
                         UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHint).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -257,12 +321,20 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
+            try
+            { 
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
                         behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
+
 
         /// <summary>
         /// Interactive request to acquire token. 
@@ -276,11 +348,17 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
+            try { 
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authority, scopes, null, user, behavior,
                         extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -297,11 +375,17 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
+            try { 
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
                         loginHint, behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         /// <summary>
@@ -318,11 +402,18 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
+            try
+            { 
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, user,
                         behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
+            }
+            catch (CoreException coreException)
+            {
+                throw MsalExceptionAdapter.FromCoreException(coreException);
+            }
         }
 
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
@@ -360,7 +451,8 @@ namespace Microsoft.Identity.Client
 
             var handler =
                 new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext)){ApiId = apiId};
+                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
+                { ApiId = apiId };
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -371,7 +463,7 @@ namespace Microsoft.Identity.Client
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
 #if iOS || ANDROID
-            if(!parent.CoreUIParent.UseEmbeddedWebview)
+            if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
                 PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
@@ -379,7 +471,8 @@ namespace Microsoft.Identity.Client
 
             var handler =
                 new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext)){ApiId = apiId};
+                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
+                { ApiId = apiId };
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

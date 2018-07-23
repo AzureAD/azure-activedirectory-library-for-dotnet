@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -92,7 +93,7 @@ namespace Microsoft.Identity.Core.OAuth2
 
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
-            var httpEvent = new HttpEvent(){HttpPath = endpointUri, QueryParams = endpointUri.Query};
+            var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
             Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
@@ -105,7 +106,7 @@ namespace Microsoft.Identity.Core.OAuth2
                     response = await HttpRequest.SendGet(endpointUri, _headers, requestContext).ConfigureAwait(false);
                 }
 
-                httpEvent.HttpResponseStatus = (int) response.StatusCode;
+                httpEvent.HttpResponseStatus = (int)response.StatusCode;
                 httpEvent.UserAgent = response.UserAgent;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -137,29 +138,32 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
-            MsalServiceException serviceEx;
+            CoreServiceException serviceEx;
             try
             {
                 MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
 
-                if (MsalUiRequiredException.InvalidGrantError.Equals(msalTokenResponse.Error,
+                if (CoreErrorCodes.InvalidGrantError.Equals(msalTokenResponse.Error,
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new MsalUiRequiredException(MsalUiRequiredException.InvalidGrantError,
+                    throw new CoreServiceException(CoreErrorCodes.InvalidGrantError,
                         msalTokenResponse.ErrorDescription)
                     {
-                        Claims = msalTokenResponse.Claims
+                        Claims = msalTokenResponse.Claims,
+                        IsUiRequired = true
                     };
                 }
 
-                serviceEx = new MsalServiceException(msalTokenResponse.Error, msalTokenResponse.ErrorDescription, (int)response.StatusCode, msalTokenResponse.Claims, null)
+                serviceEx = new CoreServiceException(msalTokenResponse.Error, msalTokenResponse.ErrorDescription)
                 {
-                    ResponseBody =  response.Body
+                    ResponseBody = response.Body,
+                    StatusCode = (int)response.StatusCode,
+                    Claims = msalTokenResponse.Claims,
                 };
             }
             catch (SerializationException)
             {
-                serviceEx = new MsalServiceException(MsalException.UnknownError, response.Body, (int)response.StatusCode);
+                serviceEx = new CoreServiceException(CoreErrorCodes.UnknownError, response.Body, (int)response.StatusCode);
             }
 
             requestContext.Logger.Error(serviceEx);

@@ -25,12 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Core.Helpers
 {
@@ -185,7 +185,8 @@ namespace Microsoft.Identity.Core.Helpers
             }
             return new SortedSet<string>(input);
         }
-        internal static string GetPiiScrubbedDetails(this Exception ex)
+
+        internal static string GetCorePiiScrubbedDetails(this Exception ex)
         {
             string result = null;
             if (ex != null)
@@ -194,24 +195,25 @@ namespace Microsoft.Identity.Core.Helpers
 
                 sb.Append(String.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is MsalException)
+                if (ex is CoreException)
                 {
-                    MsalException msalException = (MsalException) ex;
-                    sb.Append(String.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", msalException.ErrorCode));
+                    var coreException = ex as CoreException;
+                    sb.Append(String.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", coreException.ErrorCode));
                 }
 
-                if (ex is MsalServiceException)
+                if (ex is CoreServiceException)
                 {
-                    MsalServiceException msalServiceException = (MsalServiceException)ex;
+                    var coreServiceException = ex as CoreServiceException;
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}",
-                        msalServiceException.StatusCode));
+                        coreServiceException.StatusCode));
                 }
 
                 if (ex.InnerException != null)
                 {
-                    sb.Append("---> " + GetPiiScrubbedDetails(ex.InnerException) + Environment.NewLine +
+                    sb.Append("---> " + GetCorePiiScrubbedDetails(ex.InnerException) + Environment.NewLine +
                               "=== End of inner exception stack trace ===");
                 }
+
                 if (ex.StackTrace != null)
                 {
                     sb.Append(Environment.NewLine + ex.StackTrace);

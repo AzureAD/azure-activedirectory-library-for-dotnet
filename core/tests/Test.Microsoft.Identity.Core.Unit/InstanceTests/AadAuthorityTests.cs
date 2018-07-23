@@ -35,6 +35,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
@@ -180,8 +181,8 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             }
             catch (Exception exc)
             {
-                Assert.IsNotNull(exc is MsalServiceException);
-                Assert.AreEqual(((MsalServiceException) exc).ErrorCode, "invalid_instance");
+                Assert.IsTrue(exc is CoreServiceException);
+                Assert.AreEqual(((CoreServiceException) exc).ErrorCode, "invalid_instance");
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);
@@ -251,9 +252,9 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                     .GetResult();
                 Assert.Fail("validation should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (CoreClientException exc)
             {
-                Assert.AreEqual(MsalClientException.TenantDiscoveryFailedError, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.TenantDiscoveryFailedError, exc.ErrorCode);
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);

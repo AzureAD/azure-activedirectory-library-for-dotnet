@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Guid = System.Guid;
@@ -74,7 +75,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             catch (Exception exc)
             {
                 Assert.IsInstanceOfType(exc, typeof(ArgumentException));
-                Assert.AreEqual(MsalErrorMessage.B2cAuthorityUriInvalidPath, exc.Message);
+                Assert.AreEqual(CoreErrorMessages.B2cAuthorityUriInvalidPath, exc.Message);
             }
         }
 
@@ -97,7 +98,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             catch (Exception exc)
             {
                 Assert.IsInstanceOfType(exc, typeof(ArgumentException));
-                Assert.AreEqual(MsalErrorMessage.UnsupportedAuthorityValidation, exc.Message);
+                Assert.AreEqual(CoreErrorMessages.UnsupportedAuthorityValidation, exc.Message);
             }
         }
 
