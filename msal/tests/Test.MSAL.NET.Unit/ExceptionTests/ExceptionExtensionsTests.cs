@@ -66,7 +66,6 @@ namespace Test.Microsoft.Identity.Core.Unit
                "The pii message should have the core the exception type");
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsFalse(piiMessage.Contains(exMessage));
-            Assert.IsTrue(piiMessage.Contains(":line"), "Should have the stack trace");
         }
 
         [TestMethod]
@@ -104,7 +103,6 @@ namespace Test.Microsoft.Identity.Core.Unit
                "The pii message should have the core the exception type");
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsFalse(piiMessage.Contains(exMessage));
-            Assert.IsTrue(piiMessage.Contains(":line"), "Should have the stack trace");
         }
 
         [TestMethod]

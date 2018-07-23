@@ -61,7 +61,6 @@ namespace Test.Microsoft.Identity.Core.Unit
                 "The pii message should contain the exception type");
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsFalse(piiMessage.Contains(exMessage));
-            Assert.IsTrue(piiMessage.Contains(":line"), "Should have the stack trace");
         }
 
         [TestMethod]
