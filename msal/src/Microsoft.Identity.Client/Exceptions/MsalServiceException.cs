@@ -46,6 +46,11 @@ namespace Microsoft.Identity.Client
         public const string RequestTimeout = "request_timeout";
 
         /// <summary>
+        /// Invalid grant error. 
+        /// </summary>
+        public const string InvalidGrantError = "invalid_grant";
+
+        /// <summary>
         /// Initializes a new instance of the exception class with a specified
         /// error code, error message and a reference to the inner exception that is the cause of
         /// this exception.

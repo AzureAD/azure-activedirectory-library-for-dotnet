@@ -104,6 +104,12 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public const string UnresolvableIntentError = "unresolvable_intent";
 
+        /// <summary>
+        /// Failed to create shared preferences on the Android platform. Make sure the application is 
+        /// configured to use this platform feature.
+        /// </summary>
+        public const string FailedToCreateSharedPreference = "shared_preference_creation_failed";
+
 #endif
 
 

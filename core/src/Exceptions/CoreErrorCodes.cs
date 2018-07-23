@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Core.Exceptions
         public const string JsonParseError = "json_parse_failed";
         public const string RequestTimeout = "request_timeout";
         public const string ServiceNotAvailable = "service_not_available";
-        public const string FailedToCreateSharedPreference = "shared_preference_creation_failed";
+
         public const string InvalidJwtError = "invalid_jwt";
         public const string TenantDiscoveryFailedError = "tenant_discovery_failed";
         public const string InvalidAuthorityType = "invalid_authority_type";
@@ -50,6 +50,7 @@ namespace Microsoft.Identity.Core.Exceptions
         public const string NonHttpsRedirectNotSupported = "non_https_redirect_failed";
 
 #if ANDROID
+        public const string FailedToCreateSharedPreference = "shared_preference_creation_failed";
         public const string ChromeNotInstalledError = "chrome_not_installed";
         public const string ChromeDisabledError = "chrome_disabled";
         public const string InvalidRequest = "invalid_request";
