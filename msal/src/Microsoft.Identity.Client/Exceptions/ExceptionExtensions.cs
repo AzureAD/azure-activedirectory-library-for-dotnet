@@ -26,11 +26,8 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Client
 {
@@ -50,8 +47,8 @@ namespace Microsoft.Identity.Client
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", msalException.ErrorCode));
                     if (msalException.CoreException != null)
                     {
-                        sb.Append("---> " + GetPiiScrubbedDetails(msalException.CoreException) + Environment.NewLine +
-                              "=== End of core exception stack trace (this is the original stack trace) ===");
+                        sb.AppendLine("---> Core Exception (original exception): " + GetPiiScrubbedDetails(msalException.CoreException) + Environment.NewLine +
+                              "=== End of core exception stack trace ===");
                     }
                 }
 

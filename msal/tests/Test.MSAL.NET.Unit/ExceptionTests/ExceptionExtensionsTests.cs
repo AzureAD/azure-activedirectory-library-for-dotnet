@@ -25,18 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Exceptions;
-using Microsoft.Identity.Core.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Exceptions;
 
 namespace Test.Microsoft.Identity.Core.Unit
 {
     [TestClass]
-    public class ExtensionTests
+    public class ExceptionExtensionTests
     {
         [TestMethod]
-        public void GetCorePiiScrubbedDetails_CoreClient()
+        public void GetMsalExceptionWithCoreException_ScrubbedDetails()
         {
             // Arrange
             string exMessage = "exMessage";
@@ -48,24 +48,67 @@ namespace Test.Microsoft.Identity.Core.Unit
                 // throw it to have a stack trace
                 throw new CoreClientException(exCode, exMessage);
             }
-            catch (Exception e)
+            catch (CoreException e)
             {
+                MsalException msalException = MsalExceptionAdapter.FromCoreException(e);
+
                 // Act
-                piiMessage = e.GetCorePiiScrubbedDetails();
+                piiMessage = msalException.GetPiiScrubbedDetails();
             }
 
             // Assert
             Assert.IsFalse(String.IsNullOrEmpty(piiMessage));
             Assert.IsTrue(
-                piiMessage.Contains(typeof(CoreClientException).Name),
+                piiMessage.Contains(typeof(MsalClientException).Name),
                 "The pii message should contain the exception type");
+            Assert.IsTrue(
+               piiMessage.Contains(typeof(MsalClientException).Name),
+               "The pii message should have the core the exception type");
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsFalse(piiMessage.Contains(exMessage));
             Assert.IsTrue(piiMessage.Contains(":line"), "Should have the stack trace");
         }
 
         [TestMethod]
-        public void GetCorePiiScrubbedDetails_CoreServices()
+        public void GetPiiScrubbedException_InnerException()
+        {
+            // Arrange
+            string exMessage = "exMessage";
+            string exCode = "exCode";
+            string piiMessage = "";
+
+            try
+            {
+                // throw it to have a stack trace
+                throw new NotImplementedException(exMessage);
+            }
+            catch (NotImplementedException innerException)
+            {
+                CoreClientException coreClientException = new CoreClientException(exCode, exMessage, innerException);
+                MsalException msalException = MsalExceptionAdapter.FromCoreException(coreClientException);
+
+                // Act
+                piiMessage = msalException.GetPiiScrubbedDetails();
+            }
+
+            // Assert
+            Assert.IsFalse(String.IsNullOrEmpty(piiMessage));
+            Assert.IsTrue(
+             piiMessage.Contains(typeof(NotImplementedException).Name),
+             "The pii message should contain the exception type");
+            Assert.IsTrue(
+                piiMessage.Contains(typeof(CoreClientException).Name),
+                "The pii message should contain the exception type");
+            Assert.IsTrue(
+               piiMessage.Contains(typeof(MsalClientException).Name),
+               "The pii message should have the core the exception type");
+            Assert.IsTrue(piiMessage.Contains(exCode));
+            Assert.IsFalse(piiMessage.Contains(exMessage));
+            Assert.IsTrue(piiMessage.Contains(":line"), "Should have the stack trace");
+        }
+
+        [TestMethod]
+        public void GetMsalExceptionPiiScrubbedDetails_CoreServices()
         {
             // Arrange
             string exMessage = "exMessage";
@@ -74,7 +117,7 @@ namespace Test.Microsoft.Identity.Core.Unit
             string innerMessage = "innerMessage";
             string piiMessage = "";
 
-            var exception = new CoreServiceException(
+            var exception = new MsalServiceException(
                 exCode,
                 exMessage,
                 new NotImplementedException(innerMessage))
@@ -83,12 +126,12 @@ namespace Test.Microsoft.Identity.Core.Unit
             };
 
             // Act
-            piiMessage = exception.GetCorePiiScrubbedDetails();
+            piiMessage = exception.GetPiiScrubbedDetails();
 
             // Assert
             Assert.IsFalse(String.IsNullOrEmpty(piiMessage));
             Assert.IsTrue(
-                piiMessage.Contains(typeof(CoreServiceException).Name),
+                piiMessage.Contains(typeof(MsalServiceException).Name),
                 "The pii message should contain the exception type");
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsTrue(piiMessage.Contains(exStatus.ToString()));
