@@ -52,6 +52,7 @@ namespace Microsoft.Identity.Core.Exceptions
 #if ANDROID
         public const string ChromeNotInstalledError = "chrome_not_installed";
         public const string ChromeDisabledError = "chrome_disabled";
+        public const string InvalidRequest = "invalid_request";
 #endif
 
     }

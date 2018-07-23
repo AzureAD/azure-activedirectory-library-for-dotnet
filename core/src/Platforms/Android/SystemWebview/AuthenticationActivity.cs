@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             _requestId = Intent.GetIntExtra(AndroidConstants.RequestId, 0);
             if (string.IsNullOrEmpty(_requestUrl))
             {
-                SendError(MsalErrorAndroidEx.InvalidRequest, "Request url is not set on the intent");
+                SendError(CoreErrorCodes.InvalidRequest, "Request url is not set on the intent");
             }
         }
 

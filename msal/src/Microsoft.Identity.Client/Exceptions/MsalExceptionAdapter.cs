@@ -42,8 +42,9 @@ namespace Microsoft.Identity.Client
         /// <returns></returns>
         public static MsalException FromCoreException(CoreException coreException)
         {
-            if (coreException is CoreClientException coreClientException)
+            if (coreException is CoreClientException)
             {
+                var coreClientException = coreException as CoreClientException;
                 return new MsalClientException(
                     coreClientException.ErrorCode,
                     coreClientException.Message,
@@ -53,8 +54,9 @@ namespace Microsoft.Identity.Client
                 };
             }
 
-            if (coreException is CoreServiceException coreServiceException)
+            if (coreException is CoreServiceException)
             {
+                var coreServiceException = coreException as CoreServiceException;
                 if (!coreServiceException.IsUiRequired)
                 {
                     return new MsalServiceException(

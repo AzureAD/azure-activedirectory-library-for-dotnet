@@ -195,13 +195,15 @@ namespace Microsoft.Identity.Core.Helpers
 
                 sb.Append(String.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is CoreException coreException)
+                if (ex is CoreException)
                 {
+                    var coreException = ex as CoreException;
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", coreException.ErrorCode));
                 }
 
-                if (ex is CoreServiceException coreServiceException)
+                if (ex is CoreServiceException)
                 {
+                    var coreServiceException = ex as CoreServiceException;
                     sb.Append(String.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}",
                         coreServiceException.StatusCode));
                 }
