@@ -50,7 +50,7 @@ namespace XFormsApp.Droid
 
             var activity = this.Context as Activity;
 
-            new PlatformParameters(activity);
+            page.Parameters = new PlatformParameters(activity);
 
             #region Broker flow
             // Uncomment below for broker flow

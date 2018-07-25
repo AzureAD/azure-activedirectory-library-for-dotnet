@@ -29,7 +29,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Text;
 using Xamarin.Forms;
-using Xamarin.Forms.PlatformConfiguration;
 
 namespace XFormsApp
 {
@@ -37,7 +36,7 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
-        public const string ClientId = "<ClientId>";
+        public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
         public const string ClientIdBroker = "<ClientIdBroker>";
         public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
@@ -50,8 +49,8 @@ namespace XFormsApp
             return output;
         }
 
-        private Label result;
-        private Label testResult;
+        private readonly Label result;
+        private readonly Label testResult;
 
         public IPlatformParameters Parameters { get; set; }
 
@@ -119,9 +118,9 @@ namespace XFormsApp
                 }
             };
 
-            acquireTokenButton.Clicked += acquireTokenButton_Clicked;
-            acquireTokenSilentButton.Clicked += acquireTokenSilentButton_Clicked;
-            conditionalAccessButton.Clicked += conditionalAccessButton_Clicked;
+            acquireTokenButton.Clicked += AcquireTokenButton_Clicked;
+            acquireTokenSilentButton.Clicked += AcquireTokenSilentButton_Clicked;
+            conditionalAccessButton.Clicked += ConditionalAccessButton_Clicked;
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
             acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
@@ -160,14 +159,14 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        private async void acquireTokenSilentButton_Clicked(object sender, EventArgs e)
+        private async void AcquireTokenSilentButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.windows.net", ClientId).ConfigureAwait(false);
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientId).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -185,7 +184,7 @@ namespace XFormsApp
             }
         }
 
-        async void acquireTokenButton_Clicked(object sender, EventArgs e)
+        async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
@@ -197,8 +196,7 @@ namespace XFormsApp
                 AuthenticationResult result =
                     await
                         ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientId,
-                            new Uri(RedirectURI),
-                            Parameters).ConfigureAwait(false);
+                            new Uri(RedirectURI), Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
             }
@@ -294,7 +292,7 @@ namespace XFormsApp
             return RedirectURI;
         }
 
-        private async void conditionalAccessButton_Clicked(object sender, EventArgs e)
+        private async void ConditionalAccessButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
