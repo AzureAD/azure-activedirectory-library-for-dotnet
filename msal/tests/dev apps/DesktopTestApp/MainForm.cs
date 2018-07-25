@@ -162,7 +162,22 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-        
+
+        private async void acquireTokenByWindowsIntegratedAuth_Click(object sender, EventArgs e)
+        {
+            ClearResultPageInfo();
+            try
+            {
+                var app = new PublicClientApplication(publicClientId, authority.Text);
+                AuthenticationResult authenticationResult = await app.AcquireTokenByWindowsIntegratedAuthAsync(scopes.Text.AsArray());
+                SetResultPageInfo(authenticationResult);
+            }
+            catch (Exception exc)
+            {
+                CreateException(exc);
+            }
+        }
+
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
