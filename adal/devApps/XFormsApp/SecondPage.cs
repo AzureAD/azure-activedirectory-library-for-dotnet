@@ -37,10 +37,11 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
-        static string ClientId = "ebe49c8f-61de-4357-9194-7a786f6402b4";
-        static string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
-        static string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
-        string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
+        public const string ClientId = "<ClientId>";
+        public const string ClientIdBroker = "<ClientIdBroker>";
+        public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
+        public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
+        static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 
         public string DrainLogs()
         {
@@ -86,6 +87,12 @@ namespace XFormsApp
                 AutomationId = "acquireTokenBroker"
             };
 
+            var acquireTokenSilentWithBrokerButton = new Button
+            {
+                Text = "Acquire Token Silent With Broker",
+                AutomationId = "acquireTokenSilentWithBroker"
+            };
+
             testResult = new Label()
             {
                 Text = "Success:",
@@ -117,6 +124,7 @@ namespace XFormsApp
             conditionalAccessButton.Clicked += conditionalAccessButton_Clicked;
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
+            acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
 
             Thickness padding;
             switch (Device.RuntimePlatform)
@@ -139,6 +147,7 @@ namespace XFormsApp
                     conditionalAccessButton,
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
+                    acquireTokenSilentWithBrokerButton,
                     scrollView
                 }
             };
@@ -174,7 +183,6 @@ namespace XFormsApp
                     this.result.Text += "Logs : " + DrainLogs();
                 });
             }
-
         }
 
         async void acquireTokenButton_Clicked(object sender, EventArgs e)
@@ -222,8 +230,8 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientId,
-                            new Uri(DeterminePlatformForRedirectUri()),
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientIdBroker,
+                            new Uri(AndroidBrokerRedirectURI),
                             Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
@@ -244,6 +252,32 @@ namespace XFormsApp
             }
         }
 
+        private async void AcquireTokenSilentWithBrokerButton_Clicked(object sender, EventArgs e)
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            string output = string.Empty;
+            try
+            {
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientIdBroker,
+                    new UserIdentifier("<User>", UserIdentifierType.OptionalDisplayableId), Parameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.result.Text += "Result : " + output;
+
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
         private string DeterminePlatformForRedirectUri()
         {
             switch (Device.RuntimePlatform)
@@ -254,6 +288,8 @@ namespace XFormsApp
                 case Device.Android:
                     RedirectURI = AndroidBrokerRedirectURI;
                     break;
+                default:
+                    throw new NotImplementedException();
             }
             return RedirectURI;
         }

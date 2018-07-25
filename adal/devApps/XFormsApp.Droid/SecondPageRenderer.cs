@@ -25,17 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Android.App;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using XFormsApp.Droid;
 using XFormsApp;
 using Xamarin.Forms;
@@ -49,7 +40,6 @@ namespace XFormsApp.Droid
     {
         public SecondPageRenderer(Context context) : base(context)
         {
-                
         }
 
         protected override void OnElementChanged(ElementChangedEventArgs<Page> e)
@@ -59,8 +49,14 @@ namespace XFormsApp.Droid
             SecondPage page = e.NewElement as SecondPage;
 
             var activity = this.Context as Activity;
-            
-            page.Parameters = new PlatformParameters(activity);
+
+            new PlatformParameters(activity);
+
+            #region Broker flow
+            // Uncomment below for broker flow
+            //var parameters = new PlatformParameters(activity, true);
+            //page.Parameters = parameters;
+            #endregion
         }
     }
 }

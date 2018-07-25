@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="args">Arguments related to the cache item impacted</param>
         public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
-        
+
         internal readonly IDictionary<AdalTokenCacheKey, AdalResultWrapper> tokenCacheDictionary;
 
         // We do not want to return near expiry tokens, this is why we use this hard coded setting to refresh tokens which are close to expiration.
@@ -200,7 +200,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
                 this.OnBeforeAccess(args);
 
                 List<TokenCacheItem> items =
@@ -357,7 +357,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal static async Task<List<string>> GetOrderedAliases(string authority, bool validateAuthority, RequestContext requestContext)
         {
             var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
-            var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, GetHost(authority)});
+            var aliasedAuthorities = new List<string>(new string[] { metadata.PreferredCache, GetHost(authority) });
             aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
             return aliasedAuthorities;
         }
@@ -525,12 +525,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 IdToken idToken = IdToken.Parse(result.Result.IdToken);
 
+                string objectId = null;
+                if (idToken != null)
+                {
+                    objectId = idToken.ObjectId;
+                }
+
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
                     CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
-                        result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName,
-                        result.Result.UserInfo.FamilyName, idToken.ObjectId);
+                        result.Result.UserInfo.GivenName,
+                        result.Result.UserInfo.FamilyName, objectId);
                 }
             }
         }
@@ -582,20 +588,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         returnValue = resourceSpecificItems.First();
                         break;
                     case 0:
-                    {
-                        // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
-                        List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                            items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
-
-                        if (mrrtItems.Any())
                         {
-                            returnValue = mrrtItems.First();
-                            msg =
-                                "A Multi Resource Refresh Token for a different resource was found which can be used";
-                            requestContext.Logger.Info(msg);
-                            requestContext.Logger.InfoPii(msg);
+                            // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                            List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
+                                items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+
+                            if (mrrtItems.Any())
+                            {
+                                returnValue = mrrtItems.First();
+                                msg =
+                                    "A Multi Resource Refresh Token for a different resource was found which can be used";
+                                requestContext.Logger.Info(msg);
+                                requestContext.Logger.InfoPii(msg);
+                            }
                         }
-                    }
                         break;
                     default:
                         throw new AdalException(AdalError.MultipleTokensMatched);
