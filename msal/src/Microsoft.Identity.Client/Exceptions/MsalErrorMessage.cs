@@ -1,8 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//----------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 namespace Microsoft.Identity.Core
 {
@@ -20,20 +41,9 @@ namespace Microsoft.Identity.Core
         public const string AssemblyLoadFailedTemplate =
             "Loading an assembly required for the platform failed. Make sure assembly for the correct platform '{0}' exists";
 
-        public const string NonHttpsRedirectNotSupported = "Non-HTTPS url redirect is not supported in webview";
         public const string AuthenticationUiFailed = "The browser based authentication dialog failed to complete";
-        public const string AuthorityInvalidUriFormat = "'authority' should be in Uri format";
-        public const string AuthorityNotSupported = "'authority' is not supported";
+        
         public const string DeprecatedAuthorityError = "login.windows.net has been deprecated. Use login.microsoftonline.com instead.";
-        public const string AuthorityValidationFailed = "Authority validation failed";
-        public const string AuthorityUriInsecure = "'authority' should use the 'https' scheme";
-
-        public const string B2cAuthorityUriInvalidPath =
-            "B2C 'authority' Uri should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)";
-        public const string AuthorityUriInvalidPath =
-            "'authority' Uri should have at least one segment in the path (i.e. https://<host>/<path>/...)";
-
-        public const string AuthorizationServerInvalidResponse = "The authorization server returned an invalid response";
 
         public const string CertificateKeySizeTooSmallTemplate =
             "The certificate used must have a key size of at least {0} bits";
@@ -86,17 +96,13 @@ namespace Microsoft.Identity.Core
 
         public const string UnauthorizedResponseExpected = "Unauthorized http response (status code 401) was expected";
         public const string UnexpectedAuthorityValidList = "Unexpected list of valid addresses";
-        public const string Unknown = "Unknown error";
+
         public const string UnknownUser = "Could not identify logged in user";
         public const string UnsupportedUserType = "Unsupported User Type";
-
-        public const string UnsupportedAuthorityValidation =
-            "Authority validation is not supported for this type of authority";
 
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";
 
-        public const string AuthenticationCanceled = "User canceled authentication";
         public const string UserMismatch = "User '{0}' returned by service does not match user '{1}' in the request";
         public const string UserCredentialAssertionTypeEmpty = "credential.AssertionType cannot be empty";
 

@@ -52,6 +52,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             new TestPlatformInformation();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
+            CoreExceptionService.Instance = new TestExceptionFactory();
             HttpMessageHandlerFactory.ClearMockHandlers();
 
             AadInstanceDiscovery.InstanceCache.Clear();
@@ -182,8 +183,8 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             }
             catch (Exception exc)
             {
-                Assert.IsNotNull(exc is MsalServiceException);
-                Assert.AreEqual(((MsalServiceException) exc).ErrorCode, "invalid_instance");
+                Assert.IsTrue(exc is TestServiceException);
+                Assert.AreEqual(((TestServiceException) exc).ErrorCode, "invalid_instance");
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);
@@ -253,9 +254,9 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                     .GetResult();
                 Assert.Fail("validation should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (TestClientException exc)
             {
-                Assert.AreEqual(MsalClientException.TenantDiscoveryFailedError, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.TenantDiscoveryFailedError, exc.ErrorCode);
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);

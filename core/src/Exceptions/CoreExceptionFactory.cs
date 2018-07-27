@@ -29,28 +29,40 @@ using System;
 
 namespace Microsoft.Identity.Core
 {
-    internal abstract class CoreLoggerBase
+    /// <summary>
+    /// Abstract factory for spewing exceptions for Adal and Msal. Use the <see cref="Instance"/>
+    /// singleton to access an actual implementation which will have been injected.
+    /// </summary>
+    internal abstract class CoreExceptionService
     {
-        public static CoreLoggerBase Default = null;
+        public static CoreExceptionService Instance { get; set; }
 
-        public Guid CorrelationId { get; set; }
+        public abstract Exception GetClientException(
+            string errorCode,
+            string errorMessage,
+            Exception innerException = null);
 
-        protected CoreLoggerBase(Guid correlationId)
-        {
-            CorrelationId = correlationId;
-        }
+        public abstract Exception GetServiceException(
+            string errorCode,
+            string errorMessage);
 
-        public static bool PiiLoggingEnabled { get; set; }
+        public abstract Exception GetServiceException(
+           string errorCode,
+           string errorMessage,
+           ExceptionDetail exceptionDetail = null);
 
-        public abstract void Error(string message);
-        public abstract void ErrorPii(string message);
-        public abstract void Warning(string message);
-        public abstract void WarningPii(string message);
-        public abstract void Info(string message);
-        public abstract void InfoPii(string message);
-        public abstract void Verbose(string message);
-        public abstract void VerbosePii(string message);
-        public abstract void Error(Exception ex);
-        public abstract void ErrorPii(Exception ex);
+        public abstract Exception GetServiceException(
+           string errorCode,
+           string errorMessage,
+           Exception innerException = null,
+           ExceptionDetail exceptionDetail = null);
+
+        public abstract Exception GetUiRequiredException(
+           string errorCode,
+           string errorMessage,
+           Exception innerException = null,
+           ExceptionDetail exceptionDetail = null);
+
+        public abstract string GetPiiScrubbedDetails(Exception exception);
     }
 }
