@@ -25,32 +25,43 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
 using System;
 
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Client.Internal
 {
-    internal abstract class CoreLoggerBase
+    /// <summary>
+    /// Initializes the MSAL module. This can be considered an entry point into MSAL
+    /// for initialization purposes. 
+    /// </summary>
+    /// <remarks>
+    /// The CLR defines a module initializer, however this is not implemented in C# and to 
+    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
+    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
+    /// </remarks>
+    internal class ModuleInitializer
     {
-        public static CoreLoggerBase Default { get; set; }
+        private static bool isInitialized = false;
+        private static object lockObj;
 
-        public Guid CorrelationId { get; set; }
-
-        protected CoreLoggerBase(Guid correlationId)
+        static ModuleInitializer()
         {
-            CorrelationId = correlationId;
+            lockObj = new object();
         }
 
-        public static bool PiiLoggingEnabled { get; set; }
-
-        public abstract void Error(string message);
-        public abstract void ErrorPii(string message);
-        public abstract void Warning(string message);
-        public abstract void WarningPii(string message);
-        public abstract void Info(string message);
-        public abstract void InfoPii(string message);
-        public abstract void Verbose(string message);
-        public abstract void VerbosePii(string message);
-        public abstract void Error(Exception ex);
-        public abstract void ErrorPii(Exception ex);
+        public static void EnsureModuleInitialized()
+        {
+            lock (lockObj)
+            {
+                if (!isInitialized)
+                {
+                    CoreExceptionFactory.Instance = new MsalExceptionFactory();
+#if !FACADE
+                    CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
+#endif
+                    isInitialized = true;
+                }
+            }
+        }
     }
 }
