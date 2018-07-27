@@ -521,20 +521,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 this.HasStateChanged = true;
 
-                IdToken idToken = IdToken.Parse(result.Result.IdToken);
-
-                string objectId = null;
-                if (idToken != null)
-                {
-                    objectId = idToken.ObjectId;
-                }
-
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
+                    IdToken idToken = IdToken.Parse(result.Result.IdToken);
+                    
                     CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
-                        result.Result.UserInfo.FamilyName, objectId);
+                        result.Result.UserInfo.FamilyName, idToken?.ObjectId);
                 }
             }
         }

@@ -210,11 +210,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         RequestContext.Logger.ErrorPii(e);
                     }
                 }
-                else
-                {
-                    throw new AdalException(AdalErrorAndroidEx.IncorrectBrokerRedirectUri, "The redirectUri is incorrect or has the wrong format. " +
-                        "The redirectUri should be in this format: msauth://packagename/Base64UrlencodedSignature.");
-                }
             }
             else
             {

@@ -364,17 +364,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     intent.PutExtra(BrokerConstants.BrokerRequest, BrokerConstants.BrokerRequest);
                 }
             }
-            catch (OperationCanceledException e)
-            {
-                RequestContext.Logger.Error(e);
-                RequestContext.Logger.ErrorPii(e);
-            }
             catch (Exception e)
             {
                 // Authenticator gets problem from webrequest or file read/write
                 var ex = new AdalException("Authenticator cancels the request", e);
                 RequestContext.Logger.Error(ex);
                 RequestContext.Logger.ErrorPii(ex);
+                throw ex;
             }
 
             return intent;
