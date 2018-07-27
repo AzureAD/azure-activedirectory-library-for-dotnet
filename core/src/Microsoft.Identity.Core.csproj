@@ -15,6 +15,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>build\Core.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
+    <CodeAnalysisRuleSet>../ConfigureAwait.ruleset</CodeAnalysisRuleSet>
 </PropertyGroup>
 
   <PropertyGroup Label="GenerateAssemblyInfo inputs">
@@ -53,10 +54,7 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <None Remove="Cache\ILegacyCachePersistance.cs" />
-    <None Remove="Cache\MsalAccessTokenCacheKey.cs" />
-    <None Remove="Cache\MsalIdTokenCacheKey.cs" />
-    <None Remove="Cache\MsalRefreshTokenCacheKey.cs" />
+    <None Remove="ConfigureAwait.ruleset" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
 
@@ -106,6 +104,9 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Runtime.Serialization" />
     <Compile Include="Platforms\iOS\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" />
   </ItemGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">

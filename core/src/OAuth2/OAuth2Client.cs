@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -68,17 +69,17 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public async Task<TenantDiscoveryResponse> GetOpenIdConfiguration(Uri endPoint, RequestContext requestContext)
         {
-            return await ExecuteRequest<TenantDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext);
+            return await ExecuteRequest<TenantDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext).ConfigureAwait(false);
         }
 
         public async Task<InstanceDiscoveryResponse> DiscoverAadInstance(Uri endPoint, RequestContext requestContext)
         {
-            return await ExecuteRequest<InstanceDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext);
+            return await ExecuteRequest<InstanceDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext).ConfigureAwait(false);
         }
 
         public async Task<MsalTokenResponse> GetToken(Uri endPoint, RequestContext requestContext)
         {
-            return await ExecuteRequest<MsalTokenResponse>(endPoint, HttpMethod.Post, requestContext);
+            return await ExecuteRequest<MsalTokenResponse>(endPoint, HttpMethod.Post, requestContext).ConfigureAwait(false);
         }
 
         internal async Task<T> ExecuteRequest<T>(Uri endPoint, HttpMethod method, RequestContext requestContext)
@@ -92,20 +93,20 @@ namespace Microsoft.Identity.Core.OAuth2
 
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
-            var httpEvent = new HttpEvent(){HttpPath = endpointUri, QueryParams = endpointUri.Query};
+            var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
             Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
                 if (method == HttpMethod.Post)
                 {
-                    response = await HttpRequest.SendPost(endpointUri, _headers, _bodyParameters, requestContext);
+                    response = await HttpRequest.SendPost(endpointUri, _headers, _bodyParameters, requestContext).ConfigureAwait(false);
                 }
                 else
                 {
-                    response = await HttpRequest.SendGet(endpointUri, _headers, requestContext);
+                    response = await HttpRequest.SendGet(endpointUri, _headers, requestContext).ConfigureAwait(false);
                 }
 
-                httpEvent.HttpResponseStatus = (int) response.StatusCode;
+                httpEvent.HttpResponseStatus = (int)response.StatusCode;
                 httpEvent.UserAgent = response.UserAgent;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -137,29 +138,41 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
-            MsalServiceException serviceEx;
+            Exception serviceEx;
             try
             {
                 MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
 
-                if (MsalUiRequiredException.InvalidGrantError.Equals(msalTokenResponse.Error,
+                if (CoreErrorCodes.InvalidGrantError.Equals(msalTokenResponse.Error,
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new MsalUiRequiredException(MsalUiRequiredException.InvalidGrantError,
-                        msalTokenResponse.ErrorDescription)
-                    {
-                        Claims = msalTokenResponse.Claims
-                    };
+                    throw CoreExceptionFactory.Instance.GetUiRequiredException(
+                        CoreErrorCodes.InvalidGrantError,
+                        msalTokenResponse.ErrorDescription,
+                        null,
+                         new ExceptionDetail()
+                         {
+                             Claims = msalTokenResponse.Claims,
+                         });
                 }
 
-                serviceEx = new MsalServiceException(msalTokenResponse.Error, msalTokenResponse.ErrorDescription, (int)response.StatusCode, msalTokenResponse.Claims, null)
-                {
-                    ResponseBody =  response.Body
-                };
+                serviceEx = CoreExceptionFactory.Instance.GetServiceException(
+                    msalTokenResponse.Error,
+                    msalTokenResponse.ErrorDescription,
+                    null,
+                    new ExceptionDetail()
+                    {
+                        ResponseBody = response.Body,
+                        StatusCode = (int)response.StatusCode,
+                        Claims = msalTokenResponse.Claims,
+                    });
             }
             catch (SerializationException)
             {
-                serviceEx = new MsalServiceException(MsalException.UnknownError, response.Body, (int)response.StatusCode);
+                serviceEx = CoreExceptionFactory.Instance.GetServiceException(
+                    CoreErrorCodes.UnknownError,
+                    response.Body,
+                    new ExceptionDetail() { StatusCode = (int)response.StatusCode });
             }
 
             requestContext.Logger.Error(serviceEx);

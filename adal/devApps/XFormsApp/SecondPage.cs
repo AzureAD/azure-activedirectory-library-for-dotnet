@@ -69,7 +69,7 @@ namespace XFormsApp
 
             var clearAllCacheButton = new Button
             {
-                Text = "Clear All Cache"
+                Text = "Clear All Cache",
                 AutomationId = "clearCache"
             };
 
@@ -170,7 +170,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = String.Empty;
-            this.testResult.Text = "Succsess:";
+            this.testResult.Text = "Success:";
             try
             {
                 AuthenticationResult result =
