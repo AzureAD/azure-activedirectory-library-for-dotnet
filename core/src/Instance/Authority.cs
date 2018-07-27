@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Core.Instance
             switch (GetAuthorityType(authority))
             {
                 case AuthorityType.Adfs:
-                    throw CoreExceptionService.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
+                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
                        "ADFS is not a supported authority");
 
                 case AuthorityType.B2C:

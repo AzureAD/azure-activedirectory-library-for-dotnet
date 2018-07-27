@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (instanceDiscoveryResponse.TenantDiscoveryEndpoint == null)
             {
-                throw CoreExceptionService.Instance.GetClientException(instanceDiscoveryResponse.Error,
+                throw CoreExceptionFactory.Instance.GetClientException(instanceDiscoveryResponse.Error,
                      instanceDiscoveryResponse.ErrorDescription);
             }
         }
