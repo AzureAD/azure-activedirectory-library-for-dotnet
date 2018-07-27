@@ -34,9 +34,9 @@ using System.Text;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Implementation of the <see cref="CoreExceptionService"/> that throws <see cref="MsalException"/>
+    /// Implementation of the <see cref="CoreExceptionFactory"/> that throws <see cref="MsalException"/>
     /// </summary>
-    internal class MsalExceptionFactory : CoreExceptionService
+    internal class MsalExceptionFactory : CoreExceptionFactory
     {
         /// <summary>
         /// Throws an MsalClient exception

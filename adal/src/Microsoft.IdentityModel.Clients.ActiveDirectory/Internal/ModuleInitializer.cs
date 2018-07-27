@@ -25,49 +25,41 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using System;
-using System.Globalization;
-using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    internal static class Extensions
+    /// <summary>
+    /// Initializes the MSAL module. This can be considered an entry point into MSAL
+    /// for initialization purposes. 
+    /// </summary>
+    /// <remarks>
+    /// The CLR defines a module initializer, however this is not implemented in C# and to 
+    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
+    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
+    /// </remarks>
+    internal class ModuleInitializer
     {
-        internal static string GetPiiScrubbedDetails(this Exception ex)
+        private static bool isInitialized = false;
+        private static object lockObj;
+
+        static ModuleInitializer()
         {
-            string res = null;
-            if (ex != null)
+            lockObj = new object();
+        }
+
+        public static void EnsureModuleInitialized()
+        {
+            lock (lockObj)
             {
-                var sb = new StringBuilder();
-
-                sb.Append(string.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
-
-                if (ex is AdalException)
+                if (!isInitialized)
                 {
-                    var adalException = (AdalException) ex;
-                    sb.Append(string.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", adalException.ErrorCode));
+                    CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
+                    isInitialized = true;
                 }
-
-                if (ex is AdalServiceException)
-                {
-                    var adalServiceException  = (AdalServiceException) ex; 
-                    sb.Append(string.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}", adalServiceException.StatusCode));
-                }
-
-                if (ex.InnerException != null)
-                {
-                    sb.Append(" ---> " + GetPiiScrubbedDetails(ex.InnerException) + Environment.NewLine +
-                              "--- End of inner exception stack trace ---");
-                }
-                if (ex.StackTrace != null)
-                {
-                    sb.Append(Environment.NewLine + ex.StackTrace);
-                }
-
-                res = sb.ToString();
             }
-
-            return res;
         }
     }
 }
