@@ -59,6 +59,8 @@
     <None Remove="Cache\MsalIdTokenCacheKey.cs" />
     <None Remove="Cache\MsalRefreshTokenCacheKey.cs" />
     <None Remove="ConfigureAwait.ruleset" />
+    <None Remove="Instance\AadInstanceDiscovery.cs" />
+    <None Remove="Instance\InstanceDiscoveryMetadataEntry.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
 

@@ -122,25 +122,40 @@ namespace Microsoft.Identity.Core.Instance
             }
         }
 
+        internal static AuthorityType GetAuthorityType(string authority)
+        {
+            string[] pathSegments = new Uri(authority).AbsolutePath.Substring(1).Split('/');
+
+            if (string.Compare(pathSegments[0], "adfs", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return AuthorityType.Adfs;
+            }
+            else if (string.Compare(pathSegments[0], B2CAuthority.Prefix, StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                return AuthorityType.B2C;
+            }
+            else
+            {
+                return AuthorityType.Aad;
+            }
+        }
+
         private static Authority CreateInstance(string authority, bool validateAuthority)
         {
             authority = CanonicalizeUri(authority);
             ValidateAsUri(authority);
-            string[] pathSegments = new Uri(authority).AbsolutePath.Substring(1).Split('/');
-            bool isAdfsAuthority = string.Compare(pathSegments[0], "adfs", StringComparison.OrdinalIgnoreCase) == 0;
-            bool isB2CAuthority = string.Compare(pathSegments[0], B2CAuthority.Prefix, StringComparison.OrdinalIgnoreCase) == 0;
 
-            if (isAdfsAuthority)
+            switch (GetAuthorityType(authority))
             {
-                throw new MsalException(MsalError.InvalidAuthorityType, "ADFS is not a supported authority");
-            }
+                case AuthorityType.Adfs:
+                    throw new MsalException(MsalError.InvalidAuthorityType, "ADFS is not a supported authority");
 
-            if (isB2CAuthority)
-            {
-                return new B2CAuthority(authority, validateAuthority);
-            }
+                case AuthorityType.B2C:
+                    return new B2CAuthority(authority, validateAuthority);
 
-            return new AadAuthority(authority, validateAuthority);
+                default:
+                    return new AadAuthority(authority, validateAuthority);
+            }
         }
 
         public async Task ResolveEndpointsAsync(string userPrincipalName, RequestContext requestContext)
@@ -246,6 +261,16 @@ namespace Microsoft.Identity.Core.Instance
             return authority;
         }
 
+        internal static string UpdateHost(string authority, string host)
+        {
+            UriBuilder uriBuilder = new UriBuilder(authority)
+            {
+                Host = host
+            };
+
+            return uriBuilder.Uri.AbsoluteUri;
+        }
+
         public static string CanonicalizeUri(string uri)
         {
             if (!string.IsNullOrWhiteSpace(uri) && !uri.EndsWith("/", StringComparison.OrdinalIgnoreCase))
@@ -254,6 +279,11 @@ namespace Microsoft.Identity.Core.Instance
             }
 
             return uri.ToLowerInvariant();
+        }
+
+        internal virtual async Task Init(RequestContext requestContext)
+        {
+            await Task.FromResult(0).ConfigureAwait(false);
         }
     }
 }

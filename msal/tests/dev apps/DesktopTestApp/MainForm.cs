@@ -82,7 +82,7 @@ namespace DesktopTestApp
 
         public void RefreshUserList()
         {
-            List<IUser> userListDataSource = _publicClientHandler.PublicClientApplication.Users.ToList();
+            List<IUser> userListDataSource = _publicClientHandler.PublicClientApplication.GetUsers().Result.ToList();
             if (userListDataSource.Count > 0)
             {
                 userListDataSource.Insert(0, new User() { DisplayableId = string.Empty });

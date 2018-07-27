@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public static Dictionary<String, AdalUserInfo> GetAllAdalUsersForMsal(ILegacyCachePersistance legacyCachePersistance,
-            string environment, string clientId)
+            ISet<string> environments, string clientId)
         {
             Dictionary<String, AdalUserInfo> users = new Dictionary<String, AdalUserInfo>();
             try
@@ -118,7 +118,8 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) && environment.Equals(new Uri(p.Key.Authority).Host, StringComparison.OrdinalIgnoreCase)).ToList();
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) 
+                        && environments.Contains(new Uri(p.Key.Authority).Host)).ToList();
 
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
                 {
