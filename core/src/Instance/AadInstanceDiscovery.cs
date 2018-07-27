@@ -84,7 +84,8 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (instanceDiscoveryResponse.TenantDiscoveryEndpoint == null)
             {
-                throw new MsalServiceException(instanceDiscoveryResponse.Error, instanceDiscoveryResponse.ErrorDescription);
+                throw CoreExceptionService.Instance.GetClientException(instanceDiscoveryResponse.Error,
+                     instanceDiscoveryResponse.ErrorDescription);
             }
         }
 
