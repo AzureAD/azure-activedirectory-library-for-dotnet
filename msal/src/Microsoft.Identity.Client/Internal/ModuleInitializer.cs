@@ -25,44 +25,43 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
 using System;
 
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Client.Internal
 {
     /// <summary>
-    /// Abstract factory for spewing exceptions for Adal and Msal. Use the <see cref="Instance"/>
-    /// singleton to access an actual implementation which will have been injected.
+    /// Initializes the MSAL module. This can be considered an entry point into MSAL
+    /// for initialization purposes. 
     /// </summary>
-    internal abstract class CoreExceptionFactory
+    /// <remarks>
+    /// The CLR defines a module initializer, however this is not implemented in C# and to 
+    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
+    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
+    /// </remarks>
+    internal class ModuleInitializer
     {
-        public static CoreExceptionFactory Instance { get; set; }
+        private static bool isInitialized = false;
+        private static object lockObj;
 
-        public abstract Exception GetClientException(
-            string errorCode,
-            string errorMessage,
-            Exception innerException = null);
+        static ModuleInitializer()
+        {
+            lockObj = new object();
+        }
 
-        public abstract Exception GetServiceException(
-            string errorCode,
-            string errorMessage);
-
-        public abstract Exception GetServiceException(
-           string errorCode,
-           string errorMessage,
-           ExceptionDetail exceptionDetail = null);
-
-        public abstract Exception GetServiceException(
-           string errorCode,
-           string errorMessage,
-           Exception innerException = null,
-           ExceptionDetail exceptionDetail = null);
-
-        public abstract Exception GetUiRequiredException(
-           string errorCode,
-           string errorMessage,
-           Exception innerException = null,
-           ExceptionDetail exceptionDetail = null);
-
-        public abstract string GetPiiScrubbedDetails(Exception exception);
+        public static void EnsureModuleInitialized()
+        {
+            lock (lockObj)
+            {
+                if (!isInitialized)
+                {
+                    CoreExceptionFactory.Instance = new MsalExceptionFactory();
+#if !FACADE
+                    CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
+#endif
+                    isInitialized = true;
+                }
+            }
+        }
     }
 }
