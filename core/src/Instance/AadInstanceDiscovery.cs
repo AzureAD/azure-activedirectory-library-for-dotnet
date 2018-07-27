@@ -21,7 +21,8 @@ namespace Microsoft.Identity.Core.Instance
         public static async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(Uri authority, bool validateAuthority,
             RequestContext requestContext)
         {
-            if (!InstanceCache.TryGetValue(authority.Host, out InstanceDiscoveryMetadataEntry entry))
+            InstanceDiscoveryMetadataEntry entry = null;
+            if (!InstanceCache.TryGetValue(authority.Host, out entry))
             {
                 await DoInstanceDiscoveryAndCacheAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
                 InstanceCache.TryGetValue(authority.Host, out entry);
