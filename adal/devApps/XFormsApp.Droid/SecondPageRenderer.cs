@@ -49,14 +49,8 @@ namespace XFormsApp.Droid
             SecondPage page = e.NewElement as SecondPage;
 
             var activity = this.Context as Activity;
-
             page.Parameters = new PlatformParameters(activity);
-
-            #region Broker flow
-            // Uncomment below for broker flow
-            //var parameters = new PlatformParameters(activity, true);
-            //page.Parameters = parameters;
-            #endregion
+            page.BrokerParameters = new PlatformParameters(activity, true);
         }
     }
 }

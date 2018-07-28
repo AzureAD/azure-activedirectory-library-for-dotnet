@@ -40,6 +40,7 @@ namespace XFormsApp
         public const string ClientIdBroker = "<ClientIdBroker>";
         public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
+        public const string User = "<User>";
         static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 
         public string DrainLogs()
@@ -54,6 +55,8 @@ namespace XFormsApp
 
         public IPlatformParameters Parameters { get; set; }
 
+        public IPlatformParameters BrokerParameters { get; set; }
+        
         public SecondPage()
         {
             var acquireTokenButton = new Button
@@ -92,7 +95,7 @@ namespace XFormsApp
                 AutomationId = "acquireTokenSilentWithBroker"
             };
 
-            testResult = new Label()
+             testResult = new Label()
             {
                 Text = "Success:",
                 VerticalOptions = LayoutOptions.FillAndExpand,
@@ -223,14 +226,14 @@ namespace XFormsApp
             string output = string.Empty;
             string accessToken = String.Empty;
             this.testResult.Text = "Success:";
-            
+
             try
             {
                 AuthenticationResult result =
                     await
                         ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientIdBroker,
                             new Uri(AndroidBrokerRedirectURI),
-                            Parameters).ConfigureAwait(false);
+                            BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
             }
@@ -258,7 +261,7 @@ namespace XFormsApp
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientIdBroker,
-                    new UserIdentifier("<User>", UserIdentifierType.OptionalDisplayableId), Parameters).ConfigureAwait(false);
+                    new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -302,8 +305,8 @@ namespace XFormsApp
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net", ClientId,
-                        new Uri("adaliosapp://com.yourcompany.xformsapp"),
-                        Parameters, new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
+                        new Uri(IOSBrokerRedirectURI),
+                        Parameters, new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
                 output = "Access Token: " + result.AccessToken;
             }
 
