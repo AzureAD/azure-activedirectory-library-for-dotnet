@@ -292,9 +292,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string FormPostParsingFailure = "form_post_parsing_failure";
 
         /// <summary>
-        /// Authenticator gets problem from webrequest
+        /// Broker redirectUri has incorrect format
         /// </summary>
-        public const string AuthenticatorCancelsRequest = "authenticator_cancels_request";
+        public const string BrokerRedirectUriIncorrectFormat = "broker_redirect_uri_incorrect_format ";
     }
-
 }
