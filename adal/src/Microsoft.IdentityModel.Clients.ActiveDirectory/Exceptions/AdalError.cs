@@ -290,6 +290,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Form post parsing failure
         /// </summary>
         public const string FormPostParsingFailure = "form_post_parsing_failure";
+
+        /// <summary>
+        /// Authenticator gets problem from webrequest
+        /// </summary>
+        public const string AuthenticatorCancelsRequest = "authenticator_cancels_request";
     }
 
 }

@@ -366,8 +366,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch (Exception e)
             {
-                // Authenticator gets problem from webrequest or file read/write
-                var ex = new AdalException("Authenticator cancels the request", e);
+                var ex = new AdalException(AdalError.AuthenticatorCancelsRequest, e);
                 RequestContext.Logger.Error(ex);
                 RequestContext.Logger.ErrorPii(ex);
                 throw ex;
