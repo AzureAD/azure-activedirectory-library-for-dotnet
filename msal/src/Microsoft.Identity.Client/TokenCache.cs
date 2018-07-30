@@ -687,7 +687,7 @@ namespace Microsoft.Identity.Client
             var authorityType = Authority.GetAuthorityType(authority);
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
-                instanceDiscoveryMetadata = await AadInstanceDiscovery.GetMetadataEntryAsync
+                instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync
                     (new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
             }
             return instanceDiscoveryMetadata;
@@ -700,7 +700,7 @@ namespace Microsoft.Identity.Client
             var authorityType = Authority.GetAuthorityType(authority);
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
-                AadInstanceDiscovery.InstanceCache.TryGetValue
+                AadInstanceDiscovery.Instance.InstanceCache.TryGetValue
                     (new Uri(authority).Host, out instanceDiscoveryMetadata);
             }
             return instanceDiscoveryMetadata;

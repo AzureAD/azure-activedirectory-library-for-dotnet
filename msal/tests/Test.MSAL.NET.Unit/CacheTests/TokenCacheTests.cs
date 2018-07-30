@@ -66,7 +66,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
 
-            AadInstanceDiscovery.InstanceCache.Clear();
+            AadInstanceDiscovery.Instance.InstanceCache.Clear();
 
             HttpMessageHandlerFactory.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
@@ -75,7 +75,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         
         void AddHostToInstanceCache(String host)
         {
-            AadInstanceDiscovery.InstanceCache.TryAdd(host, new InstanceDiscoveryMetadataEntry
+            AadInstanceDiscovery.Instance.InstanceCache.TryAdd(host, new InstanceDiscoveryMetadataEntry
             {
                 PreferredNetwork = host,
                 PreferredCache = host,

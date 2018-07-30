@@ -35,13 +35,6 @@ using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Core.Instance
 {
-    internal enum AuthorityType
-    {
-        Aad,
-        Adfs,
-        B2C
-    }
-
     internal abstract class Authority
     {
         private static readonly HashSet<string> TenantlessTenantNames =
@@ -62,10 +55,10 @@ namespace Microsoft.Identity.Core.Instance
         {
             UriBuilder authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
-            string[] pathSegments = authorityUri.Uri.AbsolutePath.Substring(1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
             CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authorityUri.Uri.Authority,
-                pathSegments[0]);
+                GetFirstPathSegment(authority));
+
             ValidateAuthority = validateAuthority;
         }
 
@@ -118,15 +111,20 @@ namespace Microsoft.Identity.Core.Instance
             }
         }
 
+        internal static string GetFirstPathSegment(string authority)
+        {
+            return new Uri(authority).Segments[1].TrimEnd('/');
+        } 
+
         internal static AuthorityType GetAuthorityType(string authority)
         {
-            string[] pathSegments = new Uri(authority).AbsolutePath.Substring(1).Split('/');
+            var firstPathSegment = GetFirstPathSegment(authority);
 
-            if (string.Compare(pathSegments[0], "adfs", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(firstPathSegment, "adfs", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return AuthorityType.Adfs;
             }
-            else if (string.Compare(pathSegments[0], B2CAuthority.Prefix, StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(firstPathSegment, B2CAuthority.Prefix, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return AuthorityType.B2C;
             }
@@ -150,8 +148,12 @@ namespace Microsoft.Identity.Core.Instance
                 case AuthorityType.B2C:
                     return new B2CAuthority(authority, validateAuthority);
 
-                default:
+                case AuthorityType.Aad:
                     return new AadAuthority(authority, validateAuthority);
+
+                default:
+                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
+                     "Usupported authority type");
             }
         }
 

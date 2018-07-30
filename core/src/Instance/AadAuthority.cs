@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Core.Instance
 
         protected async Task UpdateCanonicalAuthorityAsync(RequestContext requestContext)
         {
-            var metadata = await AadInstanceDiscovery.
+            var metadata = await AadInstanceDiscovery.Instance.
                 GetMetadataEntryAsync(new Uri(CanonicalAuthority), this.ValidateAuthority, requestContext).ConfigureAwait(false);
 
             CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
@@ -71,7 +71,8 @@ namespace Microsoft.Identity.Core.Instance
             if (ValidateAuthority && !IsInTrustedHostList(authorityUri.Host))
             {
                 InstanceDiscoveryResponse discoveryResponse =
-                    await AadInstanceDiscovery.DoInstanceDiscoveryAndCacheAsync(authorityUri, true, requestContext).ConfigureAwait(false);
+                    await AadInstanceDiscovery.Instance.
+                    DoInstanceDiscoveryAndCacheAsync(authorityUri, true, requestContext).ConfigureAwait(false);
 
                 return discoveryResponse.TenantDiscoveryEndpoint;
             }

@@ -12,13 +12,16 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Instance
 {
-    internal static class AadInstanceDiscovery
+    internal class AadInstanceDiscovery
     {
-        // Keys are host strings
-        internal static readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache =
+        AadInstanceDiscovery(){}
+
+        public static AadInstanceDiscovery Instance { get; } = new AadInstanceDiscovery();
+
+        internal readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache =
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
-        public static async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(Uri authority, bool validateAuthority,
+        public async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(Uri authority, bool validateAuthority,
             RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry entry = null;
@@ -46,7 +49,7 @@ namespace Microsoft.Identity.Core.Instance
             return string.Format(CultureInfo.InvariantCulture, "https://{0}/common/discovery/instance", host);
         }
 
-        internal static async Task<InstanceDiscoveryResponse> 
+        internal async Task<InstanceDiscoveryResponse> 
             DoInstanceDiscoveryAndCacheAsync(Uri authority, bool validateAuthority, RequestContext requestContext)
         {
             InstanceDiscoveryResponse discoveryResponse =
@@ -90,7 +93,7 @@ namespace Microsoft.Identity.Core.Instance
             }
         }
 
-        private static void CacheInstanceDiscoveryMetadata(string host, InstanceDiscoveryResponse instanceDiscoveryResponse)
+        private void CacheInstanceDiscoveryMetadata(string host, InstanceDiscoveryResponse instanceDiscoveryResponse)
         {
             foreach (var entry in instanceDiscoveryResponse?.Metadata ?? Enumerable.Empty<InstanceDiscoveryMetadataEntry>())
             {
