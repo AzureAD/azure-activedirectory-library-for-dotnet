@@ -150,7 +150,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 using (await request.GetResponseAsync().ConfigureAwait(false))
                 {
                     var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
-                    CoreLoggerBase.Default.Error(AdalError.UnauthorizedResponseExpected);
+                    string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                    CoreLoggerBase.Default.Error(noPiiMsg);
                     CoreLoggerBase.Default.ErrorPii(ex);
                     throw ex;
                 }
@@ -161,7 +162,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (response == null)
                 {
                     var serviceEx = new AdalServiceException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, ex);
-                    CoreLoggerBase.Default.Error(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected);
+                    string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(serviceEx);
+                    CoreLoggerBase.Default.Error(noPiiMsg);
                     CoreLoggerBase.Default.ErrorPii(serviceEx);
                     throw serviceEx;
                 }
@@ -189,7 +191,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 else
                 {
                     var ex = new ArgumentException(AdalErrorMessage.MissingAuthenticateHeader, "response");
-                    CoreLoggerBase.Default.Error(AdalErrorMessage.MissingAuthenticateHeader);
+                    string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                    CoreLoggerBase.Default.Error(noPiiMsg);
                     CoreLoggerBase.Default.ErrorPii(ex);
                     throw ex;
                 }
@@ -197,7 +200,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             else
             {
                 var ex = new ArgumentException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, "response");
-                CoreLoggerBase.Default.Error(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected);
+                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                CoreLoggerBase.Default.Error(noPiiMsg);
                 CoreLoggerBase.Default.ErrorPii(ex);
                 throw ex;
             }

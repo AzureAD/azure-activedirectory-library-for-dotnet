@@ -85,7 +85,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch (Exception ex)
             {
-                RequestContext.Logger.Error(ex);
+                string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(ex);
+                RequestContext.Logger.Error(noPiiMsg);
                 RequestContext.Logger.ErrorPii(ex);
                 throw;
             }
@@ -206,7 +207,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     }
                     catch (ActivityNotFoundException e)
                     {
-                        RequestContext.Logger.Error(e);
+                        string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                        RequestContext.Logger.Error(noPiiMsg);
                         RequestContext.Logger.ErrorPii(e);
                     }
                 }
