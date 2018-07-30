@@ -253,6 +253,7 @@ namespace Microsoft.Identity.Client
             try
             {   
                 ISet<string> authorityAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                string preferredAlias = null;
                 if (requestParams.Authority != null)
                 {
                     var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaData(requestParams.Authority.CanonicalAuthority,
@@ -260,9 +261,12 @@ namespace Microsoft.Identity.Client
 
                     authorityAliases.UnionWith
                         (GetAuthorityAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
+
+                    preferredAlias = 
+                        Authority.UpdateHost(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry.PreferredCache);
                 }
 
-                return FindAccessTokenCommon(requestParams, authorityAliases);
+                return FindAccessTokenCommon(requestParams, preferredAlias, authorityAliases);
             }
             finally
             {
@@ -271,7 +275,7 @@ namespace Microsoft.Identity.Client
         }
 
         private MsalAccessTokenCacheItem FindAccessTokenCommon
-            (AuthenticationRequestParameters requestParams, ISet<string> authorityAliases)
+            (AuthenticationRequestParameters requestParams, string prefferedAlias, ISet<string> authorityAliases)
         {
             lock (LockObject)
             {
@@ -401,12 +405,21 @@ namespace Microsoft.Identity.Client
                     msg = "Authority provided..";
                     requestParams.RequestContext.Logger.Info(msg);
                     requestParams.RequestContext.Logger.InfoPii(msg);
-                    
+
                     //authority was passed in the API
-                    filteredItems = 
-                        filteredItems.Where(
-                            item => authorityAliases.Contains(item.Authority))
-                            .ToList();
+                    IEnumerable<MsalAccessTokenCacheItem> filteredByPrefferedAlias = 
+                        filteredItems.Where
+                        (item => item.Authority.Equals(prefferedAlias, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (filteredByPrefferedAlias.Any())
+                    {
+                        filteredItems = filteredByPrefferedAlias;
+                    }
+                    else
+                    {
+                        filteredItems = filteredItems.Where(item => authorityAliases.Contains(item.Authority)).ToList();
+                    }
 
                     //no match
                     if (!filteredItems.Any())
@@ -546,7 +559,8 @@ namespace Microsoft.Identity.Client
                     return null;
                 }
                 return CacheFallbackOperations.GetAdalEntryForMsal(legacyCachePersistance,
-                    preferredEnvironmentHost, requestParam.ClientId, requestParam.LoginHint, requestParam.User.Identifier, null);
+                    preferredEnvironmentHost, authorityHostAliases, 
+                    requestParam.ClientId, requestParam.LoginHint, requestParam.User.Identifier, null);
             }
         }
 

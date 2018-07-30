@@ -171,7 +171,7 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public static List<MsalRefreshTokenCacheItem> GetAllAdalEntriesForMsal(ILegacyCachePersistance legacyCachePersistance, 
-            string environment, string clientId, string upn, string uniqueId, string rawClientInfo)
+            ISet<string> environmentAliases, string clientId, string upn, string uniqueId, string rawClientInfo)
         {
             try
             {
@@ -181,7 +181,8 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) && environment.Equals(new Uri(p.Key.Authority).Host, StringComparison.OrdinalIgnoreCase)).ToList();
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) &&
+                        environmentAliases.Contains(new Uri(p.Key.Authority).Host)).ToList();
 
                 //if client info is provided then use it to filter
                 if (!string.IsNullOrEmpty(rawClientInfo))
@@ -220,7 +221,7 @@ namespace Microsoft.Identity.Core.Cache
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
                 {
                     list.Add(new MsalRefreshTokenCacheItem
-                        (environment, pair.Key.ClientId, pair.Value.RefreshToken, pair.Value.RawClientInfo));
+                        (new Uri(pair.Key.Authority).Host, pair.Key.ClientId, pair.Value.RefreshToken, pair.Value.RawClientInfo));
                 }
 
                 return list;
@@ -234,9 +235,21 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public static MsalRefreshTokenCacheItem GetAdalEntryForMsal(ILegacyCachePersistance legacyCachePersistance, 
-            string environment, string clientId, string upn, string uniqueId, string rawClientInfo)
+            string preferredEnvironment, ISet<string> environmentAliases, string clientId, string upn, string uniqueId, string rawClientInfo)
         {
-            return GetAllAdalEntriesForMsal(legacyCachePersistance, environment, clientId, upn, uniqueId, rawClientInfo).FirstOrDefault();
+            var adalRts = GetAllAdalEntriesForMsal(legacyCachePersistance, environmentAliases, clientId, upn, uniqueId, rawClientInfo);
+
+            List<MsalRefreshTokenCacheItem> filteredByPrefEnv = adalRts.Where
+                (rt => rt.Environment.Equals(preferredEnvironment, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (filteredByPrefEnv.Any())
+            {
+                return filteredByPrefEnv.First();
+            }
+            else
+            {
+                return adalRts.FirstOrDefault();
+            }
         }
 
         public static AdalResultWrapper FindMsalEntryForAdal(ITokenCacheAccessor tokenCacheAccessor, string authority,
