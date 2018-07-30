@@ -110,6 +110,6 @@ namespace Microsoft.Identity.Client
         /// Removes all cached tokens for the specified user.
         /// </summary>
         /// <param name="user">instance of the user that needs to be removed</param>
-        void Remove(IUser user);
+        Task Remove(IUser user);
    }
 }

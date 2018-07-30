@@ -215,7 +215,7 @@ namespace XForms
                 (new Uri(App.Authority).Host, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
             foreach (var user in users)
             {
-                tokenCache.Remove(user, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+                await App.MsalPublicClient.Remove(user).ConfigureAwait(false);
             }
 
             acquireResponseLabel.Text = "";

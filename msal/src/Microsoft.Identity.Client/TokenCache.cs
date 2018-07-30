@@ -763,7 +763,6 @@ namespace Microsoft.Identity.Client
                 await GetCachedOrDiscoverAuthorityMetaData(authority, validateAuthority, requestContext).ConfigureAwait(false);
 
             var authorityHostAliases = GetAuthorityHostAliases(authority, instanceDiscoveryMetadataEntry);
-            var preferredEnvironmentAlias = GetPreferredEnvironmentHost(new Uri(authority).Host, instanceDiscoveryMetadataEntry);
 
             lock (LockObject)
             {
@@ -789,7 +788,7 @@ namespace Microsoft.Identity.Client
                             if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
                                 authorityHostAliases.Contains(account.Environment))
                             {
-                                User user = new User(account.HomeAccountId, account.PreferredUsername, account.Environment);
+                                User user = new User(account.HomeAccountId, account.PreferredUsername, new Uri(authority).Host);
                                 allUsers[rtItem.HomeAccountId] = user;
                                 break;
                             }
@@ -804,7 +803,7 @@ namespace Microsoft.Identity.Client
 
                     if (!allUsers.ContainsKey(userIdentifier))
                     {
-                        allUsers[userIdentifier] = new User(userIdentifier, pair.Value.DisplayableId, preferredEnvironmentAlias);
+                        allUsers[userIdentifier] = new User(userIdentifier, pair.Value.DisplayableId, new Uri(authority).Host);
                     }
                 }
 
@@ -915,20 +914,25 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal void Remove(IUser user, RequestContext requestContext)
+        internal async Task Remove(string authority, bool validateAuthority, IUser user, RequestContext requestContext)
         {
+            var instanceDiscoveryMetadataEntry =
+                await GetCachedOrDiscoverAuthorityMetaData(authority, validateAuthority, requestContext).ConfigureAwait(false);
+
+            var authorityHostAliases = GetAuthorityHostAliases(authority, instanceDiscoveryMetadataEntry);
+
             lock (LockObject)
             {
                 var msg = "Removing user from cache..";
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
 
-                RemoveMsalUser(user, requestContext);
-                RemoveAdalUser(user);
+                RemoveMsalUser(user, authorityHostAliases, requestContext);
+                RemoveAdalUser(user, authorityHostAliases);
             }
         }
 
-        internal void RemoveMsalUser(IUser user, RequestContext requestContext)
+        internal void RemoveMsalUser(IUser user, ISet<string> authorityHostAliases, RequestContext requestContext)
         {
             lock (LockObject)
             {
@@ -948,7 +952,8 @@ namespace Microsoft.Identity.Client
                     OnBeforeAccess(args);
                     OnBeforeWrite(args);
                     IList<MsalRefreshTokenCacheItem> allRefreshTokens = GetAllRefreshTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase))
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       authorityHostAliases.Contains(item.Environment))
                         .ToList();
                     foreach (MsalRefreshTokenCacheItem refreshTokenCacheItem in allRefreshTokens)
                     {
@@ -959,21 +964,22 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
                     IList<MsalAccessTokenCacheItem> allAccessTokens = GetAllAccessTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase))
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       authorityHostAliases.Contains(item.Environment))
                         .ToList();
-
                     foreach (MsalAccessTokenCacheItem accessTokenCacheItem in allAccessTokens)
                     {
                         tokenCacheAccessor.DeleteAccessToken(accessTokenCacheItem.GetKey(), requestContext);
                     }
-
+             
                     msg = "Deleted access token count - " + allAccessTokens.Count;
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalIdTokenCacheItem> allIdTokens = GetAllIdTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase)).ToList();
-
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       authorityHostAliases.Contains(item.Environment))
+                        .ToList();
                     foreach (MsalIdTokenCacheItem idTokenCacheItem in allIdTokens)
                     {
                         tokenCacheAccessor.DeleteIdToken(idTokenCacheItem.GetKey(), requestContext);
@@ -984,8 +990,9 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase)).ToList();
-
+                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       authorityHostAliases.Contains(item.Environment))
+                        .ToList();
                     foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
                     {
                         tokenCacheAccessor.DeleteAccount(accountCacheItem.GetKey(), requestContext);
@@ -1004,9 +1011,9 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal void RemoveAdalUser(IUser user)
+        internal void RemoveAdalUser(IUser user, ISet<string> authorityHostAliases)
         {
-            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, user.DisplayableId, user.Environment, user.Identifier);
+            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, user.DisplayableId, authorityHostAliases, user.Identifier);
         }
 
         internal ICollection<string> GetAllAccessTokenCacheItems(RequestContext requestContext)

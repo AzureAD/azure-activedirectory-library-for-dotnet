@@ -129,7 +129,10 @@ namespace Test.MSAL.NET.Unit
             var users = app.UserTokenCache.GetUsers(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
             foreach (IUser user in users)
             {
-                app.UserTokenCache.RemoveMsalUser(user, requestContext);
+                ISet<string> authorityHostAliases = new HashSet<string>();
+                authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
+
+                app.UserTokenCache.RemoveMsalUser(user, authorityHostAliases, requestContext);
             }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()

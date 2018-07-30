@@ -297,7 +297,7 @@ namespace DesktopTestApp
                 .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
             {
                 AddControlToCachePageTableLayout(
-                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache, rtItem)
+                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication, rtItem)
                     {
                         RefreshViewDelegate = LoadCacheTabPage
                     });

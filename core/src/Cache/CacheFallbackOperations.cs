@@ -137,7 +137,7 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public static Dictionary<String, AdalUserInfo> RemoveAdalUser(ILegacyCachePersistance legacyCachePersistance,
-            string displayableId, string environment, string identifier)
+            string displayableId, ISet<string> authorityHostAliases, string identifier)
         {
             Dictionary<String, AdalUserInfo> users = new Dictionary<String, AdalUserInfo>();
             try
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Core.Cache
                 List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in dictionary)
                 {
-                    if ( environment.Equals(new Uri(pair.Key.Authority).Host) &&
+                    if (authorityHostAliases.Contains(new Uri(pair.Key.Authority).Host) &&
                          displayableId.Equals(pair.Key.DisplayableId) &&
                          identifier.Equals(ClientInfo.CreateFromJson(pair.Value.RawClientInfo).ToUserIdentifier()) )
                     {

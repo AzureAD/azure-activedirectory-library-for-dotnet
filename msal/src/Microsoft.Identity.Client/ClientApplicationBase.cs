@@ -202,7 +202,7 @@ namespace Microsoft.Identity.Client
         /// Removes all cached tokens for the specified user.
         /// </summary>
         /// <param name="user">instance of the user that needs to be removed</param>
-        public void Remove(IUser user)
+        public async Task Remove(IUser user)
         {
             RequestContext requestContext = CreateRequestContext(Guid.Empty);
             if (user == null || UserTokenCache == null)
@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Client
                 return;
             }
 
-            UserTokenCache.Remove(user, requestContext);
+            await UserTokenCache.Remove(Authority, ValidateAuthority, user, requestContext).ConfigureAwait(false);
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
