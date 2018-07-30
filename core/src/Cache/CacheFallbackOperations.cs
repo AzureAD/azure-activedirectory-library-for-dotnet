@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Core.Cache
     {
         public static void WriteMsalRefreshToken(ITokenCacheAccessor tokenCacheAccessor,
             AdalResultWrapper resultWrapper, string authority, string clientId, string displayableId,
-            string identityProvider, string givenName, string familyName, string objectId)
+             string givenName, string familyName, string objectId)
         {
             if (string.IsNullOrEmpty(resultWrapper.RawClientInfo))
             {
@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Core.Cache
             }
 
             //Using scope instead of resource becaue that value does not exist. STS should return it.
-            AdalTokenCacheKey key = new AdalTokenCacheKey(authority, scope, rtItem.ClientId, TokenSubjectType.User, 
+            AdalTokenCacheKey key = new AdalTokenCacheKey(authority, scope, rtItem.ClientId, TokenSubjectType.User,
                 uniqueId, idItem.IdToken.PreferredUsername);
             AdalResultWrapper wrapper = new AdalResultWrapper()
             {
@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Core.Cache
                 {
                     if (authorityHostAliases.Contains(new Uri(pair.Key.Authority).Host) &&
                          displayableId.Equals(pair.Key.DisplayableId) &&
-                         identifier.Equals(ClientInfo.CreateFromJson(pair.Value.RawClientInfo).ToUserIdentifier()) )
+                         identifier.Equals(ClientInfo.CreateFromJson(pair.Value.RawClientInfo).ToUserIdentifier()))
                     {
                         keysToRemove.Add(pair.Key);
                     }
@@ -280,7 +280,7 @@ namespace Microsoft.Identity.Core.Cache
                         // join refresh token cache item to corresponding account cache item to get upn
                         foreach (MsalAccountCacheItem accountCacheItem in accounts)
                         {
-                            if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase) 
+                            if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase)
                                 && accountCacheItem.PreferredUsername.Equals(upn, StringComparison.OrdinalIgnoreCase))
                             {
                                 return new AdalResultWrapper
