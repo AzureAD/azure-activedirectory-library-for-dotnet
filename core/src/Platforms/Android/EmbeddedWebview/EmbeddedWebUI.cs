@@ -76,7 +76,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             }
             else
             {
-                CoreLoggerBase.Default.Info("No pending request for response from web ui.");
+                string msg = "No pending request for response from web ui.";
+                CoreLoggerBase.Default.Info(msg);
+                CoreLoggerBase.Default.InfoPii(msg);
             }
         }
     }

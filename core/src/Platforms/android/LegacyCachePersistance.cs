@@ -50,8 +50,10 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                CoreLoggerBase.Default.Warning("Failed to load cache: " + ex.Message);
-                CoreLoggerBase.Default.ErrorPii(ex);
+                string msg = "Failed to load cache: ";
+                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                CoreLoggerBase.Default.Error(msg + noPiiMsg);
+                CoreLoggerBase.Default.ErrorPii(msg + ex);
                 // Ignore as the cache seems to be corrupt
             }
 
@@ -71,8 +73,10 @@ namespace Microsoft.Identity.Core.Cache
                 }
                 catch (Exception ex)
             {
-                CoreLoggerBase.Default.Warning("Failed to save cache: " + ex.Message);
-                CoreLoggerBase.Default.ErrorPii(ex);
+                const string msg = "Failed to save cache: ";
+                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                CoreLoggerBase.Default.Error(msg + noPiiMsg);
+                CoreLoggerBase.Default.ErrorPii(msg + ex);
             }
         }
     }
