@@ -29,9 +29,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Identity.Core.Telemetry;
 
-namespace Microsoft.Identity.Client
+namespace Microsoft.Identity.Core.Telemetry
 {
     /// <summary>
     /// 
