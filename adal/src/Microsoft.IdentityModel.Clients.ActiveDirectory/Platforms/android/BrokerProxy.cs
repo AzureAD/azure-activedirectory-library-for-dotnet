@@ -122,7 +122,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 Exception exception = new AdalException(
                     "Calling this from your main thread can lead to deadlock");
 
-                string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(exception);
+                string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(exception);
                 RequestContext.Logger.Error(noPiiMsg);
                 RequestContext.Logger.ErrorPii(exception);
 
@@ -194,7 +194,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                     RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
@@ -232,13 +232,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (OperationCanceledException e)
                 {
-                    string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                     RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
                 catch (AuthenticatorException e)
                 {
-                    string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                     RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
@@ -248,7 +248,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     /*                    Logger.e(TAG, "Authenticator cancels the request", "",
                                                 ADALError.BROKER_AUTHENTICATOR_IO_EXCEPTION);*/
 
-                    string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                     RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
@@ -375,7 +375,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch(Exception e)
             {
-                string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                 RequestContext.Logger.Error(noPiiMsg);
                 RequestContext.Logger.ErrorPii(e);
             }
@@ -546,7 +546,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    string noPiiMsg = AdalEceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
                     RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
