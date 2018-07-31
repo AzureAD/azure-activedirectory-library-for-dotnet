@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             if (rtItem == null)
             {
-                string msg = "rtItem is null. Skipping MSAL RT cache write";
+                string msg = "No refresh token available. Skipping MSAL RT cache write";
                 CoreLoggerBase.Default.Info(msg);
                 CoreLoggerBase.Default.InfoPii(msg);
                 return;
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "GetAllAdalUsersForMsal failed due to Exception - ";
+                string msg = "An error occurred while searching and matching adal users in the msal cache. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);

@@ -72,7 +72,6 @@ namespace Test.Microsoft.Identity.Core.Unit
 
         public override void Verbose(string message)
         {
-            throw new NotImplementedException();
         }
 
         public override void VerbosePii(string message)

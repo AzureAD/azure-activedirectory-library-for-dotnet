@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "Failed to load cache: ";
+                string msg = "Failed to load adal cache: ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "Failed to save cache: ";
+                string msg = "Failed to save adal cache: ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
