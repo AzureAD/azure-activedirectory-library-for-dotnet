@@ -46,23 +46,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         Always = 1,
 
         /// <summary>
+        /// The user will not be prompted for credentials.  If prompting is necessary then the AcquireToken request
+        /// will fail.
+        /// </summary>
+        Never = 2,
+
+        /// <summary>
         /// Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
         /// token contains updated claims. If user logon cookies are available, the user will not be asked for 
         /// credentials again and the logon dialog will dismiss automatically.
         /// </summary>
-        RefreshSession = 2,
+        RefreshSession = 3,
 
         /// <summary>
         /// Prompt the user to select a user account even if there is a token that meets the requirements
         /// already in the cache. This enables an user who has multiple accounts at the Authorization Server to select amongst 
         /// the multiple accounts that they might have current sessions for. 
         /// </summary>
-        SelectAccount = 3,
-
-        /// <summary>
-        /// The user will not be prompted for credentials.  If prompting is necessary then the AcquireToken request
-        /// will fail.
-        /// </summary>
-        Never = 4,
+        SelectAccount = 4
     }
 }
