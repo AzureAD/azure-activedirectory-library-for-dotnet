@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Core.Cache
             string msg;
             if (string.IsNullOrEmpty(resultWrapper.RawClientInfo))
             {
-                msg = "Client Info is missing. Skipping MSAL RT cache write";
+                msg = "Client Info is missing. Skipping MSAL refresh token cache write";
                 CoreLoggerBase.Default.Info(msg);
                 CoreLoggerBase.Default.InfoPii(msg);
                 return;
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.Cache
 
             if (string.IsNullOrEmpty(resultWrapper.RefreshToken))
             {
-                msg = "Refresh Token is missing. Skipping MSAL RT cache write";
+                msg = "Refresh Token is missing. Skipping MSAL refresh token cache write";
                 CoreLoggerBase.Default.Info(msg);
                 CoreLoggerBase.Default.InfoPii(msg);
                 return;
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Core.Cache
 
             if (string.IsNullOrEmpty(resultWrapper.Result.IdToken))
             {
-                msg = "Id Token is missing. Skipping MSAL RT cache write";
+                msg = "Id Token is missing. Skipping MSAL refresh token cache write";
                 CoreLoggerBase.Default.Info(msg);
                 CoreLoggerBase.Default.InfoPii(msg);
                 return;
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             if (rtItem == null)
             {
-                string msg = "No refresh token available. Skipping MSAL RT cache write";
+                string msg = "No refresh token available. Skipping MSAL refresh token cache write";
                 CoreLoggerBase.Default.Info(msg);
                 CoreLoggerBase.Default.InfoPii(msg);
                 return;
@@ -177,7 +177,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "RemoveAdalUser failed due to Exception - ";
+                string msg = "Failed to removed ADAL user - Exception - ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -243,7 +243,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "GetAllAdalEntriesForMsal failed due to Exception - ";
+                string msg = "An error occurred while searching for valid MSAL cache entries in ADAL cache. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
