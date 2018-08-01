@@ -26,13 +26,8 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
 
@@ -48,7 +43,7 @@ namespace SampleApp
             tabControl1.Appearance = TabAppearance.FlatButtons;
             tabControl1.ItemSize = new Size(0, 1);
             tabControl1.SizeMode = TabSizeMode.Fixed;
-            user = _msalHelper.Application.Users.First();
+            user = _msalHelper.Application.GetUsers().Result.FirstOrDefault();
             tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
 
             signInPage.BackColor = Color.FromArgb(255, 67, 143, 255);
@@ -57,20 +52,20 @@ namespace SampleApp
                 tabControl1.SelectedTab = calendarPage;
             }
         }
-
+        
         private async void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if((sender as TabControl).TabIndex == 1)
             {
-                string token = await _msalHelper.GetTokenForCurrentUser(new[] {"user.read"}, user)
+                string token = await _msalHelper.GetTokenForCurrentUserAsync(new[] {"user.read"}, user)
                     .ConfigureAwait(false);
                 DisplayUserInformationFromGraph(token);
             }
         }
-
+        
         private async void pictureBox1_Click(object sender, EventArgs e)
         {
-            user = await _msalHelper.SignIn().ConfigureAwait(false);
+            user = await _msalHelper.SignInAsync().ConfigureAwait(false);
             if (user!=null)
             {
                 tabControl1.SelectedTab = calendarPage;

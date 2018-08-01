@@ -29,13 +29,19 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Text;
 using Xamarin.Forms;
-using Xamarin.Forms.PlatformConfiguration;
 
 namespace XFormsApp
 {
     public class SecondPage : ContentPage
     {
         private readonly StringBuilder _logs = new StringBuilder();
+
+        public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
+        public const string ClientIdBroker = "<ClientIdBroker>";
+        public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
+        public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
+        public const string User = "<User>";
+        static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 
         public string DrainLogs()
         {
@@ -44,28 +50,56 @@ namespace XFormsApp
             return output;
         }
 
-        private Label result;
+        private readonly Label result;
+        private readonly Label testResult;
 
+        public IPlatformParameters Parameters { get; set; }
+
+        public IPlatformParameters BrokerParameters { get; set; }
+        
         public SecondPage()
         {
             var acquireTokenButton = new Button
             {
-                Text = "Acquire Token"
+                Text = "Acquire Token",
+                AutomationId = "acquireToken"
             };
 
             var acquireTokenSilentButton = new Button
             {
-                Text = "Acquire Token Silent"
+                Text = "Acquire Token Silent",
+                AutomationId = "acquireTokenSilent"
             };
 
             var conditionalAccessButton = new Button
             {
-                Text = "Conditional Access"
+                Text = "Conditional Access",
+                AutomationId = "conditionalAccess"
             };
 
-            var clearButton = new Button
+            var clearAllCacheButton = new Button
             {
-                Text = "Clear Cache"
+                Text = "Clear All Cache",
+                AutomationId = "clearCache"
+            };
+
+            var acquireTokenWithBrokerButton = new Button
+            {
+                Text = "Acquire Token With Broker",
+                AutomationId = "acquireTokenBroker"
+            };
+
+            var acquireTokenSilentWithBrokerButton = new Button
+            {
+                Text = "Acquire Token Silent With Broker",
+                AutomationId = "acquireTokenSilentWithBroker"
+            };
+
+             testResult = new Label()
+            {
+                Text = "Success:",
+                VerticalOptions = LayoutOptions.FillAndExpand,
+                AutomationId = "testResult"
             };
 
             result = new Label()
@@ -81,15 +115,18 @@ namespace XFormsApp
                     VerticalOptions = LayoutOptions.FillAndExpand,
                     Children =
                     {
+                        testResult,
                         result
                     }
                 }
             };
 
-            acquireTokenButton.Clicked += browseButton_Clicked;
-            acquireTokenSilentButton.Clicked += acquireTokenSilentButton_Clicked;
-            conditionalAccessButton.Clicked += conditionalAccessButton_Clicked;
-            clearButton.Clicked += clearButton_Clicked;
+            acquireTokenButton.Clicked += AcquireTokenButton_Clicked;
+            acquireTokenSilentButton.Clicked += AcquireTokenSilentButton_Clicked;
+            conditionalAccessButton.Clicked += ConditionalAccessButton_Clicked;
+            clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
+            acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
+            acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
 
             Thickness padding;
             switch (Device.RuntimePlatform)
@@ -110,7 +147,9 @@ namespace XFormsApp
                     acquireTokenButton,
                     acquireTokenSilentButton,
                     conditionalAccessButton,
-                    clearButton,
+                    clearAllCacheButton,
+                    acquireTokenWithBrokerButton,
+                    acquireTokenSilentWithBrokerButton,
                     scrollView
                 }
             };
@@ -123,14 +162,14 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        private async void acquireTokenSilentButton_Clicked(object sender, EventArgs e)
+        private async void AcquireTokenSilentButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.windows.net", "de49ddaf-c7f8-4a06-8463-3c6ae124fe52").ConfigureAwait(false);
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientId).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -146,23 +185,83 @@ namespace XFormsApp
                     this.result.Text += "Logs : " + DrainLogs();
                 });
             }
-
         }
 
-        public IPlatformParameters Parameters { get; set; }
-
-        async void browseButton_Clicked(object sender, EventArgs e)
+        async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
+            string accessToken = String.Empty;
+            this.testResult.Text = "Success:";
             try
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.windows.net", "de49ddaf-c7f8-4a06-8463-3c6ae124fe52",
-                            new Uri("adaliosapp://com.yourcompany.xformsapp"),
-                            Parameters).ConfigureAwait(false);
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientId,
+                            new Uri(RedirectURI), Parameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Success: False" : "Success: True";
+                    this.result.Text += "Result : " + output;
+
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
+        private async void AcquireTokenWithBrokerButton_Clicked(object sender, EventArgs e)
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            string output = string.Empty;
+            string accessToken = String.Empty;
+            this.testResult.Text = "Success:";
+
+            try
+            {
+                AuthenticationResult result =
+                    await
+                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientIdBroker,
+                            new Uri(AndroidBrokerRedirectURI),
+                            BrokerParameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Success: False" : "Success: True";
+                    this.result.Text += "Result : " + output;
+
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
+        private async void AcquireTokenSilentWithBrokerButton_Clicked(object sender, EventArgs e)
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            string output = string.Empty;
+            try
+            {
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientIdBroker,
+                    new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -178,21 +277,36 @@ namespace XFormsApp
                     this.result.Text += "Logs : " + DrainLogs();
                 });
             }
-
         }
 
-        private async void conditionalAccessButton_Clicked(object sender, EventArgs e)
+        private string DeterminePlatformForRedirectUri()
+        {
+            switch (Device.RuntimePlatform)
+            {
+                case Device.iOS:
+                    RedirectURI = IOSBrokerRedirectURI;
+                    break;
+                case Device.Android:
+                    RedirectURI = AndroidBrokerRedirectURI;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return RedirectURI;
+        }
+
+        private async void ConditionalAccessButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string claims = "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
-            
+
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>",
-                        new Uri("adaliosapp://com.yourcompany.xformsapp"),
-                        Parameters, new UserIdentifier("<USER>", UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
+                AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net", ClientId,
+                        new Uri(IOSBrokerRedirectURI),
+                        Parameters, new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), null, claims).ConfigureAwait(false);
                 output = "Access Token: " + result.AccessToken;
             }
 
@@ -211,7 +325,7 @@ namespace XFormsApp
             }
         }
 
-        void clearButton_Clicked(object sender, EventArgs e)
+        void ClearAllCacheButton_Clicked(object sender, EventArgs e)
         {
             Device.BeginInvokeOnMainThread(() =>
             {

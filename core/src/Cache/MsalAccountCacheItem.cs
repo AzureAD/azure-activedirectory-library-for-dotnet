@@ -25,10 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
-using System;
 using System.Runtime.Serialization;
 
 namespace Microsoft.Identity.Core.Cache
@@ -39,20 +36,32 @@ namespace Microsoft.Identity.Core.Cache
         internal MsalAccountCacheItem(){
             AuthorityType = Cache.AuthorityType.MSSTS.ToString();
         }
-        internal MsalAccountCacheItem(Authority authority, string localAccountId, MsalTokenResponse response) : this()
+        internal MsalAccountCacheItem(string environment, MsalTokenResponse response) : this()
         {
-            Environment = authority.Host;
-
             IdToken idToken = IdToken.Parse(response.IdToken);
-            PreferredUsername = idToken.PreferredUsername;
-            Name = idToken.Name;
-            TenantId = idToken.TenantId;
 
-            LocalAccountId = localAccountId;
-
-            RawClientInfo = response.ClientInfo;
-            InitRawClientInfoDerivedProperties();
+            Init(environment, idToken?.ObjectId, response.ClientInfo, idToken.Name, idToken.PreferredUsername, idToken.TenantId);
         }
+
+        internal MsalAccountCacheItem(string environment, string localAccountId, string rawClientInfo,
+            string name, string preferredUsername, string tenantId) : this()
+        {
+            Init(environment, localAccountId, rawClientInfo, name, preferredUsername, tenantId);
+        }
+
+        private void Init(string environment, string localAccountId, string rawClientInfo, 
+            string name, string preferredUsername, string tenantId)
+        {
+            Environment = environment;
+            PreferredUsername = preferredUsername;
+            Name = name;
+            TenantId = tenantId;
+            LocalAccountId = localAccountId;
+            RawClientInfo = rawClientInfo;
+
+            InitUserIdentifier();
+        }
+
         [DataMember(Name = "realm")]
         internal string TenantId { get; set; }
 
@@ -74,9 +83,9 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "authority_type")]
         internal string AuthorityType { get; set; }
 
-        internal string GetAccountItemKey()
+        internal MsalAccountCacheKey GetKey()
         {
-            return new MsalAccountCacheKey(Environment, TenantId, UserIdentifier).ToString();
+            return new MsalAccountCacheKey(Environment, TenantId, HomeAccountId);
         }
     }
 }

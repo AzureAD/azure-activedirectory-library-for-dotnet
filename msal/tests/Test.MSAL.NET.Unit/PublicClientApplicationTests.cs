@@ -63,13 +63,23 @@ namespace Test.MSAL.NET.Unit
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+
+            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AddMockResponseForInstanceDisovery();
+        }
+
+        internal void AddMockResponseForInstanceDisovery()
+        {
+            HttpMessageHandlerFactory.AddMockHandler(
+                MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-            cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
+            cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
         }
 
         [TestMethod]
@@ -81,20 +91,20 @@ namespace Test.MSAL.NET.Unit
             // The caller asks for two scopes, but only one is returned
             var mockResult = Substitute.For<AuthenticationResult>();
             mockResult.IdToken.Returns("id token");
-            mockResult.Scopes.Returns(new string[] {"scope1"});
+            mockResult.Scopes.Returns(new string[] { "scope1" });
 
             var mockApp = Substitute.For<IPublicClientApplication>();
-            mockApp.AcquireTokenAsync(new string[] {"scope1", "scope2"}).ReturnsForAnyArgs(mockResult);
+            mockApp.AcquireTokenAsync(new string[] { "scope1", "scope2" }).ReturnsForAnyArgs(mockResult);
 
             // Now call the substitute with the args to get the substitute result
-            AuthenticationResult actualResult = mockApp.AcquireTokenAsync(new string[] {"scope1"}).Result;
+            AuthenticationResult actualResult = mockApp.AcquireTokenAsync(new string[] { "scope1" }).Result;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual("id token", actualResult.IdToken, "Mock result failed to return the expected id token");
 
             // Check the users properties returns the dummy users
             IEnumerable<string> scopes = actualResult.Scopes;
             Assert.IsNotNull(scopes);
-            CollectionAssert.AreEqual(new string[] {"scope1"}, actualResult.Scopes.ToArray());
+            CollectionAssert.AreEqual(new string[] { "scope1" }, actualResult.Scopes.ToArray());
         }
 
         [TestMethod]
@@ -111,7 +121,7 @@ namespace Test.MSAL.NET.Unit
 
             // Now call the substitute and check the exception is thrown
             MsalServiceException ex =
-                AssertException.Throws<MsalServiceException>(() => mockApp.AcquireTokenAsync(new string[] {"scope1"}));
+                AssertException.Throws<MsalServiceException>(() => mockApp.AcquireTokenAsync(new string[] { "scope1" }));
             Assert.AreEqual("my error code", ex.ErrorCode);
             Assert.AreEqual("my message", ex.Message);
         }
@@ -346,7 +356,7 @@ namespace Test.MSAL.NET.Unit
                 Method = HttpMethod.Get,
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
             });
-            
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Post,
@@ -359,7 +369,7 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
             Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.User.Identifier);
             Assert.AreEqual(TestConstants.DisplayableId, result.User.DisplayableId);
-            Assert.AreEqual(TestConstants.IdentityProvider, result.TenantId);
+            Assert.AreEqual(TestConstants.Utid, result.TenantId);
 
             // repeat interactive call and pass in the same user
             MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
@@ -370,9 +380,9 @@ namespace Test.MSAL.NET.Unit
                 Method = HttpMethod.Post,
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.ToString(),
                     MockHelpers.CreateIdToken(TestConstants.UniqueId + "more", TestConstants.DisplayableId + "more",
-                        TestConstants.IdentityProvider + "more"),
+                        TestConstants.Utid + "more"),
                     MockHelpers.CreateClientInfo(TestConstants.Uid + "more",
-                        TestConstants.IdentityProvider + "more"))
+                        TestConstants.Utid + "more"))
             });
 
             result = app.AcquireTokenAsync(TestConstants.Scope).Result;
@@ -380,9 +390,9 @@ namespace Test.MSAL.NET.Unit
             Assert.IsNotNull(result.User);
             Assert.AreEqual(TestConstants.UniqueId + "more", result.UniqueId);
             Assert.AreEqual(TestConstants.CreateUserIdentifer(TestConstants.Uid + "more",
-                TestConstants.IdentityProvider + "more"), result.User.Identifier);
+                TestConstants.Utid + "more"), result.User.Identifier);
             Assert.AreEqual(TestConstants.DisplayableId + "more", result.User.DisplayableId);
-            Assert.AreEqual(TestConstants.IdentityProvider + "more", result.TenantId);
+            Assert.AreEqual(TestConstants.Utid + "more", result.TenantId);
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
@@ -451,7 +461,7 @@ namespace Test.MSAL.NET.Unit
             }
             catch (AggregateException ex)
             {
-                MsalServiceException exc = (MsalServiceException) ex.InnerException;
+                MsalServiceException exc = (MsalServiceException)ex.InnerException;
                 Assert.IsNotNull(exc);
                 Assert.AreEqual("user_mismatch", exc.ErrorCode);
             }
@@ -460,8 +470,9 @@ namespace Test.MSAL.NET.Unit
                 && anEvent[ApiEvent.WasSuccessfulKey] == "false" && anEvent[ApiEvent.ApiErrorCodeKey] == "user_mismatch"
                 ));
 
-            Assert.AreEqual(1, app.Users.Count());
-            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            var users = app.GetUsers().Result;
+            Assert.AreEqual(1, users.Count());
+            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
@@ -518,15 +529,16 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateClientInfo(TestConstants.Uid, TestConstants.Utid + "more"))
             });
 
-            result = app.AcquireTokenAsync(TestConstants.Scope, (IUser) null, UIBehavior.SelectAccount, null).Result;
+            result = app.AcquireTokenAsync(TestConstants.Scope, (IUser)null, UIBehavior.SelectAccount, null).Result;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.User);
             Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
             Assert.AreEqual(TestConstants.CreateUserIdentifer(TestConstants.Uid, TestConstants.Utid + "more"),
                 result.User.Identifier);
             Assert.AreEqual(TestConstants.DisplayableId, result.User.DisplayableId);
-            Assert.AreEqual(2, app.Users.Count());
-            Assert.AreEqual(2, cache.TokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            var users = app.GetUsers().Result;
+            Assert.AreEqual(2, users.Count());
+            Assert.AreEqual(2, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
@@ -535,7 +547,7 @@ namespace Test.MSAL.NET.Unit
         public void GetUsersTest()
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-            IEnumerable<IUser> users = app.Users;
+            IEnumerable<IUser> users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             Assert.IsFalse(users.Any());
             cache = new TokenCache()
@@ -544,85 +556,63 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
-            users = app.Users;
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+            users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             Assert.AreEqual(1, users.Count());
 
-            MsalAccessTokenCacheItem item = new MsalAccessTokenCacheItem()
-            {
-                Authority = TestConstants.AuthorityHomeTenant,
-                Environment = TestConstants.ProductionEnvironment,
-                ClientId = TestConstants.ClientId,
-                TokenType = "Bearer",
-                ExpiresOnUnixTimestamp =
-                    CoreHelpers.DateTimeToUnixTimestamp((DateTime.UtcNow + TimeSpan.FromSeconds(3600))),
-                RawClientInfo = MockHelpers.CreateClientInfo(),
-                ScopeSet = TestConstants.Scope
-            };
-            item.CreateDerivedProperties();
-            item.Secret = item.GetAccessTokenItemKey().ToString();
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary[item.GetAccessTokenItemKey().ToString()] =
-                JsonHelper.SerializeToJson(item);
+            var atItem = new MsalAccessTokenCacheItem(
+                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ClientId,
+                "Bearer",
+                TestConstants.Scope.AsSingleString(),
+                TestConstants.Utid,
+                null,
+                new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(3600)),
+                MockHelpers.CreateClientInfo());
+
+            atItem.Secret = atItem.GetKey().ToString();
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] =
+                JsonHelper.SerializeToJson(atItem);
 
 
             // another cache entry for different uid. user count should be 2.
 
-            MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem()
-            {
-                Environment = TestConstants.ProductionEnvironment,
-                ClientId = TestConstants.ClientId,
-                Secret = "someRT",
-                RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1"),
-                TenantId = "uTId1"
-            };
-            rtItem.InitRawClientInfoDerivedProperties();
+            MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem
+                (TestConstants.ProductionPrefNetworkEnvironment, TestConstants.ClientId, "someRT", MockHelpers.CreateClientInfo("uId1", "uTId1"));
 
-            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetRefreshTokenItemKey().ToString()] =
+            cache.tokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
 
-            MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem()
-            {
-                Authority = TestConstants.AuthorityHomeTenant,
-                Environment = TestConstants.ProductionEnvironment,
-                TenantId = "uTId1",
-                ClientId = TestConstants.ClientId,
-                RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1"),
-                Secret = MockHelpers.CreateIdToken(TestConstants.UniqueId + "more", TestConstants.DisplayableId)
-            };
-            idTokenCacheItem.CreateDerivedProperties();
-            cache.TokenCacheAccessor.IdTokenCacheDictionary[idTokenCacheItem.GetIdTokenItemKey()] = JsonHelper.SerializeToJson(idTokenCacheItem);
+            MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem(
+                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ClientId,
+                MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
+                MockHelpers.CreateClientInfo("uId1", "uTId1"),
+                "uTId1");
+
+            cache.tokenCacheAccessor.IdTokenCacheDictionary[idTokenCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(idTokenCacheItem);
 
 
-            MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem()
-            {
-                Environment = TestConstants.ProductionEnvironment,
-                TenantId = "uTId1",
-                RawClientInfo = MockHelpers.CreateClientInfo("uId1", "uTId1"),
-            };
-            accountCacheItem.InitRawClientInfoDerivedProperties();
-            cache.TokenCacheAccessor.AccountCacheDictionary[accountCacheItem.GetAccountItemKey()] = JsonHelper.SerializeToJson(accountCacheItem);
+            MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
+                (TestConstants.ProductionPrefNetworkEnvironment, null, MockHelpers.CreateClientInfo("uId1", "uTId1"), null, null, "uTId1");
+
+            cache.tokenCacheAccessor.AccountCacheDictionary[accountCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(accountCacheItem);
 
 
-            Assert.AreEqual(2, cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
-            users = app.Users;
+            Assert.AreEqual(2, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             Assert.AreEqual(2, users.Count());
 
             // another cache entry for different environment. user count should still be 2. Sovereign cloud user must not be returned
-            rtItem = new MsalRefreshTokenCacheItem()
-            {
-                Environment = TestConstants.SovereignEnvironment,
-                ClientId = TestConstants.ClientId,
-                Secret = "someRT",
-                RawClientInfo = MockHelpers.CreateClientInfo(TestConstants.Uid + "more1", TestConstants.Utid),
-            };
-            rtItem.ClientInfo = ClientInfo.CreateFromJson(rtItem.RawClientInfo);
+            rtItem = new MsalRefreshTokenCacheItem(TestConstants.SovereignEnvironment, TestConstants.ClientId, "someRT", 
+                MockHelpers.CreateClientInfo(TestConstants.Uid + "more1", TestConstants.Utid));
 
-            cache.TokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetRefreshTokenItemKey().ToString()] =
+            cache.tokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
-            Assert.AreEqual(3, cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
-            users = app.Users;
+            Assert.AreEqual(3, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             Assert.AreEqual(2, users.Count());
         }
@@ -637,15 +627,15 @@ namespace Test.MSAL.NET.Unit
             {
                 ClientId = TestConstants.ClientId
             };
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-            foreach (var user in app.Users)
+            foreach (var user in app.GetUsers().Result)
             {
                 app.Remove(user);
             }
 
-            Assert.AreEqual(0, app.UserTokenCache.TokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
         }
 
         [TestMethod]
@@ -700,7 +690,7 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             try
             {
                 AuthenticationResult result = await app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(),
@@ -751,13 +741,13 @@ namespace Test.MSAL.NET.Unit
             });
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionEnvironment,
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
+                TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier,
                 TestConstants.ClientId,
-                TestConstants.ScopeForAnotherResource).ToString());
+                TestConstants.ScopeForAnotherResourceStr).ToString());
 
             Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource.ToArray(), new User()
             {
@@ -769,7 +759,7 @@ namespace Test.MSAL.NET.Unit
             Assert.IsNotNull(result);
             Assert.AreEqual(TestConstants.DisplayableId, result.User.DisplayableId);
             Assert.AreEqual(TestConstants.ScopeForAnotherResource.AsSingleString(), result.Scopes.AsSingleString());
-            Assert.AreEqual(2, cache.TokenCacheAccessor.GetAllAccessTokensAsString().Count());
+            Assert.AreEqual(2, cache.tokenCacheAccessor.GetAllAccessTokensAsString().Count());
         }
 
         [TestMethod]
@@ -788,13 +778,13 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionEnvironment,
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
+                TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier,
                 TestConstants.ClientId,
-                TestConstants.ScopeForAnotherResource).ToString());
+                TestConstants.ScopeForAnotherResourceStr).ToString());
 
             Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), new User()
             {
@@ -823,13 +813,13 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionEnvironment,
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
+                TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier,
                 TestConstants.ClientId,
-                TestConstants.ScopeForAnotherResource).ToString());
+                TestConstants.ScopeForAnotherResourceStr).ToString());
 
             Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), new User()
             {
@@ -847,7 +837,7 @@ namespace Test.MSAL.NET.Unit
         public void AcquireTokenSilentCacheOnlyLookupTest()
         {
             PublicClientApplication app =
-                new PublicClientApplication(TestConstants.ClientId, TestConstants.AuthorityHomeTenant)
+                new PublicClientApplication(TestConstants.ClientId, TestConstants.AuthorityTestTenant)
                 {
                     ValidateAuthority = false
                 };
@@ -858,13 +848,13 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
-            cache.TokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionEnvironment,
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
+                TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier,
                 TestConstants.ClientId,
-                TestConstants.ScopeForAnotherResource).ToString());
+                TestConstants.ScopeForAnotherResourceStr).ToString());
 
             Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), new User()
             {
@@ -885,17 +875,12 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("PublicClientApplicationTests")]
         public void AcquireTokenSilentForceRefreshTest()
         {
+            HttpMessageHandlerFactory.ClearMockHandlers();
+
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
             {
                 ValidateAuthority = false
             };
-
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
 
             cache = new TokenCache()
             {
@@ -903,7 +888,18 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+
+            HttpMessageHandlerFactory.AddMockHandler(
+                MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    TestConstants.GetDiscoveryEndpoint(TestConstants.PrefCacheAuthorityCommonTenant)));
+
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+            });
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -927,8 +923,8 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.Scope.ToArray().AsSingleString(),
                 result.Scopes.AsSingleString());
 
-            Assert.AreEqual(2, cache.TokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(2, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
@@ -956,11 +952,13 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = cache;
-            TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-            MockHttpMessageHandler mockHandler = new MockHttpMessageHandler();
-            mockHandler.Method = HttpMethod.Post;
-            mockHandler.ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage();
+            MockHttpMessageHandler mockHandler = new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
+            };
             HttpMessageHandlerFactory.AddMockHandler(mockHandler);
             try
             {
@@ -978,7 +976,7 @@ namespace Test.MSAL.NET.Unit
             {
                 Assert.IsNotNull(ex.InnerException);
                 Assert.IsTrue(ex.InnerException is MsalUiRequiredException);
-                var msalExc = (MsalUiRequiredException) ex.InnerException;
+                var msalExc = (MsalUiRequiredException)ex.InnerException;
                 Assert.AreEqual(msalExc.ErrorCode, MsalUiRequiredException.InvalidGrantError);
             }
 
@@ -1053,39 +1051,39 @@ namespace Test.MSAL.NET.Unit
         public void GetUserTest()
         {
             var app = new PublicClientApplication(TestConstants.ClientId);
-            var users = app.Users;
+            var users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             // no users in the cache
             Assert.AreEqual(0, users.Count());
 
-            var fetchedUser = app.GetUser(null);
+            var fetchedUser = app.GetUser(null).Result;
             Assert.IsNull(fetchedUser);
 
-            fetchedUser = app.GetUser("");
+            fetchedUser = app.GetUser("").Result;
             Assert.IsNull(fetchedUser);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, TestConstants.Uid,
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid,
                 TestConstants.Utid, TestConstants.Name);
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, TestConstants.Uid,
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid,
                 TestConstants.Utid);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, TestConstants.Uid + "1",
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
                 TestConstants.Utid, TestConstants.Name + "1");
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, TestConstants.Uid + "1",
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
                 TestConstants.Utid);
 
-            users = app.Users;
+            users = app.GetUsers().Result;
             Assert.IsNotNull(users);
             // two users in the cache
             Assert.AreEqual(2, users.Count());
 
             var userToFind = users.First();
 
-            fetchedUser = app.GetUser(userToFind.Identifier);
+            fetchedUser = app.GetUser(userToFind.Identifier).Result;
 
             Assert.AreEqual(userToFind.DisplayableId, fetchedUser.DisplayableId);
             Assert.AreEqual(userToFind.Identifier, fetchedUser.Identifier);
-            Assert.AreEqual(userToFind.Name, fetchedUser.Name);
+            Assert.AreEqual(userToFind.Environment, fetchedUser.Environment);
         }
 
         [TestMethod]
@@ -1118,6 +1116,8 @@ namespace Test.MSAL.NET.Unit
             {
                 Assert.IsNotNull(exc);
                 Assert.AreEqual("authentication_canceled", exc.ErrorCode);
+                Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
+                anEvent[EventBase.EventNameKey].EndsWith("ui_event") && anEvent[UiEvent.UserCancelledKey] == "true"));
                 return;
             }
             finally
@@ -1159,6 +1159,8 @@ namespace Test.MSAL.NET.Unit
             {
                 Assert.IsNotNull(exc);
                 Assert.AreEqual("access_denied", exc.ErrorCode);
+                Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
+                anEvent[EventBase.EventNameKey].EndsWith("ui_event") && anEvent[UiEvent.AccessDeniedKey] == "true"));
                 return;
             }
             finally

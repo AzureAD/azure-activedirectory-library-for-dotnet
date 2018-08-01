@@ -33,8 +33,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Core.Http
 {
@@ -83,7 +81,7 @@ namespace Microsoft.Identity.Core.Http
             HttpResponse response = null;
             try
             {
-                response = await Execute(endpoint, headers, bodyParameters, method);
+                response = await Execute(endpoint, headers, bodyParameters, method).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -103,7 +101,8 @@ namespace Microsoft.Identity.Core.Http
             }
             catch (TaskCanceledException exception)
             {
-                requestContext.Logger.Error(exception);
+                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(exception);
+                requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(exception);
                 isRetryable = true;
                 toThrow = exception;
@@ -117,7 +116,7 @@ namespace Microsoft.Identity.Core.Http
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
                     await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
-                    return await ExecuteWithRetry(endpoint, headers, bodyParameters, method, requestContext, false);
+                    return await ExecuteWithRetry(endpoint, headers, bodyParameters, method, requestContext, false).ConfigureAwait(false);
                 }
 
                 const string message = "Request retry failed.";
@@ -125,11 +124,17 @@ namespace Microsoft.Identity.Core.Http
                 requestContext.Logger.InfoPii(message);
                 if (toThrow != null)
                 {
-                    throw new MsalServiceException(MsalServiceException.RequestTimeout, "Request to the endpoint timed out.", toThrow);
+                    throw CoreExceptionFactory.Instance.GetServiceException(
+                        CoreErrorCodes.RequestTimeout,
+                        "Request to the endpoint timed out.",
+                        toThrow);
                 }
 
-                throw new MsalServiceException(MsalServiceException.ServiceNotAvailable,
-                    "Service is unavailable to process the request", (int) response.StatusCode);
+                throw CoreExceptionFactory.Instance.GetServiceException(
+                    CoreErrorCodes.ServiceNotAvailable,
+                    "Service is unavailable to process the request",
+                    null, 
+                    new ExceptionDetail { StatusCode = (int)response.StatusCode });
             }
 
             return response;

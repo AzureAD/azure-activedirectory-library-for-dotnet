@@ -37,26 +37,26 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         [TestCategory("RefreshTokenCacheKeyTests")]
         public void ConstructorTest()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionEnvironment,
+            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.ClientId, TestConstants.UserIdentifier);
 
             Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionEnvironment, key.Environment);
+            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
             Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.UserIdentifier);
+            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
         }
 
         [TestMethod]
         [TestCategory("RefreshTokenCacheKeyTests")]
         public void ToStringTest()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionEnvironment,
+            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.ClientId, TestConstants.UserIdentifier);
 
             Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionEnvironment, key.Environment);
+            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
             Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.UserIdentifier);
+            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
         }
     }
 }

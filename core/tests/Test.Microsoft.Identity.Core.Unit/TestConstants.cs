@@ -33,14 +33,17 @@ namespace Test.Microsoft.Identity.Core.Unit
 {
     class TestConstants
     {
+        public static readonly string ScopeStr = "scope1 scope2";
         public static readonly SortedSet<string> Scope = new SortedSet<string>(new[] {"r1/scope1", "r1/scope2"});
         public static readonly SortedSet<string> ScopeForAnotherResource = new SortedSet<string>(new[] { "r2/scope1", "r2/scope2" });
-        public static readonly string ProductionEnvironment = "login.microsoftonline.com";
+        public static readonly string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
+        public static readonly string ProductionPrefCacheEnvironment = "login.windows.net";
         public static readonly string SovereignEnvironment = "login.microsoftonline.de";
-        public static readonly string AuthorityHomeTenant = "https://" + ProductionEnvironment + "/home/";
-        public static readonly string AuthorityGuestTenant = "https://" + ProductionEnvironment + "/guest/";
-        public static readonly string AuthorityCommonTenant = "https://" + ProductionEnvironment + "/common/";
-        public static readonly string AuthorityOrganizationsTenant = "https://" + ProductionEnvironment + "/organizations/";
+        public static readonly string AuthorityHomeTenant = "https://" + ProductionPrefNetworkEnvironment + "/home/";
+        public static readonly string AuthorityGuestTenant = "https://" + ProductionPrefNetworkEnvironment + "/guest/";
+        public static readonly string AuthorityCommonTenant = "https://" + ProductionPrefNetworkEnvironment + "/common/";
+        public static readonly string PrefCacheAuthorityCommonTenant = "https://" + ProductionPrefCacheEnvironment + "/common/";
+        public static readonly string AuthorityOrganizationsTenant = "https://" + ProductionPrefNetworkEnvironment + "/organizations/";
         public static readonly string ClientId = "client_id";
         public static readonly string UniqueId = "unique_id";
         public static readonly string IdentityProvider = "my-idp";
@@ -48,8 +51,8 @@ namespace Test.Microsoft.Identity.Core.Unit
         public static readonly string DisplayableId = "displayable@id.com";
         public static readonly string RedirectUri = "urn:ietf:wg:oauth:2.0:oob";
         public static readonly string ClientSecret = "client_secret";
-        public static readonly string Uid = "my-UID";
-        public static readonly string Utid= "my-UTID";
+        public static readonly string Uid = "my-uid";
+        public static readonly string Utid= "my-utid";
 
         public static readonly string UserIdentifier = CreateUserIdentifer();
 

@@ -28,8 +28,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Http;
@@ -104,7 +104,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestMethod]
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryInternalApiSample()
-        {
+        { 
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
@@ -153,6 +153,10 @@ namespace Test.Microsoft.Identity.Core.Unit
                 var e2 = new UiEvent() { UserCancelled = false };
                 telemetry.StartEvent(reqId, e2);
                 telemetry.StopEvent(reqId, e2);
+
+                var e3 = new UiEvent() {AccessDenied = false };
+                telemetry.StartEvent(reqId, e3);
+                telemetry.StopEvent(reqId, e3);
             }
             finally
             {
@@ -172,6 +176,10 @@ namespace Test.Microsoft.Identity.Core.Unit
                 var e2 = new UiEvent() { UserCancelled = true };
                 telemetry.StartEvent(reqId, e2);
                 telemetry.StopEvent(reqId, e2);
+
+                var e3 = new UiEvent() { AccessDenied = true };
+                telemetry.StartEvent(reqId, e3);
+                telemetry.StopEvent(reqId, e3);
             }
             finally
             {

@@ -32,7 +32,6 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -389,9 +388,9 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 }).GetAwaiter().GetResult();
                 Assert.Fail("validation should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (TestServiceException exc)
             {
-                Assert.AreEqual(MsalClientException.TenantDiscoveryFailedError, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.TenantDiscoveryFailedError, exc.ErrorCode);
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);

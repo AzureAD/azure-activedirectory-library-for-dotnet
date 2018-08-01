@@ -114,6 +114,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         AuthenticationRequestParameters.RequestContext)
                         .ConfigureAwait(false);
                 uiEvent.UserCancelled = _authorizationResult.Status == AuthorizationStatus.UserCancel;
+                uiEvent.AccessDenied = _authorizationResult.Status == AuthorizationStatus.ProtocolError;
             }
             finally
             {
@@ -123,6 +124,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
+            await AuthenticationRequestParameters.Authority.Init
+                (AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+
             //this method is used in confidential clients to create authorization URLs.
             await AuthenticationRequestParameters.Authority.ResolveEndpointsAsync(AuthenticationRequestParameters.LoginHint, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
             return CreateAuthorizationUri();
@@ -245,7 +249,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private void VerifyAuthorizationResult()
         {
-            if (_authorizationResult.Status == AuthorizationStatus.Success && !_state.Equals(_authorizationResult.State))
+            if (_authorizationResult.Status == AuthorizationStatus.Success && !_state.Equals(_authorizationResult.State, StringComparison.OrdinalIgnoreCase))
             {
                 throw new MsalClientException(MsalClientException.StateMismatchError,
                     string.Format(CultureInfo.InvariantCulture, "Returned state({0}) from authorize endpoint is not the same as the one sent({1})", _authorizationResult.State, _state));

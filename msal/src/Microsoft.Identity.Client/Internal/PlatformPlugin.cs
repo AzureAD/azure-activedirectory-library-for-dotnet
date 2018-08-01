@@ -36,34 +36,27 @@ namespace Microsoft.Identity.Client.Internal
     {
         static PlatformPlugin()
         {
-            InitializeByAssemblyDynamicLinking();
+            ModuleInitializer.EnsureModuleInitialized();
+            InitializeWebFactoryAndPlatform();
         }
 
         public static IWebUIFactory WebUIFactory { get; set; }
         
         public static PlatformInformationBase PlatformInformation { get; set; }
 
-        public static void InitializeByAssemblyDynamicLinking()
+        private static void InitializeWebFactoryAndPlatform()
         {
 #if !FACADE
-            CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-            IWebUIFactory obj = null;
+            IWebUIFactory webUIFactory = null;
 
 #if ANDROID || iOS
-            obj = new Microsoft.Identity.Core.UI.WebUIFactory();
+            webUIFactory = new Microsoft.Identity.Core.UI.WebUIFactory();
 #else
-            obj = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
+            webUIFactory = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
 #endif
-            InjectDependecies(obj,
-                (PlatformInformationBase) new PlatformInformation());
-#endif
-        }
-
-        public static void InjectDependecies(IWebUIFactory webUIFactory,
-            PlatformInformationBase platformInformation)
-        {
             WebUIFactory = webUIFactory;
-            PlatformInformation = platformInformation;
+            PlatformInformation = new PlatformInformation();
+#endif
         }
 
 #if !FACADE

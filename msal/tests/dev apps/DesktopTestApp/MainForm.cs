@@ -82,7 +82,7 @@ namespace DesktopTestApp
 
         public void RefreshUserList()
         {
-            List<IUser> userListDataSource = _publicClientHandler.PublicClientApplication.Users.ToList();
+            List<IUser> userListDataSource = _publicClientHandler.PublicClientApplication.GetUsers().Result.ToList();
             if (userListDataSource.Count > 0)
             {
                 userListDataSource.Insert(0, new User() { DisplayableId = string.Empty });
@@ -135,7 +135,7 @@ namespace DesktopTestApp
         #endregion
 
         #region PublicClientApplication Acquire Token
-        private async void acquireTokenInteractive_Click(object sender, EventArgs e)
+        private async void AcquireTokenInteractive_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
             _publicClientHandler.LoginHint = loginHintTextBox.Text;
@@ -153,7 +153,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractive(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                 SetResultPageInfo(authenticationResult);
                 RefreshUserList();
@@ -163,7 +163,7 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-
+        
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
@@ -181,7 +181,7 @@ namespace DesktopTestApp
             try
             {
                 AuthenticationResult authenticationResult =
-                    await _publicClientHandler.AcquireTokenSilent(scopes.Text.AsArray());
+                    await _publicClientHandler.AcquireTokenSilentAsync(scopes.Text.AsArray());
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -190,7 +190,7 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-
+        
         private async void acquireTokenInteractiveAuthority_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
@@ -209,7 +209,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthority(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthorityAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -296,12 +296,8 @@ namespace DesktopTestApp
             foreach (MsalRefreshTokenCacheItem rtItem in _publicClientHandler.PublicClientApplication.UserTokenCache
                 .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
             {
-                MsalAccountCacheItem accountItem =
-                    _publicClientHandler.PublicClientApplication.UserTokenCache.GetAccountCacheItem(rtItem.GetAccountItemKey(),
-                    new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
-
                 AddControlToCachePageTableLayout(
-                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache, rtItem, accountItem)
+                    new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication, rtItem)
                     {
                         RefreshViewDelegate = LoadCacheTabPage
                     });
@@ -309,7 +305,7 @@ namespace DesktopTestApp
                 foreach (MsalAccessTokenCacheItem atItem in _publicClientHandler.PublicClientApplication.UserTokenCache
                     .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
                 {
-                    if (atItem.UserIdentifier.Equals(rtItem.UserIdentifier))
+                    if (atItem.HomeAccountId.Equals(rtItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                     {
                         AddControlToCachePageTableLayout(
                             new MsalUserAccessTokenControl(_publicClientHandler.PublicClientApplication.UserTokenCache,

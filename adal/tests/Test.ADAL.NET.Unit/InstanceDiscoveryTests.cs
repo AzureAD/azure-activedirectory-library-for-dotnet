@@ -60,7 +60,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenAuthorityIsInvalidButValidationIsNotRequired_ShouldCacheTheProvidedAuthority()
+        public async Task TestInstanceDiscovery_WhenAuthorityIsInvalidButValidationIsNotRequired_ShouldCacheTheProvidedAuthorityAsync()
         {
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
             {
@@ -88,7 +88,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenAuthorityIsValidButNoMetadataIsReturned_ShouldCacheTheProvidedAuthority()
+        public async Task TestInstanceDiscovery_WhenAuthorityIsValidButNoMetadataIsReturned_ShouldCacheTheProvidedAuthorityAsync()
         {
             string host = "login.windows.net";  // A whitelisted host
             RequestContext requestContext =new RequestContext(new AdalLogger(new Guid()));
@@ -129,7 +129,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenAuthorityIsValidAndMetadataIsReturned_ShouldCacheAllReturnedAliases()
+        public async Task TestInstanceDiscovery_WhenAuthorityIsValidAndMetadataIsReturned_ShouldCacheAllReturnedAliasesAsync()
         {
             string host = "login.windows.net";
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
@@ -170,7 +170,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscovery()
+        public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscoveryAsync()
         {
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
             var authenticator = new Authenticator("https://login.contoso.com/adfs", false);
@@ -180,7 +180,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestGetOrderedAliases_ShouldStartWithPreferredCacheAndGivenHost()
+        public async Task TestGetOrderedAliases_ShouldStartWithPreferredCacheAndGivenHostAsync()
         {
             string givenHost = "sts.microsoft.com";
             string preferredCache = "login.windows.net";
@@ -239,7 +239,11 @@ namespace Test.ADAL.NET.Unit
                             ""preferred_network"":""login-us.microsoftonline.com"",
                             ""preferred_cache"":""login-us.microsoftonline.com"",
                             ""aliases"":[
-                                ""login-us.microsoftonline.com""]}
+                                ""login-us.microsoftonline.com""]},
+                             {
+                                ""preferred_network"": ""uswest-dsts.dsts.core.windows.net/dstsv2"",
+                                ""preferred_cache"": ""uswest-dsts.dsts.core.windows.net/dstsv2"",
+                                ""aliases"": [""uswest-dsts.dsts.core.windows.net""]}
                         ]}"
                     )
                 }
@@ -248,7 +252,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForTokenRequest()
+        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForTokenRequestAsync()
         {
             string host = "login.windows.net";
             string preferredNetwork = "login.microsoftonline.com";
@@ -281,7 +285,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForUserRealmDiscovery()
+        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForUserRealmDiscoveryAsync()
         {
             string host = "login.windows.net";
             string preferredNetwork = "login.microsoftonline.com";
@@ -316,7 +320,7 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForDeviceCodeRequest()
+        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForDeviceCodeRequestAsync()
         {
             string host = "login.windows.net";
             string preferredNetwork = "login.microsoftonline.com";
@@ -336,6 +340,80 @@ namespace Test.ADAL.NET.Unit
 
             var handler = new AcquireDeviceCodeHandler(authenticator, "resource1", "clientId", null);
             await handler.RunHandlerAsync();
+
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
+        }
+
+        [TestMethod]
+        [TestCategory("InstanceDiscoveryTests")]
+        public async Task TestInstanceDiscovery_WhenAuthorityIsDsts()
+        {
+            string host = "uswest-dsts.dsts.core.windows.net/dstsv2";
+            for (int i = 0; i < 2; i++) // Prepare 2 mock responses
+            {
+                AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler($"https://{host}/home")
+                {
+                    Method = HttpMethod.Get,
+                    Url = $"https://{host}/common/discovery/instance",
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            @"{
+                            ""tenant_discovery_endpoint"" : ""https://uswest-dsts.dsts.core.windows.net/dstsv2/v1/.well-known/openid-configuration"",
+                            ""metadata"": [
+                                {
+                                ""preferred_network"": ""uswest-dsts.dsts.core.windows.net/dstsv2"",
+                                ""preferred_cache"": ""uswest-dsts.dsts.core.windows.net/dstsv2"",
+                                ""aliases"": [""uswest-dsts.dsts.core.windows.net""]
+                                }
+                            ]
+                            }"
+                        )
+                    }
+                });
+            }
+
+            RequestContext requestContext = new RequestContext(new AdalLogger(new Guid()));
+            // ADAL still behaves correctly using developer provided authority
+            var entry = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, requestContext).ConfigureAwait(false);
+            Assert.AreEqual("uswest-dsts.dsts.core.windows.net/dstsv2", entry.PreferredNetwork); // No exception raised, the host is returned as-is
+            Assert.AreEqual(1, AdalHttpMessageHandlerFactory.MockHandlersCount()); // 1 mock response is consumed, 1 remaining
+
+            // Subsequent requests do not result in further authority validation network requests for the process lifetime
+            var entry2 = await InstanceDiscovery.GetMetadataEntry(new Uri($"https://{host}/tenant"), true, requestContext).ConfigureAwait(false);
+            Assert.AreEqual("uswest-dsts.dsts.core.windows.net/dstsv2", entry2.PreferredNetwork);
+            Assert.AreEqual(1, AdalHttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
+        }
+
+        [TestMethod]
+        [TestCategory("InstanceDiscoveryTests")]
+        public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForTokenRequest_WithDstsAsync()
+        {
+            string host = "uswest-dsts.dsts.core.windows.net/dstsv2";
+            string preferredNetwork = "uswest-dsts.dsts.core.windows.net/dstsv2";
+            var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
+            AddMockInstanceDiscovery(host);
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
+
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                Url = $"https://{preferredNetwork}/contoso.com/oauth2/token", // This validates the token request is sending to expected host
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-token\"}")
+                }
+            });
+
+            var privateObject = new PrivateObject(new AcquireTokenForClientHandler(new RequestData
+            {
+                Authenticator = authenticator,
+                Resource = "resource1",
+                ClientKey = new ClientKey(new ClientCredential("client1", "something")),
+                SubjectType = TokenSubjectType.Client,
+                ExtendedLifeTimeEnabled = false
+            }));
+            await (Task)privateObject.Invoke("SendTokenRequestAsync");
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }

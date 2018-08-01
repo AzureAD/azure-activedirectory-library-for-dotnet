@@ -60,9 +60,19 @@ namespace Test.MSAL.NET.Unit
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-        }
 
-        class TestLegacyCachePersistance : ILegacyCachePersistance
+            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AddMockResponseForInstanceDisovery();
+    }
+
+    internal void AddMockResponseForInstanceDisovery()
+    {
+        HttpMessageHandlerFactory.AddMockHandler(
+            MockHelpers.CreateInstanceDiscoveryMockHandler(
+                TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
+    }
+
+    class TestLegacyCachePersistance : ILegacyCachePersistance
         {
             private byte[] data;
             public byte[] LoadCache()
@@ -115,8 +125,15 @@ namespace Test.MSAL.NET.Unit
 
             Assert.IsTrue(adalCacheDictionary.Count == 1);
 
-            // clear Msal cache
-            app.UserTokenCache.ClearCache();
+            var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
+            var users = app.UserTokenCache.GetUsers(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+            foreach (IUser user in users)
+            {
+                ISet<string> authorityHostAliases = new HashSet<string>();
+                authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
+
+                app.UserTokenCache.RemoveMsalUser(user, authorityHostAliases, requestContext);
+            }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {

@@ -26,11 +26,14 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -55,8 +58,8 @@ namespace XForms
 
         private void RefreshUsers()
         {
-            var userIds = App.MsalPublicClient.Users.Select(x => x.DisplayableId)
-                .ToList();
+            var userIds = App.MsalPublicClient.GetUsers().Result.
+                Select(x => x.DisplayableId).ToList();
 
             userIds.Add(UserNotSelected);
             usersPicker.ItemsSource = userIds;
@@ -73,16 +76,16 @@ namespace XForms
             };
 
             UIBehaviorPicker.ItemsSource = options;
-            UIBehaviorPicker.SelectedItem = UIBehavior.SelectAccount.PromptValue;
+            UIBehaviorPicker.SelectedItem = UIBehavior.ForceLogin.PromptValue;
         }
 
         private UIBehavior GetUIBehavior()
         {
             var selectedUIBehavior = UIBehaviorPicker.SelectedItem as string;
 
-            if (UIBehavior.ForceLogin.PromptValue.Equals(selectedUIBehavior))
+            if (UIBehavior.ForceLogin.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
                 return UIBehavior.ForceLogin;
-            if (UIBehavior.Consent.PromptValue.Equals(selectedUIBehavior))
+            if (UIBehavior.Consent.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
                 return UIBehavior.Consent;
 
             return UIBehavior.SelectAccount;
@@ -99,7 +102,7 @@ namespace XForms
 
             sb.AppendLine("user.DisplayableId : " + user.DisplayableId);
             //sb.AppendLine("user.IdentityProvider : " + user.IdentityProvider);
-            sb.AppendLine("user.Name : " + user.Name);
+            sb.AppendLine("user.Environment : " + user.Environment);
 
             return sb.ToString();
         }
@@ -121,12 +124,13 @@ namespace XForms
 
         private IUser getUserByDisplayableId(string str)
         {
-            return string.IsNullOrWhiteSpace(str) ? null : App.MsalPublicClient.Users.FirstOrDefault(user => user.DisplayableId.Equals(str));
+            return string.IsNullOrWhiteSpace(str) ? null : 
+                App.MsalPublicClient.GetUsers().Result.FirstOrDefault(user => user.DisplayableId.Equals(str, StringComparison.OrdinalIgnoreCase));
         }
 
         private string[] GetScopes()
         {
-            return ScopesEntry.Text.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            return ScopesEntry.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private string GetSelectedUserId()
@@ -134,10 +138,10 @@ namespace XForms
             if (usersPicker.SelectedIndex == -1) return null;
 
             var selectedUserId = usersPicker.SelectedItem as string;
-            return UserNotSelected.Equals(selectedUserId) ? null : selectedUserId;
+            return UserNotSelected.Equals(selectedUserId, StringComparison.OrdinalIgnoreCase) ? null : selectedUserId;
         }
 
-        private async void OnAcquireSilentlyClicked(object sender, EventArgs e)
+        private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
             await Task.Delay(700);
@@ -158,17 +162,13 @@ namespace XForms
 
                 acquireResponseLabel.Text = ToString(res);
             }
-            catch (MsalException exception)
-            {
-                acquireResponseLabel.Text = "MsalException - " + exception.Message;
-            }
             catch (Exception exception)
             {
-                acquireResponseLabel.Text = "Exception - " + exception.Message;
+                CreateExceptionMessage(exception);
             }
         }
 
-        private async void OnAcquireClicked(object sender, EventArgs e)
+        private async Task OnAcquireClickedAsync(object sender, EventArgs e)
         {
             try
             {
@@ -188,22 +188,51 @@ namespace XForms
                         GetExtraQueryParams(), App.UIParent);
                 }
 
-                acquireResponseLabel.Text = ToString(res);
+                var resText = ToString(res);
+
+                if (resText.Contains("AccessToken"))
+                    acquireResponseTitleLabel.Text = "Result: Success";
+
+                acquireResponseLabel.Text = resText;
                 RefreshUsers();
-            }
-            catch (MsalException exception)
-            {
-                acquireResponseLabel.Text = "MsalException - " + exception.Message;
             }
             catch (Exception exception)
             {
-                acquireResponseLabel.Text = "Exception - " + exception.Message;
+                CreateExceptionMessage(exception);
             }
         }
 
         private void OnClearClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "";
+            acquireResponseTitleLabel.Text = "Result:";
+        }
+
+        private async Task OnClearCacheClickedAsync(object sender, EventArgs e)
+        {
+            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var users = await tokenCache.GetUsers
+                (new Uri(App.Authority).Host, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+            foreach (var user in users)
+            {
+                await App.MsalPublicClient.Remove(user).ConfigureAwait(false);
+            }
+
+            acquireResponseLabel.Text = "";
+            acquireResponseTitleLabel.Text = "Result:";
+        }
+
+        private void CreateExceptionMessage(Exception exception)
+        {
+            if (exception is MsalException msalException)
+            {
+                acquireResponseLabel.Text = string.Format(CultureInfo.InvariantCulture, "MsalException -\nError Code: {0}\nMessage: {1}",
+                    msalException.ErrorCode, msalException.Message);
+            }
+            else
+            {
+                acquireResponseLabel.Text = "Exception - " + exception.Message;
+            }
         }
     }
 }

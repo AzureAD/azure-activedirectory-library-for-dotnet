@@ -9,11 +9,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;win81;MonoAndroid8.1;Xamarin.iOS10</TargetFrameworks>
+    <AssemblyName>Microsoft.Identity.Core</AssemblyName>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>build\Core.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
+    <CodeAnalysisRuleSet>../ConfigureAwait.ruleset</CodeAnalysisRuleSet>
 </PropertyGroup>
 
   <PropertyGroup Label="GenerateAssemblyInfo inputs">
@@ -30,7 +32,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
     <DefineConstants>$(DefineConstants);FACADE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
     <DefineConstants>$(DefineConstants);WINDOWS_APP</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid8.1'">
@@ -52,10 +54,10 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <None Remove="Cache\ILegacyCachePersistance.cs" />
-    <None Remove="Cache\MsalAccessTokenCacheKey.cs" />
-    <None Remove="Cache\MsalIdTokenCacheKey.cs" />
-    <None Remove="Cache\MsalRefreshTokenCacheKey.cs" />
+    <None Remove="ConfigureAwait.ruleset" />
+    <None Remove="Instance\AadInstanceDiscovery.cs" />
+    <None Remove="Instance\AuthorityType.cs" />
+    <None Remove="Instance\InstanceDiscoveryMetadataEntry.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
 
@@ -79,8 +81,8 @@
     <Compile Include="Features\Cache\**\*.cs" />
     <Compile Include="Platforms\net45\**\*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'win81' or '$(TargetFramework)' == 'uap10.0' ">
-    <Compile Include="Platforms\winrt\**\*.cs" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
+    <Compile Include="Platforms\uap\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="Platforms\netstandard1.1\*.cs" />
@@ -105,6 +107,9 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Runtime.Serialization" />
     <Compile Include="Platforms\iOS\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="All"/>
   </ItemGroup>
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">

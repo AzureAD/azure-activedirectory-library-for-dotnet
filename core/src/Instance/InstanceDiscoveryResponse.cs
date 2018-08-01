@@ -35,5 +35,8 @@ namespace Microsoft.Identity.Core.Instance
     {
         [DataMember(Name = "tenant_discovery_endpoint", IsRequired = false)]
         public string TenantDiscoveryEndpoint { get; set; }
+
+        [DataMember(Name = "metadata")]
+        public InstanceDiscoveryMetadataEntry[] Metadata { get; set; }
     }
 }

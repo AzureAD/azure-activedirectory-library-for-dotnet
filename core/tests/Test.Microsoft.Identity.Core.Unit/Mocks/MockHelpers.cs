@@ -145,7 +145,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
 
         public static HttpResponseMessage CreateSuccessTokenResponseMessage(string uniqueId, string displayableId, string[] scope)
         {
-            string idToken = CreateIdToken(uniqueId, displayableId, TestConstants.IdentityProvider);
+            string idToken = CreateIdToken(uniqueId, displayableId, TestConstants.Utid);
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             HttpContent content =
                 new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"scope\":\"" +
@@ -159,7 +159,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
 
         public static string CreateIdToken(string uniqueId, string displayableId)
         {
-            return CreateIdToken(uniqueId, displayableId, TestConstants.IdentityProvider);
+            return CreateIdToken(uniqueId, displayableId, TestConstants.Utid);
         }
 
         public static string CreateIdToken(string uniqueId, string displayableId, string tenantId)
@@ -208,7 +208,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             var authorityUri = new Uri(authority);
             string path = authorityUri.AbsolutePath.Substring(1);
             string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
-            if (tenant.ToLower(CultureInfo.InvariantCulture).Equals("common"))
+            if (tenant.ToLowerInvariant().Equals("common", StringComparison.OrdinalIgnoreCase))
             {
                 tenant = "{tenant}";
             }
@@ -221,6 +221,60 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             return CreateSuccessResponseMessage(string.Format(CultureInfo.InvariantCulture,
                 "{{\"authorization_endpoint\":\"{0}oauth2/v2.0/authorize{2}\",\"token_endpoint\":\"{0}oauth2/v2.0/token{2}\",\"issuer\":\"https://sts.windows.net/{1}\"}}",
                 authority, tenant, qp));
+        }
+
+        public static HttpMessageHandler CreateInstanceDiscoveryMockHandler(string url)
+        {
+            return CreateInstanceDiscoveryMockHandler(url,
+                @"{
+                        ""tenant_discovery_endpoint"":""https://login.microsoftonline.com/tenant/.well-known/openid-configuration"",
+                        ""api-version"":""1.1"",
+                        ""metadata"":[
+                            {
+                            ""preferred_network"":""login.microsoftonline.com"",
+                            ""preferred_cache"":""login.windows.net"",
+                            ""aliases"":[
+                                ""login.microsoftonline.com"",
+                                ""login.windows.net"",
+                                ""login.microsoft.com"",
+                                ""sts.windows.net""]},
+                            {
+                            ""preferred_network"":""login.partner.microsoftonline.cn"",
+                            ""preferred_cache"":""login.partner.microsoftonline.cn"",
+                            ""aliases"":[
+                                ""login.partner.microsoftonline.cn"",
+                                ""login.chinacloudapi.cn""]},
+                            {
+                            ""preferred_network"":""login.microsoftonline.de"",
+                            ""preferred_cache"":""login.microsoftonline.de"",
+                            ""aliases"":[
+                                    ""login.microsoftonline.de""]},
+                            {
+                            ""preferred_network"":""login.microsoftonline.us"",
+                            ""preferred_cache"":""login.microsoftonline.us"",
+                            ""aliases"":[
+                                ""login.microsoftonline.us"",
+                                ""login.usgovcloudapi.net""]},
+                            {
+                            ""preferred_network"":""login-us.microsoftonline.com"",
+                            ""preferred_cache"":""login-us.microsoftonline.com"",
+                            ""aliases"":[
+                                ""login-us.microsoftonline.com""]}
+                        ]
+                }");
+        }
+
+        public static HttpMessageHandler CreateInstanceDiscoveryMockHandler(string url, string content)
+        {
+            return new MockHttpMessageHandler()
+            {
+                Url = url,
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(content)
+                }
+            };
         }
     }
 }

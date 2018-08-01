@@ -25,15 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core.Cache
 {
@@ -42,48 +36,45 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalIdTokenCacheItem()
         {
+            CredentialType = Cache.CredentialType.idtoken.ToString();
         }
-        internal MsalIdTokenCacheItem(Authority authority, string clientId, MsalTokenResponse response, string tenantId)
+        internal MsalIdTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string tenantId)
+            : this(environment, clientId, response.IdToken, response.ClientInfo, tenantId)
         {
-            CredentialType = Cache.CredentialType.IdToken.ToString();
-            Authority = authority.CanonicalAuthority;
-
-            Environment = authority.Host;
+        }
+        internal MsalIdTokenCacheItem
+            (string environment, string clientId, string secret, string rawClientInfo, string tenantId) : this()
+        {
+            Environment = environment;
             TenantId = tenantId;
-
             ClientId = clientId;
+            Secret = secret;
+            RawClientInfo = rawClientInfo;
 
-            Secret = response.IdToken;
-
-            RawClientInfo = response.ClientInfo;
-
-            CreateDerivedProperties();
+            InitUserIdentifier();
         }
 
         [DataMember(Name = "realm")]
         internal string TenantId { get; set; }
 
-        [DataMember(Name = "authority")]
-        internal string Authority { get; set; }
-
-        internal IdToken IdToken { get; set; }
-
-        internal void CreateDerivedProperties()
+        internal string Authority
         {
-            IdToken = IdToken.Parse(Secret);
-
-            InitRawClientInfoDerivedProperties();
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
+            }
         }
 
-        [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
-        {
-            CreateDerivedProperties();
+        internal IdToken IdToken {
+            get
+            {
+                return IdToken.Parse(Secret);
+            }
         }
 
-        internal string GetIdTokenItemKey()
+        internal MsalIdTokenCacheKey GetKey()
         {
-            return new MsalIdTokenCacheKey(Environment, TenantId, UserIdentifier, ClientId).ToString();
+            return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);
         }
     }
 }

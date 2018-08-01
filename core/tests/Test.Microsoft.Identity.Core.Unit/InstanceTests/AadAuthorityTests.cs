@@ -31,7 +31,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -52,7 +51,10 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             new TestPlatformInformation();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
+            CoreExceptionFactory.Instance = new TestExceptionFactory();
             HttpMessageHandlerFactory.ClearMockHandlers();
+
+            AadInstanceDiscovery.Instance.InstanceCache.Clear();
         }
 
         [TestCleanup]
@@ -72,7 +74,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Url = "https://login.microsoftonline.com/common/discovery/instance",
                 QueryParams = new Dictionary<string, string>
                 {
-                    {"api-version", "1.0"},
+                    {"api-version", "1.1"},
                     {"authorization_endpoint", "https%3A%2F%2Flogin.microsoftonline.in%2Fmytenant.com%2Foauth2%2Fv2.0%2Fauthorize"},
                 },
                 ResponseMessage = MockHelpers.CreateSuccessResponseMessage(
@@ -148,7 +150,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Url = "https://login.microsoftonline.com/common/discovery/instance",
                 QueryParams = new Dictionary<string, string>
                 {
-                    {"api-version", "1.0"},
+                    {"api-version", "1.1"},
                     {"authorization_endpoint", "https%3A%2F%2Flogin.microsoft0nline.com%2Fmytenant.com%2Foauth2%2Fv2.0%2Fauthorize"},
                 },
                 ResponseMessage =
@@ -180,8 +182,8 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             }
             catch (Exception exc)
             {
-                Assert.IsNotNull(exc is MsalServiceException);
-                Assert.AreEqual(((MsalServiceException) exc).ErrorCode, "invalid_instance");
+                Assert.IsTrue(exc is TestServiceException);
+                Assert.AreEqual(((TestServiceException) exc).ErrorCode, "invalid_instance");
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);
@@ -251,9 +253,9 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                     .GetResult();
                 Assert.Fail("validation should have failed here");
             }
-            catch (MsalClientException exc)
+            catch (TestClientException exc)
             {
-                Assert.AreEqual(MsalClientException.TenantDiscoveryFailedError, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.TenantDiscoveryFailedError, exc.ErrorCode);
             }
 
             Assert.AreEqual(0, HttpMessageHandlerFactory.MockCount);
@@ -281,6 +283,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             Assert.AreEqual(uriCustomPortTailSlash, authority.CanonicalAuthority);
         }
 
+        /*
         [TestMethod]
         [TestCategory("AadAuthorityTests")]
         public void DeprecatedAuthorityTest()
@@ -296,5 +299,6 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             authority = Authority.CreateAuthority("https://login.windows.net:444/tfp/tenant/policy", false);
             Assert.AreEqual("https://login.microsoftonline.com:444/tfp/tenant/policy/", authority.CanonicalAuthority);
         }
+        */
     }
 }

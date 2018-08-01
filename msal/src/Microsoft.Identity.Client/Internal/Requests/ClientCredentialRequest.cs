@@ -44,16 +44,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return inputScope;
         }
         
-        internal override Task PreTokenRequest()
+        internal override async Task PreTokenRequest()
         {
             // look for access token in the cache first.
             if (!ForceRefresh && LoadFromCache)
             {
                 MsalAccessTokenItem
-                    = TokenCache.FindAccessToken(AuthenticationRequestParameters);
+                    = await TokenCache.FindAccessToken(AuthenticationRequestParameters).ConfigureAwait(false);
             }
-
-            return CompletedTask;
         }
         protected override async Task SendTokenRequestAsync()
         {
