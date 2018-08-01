@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Core.Telemetry
     /// <summary>
     /// 
     /// </summary>
-    public class Telemetry
+    internal class TelemetryService
     {
         /// <summary>
         /// 
@@ -54,15 +54,15 @@ namespace Microsoft.Identity.Core.Telemetry
             _receiver = r;
         }
 
-        private static readonly Telemetry Singleton = new Telemetry();
+        private static readonly TelemetryService Singleton = new TelemetryService();
 
-        internal Telemetry(){}  // This is an internal constructor to build isolated unit test instance
+        internal TelemetryService(){}  // This is an internal constructor to build isolated unit test instance
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public static Telemetry GetInstance()
+        public static TelemetryService GetInstance()
         {
             return Singleton;
         }

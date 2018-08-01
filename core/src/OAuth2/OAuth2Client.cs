@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Core.OAuth2
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
             var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
-            Telemetry.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
+            Telemetry.TelemetryService.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
                 if (method == HttpMethod.Post)
@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Core.OAuth2
             }
             finally
             {
-                Telemetry.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, httpEvent);
+                Telemetry.TelemetryService.GetInstance().StopEvent(requestContext.TelemetryRequestId, httpEvent);
             }
 
             return CreateResponse<T>(response, requestContext, addCorrelationId);

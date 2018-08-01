@@ -249,7 +249,7 @@ namespace Microsoft.Identity.Client
         internal async Task<MsalAccessTokenCacheItem> FindAccessToken(AuthenticationRequestParameters requestParams)
         {
             var cacheEvent = new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.AT };
-            Telemetry.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
+            TelemetryService.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             try
             {   
                 ISet<string> authorityAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -270,7 +270,7 @@ namespace Microsoft.Identity.Client
             }
             finally
             {
-                Telemetry.GetInstance().StopEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
+                TelemetryService.GetInstance().StopEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             }
         }
 
@@ -470,14 +470,14 @@ namespace Microsoft.Identity.Client
         internal async Task<MsalRefreshTokenCacheItem> FindRefreshToken(AuthenticationRequestParameters requestParams)
         {
             var cacheEvent = new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.RT };
-            Telemetry.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
+            TelemetryService.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             try
             {
                 return await FindRefreshTokenCommon(requestParams).ConfigureAwait(false);
             }
             finally
             {
-                Telemetry.GetInstance().StopEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
+                TelemetryService.GetInstance().StopEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             }
         }
 
