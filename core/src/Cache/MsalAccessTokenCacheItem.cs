@@ -29,9 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
-using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Core.Cache
@@ -45,9 +43,9 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         internal MsalAccessTokenCacheItem
-            (Authority authority, string clientId, MsalTokenResponse response, string tenantId) : 
+            (string environment, string clientId, MsalTokenResponse response, string tenantId) : 
             
-            this(authority.Host, clientId, response.TokenType, response.Scope.AsLowerCaseSortedSet().AsSingleString(),
+            this(environment, clientId, response.TokenType, response.Scope.AsLowerCaseSortedSet().AsSingleString(),
                  tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo)
         {
         }

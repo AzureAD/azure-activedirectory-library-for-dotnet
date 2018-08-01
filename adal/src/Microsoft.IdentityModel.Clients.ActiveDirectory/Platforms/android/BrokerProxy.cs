@@ -120,9 +120,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (looper != null && looper == mContext.MainLooper)
             {
                 Exception exception = new AdalException(
-                    "calling this from your main thread can lead to deadlock");
+                    "Calling this from your main thread can lead to deadlock");
 
-                RequestContext.Logger.Error(exception.ToString());
+                string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(exception);
+                RequestContext.Logger.Error(noPiiMsg);
                 RequestContext.Logger.ErrorPii(exception);
 
                 if (mContext.ApplicationInfo.TargetSdkVersion >= BuildVersionCodes.Froyo)
@@ -193,7 +194,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    RequestContext.Logger.Error(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
             }
@@ -230,12 +232,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (OperationCanceledException e)
                 {
-                    RequestContext.Logger.Error(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
                 catch (AuthenticatorException e)
                 {
-                    RequestContext.Logger.Error(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
                 catch (Exception e)
@@ -244,7 +248,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     /*                    Logger.e(TAG, "Authenticator cancels the request", "",
                                                 ADALError.BROKER_AUTHENTICATOR_IO_EXCEPTION);*/
 
-                    RequestContext.Logger.Error(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
                 msg = "Returning result from Authenticator";
@@ -352,10 +357,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     null, new Handler(callerActivity.MainLooper));
 
                 // Making blocking request here
-                Bundle bundleResult = (Bundle) result.Result;
+                Bundle bundleResult = (Bundle)result.Result;
                 // Authenticator should throw OperationCanceledException if
                 // token is not available
-                intent = (Intent) bundleResult.GetParcelable(AccountManager.KeyIntent);
+                intent = (Intent)bundleResult.GetParcelable(AccountManager.KeyIntent);
 
                 // Add flag to this intent to signal that request is for broker
                 // logic
@@ -364,17 +369,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     intent.PutExtra(BrokerConstants.BrokerRequest, BrokerConstants.BrokerRequest);
                 }
             }
-            catch (OperationCanceledException e)
+            catch (AdalException)
             {
-                RequestContext.Logger.Error(e);
-                RequestContext.Logger.ErrorPii(e);
+                throw;
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                // Authenticator gets problem from webrequest or file read/write
-                var ex = new AdalException("Authenticator cancels the request", e);
-                RequestContext.Logger.Error(ex);
-                RequestContext.Logger.ErrorPii(ex);
+                string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                RequestContext.Logger.Error(noPiiMsg);
+                RequestContext.Logger.ErrorPii(e);
             }
 
             return intent;
@@ -442,7 +445,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (!string.IsNullOrEmpty(request.RedirectUri) && !string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException("redirect uri for broker invocation should be set to " + computedRedirectUri);
+                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat + computedRedirectUri);                
             }
 
             brokerOptions.PutString(BrokerConstants.AccountRedirect, request.RedirectUri);
@@ -543,7 +546,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    RequestContext.Logger.Error(e);
+                    string noPiiMsg = AdalExceptionFactory.GetPiiScrubbedExceptionDetails(e);
+                    RequestContext.Logger.Error(noPiiMsg);
                     RequestContext.Logger.ErrorPii(e);
                 }
 

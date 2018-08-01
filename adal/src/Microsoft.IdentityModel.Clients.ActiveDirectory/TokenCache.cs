@@ -29,7 +29,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
@@ -37,7 +36,6 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -52,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="args">Arguments related to the cache item impacted</param>
         public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
-        
+
         internal readonly IDictionary<AdalTokenCacheKey, AdalResultWrapper> tokenCacheDictionary;
 
         // We do not want to return near expiry tokens, this is why we use this hard coded setting to refresh tokens which are close to expiration.
@@ -64,9 +62,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         static TokenCache()
         {
-            // to do - consider other options
-            // init default logger
-            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(AdalLogger).TypeHandle);
+            ModuleInitializer.EnsureModuleInitialized();
 
             DefaultShared = new TokenCache
             {
@@ -200,7 +196,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs {TokenCache = this};
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
                 this.OnBeforeAccess(args);
 
                 List<TokenCacheItem> items =
@@ -241,11 +237,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (toRemoveKey != null)
                 {
                     this.tokenCacheDictionary.Remove(toRemoveKey);
-                    CoreLoggerBase.Default.Info("One item removed successfully");
+                    string msg = "One item removed successfully";
+                    CoreLoggerBase.Default.Info(msg);
+                    CoreLoggerBase.Default.InfoPii(msg);
                 }
                 else
                 {
-                    CoreLoggerBase.Default.Info("Item not Present in the Cache");
+                    string msg = "Item not Present in the Cache";
+                    CoreLoggerBase.Default.Info(msg);
+                    CoreLoggerBase.Default.InfoPii(msg);
                 }
 
                 this.HasStateChanged = true;
@@ -271,10 +271,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
             this.OnBeforeAccess(args);
             this.OnBeforeWrite(args);
-            CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
-                this.tokenCacheDictionary.Count));
+            string msg = String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
+                this.tokenCacheDictionary.Count);
+            CoreLoggerBase.Default.Info(msg);
+            CoreLoggerBase.Default.InfoPii(msg);
             this.tokenCacheDictionary.Clear();
-            CoreLoggerBase.Default.Info("Successfully Cleared Cache");
+            msg = "Successfully Cleared Cache";
+            CoreLoggerBase.Default.Info(msg);
+            CoreLoggerBase.Default.InfoPii(msg);
             this.HasStateChanged = true;
             this.OnAfterAccess(args);
         }
@@ -357,7 +361,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal static async Task<List<string>> GetOrderedAliases(string authority, bool validateAuthority, RequestContext requestContext)
         {
             var metadata = await InstanceDiscovery.GetMetadataEntry(new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
-            var aliasedAuthorities = new List<string>(new string[] {metadata.PreferredCache, GetHost(authority)});
+            var aliasedAuthorities = new List<string>(new string[] { metadata.PreferredCache, GetHost(authority) });
             aliasedAuthorities.AddRange(metadata.Aliases ?? Enumerable.Empty<string>());
             return aliasedAuthorities;
         }
@@ -523,14 +527,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 this.HasStateChanged = true;
 
-                IdToken idToken = IdToken.Parse(result.Result.IdToken);
-
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
+                    Identity.Core.IdToken idToken = Identity.Core.IdToken.Parse(result.Result.IdToken);
+                    
                     CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
-                        result.Result.UserInfo.IdentityProvider, result.Result.UserInfo.GivenName,
-                        result.Result.UserInfo.FamilyName, idToken.ObjectId);
+                        result.Result.UserInfo.GivenName,
+                        result.Result.UserInfo.FamilyName, idToken?.ObjectId);
                 }
             }
         }
@@ -582,20 +586,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         returnValue = resourceSpecificItems.First();
                         break;
                     case 0:
-                    {
-                        // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
-                        List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                            items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
-
-                        if (mrrtItems.Any())
                         {
-                            returnValue = mrrtItems.First();
-                            msg =
-                                "A Multi Resource Refresh Token for a different resource was found which can be used";
-                            requestContext.Logger.Info(msg);
-                            requestContext.Logger.InfoPii(msg);
+                            // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                            List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
+                                items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+
+                            if (mrrtItems.Any())
+                            {
+                                returnValue = mrrtItems.First();
+                                msg =
+                                    "A Multi Resource Refresh Token for a different resource was found which can be used";
+                                requestContext.Logger.Info(msg);
+                                requestContext.Logger.InfoPii(msg);
+                            }
                         }
-                    }
                         break;
                     default:
                         throw new AdalException(AdalError.MultipleTokensMatched);

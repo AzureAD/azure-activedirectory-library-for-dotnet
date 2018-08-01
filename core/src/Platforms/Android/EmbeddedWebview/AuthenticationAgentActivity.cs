@@ -63,7 +63,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             WebSettings webSettings = webView.Settings;
             string userAgent = webSettings.UserAgentString;
             webSettings.UserAgentString = userAgent + BrokerConstants.ClientTlsNotSupported;
-            CoreLoggerBase.Default.Verbose("UserAgent:" + webSettings.UserAgentString);
+            var msg = "UserAgent:" + webSettings.UserAgentString;
+            CoreLoggerBase.Default.Verbose(msg);
+            CoreLoggerBase.Default.VerbosePii(msg);
 
             webSettings.JavaScriptEnabled = true;
 
@@ -121,7 +123,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 Uri uri = new Uri(url);
                 if (url.StartsWith(BrokerConstants.BrowserExtPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    CoreLoggerBase.Default.Verbose("It is browser launch request");
+                    string msg = "It is browser launch request";
+                    CoreLoggerBase.Default.Verbose(msg);
+                    CoreLoggerBase.Default.VerbosePii(msg);
                     OpenLinkInBrowser(url, Activity);
                     view.StopLoading();
                     Activity.Finish();
@@ -130,7 +134,9 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
                 if (url.StartsWith(BrokerConstants.BrowserExtInstallPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    CoreLoggerBase.Default.Verbose("It is an azure authenticator install request");
+                    string msg = "It is an azure authenticator install request";
+                    CoreLoggerBase.Default.Verbose(msg);
+                    CoreLoggerBase.Default.VerbosePii(msg);
                     view.StopLoading();
                     this.Finish(Activity, url);
                     return true;
@@ -163,7 +169,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 {
                     UriBuilder errorUri = new UriBuilder(callback);
                     errorUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
-                        MsalError.NonHttpsRedirectNotSupported, MsalErrorMessage.NonHttpsRedirectNotSupported);
+                        CoreErrorCodes.NonHttpsRedirectNotSupported, CoreErrorMessages.NonHttpsRedirectNotSupported);
                     this.Finish(Activity, errorUri.ToString());
                     return true;
                 }

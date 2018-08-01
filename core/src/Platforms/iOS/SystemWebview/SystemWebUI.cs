@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using SafariServices;
 using UIKit;
 using System.Threading;
-using Microsoft.Identity.Client;
 
 namespace Microsoft.Identity.Core.UI.SystemWebview
 {
@@ -83,9 +82,13 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             }
             catch (Exception ex)
             {
-                requestContext.Logger.Error(ex);
+                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
+                requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(ex);
-                throw new MsalClientException(MsalClientException.AuthenticationUiFailedError, "Failed to invoke SFSafariViewController", ex);
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.AuthenticationUiFailedError, 
+                    "Failed to invoke SFSafariViewController", 
+                    ex);
             }
         }
 

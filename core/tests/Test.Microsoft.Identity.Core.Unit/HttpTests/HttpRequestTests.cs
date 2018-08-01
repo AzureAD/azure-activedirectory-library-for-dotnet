@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -49,6 +48,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
+            CoreExceptionFactory.Instance = new TestExceptionFactory();
         }
 
         [TestMethod]
@@ -143,10 +143,10 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
                     new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
-            catch (MsalServiceException exc)
+            catch (TestServiceException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalServiceException.ServiceNotAvailable, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
@@ -174,10 +174,10 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
                     new Dictionary<string, string>(), null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
-            catch (MsalServiceException exc)
+            catch (TestServiceException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalServiceException.ServiceNotAvailable, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
             }
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
@@ -207,10 +207,10 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
                     new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
-            catch (MsalServiceException exc)
+            catch (TestServiceException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalServiceException.RequestTimeout, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
                 Assert.IsTrue(exc.InnerException is TaskCanceledException);
             }
 
@@ -241,10 +241,10 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
                     new Dictionary<string, string>(), new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
-            catch (MsalServiceException exc)
+            catch (TestServiceException exc)
             {
                 Assert.IsNotNull(exc);
-                Assert.AreEqual(MsalServiceException.RequestTimeout, exc.ErrorCode);
+                Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
                 Assert.IsTrue(exc.InnerException is TaskCanceledException);
             }
 
