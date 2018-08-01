@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             Uri authorizationUri = CreateAuthorizationUri(true, true);
             var uiEvent = new UiEvent();
-            TelemetryService.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
+            Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
             try
             {
                 _authorizationResult = await
@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
             finally
             {
-                TelemetryService.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
+                Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
             }
         }
 

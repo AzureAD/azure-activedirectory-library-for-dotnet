@@ -29,13 +29,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Identity.Core.Telemetry;
 
-namespace Microsoft.Identity.Core.Telemetry
+namespace Microsoft.Identity.Client
 {
     /// <summary>
     /// 
     /// </summary>
-    internal class TelemetryService
+    public class Telemetry
     {
         /// <summary>
         /// 
@@ -54,15 +55,15 @@ namespace Microsoft.Identity.Core.Telemetry
             _receiver = r;
         }
 
-        private static readonly TelemetryService Singleton = new TelemetryService();
+        private static readonly Telemetry Singleton = new Telemetry();
 
-        internal TelemetryService(){}  // This is an internal constructor to build isolated unit test instance
+        internal Telemetry(){}  // This is an internal constructor to build isolated unit test instance
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public static TelemetryService GetInstance()
+        public static Telemetry GetInstance()
         {
             return Singleton;
         }

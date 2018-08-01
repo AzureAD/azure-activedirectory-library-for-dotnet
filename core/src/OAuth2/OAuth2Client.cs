@@ -36,6 +36,9 @@ using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
+using Telemetry = Microsoft.Identity.Client.Telemetry;
 
 namespace Microsoft.Identity.Core.OAuth2
 {
@@ -90,7 +93,7 @@ namespace Microsoft.Identity.Core.OAuth2
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
             var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
-            Telemetry.TelemetryService.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
+            Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
                 if (method == HttpMethod.Post)
@@ -111,7 +114,7 @@ namespace Microsoft.Identity.Core.OAuth2
             }
             finally
             {
-                Telemetry.TelemetryService.GetInstance().StopEvent(requestContext.TelemetryRequestId, httpEvent);
+                Client.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, httpEvent);
             }
 
             return CreateResponse<T>(response, requestContext, addCorrelationId);
