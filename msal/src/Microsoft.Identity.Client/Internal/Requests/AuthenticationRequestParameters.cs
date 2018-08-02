@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         public string SliceParameters { get; set; }
 
-        public bool SendX5c { get; set; }
+        public bool SendCertificate { get; set; }
 
 #if DESKTOP || NETSTANDARD1_3
         public ClientCredential ClientCredential { get; set; }
@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                             RequestContext.Logger.InfoPii(msg);
                             Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
                                 Authority.SelfSignedJwtAudience);
-                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendX5c);
+                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
                             ClientCredential.ValidTo = jwtToken.Payload.ValidTo;
                         }
                         else

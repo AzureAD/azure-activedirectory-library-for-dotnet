@@ -251,7 +251,7 @@ namespace Microsoft.Identity.Client
             AuthenticationRequestParameters parameters = CreateRequestParameters(authority, scopes, null,
                 AppTokenCache);
             parameters.IsClientCredentialRequest = true;
-            parameters.SendX5c = sendCert;
+            parameters.SendCertificate = sendCertificate;
             var handler = new ClientCredentialRequest(parameters, forceRefresh){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync().ConfigureAwait(false);
         }

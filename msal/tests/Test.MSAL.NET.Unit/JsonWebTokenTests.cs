@@ -113,8 +113,8 @@ namespace Test.MSAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test for client assertion with X509 public certificate using sendX5C")]
-        public async Task JsonWebTokenWithX509PublicCertSendX5CTestAsync()
+        [Description("Test for client assertion with X509 public certificate using sendCertificate")]
+        public async Task JsonWebTokenWithX509PublicCertSendCertificateTestAsync()
         {
             var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
             var clientAssertion = new ClientAssertionCertificate(certificate);

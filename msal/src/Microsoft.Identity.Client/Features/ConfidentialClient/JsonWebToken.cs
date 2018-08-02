@@ -87,10 +87,10 @@ namespace Microsoft.Identity.Client.Internal.Jwt
             };
         }
 
-        public string Sign(ClientAssertionCertificate credential, bool sendX5C)
+        public string Sign(ClientAssertionCertificate credential, bool sendCertificate)
         {
             // Base64Url encoded header and claims
-            string token = Encode(credential, sendX5C);
+            string token = Encode(credential, sendCertificate);
 
             // Length check before sign
             if (MaxTokenLength < token.Length)
@@ -111,9 +111,9 @@ namespace Microsoft.Identity.Client.Internal.Jwt
             return Base64UrlHelpers.Encode(segment);
         }
 
-        private static string EncodeHeaderToJson(ClientAssertionCertificate credential, bool sendX5C)
+        private static string EncodeHeaderToJson(ClientAssertionCertificate credential, bool sendCertificate)
         {
-            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential, sendX5C);
+            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential, sendCertificate);
             return JsonHelper.SerializeToJson(header);
         }
 
@@ -124,10 +124,10 @@ namespace Microsoft.Identity.Client.Internal.Jwt
             return (long) (diff.TotalSeconds);
         }
 
-        private string Encode(ClientAssertionCertificate credential, bool sendX5C)
+        private string Encode(ClientAssertionCertificate credential, bool sendCertificate)
         {
             // Header segment
-            string jsonHeader = EncodeHeaderToJson(credential, sendX5C);
+            string jsonHeader = EncodeHeaderToJson(credential, sendCertificate);
 
             string encodedHeader = EncodeSegment(jsonHeader);
 
@@ -204,13 +204,13 @@ namespace Microsoft.Identity.Client.Internal.Jwt
         [DataContract]
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
-            public JWTHeaderWithCertificate(ClientAssertionCertificate credential, bool sendX5C)
+            public JWTHeaderWithCertificate(ClientAssertionCertificate credential, bool sendCertificate)
                 : base(credential)
             {
                 X509CertificateThumbprint = this.Credential.Thumbprint;
                 X509CertificatePublicCertValue = null;
 
-                if (!sendX5C)
+                if (!sendCertificate)
                     return;
 
 #if NET45
