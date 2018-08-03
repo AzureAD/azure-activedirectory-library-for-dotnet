@@ -98,8 +98,8 @@ namespace WebApp.Utils
             ClientCredential clientCredential, string userId)
         {
             var confidentialClient = GetConfidentialClientWithExtraParams(clientCredential, Startup.Configuration["AzureAd:CommonAuthority"], userId, session);
-            var users = await confidentialClient.GetUsersAsync().ConfigureAwait(false);
-            var user = users.FirstOrDefault(u => u.DisplayableId.Equals(userName, StringComparison.OrdinalIgnoreCase));
+            var users = await confidentialClient.GetAccountsAsync().ConfigureAwait(false);
+            var user = users.FirstOrDefault(u => u.Username.Equals(userName, StringComparison.OrdinalIgnoreCase));
 
             return await confidentialClient.AcquireTokenSilentAsync(scopes, user);
         }

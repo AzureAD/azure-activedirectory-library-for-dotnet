@@ -132,9 +132,9 @@ namespace Microsoft.Identity.Client
         public bool ValidateAuthority { get; set; }
 
         /// <summary>
-        /// Returns a User centric view over the cache that provides a list of all the available users in the cache for the application.
+        /// Returns an <see cref="IAccount"/> centric view over the cache that provides a list of all the available accounts in the cache for the application.
         /// </summary>
-        public async Task<IEnumerable<IUser>> GetUsersAsync()
+        public async Task<IEnumerable<IAccount>> GetAccountsAsync()
         {
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
             if (UserTokenCache == null)
@@ -142,19 +142,19 @@ namespace Microsoft.Identity.Client
                 const string msg = "Token cache is null or empty. Returning empty list of users.";
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
-                return Enumerable.Empty<User>();
+                return Enumerable.Empty<Account>();
             }
-            return await UserTokenCache.GetUsersAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
+            return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Get user by identifier from users available in the cache.
+        /// Get the account by identifier from the accounts available in the cache.
         /// </summary>
         /// <param name="identifier">user identifier</param>
-        public async Task<IUser> GetUserAsync(string identifier)
+        public async Task<IAccount> GetAccountAsync(string identifier)
         {
-            var users = await GetUsersAsync().ConfigureAwait(false);
-            return users.FirstOrDefault(user => user.Identifier.Equals(identifier, StringComparison.OrdinalIgnoreCase));
+            var users = await GetAccountsAsync().ConfigureAwait(false);
+            return users.FirstOrDefault(user => user.HomeAccountId.Identifier.Equals(identifier, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -163,9 +163,9 @@ namespace Microsoft.Identity.Client
         /// close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
         /// </summary> 
         /// <param name="scopes">Array of scopes requested for resource</param>
-        /// <param name="user">User for which the token is requested. <see cref="IUser"/></param>
+        /// <param name="user">User for which the token is requested. <see cref="IAccount"/></param>
         /// <returns></returns>
-        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IUser user)
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount user)
         {
             return
                 await
@@ -179,11 +179,11 @@ namespace Microsoft.Identity.Client
         /// close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
-        /// <param name="user">User for which the token is requested <see cref="User"/></param>
+        /// <param name="user">User for which the token is requested <see cref="Account"/></param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using the refresh token if available</param>
         /// <returns></returns>
-        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount user,
             string authority, bool forceRefresh)
         {
             Authority authorityInstance = null;
@@ -202,7 +202,7 @@ namespace Microsoft.Identity.Client
         /// Removes all cached tokens for the specified user.
         /// </summary>
         /// <param name="user">instance of the user that needs to be removed</param>
-        public async Task RemoveAsync(IUser user)
+        public async Task RemoveAsync(IAccount user)
         {
             RequestContext requestContext = CreateRequestContext(Guid.Empty);
             if (user == null || UserTokenCache == null)
@@ -214,7 +214,7 @@ namespace Microsoft.Identity.Client
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
-            IEnumerable<string> scopes, IUser user, bool forceRefresh, ApiEvent.ApiIds apiId)
+            IEnumerable<string> scopes, IAccount user, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
             var handler = new SilentRequest(
                 CreateRequestParameters(authority, scopes, user, UserTokenCache),
@@ -225,7 +225,7 @@ namespace Microsoft.Identity.Client
 
         internal virtual AuthenticationRequestParameters CreateRequestParameters(Authority authority,
             IEnumerable<string> scopes,
-            IUser user, TokenCache cache)
+            IAccount user, TokenCache cache)
         {
             return new AuthenticationRequestParameters
             {
@@ -233,7 +233,7 @@ namespace Microsoft.Identity.Client
                 Authority = authority,
                 ClientId =  ClientId,
                 TokenCache = cache,
-                User = user,
+                Account = user,
                 Scope = scopes.CreateSetFromEnumerable(),
                 RedirectUri = new Uri(RedirectUri),
                 RequestContext = CreateRequestContext(Guid.Empty),
