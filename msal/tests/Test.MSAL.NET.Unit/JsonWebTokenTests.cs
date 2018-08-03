@@ -99,17 +99,29 @@ namespace Test.MSAL.NET.Unit
         };
 
         [TestInitialize]
-        public void Initialize()
+        public void TestInitialize()
         {
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
+            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+
+            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AddMockResponseForInstanceDisovery();
+
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
             });
+        }
+
+        internal void AddMockResponseForInstanceDisovery()
+        {
+            HttpMessageHandlerFactory.AddMockHandler(
+                MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -120,30 +132,16 @@ namespace Test.MSAL.NET.Unit
             var clientAssertion = new ClientAssertionCertificate(certificate);
             var clientCredential = new ClientCredential(clientAssertion);
             var app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.RedirectUri, clientCredential, cache, cache);
+            app.ValidateAuthority = false;
 
             //Check for x5c claim
             HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
-            AuthenticationResult result = await app.AcquireTokenForClientAsync(true, TestConstants.Scope);
+            AuthenticationResult result = await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(TestConstants.Scope);
             Assert.IsNotNull(result.AccessToken);
 
             //Check for empty x5c claim
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
-            result = await app.AcquireTokenForClientAsync(true, TestConstants.Scope);
-            Assert.IsNotNull(result.AccessToken);
-        }
-
-        [TestMethod]
-        [Description("Test for default client assertion without X509 public certificate claim")]
-        public async Task JsonWebTokenDefaultX509PublicCertDefaultClaimTestAsync()
-        {
-            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
-            var clientAssertion = new ClientAssertionCertificate(certificate);
-            var clientCredential = new ClientCredential(clientAssertion);
-            var app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.RedirectUri, clientCredential, null, null);
-
-            //Check for x5c claim
-            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
-            AuthenticationResult result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
+            result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
             Assert.IsNotNull(result.AccessToken);
         }
     }

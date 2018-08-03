@@ -60,6 +60,8 @@ namespace Test.MSAL.NET.Unit
         public static readonly string Utid = "my-utid";
         public static readonly string AuthorityTestTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
+        public static readonly string DefaultAuthorizationCode = "DefaultAuthorizationCode";
+        public static readonly string DefaultAccessToken = "DefaultAccessToken";
 
         public static readonly string UserIdentifier = CreateUserIdentifer();
 

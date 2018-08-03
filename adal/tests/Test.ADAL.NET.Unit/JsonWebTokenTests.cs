@@ -98,8 +98,6 @@ namespace Test.ADAL.NET.Unit
             InstanceDiscovery.InstanceCache.Clear();
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
             platformParameters = new PlatformParameters(PromptBehavior.Auto);
-
-            //var res = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId, TestConstants.DefaultResource);
         }
 
         [TestMethod]

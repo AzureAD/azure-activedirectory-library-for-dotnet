@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// Class to be used for confidential client applications like Web Apps/API.
     /// </summary>
-    public sealed class ConfidentialClientApplication : ClientApplicationBase, IConfidentialClientApplication
+    public sealed class ConfidentialClientApplication : ClientApplicationBase, IConfidentialClientApplication, IConfidentialClientApplicationWithCertificate
     {
         static ConfidentialClientApplication()
         {
@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Client
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
                 await
-                    AcquireTokenOnBehalfCommonAsync(authority, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUser)
+                    AcquireTokenOnBehalfCommonAsync(authority, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUser, false)
                         .ConfigureAwait(false);
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Identity.Client
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             return
                 await
-                    AcquireTokenOnBehalfCommonAsync(authorityInstance, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUserAuthority)
+                    AcquireTokenOnBehalfCommonAsync(authorityInstance, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUserAuthority, false)
                         .ConfigureAwait(false);
         }
 
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Client
                 await
                     AcquireTokenByAuthorizationCodeCommonAsync(
                         authorizationCode, scopes, new Uri(RedirectUri),
-                        ApiEvent.ApiIds.AcquireTokenByAuthorizationCodeWithCodeScope).ConfigureAwait(false);
+                        ApiEvent.ApiIds.AcquireTokenByAuthorizationCodeWithCodeScope, false).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -161,38 +161,38 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Acquires token from the service for the confidential client using the client credentials flow. See https://aka.ms/msal-net-client-credentials
-        /// </summary>
-        /// <param name="scopes">Array of scopes requested for resource</param>
-        /// <param name="sendCertificate">This parameter enables application developers to achieve easy certificates roll-over
-        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
+        /// This method enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: this method will send the public certificate to Azure AD
         /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
         /// This saves the application admin from the need to explicitly manage the certificate rollover
-        /// (either via portal or powershell/CLI operation)</param>
+        /// (either via portal or powershell/CLI operation)
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
         /// <returns>Authentication result containing application token for the requested scopes</returns>
-        public async Task<AuthenticationResult> AcquireTokenForClientAsync(bool sendCertificate, IEnumerable<string> scopes)
+        async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenForClientWithCertificateAsync(IEnumerable<string> scopes)
         {
             return
                 await
-                    AcquireTokenForClientCommonAsync(scopes, false, ApiEvent.ApiIds.AcquireTokenForClientWithScope, sendCertificate).ConfigureAwait(false);
+                    AcquireTokenForClientCommonAsync(scopes, false, ApiEvent.ApiIds.AcquireTokenForClientWithScope, true).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Acquires token from the service for the confidential client using the client credentials flow. See https://aka.ms/msal-net-client-credentials.
-        /// This method attempts to look up valid access token in the cache unless <paramref name="forceRefresh"/> is true
+        /// Acquires token from the service for the confidential client using the client credentials flow. See https://aka.ms/msal-net-client-credentials
+        /// This method attempts to look up valid access token in the cache unless<paramref name="forceRefresh"/> is true
+        /// This method enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: this method will send the public certificate to Azure AD
+        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via portal or powershell/CLI operation)
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
         /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using client credentials</param>
-        /// <param name="sendCertificate">This parameter enables application developers to achieve easy certificates roll-over
-        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
-        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
-        /// This saves the application admin from the need to explicitly manage the certificate rollover
-        /// (either via portal or powershell/CLI operation)</param>
         /// <returns>Authentication result containing application token for the requested scopes</returns>
-        public async Task<AuthenticationResult> AcquireTokenForClientAsync(bool sendCertificate, IEnumerable<string> scopes, bool forceRefresh)
+        async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenForClientWithCertificateAsync(IEnumerable<string> scopes, bool forceRefresh)
         {
             return
                 await
-                    AcquireTokenForClientCommonAsync(scopes, forceRefresh, ApiEvent.ApiIds.AcquireTokenForClientWithScopeRefresh, sendCertificate).ConfigureAwait(false);
+                    AcquireTokenForClientCommonAsync(scopes, forceRefresh, ApiEvent.ApiIds.AcquireTokenForClientWithScopeRefresh, true).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -257,21 +257,23 @@ namespace Microsoft.Identity.Client
         }
 
         private async Task<AuthenticationResult> AcquireTokenOnBehalfCommonAsync(Authority authority,
-            IEnumerable<string> scopes, UserAssertion userAssertion, ApiEvent.ApiIds apiId)
+            IEnumerable<string> scopes, UserAssertion userAssertion, ApiEvent.ApiIds apiId, bool sendCertificate)
         {
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.UserAssertion = userAssertion;
+            requestParams.SendCertificate = sendCertificate;
             var handler = new OnBehalfOfRequest(requestParams){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
         private async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeCommonAsync(string authorizationCode,
-            IEnumerable<string> scopes, Uri redirectUri, ApiEvent.ApiIds apiId)
+            IEnumerable<string> scopes, Uri redirectUri, ApiEvent.ApiIds apiId, bool sendCertificate)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.AuthorizationCode = authorizationCode;
             requestParams.RedirectUri = redirectUri;
+            requestParams.SendCertificate = sendCertificate;
             var handler =
                 new AuthorizationCodeRequest(requestParams){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync().ConfigureAwait(false);
