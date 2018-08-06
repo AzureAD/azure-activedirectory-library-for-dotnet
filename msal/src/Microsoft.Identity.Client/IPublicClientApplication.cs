@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Client
 
         // expose the interactive API without UIParent only for platforms that 
         // do not need it to operate like desktop, UWP, iOS.
-#if !ANDROID
+#if !ANDROID && !FACADE
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>
@@ -138,7 +138,8 @@ namespace Microsoft.Identity.Client
             string authority);
 
 #endif
-        
+
+#if !FACADE
         // these API methods are exposed on other platforms.
         /// <summary>
         /// Interactive request to acquire token. 
@@ -236,5 +237,6 @@ namespace Microsoft.Identity.Client
             string extraQueryParameters,
             IEnumerable<string> extraScopesToConsent,
             string authority, UIParent parent);
+#endif
     }
 }
