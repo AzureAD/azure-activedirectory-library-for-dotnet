@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,26 +25,47 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
+using System;
+using System.Globalization;
+
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains parameters used by the MSAL call accessing the cache.
+    /// Contains information of a single account. A user can be present in multiple directorie and thus have multiple accounts.
+    /// This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
     /// </summary>
-    public sealed class TokenCacheNotificationArgs
+    internal sealed class Account: IAccount
     {
-        /// <summary>
-        /// Gets the TokenCache
-        /// </summary>
-        public TokenCache TokenCache { get; internal set; }
+        public Account()
+        {
+        }
 
-        /// <summary>
-        /// Gets the ClientId
-        /// </summary>
-        public string ClientId { get; internal set; }
+        public Account(AccountId homeAccountId, string username, string environment)
+        {
+            if (homeAccountId == null)
+            {
+                throw new ArgumentNullException(nameof(homeAccountId));
+            }
 
-        /// <summary>
-        /// Gets the account associated with this notification
-        /// </summary>
-        public IAccount Account { get; internal set; }
+            Username = username;
+            Environment = environment;
+            HomeAccountId = homeAccountId;
+        }
+
+        public string Username { get; internal set; }
+
+        public string Environment { get; internal set; }
+
+        public AccountId HomeAccountId { get; internal set; }
+
+        public override string ToString()
+        {
+            return String.Format(
+                CultureInfo.CurrentCulture,
+                "Account username: {0} environment {1} home account id: {2}",
+                Username, Environment, HomeAccountId.ToString());
+
+        }
     }
 }

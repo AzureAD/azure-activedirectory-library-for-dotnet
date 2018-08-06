@@ -36,14 +36,14 @@ namespace SampleApp
     public partial class MainForm : Form
     {
         private readonly MsalAuthHelper _msalHelper = new MsalAuthHelper("11744750-bfe5-4818-a1c0-655455f68fa7");
-        private IUser user = null;
+        private IAccount user = null;
         public MainForm()
         {
             InitializeComponent();
             tabControl1.Appearance = TabAppearance.FlatButtons;
             tabControl1.ItemSize = new Size(0, 1);
             tabControl1.SizeMode = TabSizeMode.Fixed;
-            user = _msalHelper.Application.GetUsersAsync().Result.FirstOrDefault();
+            user = _msalHelper.Application.GetAccountsAsync().Result.FirstOrDefault();
             tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
 
             signInPage.BackColor = Color.FromArgb(255, 67, 143, 255);

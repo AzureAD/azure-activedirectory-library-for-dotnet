@@ -25,48 +25,31 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
+    /// Contains information of a single account and can be used to perform an AcquireTokenSilentAsync operation. The same user
+    /// can be present in different tenants, i.e. a user can have multiple accounts.
     /// </summary>
-    internal sealed class User: IUser
+    public interface IAccount
     {
-        public User()
-        {
-        }
-
-        internal User(User other)
-        {
-            DisplayableId = other.DisplayableId;
-            Identifier = other.Identifier;
-            Environment = other.Environment;
-        }
-
-        public User(string identifier, string displayableId, string environment)
-        {
-            if (string.IsNullOrWhiteSpace(identifier))
-            {
-                throw new ArgumentNullException(nameof(identifier));
-            }
-
-            DisplayableId = displayableId;
-            Environment = environment;
-            Identifier = identifier;
-        }
+        /// <summary>
+        /// Gets a displayable value in UserPrincipalName (UPN) format, e.g. "john.doe@contoso.com"
+        /// </summary>
+        /// <remarks>Can be null</remarks>
+        string Username { get; }
 
         /// <summary>
-        /// Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
+        /// Gets the identity provider for this account, e.g. "login.microsoftonline.com"
         /// </summary>
-        public string DisplayableId { get; internal set; }
+        /// <remarks>Can be null</remarks>
+        string Environment { get; }
 
         /// <summary>
-        /// Gets given name of the user if provided by the service. If not, the value is null.
+        /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. 
         /// </summary>
-        public string Environment { get; internal set; }
-
-        public string Identifier { get; internal set; }
-    }
+        /// <remarks>Can be null</remarks>
+        AccountId HomeAccountId { get; }
+   }
 }

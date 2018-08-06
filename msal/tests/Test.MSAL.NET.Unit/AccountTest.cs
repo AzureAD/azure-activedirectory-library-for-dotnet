@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,28 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 
-namespace Microsoft.Identity.Client
+using Microsoft.Identity.Client;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+
+namespace Test.MSAL.NET.Unit
 {
-    /// <summary>
-    /// Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
-    /// </summary>
-    public interface IUser
+    [TestClass]
+    public class AccountTest
     {
-        /// <summary>
-        /// Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
-        /// </summary>
-        string DisplayableId { get; }
+        [TestMethod]
+        public void EqualityTest()
+        {
+            AccountId accountId1 = new AccountId("a.b", "c", "d");
+            AccountId accountId2 = new AccountId("a.b", "e", "f");
 
-        /// <summary>
-        /// Gets user`s environment.
-        /// </summary>
-        string Environment { get; }
-
-        /// <summary>
-        /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. Cannot be null.
-        /// </summary>
-        string Identifier { get; }
-   }
+            Assert.AreEqual(accountId1, accountId2);
+        }
+    }
 }

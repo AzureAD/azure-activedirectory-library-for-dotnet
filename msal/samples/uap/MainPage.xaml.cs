@@ -45,7 +45,7 @@ namespace MsalUAPTestApp
             AuthenticationResult authResult = null;
             try
             {
-                var users = await PublicClientApp.GetUsersAsync();
+                var users = await PublicClientApp.GetAccountsAsync();
                 authResult = await PublicClientApp.AcquireTokenSilentAsync(scopes, users.FirstOrDefault());
             }
             catch (MsalUiRequiredException ex)
@@ -106,7 +106,7 @@ namespace MsalUAPTestApp
         /// </summary>
         private async void SignOutButton_Click(object sender, RoutedEventArgs e)
         {
-            var users = await PublicClientApp.GetUsersAsync();
+            var users = await PublicClientApp.GetAccountsAsync();
             if (users.Any())
             {
                 try
@@ -131,9 +131,9 @@ namespace MsalUAPTestApp
             TokenInfoText.Text = "";
             if (authResult != null)
             {
-                TokenInfoText.Text += $"Identifier: {authResult.User.Identifier}" + Environment.NewLine;
-                TokenInfoText.Text += $"Env: {authResult.User.Environment}" + Environment.NewLine;
-                TokenInfoText.Text += $"Username: {authResult.User.DisplayableId}" + Environment.NewLine;
+                TokenInfoText.Text += $"Identifier: {authResult.Account.HomeAccountId}" + Environment.NewLine;
+                TokenInfoText.Text += $"Env: {authResult.Account.Environment}" + Environment.NewLine;
+                TokenInfoText.Text += $"Username: {authResult.Account.Username}" + Environment.NewLine;
                 TokenInfoText.Text += $"Token Expires: {authResult.ExpiresOn.ToLocalTime()}" + Environment.NewLine;
                 TokenInfoText.Text += $"Access Token: {authResult.AccessToken}" + Environment.NewLine;
             }
