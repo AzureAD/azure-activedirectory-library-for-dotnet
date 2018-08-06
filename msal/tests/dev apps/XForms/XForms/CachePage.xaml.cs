@@ -50,7 +50,7 @@ namespace XForms
 
         private void RefreshCacheView()
         {
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var tokenCache = App.MsalPublicClient.AccountTokenCache;
 
             var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
 
@@ -94,7 +94,7 @@ namespace XForms
 
         private async Task OnClearClickedAsync(object sender, EventArgs e)
         {
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var tokenCache = App.MsalPublicClient.AccountTokenCache;
             var users = await tokenCache.GetAccountsAsync
                 (new Uri(App.Authority).Host, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
             foreach (var user in users)
@@ -114,7 +114,7 @@ namespace XForms
         {
             var mi = ((MenuItem) sender);
             var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var tokenCache = App.MsalPublicClient.AccountTokenCache;
 
             // set access token as expired
             accessTokenCacheItem.ExpiresOnUnixTimestamp = GetCurrentTimestamp();
@@ -130,7 +130,7 @@ namespace XForms
             var mi = ((MenuItem)sender);
             var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
 
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var tokenCache = App.MsalPublicClient.AccountTokenCache;
             // todo pass idToken instead of null
             var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
 
@@ -143,7 +143,7 @@ namespace XForms
         {
             var mi = ((MenuItem) sender);
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem) mi.CommandParameter;
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var tokenCache = App.MsalPublicClient.AccountTokenCache;
 
             // invalidate refresh token
             refreshTokenCacheItem.Secret = "InvalidValue";

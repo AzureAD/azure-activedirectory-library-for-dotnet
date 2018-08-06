@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Client
         public PublicClientApplication(string clientId, string authority)
             : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
         {
-            UserTokenCache = new TokenCache()
+            AccountTokenCache = new TokenCache()
             {
                 ClientId = clientId
             };
@@ -354,7 +354,7 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> extraScopesToConsent, string loginHint, UIBehavior behavior,
             string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
         {
-            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
+            var requestParams = CreateRequestParameters(authority, scopes, null, AccountTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
 #if iOS || ANDROID
@@ -373,7 +373,7 @@ namespace Microsoft.Identity.Client
         private async Task<AuthenticationResult> AcquireTokenForUserCommonAsync(Authority authority, IEnumerable<string> scopes,
             IEnumerable<string> extraScopesToConsent, IAccount user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
         {
-            var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
+            var requestParams = CreateRequestParameters(authority, scopes, user, AccountTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
 #if iOS || ANDROID

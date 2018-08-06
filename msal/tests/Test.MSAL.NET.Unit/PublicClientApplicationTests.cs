@@ -404,7 +404,7 @@ namespace Test.MSAL.NET.Unit
             cache.ClientId = TestConstants.ClientId;
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
             {
-                UserTokenCache = cache
+                AccountTokenCache = cache
             };
 
             MockWebUI ui = new MockWebUI()
@@ -484,7 +484,7 @@ namespace Test.MSAL.NET.Unit
             cache.ClientId = TestConstants.ClientId;
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
             {
-                UserTokenCache = cache
+                AccountTokenCache = cache
             };
 
             MockWebUI ui = new MockWebUI()
@@ -555,7 +555,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             users = app.GetAccountsAsync().Result;
             Assert.IsNotNull(users);
@@ -623,7 +623,7 @@ namespace Test.MSAL.NET.Unit
         public void GetUsersAndSignThemOutTest()
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-            app.UserTokenCache = new TokenCache()
+            app.AccountTokenCache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
             };
@@ -634,8 +634,8 @@ namespace Test.MSAL.NET.Unit
                 app.RemoveAsync(user).Wait();
             }
 
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
         }
 
         [TestMethod]
@@ -653,7 +653,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             try
             {
                 AuthenticationResult result = await app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(),
@@ -689,7 +689,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             try
             {
@@ -740,7 +740,7 @@ namespace Test.MSAL.NET.Unit
                         TestConstants.ScopeForAnotherResource.ToArray())
             });
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
@@ -777,7 +777,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
@@ -812,7 +812,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
@@ -847,7 +847,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
@@ -887,7 +887,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
             HttpMessageHandlerFactory.AddMockHandler(
@@ -951,7 +951,7 @@ namespace Test.MSAL.NET.Unit
                 ClientId = TestConstants.ClientId
             };
 
-            app.UserTokenCache = cache;
+            app.AccountTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
             MockHttpMessageHandler mockHandler = new MockHttpMessageHandler
@@ -1011,7 +1011,7 @@ namespace Test.MSAL.NET.Unit
             cache.ClientId = TestConstants.ClientId;
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
             {
-                UserTokenCache = cache
+                AccountTokenCache = cache
             };
 
             //add mock response for tenant endpoint discovery
@@ -1062,14 +1062,14 @@ namespace Test.MSAL.NET.Unit
             fetchedUser = app.GetAccountAsync("").Result;
             Assert.IsNull(fetchedUser);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid,
+            TokenCacheHelper.AddRefreshTokenToCache(app.AccountTokenCache.tokenCacheAccessor, TestConstants.Uid,
                 TestConstants.Utid, TestConstants.Name);
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid,
+            TokenCacheHelper.AddAccountToCache(app.AccountTokenCache.tokenCacheAccessor, TestConstants.Uid,
                 TestConstants.Utid);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
+            TokenCacheHelper.AddRefreshTokenToCache(app.AccountTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
                 TestConstants.Utid, TestConstants.Name + "1");
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
+            TokenCacheHelper.AddAccountToCache(app.AccountTokenCache.tokenCacheAccessor, TestConstants.Uid + "1",
                 TestConstants.Utid);
 
             users = app.GetAccountsAsync().Result;

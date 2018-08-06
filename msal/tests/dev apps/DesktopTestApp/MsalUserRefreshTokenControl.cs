@@ -23,7 +23,7 @@ namespace DesktopTestApp
         internal MsalUserRefreshTokenControl(PublicClientApplication publicClient, MsalRefreshTokenCacheItem rtIitem) : this()
         {
             this.publicClient = publicClient;
-            cache = publicClient.UserTokenCache;
+            cache = publicClient.AccountTokenCache;
             rtItem = rtIitem;
 
             accountItem = cache.GetAccount(rtIitem, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));

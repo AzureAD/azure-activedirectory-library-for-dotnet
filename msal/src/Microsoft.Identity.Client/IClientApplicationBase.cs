@@ -86,10 +86,10 @@ namespace Microsoft.Identity.Client
         /// close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
-        /// <param name="user">User for which the token is requested. <see cref="IAccount"/></param>
+        /// <param name="account">Account for which the token is requested. <see cref="IAccount"/></param>
         Task<AuthenticationResult> AcquireTokenSilentAsync(
             IEnumerable<string> scopes,
-            IAccount user);
+            IAccount account);
 
         /// <summary>
         /// Attempts to acquire the access token from cache. Access token is considered a match if it AT LEAST contains all the requested scopes.
@@ -97,19 +97,19 @@ namespace Microsoft.Identity.Client
         /// close to expiration (within 5 minute window), then refresh token (if available) is used to acquire a new access token by making a network call.
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
-        /// <param name="user">User for which the token is requested <see cref="IAccount"/></param>
+        /// <param name="account">Account for which the token is requested <see cref="IAccount"/></param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using the refresh token if available</param>
         Task<AuthenticationResult> AcquireTokenSilentAsync(
             IEnumerable<string> scopes,
-            IAccount user,
+            IAccount account,
             string authority,
             bool forceRefresh);
 
         /// <summary>
         /// Removes all cached tokens for the specified user.
         /// </summary>
-        /// <param name="user">instance of the user that needs to be removed</param>
-        Task RemoveAsync(IAccount user);
+        /// <param name="account">instance of the user that needs to be removed</param>
+        Task RemoveAsync(IAccount account);
    }
 }

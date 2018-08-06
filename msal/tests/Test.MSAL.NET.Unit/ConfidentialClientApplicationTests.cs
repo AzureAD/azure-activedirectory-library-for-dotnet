@@ -155,7 +155,7 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
                 new TokenCache(), new TokenCache());
             Assert.IsNotNull(app);
-            Assert.IsNotNull(app.UserTokenCache);
+            Assert.IsNotNull(app.AccountTokenCache);
             Assert.IsNotNull(app.AppTokenCache);
             Assert.AreEqual("https://login.microsoftonline.com/common/", app.Authority);
             Assert.AreEqual(TestConstants.ClientId, app.ClientId);
@@ -205,7 +205,7 @@ namespace Test.MSAL.NET.Unit
             Assert.IsNotNull("header.payload.signature", result.AccessToken);
             Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
-            Assert.IsNull(app.UserTokenCache);
+            Assert.IsNull(app.AccountTokenCache);
             Assert.IsNull(app.AppTokenCache);
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
@@ -241,8 +241,8 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
             //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
             //check app token cache count to be 1
             Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -258,8 +258,8 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
             //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
             //check app token cache count to be 1
             Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -311,8 +311,8 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
             //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AccountTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
             //check app token cache count to be 1
             Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -659,8 +659,8 @@ namespace Test.MSAL.NET.Unit
 
             AuthenticationResult result = await app.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.Scope).ConfigureAwait(false);
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, app.AccountTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(1, app.AccountTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
             cache = new TokenCache()
             {

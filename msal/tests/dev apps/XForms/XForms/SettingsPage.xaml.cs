@@ -49,13 +49,13 @@ namespace XForms
             authority.Text = App.Authority;
             clientIdEntry.Text = App.ClientId;
 
-            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString()
+            numOfAtItems.Text = App.MsalPublicClient.AccountTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString()
                 .Count.ToString();
-            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString()
+            numOfRtItems.Text = App.MsalPublicClient.AccountTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString()
                 .Count.ToString();
-            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllIdTokensAsString()
+            numOfIdItems.Text = App.MsalPublicClient.AccountTokenCache.tokenCacheAccessor.GetAllIdTokensAsString()
                 .Count.ToString();
-            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccountsAsString()
+            numOfAccountItems.Text = App.MsalPublicClient.AccountTokenCache.tokenCacheAccessor.GetAllAccountsAsString()
                 .Count.ToString();
 
             validateAuthority.IsToggled = App.ValidateAuthority;
@@ -71,19 +71,19 @@ namespace XForms
 
         private void OnClearAllCache(object sender, EventArgs e)
         {
-            App.MsalPublicClient.UserTokenCache.Clear();
+            App.MsalPublicClient.AccountTokenCache.Clear();
             RefreshView();
         }
 
         private void OnClearAdalCache(object sender, EventArgs e)
         {
-            App.MsalPublicClient.UserTokenCache.ClearAdalCache();
+            App.MsalPublicClient.AccountTokenCache.ClearAdalCache();
             RefreshView();
         }
 
         private void OnClearMsalCache(object sender, EventArgs e)
         {
-            App.MsalPublicClient.UserTokenCache.ClearMsalCache();
+            App.MsalPublicClient.AccountTokenCache.ClearMsalCache();
             RefreshView();
         }
 

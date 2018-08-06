@@ -38,12 +38,12 @@ namespace Microsoft.Identity.Client
         public TokenCache TokenCache { get; internal set; }
 
         /// <summary>
-        /// Gets the ClientId.
+        /// Gets the ClientId
         /// </summary>
         public string ClientId { get; internal set; }
 
         /// <summary>
-        /// Gets the user object.
+        /// Gets the account associated with this notification
         /// </summary>
         public IAccount Account { get; internal set; }
     }

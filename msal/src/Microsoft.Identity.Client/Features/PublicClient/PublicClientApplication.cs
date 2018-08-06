@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Client
         public PublicClientApplication(string clientId, string authority, TokenCache userTokenCache) : base(clientId,
             authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
         {
-            UserTokenCache = userTokenCache;
+            AccountTokenCache = userTokenCache;
         }
     }
 }

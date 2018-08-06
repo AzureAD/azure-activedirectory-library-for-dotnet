@@ -113,7 +113,6 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// GetHashCode implementation to match <see cref="Equals(object)"/>
         /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             return this.Identifier.GetHashCode();
