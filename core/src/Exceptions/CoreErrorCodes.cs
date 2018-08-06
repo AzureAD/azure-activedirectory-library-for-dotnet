@@ -56,6 +56,7 @@ namespace Microsoft.Identity.Core
         public const string PlatformNotSupported = "platform_not_supported";
         public const string AccessingWsMetadataExchangeFailed = "accessing_ws_metadata_exchange_failed";
         public const string FederatedServiceReturnedError = "federated_service_returned_error";
+        public const string ParsingWsTrustResponseFailed = "parsing_wstrust_response_failed";
 
 #if ANDROID
         public const string FailedToCreateSharedPreference = "shared_preference_creation_failed";
