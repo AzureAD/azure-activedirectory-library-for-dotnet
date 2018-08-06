@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,23 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Client
+using Microsoft.Identity.Client;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+
+namespace Test.MSAL.NET.Unit
 {
-    public sealed partial class PublicClientApplication : ClientApplicationBase
+    [TestClass]
+    public class AccountTest
     {
-
-        /// <summary>
-        /// Constructor to create application instance. This constructor is only available for Desktop and NetCore apps
-        /// </summary>
-        /// <param name="clientId">Client id of the application</param>
-        /// <param name="authority">Default authority to be used for the application</param>
-        /// <param name="userTokenCache">Instance of TokenCache.</param>
-        public PublicClientApplication(string clientId, string authority, TokenCache userTokenCache) : base(clientId,
-            authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+        [TestMethod]
+        public void EqualityTest()
         {
-            UserTokenCache = userTokenCache;
+            AccountId accountId1 = new AccountId("a.b", "c", "d");
+            AccountId accountId2 = new AccountId("a.b", "e", "f");
+
+            Assert.AreEqual(accountId1, accountId2);
         }
     }
 }

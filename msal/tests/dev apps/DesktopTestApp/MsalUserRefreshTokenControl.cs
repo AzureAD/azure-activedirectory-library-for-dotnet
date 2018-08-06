@@ -23,7 +23,7 @@ namespace DesktopTestApp
         internal MsalUserRefreshTokenControl(PublicClientApplication publicClient, MsalRefreshTokenCacheItem rtIitem) : this()
         {
             this.publicClient = publicClient;
-            cache = publicClient.AccountTokenCache;
+            cache = publicClient.UserTokenCache;
             rtItem = rtIitem;
 
             accountItem = cache.GetAccount(rtIitem, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
@@ -48,7 +48,7 @@ namespace DesktopTestApp
         {
             await publicClient.RemoveAsync(
                 new Account(
-                    MsalAccountId.FromClientInfo(rtItem.ClientInfo), 
+                    AccountId.FromClientInfo(rtItem.ClientInfo), 
                     accountItem.PreferredUsername, 
                     accountItem.Environment)).ConfigureAwait(false);
 

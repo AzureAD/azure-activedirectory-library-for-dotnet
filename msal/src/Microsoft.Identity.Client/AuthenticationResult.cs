@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Client
             _msalIdTokenCacheItem = msalIdTokenCacheItem;
             if (_msalAccessTokenCacheItem.HomeAccountId != null)
             {
-                Account = new Account(MsalAccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
+                Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
                     _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
             }
         }

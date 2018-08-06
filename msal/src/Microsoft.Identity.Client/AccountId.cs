@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// An identifier for an account in a specific tenant
     /// </summary>
-    public class MsalAccountId
+    public class AccountId
     {
         /// <summary>
         /// An identifier for an account in a specific tenant
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Constructor
         /// </summary>
-        public MsalAccountId(string identifier, string objectId, string tenantId)
+        public AccountId(string identifier, string objectId, string tenantId)
         {
             if (identifier == null)
             {
@@ -70,20 +70,20 @@ namespace Microsoft.Identity.Client
             this.TenantId = tenantId;
         }
 
-        internal static MsalAccountId FromClientInfo(ClientInfo clientInfo)
+        internal static AccountId FromClientInfo(ClientInfo clientInfo)
         {
             if (clientInfo == null)
             {
                 throw new ArgumentNullException(nameof(clientInfo));
             }
 
-            return new MsalAccountId(
+            return new AccountId(
                 clientInfo.ToAccountIdentifier(),
                 clientInfo.UniqueObjectIdentifier,
                 clientInfo.UniqueTenantIdentifier);
         }
 
-        internal static ClientInfo ToClientInfo(MsalAccountId msalAccountId)
+        internal static ClientInfo ToClientInfo(AccountId msalAccountId)
         {
             if (msalAccountId == null)
             {
@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Client
         {
             if (obj == null) { return false; }
 
-            var otherMsalAccountId = obj as MsalAccountId;
+            var otherMsalAccountId = obj as AccountId;
             if (otherMsalAccountId == null) { return false; }
 
             return this.Identifier == otherMsalAccountId.Identifier;
@@ -116,6 +116,14 @@ namespace Microsoft.Identity.Client
         public override int GetHashCode()
         {
             return this.Identifier.GetHashCode();
+        }
+
+        /// <summary>
+        /// Textual description of an <see cref="AccountId"/>
+        /// </summary>
+        public override string ToString()
+        {
+            return "AccountId: " + this.Identifier;
         }
     }
 }

@@ -142,7 +142,7 @@ namespace Microsoft.Identity.Client
                         ClientId = ClientId,
                         Account = msalAccessTokenCacheItem.HomeAccountId != null ?
                                     new Account(
-                                        MsalAccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
+                                        AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
                                         idToken?.PreferredUsername,
                                         idToken?.Name) : 
                                     null
@@ -584,7 +584,7 @@ namespace Microsoft.Identity.Client
                         TokenCache = this,
                         ClientId = ClientId,
                         Account = new Account(
-                            MsalAccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                            AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalRefreshTokenCacheItem.Environment)
                     };
 
@@ -611,7 +611,7 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        Account = new Account(MsalAccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
+                        Account = new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalAccessTokenCacheItem.Environment)
                     };
 
@@ -797,7 +797,7 @@ namespace Microsoft.Identity.Client
                             if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
                                 authorityHostAliases.Contains(account.Environment))
                             {
-                                Account user = new Account(MsalAccountId.FromClientInfo(account.ClientInfo), account.PreferredUsername, new Uri(authority).Host);
+                                Account user = new Account(AccountId.FromClientInfo(account.ClientInfo), account.PreferredUsername, new Uri(authority).Host);
                                 allUsers[rtItem.HomeAccountId] = user;
                                 break;
                             }
@@ -814,7 +814,7 @@ namespace Microsoft.Identity.Client
                     if (!allUsers.ContainsKey(userIdentifier))
                     {
                         allUsers[userIdentifier] = new Account(
-                             MsalAccountId.FromClientInfo(clientInfo), 
+                             AccountId.FromClientInfo(clientInfo), 
                             pair.Value.DisplayableId, 
                             new Uri(authority).Host);
                     }
@@ -1169,7 +1169,7 @@ namespace Microsoft.Identity.Client
                     TokenCache = this,
                     ClientId = ClientId,
                     Account = msalIdTokenCacheItem != null ? new Account(
-                        MsalAccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                        AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
                         msalIdTokenCacheItem.IdToken?.PreferredUsername, 
                         msalAccessTokenCacheItem.Environment) : null
                 };
@@ -1207,7 +1207,7 @@ namespace Microsoft.Identity.Client
                     ClientId = ClientId,
                     Account = msalIdTokenCacheItem != null ? 
                            new Account(
-                               MsalAccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                               AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
                                msalIdTokenCacheItem.IdToken.PreferredUsername, 
                                msalIdTokenCacheItem.IdToken.Name) : null
                 };

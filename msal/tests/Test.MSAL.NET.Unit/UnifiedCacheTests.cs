@@ -92,7 +92,7 @@ namespace Test.MSAL.NET.Unit
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            app.AccountTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
 
             MockWebUI ui = new MockWebUI()
             {
@@ -121,18 +121,18 @@ namespace Test.MSAL.NET.Unit
 
             // make sure Msal stored RT in Adal cache
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCacheDictionary = 
-                AdalCacheOperations.Deserialize(app.AccountTokenCache.legacyCachePersistance.LoadCache());
+                AdalCacheOperations.Deserialize(app.UserTokenCache.legacyCachePersistance.LoadCache());
 
             Assert.IsTrue(adalCacheDictionary.Count == 1);
 
             var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-            var users = app.AccountTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+            var users = app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
             foreach (IAccount user in users)
             {
                 ISet<string> authorityHostAliases = new HashSet<string>();
                 authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
-                app.AccountTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
+                app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
             }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()

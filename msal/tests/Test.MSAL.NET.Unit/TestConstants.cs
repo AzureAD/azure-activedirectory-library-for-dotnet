@@ -60,21 +60,21 @@ namespace Test.MSAL.NET.Unit
         public static readonly string AuthorityTestTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
 
-        public static readonly MsalAccountId UserIdentifier = CreateUserIdentifer();
+        public static readonly AccountId UserIdentifier = CreateUserIdentifer();
 
         public static string GetDiscoveryEndpoint(string Authority)
         {
             return Authority + DiscoveryEndPoint;
         }
 
-        public static MsalAccountId CreateUserIdentifer()
+        public static AccountId CreateUserIdentifer()
         {
             return CreateUserIdentifer(Uid, Utid);
         }
 
-        public static MsalAccountId CreateUserIdentifer(string uid, string utid)
+        public static AccountId CreateUserIdentifer(string uid, string utid)
         {
-            return new MsalAccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
+            return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
         }
 
         public static readonly Account User = new Account
@@ -99,7 +99,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly Account OnPremiseUser = new Account
         {
             Username = OnPremiseDisplayableId,
-            HomeAccountId = new MsalAccountId(OnPremiseHomeObjectId, "", "")
+            HomeAccountId = new AccountId(OnPremiseHomeObjectId, "", "")
         };
     }
 }

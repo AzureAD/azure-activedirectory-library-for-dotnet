@@ -50,6 +50,6 @@ namespace Microsoft.Identity.Client
         /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. 
         /// </summary>
         /// <remarks>Can be null</remarks>
-        MsalAccountId HomeAccountId { get; }
+        AccountId HomeAccountId { get; }
    }
 }

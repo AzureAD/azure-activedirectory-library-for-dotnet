@@ -27,6 +27,7 @@
 
 using Microsoft.Identity.Core;
 using System;
+using System.Globalization;
 
 namespace Microsoft.Identity.Client
 {
@@ -40,7 +41,7 @@ namespace Microsoft.Identity.Client
         {
         }
 
-        public Account(MsalAccountId homeAccountId, string username, string environment)
+        public Account(AccountId homeAccountId, string username, string environment)
         {
             if (homeAccountId == null)
             {
@@ -56,6 +57,15 @@ namespace Microsoft.Identity.Client
 
         public string Environment { get; internal set; }
 
-        public MsalAccountId HomeAccountId { get; internal set; }
+        public AccountId HomeAccountId { get; internal set; }
+
+        public override string ToString()
+        {
+            return String.Format(
+                CultureInfo.CurrentCulture,
+                "Account username: {0} environment {1} home account id: {2}",
+                Username, Environment, HomeAccountId.ToString());
+
+        }
     }
 }

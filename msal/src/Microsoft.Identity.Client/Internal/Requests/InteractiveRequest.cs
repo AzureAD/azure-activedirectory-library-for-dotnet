@@ -166,7 +166,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     requestParameters[OAuth2Parameter.LoginHint] = AuthenticationRequestParameters.Account.Username;
                 }
 
-                AuthenticationRequestParameters.ClientInfo = MsalAccountId.ToClientInfo(AuthenticationRequestParameters.Account.HomeAccountId);
+                AuthenticationRequestParameters.ClientInfo = AccountId.ToClientInfo(AuthenticationRequestParameters.Account.HomeAccountId);
 
                 if (!string.IsNullOrEmpty(AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier))
                 {

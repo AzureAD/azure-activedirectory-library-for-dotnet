@@ -66,9 +66,9 @@ namespace Microsoft.Identity.Client
             Authority = authorityInstance.CanonicalAuthority;
             RedirectUri = redirectUri;
             ValidateAuthority = validateAuthority;
-            if (AccountTokenCache != null)
+            if (UserTokenCache != null)
             {
-                AccountTokenCache.ClientId = clientId;
+                UserTokenCache.ClientId = clientId;
             }
 
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
@@ -112,7 +112,7 @@ namespace Microsoft.Identity.Client
         /// <Summary>
         /// Token Cache instance for storing User tokens.
         /// </Summary>
-        internal TokenCache AccountTokenCache
+        internal TokenCache UserTokenCache
         {
             get { return userTokenCache; }
             set
@@ -137,14 +137,14 @@ namespace Microsoft.Identity.Client
         public async Task<IEnumerable<IAccount>> GetAccountsAsync()
         {
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-            if (AccountTokenCache == null)
+            if (UserTokenCache == null)
             {
                 const string msg = "Token cache is null or empty. Returning empty list of accounts.";
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
                 return Enumerable.Empty<Account>();
             }
-            return await AccountTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
+            return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -205,19 +205,19 @@ namespace Microsoft.Identity.Client
         public async Task RemoveAsync(IAccount account)
         {
             RequestContext requestContext = CreateRequestContext(Guid.Empty);
-            if (account == null || AccountTokenCache == null)
+            if (account == null || UserTokenCache == null)
             {
                 return;
             }
 
-            await AccountTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
+            await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
             IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
             var handler = new SilentRequest(
-                CreateRequestParameters(authority, scopes, account, AccountTokenCache),
+                CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
             { ApiId = apiId };
             return await handler.RunAsync().ConfigureAwait(false);

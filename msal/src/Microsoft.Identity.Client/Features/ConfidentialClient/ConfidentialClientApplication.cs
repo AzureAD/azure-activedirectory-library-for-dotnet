@@ -73,10 +73,10 @@ namespace Microsoft.Identity.Client
             : base(clientId, authority, redirectUri, true)
         {
             ClientCredential = clientCredential;
-            AccountTokenCache = userTokenCache;
-            if (AccountTokenCache != null)
+            UserTokenCache = userTokenCache;
+            if (UserTokenCache != null)
             {
-                AccountTokenCache.ClientId = clientId;
+                UserTokenCache.ClientId = clientId;
             }
 
             AppTokenCache = appTokenCache;
@@ -171,7 +171,7 @@ namespace Microsoft.Identity.Client
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var requestParameters =
-                CreateRequestParameters(authority, scopes, null, AccountTokenCache);
+                CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParameters.ClientId = ClientId;
             requestParameters.ExtraQueryParameters = extraQueryParameters;
 
@@ -195,7 +195,7 @@ namespace Microsoft.Identity.Client
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             var requestParameters = CreateRequestParameters(authorityInstance, scopes, null,
-                AccountTokenCache);
+                UserTokenCache);
             requestParameters.RedirectUri = new Uri(redirectUri);
             requestParameters.ClientId = ClientId;
             requestParameters.ExtraQueryParameters = extraQueryParameters;
@@ -222,7 +222,7 @@ namespace Microsoft.Identity.Client
         private async Task<AuthenticationResult> AcquireTokenOnBehalfCommonAsync(Authority authority,
             IEnumerable<string> scopes, UserAssertion userAssertion, ApiEvent.ApiIds apiId)
         {
-            var requestParams = CreateRequestParameters(authority, scopes, null, AccountTokenCache);
+            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.UserAssertion = userAssertion;
             var handler = new OnBehalfOfRequest(requestParams){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync().ConfigureAwait(false);
@@ -232,7 +232,7 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> scopes, Uri redirectUri, ApiEvent.ApiIds apiId)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            var requestParams = CreateRequestParameters(authority, scopes, null, AccountTokenCache);
+            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.AuthorizationCode = authorizationCode;
             requestParams.RedirectUri = redirectUri;
             var handler =
