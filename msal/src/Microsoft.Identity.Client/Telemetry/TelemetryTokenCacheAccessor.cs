@@ -29,7 +29,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 
-namespace Microsoft.Identity.Core.Telemetry
+namespace Microsoft.Identity.Client
 {
     internal class TelemetryTokenCacheAccessor : TokenCacheAccessor
     {

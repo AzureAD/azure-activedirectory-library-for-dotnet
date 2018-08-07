@@ -33,7 +33,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client.Internal.Requests

@@ -26,9 +26,10 @@
 //------------------------------------------------------------------------------
 
 using System;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Core.Telemetry
+namespace Microsoft.Identity.Client
 {
     internal class ApiEvent : EventBase
     {

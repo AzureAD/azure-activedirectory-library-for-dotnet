@@ -30,9 +30,9 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Client.Telemetry;
 
 namespace Test.Microsoft.Identity.Core.Unit
 {
