@@ -54,8 +54,6 @@ namespace DesktopTestApp
 
             LoadSettings();
             MsalLoggerSettings.LogCallback = LogDelegate;
-
-            RefreshUserList();
         }
 
         public void LogDelegate(MsalLogLevel level, string message, bool containsPii)

@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
 using System;
 using System.Globalization;
 
@@ -61,11 +60,20 @@ namespace Microsoft.Identity.Client
 
         public override string ToString()
         {
-            return String.Format(
+            if (HomeAccountId != null)
+            {
+                return String.Format(
                 CultureInfo.CurrentCulture,
                 "Account username: {0} environment {1} home account id: {2}",
                 Username, Environment, HomeAccountId.ToString());
-
+            }
+            else
+            {
+                return String.Format(
+                CultureInfo.CurrentCulture,
+                "Account username: {0} environment {1} ",
+                Username, Environment);
+            }
         }
     }
 }
