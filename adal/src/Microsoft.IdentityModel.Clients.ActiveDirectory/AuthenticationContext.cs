@@ -151,6 +151,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             set { this.Authenticator.CorrelationId = value; }
         }
 
+#if iOS
+        /// Xamarin iOS specific property enables the application to share the token cache with other applications sharing the same keychain sharing group.
+        /// If you provide this key, you MUST add the capability to your Application Entitlement.
+        public string KeychainSecurityGroup
+        {
+            get { return this.KeychainSecurityGroup; }
+            set => TokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
+        }
+#endif
+
         /// <summary>
         /// Acquires device code from the authority.
         /// </summary>
