@@ -87,14 +87,30 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
                 else
                 {
-                    if (ClientCredential.Certificate != null)
+                    if (ClientCredential.Assertion == null || ClientCredential.ValidTo != 0 || ClientCredential.CachedX5C != SendCertificate)
                     {
-                        const string msg = "Signing Client Assertion.";
-                        RequestContext.Logger.Info(msg);
-                        RequestContext.Logger.InfoPii(msg);
-                        Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
-                            Authority.SelfSignedJwtAudience);
-                        ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
+                        bool assertionNearExpiry = (ClientCredential.ValidTo <=
+                                                    Jwt.JsonWebToken.ConvertToTimeT(DateTime.UtcNow +
+                                                                                    TimeSpan.FromMinutes(
+                                                                                    Constants
+                                                                                    .ExpirationMarginInMinutes)));
+                        if (assertionNearExpiry)
+                        {
+                            const string msg = "Client Assertion does not exist or near expiry.";
+                            RequestContext.Logger.Info(msg);
+                            RequestContext.Logger.InfoPii(msg);
+                            Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
+                                Authority.SelfSignedJwtAudience);
+                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
+                            ClientCredential.ValidTo = jwtToken.Payload.ValidTo;
+                            ClientCredential.CachedX5C = SendCertificate;
+                        }
+                        else
+                        {
+                            const string msg = "Reusing the unexpired Client Assertion...";
+                            RequestContext.Logger.Info(msg);
+                            RequestContext.Logger.InfoPii(msg);
+                        }
                     }
 
                     parameters[OAuth2Parameter.ClientAssertionType] = OAuth2AssertionType.JwtBearer;

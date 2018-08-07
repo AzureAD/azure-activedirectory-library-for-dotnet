@@ -47,6 +47,8 @@ namespace Microsoft.Identity.Client
 
         internal ClientAssertionCertificate Certificate { get; private set; }
         internal string Assertion { get; set; }
+        internal long ValidTo { get; set; }
+        internal bool CachedX5C { get; set; }
 #endif
 
         /// <summary>
