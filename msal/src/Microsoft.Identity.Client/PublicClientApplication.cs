@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Client
         public bool UseCorporateNetwork { get; set; }
 #endif
 
-#if !ANDROID
+#if !ANDROID && !NETSTANDARD1_1 && !NETSTANDARD1_3
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>
@@ -202,6 +202,7 @@ namespace Microsoft.Identity.Client
         }
 #endif
 
+#if !NETSTANDARD1_1 && !NETSTANDARD1_3
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>
@@ -330,6 +331,7 @@ namespace Microsoft.Identity.Client
                     AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, user,
                         behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
         }
+#endif
 
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
         {
