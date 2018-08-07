@@ -152,8 +152,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
 #if iOS
+        /// <summary>
         /// Xamarin iOS specific property enables the application to share the token cache with other applications sharing the same keychain sharing group.
         /// If you provide this key, you MUST add the capability to your Application Entitlement.
+        /// </summary>
+        /// <remarks>This API may change in future release.</remarks>
         public string KeychainSecurityGroup
         {
             get { return this.KeychainSecurityGroup; }
