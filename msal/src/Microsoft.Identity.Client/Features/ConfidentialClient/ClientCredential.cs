@@ -35,7 +35,6 @@ namespace Microsoft.Identity.Client
     /// </summary>
     public sealed class ClientCredential
     {
-#if !FACADE
         /// <summary>
         /// Constructor provide client assertion certificate
         /// </summary>
@@ -49,7 +48,7 @@ namespace Microsoft.Identity.Client
         internal string Assertion { get; set; }
         internal long ValidTo { get; set; }
         internal bool CachedX5C { get; set; }
-#endif
+
 
         /// <summary>
         /// Constructor to provide client secret

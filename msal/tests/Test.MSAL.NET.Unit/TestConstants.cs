@@ -102,7 +102,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly Account OnPremiseUser = new Account
         {
             Username = OnPremiseDisplayableId,
-            HomeAccountId = new AccountId(OnPremiseHomeObjectId, "", "")
-        };
+            HomeAccountId = new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseUid, OnPremiseUtid)
+    };
     }
 }
