@@ -71,8 +71,8 @@ namespace Microsoft.Identity.Client
             {
                 return String.Format(
                 CultureInfo.CurrentCulture,
-                "Account username: {0} environment {1} ",
-                Username, Environment);
+                "Account username: {0} environment {1} home account id: {2}",
+                Username, Environment, HomeAccountId);
             }
         }
     }
