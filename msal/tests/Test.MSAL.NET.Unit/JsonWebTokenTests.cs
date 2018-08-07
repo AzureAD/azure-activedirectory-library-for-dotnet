@@ -55,10 +55,9 @@ namespace Test.MSAL.NET.Unit
         MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
-            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-            },
+            ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
+                    MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
+                    MockHelpers.CreateClientInfo(TestConstants.Uid, TestConstants.Utid + "more")),
             AdditionalRequestValidation = request =>
             {
                 var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -71,17 +70,16 @@ namespace Test.MSAL.NET.Unit
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadJwtToken(encodedJwt);
                 var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
-                Assert.IsTrue(x5c.Key == "x5c");
+                Assert.IsTrue(x5c.Key == "x5c", "x5c should be present");
             }
         };
 
         MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
-            ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"access_token\":\"some-access-token\"}")
-            },
+            ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
+                    MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
+                    MockHelpers.CreateClientInfo(TestConstants.Uid, TestConstants.Utid + "more")),
             AdditionalRequestValidation = request =>
             {
                 var requestContent = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -94,7 +92,7 @@ namespace Test.MSAL.NET.Unit
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadJwtToken(encodedJwt);
                 var x5c = jsonToken.Header.Where(header => header.Key == "x5c").FirstOrDefault();
-                Assert.IsTrue(x5c.Key != "x5c");
+                Assert.IsTrue(x5c.Key != "x5c", "x5c should not be present");
             }
         };
 
@@ -142,6 +140,28 @@ namespace Test.MSAL.NET.Unit
             //Check for empty x5c claim
             HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
             result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
+            Assert.IsNotNull(result.AccessToken);
+        }
+
+        [TestMethod]
+        [Description("Test for client assertion with X509 public certificate using sendCertificate")]
+        public async Task JsonWebTokenWithX509PublicCertSendCertificateOnBehalfOfTestAsync()
+        {
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            var clientAssertion = new ClientAssertionCertificate(certificate);
+            var clientCredential = new ClientCredential(clientAssertion);
+            var app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.RedirectUri, clientCredential, cache, cache);
+            app.ValidateAuthority = false;
+            var userAssertion = new UserAssertion(TestConstants.DefaultAccessToken);
+
+            //Check for x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
+            AuthenticationResult result = await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenOnBehalfOfWithCertificateAsync(TestConstants.Scope, userAssertion);
+            Assert.IsNotNull(result.AccessToken);
+
+            //Check for empty x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion);
             Assert.IsNotNull(result.AccessToken);
         }
     }

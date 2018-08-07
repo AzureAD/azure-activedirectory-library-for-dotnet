@@ -37,5 +37,22 @@ namespace Microsoft.Identity.Client
         /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using client credentials</param>
         /// <returns>Authentication result containing application token for the requested scopes</returns>
         Task<AuthenticationResult> AcquireTokenForClientWithCertificateAsync(IEnumerable<string> scopes, bool forceRefresh);
+
+        /// <summary>
+        /// Acquires token using On-Behalf-Of flow.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
+        /// <returns>Authentication result containing token of the user for the requested scopes</returns>
+        Task<AuthenticationResult> AcquireTokenOnBehalfOfWithCertificateAsync(IEnumerable<string> scopes, UserAssertion userAssertion);
+
+        /// <summary>
+        /// Acquires token using On-Behalf-Of flow.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
+        /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+        /// <returns>Authentication result containing token of the user for the requested scopes</returns>
+        Task<AuthenticationResult> AcquireTokenOnBehalfOfWithCertificateAsync(IEnumerable<string> scopes, UserAssertion userAssertion, string authority);
     }
 }

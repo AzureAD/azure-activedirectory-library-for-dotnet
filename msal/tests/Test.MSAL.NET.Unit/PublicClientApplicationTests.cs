@@ -631,7 +631,7 @@ namespace Test.MSAL.NET.Unit
 
             foreach (var user in app.GetUsersAsync().Result)
             {
-                app.RemoveAsync(user);
+                app.RemoveAsync(user).ConfigureAwait(false);
             }
 
             Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);

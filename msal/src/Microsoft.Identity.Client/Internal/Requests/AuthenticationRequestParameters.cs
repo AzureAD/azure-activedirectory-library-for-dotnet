@@ -87,29 +87,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
                 else
                 {
-                    if (ClientCredential.Assertion == null || ClientCredential.ValidTo != 0)
+                    if (ClientCredential.Certificate != null)
                     {
-                        bool assertionNearExpiry = (ClientCredential.ValidTo <=
-                                                    Jwt.JsonWebToken.ConvertToTimeT(DateTime.UtcNow +
-                                                                                    TimeSpan.FromMinutes(
-                                                                                    Constants 
-                                                                                    .ExpirationMarginInMinutes)));
-                        if (assertionNearExpiry)
-                        {
-                            const string msg = "Client Assertion does not exist or near expiry.";
-                            RequestContext.Logger.Info(msg);
-                            RequestContext.Logger.InfoPii(msg);
-                            Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
-                                Authority.SelfSignedJwtAudience);
-                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
-                            ClientCredential.ValidTo = jwtToken.Payload.ValidTo;
-                        }
-                        else
-                        {
-                            const string msg = "Reusing the unexpired Client Assertion...";
-                            RequestContext.Logger.Info(msg);
-                            RequestContext.Logger.InfoPii(msg);
-                        }
+                        const string msg = "Signing Client Assertion.";
+                        RequestContext.Logger.Info(msg);
+                        RequestContext.Logger.InfoPii(msg);
+                        Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
+                            Authority.SelfSignedJwtAudience);
+                        ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
                     }
 
                     parameters[OAuth2Parameter.ClientAssertionType] = OAuth2AssertionType.JwtBearer;

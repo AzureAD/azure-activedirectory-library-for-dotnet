@@ -119,6 +119,38 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
+        /// Acquires token using On-Behalf-Of flow.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
+        /// <returns>Authentication result containing token of the user for the requested scopes</returns>
+        async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenOnBehalfOfWithCertificateAsync(IEnumerable<string> scopes, UserAssertion userAssertion)
+        {
+            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            return
+                await
+                    AcquireTokenOnBehalfCommonAsync(authority, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUser, true)
+                        .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires token using On-Behalf-Of flow.
+        /// </summary>
+        /// <param name="scopes">Array of scopes requested for resource</param>
+        /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
+        /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+        /// <returns>Authentication result containing token of the user for the requested scopes</returns>
+        async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenOnBehalfOfWithCertificateAsync(IEnumerable<string> scopes, UserAssertion userAssertion,
+            string authority)
+        {
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+            return
+                await
+                    AcquireTokenOnBehalfCommonAsync(authorityInstance, scopes, userAssertion, ApiEvent.ApiIds.AcquireTokenOnBehalfOfWithScopeUserAuthority, true)
+                        .ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Acquires security token from the authority using authorization code previously received.
         /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(IEnumerable{string}, IUser)"/>.
         /// </summary>
