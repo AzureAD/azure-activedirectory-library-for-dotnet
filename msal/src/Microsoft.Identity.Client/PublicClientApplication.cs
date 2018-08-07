@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IUser user)
+            IAccount user)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
@@ -163,7 +163,7 @@ namespace Microsoft.Identity.Client
         /// <param name="behavior">Enumeration to control UI behavior.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
@@ -203,7 +203,7 @@ namespace Microsoft.Identity.Client
         /// <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
@@ -254,7 +254,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IUser user, UIParent parent)
+            IAccount user, UIParent parent)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
@@ -291,7 +291,7 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
@@ -333,7 +333,7 @@ namespace Microsoft.Identity.Client
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
@@ -384,7 +384,7 @@ namespace Microsoft.Identity.Client
         }
 
         private async Task<AuthenticationResult> AcquireTokenForUserCommonAsync(Authority authority, IEnumerable<string> scopes,
-            IEnumerable<string> extraScopesToConsent, IUser user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
+            IEnumerable<string> extraScopesToConsent, IAccount user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
         {
             var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
@@ -404,7 +404,7 @@ namespace Microsoft.Identity.Client
         }
 
         internal override AuthenticationRequestParameters CreateRequestParameters(Authority authority,
-            IEnumerable<string> scopes, IUser user, TokenCache cache)
+            IEnumerable<string> scopes, IAccount user, TokenCache cache)
         {
             AuthenticationRequestParameters parameters = base.CreateRequestParameters(authority, scopes, user, cache);
             return parameters;
