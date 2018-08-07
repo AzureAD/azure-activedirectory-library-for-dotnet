@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Client
         public bool UseCorporateNetwork { get; set; }
 #endif
 
-#if !ANDROID && !FACADE
+#if !ANDROID && !NETSTANDARD1_1 && !NETSTANDARD1_3
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>
@@ -202,7 +202,7 @@ namespace Microsoft.Identity.Client
         }
 #endif
 
-#if !FACADE
+#if !NETSTANDARD1_1 && !NETSTANDARD1_3
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>

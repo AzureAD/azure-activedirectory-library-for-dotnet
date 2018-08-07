@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Client
 
         // expose the interactive API without UIParent only for platforms that 
         // do not need it to operate like desktop, UWP, iOS.
-#if !ANDROID && !FACADE
+#if !ANDROID && !NETSTANDARD1_1 && !NETSTANDARD1_3
         /// <summary>
         /// Interactive request to acquire token. 
         /// </summary>
@@ -139,7 +139,7 @@ namespace Microsoft.Identity.Client
 
 #endif
 
-#if !FACADE
+#if !NETSTANDARD1_1 && !NETSTANDARD1_3
         // these API methods are exposed on other platforms.
         /// <summary>
         /// Interactive request to acquire token. 
