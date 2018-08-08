@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Client
             }
 
             if (!requestParams.IsClientCredentialRequest && 
-                !ContainsClaimsRequiredToStoreInCahce(idToken, requestParams.RequestContext))
+                !ContainsClaimsRequiredToStoreInCache(idToken, requestParams.RequestContext))
             {
                 return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
             }
@@ -258,18 +258,18 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private bool ContainsClaimsRequiredToStoreInCahce(IdToken idToken, RequestContext requestContext)
+        private bool ContainsClaimsRequiredToStoreInCache(IdToken idToken, RequestContext requestContext)
         {
             if (idToken == null || string.IsNullOrEmpty(idToken.TenantId) || string.IsNullOrEmpty(idToken.PreferredUsername))
             {
                 string msg;
                 if (idToken == null)
                 {
-                    msg = "Skipping storing tokens in the cahe - no IdToken in token response";
+                    msg = "Skipping storing tokens in the cache - no IdToken in token response";
                 }
                 else
                 {
-                    msg = "Skipping storing tokens in the cahe - IdToken does not contain required claims";
+                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims";
                 }
                 requestContext.Logger.Warning(msg);
                 requestContext.Logger.WarningPii(msg);
