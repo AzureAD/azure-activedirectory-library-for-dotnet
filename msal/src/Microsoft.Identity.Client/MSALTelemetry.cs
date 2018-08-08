@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// 
     /// </summary>
-    internal class MSALTelemetry : iTelemetry
+    internal class MSALTelemetry : ITelemetry
     {
         /// <summary>
         /// 
@@ -204,17 +204,12 @@ namespace Microsoft.Identity.Client
             return orphanedEvents;
         }
 
-        iTelemetry iTelemetry.GetInstance()
-        {
-            return GetInstance();
-        }
-
-        void iTelemetry.StartEvent(string requestId, EventBase eventToStart)
+        void ITelemetry.StartEvent(string requestId, EventBase eventToStart)
         {
             StartEvent(requestId, eventToStart);
         }
 
-        void iTelemetry.StopEvent(string requestId, EventBase eventToStop)
+        void ITelemetry.StopEvent(string requestId, EventBase eventToStop)
         {
             StopEvent(requestId, eventToStop);
         }

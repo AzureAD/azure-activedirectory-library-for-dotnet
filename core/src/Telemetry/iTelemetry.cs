@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
 {
-    internal interface iTelemetry
+    internal interface ITelemetry
     {
-        iTelemetry GetInstance();
-
         void StartEvent(string requestId, EventBase eventToStart);
 
         void StopEvent(string requestId, EventBase eventToStop);

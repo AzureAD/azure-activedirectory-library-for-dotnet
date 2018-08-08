@@ -56,8 +56,7 @@ namespace Microsoft.Identity.Client.Internal
                 if (!isInitialized)
                 {
                     CoreExceptionFactory.Instance = new MsalExceptionFactory();
-                    CoreTelemetry.Instance = new MSALTelemetry();
-#if !FACADE
+                    CoreTelemetryService.InitializeCoreTelemetryService(MSALTelemetry.GetInstance());
                     CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
                     isInitialized = true;
                 }

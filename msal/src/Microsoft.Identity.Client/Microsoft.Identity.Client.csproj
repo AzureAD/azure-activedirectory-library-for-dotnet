@@ -56,14 +56,6 @@
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <None Remove="Telemetry.cs" />
-    <None Remove="Telemetry\ApiEvent.cs" />
-    <None Remove="Telemetry\CacheEvent.cs" />
-    <None Remove="Telemetry\DefaultEvent.cs" />
-    <None Remove="Telemetry\Event.cs" />
-    <None Remove="Telemetry\HttpEvent.cs" />
-    <None Remove="Telemetry\TelemetryTokenCacheAccessor.cs" />
-    <None Remove="Telemetry\UiEvent.cs" />
     <EmbeddedResource Include="Properties\Microsoft.Identity.Client.rd.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
