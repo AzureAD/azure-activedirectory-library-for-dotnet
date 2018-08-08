@@ -71,8 +71,9 @@ namespace Microsoft.Identity.Client
 
 #if iOS
         /// <summary>
-        /// Xamarin iOS specific property enabling the application to share the token cache with other applications sharing the same keychain sharing group.
+        /// Xamarin iOS specific property enabling the application to share the token cache with other applications sharing the same keychain security group.
         /// If you provide this key, you MUST add the capability to your Application Entitlement.
+        /// For more details, please see https://aka.ms/msal-net-sharing-cache-on-ios
         /// </summary>
         /// <remarks>This API may change in future release.</remarks>
         public string KeychainSecurityGroup
@@ -83,10 +84,10 @@ namespace Microsoft.Identity.Client
 #endif
 
 #if WINRT
-/// <summary>
-/// Flag to enable logged in user authentication.
-/// When set to true, the application will try to connect to the corporate network using windows integrated authentication.
-/// </summary>
+        /// <summary>
+        /// Flag to enable logged in user authentication.
+        /// When set to true, the application will try to connect to the corporate network using windows integrated authentication.
+        /// </summary>
         public bool UseCorporateNetwork { get; set; }
 #endif
 
