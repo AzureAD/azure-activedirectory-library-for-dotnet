@@ -53,7 +53,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             HttpClientFactory.ReturnHttpClientForMocks = true;
             CoreExceptionFactory.Instance = new TestExceptionFactory();
             HttpMessageHandlerFactory.ClearMockHandlers();
-
+            CoreTelemetry.Instance = new CoreTestTelemetry();
             AadInstanceDiscovery.Instance.InstanceCache.Clear();
         }
 

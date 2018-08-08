@@ -47,6 +47,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
             new TestPlatformInformation();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
+            CoreTelemetry.Instance = new CoreTestTelemetry();
         }
 
         [TestMethod]
