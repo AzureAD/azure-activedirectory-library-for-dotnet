@@ -940,11 +940,8 @@ namespace Test.MSAL.NET.Unit
             {
                 Task<AuthenticationResult> task =
                     app.AcquireTokenSilentAsync(TestConstants.CacheMissScope,
-                        new Account()
-                        {
-                            Username = TestConstants.DisplayableId,
-                            HomeAccountId = TestConstants.UserIdentifier,
-                        }, app.Authority, false);
+                        new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
+                        app.Authority, false);
                 AuthenticationResult result = task.Result;
                 Assert.Fail("MsalUiRequiredException was expected");
             }
