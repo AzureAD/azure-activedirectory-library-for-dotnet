@@ -64,7 +64,7 @@ namespace Test.MSAL.NET.Unit
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
-            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AadInstanceDiscovery.Instance.Cache.Clear();
             AddMockResponseForInstanceDisovery();
         }
 
@@ -963,7 +963,7 @@ namespace Test.MSAL.NET.Unit
             try
             {
                 Task<AuthenticationResult> task =
-                    app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource.ToArray(),
+                    app.AcquireTokenSilentAsync(TestConstants.CacheMissScope,
                         new Account()
                         {
                             Username = TestConstants.DisplayableId,
