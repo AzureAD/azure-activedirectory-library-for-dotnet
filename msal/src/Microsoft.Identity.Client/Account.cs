@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,35 +25,41 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
 
-namespace Test.MSAL.NET.Unit
+namespace Microsoft.Identity.Client
 {
-    [TestClass]
-    public class UserTests
+    /// <summary>
+    /// Contains information of a single account. A user can be present in multiple directorie and thus have multiple accounts.
+    /// This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
+    /// </summary>
+    internal sealed class Account : IAccount
     {
-        [TestMethod]
-        [TestCategory("UserTests")]
-        public void Constructor_IdIsRequired()
+        public Account(AccountId homeAccountId, string username, string environment)
         {
-            // 1. Id is required
-            AssertException.Throws<ArgumentNullException>(() => new User(null, "d", "n"));
+            if (homeAccountId == null)
+            {
+                throw new ArgumentNullException(nameof(homeAccountId));
+            }
 
-            // 2. Other properties are optional
-            new User("id", null, null);
+            Username = username;
+            Environment = environment;
+            HomeAccountId = homeAccountId;
         }
 
-        [TestMethod]
-        [TestCategory("UserTests")]
-        public void Constructor_PropertiesSet()
-        {
-            User actual = new User("id", "disp", "env");
+        public string Username { get; internal set; }
 
-            Assert.AreEqual("id", actual.Identifier);
-            Assert.AreEqual("disp", actual.DisplayableId);
-            Assert.AreEqual("env", actual.Environment);
+        public string Environment { get; internal set; }
+
+        public AccountId HomeAccountId { get; internal set; }
+
+        public override string ToString()
+        {
+            return String.Format(
+            CultureInfo.CurrentCulture,
+            "Account username: {0} environment {1} home account id: {2}",
+            Username, Environment, HomeAccountId);
         }
     }
 }

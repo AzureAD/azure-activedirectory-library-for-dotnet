@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,28 +25,37 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Client;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Microsoft.Identity.Client
+namespace Test.MSAL.NET.Unit
 {
-    /// <summary>
-    /// Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
-    /// </summary>
-    public interface IUser
+    [TestClass]
+    public class AccountTests
     {
-        /// <summary>
-        /// Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
-        /// </summary>
-        string DisplayableId { get; }
+        [TestMethod]
+        [TestCategory("UserTests")]
+        public void Constructor_IdIsRequired()
+        {
+            // 1. Id is required
+            AssertException.Throws<ArgumentNullException>(() => new Account(null, "d", "n"));
 
-        /// <summary>
-        /// Gets user`s environment.
-        /// </summary>
-        string Environment { get; }
+            // 2. Other properties are optional
+            new Account(new AccountId("a.b", "a", "b"), null, null);
+        }
 
-        /// <summary>
-        /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. Cannot be null.
-        /// </summary>
-        string Identifier { get; }
-   }
+        [TestMethod]
+        [TestCategory("UserTests")]
+        public void Constructor_PropertiesSet()
+        {
+            Account actual = new Account(new AccountId("a.b", "a", "b"), "disp", "env");
+
+            Assert.AreEqual("a.b", actual.HomeAccountId.Identifier);
+            Assert.AreEqual("a", actual.HomeAccountId.ObjectId);
+            Assert.AreEqual("b", actual.HomeAccountId.TenantId);
+            Assert.AreEqual("disp", actual.Username);
+            Assert.AreEqual("env", actual.Environment);
+        }
+    }
 }

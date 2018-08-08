@@ -105,7 +105,7 @@ namespace Microsoft.Identity.Core
             }
         }
 
-        public string UserId
+        public string AccountId
         {
             set
             {

@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Client.Internal
         }
 
         public static void EnsureModuleInitialized()
-        {
+        {            
             lock (lockObj)
             {
                 if (!isInitialized)
@@ -59,7 +59,6 @@ namespace Microsoft.Identity.Client.Internal
                     CoreTelemetry.Instance = new MSALTelemetry();
 #if !FACADE
                     CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-#endif
                     isInitialized = true;
                 }
             }

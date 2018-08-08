@@ -120,7 +120,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
                 Scope = TestConstants.Scope,
-                User = TestConstants.User
+                Account = TestConstants.User
             }).Result;
 
             Assert.IsNotNull(item);
@@ -158,7 +158,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
                 Scope = new SortedSet<string>(),
-                User = TestConstants.User
+                Account = TestConstants.User
             };
 
             param.Scope.Add("r1/scope1");
@@ -200,12 +200,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = new SortedSet<string>(),
-                User =
-                    new User()
-                    {
-                        DisplayableId = TestConstants.DisplayableId,
-                        Identifier = TestConstants.UserIdentifier
-                    }
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             };
 
             param.Scope.Add(TestConstants.Scope.First());
@@ -239,18 +234,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.tokenCacheAccessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(atItem);
 
-            Assert.IsNull(cache.FindAccessTokenAsync(new AuthenticationRequestParameters()
-            {
-                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
-                ClientId = TestConstants.ClientId,
-                Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
-                Scope = TestConstants.Scope,
-                User =
-                    new User()
-                    {
-                        DisplayableId = TestConstants.DisplayableId,
-                        Identifier = TestConstants.UserIdentifier
-                    }
+        Assert.IsNull(cache.FindAccessTokenAsync(new AuthenticationRequestParameters()
+        {
+            RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+            ClientId = TestConstants.ClientId,
+            Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
+            Scope = TestConstants.Scope,
+            Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             }).Result);
         }
 
@@ -283,12 +273,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
                 Scope = TestConstants.Scope,
-                User =
-                    new User()
-                    {
-                        DisplayableId = TestConstants.DisplayableId,
-                        Identifier = TestConstants.UserIdentifier
-                    }
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             }).Result);
         }
 
@@ -312,7 +297,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
-                User = TestConstants.User
+                Account = TestConstants.User
             };
             Assert.IsNotNull(cache.FindRefreshTokenAsync(authParams));
 
@@ -325,7 +310,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant + "more", false),
                 Scope = TestConstants.Scope,
-                User = TestConstants.User
+                Account = TestConstants.User
             }));
         }
 
@@ -348,7 +333,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = TestConstants.Scope,
-                User = TestConstants.User
+                Account = TestConstants.User
             };
             var rt = cache.FindRefreshTokenAsync(authParams).Result;
             Assert.IsNull(rt);
@@ -850,7 +835,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             MsalRefreshTokenCacheItem rtItem = cache.GetAllRefreshTokensForClient(requestContext).First();
             Assert.AreEqual(response.RefreshToken, rtItem.Secret);
             Assert.AreEqual(TestConstants.ClientId, rtItem.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, rtItem.HomeAccountId);
+            Assert.AreEqual(TestConstants.UserIdentifier.Identifier, rtItem.HomeAccountId);
             Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, rtItem.Environment);
         }
 
@@ -871,7 +856,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
                 Scope = new SortedSet<string>(),
-                User = TestConstants.User
+                Account = TestConstants.User
             };
 
             var scopeInCache = TestConstants.Scope.FirstOrDefault();

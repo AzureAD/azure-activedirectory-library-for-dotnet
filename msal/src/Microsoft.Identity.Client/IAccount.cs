@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,37 +25,31 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal;
 
 namespace Microsoft.Identity.Client
 {
-    internal class PlatformInformation : PlatformInformationBase
+    /// <summary>
+    /// Contains information of a single account and can be used to perform an AcquireTokenSilentAsync operation. The same user
+    /// can be present in different tenants, i.e. a user can have multiple accounts.
+    /// </summary>
+    public interface IAccount
     {
-        public override string GetProductName()
-        {
-            return "MSAL.Facade";
-        }
+        /// <summary>
+        /// Gets a displayable value in UserPrincipalName (UPN) format, e.g. "john.doe@contoso.com"
+        /// </summary>
+        /// <remarks>Can be null</remarks>
+        string Username { get; }
 
-        public override string GetEnvironmentVariable(string variable)
-        {
-            return null;
-        }
+        /// <summary>
+        /// Gets the identity provider for this account, e.g. "login.microsoftonline.com"
+        /// </summary>
+        /// <remarks>Can be null</remarks>
+        string Environment { get; }
 
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-        }
-
-        public override string GetDeviceModel()
-        {
-            // Since MSAL .NET may be used on servers, for security reasons, we do not emit device type.
-            return null;
-        }
-    }
+        /// <summary>
+        /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. 
+        /// </summary>
+        /// <remarks>Can be null</remarks>
+        AccountId HomeAccountId { get; }
+   }
 }

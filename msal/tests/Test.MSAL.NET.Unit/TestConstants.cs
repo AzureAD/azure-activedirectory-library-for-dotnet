@@ -60,33 +60,25 @@ namespace Test.MSAL.NET.Unit
         public static readonly string AuthorityTestTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
 
-        public static readonly string UserIdentifier = CreateUserIdentifer();
+        public static readonly AccountId UserIdentifier = CreateUserIdentifer();
 
         public static string GetDiscoveryEndpoint(string Authority)
         {
             return Authority + DiscoveryEndPoint;
         }
 
-        public static string CreateUserIdentifer()
+        public static AccountId CreateUserIdentifer()
         {
             return CreateUserIdentifer(Uid, Utid);
         }
 
-        public static string CreateUserIdentifer(string uid, string utid)
+        public static AccountId CreateUserIdentifer(string uid, string utid)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}",
-                //Base64UrlHelpers.Encode(uid),
-                //Base64UrlHelpers.Encode(utid));
-                uid, utid);
+            return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
         }
 
-        public static readonly User User = new User
-        {
-            DisplayableId = DisplayableId,
-            Identifier = UserIdentifier,
-            Environment = ProductionPrefNetworkEnvironment,
-        };
-
+        public static readonly Account User = new Account(UserIdentifier, DisplayableId, ProductionPrefNetworkEnvironment);
+  
         public static readonly string OnPremiseAuthority = "https://fs.contoso.com/adfs/";
         public static readonly string OnPremiseClientId = "on_premise_client_id";
         public static readonly string OnPremiseUniqueId = "on_premise_unique_id";
@@ -99,10 +91,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly string OnPremiseUid = "my-OnPremise-UID";
         public static readonly string OnPremiseUtid = "my-OnPremise-UTID";
         public static readonly ClientCredential OnPremiseCredentialWithSecret = new ClientCredential(ClientSecret);
-        public static readonly User OnPremiseUser = new User
-        {
-            DisplayableId = OnPremiseDisplayableId,
-            Identifier = OnPremiseHomeObjectId
-        };
+        public static readonly Account OnPremiseUser = new Account(
+            new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseUid, OnPremiseUtid), OnPremiseDisplayableId, null);
     }
 }
