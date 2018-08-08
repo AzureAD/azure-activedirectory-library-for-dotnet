@@ -83,7 +83,8 @@ namespace DesktopTestApp
             List<IAccount> accounts = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result.ToList();
             if (accounts.Count > 0)
             {
-                accounts.Insert(0, new Account() { Username = string.Empty });
+                accounts.Insert(0, new Account(_publicClientHandler.CurrentUser.HomeAccountId, 
+                    _publicClientHandler.CurrentUser.Username, _publicClientHandler.CurrentUser.Environment));
             }
 
             userList.DataSource = accounts;
