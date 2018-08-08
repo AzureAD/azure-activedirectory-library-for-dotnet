@@ -60,7 +60,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            MSALTelemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         }
 
         [TestCleanup]

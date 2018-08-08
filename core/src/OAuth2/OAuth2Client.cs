@@ -88,8 +88,9 @@ namespace Microsoft.Identity.Core.OAuth2
 
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
-            //var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
-            //Client.Telemetry.GetInstance().StartEvent(requestContext.TelemetryRequestId, httpEvent);
+            var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
+            var telemetry = CoreTelemetry.Instance.GetInstance();
+            telemetry.StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
                 if (method == HttpMethod.Post)
@@ -101,16 +102,16 @@ namespace Microsoft.Identity.Core.OAuth2
                     response = await HttpRequest.SendGetAsync(endpointUri, _headers, requestContext).ConfigureAwait(false);
                 }
 
-                //httpEvent.HttpResponseStatus = (int)response.StatusCode;
-                //httpEvent.UserAgent = response.UserAgent;
-                //if (response.StatusCode != HttpStatusCode.OK)
-                //{
-                //    httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
-                //}
+                httpEvent.HttpResponseStatus = (int)response.StatusCode;
+                httpEvent.UserAgent = response.UserAgent;
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
+                }
             }
             finally
             {
-                //Client.Telemetry.GetInstance().StopEvent(requestContext.TelemetryRequestId, httpEvent);
+                telemetry.StopEvent(requestContext.TelemetryRequestId, httpEvent);
             }
 
             return CreateResponse<T>(response, requestContext, addCorrelationId);

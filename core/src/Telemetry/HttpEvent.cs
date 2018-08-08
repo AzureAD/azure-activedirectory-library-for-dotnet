@@ -28,7 +28,7 @@
 using System;
 using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Client
+namespace Microsoft.Identity.Core
 {
     internal class HttpEvent : EventBase
     {

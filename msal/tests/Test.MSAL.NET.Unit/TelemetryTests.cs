@@ -32,9 +32,9 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Client.Telemetry;
+using Test.Microsoft.Identity.Core.Unit;
 
-namespace Test.Microsoft.Identity.Core.Unit
+namespace Test.MSAL.NET.Unit
 {
     public class MyReceiver
     {
@@ -63,13 +63,11 @@ namespace Test.Microsoft.Identity.Core.Unit
     [TestClass]
     public class TelemetryTests
     {
-        private static TestPlatformInformation _testPlatformInformation;
         private readonly MyReceiver _myReceiver = new MyReceiver();
 
         [TestInitialize]
         public void Initialize()
         {
-            _testPlatformInformation = new TestPlatformInformation();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
@@ -83,29 +81,29 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("TelemetryTests")]
         public void TelemetryPublicApiSample()
         {
-            var telemetry = Telemetry.GetInstance();
+            var telemetry = MSALTelemetry.GetInstance();
             var receiver = new MyReceiver();
             telemetry.RegisterReceiver(receiver.OnEvents);
 
             // Or you can use a one-liner:
-            Telemetry.GetInstance().RegisterReceiver(new MyReceiver().OnEvents);
+            MSALTelemetry.GetInstance().RegisterReceiver(new MyReceiver().OnEvents);
         }
 
         [TestMethod]
         [TestCategory("TelemetryTests")]
         public void TelemetryIsSingleton()
         {
-            var t1 = Telemetry.GetInstance();
+            var t1 = MSALTelemetry.GetInstance();
             Assert.IsNotNull(t1);
-            var t2 = Telemetry.GetInstance();
+            var t2 = MSALTelemetry.GetInstance();
             Assert.AreEqual(t1, t2);
         }
 
         [TestMethod]
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryInternalApiSample()
-        { 
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+        {
+            MSALTelemetry telemetry = new MSALTelemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
 
@@ -136,7 +134,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetrySkipEventsIfApiEventWasSuccessful()
         {
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry();  // To isolate the test environment, we do not use a singleton here
             telemetry.TelemetryOnFailureOnly = true;
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
@@ -211,7 +209,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryContainsDefaultEventAsFirstEvent()
         {
-            Telemetry telemetry = new Telemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
             var reqId = telemetry.GenerateNewRequestId();
@@ -234,7 +232,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryStartAnEventWithoutStoppingItLater() // Such event(s) becomes an orphaned event
         {
-            Telemetry telemetry = new Telemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
 
@@ -265,7 +263,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryStopAnEventWithoutStartingItBeforehand()
         {
-            Telemetry telemetry = new Telemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry() { ClientId = "a1b2c3d4" };  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
 
@@ -294,7 +292,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("PiiLoggingEnabled set to true, TenantId & UserId are hashed values")]
         public void PiiLoggingEnabledTrue_TenantAndUserIdHashedTest()
         {
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
             CoreLoggerBase.PiiLoggingEnabled = true;
@@ -334,7 +332,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("PiiLoggingEnabled set to false, TenantId & UserId set to null values")]
         public void PiiLoggingEnabledFalse_TenantIdUserIdSetToNullValueTest()
         {
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
             CoreLoggerBase.PiiLoggingEnabled = false;
@@ -372,7 +370,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         [TestCategory("Check untrusted host Authority is set as null")]
         public void AuthorityNotInTrustedHostList_AuthorityIsSetAsNullValueTest()
         {
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+            MSALTelemetry telemetry = new MSALTelemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
             telemetry.RegisterReceiver(myReceiver.OnEvents);
 

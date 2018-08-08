@@ -30,7 +30,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Identity.Core.Instance;
 
-namespace Microsoft.Identity.Client
+namespace Microsoft.Identity.Core
 {
     internal abstract class EventBase : Dictionary<string, string>
     {

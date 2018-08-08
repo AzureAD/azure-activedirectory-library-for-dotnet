@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             SupportADFS = false;
 
             AuthenticationRequestParameters.LogState();
-            Telemetry.GetInstance().ClientId = AuthenticationRequestParameters.ClientId;
+            MSALTelemetry.GetInstance().ClientId = AuthenticationRequestParameters.ClientId;
         }
 
         protected virtual SortedSet<string> GetDecoratedScope(SortedSet<string> inputScope)
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         public async Task<AuthenticationResult> RunAsync()
         {
             //this method is the common entrance for all token requests, so it is a good place to put the generic Telemetry logic here
-            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Telemetry.GetInstance().GenerateNewRequestId();
+            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = MSALTelemetry.GetInstance().GenerateNewRequestId();
             var apiEvent = new ApiEvent()
             {
                 ApiId = ApiId,
@@ -150,7 +150,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 apiEvent.AuthorityType = AuthenticationRequestParameters.Authority.AuthorityType.ToString();
             }
 
-            Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+            MSALTelemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
 
             try
             {
@@ -182,8 +182,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
             finally
             {
-                Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
-                Telemetry.GetInstance().Flush(AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
+                MSALTelemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+                MSALTelemetry.GetInstance().Flush(AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
             }
         }
 

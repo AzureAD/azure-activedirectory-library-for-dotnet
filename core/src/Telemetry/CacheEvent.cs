@@ -25,43 +25,45 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-using System;
+using System.Collections.Generic;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Core
 {
-    /// <summary>
-    /// Initializes the MSAL module. This can be considered an entry point into MSAL
-    /// for initialization purposes. 
-    /// </summary>
-    /// <remarks>
-    /// The CLR defines a module initializer, however this is not implemented in C# and to 
-    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
-    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
-    /// </remarks>
-    internal class ModuleInitializer
+    internal class CacheEvent : EventBase
     {
-        private static bool isInitialized = false;
-        private static object lockObj;
+        public const string TokenCacheLookup = EventNamePrefix + "token_cache_lookup";
+        public const string TokenCacheWrite = EventNamePrefix + "token_cache_write";
+        public const string TokenCacheBeforeAccess = EventNamePrefix + "token_cache_before_access";
+        public const string TokenCacheAfterAccess = EventNamePrefix + "token_cache_after_access";
+        public const string TokenCacheBeforeWrite = EventNamePrefix + "token_cache_before_write";
+        public const string TokenCacheDelete = EventNamePrefix + "token_cache_delete";
 
-        static ModuleInitializer()
+        public const string TokenTypeKey = EventNamePrefix + "token_type";
+
+        public CacheEvent(string eventName) : base(eventName)
         {
-            lockObj = new object();
         }
 
-        public static void EnsureModuleInitialized()
+        public enum TokenTypes
         {
-            lock (lockObj)
+            AT,
+            RT,
+            ID,
+            ACCOUNT
+        };
+
+        public TokenTypes TokenType
+        {
+            set
             {
-                if (!isInitialized)
+                var types = new Dictionary<TokenTypes, string>()
                 {
-                    CoreExceptionFactory.Instance = new MsalExceptionFactory();
-                    CoreTelemetry.Instance = new MSALTelemetry();
-#if !FACADE
-                    CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-#endif
-                    isInitialized = true;
-                }
+                    {TokenTypes.AT, "at"},
+                    {TokenTypes.RT, "rt"},
+                    {TokenTypes.ID, "id"},
+                    {TokenTypes.ACCOUNT, "account"}
+                };
+                this[TokenTypeKey] = types[value];
             }
         }
     }
