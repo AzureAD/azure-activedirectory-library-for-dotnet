@@ -25,37 +25,41 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal;
 
-namespace Microsoft.Identity.Client
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+
+namespace Test.MSAL.NET.Unit
 {
-    internal class PlatformInformation : PlatformInformationBase
+    [TestClass]
+    public class AccountIdTest
     {
-        public override string GetProductName()
+        [TestMethod]
+        public void EqualityTest()
         {
-            return "MSAL.Facade";
+            // Arrange
+            AccountId accountId1 = new AccountId("a.b", "a", "b");
+            AccountId accountId2 = new AccountId("a.b", "a", "b");
+
+            // Act Assert
+            Assert.AreEqual(accountId1, accountId2);
         }
 
-        public override string GetEnvironmentVariable(string variable)
+        [TestMethod]
+        public void FromClientInfo()
         {
-            return null;
-        }
+            // Arrange
+            ClientInfo ci = new ClientInfo() { UniqueObjectIdentifier = "a", UniqueTenantIdentifier = "b" };
 
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
+            // Act
+            var accountId = AccountId.FromClientInfo(ci);
 
-        public override string GetOperatingSystem()
-        {
-            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-        }
-
-        public override string GetDeviceModel()
-        {
-            // Since MSAL .NET may be used on servers, for security reasons, we do not emit device type.
-            return null;
+            // Assert
+            Assert.AreEqual("a.b", accountId.Identifier);
+            Assert.AreEqual("a", accountId.ObjectId);
+            Assert.AreEqual("b", accountId.TenantId);
         }
     }
 }
