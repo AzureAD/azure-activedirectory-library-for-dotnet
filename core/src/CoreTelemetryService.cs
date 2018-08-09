@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
 {
-    internal static class CoreTelemetryService
+    internal class CoreTelemetryService
     {
         private static ITelemetry instance;
 

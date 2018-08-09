@@ -54,7 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="requestId"></param>
         /// <param name="eventToStart"></param>
-        void ITelemetry.StartEvent(string requestId, EventBase eventToStart)
+        public void StartEvent(string requestId, EventBase eventToStart)
         {
             
         }
@@ -64,7 +64,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="requestId"></param>
         /// <param name="eventToStop"></param>
-        void ITelemetry.StopEvent(string requestId, EventBase eventToStop)
+        public void StopEvent(string requestId, EventBase eventToStop)
         {
             
         }
