@@ -66,7 +66,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
 
-            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AadInstanceDiscovery.Instance.Cache.Clear();
 
             HttpMessageHandlerFactory.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
@@ -75,7 +75,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         
         void AddHostToInstanceCache(String host)
         {
-            AadInstanceDiscovery.Instance.InstanceCache.TryAdd(host, new InstanceDiscoveryMetadataEntry
+            AadInstanceDiscovery.Instance.Cache.TryAdd(host, new InstanceDiscoveryMetadataEntry
             {
                 PreferredNetwork = host,
                 PreferredCache = host,
@@ -200,12 +200,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                 Scope = new SortedSet<string>(),
-                Account =
-                    new Account()
-                    {
-                        Username = TestConstants.DisplayableId,
-                        HomeAccountId = TestConstants.UserIdentifier
-                    }
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             };
 
             param.Scope.Add(TestConstants.Scope.First());
@@ -239,18 +234,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.tokenCacheAccessor.AccessTokenCacheDictionary[atItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(atItem);
 
-            Assert.IsNull(cache.FindAccessTokenAsync(new AuthenticationRequestParameters()
-            {
-                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
-                ClientId = TestConstants.ClientId,
-                Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
-                Scope = TestConstants.Scope,
-                Account =
-                    new Account()
-                    {
-                        Username = TestConstants.DisplayableId,
-                        HomeAccountId = TestConstants.UserIdentifier
-                    }
+        Assert.IsNull(cache.FindAccessTokenAsync(new AuthenticationRequestParameters()
+        {
+            RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+            ClientId = TestConstants.ClientId,
+            Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
+            Scope = TestConstants.Scope,
+            Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             }).Result);
         }
 
@@ -283,12 +273,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = TestConstants.ClientId,
                 Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
                 Scope = TestConstants.Scope,
-                Account =
-                    new Account()
-                    {
-                        Username = TestConstants.DisplayableId,
-                        HomeAccountId = TestConstants.UserIdentifier
-                    }
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             }).Result);
         }
 

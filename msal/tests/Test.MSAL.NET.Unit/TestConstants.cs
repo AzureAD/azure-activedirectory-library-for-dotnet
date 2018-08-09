@@ -38,6 +38,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly SortedSet<string> Scope = new SortedSet<string>(new[] { "r1/scope1", "r1/scope2" });
         public static readonly string ScopeStr = "r1/scope1 r1/scope2";
         public static readonly SortedSet<string> ScopeForAnotherResource = new SortedSet<string>(new[] { "r2/scope1", "r2/scope2" });
+        public static readonly SortedSet<string> CacheMissScope = new SortedSet<string>(new[] { "r3/scope1", "r3/scope2" });
         public static readonly string ScopeForAnotherResourceStr = "r2/scope1 r2/scope2";
         public static readonly string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
         public static readonly string ProductionPrefCacheEnvironment = "login.windows.net";
@@ -77,13 +78,8 @@ namespace Test.MSAL.NET.Unit
             return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
         }
 
-        public static readonly Account User = new Account
-        {
-            Username = DisplayableId,
-            HomeAccountId = UserIdentifier,
-            Environment = ProductionPrefNetworkEnvironment,
-        };
-
+        public static readonly Account User = new Account(UserIdentifier, DisplayableId, ProductionPrefNetworkEnvironment);
+  
         public static readonly string OnPremiseAuthority = "https://fs.contoso.com/adfs/";
         public static readonly string OnPremiseClientId = "on_premise_client_id";
         public static readonly string OnPremiseUniqueId = "on_premise_unique_id";
@@ -96,10 +92,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly string OnPremiseUid = "my-OnPremise-UID";
         public static readonly string OnPremiseUtid = "my-OnPremise-UTID";
         public static readonly ClientCredential OnPremiseCredentialWithSecret = new ClientCredential(ClientSecret);
-        public static readonly Account OnPremiseUser = new Account
-        {
-            Username = OnPremiseDisplayableId,
-            HomeAccountId = new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseUid, OnPremiseUtid)
-    };
+        public static readonly Account OnPremiseUser = new Account(
+            new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseUid, OnPremiseUtid), OnPremiseDisplayableId, null);
     }
 }
