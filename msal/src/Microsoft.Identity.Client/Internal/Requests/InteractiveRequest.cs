@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client.Internal.Requests
@@ -105,7 +106,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             Uri authorizationUri = CreateAuthorizationUri(true, true);
             var uiEvent = new UiEvent();
-            MSALTelemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
+            Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
             try
             {
                 _authorizationResult = await
@@ -117,7 +118,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
             finally
             {
-                MSALTelemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
+                Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, uiEvent);
             }
         }
 

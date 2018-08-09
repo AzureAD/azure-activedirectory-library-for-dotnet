@@ -30,7 +30,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Identity.Core.Instance;
 
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Core.Telemetry
 {
     internal abstract class EventBase : Dictionary<string, string>
     {

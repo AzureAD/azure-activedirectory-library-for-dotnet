@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Telemetry;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// 
     /// </summary>
-    internal class MSALTelemetry : ITelemetry
+    public class Telemetry : ITelemetry
     {
         /// <summary>
         /// 
@@ -55,17 +55,17 @@ namespace Microsoft.Identity.Client
             _receiver = r;
         }
 
-        private static readonly MSALTelemetry Singleton = new MSALTelemetry();
+        private static readonly ITelemetry Instance = new Telemetry();
 
-        internal MSALTelemetry(){}  // This is an internal constructor to build isolated unit test instance
+        internal Telemetry(){}  // This is an internal constructor to build isolated unit test instance
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public static MSALTelemetry GetInstance()
+        public static Telemetry GetInstance()
         {
-            return Singleton;
+            return Instance as Telemetry;
         }
 
         /// <summary>

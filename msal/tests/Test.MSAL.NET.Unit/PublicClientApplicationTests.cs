@@ -42,7 +42,7 @@ using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using Test.Microsoft.Identity.Core.Unit;
+using Microsoft.Identity.Core.Telemetry;
 using Test.MSAL.NET.Unit.Mocks;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
@@ -61,7 +61,7 @@ namespace Test.MSAL.NET.Unit
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
-            MSALTelemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
             AadInstanceDiscovery.Instance.InstanceCache.Clear();
             AddMockResponseForInstanceDisovery();

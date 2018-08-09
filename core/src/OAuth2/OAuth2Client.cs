@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Core.OAuth2
 {
@@ -89,7 +90,7 @@ namespace Microsoft.Identity.Core.OAuth2
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
             var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
-            var telemetry = CoreTelemetryService.Instance;
+            var telemetry = CoreTelemetryService.GetInstance;
             telemetry.StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {

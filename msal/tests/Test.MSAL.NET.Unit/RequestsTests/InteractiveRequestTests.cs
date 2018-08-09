@@ -36,6 +36,7 @@ using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
@@ -60,7 +61,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
-            MSALTelemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         }
 
         [TestCleanup]
