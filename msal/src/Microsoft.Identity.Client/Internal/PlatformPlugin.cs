@@ -50,8 +50,8 @@ namespace Microsoft.Identity.Client.Internal
 
 #if ANDROID || iOS
             webUIFactory = new Microsoft.Identity.Core.UI.WebUIFactory();
-#else
-            webUIFactory = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
+#elif !NETSTANDARD1_3
+            webUIFactory = new UI.WebUIFactory();
 #endif
             WebUIFactory = webUIFactory;
             PlatformInformation = new PlatformInformation();
