@@ -90,7 +90,7 @@ namespace Microsoft.Identity.Core.OAuth2
             HttpResponse response = null;
             Uri endpointUri = CreateFullEndpointUri(endPoint);
             var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
-            var telemetry = CoreTelemetryService.GetInstance;
+            var telemetry = CoreTelemetryService.GetInstance();
             telemetry.StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {

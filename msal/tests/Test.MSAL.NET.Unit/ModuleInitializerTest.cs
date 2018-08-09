@@ -49,8 +49,10 @@ namespace Test.MSAL.NET.Unit
             // Assert
             MsalExceptionFactory factory = CoreExceptionFactory.Instance as MsalExceptionFactory;
             MsalLogger logger = CoreLoggerBase.Default as MsalLogger;
+            Telemetry telemetry = CoreTelemetryService.GetInstance() as Telemetry;
             Assert.IsNotNull(factory);
             Assert.IsNotNull(logger);
+            Assert.IsNotNull(telemetry);
 
             // Act
             ModuleInitializer.EnsureModuleInitialized();
@@ -58,6 +60,7 @@ namespace Test.MSAL.NET.Unit
             // Assert
             Assert.AreEqual(factory, CoreExceptionFactory.Instance, "Initialization should have happened only once");
             Assert.AreEqual(logger, CoreLoggerBase.Default, "Initialization should have happened only once");
+            Assert.AreEqual(telemetry, CoreTelemetryService.GetInstance() as Telemetry, "Initialization should have happened only once");
         }
     }
 }

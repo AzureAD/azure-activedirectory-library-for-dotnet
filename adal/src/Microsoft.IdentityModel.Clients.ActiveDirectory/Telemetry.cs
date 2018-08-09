@@ -34,6 +34,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
+    /// <summary>
+    /// Facilitates the acquisition of telemtry data
+    /// </summary>
+    /// <remarks>
+    /// This blank class used as a place holder for CoreTelemetryService.Instance to avaoid null reference exceptions in core. No implementation is present at this time.
+    /// </remarks>
     internal class Telemetry : ITelemetry
     {
         private static readonly ITelemetry Instance = new Telemetry();
@@ -43,11 +49,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return Instance as Telemetry;
         }
 
+        /// <summary>
+        /// Starts Telemetry event
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <param name="eventToStart"></param>
         void ITelemetry.StartEvent(string requestId, EventBase eventToStart)
         {
             
         }
 
+        /// <summary>
+        /// Stops Telemetry event
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <param name="eventToStop"></param>
         void ITelemetry.StopEvent(string requestId, EventBase eventToStop)
         {
             

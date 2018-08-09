@@ -36,11 +36,16 @@ namespace Microsoft.Identity.Core
 {
     internal static class CoreTelemetryService
     {
+        private static ITelemetry instance;
+
         public static void InitializeCoreTelemetryService(ITelemetry instance)
         {
-            GetInstance = instance;
+            CoreTelemetryService.instance = instance;
         }
 
-        public static ITelemetry GetInstance { get; private set; }
+        public static ITelemetry GetInstance()
+        {
+            return instance;
+        }
     }
 }
