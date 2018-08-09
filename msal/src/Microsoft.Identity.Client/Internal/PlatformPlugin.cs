@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Client.Internal
 
 #if ANDROID || iOS
             webUIFactory = new Microsoft.Identity.Core.UI.WebUIFactory();
-#elif !NETSTANDARD1_3
+#else
             webUIFactory = new UI.WebUIFactory();
 #endif
             WebUIFactory = webUIFactory;
