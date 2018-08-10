@@ -44,6 +44,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public const uint JwtToAadLifetimeInSeconds = 60 * 10; // Ten minutes
 
         [TestMethod]
+        [Description("Test for client assertion with mismatched parameters in Request Validator.")]
         public void ClientAssertionRequestValidatorMismatchParameterTest()
         {
             string Audience1 = "Audience1";
@@ -91,6 +92,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         }
 
         [TestMethod]
+        [Description("Test for expired client assertion in Request Validator.")]
         public void ClientAssertionRequestValidatorExpirationTimeTest()
         {
             var credential = new ClientCredential(TestConstants.ClientSecret);
