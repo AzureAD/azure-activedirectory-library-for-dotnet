@@ -63,6 +63,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly string DiscoveryEndPoint = "discovery/instance";
         public static readonly string DefaultAuthorizationCode = "DefaultAuthorizationCode";
         public static readonly string DefaultAccessToken = "DefaultAccessToken";
+        public static readonly string DefaultClientAssertion = "DefaultClientAssertion";
 
         public static readonly AccountId UserIdentifier = CreateUserIdentifer();
 

@@ -63,8 +63,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
                                                                         Constants
                                                                         .ExpirationMarginInMinutes)));
 
-            return !expired && clientCredential.Audience == clientAssertionParameters.Authority.SelfSignedJwtAudience
+            var parametersMatch = clientCredential.Audience == clientAssertionParameters.Authority.SelfSignedJwtAudience
                 && clientCredential.ContainsX5C == clientAssertionParameters.SendCertificate;
+
+            return !expired && parametersMatch;
         }
 #endif
     }
