@@ -87,10 +87,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
                 else
                 {
-                    if (ClientCredential.Assertion == null || ClientCredential.ValidTo != 0 || ClientCredential.ContainsX5C != SendCertificate)
+                    if (ClientCredential.Assertion == null || ClientCredential.ValidTo != 0)
                     {
-                        bool assertionExpired = !this.Equals(ClientCredential);
-                        if (assertionExpired)
+                        if (!RequestValidationHelper.ValidateClientAssertion(this))
                         {
                             const string msg = "Client Assertion does not exist or near expiry.";
                             RequestContext.Logger.Info(msg);
@@ -117,30 +116,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 #endif
             return parameters;
         }
-
-#if DESKTOP || NETSTANDARD1_3
-        public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                throw new ArgumentNullException("credential");
-            }
-            else if (obj is ClientCredential credential)
-            {
-                return credential.Audience == Authority.SelfSignedJwtAudience && credential.ContainsX5C == SendCertificate;
-            }
-            else
-                throw new ArgumentException("Parameter obj is not of type " + typeof(ClientCredential).ToString());
-        }
-
-        public override int GetHashCode()
-        {
-            int hash = 13;
-            hash *= hash + 31 + Authority.SelfSignedJwtAudience.GetHashCode();
-            hash *= hash + 31 + SendCertificate.GetHashCode();
-            return hash;
-        }
-#endif
 
         public void LogState()
         {
