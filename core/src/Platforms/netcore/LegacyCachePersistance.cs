@@ -18,26 +18,27 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.UI;
 
-namespace Microsoft.Identity.Client.Internal.UI
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class WebUIFactory : IWebUIFactory
+    internal class LegacyCachePersistance : ILegacyCachePersistance
     {
-        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
+        //this class is an empty implementation to facilitate testing of forward/backward cache compat testing.
+        byte[] ILegacyCachePersistance.LoadCache()
         {
-            throw new PlatformNotSupportedException("Possible Cause: If you are using an XForms app, or generally a netstandard assembly, " +
-                "make sure you add a reference to Microsoft.Identity.Client.dll from each platform assembly " +
-                "(e.g. UWP, Android, iOS), not just from the common netstandard assembly");
+            return null;
+        }
+
+        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
+        {
         }
     }
 }

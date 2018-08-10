@@ -25,42 +25,53 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Identity.Core.Helpers;
 using System;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Core
 {
-    /// <summary>
-    /// Initializes the MSAL module. This can be considered an entry point into MSAL
-    /// for initialization purposes. 
-    /// </summary>
-    /// <remarks>
-    /// The CLR defines a module initializer, however this is not implemented in C# and to 
-    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
-    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
-    /// </remarks>
-    internal class ModuleInitializer
+    internal class CoreCryptographyHelpers
     {
-        private static bool isInitialized = false;
-        private static object lockObj;
-
-        static ModuleInitializer()
+        public static string CreateBase64UrlEncodedSha256Hash(string input)
         {
-            lockObj = new object();
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
+            using (SHA256 sha = SHA256.Create())
+            {
+                UTF8Encoding encoding = new UTF8Encoding();
+                return Base64UrlHelpers.Encode(sha.ComputeHash(encoding.GetBytes(input)));
+            }
         }
 
-        public static void EnsureModuleInitialized()
-        {            
-            lock (lockObj)
+        public static string GenerateCodeVerifier()
+        {
+            byte[] buffer = new byte[Constants.CodeVerifierByteSize];
+            using (var randomSource = RandomNumberGenerator.Create())
             {
-                if (!isInitialized)
-                {
-                    CoreExceptionFactory.Instance = new MsalExceptionFactory();
-                    CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
-                    CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-                    isInitialized = true;
-                }
+                randomSource.GetBytes(buffer);
+            }
+
+            return Base64UrlHelpers.Encode(buffer);
+        }
+
+        public static string CreateSha256Hash(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return null;
+            }
+
+            using (var sha256 = SHA256.Create())
+            {
+                var inputBytes = Encoding.UTF8.GetBytes(input);
+                var outputBytes = sha256.ComputeHash(inputBytes);
+                return Convert.ToBase64String(outputBytes);
             }
         }
     }
