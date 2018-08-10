@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -18,28 +18,27 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
+using System;
 
-namespace Microsoft.Identity.Core.Telemetry
+namespace Microsoft.Identity.Core.Cache
 {
-    internal class DefaultEvent : EventBase
+    internal class LegacyCachePersistance : ILegacyCachePersistance
     {
-        public DefaultEvent(string clientId) : base((string) (EventBase.EventNamePrefix + "default_event"))
+        //this class is an empty implementation to facilitate testing of forward/backward cache compat testing.
+        byte[] ILegacyCachePersistance.LoadCache()
         {
-            this[EventNamePrefix + "client_id"] = clientId;
-            this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
-            this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
-            // TODO: The following implementation will be used after the 3 helpers being implemented (in a separated PR)
-            // this[EventNamePrefix + "application_name"] = MsalIdHelper.GetApplicationName();  // Not yet implemented
-            // this[EventNamePrefix + "application_version"] = MsalIdHelper.GetApplicationVersion();  // Not yet implemented
-            // this[EventNamePrefix + "device_id"] = MsalIdHelper.GetDeviceId();  // Not yet implemented
+            return null;
+        }
+
+        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
+        {
         }
     }
 }

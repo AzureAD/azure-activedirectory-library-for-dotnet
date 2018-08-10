@@ -25,43 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Telemetry;
 using System;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.UI;
 
-namespace Microsoft.Identity.Client.Internal
+namespace Microsoft.Identity.Client.Internal.UI
 {
-    /// <summary>
-    /// Initializes the MSAL module. This can be considered an entry point into MSAL
-    /// for initialization purposes. 
-    /// </summary>
-    /// <remarks>
-    /// The CLR defines a module initializer, however this is not implemented in C# and to 
-    /// use this it would require IL weaving, which does not seem to work on all target frameworks.
-    /// Instead, call <see cref="EnsureModuleInitialized"/> from static ctors of public entry points.
-    /// </remarks>
-    internal class ModuleInitializer
+    internal class WebUIFactory : IWebUIFactory
     {
-        private static bool isInitialized = false;
-        private static object lockObj;
-
-        static ModuleInitializer()
+        public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
         {
-            lockObj = new object();
-        }
-
-        public static void EnsureModuleInitialized()
-        {            
-            lock (lockObj)
-            {
-                if (!isInitialized)
-                {
-                    CoreExceptionFactory.Instance = new MsalExceptionFactory();
-                    CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
-                    CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-                    isInitialized = true;
-                }
-            }
+            throw new NotImplementedException();
         }
     }
 }
