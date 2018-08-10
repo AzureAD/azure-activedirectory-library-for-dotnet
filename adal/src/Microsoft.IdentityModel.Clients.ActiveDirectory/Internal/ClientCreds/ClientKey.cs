@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
         public bool HasCredential { get; private set; }
 
-        public bool SendCertificate { get; set; }
+        public bool SendX5c { get; set; }
 
         public void AddToParameters(IDictionary<string, string> parameters)
         {
@@ -123,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             else if (this.Certificate != null)
             {
                 JsonWebToken jwtToken = new JsonWebToken(this.Certificate, this.Authenticator.SelfSignedJwtAudience);
-                ClientAssertion clientAssertion = jwtToken.Sign(this.Certificate, SendCertificate);
+                ClientAssertion clientAssertion = jwtToken.Sign(this.Certificate, SendX5c);
                 parameters[OAuthParameter.ClientAssertionType] = clientAssertion.AssertionType;
                 parameters[OAuthParameter.ClientAssertion] = clientAssertion.Assertion;
             }

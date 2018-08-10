@@ -91,10 +91,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             };
         }
 
-        public ClientAssertion Sign(IClientAssertionCertificate credential, bool sendCertificate)
+        public ClientAssertion Sign(IClientAssertionCertificate credential, bool sendX5c)
         {
             // Base64Url encoded header and claims
-            string token = this.Encode(credential, sendCertificate);     
+            string token = this.Encode(credential, sendX5c);     
 
             // Length check before sign
             if (MaxTokenLength < token.Length)
@@ -115,9 +115,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             return Base64UrlEncoder.Encode(segment);
         }
 
-        private static string EncodeHeaderToJson(IClientAssertionCertificate credential, bool sendCertificate)
+        private static string EncodeHeaderToJson(IClientAssertionCertificate credential, bool sendX5c)
         {
-            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential, sendCertificate);
+            JWTHeaderWithCertificate header = new JWTHeaderWithCertificate(credential, sendX5c);
             return JsonHelper.EncodeToJson(header);
         }
 
@@ -128,10 +128,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
             return (long)(diff.TotalSeconds);
         }
 
-        private string Encode(IClientAssertionCertificate credential, bool sendCertificate)
+        private string Encode(IClientAssertionCertificate credential, bool sendX5c)
         {
             // Header segment
-            string jsonHeader = EncodeHeaderToJson(credential, sendCertificate);
+            string jsonHeader = EncodeHeaderToJson(credential, sendX5c);
             string encodedHeader = EncodeSegment(jsonHeader);
 
             // Payload segment
@@ -209,13 +209,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         [DataContract]
         internal sealed class JWTHeaderWithCertificate : JWTHeader
         {
-            public JWTHeaderWithCertificate(IClientAssertionCertificate credential, bool sendCertificate)
+            public JWTHeaderWithCertificate(IClientAssertionCertificate credential, bool sendX5c)
                 : base(credential)
             {
                 X509CertificateThumbprint = this.Credential.Thumbprint;
                 X509CertificatePublicCertValue = null;
 
-                if (!sendCertificate)
+                if (!sendX5c)
                     return;
 
                 //Check to see if credential is our implementation or developer provided.
