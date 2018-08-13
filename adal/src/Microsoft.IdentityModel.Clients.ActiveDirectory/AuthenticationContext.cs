@@ -133,11 +133,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// ADAL's token cache. On some platforms, e.g. iOS and Android, the TokenCache is backed by a persistent store. 
-        /// On others - .net, .net core - the developer is responsible for implementing a persistent store.
-        /// ADAL will automatically save tokens in the default TokenCache whenever you obtain them. 
-        /// To find out more about using the token cache visit: https://aka.ms/adal_use_cached_tokens
-        /// To find out more about custom token cache serialization, visit: https://aka.ms/adal_token_cache_serialization
+        /// ADAL's token cache, where tokens are automatically saved.
+        /// On some platforms, e.g. iOS, Android and UWP, the TokenCache is backed by a persistent store which is implemeted by ADAL.
+        /// On other platforms, e.g. .net and .net core - the developer is responsible for implementing a persistent store.
+        /// If not using a persistent store, an in-memory store is used, which is destroyed once the application stops. 
+        /// To find out more about leveraging the token cache visit: https://aka.ms/adal-net-using-cached-tokens
+        /// To find out more about implementing a persistent store, visit: https://aka.ms/adal-net-cache-serialization
         /// </summary>
         public TokenCache TokenCache { get; private set; }
 
