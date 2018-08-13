@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Identity.Client",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MSAL.NET.Unit", "msal\tests\Test.MSAL.NET.Unit\Test.MSAL.NET.Unit.csproj", "{D5ED1FC3-75DD-488C-8B6E-06F2EAE93E85}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IdentityModel.Clients.ActiveDirectory.Platform", "adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.csproj", "{0AF4F1C6-0943-4047-A3B4-3F0D285277F9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IdentityModel.Clients.ActiveDirectory", "adal\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj", "{A71924EE-1172-4725-9E2C-6E5A342D1620}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit", "adal\tests\Test.ADAL.NET.Unit\Test.ADAL.NET.Unit.csproj", "{91E9E564-8A44-457B-A97C-E76C9F6275D6}"
@@ -43,10 +41,6 @@ Global
 		{D5ED1FC3-75DD-488C-8B6E-06F2EAE93E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5ED1FC3-75DD-488C-8B6E-06F2EAE93E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5ED1FC3-75DD-488C-8B6E-06F2EAE93E85}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0AF4F1C6-0943-4047-A3B4-3F0D285277F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0AF4F1C6-0943-4047-A3B4-3F0D285277F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0AF4F1C6-0943-4047-A3B4-3F0D285277F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0AF4F1C6-0943-4047-A3B4-3F0D285277F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A71924EE-1172-4725-9E2C-6E5A342D1620}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A71924EE-1172-4725-9E2C-6E5A342D1620}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A71924EE-1172-4725-9E2C-6E5A342D1620}.Release|Any CPU.ActiveCfg = Release|Any CPU
