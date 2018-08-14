@@ -32,8 +32,8 @@ using Microsoft.Identity.Client.Internal.Requests;
 using System.Collections.Generic;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client
 {
@@ -68,12 +68,28 @@ namespace Microsoft.Identity.Client
                 ClientId = clientId
             };
         }
+// netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
+#if !NET_CORE
 
+#if iOS
+        /// <summary>
+        /// Xamarin iOS specific property enabling the application to share the token cache with other applications sharing the same keychain security group.
+        /// If you provide this key, you MUST add the capability to your Application Entitlement.
+        /// For more details, please see https://aka.ms/msal-net-sharing-cache-on-ios
+        /// </summary>
+        /// <remarks>This API may change in future release.</remarks>
+        public string KeychainSecurityGroup
+        {
+            get { return this.KeychainSecurityGroup; }
+            set => UserTokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
+        }
+#endif
 
-#if WINRT
-/// <summary>
-/// 
-/// </summary>
+#if WINDOWS_APP
+        /// <summary>
+        /// Flag to enable logged in user authentication.
+        /// When set to true, the application will try to connect to the corporate network using windows integrated authentication.
+        /// </summary>
         public bool UseCorporateNetwork { get; set; }
 #endif
 
@@ -115,7 +131,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IUser user)
+            IAccount user)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
@@ -150,7 +166,7 @@ namespace Microsoft.Identity.Client
         /// <param name="behavior">Enumeration to control UI behavior.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
@@ -190,7 +206,7 @@ namespace Microsoft.Identity.Client
         /// <param name="extraScopesToConsent">Array of scopes for which a developer can request consent upfront.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
@@ -241,7 +257,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing token of the user</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IUser user, UIParent parent)
+            IAccount user, UIParent parent)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
@@ -278,7 +294,7 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
@@ -320,7 +336,7 @@ namespace Microsoft.Identity.Client
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="parent">Object contains reference to parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing token of the user</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IUser user,
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount user,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
@@ -338,10 +354,10 @@ namespace Microsoft.Identity.Client
                 parent = new UIParent();
             }
 
-#if WINRT || DESKTOP
+#if WINDOWS_APP || DESKTOP
             //hidden webview can be used in both WinRT and desktop applications.
             parent.UseHiddenBrowser = behavior.Equals(UIBehavior.Never);
-#if WINRT
+#if WINDOWS_APP
             parent.UseCorporateNetwork = UseCorporateNetwork;
 #endif
 #endif
@@ -365,18 +381,19 @@ namespace Microsoft.Identity.Client
 
             var handler =
                 new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext)){ApiId = apiId};
+                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
+                { ApiId = apiId };
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
         private async Task<AuthenticationResult> AcquireTokenForUserCommonAsync(Authority authority, IEnumerable<string> scopes,
-            IEnumerable<string> extraScopesToConsent, IUser user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
+            IEnumerable<string> extraScopesToConsent, IAccount user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
         {
             var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
 #if iOS || ANDROID
-            if(!parent.CoreUIParent.UseEmbeddedWebview)
+            if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
                 PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
@@ -384,15 +401,19 @@ namespace Microsoft.Identity.Client
 
             var handler =
                 new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext)){ApiId = apiId};
+                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
+                { ApiId = apiId };
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
         internal override AuthenticationRequestParameters CreateRequestParameters(Authority authority,
-            IEnumerable<string> scopes, IUser user, TokenCache cache)
+            IEnumerable<string> scopes, IAccount user, TokenCache cache)
         {
             AuthenticationRequestParameters parameters = base.CreateRequestParameters(authority, scopes, user, cache);
             return parameters;
         }
+
+// endif for !NET_CORE
+#endif
     }
 }

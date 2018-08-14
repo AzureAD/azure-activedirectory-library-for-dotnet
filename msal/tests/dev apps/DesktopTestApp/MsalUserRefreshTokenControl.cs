@@ -46,8 +46,11 @@ namespace DesktopTestApp
 
         private async void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
-            await publicClient.Remove(
-                new User(rtItem.HomeAccountId, accountItem.PreferredUsername, accountItem.Environment)).ConfigureAwait(false);
+            await publicClient.RemoveAsync(
+                new Account(
+                    AccountId.FromClientInfo(rtItem.ClientInfo), 
+                    accountItem.PreferredUsername, 
+                    accountItem.Environment)).ConfigureAwait(false);
 
             RefreshViewDelegate?.Invoke();
         }

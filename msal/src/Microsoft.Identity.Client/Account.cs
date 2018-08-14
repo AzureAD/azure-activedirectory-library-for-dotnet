@@ -26,27 +26,40 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains information of a single user. This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
+    /// Contains information of a single account. A user can be present in multiple directorie and thus have multiple accounts.
+    /// This information is used for token cache lookup and enforcing the user session on STS authorize endpont.
     /// </summary>
-    public interface IUser
+    internal sealed class Account : IAccount
     {
-        /// <summary>
-        /// Gets a displayable value in UserPrincipalName (UPN) format. The value can be null.
-        /// </summary>
-        string DisplayableId { get; }
+        public Account(AccountId homeAccountId, string username, string environment)
+        {
+            if (homeAccountId == null)
+            {
+                throw new ArgumentNullException(nameof(homeAccountId));
+            }
 
-        /// <summary>
-        /// Gets user`s environment.
-        /// </summary>
-        string Environment { get; }
+            Username = username;
+            Environment = environment;
+            HomeAccountId = homeAccountId;
+        }
 
-        /// <summary>
-        /// Gets an identifier for the user that is used by the library and the service as a strong handle to user identity. Cannot be null.
-        /// </summary>
-        string Identifier { get; }
-   }
+        public string Username { get; internal set; }
+
+        public string Environment { get; internal set; }
+
+        public AccountId HomeAccountId { get; internal set; }
+
+        public override string ToString()
+        {
+            return String.Format(
+            CultureInfo.CurrentCulture,
+            "Account username: {0} environment {1} home account id: {2}",
+            Username, Environment, HomeAccountId);
+        }
+    }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Client
     public interface IConfidentialClientApplication : IClientApplicationBase
     {
         /// <summary>
-        /// Acquires token using On-Behalf-Of flow.
+        /// Acquires token using On-Behalf-Of flow. (See https://aka.ms/msal-net-on-behalf-of)
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
         /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Client
             UserAssertion userAssertion);
 
         /// <summary>
-        /// Acquires token using On-Behalf-Of flow.
+        /// Acquires token using On-Behalf-Of flow. (See https://aka.ms/msal-net-on-behalf-of)
         /// </summary>
         /// <param name="scopes">Array of scopes requested for resource</param>
         /// <param name="userAssertion">Instance of UserAssertion containing user's token.</param>
@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Acquires security token from the authority using authorization code previously received.
-        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IUser)"/>.
+        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/>.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
         /// <param name="scopes">Array of scopes requested for resource</param>

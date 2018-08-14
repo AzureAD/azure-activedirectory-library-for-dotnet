@@ -36,12 +36,12 @@ using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.MSAL.NET.Unit.Mocks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
-using Microsoft.Identity.Core.Telemetry;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Microsoft.Identity.Core.UI;
@@ -278,7 +278,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 (string) null, UIBehavior.ForceLogin, webUi);
             try
             {
-                request.PreTokenRequest().Wait();
+                request.PreTokenRequestAsync().Wait();
                 Assert.Fail("MsalException should have been thrown here");
             }
             catch (Exception exc)
@@ -299,7 +299,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             try
             {
-                request.PreTokenRequest().Wait();
+                request.PreTokenRequestAsync().Wait();
                 Assert.Fail("MsalException should have been thrown here");
             }
             catch (Exception exc)
@@ -343,7 +343,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             try
             {
-                request.PreTokenRequest().Wait();
+                request.PreTokenRequestAsync().Wait();
                 Assert.Fail("MsalException should be thrown here");
             }
             catch (Exception exc)

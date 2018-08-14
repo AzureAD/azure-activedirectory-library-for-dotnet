@@ -25,35 +25,39 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Threading.Tasks;
+using Microsoft.Identity.Client.Internal;
 
-namespace Test.MSAL.NET.Unit
+namespace Microsoft.Identity.Client
 {
-    [TestClass]
-    public class UserTests
+    internal class PlatformInformation : PlatformInformationBase
     {
-        [TestMethod]
-        [TestCategory("UserTests")]
-        public void Constructor_IdIsRequired()
+        public override string GetProductName()
         {
-            // 1. Id is required
-            AssertException.Throws<ArgumentNullException>(() => new User(null, "d", "n"));
-
-            // 2. Other properties are optional
-            new User("id", null, null);
+            return "MSAL.NetCore";
         }
 
-        [TestMethod]
-        [TestCategory("UserTests")]
-        public void Constructor_PropertiesSet()
+        public override string GetEnvironmentVariable(string variable)
         {
-            User actual = new User("id", "disp", "env");
+            string value = Environment.GetEnvironmentVariable(variable);
+            return !string.IsNullOrWhiteSpace(value) ? value : null;
+        }
 
-            Assert.AreEqual("id", actual.Identifier);
-            Assert.AreEqual("disp", actual.DisplayableId);
-            Assert.AreEqual("env", actual.Environment);
+        public override string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public override string GetOperatingSystem()
+        {
+            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        }
+
+        public override string GetDeviceModel()
+        {
+            // Since MSAL .NET may be used on servers, for security reasons, we do not emit device type.
+            return null;
         }
     }
 }

@@ -112,36 +112,54 @@ namespace Microsoft.Identity.Client
             BeforeWrite?.Invoke(args);
         }
 
-        internal MsalAccessTokenCacheItem SaveAccessAndRefreshToken(AuthenticationRequestParameters requestParams,
-            MsalTokenResponse response)
+        internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken
+            (AuthenticationRequestParameters requestParams, MsalTokenResponse response)
         {
+            var tenantId = Authority.CreateAuthority(requestParams.TenantUpdatedCanonicalAuthority, false)
+                .GetTenantId();
+
+            var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
+
+            var environmentAliases = GetEnvironmentAliases(requestParams.TenantUpdatedCanonicalAuthority,
+                instanceDiscoveryMetadataEntry);
+
+            var preferredEnvironmentHost = GetPreferredEnvironmentHost(requestParams.Authority.Host,
+                instanceDiscoveryMetadataEntry);
+
+            IdToken idToken = IdToken.Parse(response.IdToken);
+
+            var msalAccessTokenCacheItem =
+                new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
+                {
+                    UserAssertionHash = requestParams.UserAssertion?.AssertionHash
+                };
+
+            MsalRefreshTokenCacheItem msalRefreshTokenCacheItem = null;
+
+            MsalIdTokenCacheItem msalIdTokenCacheItem = null;
+            if (idToken != null)
+            {
+                msalIdTokenCacheItem = new MsalIdTokenCacheItem
+                    (preferredEnvironmentHost, requestParams.ClientId, response, idToken?.TenantId);
+            }
+
+            if (!requestParams.IsClientCredentialRequest && 
+                !ContainsClaimsRequiredToStoreInCache(idToken, requestParams.RequestContext))
+            {
+                return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
+            }
+
             lock (LockObject)
             {
                 try
                 {
-                    var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
-
-                    var authorityAliases = GetAuthorityAliases(requestParams.TenantUpdatedCanonicalAuthority,
-                        instanceDiscoveryMetadataEntry);
-
-                    var preferredEnvironmentHost = GetPreferredEnvironmentHost(requestParams.Authority.Host,
-                        instanceDiscoveryMetadataEntry);
-
-                    IdToken idToken = IdToken.Parse(response.IdToken);
-
-                    MsalRefreshTokenCacheItem msalRefreshTokenCacheItem = null;
-                    // create the access token cache item
-                    var msalAccessTokenCacheItem =
-                        new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId,
-                                response, idToken?.TenantId)
-                            {UserAssertionHash = requestParams.UserAssertion?.AssertionHash};
-
                     var args = new TokenCacheNotificationArgs
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = msalAccessTokenCacheItem.HomeAccountId != null ?
-                                    new User(msalAccessTokenCacheItem.HomeAccountId, idToken?.PreferredUsername, idToken?.Name) : 
+                        Account = msalAccessTokenCacheItem.HomeAccountId != null ?
+                                    new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
+                                    idToken?.PreferredUsername, preferredEnvironmentHost) : 
                                     null
                     };
 
@@ -149,65 +167,16 @@ namespace Microsoft.Identity.Client
                     OnBeforeAccess(args);
                     OnBeforeWrite(args);
 
-                    //delete all cache entries with intersecting scopes.
-                    //this should not happen but we have this as a safe guard
-                    //against multiple matches.
-                    var msg = "Looking for scopes for the authority in the cache which intersect with " +
-                              requestParams.Scope.AsSingleString();
-                    requestParams.RequestContext.Logger.Info(msg);
-                    requestParams.RequestContext.Logger.InfoPii(msg);
-                    IList<MsalAccessTokenCacheItem> accessTokenItemList = new List<MsalAccessTokenCacheItem>();
-                    foreach (var accessTokenString in tokenCacheAccessor.GetAllAccessTokensAsString())
-                    {
-                        MsalAccessTokenCacheItem msalAccessTokenItem =
-                            JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestParams.RequestContext);
-
-                        if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
-                            authorityAliases.Contains(msalAccessTokenItem.Authority) &&
-                            msalAccessTokenItem.ScopeSet.ScopeIntersects(msalAccessTokenCacheItem.ScopeSet))
-                        {
-                            msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
-                            requestParams.RequestContext.Logger.Verbose(msg);
-                            requestParams.RequestContext.Logger.VerbosePii(msg);
-                            accessTokenItemList.Add(msalAccessTokenItem);
-                        }
-                    }
-
-                    msg = "Intersecting scope entries count - " + accessTokenItemList.Count;
-                    requestParams.RequestContext.Logger.Info(msg);
-                    requestParams.RequestContext.Logger.InfoPii(msg);
-
-                    if (!requestParams.IsClientCredentialRequest)
-                    {
-                        //filter by identifer of the user instead
-                        accessTokenItemList =
-                            accessTokenItemList.Where(
-                                    item => item.HomeAccountId.Equals(msalAccessTokenCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
-                                .ToList();
-                        msg = "Matching entries after filtering by user - " + accessTokenItemList.Count;
-                        requestParams.RequestContext.Logger.Info(msg);
-                        requestParams.RequestContext.Logger.InfoPii(msg);
-                    }
-
-                    foreach (var cacheItem in accessTokenItemList)
-                    {
-                        tokenCacheAccessor.DeleteAccessToken(cacheItem.GetKey(), requestParams.RequestContext);
-                    }
+                    DeleteAccessTokensWithIntersectingScopes(requestParams, environmentAliases, tenantId, 
+                        msalAccessTokenCacheItem.ScopeSet, msalAccessTokenCacheItem.HomeAccountId);
 
                     tokenCacheAccessor.SaveAccessToken(msalAccessTokenCacheItem, requestParams.RequestContext);
 
-                    MsalIdTokenCacheItem msalIdTokenCacheItem = null;
                     if (idToken != null)
                     {
-                        // create the id token cache item
-                        msalIdTokenCacheItem =
-                            new MsalIdTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId,
-                                response, idToken?.TenantId);
-
                         tokenCacheAccessor.SaveIdToken(msalIdTokenCacheItem, requestParams.RequestContext);
 
-                        var msalAccountCacheItem =
-                            new MsalAccountCacheItem(preferredEnvironmentHost, response);
+                        var msalAccountCacheItem = new MsalAccountCacheItem(preferredEnvironmentHost, response);
 
                         tokenCacheAccessor.SaveAccount(msalAccountCacheItem, requestParams.RequestContext);
                     }
@@ -215,17 +184,12 @@ namespace Microsoft.Identity.Client
                     // if server returns the refresh token back, save it in the cache.
                     if (response.RefreshToken != null)
                     {
-                        // create the refresh token cache item
-                       msalRefreshTokenCacheItem = new MsalRefreshTokenCacheItem(
-                            preferredEnvironmentHost,
-                            requestParams.ClientId,
-                            response);
-                        msg = "Saving RT in cache...";
+                        msalRefreshTokenCacheItem = new MsalRefreshTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response);
+                        var msg = "Saving RT in cache...";
                         requestParams.RequestContext.Logger.Info(msg);
                         requestParams.RequestContext.Logger.InfoPii(msg);
                         tokenCacheAccessor.SaveRefreshToken(msalRefreshTokenCacheItem, requestParams.RequestContext);
                     }
-
                     OnAfterAccess(args);
 
                     //save RT in ADAL cache for public clients
@@ -236,8 +200,7 @@ namespace Microsoft.Identity.Client
                             Authority.UpdateHost(requestParams.TenantUpdatedCanonicalAuthority, preferredEnvironmentHost),
                             msalIdTokenCacheItem.IdToken.ObjectId, response.Scope);
                     }
-
-                    return msalAccessTokenCacheItem;
+                    return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
                 }
                 finally
                 {
@@ -245,28 +208,99 @@ namespace Microsoft.Identity.Client
                 }
             }
         }
+        private void DeleteAccessTokensWithIntersectingScopes(AuthenticationRequestParameters requestParams,
+           ISet<string> environmentAliases, string tenantId, SortedSet<string> scopeSet, string homeAccountId)
+        {
+            //delete all cache entries with intersecting scopes.
+            //this should not happen but we have this as a safe guard
+            //against multiple matches.
+            var msg = "Looking for scopes for the authority in the cache which intersect with " +
+                      requestParams.Scope.AsSingleString();
+            requestParams.RequestContext.Logger.Info(msg);
+            requestParams.RequestContext.Logger.InfoPii(msg);
+            IList<MsalAccessTokenCacheItem> accessTokenItemList = new List<MsalAccessTokenCacheItem>();
+            foreach (var accessTokenString in tokenCacheAccessor.GetAllAccessTokensAsString())
+            {
+                MsalAccessTokenCacheItem msalAccessTokenItem =
+                    JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(accessTokenString, requestParams.RequestContext);
 
-        internal async Task<MsalAccessTokenCacheItem> FindAccessToken(AuthenticationRequestParameters requestParams)
+                if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
+                    environmentAliases.Contains(msalAccessTokenItem.Environment) &&
+                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase) &&
+                    msalAccessTokenItem.ScopeSet.ScopeIntersects(scopeSet))
+                {
+                    msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
+                    requestParams.RequestContext.Logger.Verbose(msg);
+                    requestParams.RequestContext.Logger.VerbosePii(msg);
+                    accessTokenItemList.Add(msalAccessTokenItem);
+                }
+            }
+
+            msg = "Intersecting scope entries count - " + accessTokenItemList.Count;
+            requestParams.RequestContext.Logger.Info(msg);
+            requestParams.RequestContext.Logger.InfoPii(msg);
+
+            if (!requestParams.IsClientCredentialRequest)
+            {
+                //filter by identifer of the user instead
+                accessTokenItemList =
+                    accessTokenItemList.Where(
+                            item => item.HomeAccountId.Equals(homeAccountId, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                msg = "Matching entries after filtering by user - " + accessTokenItemList.Count;
+                requestParams.RequestContext.Logger.Info(msg);
+                requestParams.RequestContext.Logger.InfoPii(msg);
+            }
+
+            foreach (var cacheItem in accessTokenItemList)
+            {
+                tokenCacheAccessor.DeleteAccessToken(cacheItem.GetKey(), requestParams.RequestContext);
+            }
+        }
+
+        private bool ContainsClaimsRequiredToStoreInCache(IdToken idToken, RequestContext requestContext)
+        {
+            if (idToken == null || string.IsNullOrEmpty(idToken.TenantId) || string.IsNullOrEmpty(idToken.PreferredUsername))
+            {
+                string msg;
+                if (idToken == null)
+                {
+                    msg = "Skipping storing tokens in the cache - no IdToken in token response";
+                }
+                else
+                {
+                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims";
+                }
+                requestContext.Logger.Warning(msg);
+                requestContext.Logger.WarningPii(msg);
+
+                return false;
+            }
+            return true;
+        }
+
+        internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(AuthenticationRequestParameters requestParams)
         {
             var cacheEvent = new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.AT };
             Telemetry.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             try
             {   
-                ISet<string> authorityAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                string preferredAlias = null;
+                ISet<string> environmentAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                string preferredEnvironmentAlias = null;
+
                 if (requestParams.Authority != null)
                 {
-                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaData(requestParams.Authority.CanonicalAuthority,
+                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(requestParams.Authority.CanonicalAuthority,
                         requestParams.ValidateAuthority, requestParams.RequestContext).ConfigureAwait(false);
 
-                    authorityAliases.UnionWith
-                        (GetAuthorityAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
+                    environmentAliases.UnionWith
+                        (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
-                    preferredAlias = 
-                        Authority.UpdateHost(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry.PreferredCache);
+                    preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
                 }
 
-                return FindAccessTokenCommon(requestParams, preferredAlias, authorityAliases);
+                return FindAccessTokenCommon
+                    (requestParams, preferredEnvironmentAlias, environmentAliases);
             }
             finally
             {
@@ -275,7 +309,7 @@ namespace Microsoft.Identity.Client
         }
 
         private MsalAccessTokenCacheItem FindAccessTokenCommon
-            (AuthenticationRequestParameters requestParams, string prefferedAlias, ISet<string> authorityAliases)
+            (AuthenticationRequestParameters requestParams, string preferredEnvironmentAlias, ISet<string> environmentAliases)
         {
             lock (LockObject)
             {
@@ -287,7 +321,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = requestParams.User
+                    Account = requestParams.Account
                 };
 
                 OnBeforeAccess(args);
@@ -319,7 +353,7 @@ namespace Microsoft.Identity.Client
                         //filter by identifier of the user instead
                         tokenCacheItems =
                             tokenCacheItems
-                                .Where(item => item.HomeAccountId.Equals(requestParams.User?.Identifier, StringComparison.OrdinalIgnoreCase))
+                                .Where(item => item.HomeAccountId.Equals(requestParams.Account?.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase))
                                 .ToList();
                     }
                 }
@@ -347,11 +381,12 @@ namespace Microsoft.Identity.Client
                 requestParams.RequestContext.Logger.Info(msg);
                 requestParams.RequestContext.Logger.InfoPii(msg);
                 //no authority passed
-                if (authorityAliases.Count == 0)
+                if (environmentAliases.Count == 0)
                 {
                     msg = "No authority provided..";
                     requestParams.RequestContext.Logger.Info(msg);
                     requestParams.RequestContext.Logger.InfoPii(msg);
+                    
                     //if only one cached token found
                     if (filteredItems.Count() == 1)
                     {
@@ -409,7 +444,7 @@ namespace Microsoft.Identity.Client
                     //authority was passed in the API
                     IEnumerable<MsalAccessTokenCacheItem> filteredByPrefferedAlias = 
                         filteredItems.Where
-                        (item => item.Authority.Equals(prefferedAlias, StringComparison.OrdinalIgnoreCase))
+                        (item => item.Environment.Equals(preferredEnvironmentAlias, StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     if (filteredByPrefferedAlias.Any())
@@ -418,7 +453,9 @@ namespace Microsoft.Identity.Client
                     }
                     else
                     {
-                        filteredItems = filteredItems.Where(item => authorityAliases.Contains(item.Authority)).ToList();
+                        filteredItems = filteredItems.Where(
+                            item => environmentAliases.Contains(item.Environment) && 
+                            item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase)).ToList();
                     }
 
                     //no match
@@ -467,13 +504,13 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task<MsalRefreshTokenCacheItem> FindRefreshToken(AuthenticationRequestParameters requestParams)
+        internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(AuthenticationRequestParameters requestParams)
         {
             var cacheEvent = new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.RT };
             Telemetry.GetInstance().StartEvent(requestParams.RequestContext.TelemetryRequestId, cacheEvent);
             try
             {
-                return await FindRefreshTokenCommon(requestParams).ConfigureAwait(false);
+                return await FindRefreshTokenCommonAsync(requestParams).ConfigureAwait(false);
             }
             finally
             {
@@ -481,17 +518,17 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommon(AuthenticationRequestParameters requestParam)
+        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommonAsync(AuthenticationRequestParameters requestParam)
         {
             if (requestParam.Authority == null)
             {
                 return null;
             }
 
-            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaData(requestParam.Authority.CanonicalAuthority,
+            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(requestParam.Authority.CanonicalAuthority,
                 requestParam.ValidateAuthority, requestParam.RequestContext).ConfigureAwait(false);
 
-            var authorityHostAliases = GetAuthorityHostAliases(requestParam.Authority.CanonicalAuthority,
+            var environmentAliases = GetEnvironmentAliases(requestParam.Authority.CanonicalAuthority,
                 instanceDiscoveryMetadataEntry);
 
             var preferredEnvironmentHost = GetPreferredEnvironmentHost(requestParam.Authority.Host,
@@ -507,11 +544,11 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = requestParam.User
+                    Account = requestParam.Account
                 };
 
                 MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(
-                    preferredEnvironmentHost, requestParam.ClientId, requestParam.User?.Identifier);
+                    preferredEnvironmentHost, requestParam.ClientId, requestParam.Account?.HomeAccountId?.Identifier);
 
                 OnBeforeAccess(args);
                 MsalRefreshTokenCacheItem msalRefreshTokenCacheItem =
@@ -533,8 +570,8 @@ namespace Microsoft.Identity.Client
 
                         if (msalRefreshToken != null &&
                             msalRefreshToken.ClientId.Equals(requestParam.ClientId, StringComparison.OrdinalIgnoreCase) &&
-                            authorityHostAliases.Contains(msalRefreshToken.Environment) &&
-                            requestParam.User?.Identifier == msalRefreshToken.HomeAccountId)
+                            environmentAliases.Contains(msalRefreshToken.Environment) &&
+                            requestParam.Account?.HomeAccountId.Identifier == msalRefreshToken.HomeAccountId)
                         {
                             msalRefreshTokenCacheItem = msalRefreshToken;
                             continue;
@@ -554,13 +591,18 @@ namespace Microsoft.Identity.Client
                 requestParam.RequestContext.Logger.Info("Checking ADAL cache for matching RT");
                 requestParam.RequestContext.Logger.InfoPii("Checking ADAL cache for matching RT");
 
-                if (requestParam.User == null)
+                if (requestParam.Account == null)
                 {
                     return null;
                 }
-                return CacheFallbackOperations.GetAdalEntryForMsal(legacyCachePersistance,
-                    preferredEnvironmentHost, authorityHostAliases, 
-                    requestParam.ClientId, requestParam.LoginHint, requestParam.User.Identifier, null);
+                return CacheFallbackOperations.GetAdalEntryForMsal(
+                    legacyCachePersistance,
+                    preferredEnvironmentHost,
+                    environmentAliases, 
+                    requestParam.ClientId, 
+                    requestParam.LoginHint, 
+                    requestParam.Account.HomeAccountId?.Identifier, 
+                    null);
             }
         }
 
@@ -575,7 +617,8 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = new User(msalIdTokenCacheItem.HomeAccountId,
+                        Account = new Account(
+                            AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalRefreshTokenCacheItem.Environment)
                     };
 
@@ -602,7 +645,7 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = new User(msalAccessTokenCacheItem.HomeAccountId,
+                        Account = new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalAccessTokenCacheItem.Environment)
                     };
 
@@ -625,7 +668,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -644,7 +687,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -663,7 +706,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -682,7 +725,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -693,7 +736,7 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaData
+        private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaDataAsync
             (string authority, bool validateAuthority, RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
@@ -714,35 +757,28 @@ namespace Microsoft.Identity.Client
             var authorityType = Authority.GetAuthorityType(authority);
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
-                AadInstanceDiscovery.Instance.InstanceCache.TryGetValue
+                AadInstanceDiscovery.Instance.Cache.TryGetValue
                     (new Uri(authority).Host, out instanceDiscoveryMetadata);
             }
             return instanceDiscoveryMetadata;
         }
 
-        private ISet<string> GetAuthorityHostAliases(string authority, InstanceDiscoveryMetadataEntry metadata)
+        private ISet<string> GetEnvironmentAliases(string authority, InstanceDiscoveryMetadataEntry metadata)
         {
-            ISet<string> authorityHostAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            ISet<string> environmentAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 new Uri(authority).Host
             };
 
             if (metadata != null)
             {
-                foreach (string authorityHostAlias in metadata.Aliases ?? Enumerable.Empty<string>())
+                foreach (string environmentAlias in metadata.Aliases ?? Enumerable.Empty<string>())
                 {
-                    authorityHostAliases.Add(authorityHostAlias);
+                    environmentAliases.Add(environmentAlias);
                 }
             }
 
-            return authorityHostAliases;
-        }
-        private ISet<string> GetAuthorityAliases(string authority, InstanceDiscoveryMetadataEntry metadata)
-        {
-            ISet<string> authorityHostAliases = GetAuthorityHostAliases(authority, metadata);
-
-            return new HashSet<string>
-                (authorityHostAliases.Select(e => Authority.UpdateHost(authority, e)).ToList());
+            return environmentAliases;
         }
 
         private string GetPreferredEnvironmentHost(string environmentHost, InstanceDiscoveryMetadataEntry metadata)
@@ -757,20 +793,21 @@ namespace Microsoft.Identity.Client
             return preferredEnvironmentHost;
         }
 
-        internal async Task<IEnumerable<IUser>> GetUsers(string authority, bool validateAuthority, RequestContext requestContext)
+        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(string authority, bool validateAuthority, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry = 
-                await GetCachedOrDiscoverAuthorityMetaData(authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
 
-            var authorityHostAliases = GetAuthorityHostAliases(authority, instanceDiscoveryMetadataEntry);
+            var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 
+            var environment = new Uri(authority).Host;
             lock (LockObject)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -778,36 +815,53 @@ namespace Microsoft.Identity.Client
                 ICollection<MsalAccountCacheItem> accountCacheItems = GetAllAccounts(requestContext);
                 OnAfterAccess(args);
 
-                IDictionary<string, User> allUsers = new Dictionary<string, User>();
+                IDictionary<string, Account> clientInfoToAccountMap = new Dictionary<string, Account>();
                 foreach (MsalRefreshTokenCacheItem rtItem in tokenCacheItems)
                 {
-                    if (authorityHostAliases.Contains(rtItem.Environment))
+                    if (environmentAliases.Contains(rtItem.Environment))
                     {
                         foreach (MsalAccountCacheItem account in accountCacheItems)
                         {
                             if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
-                                authorityHostAliases.Contains(account.Environment))
+                                environmentAliases.Contains(account.Environment))
                             {
-                                User user = new User(account.HomeAccountId, account.PreferredUsername, new Uri(authority).Host);
-                                allUsers[rtItem.HomeAccountId] = user;
+                                clientInfoToAccountMap[rtItem.HomeAccountId] = new Account
+                                    (AccountId.FromClientInfo(account.ClientInfo), account.PreferredUsername, environment);
                                 break;
                             }
                         }
                     }
                 }
 
-                foreach (KeyValuePair<string, AdalUserInfo> pair in CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    legacyCachePersistance, authorityHostAliases, ClientId))
-                {
-                    string userIdentifier = ClientInfo.CreateFromJson(pair.Key).ToUserIdentifier();
+                var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(legacyCachePersistance, environmentAliases, ClientId);
+                Dictionary<String, AdalUserInfo> clientInfoToAdalUserMap = tuple.Item1;
+                List<AdalUserInfo> adalUsersWithoutClientInfo = tuple.Item2;
 
-                    if (!allUsers.ContainsKey(userIdentifier))
+                foreach (KeyValuePair<string, AdalUserInfo> pair in clientInfoToAdalUserMap)
+                {
+                    ClientInfo clientInfo = ClientInfo.CreateFromJson(pair.Key);
+                    string accountIdentifier = clientInfo.ToAccountIdentifier();
+
+                    if (!clientInfoToAccountMap.ContainsKey(accountIdentifier))
                     {
-                        allUsers[userIdentifier] = new User(userIdentifier, pair.Value.DisplayableId, new Uri(authority).Host);
+                        clientInfoToAccountMap[accountIdentifier] = new Account(
+                             AccountId.FromClientInfo(clientInfo), pair.Value.DisplayableId, environment);
                     }
                 }
 
-                return allUsers.Values;
+                var accounts = clientInfoToAccountMap.Values;
+
+                List<string> uniqueUserNames = clientInfoToAccountMap.Values.Select(o => o.Username).Distinct().ToList();
+
+                foreach (AdalUserInfo user in adalUsersWithoutClientInfo)
+                {
+                    if (!string.IsNullOrEmpty(user.DisplayableId) && !uniqueUserNames.Contains(user.DisplayableId))
+                    {
+                        accounts.Add(new Account(null, user.DisplayableId, environment));
+                        uniqueUserNames.Add(user.DisplayableId);
+                    }
+                }
+                return accounts;
             }
         }
 
@@ -876,7 +930,7 @@ namespace Microsoft.Identity.Client
             {
                 TokenCache = this,
                 ClientId = ClientId,
-                User = null
+                Account = null
             };
 
             OnBeforeAccess(args);
@@ -914,12 +968,12 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task Remove(string authority, bool validateAuthority, IUser user, RequestContext requestContext)
+        internal async Task RemoveAsync(string authority, bool validateAuthority, IAccount account, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry =
-                await GetCachedOrDiscoverAuthorityMetaData(authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
 
-            var authorityHostAliases = GetAuthorityHostAliases(authority, instanceDiscoveryMetadataEntry);
+            var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 
             lock (LockObject)
             {
@@ -927,12 +981,12 @@ namespace Microsoft.Identity.Client
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
 
-                RemoveMsalUser(user, authorityHostAliases, requestContext);
-                RemoveAdalUser(user, authorityHostAliases);
+                RemoveMsalAccount(account, environmentAliases, requestContext);
+                RemoveAdalUser(account, environmentAliases);
             }
         }
 
-        internal void RemoveMsalUser(IUser user, ISet<string> authorityHostAliases, RequestContext requestContext)
+        internal void RemoveMsalAccount(IAccount account, ISet<string> environmnetAliases, RequestContext requestContext)
         {
             lock (LockObject)
             {
@@ -946,14 +1000,14 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        User = user
+                        Account = account
                     };
 
                     OnBeforeAccess(args);
                     OnBeforeWrite(args);
                     IList<MsalRefreshTokenCacheItem> allRefreshTokens = GetAllRefreshTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                                       authorityHostAliases.Contains(item.Environment))
+                        .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       environmnetAliases.Contains(item.Environment))
                         .ToList();
                     foreach (MsalRefreshTokenCacheItem refreshTokenCacheItem in allRefreshTokens)
                     {
@@ -964,8 +1018,8 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
                     IList<MsalAccessTokenCacheItem> allAccessTokens = GetAllAccessTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                                       authorityHostAliases.Contains(item.Environment))
+                        .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       environmnetAliases.Contains(item.Environment))
                         .ToList();
                     foreach (MsalAccessTokenCacheItem accessTokenCacheItem in allAccessTokens)
                     {
@@ -977,8 +1031,8 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalIdTokenCacheItem> allIdTokens = GetAllIdTokensForClient(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                                       authorityHostAliases.Contains(item.Environment))
+                        .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       environmnetAliases.Contains(item.Environment))
                         .ToList();
                     foreach (MsalIdTokenCacheItem idTokenCacheItem in allIdTokens)
                     {
@@ -990,8 +1044,8 @@ namespace Microsoft.Identity.Client
                     requestContext.Logger.InfoPii(msg);
 
                     IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
-                        .Where(item => item.HomeAccountId.Equals(user.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                                       authorityHostAliases.Contains(item.Environment))
+                        .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
+                                       environmnetAliases.Contains(item.Environment))
                         .ToList();
                     foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
                     {
@@ -1011,9 +1065,9 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal void RemoveAdalUser(IUser user, ISet<string> authorityHostAliases)
+        internal void RemoveAdalUser(IAccount account, ISet<string> environmentAliases)
         {
-            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, user.DisplayableId, authorityHostAliases, user.Identifier);
+            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, account.Username, environmentAliases, account.HomeAccountId.Identifier);
         }
 
         internal ICollection<string> GetAllAccessTokenCacheItems(RequestContext requestContext)
@@ -1128,7 +1182,7 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = null
+                    Account = null
                 };
 
                 OnBeforeAccess(args);
@@ -1155,8 +1209,10 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = msalIdTokenCacheItem != null ? new User(msalIdTokenCacheItem.HomeAccountId,
-                        msalIdTokenCacheItem.IdToken?.PreferredUsername, msalAccessTokenCacheItem.Environment) : null
+                    Account = msalIdTokenCacheItem != null ? new Account(
+                        AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                        msalIdTokenCacheItem.IdToken?.PreferredUsername, 
+                        msalAccessTokenCacheItem.Environment) : null
                 };
 
                 try
@@ -1190,9 +1246,11 @@ namespace Microsoft.Identity.Client
                 {
                     TokenCache = this,
                     ClientId = ClientId,
-                    User = msalIdTokenCacheItem != null ? 
-                           new User(msalIdTokenCacheItem.HomeAccountId, msalIdTokenCacheItem.IdToken.PreferredUsername, 
-                                msalIdTokenCacheItem.IdToken.Name) : null
+                    Account = msalIdTokenCacheItem != null ? 
+                           new Account(
+                               AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                               msalIdTokenCacheItem.IdToken.PreferredUsername, 
+                               msalIdTokenCacheItem.IdToken.Name) : null
                 };
 
                 try

@@ -37,7 +37,6 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.MSAL.NET.Unit.Mocks;
 using System.Net.Http;
@@ -61,7 +60,7 @@ namespace Test.MSAL.NET.Unit
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
-            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AadInstanceDiscovery.Instance.Cache.Clear();
             AddMockResponseForInstanceDisovery();
     }
 
@@ -126,13 +125,13 @@ namespace Test.MSAL.NET.Unit
             Assert.IsTrue(adalCacheDictionary.Count == 1);
 
             var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-            var users = app.UserTokenCache.GetUsers(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
-            foreach (IUser user in users)
+            var users = app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+            foreach (IAccount user in users)
             {
                 ISet<string> authorityHostAliases = new HashSet<string>();
                 authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
-                app.UserTokenCache.RemoveMsalUser(user, authorityHostAliases, requestContext);
+                app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
             }
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -150,7 +149,7 @@ namespace Test.MSAL.NET.Unit
 
             // Using RT from Adal cache for silent call
             AuthenticationResult result1 = app.AcquireTokenSilentAsync
-                (TestConstants.Scope, result.User, TestConstants.AuthorityCommonTenant, false).Result;
+                (TestConstants.Scope, result.Account, TestConstants.AuthorityCommonTenant, false).Result;
 
             Assert.IsNotNull(result1);
         }

@@ -25,9 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.Identity.Client.Internal
@@ -46,20 +43,17 @@ namespace Microsoft.Identity.Client.Internal
 
         private static void InitializeWebFactoryAndPlatform()
         {
-#if !FACADE
             IWebUIFactory webUIFactory = null;
 
 #if ANDROID || iOS
             webUIFactory = new Microsoft.Identity.Core.UI.WebUIFactory();
 #else
-            webUIFactory = new Microsoft.Identity.Client.Internal.UI.WebUIFactory();
+            webUIFactory = new UI.WebUIFactory();
 #endif
             WebUIFactory = webUIFactory;
             PlatformInformation = new PlatformInformation();
-#endif
         }
 
-#if !FACADE
         public static void LogMessage(MsalLogLevel logLevel, string formattedMessage)
         {
             switch (logLevel)
@@ -78,6 +72,5 @@ namespace Microsoft.Identity.Client.Internal
                     break;
             }
         }
-#endif
     }
 }

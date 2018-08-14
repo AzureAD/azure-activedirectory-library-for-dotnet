@@ -33,7 +33,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.MSAL.NET.Unit.Mocks;
+using Microsoft.Identity.Core.Telemetry;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
@@ -41,9 +41,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using NSubstitute;
-using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
@@ -64,7 +62,7 @@ namespace Test.MSAL.NET.Unit
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         
-            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            AadInstanceDiscovery.Instance.Cache.Clear();
             AddMockResponseForInstanceDisovery();
         }
 
@@ -106,27 +104,27 @@ namespace Test.MSAL.NET.Unit
         {
             // Setup up a confidential client application with mocked users
             var mockApp = Substitute.For<IConfidentialClientApplication>();
-            IList<IUser> users = new List<IUser>();
+            IList<IAccount> users = new List<IAccount>();
 
-            IUser mockUser1 = Substitute.For<IUser>();
-            mockUser1.DisplayableId.Returns("DisplayableId_1");
+            IAccount mockUser1 = Substitute.For<IAccount>();
+            mockUser1.Username.Returns("DisplayableId_1");
 
-            IUser mockUser2 = Substitute.For<IUser>();
-            mockUser2.DisplayableId.Returns("DisplayableId_2");
+            IAccount mockUser2 = Substitute.For<IAccount>();
+            mockUser2.Username.Returns("DisplayableId_2");
 
             users.Add(mockUser1);
             users.Add(mockUser2);
-            mockApp.GetUsers().Returns(users);
+            mockApp.GetAccountsAsync().Returns(users);
 
             // Now call the substitute
-            IEnumerable<IUser> actualUsers = mockApp.GetUsers().Result;
+            IEnumerable<IAccount> actualUsers = mockApp.GetAccountsAsync().Result;
 
             // Check the users property
             Assert.IsNotNull(actualUsers);
             Assert.AreEqual(2, actualUsers.Count());
 
-            Assert.AreEqual("DisplayableId_1", users.First().DisplayableId);
-            Assert.AreEqual("DisplayableId_2", users.Last().DisplayableId);
+            Assert.AreEqual("DisplayableId_1", users.First().Username);
+            Assert.AreEqual("DisplayableId_2", users.Last().Username);
         }
 
         [TestMethod]
@@ -166,7 +164,6 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.ClientSecret, app.ClientCredential.Secret);
             Assert.IsNull(app.ClientCredential.Certificate);
             Assert.IsNull(app.ClientCredential.Assertion);
-            Assert.AreEqual(0, app.ClientCredential.ValidTo);
 
             app = new ConfidentialClientApplication(TestConstants.ClientId,
                 TestConstants.AuthorityGuestTenant,
@@ -266,7 +263,7 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
         }
 
-        private ConfidentialClientApplication CreateConfidentialClient(ClientCredential cc)
+        private ConfidentialClientApplication CreateConfidentialClient(ClientCredential cc, int tokenResponses)
         {
             ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
                 TestConstants.RedirectUri, cc, new TokenCache(),
@@ -282,17 +279,14 @@ namespace Test.MSAL.NET.Unit
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
             });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            for (int i = 0; i < tokenResponses; i++)
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-            });
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-            });
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
+                });
+            }
             return app;
         }
 
@@ -302,7 +296,7 @@ namespace Test.MSAL.NET.Unit
         {
             ClientCredential cc =
                 new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-            var app = CreateConfidentialClient(cc);
+            var app = CreateConfidentialClient(cc, 3);
 
             Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
             AuthenticationResult result = task.Result;
@@ -332,6 +326,10 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(cacheValidTo, cc.ValidTo);
             Assert.AreEqual(cachedAssertion, cc.Assertion);
 
+            //validate the send x5c forces a refresh of the cached client assertion
+            (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(TestConstants.Scope.ToArray(), true);
+            Assert.AreNotEqual(cachedAssertion, cc.Assertion);
+
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
@@ -341,7 +339,7 @@ namespace Test.MSAL.NET.Unit
         {
             ClientCredential cc =
                 new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-            var app = CreateConfidentialClient(cc);
+            var app = CreateConfidentialClient(cc, 2);
             Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
             AuthenticationResult result = task.Result;
             Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent => // Expect finding such an event
@@ -483,7 +481,7 @@ namespace Test.MSAL.NET.Unit
                 new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.AuthorityGuestTenant,
                     TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
                     new TokenCache(), new TokenCache())
-                {ValidateAuthority = false};
+                { ValidateAuthority = false };
 
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
@@ -674,7 +672,7 @@ namespace Test.MSAL.NET.Unit
                 ValidateAuthority = false
             };
 
-            var users = app.GetUsers().Result;
+            var users = app.GetAccountsAsync().Result;
             Assert.AreEqual(1, users.Count());
         }
 

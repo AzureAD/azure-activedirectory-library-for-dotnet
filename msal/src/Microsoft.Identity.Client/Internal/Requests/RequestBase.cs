@@ -133,11 +133,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             //this method is the common entrance for all token requests, so it is a good place to put the generic Telemetry logic here
             AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Telemetry.GetInstance().GenerateNewRequestId();
+            string accountId = AuthenticationRequestParameters.Account?.HomeAccountId?.Identifier;
             var apiEvent = new ApiEvent()
             {
                 ApiId = ApiId,
                 ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(),
-                UserId = AuthenticationRequestParameters.User != null ? AuthenticationRequestParameters.User.Identifier : "",
+                AccountId = accountId ?? "",
                 CorrelationId = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString(),
                 RequestId = AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
                 IsConfidentialClient = IsConfidentialClient,
@@ -156,13 +157,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
             try
             {
                 //authority endpoints resolution and validation
-                await PreTokenRequest().ConfigureAwait(false);
+                await PreTokenRequestAsync().ConfigureAwait(false);
                 await SendTokenRequestAsync().ConfigureAwait(false);
                 AuthenticationResult result = PostTokenRequest();
                 await PostRunAsync(result).ConfigureAwait(false);
 
                 apiEvent.TenantId = result.TenantId;
-                apiEvent.UserId = result.UniqueId;
+                apiEvent.AccountId = result.UniqueId;
                 apiEvent.WasSuccessful = true;
                 return result;
             }
@@ -205,7 +206,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             if (fromServer!= null && AuthenticationRequestParameters.ClientInfo != null)
             {
-                if (!fromServer.UniqueIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueIdentifier, StringComparison.OrdinalIgnoreCase) ||
+                if (!fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier, StringComparison.OrdinalIgnoreCase) ||
                     !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier, StringComparison.OrdinalIgnoreCase))
                 {
                     AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user" +
@@ -214,8 +215,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
                     AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(String.Format(
                         CultureInfo.InvariantCulture,
                         "Returned user identifiers (uid:{0} utid:{1}) does not meatch the sent user identifier (uid:{2} utid:{3})",
-                        fromServer.UniqueIdentifier, fromServer.UniqueTenantIdentifier,
-                        AuthenticationRequestParameters.ClientInfo.UniqueIdentifier,
+                        fromServer.UniqueObjectIdentifier, fromServer.UniqueTenantIdentifier,
+                        AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier,
                         AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier));
 
                     throw new MsalServiceException("user_mismatch", "Returned user identifier does not match the sent user identifier");
@@ -223,7 +224,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             IdToken idToken = IdToken.Parse(Response.IdToken);
-            // todo throw Exception when IdToken or client_info in null
+
             AuthenticationRequestParameters.TenantUpdatedCanonicalAuthority = Authority.UpdateTenantId(
                 AuthenticationRequestParameters.Authority.CanonicalAuthority, idToken?.TenantId);
 
@@ -233,10 +234,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 AuthenticationRequestParameters.RequestContext.Logger.Info(msg);
                 AuthenticationRequestParameters.RequestContext.Logger.InfoPii(msg);
 
-                // todo should we return idToken from SaveAccessAndRefreshToken as well ?
-                // problem - if AT is not stored we will fail  ?
-                MsalAccessTokenItem = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
-                MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey(), AuthenticationRequestParameters.RequestContext);
+                var tuple = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
+                MsalAccessTokenItem = tuple.Item1;
+                MsalIdTokenItem = tuple.Item2;
             }
             else{
                 MsalAccessTokenItem = new MsalAccessTokenCacheItem(AuthenticationRequestParameters.Authority.Host,
@@ -253,15 +253,15 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return CompletedTask;
         }
 
-        internal virtual async Task PreTokenRequest()
+        internal virtual async Task PreTokenRequestAsync()
         {
-            await ResolveAuthorityEndpoints().ConfigureAwait(false);
+            await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
         }
 
 
-        internal async Task ResolveAuthorityEndpoints()
+        internal async Task ResolveAuthorityEndpointsAsync()
         {
-            await AuthenticationRequestParameters.Authority.Init
+            await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
                 (AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             await AuthenticationRequestParameters.Authority
@@ -279,8 +279,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 SaveTokenResponseToCache();
             }
-
-            //MsalIdTokenCacheItem msalIdTokenCacheItem = TokenCache?.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey());
 
             return new AuthenticationResult(MsalAccessTokenItem, MsalIdTokenItem);
         }
@@ -309,7 +307,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             builder.AppendQueryParameters(AuthenticationRequestParameters.SliceParameters);
             Response =
                 await client
-                    .GetToken(builder.Uri,
+                    .GetTokenAsync(builder.Uri,
                         AuthenticationRequestParameters.RequestContext)
                     .ConfigureAwait(false);
 

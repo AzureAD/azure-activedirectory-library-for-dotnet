@@ -83,7 +83,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
-            parameters.User = null;
+            parameters.Account = null;
             try
             {
                 new SilentRequest(parameters, false);
@@ -94,16 +94,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Assert.AreEqual(exc.ErrorCode, MsalUiRequiredException.UserNullError);
             }
 
-            parameters.User = new User()
-            {
-                DisplayableId = TestConstants.DisplayableId
-            };
+            parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
+
             SilentRequest request = new SilentRequest(parameters, false);
             Assert.IsNotNull(request);
 
-            parameters.User = new User()
-            {
-            };
+            parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
+
             request = new SilentRequest(parameters, false);
             Assert.IsNotNull(request);
 
@@ -129,13 +126,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
                 RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
-                User = new User()
-                {
-                    Identifier = TestConstants.UserIdentifier,
-                    DisplayableId = TestConstants.DisplayableId
-                }
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             };
-            
+
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
@@ -180,7 +173,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
-                User = new User(),
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
@@ -222,10 +215,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
                 TokenCache = cache,
-                User = new User(),
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
-            
+
             try
             {
                 SilentRequest request = new SilentRequest(parameters, false);

@@ -29,6 +29,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
@@ -47,6 +48,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
             new TestPlatformInformation();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
+            CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance());
         }
 
         [TestMethod]
@@ -77,7 +79,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
                     MockHelpers.CreateSuccessTokenResponseMessage()
             });
             OAuth2Client client = new OAuth2Client();
-            Task<MsalTokenResponse> task = client.GetToken(new Uri(TestConstants.AuthorityCommonTenant), new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+            Task<MsalTokenResponse> task = client.GetTokenAsync(new Uri(TestConstants.AuthorityCommonTenant), new RequestContext(new TestLogger(Guid.NewGuid(), null)));
             MsalTokenResponse response = task.Result;
             Assert.IsNotNull(response);
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");

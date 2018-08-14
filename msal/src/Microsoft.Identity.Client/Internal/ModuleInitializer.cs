@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Telemetry;
 using System;
 
 namespace Microsoft.Identity.Client.Internal
@@ -50,15 +51,14 @@ namespace Microsoft.Identity.Client.Internal
         }
 
         public static void EnsureModuleInitialized()
-        {
+        {            
             lock (lockObj)
             {
                 if (!isInitialized)
                 {
                     CoreExceptionFactory.Instance = new MsalExceptionFactory();
-#if !FACADE
+                    CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
                     CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
-#endif
                     isInitialized = true;
                 }
             }

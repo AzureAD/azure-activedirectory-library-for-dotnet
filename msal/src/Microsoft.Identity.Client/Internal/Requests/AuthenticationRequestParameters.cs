@@ -59,23 +59,26 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         public string ExtraQueryParameters { get; set; }
 
-        public IUser User { get; set; }
+        public IAccount Account { get; set; }
 
         public ClientInfo ClientInfo { get; set; }
 
         public UserAssertion UserAssertion { get; set; }
 
         public bool IsClientCredentialRequest { get; set; } = false;
+
         public string SliceParameters { get; set; }
 
-#if DESKTOP || NETSTANDARD1_3
+        public bool SendCertificate { get; set; }
+
+#if DESKTOP || NETSTANDARD1_3 || NET_CORE
         public ClientCredential ClientCredential { get; set; }
 #endif
 
         public IDictionary<string, string> ToParameters()
         {
             IDictionary<string, string> parameters = new Dictionary<string, string>();
-#if DESKTOP || NETSTANDARD1_3
+#if DESKTOP || NETSTANDARD1_3 || NET_CORE
             if (ClientCredential != null)
             {
                 if (!string.IsNullOrEmpty(ClientCredential.Secret))
@@ -86,20 +89,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 {
                     if (ClientCredential.Assertion == null || ClientCredential.ValidTo != 0)
                     {
-                        bool assertionNearExpiry = (ClientCredential.ValidTo <=
-                                                    Jwt.JsonWebToken.ConvertToTimeT(DateTime.UtcNow +
-                                                                                    TimeSpan.FromMinutes(
-                                                                                    Constants 
-                                                                                    .ExpirationMarginInMinutes)));
-                        if (assertionNearExpiry)
+                        if (!RequestValidationHelper.ValidateClientAssertion(this))
                         {
                             const string msg = "Client Assertion does not exist or near expiry.";
                             RequestContext.Logger.Info(msg);
                             RequestContext.Logger.InfoPii(msg);
                             Jwt.JsonWebToken jwtToken = new Jwt.JsonWebToken(ClientId,
                                 Authority.SelfSignedJwtAudience);
-                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate);
+                            ClientCredential.Assertion = jwtToken.Sign(ClientCredential.Certificate, SendCertificate);
                             ClientCredential.ValidTo = jwtToken.Payload.ValidTo;
+                            ClientCredential.ContainsX5C = SendCertificate;
+                            ClientCredential.Audience = Authority.SelfSignedJwtAudience;
                         }
                         else
                         {
@@ -127,12 +127,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
             builder.AppendLine("Redirect Uri - " + RedirectUri?.OriginalString);
             builder.AppendLine("Validate Authority? - " + ValidateAuthority);
             builder.AppendLine("LoginHint provided? - " + !string.IsNullOrEmpty(LoginHint));
-            builder.AppendLine("User provided? - " + (User != null));
+            builder.AppendLine("User provided? - " + (Account != null));
             var dict = CoreHelpers.ParseKeyValueList(ExtraQueryParameters, '&', true, RequestContext);
             builder.AppendLine("Extra Query Params Keys (space separated) - " + dict.Keys.AsSingleString());
             dict = CoreHelpers.ParseKeyValueList(SliceParameters, '&', true, RequestContext);
             builder.AppendLine("Slice Parameters Keys(space separated) - " + dict.Keys.AsSingleString());
-#if DESKTOP || NETSTANDARD1_3
+#if DESKTOP || NETSTANDARD1_3 || NET_CORE
             builder.AppendLine("Confidential Client? - " + (ClientCredential != null));
             builder.AppendLine("Client Credential Request? - " + IsClientCredentialRequest);
             if (IsClientCredentialRequest)
@@ -148,12 +148,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
             builder.AppendLine("Scopes - " + Scope?.AsSingleString());
             builder.AppendLine("Validate Authority? - " + ValidateAuthority);
             builder.AppendLine("LoginHint provided? - " + !string.IsNullOrEmpty(LoginHint));
-            builder.AppendLine("User provided? - " + (User != null));
+            builder.AppendLine("User provided? - " + (Account != null));
             dict = CoreHelpers.ParseKeyValueList(ExtraQueryParameters, '&', true, RequestContext);
             builder.AppendLine("Extra Query Params Keys (space separated) - " + dict.Keys.AsSingleString());
             dict = CoreHelpers.ParseKeyValueList(SliceParameters, '&', true, RequestContext);
             builder.AppendLine("Slice Parameters Keys(space separated) - " + dict.Keys.AsSingleString());
-#if DESKTOP || NETSTANDARD1_3
+#if DESKTOP || NETSTANDARD1_3 || NET_CORE
             builder.AppendLine("Confidential Client? - " + (ClientCredential != null));
             builder.AppendLine("Client Credential Request? - " + IsClientCredentialRequest);
             if (IsClientCredentialRequest)

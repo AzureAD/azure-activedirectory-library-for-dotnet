@@ -31,9 +31,11 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
@@ -53,8 +55,8 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
             HttpClientFactory.ReturnHttpClientForMocks = true;
             CoreExceptionFactory.Instance = new TestExceptionFactory();
             HttpMessageHandlerFactory.ClearMockHandlers();
-
-            AadInstanceDiscovery.Instance.InstanceCache.Clear();
+            CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance());
+            AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
         [TestCleanup]

@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         public InteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters,
             IEnumerable<string> extraScopesToConsent, UIBehavior UIBehavior, IWebUI webUI)
             : this(
-                authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.User?.DisplayableId,
+                authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.Account?.Username,
                 UIBehavior, webUI)
         {
         }
@@ -95,9 +95,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return _UIBehavior.PromptValue;
         }
 
-        internal override async Task PreTokenRequest()
+        internal override async Task PreTokenRequestAsync()
         {
-            await base.PreTokenRequest().ConfigureAwait(false);
+            await base.PreTokenRequestAsync().ConfigureAwait(false);
             await AcquireAuthorizationAsync().ConfigureAwait(false);
             VerifyAuthorizationResult();
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
-            await AuthenticationRequestParameters.Authority.Init
+            await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
                 (AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             //this method is used in confidential clients to create authorization URLs.
@@ -159,18 +159,18 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 requestParameters[OAuth2Parameter.State] = _state;
             }
             //add uid/utid values to QP if user object was passed in.
-            if (AuthenticationRequestParameters.User != null)
+            if (AuthenticationRequestParameters.Account != null)
             {
-                if (!string.IsNullOrEmpty(AuthenticationRequestParameters.User.DisplayableId))
+                if (!string.IsNullOrEmpty(AuthenticationRequestParameters.Account.Username))
                 {
-                    requestParameters[OAuth2Parameter.LoginHint] = AuthenticationRequestParameters.User.DisplayableId;
+                    requestParameters[OAuth2Parameter.LoginHint] = AuthenticationRequestParameters.Account.Username;
                 }
 
-                AuthenticationRequestParameters.ClientInfo = ClientInfo.CreateFromUserIdentifier(AuthenticationRequestParameters.User.Identifier);
+                AuthenticationRequestParameters.ClientInfo = AuthenticationRequestParameters.Account.HomeAccountId.ToClientInfo();
 
-                if (!string.IsNullOrEmpty(AuthenticationRequestParameters.ClientInfo.UniqueIdentifier))
+                if (!string.IsNullOrEmpty(AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier))
                 {
-                    requestParameters[OAuth2Parameter.LoginReq] = AuthenticationRequestParameters.ClientInfo.UniqueIdentifier;
+                    requestParameters[OAuth2Parameter.LoginReq] = AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier;
                 }
 
                 if (!string.IsNullOrEmpty(AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier))
