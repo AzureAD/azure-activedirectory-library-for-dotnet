@@ -38,9 +38,7 @@
 
   </Target>
 
-  <Target Name="LocateSnExe">
-
-     <Message Text="!!!! AssembliesToCheck @(AssembliesToCheck)" Importance="high"/> 
+  <Target Name="LocateSnExe">     
 
     <!-- Locating sn.exe isn't necessary when running from a developer command prompt, but
          it is necessary when running on a build agent.

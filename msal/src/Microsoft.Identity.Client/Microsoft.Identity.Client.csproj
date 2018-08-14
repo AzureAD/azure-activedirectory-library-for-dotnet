@@ -173,16 +173,7 @@
     <Copy SourceFiles="@(FilesToPack)" DestinationFiles="$(NugetPackageRootFolder)\lib\%(RecursiveDir)%(FileName)%(Extension)" />
     <Copy SourceFiles="$(NuspecFilePath)" DestinationFolder="$(NugetPackageRootFolder)" />
   </Target>
-
-  <Target Name="VerifySignatures">
-    <ItemGroup>
-      <AssembliesToCheck Include="bin\$(Configuration)\**\Microsoft.Identity.Client.dll" />
-      <AssembliesToCheck Include="bin\$(Configuration)\**\Microsoft.Identity.Core.dll" />
-    </ItemGroup>
-     <Message Text="AssembliesToCheck @(AssembliesToCheck)" Importance="high" /> 
-    <CallTarget Targets="CheckAssembliesAreSigned" />
-  </Target>
-  
+ 
   <PropertyGroup>
     <CodeAnalysisRuleSet>../../../core/ConfigureAwait.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
