@@ -111,7 +111,7 @@ namespace AutomationApp
             if (!String.IsNullOrWhiteSpace(authenticationResult.AccessToken))
                 testResultBox.Text = "Result: Success";
             else
-                testResultBox.Text = "error";
+                testResultBox.Text = "Result: Failure";
 
             accessTokenResult.Text = authenticationResult.AccessToken;
             expiresOnResult.Text = authenticationResult.ExpiresOn.ToString();
