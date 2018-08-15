@@ -39,12 +39,12 @@ namespace Microsoft.Identity.Client
     /// <param name="message">Pre-formatted log message</param>
     /// <param name="containsPii">Indicates if the log message contains Personally Identifiable Informaiton (PII). 
     /// If <see cref="Logger.PiiLoggingEnabled"/> is set to <c>false</c> then this value is always false.</param>
-    public delegate void LogCallback(MsalLogLevel level, string message, bool containsPii);
+    public delegate void LogCallback(LogLevel level, string message, bool containsPii);
 
     /// <summary>
     /// MSAL Log Levels
     /// </summary>
-    public enum MsalLogLevel
+    public enum LogLevel
     {
         /// <summary>
         /// Error Log level
@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Configurable log level. Default value is Info.
         /// </summary>
-        public static MsalLogLevel Level { get; set; } = MsalLogLevel.Info;
+        public static LogLevel Level { get; set; } = LogLevel.Info;
 
         /// <summary>
         /// Flag to enable/disable logging of PII data. PII logs are never written to default outputs like Console, Logcat or NSLog.
