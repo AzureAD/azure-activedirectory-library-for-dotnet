@@ -33,8 +33,10 @@ using Microsoft.Identity.Core.Helpers;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains the results of one token acquisition operation.
+    /// Contains the results of one token acquisition operations in <see cref="PublicClientApplication"/>
+    /// and <see cref="ConfidentialClientApplication"/>
     /// </summary>
+    /// <remarks>For details see https://aka.ms/msal-net-authenticationresult </remarks>
     public partial class AuthenticationResult
     {
         private const string Oauth2AuthorizationHeader = "Bearer ";
@@ -58,12 +60,12 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Gets the Access Token requested.
+        /// Gets the requested Access Token.
         /// </summary>
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
 
         /// <summary>
-        /// Gets the Unique Id of the user.
+        /// Gets the Unique Id of the account.
         /// </summary>
         public virtual string UniqueId => _msalIdTokenCacheItem?.IdToken?.GetUniqueId();
 
@@ -82,7 +84,9 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Gets the account object. Some elements in Account might be null if not returned by the
-        /// service. It can be passed back in some API overloads to identify which account should be used.
+        /// service. It can be passed back in some API overloads to identify which account should be used such 
+        /// as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(IEnumerable{string}, IAccount)"/> or
+        /// <see cref="IClientApplicationBase.RemoveAsync(IAccount)"/>
         /// </summary>
         public virtual IAccount Account { get; internal set; }
 
@@ -92,14 +96,23 @@ namespace Microsoft.Identity.Client
         public virtual string IdToken => _msalIdTokenCacheItem.Secret;
 
         /// <summary>
-        /// Gets the scope values returned from the service.
+        /// Gets the granted scope values returned from the service.
         /// </summary>
         public virtual IEnumerable<string> Scopes => _msalAccessTokenCacheItem.ScopeSet.AsArray();
 
         /// <summary>
-        /// Creates authorization header from authentication result.
+        /// Creates the content for an HTTP authorization header from this authentication result, so
+        /// that you can call a protected API
         /// </summary>
-        /// <returns>Created authorization header</returns>
+        /// <returns>Created authorization header of the form "Bearer {AccessToken}"</returns>
+        /// <example>
+        /// Here is how to call a protected API from this authentication result
+        /// <code>
+        /// HttpClient client = new HttpClient();
+        /// client.DefaultRequestHeaders.Add("Authorization", result.CreateAuthorizationHeader());
+        /// HttpResponseMessage r = await client.GetAsync(urlOfTheProtectedApi);
+        /// </code>
+        /// </example>
         public virtual string CreateAuthorizationHeader()
         {
             return Oauth2AuthorizationHeader + AccessToken;

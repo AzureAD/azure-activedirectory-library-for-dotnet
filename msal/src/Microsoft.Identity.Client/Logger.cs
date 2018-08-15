@@ -33,12 +33,12 @@ using Exception = System.Exception;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Callback delegate that allows the developer to consume logs handle them in a custom manner.
+    /// Callback delegate that allows the developer to consume logs, and handle them in a custom manner.
     /// </summary>
     /// <param name="level">Log level of the message</param>
     /// <param name="message">Pre-formatted log message</param>
-    /// <param name="containsPii">Indicates if the log message contains PII. If Logger.PiiLoggingEnabled is set to 
-    /// false then this value is always false.</param>
+    /// <param name="containsPii">Indicates if the log message contains Personally Identifiable Informaiton (PII). 
+    /// If <see cref="Logger.PiiLoggingEnabled"/> is set to <c>false</c> then this value is always false.</param>
     public delegate void LogCallback(MsalLogLevel level, string message, bool containsPii);
 
     /// <summary>
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Client
     }
 
     /// <summary>
-    /// MSAL logger settings class that allows developers to configure log level, configure callbacks etc.
+    /// MSAL logger class that allows developers to configure log level, configure callbacks etc.
     /// </summary>
     public sealed class Logger
     {
@@ -76,9 +76,10 @@ namespace Microsoft.Identity.Client
 
         private static volatile LogCallback _logCallback;
         /// <summary>
-        /// Callback instance that can be provided by the developer to consume and publish logs in a custom manner. 
+        /// Callback instance that you can set in your app to consume and publish logs in a custom manner. 
         /// The property can only be set once and it will throw an ArgumentException if called twice.
         /// </summary>
+        /// <exception cref="ArgumentException">will be thrown if the LogCallback was already set</exception>
         public static LogCallback LogCallback
         {
             set
