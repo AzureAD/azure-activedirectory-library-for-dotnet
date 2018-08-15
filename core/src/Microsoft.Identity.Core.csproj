@@ -88,6 +88,7 @@
     <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <Compile Include="Platforms\uap\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
