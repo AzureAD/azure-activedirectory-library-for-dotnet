@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                msg = "An error occurred while writing MSAL refresh token.";
+                msg = "An error occurred while writing ADAL refresh token to the cache in MSAL format. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -122,7 +122,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while writing ADAL refresh token.";
+                string msg = "An error occurred while writing MSAL refresh token to the cache in ADAL format. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -159,7 +159,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while searching users in ADAL cache for MSAL. ";
+                string msg = "An error occurred while reading accounts in ADAL format from the cache for MSAL. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -197,7 +197,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "Failed to removed ADAL user - Exception - ";
+                string msg = "An error occurred while deleting account in ADAL format from the cache. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -262,7 +262,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while searching for ADAL cache entries for MSAL.";
+                string msg = "An error occurred while searching for refresh tokens in ADAL format in the cache for MSAL. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -336,7 +336,7 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while searching for MSAL cache entries for ADAL.";
+                string msg = "An error occurred while searching for refresh tokens in MSAL format in the cache for ADAL. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
 
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
