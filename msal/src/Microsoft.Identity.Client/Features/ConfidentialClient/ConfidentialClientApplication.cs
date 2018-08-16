@@ -233,7 +233,10 @@ namespace Microsoft.Identity.Client
         /// Acquires token from the authority configured in the app, for the confidential client itself (in the name of no user)
         /// using the client credentials flow. (See https://aka.ms/msal-net-client-credentials)
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are really defined statically at application registration 
+        /// in the portal, and cannot be overriden in the application. See also </param>
         /// <returns>Authentication result containing token of the user for the requested scopes</returns>
         public async Task<AuthenticationResult> AcquireTokenForClientAsync(IEnumerable<string> scopes)
         {
@@ -245,7 +248,10 @@ namespace Microsoft.Identity.Client
         /// Acquires token from the authority configured in the app, for the confidential client itself (in the name of no user)
         /// using the client credentials flow. (See https://aka.ms/msal-net-client-credentials)
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
+        /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are really defined statically at application registration 
+        /// in the portal, and cannot be overriden in the application</param>
         /// <param name="forceRefresh">If <c>true</c>, API will ignore the access token in the cache and attempt to acquire new access token using client credentials.
         /// This override can be used in case the application knows that conditional access policies changed</param>
         /// <returns>Authentication result containing token of the user for the requested scopes</returns>
