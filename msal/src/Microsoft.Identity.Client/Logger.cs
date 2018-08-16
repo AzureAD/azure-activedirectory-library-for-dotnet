@@ -39,6 +39,7 @@ namespace Microsoft.Identity.Client
     /// once with the <c>containsPii</c> parameter equals <c>false</c> and the message without PII, 
     /// and a second time with the <c>containsPii</c> parameter equals to <c>true</c> and the message might contain PII. 
     /// In some cases (when the message does not contain PII), the message will be the same.
+    /// For details see https://aka.ms/msal-net-logging
     /// </summary>
     /// <param name="level">Log level of the log message to process</param>
     /// <param name="message">Pre-formatted log message</param>
@@ -50,7 +51,8 @@ namespace Microsoft.Identity.Client
     public delegate void LogCallback(LogLevel level, string message, bool containsPii);
 
     /// <summary>
-    /// Level of the log messages
+    /// Level of the log messages.
+    /// For details see https://aka.ms/msal-net-logging
     /// </summary>
     public enum LogLevel
     {
@@ -103,7 +105,7 @@ namespace Microsoft.Identity.Client
     /// }
     /// </code>
     /// </example>
-public sealed class Logger
+    public sealed class Logger
     {
         internal static readonly object LockObj = new object();
 
@@ -116,6 +118,7 @@ public sealed class Logger
         /// In some cases (when the message does not contain PII), the message will be the same.
         /// <para/>
         /// The property can only be set once and it will throw an ArgumentException if called twice.
+        /// For details see https://aka.ms/msal-net-logging
         /// </summary>
         /// <exception cref="ArgumentException">will be thrown if the LogCallback was already set</exception>
         public static LogCallback LogCallback
