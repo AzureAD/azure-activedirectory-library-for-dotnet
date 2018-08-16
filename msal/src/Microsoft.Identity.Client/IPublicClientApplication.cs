@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Client
         /// For more details, please see https://aka.ms/msal-net-sharing-cache-on-ios
         /// </summary>
         /// <remarks>This API may change in future release.</remarks>
-        public string KeychainSecurityGroup {get;set;}
+        string KeychainSecurityGroup {get;set;}
 #endif
 
 #if WINDOWS_APP
