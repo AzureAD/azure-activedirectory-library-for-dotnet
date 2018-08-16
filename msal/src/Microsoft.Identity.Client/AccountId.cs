@@ -45,26 +45,25 @@ namespace Microsoft.Identity.Client
         /// Unique identifier for the account
         /// </summary>
         /// <remarks>
-        /// For Azure AD, Identifier is the concatenation of <see cref="ObjectId"/>and <see cref="TenantId"/>separated by a comma. 
-        /// Contrary to what was happening in ADAL.NET, those are no longer base64 encoded.
+        /// For Azure AD, Identifier is the concatenation of <see cref="ObjectId"/>and <see cref="TenantId"/>separated by a dot. 
+        /// Contrary to what was happening in ADAL.NET, these two segments are no longer base64 encoded.
         /// </remarks>
-
         public string Identifier { get; }
 
         /// <summary>
-        /// For Azure AD, a string representation for a GUID which is the ID of the user owning the account in the tenant
+        /// For Azure AD, a string representation for a Guid which is the Object ID of the user owning the account in the tenant
         /// </summary>
         public string ObjectId { get;  }
 
         /// <summary>
-        /// For Azure AD, a string representation for a GUID, which is the ID of the tenant where the account resides.
+        /// For Azure AD, a string representation for a Guid, which is the ID of the tenant where the account resides.
         /// </summary>
         public string TenantId { get;  }
 
         /// <summary>
         /// Constructor of an AccountId
         /// </summary>
-        /// <param name="identifier">Identifier of the count. See <see cref="Identifier"/>.</param>
+        /// <param name="identifier">Unique identifier for the account.</param>
         /// <param name="objectId">A string representation for a GUID which is the ID of the user owning the account in the tenant</param>
         /// <param name="tenantId">A string representation for a GUID, which is the ID of the tenant where the account resides</param>
         public AccountId(string identifier, string objectId, string tenantId)

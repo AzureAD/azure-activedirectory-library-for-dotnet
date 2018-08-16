@@ -33,8 +33,8 @@ using Microsoft.Identity.Core.Helpers;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains the results of one token acquisition operations in <see cref="PublicClientApplication"/>
-    /// and <see cref="ConfidentialClientApplication"/>
+    /// Contains the results of one token acquisition operation in <see cref="T:PublicClientApplication"/>
+    /// or <see cref="T:ConfidentialClientApplication"/>
     /// </summary>
     /// <remarks>For details see https://aka.ms/msal-net-authenticationresult </remarks>
     public partial class AuthenticationResult
@@ -77,26 +77,26 @@ namespace Microsoft.Identity.Client
         public virtual DateTimeOffset ExpiresOn => _msalAccessTokenCacheItem.ExpiresOn;
 
         /// <summary>
-        /// Gets an identifier for the tenant the token was acquired from. This property will be null if tenant information is
+        /// Gets an identifier for the Azure AD tenant from which the token was acquired. This property will be null if tenant information is
         /// not returned by the service.
         /// </summary>
         public virtual string TenantId => _msalIdTokenCacheItem?.IdToken?.TenantId;
 
         /// <summary>
-        /// Gets the account object. Some elements in Account might be null if not returned by the
-        /// service. It can be passed back in some API overloads to identify which account should be used such 
+        /// Gets the account information. Some elements in Account might be null if not returned by the
+        /// service. The account can be passed back in some API overloads to identify which account should be used such 
         /// as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(IEnumerable{string}, IAccount)"/> or
         /// <see cref="IClientApplicationBase.RemoveAsync(IAccount)"/>
         /// </summary>
         public virtual IAccount Account { get; internal set; }
 
         /// <summary>
-        /// Gets the entire Id Token if returned by the service or null if no Id Token is returned.
+        /// Gets the  Id Token if returned by the service or null if no Id Token is returned.
         /// </summary>
         public virtual string IdToken => _msalIdTokenCacheItem.Secret;
 
         /// <summary>
-        /// Gets the granted scope values returned from the service.
+        /// Gets the granted scope values returned by the service.
         /// </summary>
         public virtual IEnumerable<string> Scopes => _msalAccessTokenCacheItem.ScopeSet.AsArray();
 
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <returns>Created authorization header of the form "Bearer {AccessToken}"</returns>
         /// <example>
-        /// Here is how to call a protected API from this authentication result
+        /// Here is how you can call a protected API from this authentication result:
         /// <code>
         /// HttpClient client = new HttpClient();
         /// client.DefaultRequestHeaders.Add("Authorization", result.CreateAuthorizationHeader());

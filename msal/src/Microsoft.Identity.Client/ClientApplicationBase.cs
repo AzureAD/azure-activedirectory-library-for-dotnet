@@ -40,7 +40,8 @@ using Microsoft.Identity.Core.Telemetry;
 namespace Microsoft.Identity.Client
 {
     /// <Summary>
-    /// Abstract class containing common API methods and properties. Both PublicClientApplication and ConfidentialClientApplication extend this class.
+    /// Abstract class containing common API methods and properties. Both <see cref="T:PublicClientApplication"/> and <see cref="T:ConfidentialClientApplication"/> 
+    /// extend this class.
     /// </Summary>
     public abstract partial class ClientApplicationBase
     {
@@ -56,7 +57,8 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the 
         /// application registration portal (https://aka.ms/msal-net-register-app)</param>
-        /// <param name="authority">Authority of the Security service token (STS) from which MSAL.NET will acquire the tokens
+        /// <param name="authority">Authority of the Security service token (STS) from which MSAL.NET will acquire the tokens.
+        /// 
         /// Usual authorities are:
         /// <list type="bullet">
         /// <item><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
@@ -95,7 +97,7 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Identifier of the component consuming MSAL and it is intended for libraries/SDKs that consume MSAL. 
+        /// Identifier of the component (libraries/SDK) consuming MSAL.NET. 
         /// This will allow for disambiguation between MSAL usage by the app vs MSAL usage by component libraries.
         /// </summary>
         public string Component { get; set; }
@@ -114,25 +116,25 @@ namespace Microsoft.Identity.Client
         public string ClientId { get; }
 
         /// <summary>
-        /// The redirect URI (also named Reply URI), is the URI at which Azure AD will contact back the application with the token. 
+        /// The redirect URI (also named Reply URI), is the URI at which Azure AD will contact back the application with the tokens. 
         /// This redirect URI needs to be registered in the app registration (https://aka.ms/msal-net-register-app)
-        /// In MSAL.NET, <see cref="PublicClientApplication"/> define the following default RedirectUri values:
+        /// In MSAL.NET, <see cref="T:PublicClientApplication"/> define the following default RedirectUri values:
         /// <list type="bullet">
         /// <item><c>urn:ietf:wg:oauth:2.0:oob</c> for desktop (.NET Framework and .NET Core) applications</item>
         /// <item><c>msal{ClientId}</c> for Xamarin iOS and Xamarin Android (as this will be used by the system web browser by default on these
-        /// platforms)
+        /// platforms to call back the application)
         /// </item>
         /// </list>
-        /// In <see cref="ConfidentialClientApplication"/>, this can be the URL of the Web application / Web API 
+        /// In <see cref="T:ConfidentialClientApplication"/>, this can be the URL of the Web application / Web API.
         /// </summary>
         /// <remarks>This is especially important when you deploy an application that you have initially tested locally; 
         /// you then need to add the reply URL of the deployed application in the application registration portal</remarks>
         public string RedirectUri { get; set; }
 
         /// <summary>
-        /// Sets or Gets a custom query parameters that may be sent to the STS for dogfood testing. This is a string of segments
-        /// of the form <c>key=value</c> separated by an ampersand character (like to separe values in URLs)
-        /// This parameter should not be set by application developers as it may have adverse effect on the application.
+        /// Sets or Gets a custom query parameters that may be sent to the STS for dogfood testing or debugging. This is a string of segments
+        /// of the form <c>key=value</c> separated by an ampersand character.
+        /// Unless requested otherwise, this parameter should not be set by application developers as it may have adverse effect on the application.
         /// </summary>
         public string SliceParameters { get; set; }
 
@@ -153,9 +155,10 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Gets/sets a boolean value telling MSAL.NET if the authority needs to be verified against a list of known authorities. The default
+        /// Gets/sets a boolean value telling the application if the authority needs to be verified against a list of known authorities. The default
         /// value is <c>true</c>. It should currently be set to <c>false</c> for Azure AD B2C authorities as those are customer specific 
-        /// (a list of known B2C authorities cannot be maintained by MSAL.NET)
+        /// (a list of known B2C authorities cannot be maintained by MSAL.NET). This property can be set just after the construction of the application
+        /// and before an operation acquiring a token or interacting with the STS.
         /// </summary>
         public bool ValidateAuthority { get; set; }
 
@@ -180,7 +183,8 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="accountId">account identifier. The value of the identifier will probably have been stored value from the
         /// value of the <see cref="AccountId.Identifier"/> property of <see cref="AccountId"/>. 
-        /// You typically get the account id from an <see cref="IAccount"/> by using of <see cref="IAccount.HomeAccountId"/></param>
+        /// You typically get the account id from an <see cref="IAccount"/> by using the <see cref="IAccount.HomeAccountId"/> property>
+        /// </param>
         public async Task<IAccount> GetAccountAsync(string accountId)
         {
             var accounts = await GetAccountsAsync().ConfigureAwait(false);
@@ -222,13 +226,14 @@ namespace Microsoft.Identity.Client
         /// sure that conditional access policies are applies immediately, rather than after the expiration of the access token</param>
         /// <returns>An <see cref="AuthenticationResult"/> containing the requested token</returns>
         /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
-        /// for instance so that the user consents, or re-signs-in (for instance if the password expirred), or performs two factor authentication</exception>
+        /// for instance, if no refresh token was in the cache, or the user needs to consents, or re-sign-in (for instance if the password expirred), 
+        /// or performs two factor authentication</exception>
         /// <remarks>
-        /// The access token is considered a match if it AT LEAST contains all the requested scopes. This means that an access token with more scopes than 
+        /// The access token is considered a match if it contains <b>at least</b>all the requested scopes. This means that an access token with more scopes than 
         /// requested could be returned as well. If the access token is expired or close to expiration (within 5 minute window), 
         /// then the cached refresh token (if available) is used to acquire a new access token by making a silent network call.
         /// 
-        /// See https://aka.ms/msal-net-acuiretokensilent for more details
+        /// See https://aka.ms/msal-net-acquiretokensilent for more details
         /// </remarks>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account,
             string authority, bool forceRefresh)

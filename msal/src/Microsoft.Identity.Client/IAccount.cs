@@ -37,17 +37,17 @@ namespace Microsoft.Identity.Client
     public interface IAccount
     {
         /// <summary>
-        /// Gets a string containing the displayable value in UserPrincipalName (UPN) format, e.g. john.doe@contoso.com. 
-        /// This can be null, whereas the <see cref="HomeAccountId"/>and HomeAccountId.<see cref="AccountId.Identifier"/> won’t be null.        
+        /// Gets a string containing the displayable value in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c>. 
+        /// This can be null.        
         /// </summary>
         /// <remarks>This property replaces the <c>DisplayableId</c> property of <c>IUser</c> in previous versions of MSAL.NET</remarks>
         string Username { get; }
 
         /// <summary>
-        /// Gets a string containing the identity provider for this account, e.g. login.microsoftonline.com.
+        /// Gets a string containing the identity provider for this account, e.g. <c>login.microsoftonline.com</c>.
         /// </summary>
-        /// <remarks>This property replaces the IdentityProvider property of IUser,
-        /// except that IdentityProvider also had information about the tenant (in addition to the cloud environment), whereas here this is only the host</remarks>
+        /// <remarks>This property replaces the <c>IdentityProvider</c> property of <c>IUser</c> in previous versions of MSAL.NET
+        /// except that IdentityProvider was a URL with information about the tenant (in addition to the cloud environment), whereas Environement is only the <see cref="System.Uri.Host"/></remarks>
         string Environment { get; }
 
         /// <summary>
