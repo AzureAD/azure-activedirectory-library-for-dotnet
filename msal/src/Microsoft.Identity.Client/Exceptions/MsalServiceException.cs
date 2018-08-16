@@ -32,6 +32,7 @@ namespace Microsoft.Identity.Client
 {
     /// <summary>
     /// Exception type thrown when service returns an error response or other networking errors occur.
+    ///  For more details, see https://aka.ms/msal-net-exceptions
     /// </summary>
     public class MsalServiceException : MsalException
     {

@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Client
     /// They are considered difficult to access, and therefore capable of keeping an application secret (hold configuration 
     /// time secrets as these values would be difficult for end users to extract). 
     /// A web app is the most common confidential client. The clientId is exposed through the web browser, but the secret is passed only in the back channel 
-    /// and never directly exposed.
+    /// and never directly exposed. For details see https://aka.ms/msal-net-client-applications
     /// </remarks>
     public sealed class ConfidentialClientApplication : ClientApplicationBase, IConfidentialClientApplication, IConfidentialClientApplicationWithCertificate
     {
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Constructor for a confidential client application requesting tokens with the default authority (<see cref="ClientApplicationBase.DefaultAuthority"/>)
         /// </summary>
-        /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the 
+        /// <param name="clientId">Client ID (also known as App ID) of the application as registered in the 
         /// application registration portal (https://aka.ms/msal-net-register-app)/. REQUIRED</param>
         /// <param name="redirectUri">URL where the STS will call back the application with the security token. REQUIRED</param>
         /// <param name="clientCredential">Credential, previously shared with Azure AD during the application registration and proving the identity
@@ -132,7 +132,7 @@ namespace Microsoft.Identity.Client
         /// This confidential client application was itself called with a token which will be provided in the 
         /// <paramref name="userAssertion">userAssertion</paramref> parameter.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="userAssertion">Instance of <see cref="UserAssertion"/> containing credential information about
         /// the user on behalf of whom to get a token.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -152,7 +152,7 @@ namespace Microsoft.Identity.Client
         /// This confidential client application was itself called with a token which will be provided in the 
         /// <paramref name="userAssertion">userAssertion</paramref> parameter.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="userAssertion">Instance of <see cref="UserAssertion"/> containing credential information about
         /// the user on behalf of whom to get a token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
@@ -175,7 +175,7 @@ namespace Microsoft.Identity.Client
         /// <paramref name="userAssertion">userAssertion</paramref> parameter.
         /// This override sends the certificate, which helps certificates rotation in Azure AD
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="userAssertion">Instance of <see cref="UserAssertion"/> containing credential information about
         /// the user on behalf of whom to get a token.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -195,7 +195,7 @@ namespace Microsoft.Identity.Client
         /// This override sends the certificate, which helps certificates rotation in Azure AD
         /// <paramref name="userAssertion">userAssertion</paramref> parameter.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="userAssertion">Instance of <see cref="UserAssertion"/> containing credential information about
         /// the user on behalf of whom to get a token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
@@ -218,7 +218,7 @@ namespace Microsoft.Identity.Client
         /// such as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(IEnumerable{string}, IAccount)"/>.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <returns>Authentication result containing token of the user for the requested scopes</returns>
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode, IEnumerable<string> scopes)
         {
@@ -248,7 +248,7 @@ namespace Microsoft.Identity.Client
         /// Acquires token from the authority configured in the app, for the confidential client itself (in the name of no user)
         /// using the client credentials flow. (See https://aka.ms/msal-net-client-credentials)
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API. For this flow (client credentials), the scopes
+        /// <param name="scopes">Scopes requested to access a protected API. For this flow (client credentials), the scopes
         /// should be of the form "{ResourceIdUri/.default}" for instance <c>https://management.azure.net/.default</c> or, for Microsoft
         /// Graph, <c>https://graph.microsoft.com/.default</c> as the requested scopes are really defined statically at application registration 
         /// in the portal, and cannot be overriden in the application</param>
@@ -270,7 +270,7 @@ namespace Microsoft.Identity.Client
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or powershell/CLI operation)
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <returns>Authentication result containing application token for the requested scopes</returns>
         async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenForClientWithCertificateAsync(IEnumerable<string> scopes)
         {
@@ -288,7 +288,7 @@ namespace Microsoft.Identity.Client
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or powershell/CLI operation)
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="forceRefresh">If TRUE, API will ignore the access token in the cache and attempt to acquire new access token using client credentials</param>
         /// <returns>Authentication result containing application token for the requested scopes</returns>
         async Task<AuthenticationResult> IConfidentialClientApplicationWithCertificate.AcquireTokenForClientWithCertificateAsync(IEnumerable<string> scopes, bool forceRefresh)
@@ -303,7 +303,7 @@ namespace Microsoft.Identity.Client
         /// the user's name. The URL targets the /authorize endpoint of the authority configured in the application. 
         /// This override enables you to specify a login hint and extra query parameter.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally a UPN. This can be empty</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
@@ -329,7 +329,7 @@ namespace Microsoft.Identity.Client
         /// This override enables you to specify a redirectUri, login hint extra query parameters, extra scope to consent (which are not for the
         /// same resource as the <paramref name="scopes"/>), and an authority.
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API (a resource)</param>
+        /// <param name="scopes">Scopes requested to access a protected API (a resource)</param>
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="loginHint">Identifier of the user. Generally a UPN.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 

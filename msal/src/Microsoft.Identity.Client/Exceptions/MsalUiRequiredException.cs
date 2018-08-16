@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Client
     /// succeed. It's thrown when calling <see cref="ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/> or one
     /// of its overides, and when the token does not exists in the cache, or the user needs to provide more content, or perform multiple factor authentication based
     /// on Azure AD policies, etc..
+    /// For more details, see https://aka.ms/msal-net-exceptions
     /// </summary>
     public class MsalUiRequiredException : MsalServiceException
     {

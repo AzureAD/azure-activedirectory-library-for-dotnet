@@ -33,6 +33,7 @@ namespace Microsoft.Identity.Client
 {
     /// <summary>
     /// Base exception type thrown when an error occurs during token acquisition.
+    /// For more details, see https://aka.ms/msal-net-exceptions
     /// </summary>
     /// <remarks>Avoid throwing this exception. Instead throw the more specialized <see cref="MsalClientException"/>
     /// or <see cref="MsalServiceException"/>

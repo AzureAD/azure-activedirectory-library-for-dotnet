@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// Class to be used for desktop or mobile applications (Desktop / UWP / XAmarin.iOS / Xamarin.Android).
     /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
-    /// (they only support public client flows). 
+    /// (they only support public client flows). For details see https://aka.ms/msal-net-client-applications
     /// </summary>
     /// <remarks>
     /// <list type="bullet">
@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Consutructor of the application. It will use https://login.microsoftonline.com/common as the default authority.
         /// </summary>
-        /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the 
+        /// <param name="clientId">Client ID (also known as App ID) of the application as registered in the 
         /// application registration portal (https://aka.ms/msal-net-register-app)/. REQUIRED</param>
         public PublicClientApplication(string clientId) : this(clientId, DefaultAuthority)
         {
@@ -131,7 +131,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Interactive request to acquire token for the specified scopes. The user is required to select an account
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         /// <remarks>The user will be signed-in interactively if needed,
         /// and will consent to scopes and do multi-factor authentication if such a policy was enabled in the Azure AD tenant.</remarks>
@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for the specified scopes. The user will need to sign-in but an account will be proposed
         /// based on the <paramref name="loginHint"/>
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint)
@@ -164,7 +164,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for the specified scopes. The user will need to sign-in but an account will be proposed
         /// based on the provided <paramref name="account"/>
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
@@ -181,7 +181,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Interactive request to acquire token for a login with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
@@ -201,7 +201,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Interactive request to acquire token for an account with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
@@ -222,13 +222,13 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for a given login, with the possibility of controlling the user experience, passing extra query
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
-        /// <param name="extraScopesToConsent">scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
+        /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -246,13 +246,13 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for a given account, with the possibility of controlling the user experience, passing extra query
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
-        /// <param name="extraScopesToConsent">scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
+        /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -271,7 +271,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for the specified scopes. The interactive window will be parented to the specified
         /// window. The user will be required to select an account
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         /// <remarks>The user will be signed-in interactively if needed,
@@ -290,7 +290,7 @@ namespace Microsoft.Identity.Client
         /// window. . The user will need to sign-in but an account will be proposed
         /// based on the <paramref name="loginHint"/>
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing a token for the requested scopes and login</returns>
@@ -307,7 +307,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for the specified scopes. The user will need to sign-in but an account will be proposed
         /// based on the provided <paramref name="account"/>
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -325,7 +325,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Interactive request to acquire token for a login with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
@@ -346,7 +346,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Interactive request to acquire token for an account with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
@@ -368,7 +368,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for a given login, with the possibility of controlling the user experience, passing extra query
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
@@ -393,7 +393,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for a given account, with the possibility of controlling the user experience, passing extra query
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
-        /// <param name="scopes">scopes requested to access a protected API</param>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 

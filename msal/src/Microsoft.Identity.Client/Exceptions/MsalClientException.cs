@@ -30,9 +30,9 @@ using System;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// This exception class represents errors that are local to the library or the device. contrary to
+    /// This exception class represents errors that are local to the library or the device. Contrary to
     /// <see cref="MsalServiceException"/> which represent errors happening from the Azure AD service or
-    /// the network
+    /// the network. For more details, see https://aka.ms/msal-net-exceptions
     /// </summary>
     public class MsalClientException : MsalException
     {
