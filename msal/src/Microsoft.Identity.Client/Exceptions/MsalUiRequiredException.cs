@@ -42,26 +42,26 @@ namespace Microsoft.Identity.Client
         /// so that the user does an interactive action in order to get a new token.
         /// <para>Mitigation:</para> If your application is a <see cref="T:PublicClientApplication"/> call one of the <c>AcquireTokenAsync</c> overrides to 
         /// perform an interactive authentication. If your application is a <see cref="T:ConfidentialClientApplication"/> chances are that the Claims member
-        /// of the exception is not empty. See <see cref="MsalServiceException.Claims"/> for the right mitigation
+        /// of the exception is not empty. See <see cref="P:MsalServiceException.Claims"/> for the right mitigation
         /// </summary>
         public const string InvalidGrantError = "invalid_grant";
 
         /// <summary>
         /// <para>Mitigation:</para> If your application is a <see cref="T:PublicClientApplication"/> call one of the <c>AcquireTokenAsync</c> overrides so
         /// that the user of your application signs-in and accepts consent. If your application is a <see cref="T:ConfidentialClientApplication"/>. If it's a Web App
-        /// you should have previoulsy called <see cref="ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync(string, System.Collections.Generic.IEnumerable{string})"/>
+        /// you should have previoulsy called <see cref="M:ConfidentialClientApplication.AcquireTokenByAuthorizationCodeAsync(string, System.Collections.Generic.IEnumerable{string})"/>
         /// as described in https://aka.ms/msal-net-authorization-code. This error should not happen in Web APIs
         /// </summary>
         public const string NoTokensFoundError = "no_tokens_found";
 
         /// <summary>
-        /// This error code comes back from <see cref="ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/> calls when a null user is 
+        /// This error code comes back from <see cref="M:ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/> calls when a null user is 
         /// passed as the <c>account</c> parameter.
         /// </summary>
         public const string UserNullError = "user_null";
 
         /// <summary>
-        /// This error code comes back from <see cref="ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/> calls when 
+        /// This error code comes back from <see cref="M:ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/> calls when 
         /// the user cache had not been set in the application constructor
         /// </summary>
         public const string TokenCacheNullError = "token_cache_null";
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// One of two conditions was encountered:
         /// <list type="bullet">
-        /// <item>The <see cref="UIBehavior.Never"/> UI behavior was passed in an interactive token call, but the constraint could not be honored because user interaction is required,
+        /// <item>The <c>UIBehavior.Never</c> UI behavior was passed in an interactive token call, but the constraint could not be honored because user interaction is required,
         /// for instance because the user needs to re-sign-in, consent for more scopes, or perform multiple factor authentication.
         /// </item>
         /// <item>

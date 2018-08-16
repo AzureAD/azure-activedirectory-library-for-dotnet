@@ -37,8 +37,8 @@ namespace Microsoft.Identity.Client
     /// for another downsteam API in the name of the user which credentials are held by this <c>UserAssertion</c>
     /// See https://aka.ms/msal-net-on-behalf-of 
     /// </summary>
-    /// <seealso cref="ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync(System.Collections.Generic.IEnumerable{string}, UserAssertion)"/>
-    /// and <see cref="ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync(System.Collections.Generic.IEnumerable{string}, UserAssertion, string)"/>
+    /// <seealso cref="M:ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync(System.Collections.Generic.IEnumerable{string}, UserAssertion)"/>
+    /// and <see cref="M:ConfidentialClientApplication.AcquireTokenOnBehalfOfAsync(System.Collections.Generic.IEnumerable{string}, UserAssertion, string)"/>
     public sealed class UserAssertion
     {
         /// <summary>

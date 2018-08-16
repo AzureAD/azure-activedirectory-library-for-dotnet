@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Client
 {
     /// <summary>
     /// Contains parameters used by the MSAL call accessing the cache. 
-    /// See also <see cref="TokenCacheExtensions"/> which contains extension methods
+    /// See also <see cref="T:TokenCacheExtensions"/> which contains extension methods
     /// to customize the cache serialization
     /// </summary>
     public sealed partial class TokenCacheNotificationArgs

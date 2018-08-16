@@ -194,7 +194,7 @@ namespace Microsoft.Identity.Client
         /// override of <see cref="T:PublicClientApplication"/> having an <c>extraQueryParameter</c> argument, and add the following string <c>$"claims={ex.Claims}"</c>
         /// to the extraQueryParameters, where ex is an instance of this exception.
         /// </item>
-        /// <item>If you application is a <see cref="ConfidentialClientApplication"/>, (therefore doing the On behalf of flow), you should throw an Http unauthorize 
+        /// <item>If you application is a <see cref="T:ConfidentialClientApplication"/>, (therefore doing the On behalf of flow), you should throw an Http unauthorize 
         /// exception wuth a message containing the claims</item>
         /// </list>
         /// For more details see https://aka.ms/msal-net-claim-challenge

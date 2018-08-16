@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Client
         /// based on the provided <paramref name="account"/>
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for an account with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
@@ -151,7 +151,7 @@ namespace Microsoft.Identity.Client
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
@@ -199,7 +199,7 @@ namespace Microsoft.Identity.Client
         /// based on the provided <paramref name="account"/>
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         Task<AuthenticationResult> AcquireTokenAsync(
@@ -227,7 +227,7 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for an account with control of the UI behavior and possiblity of passing extra query parameters like additional claims
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
@@ -267,7 +267,7 @@ namespace Microsoft.Identity.Client
         /// parameters, providing extra scopes that the user can pre-consent to, and overriding the authority pre-configured in the application
         /// </summary>
         /// <param name="scopes">scopes requested to access a protected API</param>
-        /// <param name="user">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account
+        /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.

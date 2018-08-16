@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Client
     /// Stucture containing static members that you can use to specify how the interactive overrides 
     /// of AcquireTokenAsync in <see cref="PublicClientApplication"/> should prompt the user.
     /// </summary>
-    /// <remarks>Only the .NET Framework platforms allows <c>UIBehavior.Never</remarks>
+    /// <remarks>Only the .NET Framework platforms allows <c>UIBehavior.Never</c></remarks>
 
     //TODO: This should be completely removed for platforms that do not support UI, however 
     // at present it used for ConfidentialClientApplication.GetAuthorizationRequestUrlAsync
