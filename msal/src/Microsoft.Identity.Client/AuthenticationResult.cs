@@ -60,12 +60,13 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Gets the requested Access Token.
+        /// Gets the Access Token.
         /// </summary>
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
 
         /// <summary>
-        /// Gets the Unique Id of the account.
+        /// Gets the Unique Id of the account. It can be null. When the <see cref="IdToken"/> is not <c>null</c>, this is it's ID, that
+        /// is its ObjectId claim, or if that claim is <c>null</c>, the Subject claim.
         /// </summary>
         public virtual string UniqueId => _msalIdTokenCacheItem?.IdToken?.GetUniqueId();
 
@@ -83,10 +84,10 @@ namespace Microsoft.Identity.Client
         public virtual string TenantId => _msalIdTokenCacheItem?.IdToken?.TenantId;
 
         /// <summary>
-        /// Gets the account information. Some elements in Account might be null if not returned by the
+        /// Gets the account information. Some elements in <see cref="IAccount"/> might be null if not returned by the
         /// service. The account can be passed back in some API overloads to identify which account should be used such 
         /// as <see cref="IClientApplicationBase.AcquireTokenSilentAsync(IEnumerable{string}, IAccount)"/> or
-        /// <see cref="IClientApplicationBase.RemoveAsync(IAccount)"/>
+        /// <see cref="IClientApplicationBase.RemoveAsync(IAccount)"/> for instance
         /// </summary>
         public virtual IAccount Account { get; internal set; }
 
