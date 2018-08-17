@@ -75,7 +75,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                msg = "An error occurred while writing ADAL refresh token to the cache in MSAL format. ";
+                msg = "An error occurred while writing ADAL refresh token to the cache in MSAL format. " +
+                      "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -122,7 +123,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while writing MSAL refresh token to the cache in ADAL format. ";
+                string msg = "An error occurred while writing MSAL refresh token to the cache in ADAL format. " +
+                             "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -159,7 +161,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while reading accounts in ADAL format from the cache for MSAL. ";
+                string msg = "An error occurred while reading accounts in ADAL format from the cache for MSAL. " +
+                             "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -197,7 +200,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while deleting account in ADAL format from the cache. ";
+                string msg = "An error occurred while deleting account in ADAL format from the cache. " +
+                             "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -262,7 +266,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while searching for refresh tokens in ADAL format in the cache for MSAL. ";
+                string msg = "An error occurred while searching for refresh tokens in ADAL format in the cache for MSAL. " +
+                             "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
@@ -336,7 +341,8 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                string msg = "An error occurred while searching for refresh tokens in MSAL format in the cache for ADAL. ";
+                string msg = "An error occurred while searching for refresh tokens in MSAL format in the cache for ADAL. " +
+                             "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
 
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
