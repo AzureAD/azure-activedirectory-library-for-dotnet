@@ -100,8 +100,8 @@ namespace Microsoft.Identity.Client
                 if (cacheDict == null || cacheDict.Count == 0)
                 {
                     string msg = "Cache is empty.";
-                    MsalLogger.Default.Info(msg);
-                    MsalLogger.Default.InfoPii(msg);
+                    CoreLoggerBase.Default.Info(msg);
+                    CoreLoggerBase.Default.InfoPii(msg);
                     return;
                 }
 
