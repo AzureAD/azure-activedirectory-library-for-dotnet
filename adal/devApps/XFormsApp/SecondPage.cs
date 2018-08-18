@@ -36,7 +36,7 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
-        public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c;
+        public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
         public const string ClientIdBroker = "<ClientIdBroker>";
         public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
