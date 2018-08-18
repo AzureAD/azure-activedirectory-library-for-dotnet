@@ -38,6 +38,9 @@ namespace AdalAndroidTestApp
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
+        private const string ClientId = "<ClientID>";
+        private const string ReturnUri = "<RedirectUri>";
+
         private UITextView accessTokenTextView;
 
         protected override void OnCreate(Bundle bundle)
@@ -55,9 +58,6 @@ namespace AdalAndroidTestApp
 
             Button clearCacheButton = FindViewById<Button>(Resource.Id.clearCacheButton);
             clearCacheButton.Click += clearCacheButton_Click;
-
-            Button conditionalAccessButton = FindViewById<Button>(Resource.Id.conditionalAccessButton);
-            conditionalAccessButton.Click += conditionalAccessButton_Click;
 
             this.accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
 
@@ -133,35 +133,6 @@ namespace AdalAndroidTestApp
                 TokenCache.DefaultShared.Clear();
                 this.accessTokenTextView.Text = "Cache cleared";
             });
-        }
-
-        private async void conditionalAccessButton_Click(object sender, EventArgs e)
-        {
-            this.accessTokenTextView.Text = string.Empty;
-            EditText email = FindViewById<EditText>(Resource.Id.email);
-            string value = null;
-            try
-            {
-                string claim =
-                    "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
-                AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-                AuthenticationResult result = await ctx
-                    .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
-                        new PlatformParameters(this, false),
-                        new UserIdentifier(email.Text, UserIdentifierType.OptionalDisplayableId), null, claim)
-                    .ConfigureAwait(false);
-                value = result.AccessToken;
-            }
-            catch (Java.Lang.Exception ex)
-            {
-                throw new Exception(ex.Message + "\n" + ex.StackTrace);
-            }
-            catch (Exception exc)
-            {
-                value = exc.Message;
-            }
-
-            this.accessTokenTextView.Text = value;
         }
     }
 }
