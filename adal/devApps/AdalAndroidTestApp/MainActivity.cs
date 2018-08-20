@@ -38,8 +38,11 @@ namespace AdalAndroidTestApp
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
-        private const string ClientId = "<ClientID>";
-        private const string ReturnUri = "<RedirectUri>";
+        private const string clientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
+        private const string redirectUri = "urn:ietf:wg:oauth:2.0:oob";
+        private const string resource1 = "https://graph.windows.net"; 
+        private const string resource2 = "https://graph.microsoft.com"; 
+        readonly string user = "<USER>";
 
         private UITextView accessTokenTextView;
 
@@ -62,7 +65,7 @@ namespace AdalAndroidTestApp
             this.accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
 
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            email.Text = "<USERNAME>";
+            email.Text = user;
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -81,7 +84,7 @@ namespace AdalAndroidTestApp
             {
                 AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
                 AuthenticationResult result = await ctx
-                    .AcquireTokenSilentAsync("https://graph.windows.net", "<CLIENT_ID>", UserIdentifier.AnyUser,
+                    .AcquireTokenSilentAsync(resource1, clientId, UserIdentifier.AnyUser,
                         new PlatformParameters(this, false)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
@@ -105,12 +108,8 @@ namespace AdalAndroidTestApp
             string value = null;
             try
             {
-                string clientId = "b7ef0cbd-fee5-420a-9ec0-6d29549f950b";
-                Uri redirectUri = new Uri("https://todolistclient");
-                string resource = "https://graph.microsoft.com"; // "https://graph.windows.net"
-
                 AuthenticationResult result = await ctx
-                    .AcquireTokenAsync(resource, clientId, redirectUri,
+                    .AcquireTokenAsync(resource2, clientId, new Uri(redirectUri),
                         new PlatformParameters(this, false)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
