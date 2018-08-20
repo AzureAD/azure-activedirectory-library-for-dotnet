@@ -27,9 +27,11 @@
 
 using Xamarin.Forms;
 using XFormsApp;
-//using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Xamarin.Forms.Platform.UWP;
+using XFormsApp.UWP;
 
+[assembly: ExportRenderer(typeof(SecondPage), typeof(SecondPageRenderer))]
 namespace XFormsApp.UWP
 {
     class SecondPageRenderer : PageRenderer
@@ -42,7 +44,7 @@ namespace XFormsApp.UWP
             
             page = e.NewElement as SecondPage;
        
-            //page.Parameters = new PlatformParameters(this);
+            page.Parameters = new PlatformParameters(PromptBehavior.Auto, true);
         }
     }
 }
