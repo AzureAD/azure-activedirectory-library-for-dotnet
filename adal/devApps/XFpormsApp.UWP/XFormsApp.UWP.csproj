@@ -136,6 +136,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj" />
     <ProjectReference Include="..\XFormsApp\XFormsApp.csproj">
       <Project>{856ea096-2283-49b6-b2cd-5c603551d150}</Project>
       <Name>XFormsApp</Name>
