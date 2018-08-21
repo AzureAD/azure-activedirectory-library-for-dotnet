@@ -103,9 +103,12 @@ namespace Microsoft.Identity.Core.Cache
             {
                 foreach (var account in cacheDict[AccountKey])
                 {
-                    var msalAccountCacheItem = JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(account, requestContext);
+                    var msalAccountCacheItem = JsonHelper.TryToDeserializeFromJson<MsalAccountCacheItem>(account, requestContext);
 
-                    tokenCacheAccessor.SaveAccount(JsonHelper.DeserializeFromJson<MsalAccountCacheItem>(account));
+                    if (msalAccountCacheItem != null)
+                    {
+                        tokenCacheAccessor.SaveAccount(msalAccountCacheItem);
+                    }
                 }
             }
         }
