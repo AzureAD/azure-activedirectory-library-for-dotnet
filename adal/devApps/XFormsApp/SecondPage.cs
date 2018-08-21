@@ -27,6 +27,7 @@
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms;
 
@@ -36,12 +37,18 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
-        public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
+        //public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
         public const string ClientIdBroker = "<ClientIdBroker>";
         public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
         public const string User = "<User>";
         static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
+
+        private const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
+        private const string MSIDLAB4ClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0";
+
+        private const string MSGraph = "https://graph.microsoft.com";
+        private const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
 
         public string DrainLogs()
         {
@@ -52,6 +59,13 @@ namespace XFormsApp
 
         private readonly Label result;
         private readonly Label testResult;
+        private Picker clientIdPicker;
+        private Picker resourcePicker;
+        private Entry clientIdInput;
+        private Entry resourceInput;
+
+        private string ClientId { get; set; } = UiAutomationTestClientId;
+        private string Resource { get; set; } = MSGraph;
 
         public IPlatformParameters Parameters { get; set; }
 
@@ -101,6 +115,50 @@ namespace XFormsApp
                 VerticalOptions = LayoutOptions.FillAndExpand
             };
 
+            List<string> clientList = new List<string>();
+            clientList.Add("Ui Test App");
+            clientList.Add("MSIDLAB4");
+
+            List<string> resourceList = new List<string>();
+            resourceList.Add("MS Graph");
+            resourceList.Add("UI Automation Resource");
+
+            var clientIdInputLabel = new Label
+            {
+                Text = "CientId:"
+            };
+
+            var resourceInputLabel = new Label
+            {
+                Text = "Resource:"
+            };
+
+            clientIdPicker = new Picker
+            {
+                Title = "Pick an application",
+                ItemsSource = clientList,
+                AutomationId = "clientIdPicker"
+            };
+
+            resourcePicker = new Picker
+            {
+                Title = "Pick a resource",
+                ItemsSource = resourceList,
+                AutomationId = "resourcePicker"
+            };
+
+            clientIdInput = new Entry
+            {
+                Text = UiAutomationTestClientId,
+                AutomationId = "clientIdEntry"
+            };
+
+            resourceInput = new Entry
+            {
+                Text = MSGraph,
+                AutomationId = "resourceEntry"
+            };
+
             var scrollView = new ScrollView()
             {
                 VerticalOptions = LayoutOptions.FillAndExpand,
@@ -120,6 +178,10 @@ namespace XFormsApp
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
             acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
+            clientIdPicker.SelectedIndexChanged += UpdateClientId;
+            resourcePicker.SelectedIndexChanged += UpdateResourceId;
+            clientIdInput.TextChanged += UpdateClientIdFromInput;
+            resourceInput.TextChanged += UpdateResourceFromInput;
 
             Thickness padding;
 
@@ -146,6 +208,12 @@ namespace XFormsApp
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
+                    clientIdPicker,
+                    clientIdInputLabel,
+                    clientIdInput,
+                    resourcePicker,
+                    resourceInputLabel,
+                    resourceInput,
                     scrollView
                 }
             };
@@ -165,7 +233,7 @@ namespace XFormsApp
             string output = string.Empty;
             try
             {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientId).ConfigureAwait(false);
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
             }
             catch (Exception exc)
@@ -194,7 +262,7 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientId,
+                        ctx.AcquireTokenAsync(Resource, ClientId,
                             new Uri(RedirectURI), Parameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
@@ -259,7 +327,7 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync("https://graph.microsoft.com", ClientIdBroker,
+                        ctx.AcquireTokenAsync(Resource, ClientId,
                             new Uri(AndroidBrokerRedirectURI),
                             BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
@@ -331,6 +399,48 @@ namespace XFormsApp
                 TokenCache.DefaultShared.Clear();
                 this.result.Text += "Cache items after clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
             });
+        }
+
+        void UpdateClientId(object sender, EventArgs e)
+        {
+            switch (clientIdPicker.SelectedIndex)
+            {
+                case 0:
+                    ClientId = clientIdInput.Text = UiAutomationTestClientId;
+                    break;
+                case 1:
+                    ClientId = clientIdInput.Text = MSIDLAB4ClientId;
+                    break;
+                default:
+                    ClientId = clientIdInput.Text = UiAutomationTestClientId;
+                    break;
+            }
+        }
+
+        void UpdateResourceId(object sender, EventArgs e)
+        {
+            switch (resourcePicker.SelectedIndex)
+            {
+                case 0:
+                    Resource = resourceInput.Text = MSGraph;
+                    break;
+                case 1:
+                    Resource = resourceInput.Text = UiAutomationTestResource;
+                    break;
+                default:
+                    Resource = resourceInput.Text = MSGraph;
+                    break;
+            }
+        }
+
+        void UpdateClientIdFromInput(object sender, EventArgs e)
+        {
+            ClientId = clientIdInput.Text;
+        }
+
+        private void UpdateResourceFromInput(object sender, TextChangedEventArgs e)
+        {
+            Resource = resourceInput.Text;
         }
     }
 }

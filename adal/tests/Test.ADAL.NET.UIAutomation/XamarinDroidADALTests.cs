@@ -41,7 +41,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenTest()
         {
-            CoreMobileADALTests.AcquireTokenTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenInteractiveTest(xamarinController);
         }
     }
 }
