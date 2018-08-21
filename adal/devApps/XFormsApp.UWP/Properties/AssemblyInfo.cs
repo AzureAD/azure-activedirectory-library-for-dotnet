@@ -25,44 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Cache;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("XFormsApp.UWP")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("XFormsApp.UWP")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
-{
-    /// <summary>
-    /// This class marked with ifdefs because only iOS/Android/WinRT provide platform default storage. 
-    /// Delegates have no implementation for netstandard1.1, netstandard1.3 and net45.
-    /// Platform specific persistance logic is implemented in core.
-    /// </summary>
-
-#if ANDROID
-    [Android.Runtime.Preserve(AllMembers = true)]
-#endif
-    internal static class StorageDelegates
-    {
-        internal static readonly ILegacyCachePersistance legacyCachePersistance = new LegacyCachePersistance();
-
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
-        {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null)
-            {
-                args.TokenCache.Deserialize(legacyCachePersistance.LoadCache());
-            }
-#endif
-        }
-
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
-            {
-                legacyCachePersistance.WriteCache(args.TokenCache.Serialize());
-                args.TokenCache.HasStateChanged = false;
-            }
-#endif
-        }
-
-    }
-}
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Build and Revision Numbers 
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: ComVisible(false)]

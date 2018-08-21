@@ -25,44 +25,19 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Cache;
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
+namespace XFormsApp.UWP
 {
     /// <summary>
-    /// This class marked with ifdefs because only iOS/Android/WinRT provide platform default storage. 
-    /// Delegates have no implementation for netstandard1.1, netstandard1.3 and net45.
-    /// Platform specific persistance logic is implemented in core.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-
-#if ANDROID
-    [Android.Runtime.Preserve(AllMembers = true)]
-#endif
-    internal static class StorageDelegates
+    public sealed partial class MainPage
     {
-        internal static readonly ILegacyCachePersistance legacyCachePersistance = new LegacyCachePersistance();
-
-        public static void BeforeAccess(TokenCacheNotificationArgs args)
+        public MainPage()
         {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null)
-            {
-                args.TokenCache.Deserialize(legacyCachePersistance.LoadCache());
-            }
-#endif
+            this.InitializeComponent();
+            LoadApplication(new XFormsApp.App());
         }
-
-        public static void AfterAccess(TokenCacheNotificationArgs args)
-        {
-#if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
-            {
-                legacyCachePersistance.WriteCache(args.TokenCache.Serialize());
-                args.TokenCache.HasStateChanged = false;
-            }
-#endif
-        }
-
     }
 }
