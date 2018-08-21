@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Client
         /// Deserializes the token cache from a serialization blob
         /// </summary>
         /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
-        /// <param name="state">Array of bytes containing serialized cache data</param>
+        /// <param name="state">Array of bytes containing serialized Msal cache data</param>
         /// <remarks>
         /// <paramref name="state"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
         /// </remarks>
@@ -95,61 +95,31 @@ namespace Microsoft.Identity.Client
             {
                 RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-                Dictionary<string, IEnumerable<string>> cacheDict = JsonHelper
-                    .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(state);
-                if (cacheDict == null || cacheDict.Count == 0)
-                {
-                    string msg = "Cache is empty.";
-                    CoreLoggerBase.Default.Info(msg);
-                    CoreLoggerBase.Default.InfoPii(msg);
-                    return;
-                }
+                TokenCacheSerializeHelper.DeserializeMsalCache(tokenCache.tokenCacheAccessor, state, requestContext);
+            }
+        }
 
-                if (cacheDict.ContainsKey("access_tokens"))
-                {
-                    foreach (var atItem in cacheDict["access_tokens"])
-                    {
-                        var msalAccessTokenCacheItem =  JsonHelper.TryToDeserializeFromJson<MsalAccessTokenCacheItem>(atItem, requestContext);
-                        if (msalAccessTokenCacheItem != null)
-                        {
-                            tokenCache.AddAccessTokenCacheItem(msalAccessTokenCacheItem);
-                        }
-                    }
-                }
+        /// <summary>
+        /// Deserializes the token cache from a serialization blob
+        /// </summary>
+        /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
+        /// <param name="unifiedState">Array of bytes containing serialized Msal cache data</param>
+        /// <remarks>
+        /// <paramref name="unifiedState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
+        /// </remarks>
+        /// <param name="adalState">Array of bytes containing serialized Adal cache data</param>
+        /// <remarks>
+        /// <paramref name="adalState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
+        /// </remarks>
+        public static void DeserializeUnifiedAndAdalCache(this TokenCache tokenCache, byte[] unifiedState, byte[] adalState)
+        {
+            lock (tokenCache.LockObject)
+            {
+                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-                if (cacheDict.ContainsKey("refresh_tokens"))
-                {
-                    foreach (var rtItem in cacheDict["refresh_tokens"])
-                    {
-                        var msalRefreshTokenCacheItem = JsonHelper.TryToDeserializeFromJson<MsalRefreshTokenCacheItem>(rtItem, requestContext);
-                        if (msalRefreshTokenCacheItem != null)
-                        {
-                            tokenCache.AddRefreshTokenCacheItem(msalRefreshTokenCacheItem);
-                        }
-                    }
-                }
+                Deserialize(tokenCache, unifiedState);
 
-                if (cacheDict.ContainsKey("id_tokens"))
-                {
-                    foreach (var idItem in cacheDict["id_tokens"])
-                    {
-                        var msalIdTokenCacheItem = JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(idItem, requestContext);
-                        if (msalIdTokenCacheItem != null)
-                        {
-                            tokenCache.AddIdTokenCacheItem(msalIdTokenCacheItem);
-                        }
-                    }
-                }
-
-                if (cacheDict.ContainsKey("accounts"))
-                {
-                    foreach (var account in cacheDict["accounts"])
-                    {
-                        var msalAccountCacheItem = JsonHelper.TryToDeserializeFromJson<MsalIdTokenCacheItem>(account, requestContext);
-
-                        tokenCache.AddAccountCacheItem(JsonHelper.DeserializeFromJson<MsalAccountCacheItem>(account));
-                    }
-                }
+                tokenCache.legacyCachePersistance.WriteCache(adalState);
             }
         }
 
@@ -163,13 +133,28 @@ namespace Microsoft.Identity.Client
             // reads the underlying in-memory dictionary and dumps out the content as a JSON
             lock (tokenCache.LockObject)
             {   
-                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-                Dictionary<string, IEnumerable<string>> cacheDict = new Dictionary<string, IEnumerable<string>>();
-                cacheDict["access_tokens"] = tokenCache.GetAllAccessTokenCacheItems(requestContext);
-                cacheDict["refresh_tokens"] = tokenCache.GetAllRefreshTokenCacheItems(requestContext);
-                cacheDict["id_tokens"] = tokenCache.GetAllIdTokenCacheItems(requestContext);
-                cacheDict["accounts"] = tokenCache.GetAllAccountCacheItems(requestContext);
-                return JsonHelper.SerializeToJson(cacheDict).ToByteArray();
+                return TokenCacheSerializeHelper.SerializeMsalCache(tokenCache.tokenCacheAccessor);
+            }
+        }
+
+        /// <summary>
+        /// Serializes the entiere token cache
+        /// </summary>
+        /// <param name="tokenCache">Token cache to serialize</param>
+        /// A tuple containing the following information:
+        /// <item><see cref="Tuple{T1,T2}.Item1"/>: Current state of the Unified cache as a blob</item>
+        /// <item><see cref="Tuple{T1,T2}.Item2"/>: Current state of the Adal cache as a blob</item>
+        /// </returns>
+        public static Tuple<byte[], byte[]> SerializeUnifiedAndAdalCache(this TokenCache tokenCache)
+        {
+            // reads the underlying in-memory dictionary and dumps out the content as a JSON
+            lock (tokenCache.LockObject)
+            {
+                var serializeMsalCache = Serialize(tokenCache);
+
+                var serializeAdalCache = tokenCache.legacyCachePersistance.LoadCache();
+
+                return Tuple.Create(serializeMsalCache, serializeAdalCache);
             }
         }
     }

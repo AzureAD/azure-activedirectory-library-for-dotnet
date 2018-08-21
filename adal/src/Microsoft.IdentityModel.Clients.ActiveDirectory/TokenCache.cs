@@ -173,6 +173,26 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
+        /// Serializes current state of the cache as a blob. Caller application can persist the blob and update the state of the cache later by 
+        /// passing that blob back in constructor or by calling method Deserialize.
+        /// </summary>
+        /// <returns>
+        /// A tuple containing the following information:
+        /// <item><see cref="Tuple{T1,T2}.Item1"/>: Current state of the Adal cache as a blob</item>
+        /// <item><see cref="Tuple{T1,T2}.Item2"/>: Current state of the Unified cache as a blob</item>
+        /// </returns>
+        public Tuple<byte[], byte[]> SerializeAdalAndUnifiedCache()
+        {
+            lock (cacheLock)
+            {
+                var serializedAdalCache = AdalCacheOperations.Serialize(tokenCacheDictionary);
+                var serializedUnifiedCache = TokenCacheSerializeHelper.SerializeMsalCache(tokenCacheAccessor);
+
+                return Tuple.Create(serializedAdalCache, serializedUnifiedCache);
+            }
+        }
+
+        /// <summary>
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="state">State of the cache as a blob</param>
@@ -185,6 +205,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     tokenCacheDictionary.Add(entry.Key, entry.Value);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
+        /// </summary>
+        /// <param name="state">State of the cache as a blob</param>
+        /// <param name="unifiedCacheState">State of the unified cache (Msal) as a blob</param>
+        public void DeserializeAdalAndUnifiedCache(byte[] state, byte[] unifiedCacheState)
+        {
+            lock (cacheLock)
+            {
+                Deserialize(state);
+
+                RequestContext requestContext = new RequestContext(new AdalLogger(Guid.Empty));
+                TokenCacheSerializeHelper.DeserializeMsalCache(tokenCacheAccessor, unifiedCacheState, requestContext);
             }
         }
 

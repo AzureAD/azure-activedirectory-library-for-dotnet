@@ -29,14 +29,16 @@ namespace Microsoft.Identity.Core.Cache
 {
     internal class LegacyCachePersistance : ILegacyCachePersistance
     {
-        //this class is an empty implementation to facilitate testing of forward/backward cache compat testing.
+        private byte[] Data;
+
         byte[] ILegacyCachePersistance.LoadCache()
         {
-            return null;
+            return Data;
         }
 
         void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
         {
+            Data = serializedCache;  
         }
     }
 }
