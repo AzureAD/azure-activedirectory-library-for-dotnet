@@ -46,14 +46,12 @@ namespace Microsoft.Identity.Core.Cache
         /// Deserializes the token cache from a serialization blob
         /// </summary>
         /// <param name="tokenCacheAccessor">Token cache accessor to perform cache write operations (to fill-in from the state)</param>
-        /// <param name="state">Array of bytes containing serialized cache data</param>
-        /// <remarks>
-        /// <paramref name="state"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
-        /// </remarks>
-        internal static void DeserializeUnifiedCache(TokenCacheAccessor tokenCacheAccessor, byte[] state, RequestContext requestContext)
+        /// <param name="unifiedState">Array of bytes containing serialized unified cache data</param>
+        /// <param name="requestContext">call state to pass correlation id and logger instance</param>
+        internal static void DeserializeUnifiedCache(TokenCacheAccessor tokenCacheAccessor, byte[] unifiedState, RequestContext requestContext)
         {
             Dictionary<string, IEnumerable<string>> cacheDict = JsonHelper
-                .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(state);
+                .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(unifiedState);
 
             if (cacheDict == null || cacheDict.Count == 0)
             {
