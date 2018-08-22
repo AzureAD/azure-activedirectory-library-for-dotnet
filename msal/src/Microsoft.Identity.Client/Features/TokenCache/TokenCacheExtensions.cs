@@ -103,8 +103,7 @@ namespace Microsoft.Identity.Client
         /// Deserializes the token cache from a serialization blob
         /// </summary>
         /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
-        /// <param name="unifiedState">Array of bytes containing serialized Unified (Msal) cache data</param>
-        /// <param name="adalState">Array of bytes containing serialized Adal cache data</param>
+        /// <param name="cacheData">Array of bytes containing serialicache data</param>
         public static void DeserializeUnifiedAndAdalCache(this TokenCache tokenCache, CacheData cacheData)
         {
             lock (tokenCache.LockObject)
