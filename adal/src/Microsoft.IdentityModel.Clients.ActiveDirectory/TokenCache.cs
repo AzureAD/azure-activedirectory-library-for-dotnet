@@ -211,16 +211,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
-        /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
-        /// <param name="unifiedCacheState">State of the unified cache (Msal) as a blob</param>
-        public void DeserializeAdalAndUnifiedCache(byte[] adalState, byte[] unifiedCacheState)
+        /// <param name="cacheData">Serialized token cache <see cref="CacheData"</param>
+        public void DeserializeAdalAndUnifiedCache(CacheData cacheData)
         {
             lock (cacheLock)
             {
-                Deserialize(adalState);
+                Deserialize(cacheData.AdalV3State);
 
                 RequestContext requestContext = new RequestContext(new AdalLogger(Guid.Empty));
-                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCacheAccessor, unifiedCacheState, requestContext);
+                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCacheAccessor, cacheData.UnifiedState, requestContext);
             }
         }
 
