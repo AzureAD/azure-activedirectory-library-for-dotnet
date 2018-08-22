@@ -85,17 +85,17 @@ namespace Microsoft.Identity.Client
         /// Deserializes the token cache from a serialization blob
         /// </summary>
         /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
-        /// <param name="state">Array of bytes containing serialized Msal cache data</param>
+        /// <param name="unifiedCacheState">Array of bytes containing serialized Msal cache data</param>
         /// <remarks>
-        /// <paramref name="state"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
+        /// <paramref name="unifiedCacheState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
         /// </remarks>
-        public static void Deserialize(this TokenCache tokenCache, byte[] state)
+        public static void Deserialize(this TokenCache tokenCache, byte[] unifiedCacheState)
         {
             lock (tokenCache.LockObject)
             {
                 RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-                TokenCacheSerializeHelper.DeserializeMsalCache(tokenCache.tokenCacheAccessor, state, requestContext);
+                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCache.tokenCacheAccessor, unifiedCacheState, requestContext);
             }
         }
 
@@ -103,58 +103,52 @@ namespace Microsoft.Identity.Client
         /// Deserializes the token cache from a serialization blob
         /// </summary>
         /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
-        /// <param name="unifiedState">Array of bytes containing serialized Msal cache data</param>
-        /// <remarks>
-        /// <paramref name="unifiedState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
-        /// </remarks>
+        /// <param name="unifiedState">Array of bytes containing serialized Unified (Msal) cache data</param>
         /// <param name="adalState">Array of bytes containing serialized Adal cache data</param>
-        /// <remarks>
-        /// <paramref name="adalState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
-        /// </remarks>
-        public static void DeserializeUnifiedAndAdalCache(this TokenCache tokenCache, byte[] unifiedState, byte[] adalState)
+        public static void DeserializeUnifiedAndAdalCache(this TokenCache tokenCache, CacheData cacheData)
         {
             lock (tokenCache.LockObject)
             {
                 RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-                Deserialize(tokenCache, unifiedState);
+                Deserialize(tokenCache, cacheData.UnifiedState);
 
-                tokenCache.legacyCachePersistance.WriteCache(adalState);
+                tokenCache.legacyCachePersistance.WriteCache(cacheData.AdalV3State);
             }
         }
 
         /// <summary>
-        /// Serializes the entiere token cache
+        /// Serializes the entire token cache
         /// </summary>
         /// <param name="tokenCache">Token cache to serialize</param>
-        /// <returns>array of bytes containing the serialized cache</returns>
+        /// <returns>array of bytes containing the serialized unified cache</returns>
         public static byte[] Serialize(this TokenCache tokenCache)
         {
             // reads the underlying in-memory dictionary and dumps out the content as a JSON
             lock (tokenCache.LockObject)
-            {   
-                return TokenCacheSerializeHelper.SerializeMsalCache(tokenCache.tokenCacheAccessor);
+            {
+                return TokenCacheSerializeHelper.SerializeUnifiedCache(tokenCache.tokenCacheAccessor);
             }
         }
 
         /// <summary>
-        /// Serializes the entiere token cache
+        /// Serializes the entire token cache
         /// </summary>
         /// <param name="tokenCache">Token cache to serialize</param>
-        /// A tuple containing the following information:
-        /// <item><see cref="Tuple{T1,T2}.Item1"/>: Current state of the Unified cache as a blob</item>
-        /// <item><see cref="Tuple{T1,T2}.Item2"/>: Current state of the Adal cache as a blob</item>
-        /// </returns>
-        public static Tuple<byte[], byte[]> SerializeUnifiedAndAdalCache(this TokenCache tokenCache)
+        /// <returns>Serialized token cache <see cref="CacheData"/></returns>
+        public static CacheData SerializeUnifiedAndAdalCache(this TokenCache tokenCache)
         {
             // reads the underlying in-memory dictionary and dumps out the content as a JSON
             lock (tokenCache.LockObject)
             {
-                var serializeMsalCache = Serialize(tokenCache);
-
+                var serializedUnifiedCache = Serialize(tokenCache);
                 var serializeAdalCache = tokenCache.legacyCachePersistance.LoadCache();
 
-                return Tuple.Create(serializeMsalCache, serializeAdalCache);
+                return new CacheData()
+                {
+                    AdalV3State = serializeAdalCache,
+                    UnifiedState = serializedUnifiedCache
+                };
             }
         }
     }

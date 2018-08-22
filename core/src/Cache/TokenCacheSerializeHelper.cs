@@ -35,12 +35,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    class TokenCacheSerializeHelper
+    internal class TokenCacheSerializeHelper
     {
-        private static readonly string AccessTokenKey = "access_tokens";
-        private static readonly string RefreshTokenKey = "refresh_tokens";
-        private static readonly string IdTokenKey = "id_tokens";
-        private static readonly string AccountKey = "accounts";
+        private const string AccessTokenKey = "access_tokens";
+        private const string RefreshTokenKey = "refresh_tokens";
+        private const string IdTokenKey = "id_tokens";
+        private const string AccountKey = "accounts";
 
         /// <summary>
         /// Deserializes the token cache from a serialization blob
@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Core.Cache
         /// <remarks>
         /// <paramref name="state"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
         /// </remarks>
-        public static void DeserializeMsalCache(TokenCacheAccessor tokenCacheAccessor, byte[] state, RequestContext requestContext)
+        internal static void DeserializeUnifiedCache(TokenCacheAccessor tokenCacheAccessor, byte[] state, RequestContext requestContext)
         {
             Dictionary<string, IEnumerable<string>> cacheDict = JsonHelper
                 .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(state);
@@ -114,11 +114,11 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         /// <summary>
-        /// Serializes the entiere token cache
+        /// Serializes the entire token cache
         /// </summary>
         /// <param name="tokenCacheAccessor">Token cache accessor to perform cache read operations</param>
         /// <returns>array of bytes containing the serialized cache</returns>
-        public static byte[] SerializeMsalCache(TokenCacheAccessor tokenCacheAccessor)
+        internal static byte[] SerializeUnifiedCache(TokenCacheAccessor tokenCacheAccessor)
         {
             // reads the underlying in-memory dictionary and dumps out the content as a JSON
             Dictionary<string, IEnumerable<string>> cacheDict = new Dictionary<string, IEnumerable<string>>

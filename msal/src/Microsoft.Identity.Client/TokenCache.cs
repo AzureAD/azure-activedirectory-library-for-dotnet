@@ -195,7 +195,6 @@ namespace Microsoft.Identity.Client
                         requestParams.RequestContext.Logger.InfoPii(msg);
                         tokenCacheAccessor.SaveRefreshToken(msalRefreshTokenCacheItem, requestParams.RequestContext);
                     }
-                    OnAfterAccess(args);
 
                     //save RT in ADAL cache for public clients
                     if (!requestParams.IsClientCredentialRequest)
@@ -205,6 +204,9 @@ namespace Microsoft.Identity.Client
                             Authority.UpdateHost(requestParams.TenantUpdatedCanonicalAuthority, preferredEnvironmentHost),
                             msalIdTokenCacheItem.IdToken.ObjectId, response.Scope);
                     }
+
+                    OnAfterAccess(args);
+
                     return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
                 }
                 finally
