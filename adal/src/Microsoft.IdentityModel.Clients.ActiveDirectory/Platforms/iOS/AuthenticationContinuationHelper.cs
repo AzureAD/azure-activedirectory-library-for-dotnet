@@ -41,7 +41,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Returns if the response is from the broker app
         /// </summary>
         /// <param name="sourceApplication">application bundle id</param>
-        /// <returns></returns>
         public static bool IsBrokerResponse(string sourceApplication)
         {
             return sourceApplication != null && sourceApplication.Equals("com.microsoft.azureauthenticator", StringComparison.OrdinalIgnoreCase);

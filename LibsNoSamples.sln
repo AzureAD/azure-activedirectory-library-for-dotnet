@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Common", "ada
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Integration", "adal\tests\Test.ADAL.NET.Integration\Test.ADAL.NET.Integration.csproj", "{2BD6EA30-37A4-4799-B778-A473FC6B19D4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5D231979-0A13-456D-B9F9-CED41F935FD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B453B558-009A-4F28-999B-2A82F2BAED8B} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
+		{D5ED1FC3-75DD-488C-8B6E-06F2EAE93E85} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
+		{91E9E564-8A44-457B-A97C-E76C9F6275D6} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
+		{412F8F05-2694-4D2E-8FE0-A821721CF682} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
+		{2BD6EA30-37A4-4799-B778-A473FC6B19D4} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C88EF77-AF03-4F82-B666-1831DABAA119}

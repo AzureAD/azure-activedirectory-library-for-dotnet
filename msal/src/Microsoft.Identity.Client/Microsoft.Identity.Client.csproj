@@ -54,26 +54,31 @@
     <EmbeddedResource Include="Properties\Microsoft.Identity.Client.rd.xml" />
 
     <!-- Include Core as files, not as a project reference -->
-    <Compile Include="..\..\..\core\src\**\*.cs" LinkBase="Core" />
-    <Compile Remove="..\..\..\core\src\obj\**\*.cs" />
-    <None Include="..\..\..\core\src\Platforms\**\*.cs" LinkBase="Core\Platforms"/>
+    <Compile Include="..\..\..\core\src\**\*.cs" Exclude="..\..\..\core\src\obj\**\*.*;..\..\..\core\src\properties\**\*.*" LinkBase="Core" />
+    <None Include="..\..\..\core\src\Platforms\**\*.cs" LinkBase="Core\Platforms" />
+    <None Include="..\..\..\core\src\Features\**\*.cs" LinkBase="Core\Features" />
     <Compile Remove="..\..\..\core\src\Platforms\**\*.*" />
     <Compile Remove="..\..\..\core\src\Features\**\*.*" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <Compile Include="..\..\..\core\Platforms\netstandard1.3\**\*.cs" />
+    <Compile Include="Platforms\netstandard1.3\**\*.cs" />
+    <Compile Include="..\..\..\core\src\Platforms\netstandard1.3\**\*.cs" LinkBase="Core\Platforms" />
+    <Compile Include="..\..\..\core\src\Features\Cache\**\*.cs" LinkBase="Core\Features" />
+    <Compile Include="Features\PublicClient\**\*.cs" />
+    <Compile Include="Features\ConfidentialClient\**\*.cs" />
+    <Compile Include="Features\EventSource\**\*.cs" />
+    <Compile Include="Features\TokenCache\**\*.cs" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" Condition="'$(TargetFramework)' != 'netstandard1.1'" />
+    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-
     <!-- Remove UI specific logic as it is not supported yet -->
     <Compile Remove="UIParent.cs" />
     <Compile Include="Platforms\netcore\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\netcore\**\*.cs" />
-    <Compile Include="..\..\..\core\Features\Cache\**\*.cs" />
+    <Compile Include="..\..\..\core\src\Platforms\netcore\**\*.cs" LinkBase="Core\Platforms" />
+    <Compile Include="..\..\..\core\src\Features\Cache\**\*.cs" LinkBase="Core\Features" />
     <Compile Include="Features\TokenCache\**\*.cs" />
     <Compile Include="Features\ConfidentialClient\**\*.cs" />
     <Compile Include="Features\EventSource\**\*.cs" />
@@ -84,8 +89,8 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Compile Include="Platforms\net45\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\net45\**\*.cs" />
-    <Compile Include="..\..\..\core\Features\Cache\**\*.cs" />
+    <Compile Include="..\..\..\core\src\Platforms\net45\**\*.cs" LinkBase="Core\Platforms" />
+    <Compile Include="..\..\..\core\src\Features\Cache\**\*.cs" LinkBase="Core\Features" />
     <Compile Include="Features\EventSource\**\*.cs" />
     <Compile Include="Features\TokenCache\**\*.cs" />
     <Compile Include="Features\PublicClient\**\*.cs" />
@@ -110,26 +115,18 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
     <Compile Include="Platforms\uap\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\uap\**\*.cs" />    
+    <Compile Include="..\..\..\core\src\Platforms\uap\**\*.cs" LinkBase="Core\Platforms" />    
     <Compile Include="Features\EventSource\**\*.cs" />
     <Compile Include="Features\PublicClient\**\*.cs" />
     <Compile Include="Features\*.cs" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
-    <Compile Include="Platforms\netstandard1.3\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\netstandard1.3\**\*.cs" />
-    <Compile Include="..\..\..\core\Features\Cache\**\*.cs" />
-    <Compile Include="Features\PublicClient\**\*.cs" />
-    <Compile Include="Features\ConfidentialClient\**\*.cs" />
-    <Compile Include="Features\EventSource\**\*.cs" />
-    <Compile Include="Features\TokenCache\**\*.cs" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Compile Include="Platforms\iOS\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\iOS\**\*.cs" />
+    <Compile Include="..\..\..\core\src\Platforms\iOS\**\*.cs" LinkBase="Core\Platforms" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
@@ -140,7 +137,7 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">
     <Compile Include="Platforms\Android\**\*.cs" />
-    <Compile Include="..\..\..\core\Platforms\Android\**\*.cs" />
+    <Compile Include="..\..\..\core\src\Platforms\Android\**\*.cs" LinkBase="Core\Platforms" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
@@ -150,6 +147,9 @@
     <Reference Include="System.Xml" />
     <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="27.0.2" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
   <!-- This is here to workaround designer issues so VS sees them appropriately -->
