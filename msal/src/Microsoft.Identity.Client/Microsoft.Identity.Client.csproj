@@ -57,6 +57,7 @@
     <Compile Include="..\..\..\core\src\**\*.cs" Exclude="..\..\..\core\src\obj\**\*.*;..\..\..\core\src\properties\**\*.*" LinkBase="Core" />
     <None Include="..\..\..\core\src\Platforms\**\*.cs" LinkBase="Core\Platforms" />
     <None Include="..\..\..\core\src\Features\**\*.cs" LinkBase="Core\Features" />
+    <None Include="..\..\..\core\src\*.md" LinkBase="Core" />
     <Compile Remove="..\..\..\core\src\Platforms\**\*.*" />
     <Compile Remove="..\..\..\core\src\Features\**\*.*" />
   </ItemGroup>
