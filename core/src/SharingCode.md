@@ -47,7 +47,9 @@ Tests run as normal, and core.dll has associated unit tests.
 
 ### Exposing types from Core
 
-We currently do not expose anything public from Core, but if we do, we need to do a bit more work to play nice with customer solutions that use both ADAL and MSAL. Consider the scenario where we'd like to expose:
+We currently do not expose anything public from Core, and we should not do this unless we discuss it first. 
+
+In the future, if we decide to expose public types from core, we need to do a bit more work to play nice with customer solutions that use both ADAL and MSAL. Consider the scenario where we'd like to expose:
 
 ```csharp
 namespace core
