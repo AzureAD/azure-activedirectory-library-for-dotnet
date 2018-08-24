@@ -16,7 +16,7 @@ namespace XFormsApp
         public static readonly string Exchange = "https://outlook.office365.com/";
         public static readonly string SharePoint = "https://microsoft.sharepoint-df.com/ ";
 
-        static UITestConstants()
+        static AppConstants()
         {
             Applications = new Dictionary<string, string>();
             Applications.Add("Ui Test App", UiAutomationTestClientId);

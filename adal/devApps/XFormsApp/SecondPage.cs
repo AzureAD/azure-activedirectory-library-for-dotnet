@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.UIAutomation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
@@ -59,8 +58,8 @@ namespace XFormsApp
         private Entry clientIdInput;
         private Entry resourceInput;
 
-        private string ClientId { get; set; } = UITestConstants.UiAutomationTestClientId;
-        private string Resource { get; set; } = UITestConstants.MSGraph;
+        private string ClientId { get; set; } = AppConstants.UiAutomationTestClientId;
+        private string Resource { get; set; } = AppConstants.MSGraph;
 
         public IPlatformParameters Parameters { get; set; }
 
@@ -123,26 +122,26 @@ namespace XFormsApp
             clientIdPicker = new Picker
             {
                 Title = "Pick an application",
-                ItemsSource = new List<string>(UITestConstants.Applications.Keys),
+                ItemsSource = new List<string>(AppConstants.Applications.Keys),
                 AutomationId = "clientIdPicker"
             };
 
             resourcePicker = new Picker
             {
                 Title = "Pick a resource",
-                ItemsSource = new List<string>(UITestConstants.Resources.Keys),
+                ItemsSource = new List<string>(AppConstants.Resources.Keys),
                 AutomationId = "resourcePicker"
             };
 
             clientIdInput = new Entry
             {
-                Text = UITestConstants.UiAutomationTestClientId,
+                Text = AppConstants.UiAutomationTestClientId,
                 AutomationId = "clientIdEntry"
             };
 
             resourceInput = new Entry
             {
-                Text = UITestConstants.MSGraph,
+                Text = AppConstants.MSGraph,
                 AutomationId = "resourceEntry"
             };
 
@@ -238,7 +237,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Succsess";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
                     this.result.Text += "Result : " + output;
                     this.result.Text += "Logs : " + DrainLogs();
                 });
@@ -400,42 +399,12 @@ namespace XFormsApp
 
         void UpdateClientId(object sender, EventArgs e)
         {
-            ClientId = clientIdInput.Text = UITestConstants.Applications.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
-            //switch (clientIdPicker.SelectedIndex)
-            //{
-            //    case 0:
-
-            //        break;
-            //    case 1:
-            //        ClientId = clientIdInput.Text = MSIDLAB4ClientId;
-            //        break;
-            //    default:
-            //        ClientId = clientIdInput.Text = UiAutomationTestClientId;
-            //        break;
-            //}
+            ClientId = clientIdInput.Text = AppConstants.Applications.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
         }
 
         void UpdateResourceId(object sender, EventArgs e)
         {
-            ClientId = clientIdInput.Text = UITestConstants.Resources.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
-            //switch (resourcePicker.SelectedIndex)
-            //{
-            //    case 0:
-            //        Resource = resourceInput.Text = MSGraph;
-            //        break;
-            //    case 1:
-            //        Resource = resourceInput.Text = UiAutomationTestResource;
-            //        break;
-            //    case 2:
-            //        Resource = resourceInput.Text = Exchange;
-            //        break;
-            //    case 3:
-            //        Resource = resourceInput.Text = Sharepoint;
-            //        break;
-            //    default:
-            //        Resource = resourceInput.Text = MSGraph;
-            //        break;
-            //}
+            ClientId = resourceInput.Text = AppConstants.Resources.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
         }
 
         void UpdateClientIdFromInput(object sender, EventArgs e)
