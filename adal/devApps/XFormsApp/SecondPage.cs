@@ -37,11 +37,10 @@ namespace XFormsApp
     {
         private readonly StringBuilder _logs = new StringBuilder();
 
-        //public const string ClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
-        public const string ClientIdBroker = "<ClientIdBroker>";
+        public string User = "<User>";
+        private string Tenant = "<Tenant>";
         public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
-        public const string User = "<User>";
         static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 
         private const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
@@ -49,6 +48,8 @@ namespace XFormsApp
 
         private const string MSGraph = "https://graph.microsoft.com";
         private const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
+        private const string Exchange = "https://outlook.office365.com/";
+        private const string Sharepoint = "https://microsoft.sharepoint-df.com/ ";
 
         public string DrainLogs()
         {
@@ -73,6 +74,16 @@ namespace XFormsApp
 
         public SecondPage()
         {
+            List<string> clientList = new List<string>();
+            clientList.Add("Ui Test App");
+            clientList.Add("MSIDLAB4");
+
+            List<string> resourceList = new List<string>();
+            resourceList.Add("MS Graph");
+            resourceList.Add("UI Automation Resource");
+            resourceList.Add("Exchange");
+            resourceList.Add("Sharepoint");
+
             var acquireTokenButton = new Button
             {
                 Text = "Acquire Token",
@@ -114,14 +125,6 @@ namespace XFormsApp
             {
                 VerticalOptions = LayoutOptions.FillAndExpand
             };
-
-            List<string> clientList = new List<string>();
-            clientList.Add("Ui Test App");
-            clientList.Add("MSIDLAB4");
-
-            List<string> resourceList = new List<string>();
-            resourceList.Add("MS Graph");
-            resourceList.Add("UI Automation Resource");
 
             var clientIdInputLabel = new Label
             {
@@ -208,11 +211,11 @@ namespace XFormsApp
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
-                    clientIdPicker,
                     clientIdInputLabel,
+                    clientIdPicker,
                     clientIdInput,
-                    resourcePicker,
                     resourceInputLabel,
+                    resourcePicker,
                     resourceInput,
                     scrollView
                 }
@@ -226,31 +229,6 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        private async void AcquireTokenSilentButton_Clicked(object sender, EventArgs e)
-        {
-            this.result.Text = string.Empty;
-            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-            string output = string.Empty;
-            try
-            {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId).ConfigureAwait(false);
-                output = "Signed in User - " + result.UserInfo.DisplayableId;
-            }
-            catch (Exception exc)
-            {
-                output = exc.Message;
-            }
-            finally
-            {
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.result.Text += "Result : " + output;
-
-                    this.result.Text += "Logs : " + DrainLogs();
-                });
-            }
-        }
-
         async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
@@ -262,8 +240,37 @@ namespace XFormsApp
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync(Resource, ClientId,
-                            new Uri(RedirectURI), Parameters).ConfigureAwait(false);
+                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), Parameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
+                User = result.UserInfo.DisplayableId;
+                Tenant = result.TenantId;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.result.Text += "Result : " + output;
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
+        private async void AcquireTokenSilentButton_Clicked(object sender, EventArgs e)
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/" + Tenant);
+            string output = string.Empty;
+            string accessToken = String.Empty;
+            try
+            {
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
+                                              new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId)).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
             }
@@ -275,7 +282,71 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Success: False" : "Success: True";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.result.Text += "Result : " + output;
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
+
+        private async void AcquireTokenWithBroker()
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            string output = string.Empty;
+            string accessToken = String.Empty;
+            this.testResult.Text = "Success:";
+
+            try
+            {
+                AuthenticationResult result =
+                    await
+                        ctx.AcquireTokenAsync(Resource, ClientId,
+                            new Uri(AndroidBrokerRedirectURI),
+                            BrokerParameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
+                User = result.UserInfo.DisplayableId;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.result.Text += "Result : " + output;
+
+                    this.result.Text += "Logs : " + DrainLogs();
+                });
+            }
+        }
+
+        private async void AcquireTokenSilentWithBroker()
+        {
+            this.result.Text = string.Empty;
+            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            string output = string.Empty;
+            string accessToken = String.Empty;
+            try
+            {
+                AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
+                    new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), BrokerParameters).ConfigureAwait(false);
+                output = "Signed in User - " + result.UserInfo.DisplayableId;
+                accessToken = result.AccessToken;
+            }
+            catch (Exception exc)
+            {
+                output = exc.Message;
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
                     this.result.Text += "Result : " + output;
 
                     this.result.Text += "Logs : " + DrainLogs();
@@ -312,66 +383,6 @@ namespace XFormsApp
                 default:
                     this.result.Text = "UWP does not support broker. Use iOS or Android.";
                     break;
-            }
-        }
-
-        private async void AcquireTokenWithBroker()
-        {
-            this.result.Text = string.Empty;
-            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-            string output = string.Empty;
-            string accessToken = String.Empty;
-            this.testResult.Text = "Success:";
-
-            try
-            {
-                AuthenticationResult result =
-                    await
-                        ctx.AcquireTokenAsync(Resource, ClientId,
-                            new Uri(AndroidBrokerRedirectURI),
-                            BrokerParameters).ConfigureAwait(false);
-                output = "Signed in User - " + result.UserInfo.DisplayableId;
-                accessToken = result.AccessToken;
-            }
-            catch (Exception exc)
-            {
-                output = exc.Message;
-            }
-            finally
-            {
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Success: False" : "Success: True";
-                    this.result.Text += "Result : " + output;
-
-                    this.result.Text += "Logs : " + DrainLogs();
-                });
-            }
-        }
-
-        private async void AcquireTokenSilentWithBroker()
-        {
-            this.result.Text = string.Empty;
-            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-            string output = string.Empty;
-            try
-            {
-                AuthenticationResult result = await ctx.AcquireTokenSilentAsync("https://graph.microsoft.com", ClientIdBroker,
-                    new UserIdentifier(User, UserIdentifierType.OptionalDisplayableId), BrokerParameters).ConfigureAwait(false);
-                output = "Signed in User - " + result.UserInfo.DisplayableId;
-            }
-            catch (Exception exc)
-            {
-                output = exc.Message;
-            }
-            finally
-            {
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.result.Text += "Result : " + output;
-
-                    this.result.Text += "Logs : " + DrainLogs();
-                });
             }
         }
 
@@ -426,6 +437,12 @@ namespace XFormsApp
                     break;
                 case 1:
                     Resource = resourceInput.Text = UiAutomationTestResource;
+                    break;
+                case 2:
+                    Resource = resourceInput.Text = Exchange;
+                    break;
+                case 3:
+                    Resource = resourceInput.Text = Sharepoint;
                     break;
                 default:
                     Resource = resourceInput.Text = MSGraph;
