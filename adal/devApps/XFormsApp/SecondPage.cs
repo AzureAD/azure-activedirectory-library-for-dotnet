@@ -25,9 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core.UIAutomation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xamarin.Forms;
 
@@ -43,14 +45,6 @@ namespace XFormsApp
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
         static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 
-        private const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
-        private const string MSIDLAB4ClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0";
-
-        private const string MSGraph = "https://graph.microsoft.com";
-        private const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
-        private const string Exchange = "https://outlook.office365.com/";
-        private const string Sharepoint = "https://microsoft.sharepoint-df.com/ ";
-
         public string DrainLogs()
         {
             string output = _logs.ToString();
@@ -65,8 +59,8 @@ namespace XFormsApp
         private Entry clientIdInput;
         private Entry resourceInput;
 
-        private string ClientId { get; set; } = UiAutomationTestClientId;
-        private string Resource { get; set; } = MSGraph;
+        private string ClientId { get; set; } = UITestConstants.UiAutomationTestClientId;
+        private string Resource { get; set; } = UITestConstants.MSGraph;
 
         public IPlatformParameters Parameters { get; set; }
 
@@ -74,16 +68,6 @@ namespace XFormsApp
 
         public SecondPage()
         {
-            List<string> clientList = new List<string>();
-            clientList.Add("Ui Test App");
-            clientList.Add("MSIDLAB4");
-
-            List<string> resourceList = new List<string>();
-            resourceList.Add("MS Graph");
-            resourceList.Add("UI Automation Resource");
-            resourceList.Add("Exchange");
-            resourceList.Add("Sharepoint");
-
             var acquireTokenButton = new Button
             {
                 Text = "Acquire Token",
@@ -139,26 +123,26 @@ namespace XFormsApp
             clientIdPicker = new Picker
             {
                 Title = "Pick an application",
-                ItemsSource = clientList,
+                ItemsSource = new List<string>(UITestConstants.Applications.Keys),
                 AutomationId = "clientIdPicker"
             };
 
             resourcePicker = new Picker
             {
                 Title = "Pick a resource",
-                ItemsSource = resourceList,
+                ItemsSource = new List<string>(UITestConstants.Resources.Keys),
                 AutomationId = "resourcePicker"
             };
 
             clientIdInput = new Entry
             {
-                Text = UiAutomationTestClientId,
+                Text = UITestConstants.UiAutomationTestClientId,
                 AutomationId = "clientIdEntry"
             };
 
             resourceInput = new Entry
             {
-                Text = MSGraph,
+                Text = UITestConstants.MSGraph,
                 AutomationId = "resourceEntry"
             };
 
@@ -235,7 +219,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = String.Empty;
-            this.testResult.Text = "Success:";
+            this.testResult.Text = "Result:";
             try
             {
                 AuthenticationResult result =
@@ -254,7 +238,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Succsess";
                     this.result.Text += "Result : " + output;
                     this.result.Text += "Logs : " + DrainLogs();
                 });
@@ -267,6 +251,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/" + Tenant);
             string output = string.Empty;
             string accessToken = String.Empty;
+            this.testResult.Text = "Result:";
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
@@ -282,7 +267,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
                     this.result.Text += "Result : " + output;
                     this.result.Text += "Logs : " + DrainLogs();
                 });
@@ -296,7 +281,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = String.Empty;
-            this.testResult.Text = "Success:";
+            this.testResult.Text = "Result:";
 
             try
             {
@@ -317,7 +302,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
                     this.result.Text += "Result : " + output;
 
                     this.result.Text += "Logs : " + DrainLogs();
@@ -331,6 +316,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = String.Empty;
+            this.testResult.Text = "Result:";
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
@@ -346,7 +332,7 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Succsess" : "Result: Failure";
+                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
                     this.result.Text += "Result : " + output;
 
                     this.result.Text += "Logs : " + DrainLogs();
@@ -414,40 +400,42 @@ namespace XFormsApp
 
         void UpdateClientId(object sender, EventArgs e)
         {
-            switch (clientIdPicker.SelectedIndex)
-            {
-                case 0:
-                    ClientId = clientIdInput.Text = UiAutomationTestClientId;
-                    break;
-                case 1:
-                    ClientId = clientIdInput.Text = MSIDLAB4ClientId;
-                    break;
-                default:
-                    ClientId = clientIdInput.Text = UiAutomationTestClientId;
-                    break;
-            }
+            ClientId = clientIdInput.Text = UITestConstants.Applications.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
+            //switch (clientIdPicker.SelectedIndex)
+            //{
+            //    case 0:
+
+            //        break;
+            //    case 1:
+            //        ClientId = clientIdInput.Text = MSIDLAB4ClientId;
+            //        break;
+            //    default:
+            //        ClientId = clientIdInput.Text = UiAutomationTestClientId;
+            //        break;
+            //}
         }
 
         void UpdateResourceId(object sender, EventArgs e)
         {
-            switch (resourcePicker.SelectedIndex)
-            {
-                case 0:
-                    Resource = resourceInput.Text = MSGraph;
-                    break;
-                case 1:
-                    Resource = resourceInput.Text = UiAutomationTestResource;
-                    break;
-                case 2:
-                    Resource = resourceInput.Text = Exchange;
-                    break;
-                case 3:
-                    Resource = resourceInput.Text = Sharepoint;
-                    break;
-                default:
-                    Resource = resourceInput.Text = MSGraph;
-                    break;
-            }
+            ClientId = clientIdInput.Text = UITestConstants.Resources.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
+            //switch (resourcePicker.SelectedIndex)
+            //{
+            //    case 0:
+            //        Resource = resourceInput.Text = MSGraph;
+            //        break;
+            //    case 1:
+            //        Resource = resourceInput.Text = UiAutomationTestResource;
+            //        break;
+            //    case 2:
+            //        Resource = resourceInput.Text = Exchange;
+            //        break;
+            //    case 3:
+            //        Resource = resourceInput.Text = Sharepoint;
+            //        break;
+            //    default:
+            //        Resource = resourceInput.Text = MSGraph;
+            //        break;
+            //}
         }
 
         void UpdateClientIdFromInput(object sender, EventArgs e)

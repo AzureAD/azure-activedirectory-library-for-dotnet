@@ -91,9 +91,15 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             else
             {
                 app.WaitForElement(elementID, "Could not find element", timeout, defaultRetryFrequency, defaultPostTimeout);
-                app.DoubleTap(x => x.Marked(elementID));
+                app.Tap(x => x.Marked(elementID));
+                app.ClearText(); 
                 app.EnterText(x => x.Marked(elementID), text);
             }
+        }
+
+        public void DismissKeyboard()
+        {
+            app.DismissKeyboard();
         }
 
         public string GetText(string elementID)

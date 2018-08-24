@@ -17,6 +17,7 @@ namespace Test.ADAL.NET.UIAutomation
         private const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
         private const string MSIDLAB4ClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0";
         private const string MSGraph = "https://graph.microsoft.com";
+        private const string Exchange = "https://outlook.office365.com/";
         private const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
 
         /// <summary>
@@ -40,10 +41,12 @@ namespace Test.ADAL.NET.UIAutomation
             controller.Tap("clearCache");
 
             //Enter ClientID
-            controller.EnterText("clientIDEntry", UiAutomationTestClientId, false);
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
 
             //Enter Resource
             controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
 
             //Acquire token flow
             controller.Tap("acquireToken");
@@ -56,7 +59,7 @@ namespace Test.ADAL.NET.UIAutomation
             controller.Tap("idSIButton9", true);
 
             //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Success: True");
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
         }
 
         /// <summary>
@@ -79,6 +82,14 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
             //Acquire token flow
             controller.Tap("acquireToken");
             //i0116 = UPN text field on AAD sign in endpoint
@@ -89,8 +100,15 @@ namespace Test.ADAL.NET.UIAutomation
             controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
             controller.Tap("idSIButton9", true);
 
+            //Enter 2nd Resource
+            controller.EnterText("resourceEntry", Exchange, false);
+            controller.DismissKeyboard();
+
+            //Acquire token silently
+            controller.Tap("acquireTokenSilent");
+
             //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Success: True");
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
         }
     }
 }
