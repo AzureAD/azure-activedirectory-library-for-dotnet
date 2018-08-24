@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,17 +25,27 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Resources;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-// Version and Metadata are set at build time from msbuild properties defined in the csproj
+namespace Microsoft.Identity.Core.Cache
+{
+    /// <summary>
+    /// Data class for serilized token cache
+    /// </summary>
+    public class CacheData
+    {
+        /// <summary>
+        /// Array of bytes containing serialized Adal cache in V3 format
+        /// </summary>
+        public byte[] AdalV3State { get; set; }
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Microsoft.IdentityModel.Clients.ActiveDirectory.Platform")]
-
-// Allow this assembly to be serviced when run on desktop CLR
-[assembly: AssemblyMetadata("Serviceable", "True")]
+        /// <summary>
+        /// Array of bytes containing serialized Unified cache
+        /// </summary>
+        public byte[] UnifiedState { get; set; }
+    }
+}
