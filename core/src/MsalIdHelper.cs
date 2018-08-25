@@ -68,6 +68,10 @@ namespace Microsoft.Identity.Core
     {
         public static IDictionary<string, string> GetMsalIdParameters()
         {
+            if (CorePlatformInformationBase.Instance == null)
+            {
+                throw CoreExceptionFactory.Instance.GetClientException("someErrorCode", "Platform Not Supported");
+            }
             var parameters = new Dictionary<string, string>
             {
                 [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
