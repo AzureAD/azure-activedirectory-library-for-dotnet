@@ -38,18 +38,18 @@ using Microsoft.Identity.Core.Telemetry;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Class to be used for desktop or mobile applications (Desktop / UWP / XAmarin.iOS / Xamarin.Android).
+    /// Class to be used to acquire tokens in desktop or mobile applications (Desktop / UWP / XAmarin.iOS / Xamarin.Android).
     /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
     /// (they only support public client flows). For details see https://aka.ms/msal-net-client-applications
     /// </summary>
     /// <remarks>
     /// <list type="bullet">
-    /// <item>Contrary to <see cref="T:ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets, 
-    /// and as a result have no client secret</item>
-    /// <item>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructir</item>
-    /// <item>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods. Actually
+    /// <item><description>Contrary to <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets, 
+    /// and as a result have no client secret</description></item>
+    /// <item><description>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructor</description></item>
+    /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods. Actually
     /// until MSAL.NET supports Windows integrated authentication, Username/Password, and Device Code Flow, the .NET Core platform does not
-    /// provide any public client application flow</item>
+    /// provide any public client application flow</description></item>
     /// </list>
     /// </remarks>
     public sealed partial class PublicClientApplication : ClientApplicationBase, IPublicClientApplication
@@ -76,11 +76,11 @@ namespace Microsoft.Identity.Client
         /// <param name="authority">Authority of the Security service token (STS) from which MSAL.NET will acquire the tokens.
         /// Usual authorities are:
         /// <list type="bullet">
-        /// <item><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
-        /// or a domain associated with this Azure AD tenant, in order to sign-in user of a specific organization only</item>
-        /// <item><c>https://login.microsoftonline.com/common/</c> to signing users with any work and school accounts or Microsoft personal account</item>
-        /// <item><c>https://login.microsoftonline.com/organizations/</c> to signing users with any work and school accounts</item>
-        /// <item><c>https://login.microsoftonline.com/consumers/</c> to signing users with only personal Microsoft account (live)</item>
+        /// <item><description><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
+        /// or a domain associated with this Azure AD tenant, in order to sign-in user of a specific organization only</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/common/</c> to signing users with any work and school accounts or Microsoft personal account</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/organizations/</c> to signing users with any work and school accounts</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/consumers/</c> to signing users with only personal Microsoft account (live)</description></item>
         /// </list>
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>

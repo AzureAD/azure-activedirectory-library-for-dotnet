@@ -8,7 +8,8 @@ namespace Microsoft.Identity.Client
 {
     /// <summary>
     /// Component to be used for confidential client applications like Web Apps/API.
-    /// This component supports Subject Name + Issuer Authentication
+    /// This component supports Subject Name + Issuer authentication in order to help, in the future,
+    /// Azure AD certificates rollover
     /// </summary>
     public interface IConfidentialClientApplicationWithCertificate
     {

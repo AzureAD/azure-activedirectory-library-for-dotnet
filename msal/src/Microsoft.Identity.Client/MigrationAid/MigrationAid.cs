@@ -52,6 +52,10 @@ namespace Microsoft.Identity.Client
         string Identifier { get; }
     }
 
+    /// <Summary>
+    /// Interface defining common API methods and properties. Both <see cref="T:PublicClientApplication"/> and <see cref="T:ConfidentialClientApplication"/> 
+    /// extend this class. For details see https://aka.ms/msal-net-client-applications
+    /// </Summary>
     public partial interface IClientApplicationBase
     {
         /// <summary>
@@ -83,6 +87,10 @@ namespace Microsoft.Identity.Client
         void Remove(IUser user);
     }
 
+    /// <Summary>
+    /// Abstract class containing common API methods and properties. Both <see cref="T:PublicClientApplication"/> and <see cref="T:ConfidentialClientApplication"/> 
+    /// extend this class. For details see https://aka.ms/msal-net-client-applications
+    /// </Summary>
     public partial class ClientApplicationBase
     {
         /// <summary>

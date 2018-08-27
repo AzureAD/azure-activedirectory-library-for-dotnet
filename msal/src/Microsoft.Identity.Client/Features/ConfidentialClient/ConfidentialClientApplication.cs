@@ -86,11 +86,11 @@ namespace Microsoft.Identity.Client
         /// <param name="authority">Authority of the secure token service (STS) from which MSAL.NET will acquire the tokens.
         /// Usual authorities are:
         /// <list type="bullet">
-        /// <item><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
-        /// or a domain associated with this Azure AD tenant, in order to sign-in users of a specific organization only</item>
-        /// <item><c>https://login.microsoftonline.com/common/</c> to sign-in users with any work and school accounts or Microsoft personal accounts</item>
-        /// <item><c>https://login.microsoftonline.com/organizations/</c> to sign-in users with any work and school accounts</item>
-        /// <item><c>https://login.microsoftonline.com/consumers/</c> to sign-in users with only personal Microsoft accounts(live)</item>
+        /// <item><description><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
+        /// or a domain associated with this Azure AD tenant, in order to sign-in users of a specific organization only</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/common/</c> to sign-in users with any work and school accounts or Microsoft personal accounts</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/organizations/</c> to sign-in users with any work and school accounts</description></item>
+        /// <item><description><c>https://login.microsoftonline.com/consumers/</c> to sign-in users with only personal Microsoft accounts(live)</description></item>
         /// </list>
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>
