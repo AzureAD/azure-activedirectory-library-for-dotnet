@@ -26,40 +26,39 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection.Emit;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Xamarin.Forms;
+using System.Threading.Tasks;
+using Test.ADAL.NET.Common;
 
-namespace XFormsApp
+namespace Test.ADAL.NET.Unit
 {
-    public class MainPage : ContentPage
+    /// <summary>
+    /// Test implementation of IClientAssertionCertificate.
+    /// </summary>
+    [DeploymentItem("valid_cert.pfx")]
+    public class ClientAssertionTestImplementation : IClientAssertionCertificate
     {
-        public MainPage()
+        public string ClientId { get { return TestConstants.DefaultClientId; } }
+
+        public string Thumbprint { get { return TestConstants.DefaultThumbprint; } }
+
+        public byte[] Sign(string message)
         {
-            var secondPageButton = new Button
-            {
-                Text = "Second Page",
-                AutomationId = "secondPage"
-            };
-
-            secondPageButton.Clicked += browseButton_Clicked;
-
-            Content = new StackLayout
-            {
-                VerticalOptions = LayoutOptions.Center,
-                Children = {
-                    secondPageButton
-				}
-            };
+            CryptographyHelper helper = new CryptographyHelper();
+            return helper.SignWithCertificate(message, this.Certificate);
         }
 
-        async void browseButton_Clicked(object sender, EventArgs e)
+        public X509Certificate2 Certificate { get; }
+
+        public ClientAssertionTestImplementation()
         {
-            await Navigation.PushModalAsync(new SecondPage()).ConfigureAwait(false);
+            this.Certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
         }
     }
 }

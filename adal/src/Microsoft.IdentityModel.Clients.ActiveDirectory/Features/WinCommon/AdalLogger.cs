@@ -25,9 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Globalization;
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class AdalLogger : AdalLoggerBase

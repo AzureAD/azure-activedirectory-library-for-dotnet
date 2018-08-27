@@ -25,41 +25,30 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using Xamarin.Forms;
+using System.Threading.Tasks;
+using Windows.UI.Core;
 
-namespace XFormsApp
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    public class MainPage : ContentPage
+    internal static class DispatcherTaskExtensions
     {
-        public MainPage()
+        public static async Task<T> RunTaskAsync<T>(this CoreDispatcher dispatcher,
+            Func<Task<T>> func, CoreDispatcherPriority priority = CoreDispatcherPriority.Normal)
         {
-            var secondPageButton = new Button
+            var taskCompletionSource = new TaskCompletionSource<T>();
+            await dispatcher.RunAsync(priority, async () =>
             {
-                Text = "Second Page",
-                AutomationId = "secondPage"
-            };
-
-            secondPageButton.Clicked += browseButton_Clicked;
-
-            Content = new StackLayout
-            {
-                VerticalOptions = LayoutOptions.Center,
-                Children = {
-                    secondPageButton
-				}
-            };
-        }
-
-        async void browseButton_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PushModalAsync(new SecondPage()).ConfigureAwait(false);
+                try
+                {
+                    taskCompletionSource.SetResult(await func());
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                }
+            });
+            return await taskCompletionSource.Task;
         }
     }
 }

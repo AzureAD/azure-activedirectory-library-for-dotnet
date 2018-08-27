@@ -68,6 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
     internal static class AdalIdHelper
     {
         private static readonly Regex AdalVersionRegex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+", RegexOptions.CultureInvariant);
+        internal static readonly string VersionNotDetermined = "0.0.0.0";
 
         public static IDictionary<string, string> GetAdalIdParameters()
         {
@@ -113,6 +114,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
         public static string GetAssemblyFileVersion()
         {
             return new PlatformInformation().GetAssemblyFileVersionAttribute();
+        }
+
+        public static string GetClientVersion()
+        {
+            var clientVersion = AdalIdHelper.GetAdalVersion();
+            if (AdalIdHelper.VersionNotDetermined.Equals(clientVersion))
+            {
+                clientVersion = AdalIdHelper.GetAssemblyFileVersion();
+            }
+            return clientVersion;
         }
 
         public static string GetAssemblyInformationalVersion()

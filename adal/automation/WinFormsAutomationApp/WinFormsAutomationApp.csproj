@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="AuthenticationHelper.cs" />
     <Compile Include="DeleteCookies.cs" />
+    <Compile Include="..\..\GlobalSuppressions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
