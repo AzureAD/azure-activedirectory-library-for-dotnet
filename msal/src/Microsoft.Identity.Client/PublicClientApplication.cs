@@ -287,7 +287,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Interactive request to acquire token for the specified scopes. The interactive window will be parented to the specified
-        /// window. . The user will need to sign-in but an account will be proposed
+        /// window. The user will need to sign-in but an account will be proposed
         /// based on the <paramref name="loginHint"/>
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>

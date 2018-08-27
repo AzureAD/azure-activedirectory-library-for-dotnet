@@ -135,8 +135,8 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Sets or Gets a custom query parameters that may be sent to the STS for dogfood testing or debugging. This is a string of segments
         /// of the form <c>key=value</c> separated by an ampersand character.
-        /// Unless requested otherwise by MIcrosoft support, this parameter should not be set by application developers as it may have adverse effect on the application.
-        /// This property is also contatenated to the <c>extraQueryParameter</c> parameters of token acquisition operations.
+        /// Unless requested otherwise by Microsoft support, this parameter should not be set by application developers as it may have adverse effect on the application.
+        /// This property is also concatenated to the <c>extraQueryParameter</c> parameters of token acquisition operations.
         /// </summary>
         public string SliceParameters { get; set; }
 
