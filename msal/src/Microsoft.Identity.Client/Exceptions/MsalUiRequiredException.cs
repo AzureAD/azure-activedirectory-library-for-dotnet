@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Client
         /// One of two conditions was encountered:
         /// <list type="bullet">
         /// <item><description>The <c>UIBehavior.Never</c> UI behavior was passed in an interactive token call, but the constraint could not be honored because user interaction is required,
-        /// for instance because the user needs to re-sign-in, consent for more scopes, or perform multiple factor authentication.
+        /// for instance because the user needs to re-sign-in, give consent for more scopes, or perform multiple factor authentication.
         /// </description></item>
         /// <item><description>
         /// An error occurred during a silent web authentication that prevented the authentication flow from completing in a short enough time frame.
