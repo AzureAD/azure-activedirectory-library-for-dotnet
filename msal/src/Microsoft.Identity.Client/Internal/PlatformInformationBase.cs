@@ -34,10 +34,11 @@ namespace Microsoft.Identity.Client.Internal
 {
     internal abstract class PlatformInformationBase : CorePlatformInformationBase
     {
-           
+        public static bool Initialized {get;} = false;
         static PlatformInformationBase()
         {
             Instance = new PlatformInformation();
+            Initialized = true;
         }
 
         public override string GetAssemblyFileVersionAttribute()
