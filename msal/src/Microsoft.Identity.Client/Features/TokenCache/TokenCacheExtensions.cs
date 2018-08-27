@@ -87,7 +87,8 @@ namespace Microsoft.Identity.Client
         /// <param name="tokenCache">Token cache to deserialize (to fill-in from the state)</param>
         /// <param name="unifiedState">Array of bytes containing serialized Msal cache data</param>
         /// <remarks>
-        /// <paramref name="unifiedState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information
+        /// <paramref name="unifiedState"/>Is a Json blob containing access tokens, refresh tokens, id tokens and accounts information.
+        /// If it's <c>null</c>, then this method won't do anything (this is the same behavior as MSAL 1.x)
         /// </remarks>
         public static void Deserialize(this TokenCache tokenCache, byte[] unifiedState)
         {
