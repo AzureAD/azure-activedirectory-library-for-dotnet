@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Client
         private Receiver _receiver = null;
 
         /// <summary>
-        /// Registers one deletage that will send telemetry information to your telemetry service
+        /// Registers one delegate that will send telemetry information to your telemetry service
         /// </summary>
         /// <param name="r">Receiver delegate. See <see cref="Receiver"/></param>
         public void RegisterReceiver(Receiver r)

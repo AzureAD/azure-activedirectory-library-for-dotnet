@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// The request could not be preformed because the network is down.
-        /// <para>Mitigation [App development]</para> in the application you could either inform the user that there are network issues
+        /// <para>Mitigation [App development]</para> In the application you could either inform the user that there are network issues
         /// or retry later
         /// </summary>
         public const string NetworkNotAvailableError = "network_not_available";

@@ -38,7 +38,7 @@ using Microsoft.Identity.Core.Telemetry;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Class to be used to acquire tokens in desktop or mobile applications (Desktop / UWP / XAmarin.iOS / Xamarin.Android).
+    /// Class to be used to acquire tokens in desktop or mobile applications (Desktop / UWP / Xamarin.iOS / Xamarin.Android).
     /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
     /// (they only support public client flows). For details see https://aka.ms/msal-net-client-applications
     /// </summary>
@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Client
     /// <item><description>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructor</description></item>
     /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods. Actually
     /// until MSAL.NET supports Windows integrated authentication, Username/Password, and Device Code Flow, the .NET Core platform does not
-    /// provide any public client application flow</description></item>
+    /// provide any public client application flows</description></item>
     /// </list>
     /// </remarks>
     public sealed partial class PublicClientApplication : ClientApplicationBase, IPublicClientApplication
@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the 
         /// application registration portal (https://aka.ms/msal-net-register-app)/. REQUIRED</param>
-        /// <param name="authority">Authority of the Security service token (STS) from which MSAL.NET will acquire the tokens.
+        /// <param name="authority">Authority of the security token service (STS) from which MSAL.NET will acquire the tokens.
         /// Usual authorities are:
         /// <list type="bullet">
         /// <item><description><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
@@ -287,7 +287,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Interactive request to acquire token for the specified scopes. The interactive window will be parented to the specified
-        /// window. . The user will need to sign-in but an account will be proposed
+        /// window. The user will need to sign-in but an account will be proposed
         /// based on the <paramref name="loginHint"/>
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>

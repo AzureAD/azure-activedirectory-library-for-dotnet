@@ -32,7 +32,7 @@ using Microsoft.Identity.Core.OAuth2;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Type containing an assertion representing an user's credentials. This type is used in the
+    /// Type containing an assertion representing a user's credentials. This type is used in the
     /// On-Behalf-Of flow in confidential client applications, enabling a Web API to request a token
     /// for another downsteam API in the name of the user whose credentials are held by this <c>UserAssertion</c>
     /// See https://aka.ms/msal-net-on-behalf-of 

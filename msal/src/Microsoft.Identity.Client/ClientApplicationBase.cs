@@ -55,13 +55,13 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Constructor of the base application
         /// </summary>
-        /// <param name="clientId">Client ID (also known as <i>Application ID</i>') of the application as registered in the 
+        /// <param name="clientId">Client ID (also known as <i>Application ID</i>) of the application as registered in the 
         /// application registration portal (https://aka.ms/msal-net-register-app)</param>
-        /// <param name="authority">URL of the security service token (STS) from which MSAL.NET will acquire the tokens.
+        /// <param name="authority">URL of the security token service (STS) from which MSAL.NET will acquire the tokens.
         /// 
         /// Usual authorities endpoints for the Azure public Cloud are:
         /// <list type="bullet">
-        /// <item><description><c>https://login.microsoftonline.com/tenant/</c>, where <c>tenant</c> is the tenant ID of the Azure AD tenant
+        /// <item><description><c>https://login.microsoftonline.com/tenant/</c> where <c>tenant</c> is the tenant ID of the Azure AD tenant
         /// or a domain associated with this Azure AD tenant, in order to sign-in users of a specific organization only</description></item>
         /// <item><description><c>https://login.microsoftonline.com/common/</c> to sign-in users with any work and school accounts or Microsoft personal account</description></item>
         /// <item><description><c>https://login.microsoftonline.com/organizations/</c> to sign-in users with any work and school accounts</description></item>
@@ -117,7 +117,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// The redirect URI (also known as Reply URI or Reply URL), is the URI at which Azure AD will contact back the application with the tokens. 
-        /// This redirect URI needs to be registered in the app registration (https://aka.ms/msal-net-register-app)
+        /// This redirect URI needs to be registered in the app registration (https://aka.ms/msal-net-register-app).
         /// In MSAL.NET, <see cref="T:PublicClientApplication"/> define the following default RedirectUri values:
         /// <list type="bullet">
         /// <item><description><c>urn:ietf:wg:oauth:2.0:oob</c> for desktop (.NET Framework and .NET Core) applications</description></item>
@@ -135,8 +135,8 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Sets or Gets a custom query parameters that may be sent to the STS for dogfood testing or debugging. This is a string of segments
         /// of the form <c>key=value</c> separated by an ampersand character.
-        /// Unless requested otherwise by MIcrosoft support, this parameter should not be set by application developers as it may have adverse effect on the application.
-        /// This property is also contatenated to the <c>extraQueryParameter</c> parameters of token acquisition operations.
+        /// Unless requested otherwise by Microsoft support, this parameter should not be set by application developers as it may have adverse effect on the application.
+        /// This property is also concatenated to the <c>extraQueryParameter</c> parameters of token acquisition operations.
         /// </summary>
         public string SliceParameters { get; set; }
 
@@ -202,7 +202,7 @@ namespace Microsoft.Identity.Client
         /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
         /// for instance so that the user consents, or re-signs-in (for instance if the password expired), or performs two factor authentication</exception>
         /// <remarks>
-        /// The access token is considered a match if it AT LEAST contains all the requested scopes.
+        /// The access token is considered a match if it contains <b>at least</b> all the requested scopes.
         /// This means that an access token with more scopes than requested could be returned as well. If the access token is expired or 
         /// close to expiration (within a 5 minute window), then the cached refresh token (if available) is used to acquire a new access token by making a silent network call.
         /// 
