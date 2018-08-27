@@ -2,7 +2,7 @@ Version 4.0.0-preview
 ==============
 This release includes:
 - Support MonoAndroid8.1 and Uap10.0 (Windows 10 applications)
-- Remove support for Windows8 and Windows Phone 8, as well as Portable-net45+win (PCL)
+- Remove support for Windows 8 and Windows Phone 8, as well as Portable-net45+win (PCL)
 - Remove `Microsoft.Identity.Models.Clients.ActiveDirectory.Platform.dll` which only contained type forwarding to be binary compatible
 - To preserve the single-sign-on (SSO) state, the new versions of ADAL(v4) and MSAL(v2) share the same token cache, are capable of reading the ADAL 3.x token cache 
    and are capable of writing the ADAL 3.x token cache in addition to the new cache format (named unified cache), see https://aka.ms/adal-net-to-msal-net.
