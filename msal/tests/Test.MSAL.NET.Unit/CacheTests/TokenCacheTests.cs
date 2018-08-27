@@ -89,6 +89,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.Clear();
         }
 
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CanDeserializeTokenCacheInNet462()
+        {
+            TokenCache cache = new TokenCache();
+            cache.Deserialize(null);
+        }
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
