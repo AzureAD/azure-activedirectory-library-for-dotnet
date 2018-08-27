@@ -91,11 +91,15 @@ namespace Microsoft.Identity.Client
         /// </remarks>
         public static void Deserialize(this TokenCache tokenCache, byte[] unifiedState)
         {
-            lock (tokenCache.LockObject)
+            // Only deserialize if there is something to deserialize (like in MSAL 1.x)
+            if (unifiedState != null)
             {
-                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
+                lock (tokenCache.LockObject)
+                {
+                    RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCache.tokenCacheAccessor, unifiedState, requestContext);
+                    TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCache.tokenCacheAccessor, unifiedState, requestContext);
+                }
             }
         }
 
