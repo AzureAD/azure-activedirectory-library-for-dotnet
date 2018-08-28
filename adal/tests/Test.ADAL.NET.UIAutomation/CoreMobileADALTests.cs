@@ -110,5 +110,220 @@ namespace Test.ADAL.NET.UIAutomation
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
         }
+
+        /// <summary>
+        /// Runs through the standard acquire token interactive flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenADFSv4FederatedInteractiveTest(ITestController controller)
+        {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    FederationProvider = FederationProvider.AdfsV4,
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = true
+                });
+
+            controller.Tap("secondPage");
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
+            controller.Tap("submitButton", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token interactive flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenInteractiveADFSv4NonFederatedTest(ITestController controller)
+        {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    FederationProvider = FederationProvider.AdfsV4,
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = false
+                });
+
+            controller.Tap("secondPage");
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
+            controller.Tap("idSIButton9", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token interactive flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenADFSv3FederatedInteractiveTest(ITestController controller)
+        {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    FederationProvider = FederationProvider.AdfsV3,
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = true
+                });
+
+            controller.Tap("secondPage");
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
+            controller.Tap("submitButton", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token interactive flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenInteractiveADFSv3NonFederatedTest(ITestController controller)
+        {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    FederationProvider = FederationProvider.AdfsV3,
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = false
+                });
+
+            controller.Tap("secondPage");
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
+            controller.Tap("idSIButton9", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token interactive flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenADFSv2FederatedInteractiveTest(ITestController controller)
+        {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    FederationProvider = FederationProvider.AdfsV2,
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = true
+                });
+
+            controller.Tap("secondPage");
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Enter ClientID
+            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.DismissKeyboard();
+
+            //Enter Resource
+            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.DismissKeyboard();
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
+            controller.Tap("submitButton", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
     }
 }

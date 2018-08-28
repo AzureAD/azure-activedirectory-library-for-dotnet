@@ -44,6 +44,11 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
             //Fetch user
             string result = webClient.DownloadString("http://api.msidlab.com/api/user");
 
+            if (String.IsNullOrWhiteSpace(result))
+            {
+                throw new Exception("No lab user with specified parameters exists");
+            }
+
             user = JsonConvert.DeserializeObject<LabResponse>(result).Users;
 
             if (user == null)

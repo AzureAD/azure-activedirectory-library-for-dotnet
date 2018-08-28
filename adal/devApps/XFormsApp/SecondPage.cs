@@ -404,7 +404,7 @@ namespace XFormsApp
 
         void UpdateResourceId(object sender, EventArgs e)
         {
-            ClientId = resourceInput.Text = AppConstants.Resources.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
+            Resource = resourceInput.Text = AppConstants.Resources.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
         }
 
         void UpdateClientIdFromInput(object sender, EventArgs e)

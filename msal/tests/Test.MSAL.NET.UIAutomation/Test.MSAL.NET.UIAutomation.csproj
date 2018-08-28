@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
-    <PropertyGroup>
+  <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../build/MSAL.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -33,6 +33,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>6.0.8</Version>
+    </PackageReference>
     <PackageReference Include="NUnit" Version="2.6.4" />
     <PackageReference Include="Xamarin.UITest" Version="2.2.4" />
     <PackageReference Include="NUnitTestAdapter" Version="2.1.1" />

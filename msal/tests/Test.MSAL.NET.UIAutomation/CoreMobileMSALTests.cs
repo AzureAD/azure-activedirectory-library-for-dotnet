@@ -31,6 +31,8 @@ namespace Test.MSAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
+            controller.Tap("Log");
+
             //Acquire token flow
             controller.Tap("acquireToken");
             //i0116 = UPN text field on AAD sign in endpoint

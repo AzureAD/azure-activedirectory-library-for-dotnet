@@ -52,5 +52,41 @@ namespace Test.ADAL.NET.UIAutomation
         {
             CoreMobileADALTests.AcquireTokenSilentTest(xamarinController);
         }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        [Test]
+        public void AcquireTokenADFSv4FederatedInteractiveTest()
+        {
+            CoreMobileADALTests.AcquireTokenADFSv4FederatedInteractiveTest(xamarinController);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        [Test]
+        public void AcquireTokenInteractiveADFSv4NonFederatedTest()
+        {
+            CoreMobileADALTests.AcquireTokenInteractiveADFSv4NonFederatedTest(xamarinController);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        [Test]
+        public void AcquireTokenADFSv3FederatedInteractiveTest()
+        {
+            CoreMobileADALTests.AcquireTokenADFSv3FederatedInteractiveTest(xamarinController);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        [Test]
+        public void AcquireTokenInteractiveADFSv3NonFederatedTest()
+        {
+            CoreMobileADALTests.AcquireTokenInteractiveADFSv3NonFederatedTest(xamarinController);
+        }
     }
 }
