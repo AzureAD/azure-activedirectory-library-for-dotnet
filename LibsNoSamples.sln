@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Integration",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5D231979-0A13-456D-B9F9-CED41F935FD9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MSAL.NET.dotnetcore.Unit", "msal\tests\Test.NetCore21.Unit\Test.MSAL.NET.dotnetcore.Unit.csproj", "{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,10 +59,6 @@ Global
 		{2BD6EA30-37A4-4799-B778-A473FC6B19D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BD6EA30-37A4-4799-B778-A473FC6B19D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BD6EA30-37A4-4799-B778-A473FC6B19D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,7 +69,6 @@ Global
 		{91E9E564-8A44-457B-A97C-E76C9F6275D6} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
 		{412F8F05-2694-4D2E-8FE0-A821721CF682} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
 		{2BD6EA30-37A4-4799-B778-A473FC6B19D4} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
-		{5CF17694-71C2-4BD7-8EFC-B5FB4CE0471C} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C88EF77-AF03-4F82-B666-1831DABAA119}
