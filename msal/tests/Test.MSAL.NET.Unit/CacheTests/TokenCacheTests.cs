@@ -93,8 +93,9 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void CanDeserializeTokenCacheInNet462()
         {
-            TokenCache cache = new TokenCache();
-            cache.Deserialize(null);
+            TokenCache tokenCache = new TokenCache();
+            tokenCache.Deserialize(null);
+            Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
         }
 
         [TestMethod]

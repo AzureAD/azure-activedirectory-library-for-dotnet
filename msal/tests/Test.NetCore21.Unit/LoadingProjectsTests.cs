@@ -11,6 +11,7 @@ namespace NetCoreUTest
         {
             TokenCache tokenCache = new TokenCache();
             tokenCache.Deserialize(null);
+            Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
         }
     }
 }
