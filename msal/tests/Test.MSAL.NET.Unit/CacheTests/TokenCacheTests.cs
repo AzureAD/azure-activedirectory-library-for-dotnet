@@ -93,9 +93,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void CanDeserializeTokenCacheInNet462()
         {
+            var previousLogLevel = Logger.Level;
+            // Setting LogLevel.Verbose causes certain static dependencies to load
+            Logger.Level = LogLevel.Verbose;
             TokenCache tokenCache = new TokenCache();
             tokenCache.Deserialize(null);
             Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
+            Logger.Level = previousLogLevel;
         }
 
         [TestMethod]
