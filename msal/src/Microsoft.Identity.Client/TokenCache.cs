@@ -276,7 +276,7 @@ namespace Microsoft.Identity.Client
                 }
                 else
                 {
-                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims";
+                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims of TenantId or PreferredUsername.";
                 }
                 requestContext.Logger.Warning(msg);
                 requestContext.Logger.WarningPii(msg);
