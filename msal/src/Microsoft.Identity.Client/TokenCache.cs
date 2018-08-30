@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
@@ -276,7 +277,8 @@ namespace Microsoft.Identity.Client
                 }
                 else
                 {
-                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims of TenantId or PreferredUsername.";
+                    msg = string.Format(CultureInfo.InvariantCulture, "Skipping storing tokens in the cache - " +
+                        "IdToken does not contain required claims of {0} or {1}.", IdTokenClaim.TenantId, IdTokenClaim.PreferredUsername);
                 }
                 requestContext.Logger.Warning(msg);
                 requestContext.Logger.WarningPii(msg);
