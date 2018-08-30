@@ -278,7 +278,8 @@ namespace Microsoft.Identity.Client
                 else
                 {
                     msg = string.Format(CultureInfo.InvariantCulture, "Skipping storing tokens in the cache - " +
-                        "IdToken does not contain required claims of {0} or {1}.", IdTokenClaim.TenantId, IdTokenClaim.PreferredUsername);
+                        "IdToken does not contain required claims of {0} or {1}. Please see " +
+                        "https://aka.ms/msal-net-token-cache-index-keys for more information.", IdTokenClaim.TenantId, IdTokenClaim.PreferredUsername);
                 }
                 requestContext.Logger.Warning(msg);
                 requestContext.Logger.WarningPii(msg);
