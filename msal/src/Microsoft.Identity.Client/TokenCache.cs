@@ -134,6 +134,13 @@ namespace Microsoft.Identity.Client
 
             IdToken idToken = IdToken.Parse(response.IdToken);
 
+            //injecting tenantID into the IDToken if it is null
+            if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.B2C)
+            {
+                if (string.IsNullOrEmpty(idToken.TenantId) && !string.IsNullOrEmpty(tenantId))
+                    idToken.TenantId = tenantId;
+            }
+
             var msalAccessTokenCacheItem =
                 new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
                 {
@@ -150,7 +157,7 @@ namespace Microsoft.Identity.Client
             }
 
             if (!requestParams.IsClientCredentialRequest && 
-                !ContainsClaimsRequiredToStoreInCache(idToken, requestParams.RequestContext))
+                !ContainsClaimsRequiredToStoreInCache(idToken, requestParams.RequestContext, requestParams.Authority.AuthorityType))
             {
                 return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
             }
@@ -266,9 +273,10 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private bool ContainsClaimsRequiredToStoreInCache(IdToken idToken, RequestContext requestContext)
+        private bool ContainsClaimsRequiredToStoreInCache(IdToken idToken, RequestContext requestContext, Core.Instance.AuthorityType authorityType)
         {
-            if (idToken == null || string.IsNullOrEmpty(idToken.TenantId) || string.IsNullOrEmpty(idToken.PreferredUsername))
+            //PreferredUsername is not required in B2C cache scenarios
+            if (idToken == null || string.IsNullOrEmpty(idToken.TenantId) || (string.IsNullOrEmpty(idToken.PreferredUsername) && authorityType != Core.Instance.AuthorityType.B2C))
             {
                 string msg;
                 if (idToken == null)
