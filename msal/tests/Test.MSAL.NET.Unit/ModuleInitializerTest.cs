@@ -44,12 +44,12 @@ namespace Test.MSAL.NET.Unit
         [TestMethod]
         public void InitializesExceptionsAndLogs()
         {
-            // EnsureModuleInitilizerIsCleared
-            var field = typeof(ModuleInitializer).GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
-            field.SetValue(null, false);
 
             // Act
-            ModuleInitializer.EnsureModuleInitialized();
+
+            // The initializer will most likely have ran already so we should force it to run again,
+            // as tests have access to the internals of ADAL / MSAL and can change the initializer behaviour
+            ModuleInitializer.ForceModuleInitializationTestOnly();
 
             // Assert
             MsalExceptionFactory factory = CoreExceptionFactory.Instance as MsalExceptionFactory;

@@ -47,6 +47,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.WsTrust;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -60,6 +61,7 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
