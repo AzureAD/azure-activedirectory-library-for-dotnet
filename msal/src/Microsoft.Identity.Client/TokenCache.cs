@@ -134,12 +134,8 @@ namespace Microsoft.Identity.Client
 
             IdToken idToken = IdToken.Parse(response.IdToken);
 
-            //injecting tenantID into the IDToken if it is null
-            if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.B2C)
-            {
-                if (string.IsNullOrEmpty(idToken.TenantId) && !string.IsNullOrEmpty(tenantId))
-                    idToken.TenantId = tenantId;
-            }
+            //using fallback tenantID in the IDToken if it is null in B2C scenarios
+            UseFallBackTenantIDForB2C(requestParams, idToken);
 
             var msalAccessTokenCacheItem =
                 new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
@@ -223,6 +219,21 @@ namespace Microsoft.Identity.Client
                 }
             }
         }
+
+        private void UseFallBackTenantIDForB2C(AuthenticationRequestParameters requestParams, IdToken idToken)
+        {
+            //The B2C scenario does not return the tenantID within the ID Token at the moment.
+            //As a fall back, the tenantID is set to the tenantID that is in the B2C authority originally passed in by the user.
+
+            if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.B2C)
+            {
+                var tenantID = requestParams.Authority.GetTenantId();
+
+                if (string.IsNullOrEmpty(idToken.TenantId) && !string.IsNullOrEmpty(tenantID))
+                    idToken.TenantId = tenantID;
+            }
+        }
+
         private void DeleteAccessTokensWithIntersectingScopes(AuthenticationRequestParameters requestParams,
            ISet<string> environmentAliases, string tenantId, SortedSet<string> scopeSet, string homeAccountId)
         {
