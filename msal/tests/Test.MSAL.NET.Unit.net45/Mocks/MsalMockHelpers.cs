@@ -25,47 +25,43 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.UI;
+using NSubstitute;
 
-namespace Test.MSAL.NET.Unit
+namespace Test.MSAL.NET.Unit.Mocks
 {
-    [TestClass]
-    public class ModuleInitializerTest
+    internal static class MsalMockHelpers
     {
-        [TestMethod]
-        public void InitializesExceptionsAndLogs()
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult)
         {
-            // EnsureModuleInitilizerIsCleared
-            var field = typeof(ModuleInitializer).GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
-            field.SetValue(null, false);
+            ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
+        }
 
-            // Act
-            ModuleInitializer.EnsureModuleInitialized();
+        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
+        {
+            MockWebUI webUi = new MockWebUI();
+            webUi.QueryParamsToValidate = queryParamsToValidate;
+            webUi.MockResult = authorizationResult;
 
-            // Assert
-            MsalExceptionFactory factory = CoreExceptionFactory.Instance as MsalExceptionFactory;
-            MsalLogger logger = CoreLoggerBase.Default as MsalLogger;
-            Telemetry telemetry = CoreTelemetryService.GetInstance() as Telemetry;
-            Assert.IsNotNull(factory);
-            Assert.IsNotNull(logger);
-            Assert.IsNotNull(telemetry);
+            ConfigureMockWebUI(webUi);
+        }
 
-            // Act
-            ModuleInitializer.EnsureModuleInitialized();
 
-            // Assert
-            Assert.AreEqual(factory, CoreExceptionFactory.Instance, "Initialization should have happened only once");
-            Assert.AreEqual(logger, CoreLoggerBase.Default, "Initialization should have happened only once");
-            Assert.AreEqual(telemetry, CoreTelemetryService.GetInstance() as Telemetry, "Initialization should have happened only once");
+        public static void ConfigureMockWebUI(MockWebUI webUi)
+        {
+            IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
+            mockFactory.CreateAuthenticationDialog(Arg.Any<CoreUIParent>(), Arg.Any<RequestContext>()).Returns(webUi);
+            PlatformPlugin.WebUIFactory = mockFactory;
         }
     }
 }

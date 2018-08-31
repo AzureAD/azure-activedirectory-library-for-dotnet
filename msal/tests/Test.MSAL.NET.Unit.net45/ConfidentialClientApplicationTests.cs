@@ -43,6 +43,7 @@ using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using NSubstitute;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using System.Diagnostics;
 
 namespace Test.MSAL.NET.Unit
 {
@@ -64,6 +65,7 @@ namespace Test.MSAL.NET.Unit
         
             AadInstanceDiscovery.Instance.Cache.Clear();
             AddMockResponseForInstanceDisovery();
+            ModuleInitializer.ForceModuleInitializationTestOnly();
         }
 
         internal void AddMockResponseForInstanceDisovery()
