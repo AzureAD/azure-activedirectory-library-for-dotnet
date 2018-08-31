@@ -57,6 +57,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
@@ -116,7 +118,6 @@ namespace Test.MSAL.NET.Unit
             mockApp
                 .WhenForAnyArgs(x => x.AcquireTokenAsync(Arg.Any<string[]>()))
                 .Do(x => { throw new MsalServiceException("my error code", "my message"); });
-
 
             // Now call the substitute and check the exception is thrown
             MsalServiceException ex =

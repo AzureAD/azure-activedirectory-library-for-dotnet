@@ -61,6 +61,7 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
         }
 
@@ -131,9 +132,9 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for authority type detection")]
         public void AuthorityTypeDetectionTest()
         {
-            Assert.AreEqual(Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.AAD, Authenticator.DetectAuthorityType("https://login.windows.net/tenant/dummy/"));
-            Assert.AreEqual(Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.AAD, Authenticator.DetectAuthorityType("https://accounts-int.somethingelse.w/dummy/"));
-            Assert.AreEqual(Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.ADFS, Authenticator.DetectAuthorityType("https://abc.com/adfs/dummy/"));
+            Assert.AreEqual(global::Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.AAD, Authenticator.DetectAuthorityType("https://login.windows.net/tenant/dummy/"));
+            Assert.AreEqual(global::Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.AAD, Authenticator.DetectAuthorityType("https://accounts-int.somethingelse.w/dummy/"));
+            Assert.AreEqual(global::Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType.ADFS, Authenticator.DetectAuthorityType("https://abc.com/adfs/dummy/"));
         }
 
 

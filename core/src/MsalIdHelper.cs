@@ -66,38 +66,32 @@ namespace Microsoft.Identity.Core
     /// </summary>
     internal static class MsalIdHelper
     {
-        private static CorePlatformInformationBase corePlatformInformationBaseInstance;
-
-        static MsalIdHelper()
-        {
-            corePlatformInformationBaseInstance = CorePlatformInformationBase.Instance;
-        }
-
         public static IDictionary<string, string> GetMsalIdParameters()
         {
-            if (corePlatformInformationBaseInstance == null)
+            if (CorePlatformInformationBase.Instance == null)
             {
-                throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.PlatformNotSupported, CoreErrorMessages.PlatformNotSupported);
+                throw new InvalidOperationException("Internal error - PlatformInformation not initialized");
             }
+
             var parameters = new Dictionary<string, string>
             {
-                [MsalIdParameter.Product] = corePlatformInformationBaseInstance.GetProductName(),
+                [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
                 [MsalIdParameter.Version] = GetMsalVersion()
             };
 
-            var processorInformation = corePlatformInformationBaseInstance.GetProcessorArchitecture();
+            var processorInformation = CorePlatformInformationBase.Instance.GetProcessorArchitecture();
             if (processorInformation != null)
             {
                 parameters[MsalIdParameter.CpuPlatform] = processorInformation;
             }
 
-            var osInformation = corePlatformInformationBaseInstance.GetOperatingSystem();
+            var osInformation = CorePlatformInformationBase.Instance.GetOperatingSystem();
             if (osInformation != null)
             {
                 parameters[MsalIdParameter.OS] = osInformation;
             }
 
-            var deviceInformation = corePlatformInformationBaseInstance.GetDeviceModel();
+            var deviceInformation = CorePlatformInformationBase.Instance.GetDeviceModel();
             if (deviceInformation != null)
             {
                 parameters[MsalIdParameter.DeviceModel] = deviceInformation;
@@ -122,7 +116,7 @@ namespace Microsoft.Identity.Core
 
         public static string GetAssemblyFileVersion()
         {
-            return corePlatformInformationBaseInstance.GetAssemblyFileVersionAttribute();
+            return CorePlatformInformationBase.Instance.GetAssemblyFileVersionAttribute();
         }
 
         public static string GetAssemblyInformationalVersion()

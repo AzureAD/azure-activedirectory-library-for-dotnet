@@ -44,27 +44,49 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
     internal class ModuleInitializer
     {
         private static bool isInitialized = false;
-        private static object lockObj;
+        private static readonly object lockObj = new object();
 
-        static ModuleInitializer()
+        /// <summary>
+        /// Handle all the initialization of singletons, factories, statics etc. Initialization will only happen once.
+        /// </summary>
+        public static void EnsureModuleInitialized()
         {
-            lockObj = new object();
+            // double check locking instead locking first to improve performace
+            if (!isInitialized)
+            {
+                lock (lockObj)
+                {
+                    if (!isInitialized)
+                    {
+                        InitializeModule();
+                    }
+                }
+            }
         }
 
-        public static void EnsureModuleInitialized()
+
+        /// <summary>
+        /// Force initialization of the module, ignoring any previous initializations. Only TESTS should call this method.
+        /// </summary>
+        /// <remarks>Tests can access the internals of the module and modify the initialization pattern, so it is 
+        /// acceptable for tests to reinitialize the module. </remarks>
+        public static void ForceModuleInitializationTestOnly()
         {
             lock (lockObj)
             {
-                if (!isInitialized)
-                {
-                    CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
-                    CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
-                    // Several statics in the library depends on platform information being timely initialized. 
-                    // The static initializer on PlatformInformationBase will ensure this gets done.
-                    new PlatformInformation();
-                    isInitialized = true;
-                }
+                InitializeModule();
             }
+        }
+
+
+        private static void InitializeModule()
+        {
+            CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
+            CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
+            // Several statics in the library depends on platform information being timely initialized. 
+            // The static initializer on PlatformInformationBase will ensure this gets done.
+            new PlatformInformation();
+            isInitialized = true;
         }
     }
 }

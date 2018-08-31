@@ -25,11 +25,8 @@
     <Compile Remove="Resources\**" />
     <EmbeddedResource Remove="Resources\**" />
     <None Include="Resources\**" />
-    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\Mocks\**\*.cs" LinkBase="CoreUT\Mocks" />
-    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\TestConstants.cs"  LinkBase="CoreUT" />
-    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\TestPlatformInformation.cs"  LinkBase="CoreUT" />
-    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\TestLogger.cs"  LinkBase="CoreUT" />
-
+    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\CommonHelpers\**\*.cs" LinkBase="Common\Helpers" />
+    <Compile Include="..\..\..\core\tests\Test.Microsoft.Identity.Core.Unit\CommonTests\**\*.cs" LinkBase="Common\Tests" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -73,6 +70,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\OpenidConfiguration-B2C.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\OpenidConfiguration-MissingFields-B2C.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\OpenidConfiguration-MissingFields-OnPremise.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\OpenidConfiguration-MissingFields.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\OpenidConfiguration-OnPremise.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\OpenidConfiguration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\testCert.crtfile">

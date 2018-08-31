@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
@@ -33,7 +34,8 @@ namespace Microsoft.Identity.Core
     internal abstract class CorePlatformInformationBase
     {
         public static CorePlatformInformationBase Instance { get; set; }
-
+       
+        
         public const string DefaultRedirectUri = "urn:ietf:wg:oauth:2.0:oob";
         public abstract string GetProductName();
         public abstract string GetEnvironmentVariable(string variable);
