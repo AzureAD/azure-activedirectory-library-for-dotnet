@@ -884,7 +884,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
-        public void CacheB2CTokenTestAsync()
+        public void CacheB2CTokenTest()
         {
             TokenCache B2CCache = new TokenCache();
             var tenantID = "someTenantID";
