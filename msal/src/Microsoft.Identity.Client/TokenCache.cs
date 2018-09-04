@@ -233,13 +233,11 @@ namespace Microsoft.Identity.Client
             {
                 return;
             }
-            else
-            {
-                var tenantID = requestParams.Authority.GetTenantId();
 
-                if (!string.IsNullOrEmpty(tenantID))
-                    idToken.TenantId = tenantID;
-            }
+            var tenantID = requestParams.Authority.GetTenantId();
+
+            if (!string.IsNullOrEmpty(tenantID))
+                idToken.TenantId = tenantID;
         }
 
         private void DeleteAccessTokensWithIntersectingScopes(AuthenticationRequestParameters requestParams,
