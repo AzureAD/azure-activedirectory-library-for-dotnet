@@ -220,16 +220,24 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private void UseFallBackTenantIDForB2C(AuthenticationRequestParameters requestParams, IdToken idToken)
+        /// <summary>
+        /// This method ensures the tenant id is set on the id token
+        /// The B2C scenario does not return the tenant id within the id token at the moment.
+        /// As a fall back, the tenant id on the id Token is set to the tenant id that is in the B2C authority originally passed in by the user.
+        /// </summary>
+        /// <param name="requestParams">Request parameters set by the user</param>
+        /// <param name="idToken">iD token returned from STS</param>
+        private void EnsureTenantIDIsSpecifiedForB2CAuthority(AuthenticationRequestParameters requestParams, IdToken idToken)
         {
-            //The B2C scenario does not return the tenantID within the ID Token at the moment.
-            //As a fall back, the tenantID is set to the tenantID that is in the B2C authority originally passed in by the user.
-
-            if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.B2C)
+            if (!string.IsNullOrEmpty(idToken.TenantId) || requestParams.Authority.AuthorityType != Core.Instance.AuthorityType.B2C)
+            {
+                return;
+            }
+            else
             {
                 var tenantID = requestParams.Authority.GetTenantId();
 
-                if (string.IsNullOrEmpty(idToken.TenantId) && !string.IsNullOrEmpty(tenantID))
+                if (!string.IsNullOrEmpty(tenantID))
                     idToken.TenantId = tenantID;
             }
         }
