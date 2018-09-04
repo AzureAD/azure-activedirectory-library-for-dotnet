@@ -40,23 +40,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
-            controller.Tap("idSIButton9", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
@@ -82,23 +68,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
-            controller.Tap("idSIButton9", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Enter 2nd Resource
             controller.EnterText("resourceEntry", Exchange, false);
@@ -132,23 +104,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
-            controller.Tap("submitButton", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
@@ -175,23 +133,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
-            controller.Tap("idSIButton9", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
@@ -218,23 +162,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
-            controller.Tap("submitButton", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
@@ -261,23 +191,9 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
-            //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
-            controller.DismissKeyboard();
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
 
-            //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
-            controller.DismissKeyboard();
-
-            //Acquire token flow
-            controller.Tap("acquireToken");
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
-            //i0118 = password text field
-            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
-            controller.Tap("idSIButton9", true);
+            PerformSignInFlowFlow(controller, user);
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
@@ -304,13 +220,41 @@ namespace Test.ADAL.NET.UIAutomation
             //Clear Cache
             controller.Tap("clearCache");
 
+            SetInputData(controller, UiAutomationTestClientId, MSGraph);
+
+            PerformSignInFlowFlow(controller, user);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        private static void SetInputData(ITestController controller, string ClientID, string Resource)
+        {
             //Enter ClientID
-            controller.EnterText("clientIdEntry", UiAutomationTestClientId, false);
+            controller.EnterText("clientIdEntry", ClientID, false);
             controller.DismissKeyboard();
 
             //Enter Resource
-            controller.EnterText("resourceEntry", MSGraph, false);
+            controller.EnterText("resourceEntry", Resource, false);
             controller.DismissKeyboard();
+        }
+
+        private static void PerformSignInFlowFlow(ITestController controller, IUser user)
+        {
+            string passwordInputID = "";
+            string signInButtonID = "";
+
+            switch (user.FederationProvider)
+            {
+                case FederationProvider.AdfsV4:
+                    passwordInputID = "passwordInput";
+                    signInButtonID = "submitButton";
+                    break;
+                default:
+                    passwordInputID = "i0118";
+                    signInButtonID = "idSIButton9";
+                    break;
+            }
 
             //Acquire token flow
             controller.Tap("acquireToken");
@@ -319,11 +263,8 @@ namespace Test.ADAL.NET.UIAutomation
             //idSIButton9 = Sign in button
             controller.Tap("idSIButton9", true);
             //i0118 = password text field
-            controller.EnterText("passwordInput", ((LabUser)user).GetPassword(), true);
-            controller.Tap("submitButton", true);
-
-            //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+            controller.EnterText(passwordInputID, ((LabUser)user).GetPassword(), true);
+            controller.Tap(signInButtonID, true);
         }
     }
 }
