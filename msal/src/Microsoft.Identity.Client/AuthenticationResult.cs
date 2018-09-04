@@ -32,12 +32,15 @@ using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
     /// <summary>
-    /// Contains the results of one token acquisition operation in <see cref="T:PublicClientApplication"/>
-    /// or <see cref="T:ConfidentialClientApplication"/>
-    /// </summary>
-    /// <remarks>For details see https://aka.ms/msal-net-authenticationresult </remarks>
+    /// Contains the results of one token acquisition operation in <see cref="PublicClientApplication"/>
+    /// or <see cref="T:ConfidentialClientApplication"/>. For details see https://aka.ms/msal-net-authenticationresult
+    /// </summary> 
     public partial class AuthenticationResult
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         private const string Oauth2AuthorizationHeader = "Bearer ";
         private readonly MsalAccessTokenCacheItem _msalAccessTokenCacheItem;
@@ -60,7 +63,7 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Gets the Access Token.
+        /// Gets the Access Token to use as a bearer token to access the protected web API
         /// </summary>
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
 
@@ -71,7 +74,7 @@ namespace Microsoft.Identity.Client
         public virtual string UniqueId => _msalIdTokenCacheItem?.IdToken?.GetUniqueId();
 
         /// <summary>
-        /// Gets the point in time in which the Access Token returned in the Token property ceases to be valid.
+        /// Gets the point in time in which the Access Token returned in the <see cref="AccessToken"/> property ceases to be valid.
         /// This value is calculated based on current UTC time measured locally and the value expiresIn received from the
         /// service.
         /// </summary>
@@ -107,7 +110,8 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <returns>Created authorization header of the form "Bearer {AccessToken}"</returns>
         /// <example>
-        /// Here is how you can call a protected API from this authentication result:
+        /// Here is how you can call a protected API from this authentication result (in the <c>result</c>
+        /// variable):
         /// <code>
         /// HttpClient client = new HttpClient();
         /// client.DefaultRequestHeaders.Add("Authorization", result.CreateAuthorizationHeader());

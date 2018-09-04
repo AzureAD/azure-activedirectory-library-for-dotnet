@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
@@ -41,14 +42,18 @@ using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client
 {
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
     /// <summary>
     /// Token cache storing access and refresh tokens for accounts 
-    /// This class used in the constuctors of <see cref="T:PublicClientApplication"/> and <see cref="T:ConfidentialClientApplication"/>.
+    /// This class is used in the constuctors of <see cref="PublicClientApplication"/> and <see cref="ConfidentialClientApplication"/>.
     /// In the case of ConfidentialClientApplication, two instances are used, one for the user token cache, and one for the application
-    /// token cache (in the case of applications using the client credential flows)
-    /// See also <see cref="T:TokenCacheExtensions"/> which contains extension methods used to customize the cache serialization
+    /// token cache (in the case of applications using the client credential flows).
+    /// See also <see cref="TokenCacheExtensions"/> which contains extension methods used to customize the cache serialization
     /// </summary>
     public sealed class TokenCache
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         static TokenCache()
         {
@@ -276,7 +281,9 @@ namespace Microsoft.Identity.Client
                 }
                 else
                 {
-                    msg = "Skipping storing tokens in the cache - IdToken does not contain required claims";
+                    msg = string.Format(CultureInfo.InvariantCulture, "Skipping storing tokens in the cache - " +
+                        "IdToken does not contain required claims of {0} or {1}. Please see " +
+                        "https://aka.ms/msal-net-token-cache-index-keys for more information.", IdTokenClaim.TenantId, IdTokenClaim.PreferredUsername);
                 }
                 requestContext.Logger.Warning(msg);
                 requestContext.Logger.WarningPii(msg);
