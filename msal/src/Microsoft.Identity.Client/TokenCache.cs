@@ -135,7 +135,7 @@ namespace Microsoft.Identity.Client
             IdToken idToken = IdToken.Parse(response.IdToken);
 
             //using fallback tenantID in the IDToken if it is null in B2C scenarios
-            UseFallBackTenantIDForB2C(requestParams, idToken);
+            EnsureTenantIDIsSpecifiedForB2CAuthority(requestParams, idToken);
 
             var msalAccessTokenCacheItem =
                 new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
