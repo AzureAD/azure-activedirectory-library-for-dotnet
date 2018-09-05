@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Client
             MsalRefreshTokenCacheItem msalRefreshTokenCacheItem = null;
 
             MsalIdTokenCacheItem msalIdTokenCacheItem = null;
-            if (!String.IsNullOrWhiteSpace(tenantId))
+            if (idToken != null)
             {
                 msalIdTokenCacheItem = new MsalIdTokenCacheItem
                     (preferredEnvironmentHost, requestParams.ClientId, response, tenantId);
@@ -176,7 +176,7 @@ namespace Microsoft.Identity.Client
 
                     tokenCacheAccessor.SaveAccessToken(msalAccessTokenCacheItem, requestParams.RequestContext);
 
-                    if (!String.IsNullOrWhiteSpace(tenantId))
+                    if (idToken != null)
                     {
                         tokenCacheAccessor.SaveIdToken(msalIdTokenCacheItem, requestParams.RequestContext);
 
