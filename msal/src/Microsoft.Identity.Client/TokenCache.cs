@@ -180,7 +180,7 @@ namespace Microsoft.Identity.Client
                     {
                         tokenCacheAccessor.SaveIdToken(msalIdTokenCacheItem, requestParams.RequestContext);
 
-                        var msalAccountCacheItem = new MsalAccountCacheItem(preferredEnvironmentHost, response);
+                        var msalAccountCacheItem = new MsalAccountCacheItem(preferredEnvironmentHost, response, preferredUsername, tenantId);
 
                         tokenCacheAccessor.SaveAccount(msalAccountCacheItem, requestParams.RequestContext);
                     }
