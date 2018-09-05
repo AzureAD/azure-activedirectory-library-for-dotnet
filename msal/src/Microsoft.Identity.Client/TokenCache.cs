@@ -51,6 +51,8 @@ namespace Microsoft.Identity.Client
     /// </summary>
     public sealed class TokenCache
     {
+        private const string notReturnedFromServer = "Not returned from server";
+
         static TokenCache()
         {
             ModuleInitializer.EnsureModuleInitialized();
@@ -124,6 +126,10 @@ namespace Microsoft.Identity.Client
             var tenantId = Authority.CreateAuthority(requestParams.TenantUpdatedCanonicalAuthority, false)
                 .GetTenantId();
 
+            IdToken idToken = IdToken.Parse(response.IdToken);
+
+            var preferredUsername = !String.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : notReturnedFromServer;
+
             var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
 
             var environmentAliases = GetEnvironmentAliases(requestParams.TenantUpdatedCanonicalAuthority,
@@ -131,11 +137,6 @@ namespace Microsoft.Identity.Client
 
             var preferredEnvironmentHost = GetPreferredEnvironmentHost(requestParams.Authority.Host,
                 instanceDiscoveryMetadataEntry);
-
-            IdToken idToken = IdToken.Parse(response.IdToken);
-
-            //using fallback tenantID in the IDToken if it is null in B2C scenarios
-            EnsureTenantIDIsSpecifiedForB2CAuthority(requestParams, idToken);
 
             var msalAccessTokenCacheItem =
                 new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
@@ -146,16 +147,10 @@ namespace Microsoft.Identity.Client
             MsalRefreshTokenCacheItem msalRefreshTokenCacheItem = null;
 
             MsalIdTokenCacheItem msalIdTokenCacheItem = null;
-            if (idToken != null)
+            if (!String.IsNullOrWhiteSpace(tenantId))
             {
                 msalIdTokenCacheItem = new MsalIdTokenCacheItem
-                    (preferredEnvironmentHost, requestParams.ClientId, response, idToken?.TenantId);
-            }
-
-            if (!requestParams.IsClientCredentialRequest && 
-                !ContainsClaimsRequiredToStoreInCache(idToken, requestParams.RequestContext, requestParams.Authority.AuthorityType))
-            {
-                return Tuple.Create(msalAccessTokenCacheItem, msalIdTokenCacheItem);
+                    (preferredEnvironmentHost, requestParams.ClientId, response, tenantId);
             }
 
             lock (LockObject)
@@ -168,7 +163,7 @@ namespace Microsoft.Identity.Client
                         ClientId = ClientId,
                         Account = msalAccessTokenCacheItem.HomeAccountId != null ?
                                     new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
-                                    idToken?.PreferredUsername, preferredEnvironmentHost) : 
+                                    preferredUsername, preferredEnvironmentHost) : 
                                     null
                     };
 
@@ -181,7 +176,7 @@ namespace Microsoft.Identity.Client
 
                     tokenCacheAccessor.SaveAccessToken(msalAccessTokenCacheItem, requestParams.RequestContext);
 
-                    if (idToken != null)
+                    if (!String.IsNullOrWhiteSpace(tenantId))
                     {
                         tokenCacheAccessor.SaveIdToken(msalIdTokenCacheItem, requestParams.RequestContext);
 
@@ -218,26 +213,6 @@ namespace Microsoft.Identity.Client
                     HasStateChanged = false;
                 }
             }
-        }
-
-        /// <summary>
-        /// This method ensures the tenant id is set on the id token
-        /// The B2C scenario does not return the tenant id within the id token at the moment.
-        /// As a fall back, the tenant id on the id Token is set to the tenant id that is in the B2C authority originally passed in by the user.
-        /// </summary>
-        /// <param name="requestParams">Request parameters set by the user</param>
-        /// <param name="idToken">iD token returned from STS</param>
-        private void EnsureTenantIDIsSpecifiedForB2CAuthority(AuthenticationRequestParameters requestParams, IdToken idToken)
-        {
-            if (!string.IsNullOrEmpty(idToken.TenantId) || requestParams.Authority.AuthorityType != Core.Instance.AuthorityType.B2C)
-            {
-                return;
-            }
-
-            var tenantID = requestParams.Authority.GetTenantId();
-
-            if (!string.IsNullOrEmpty(tenantID))
-                idToken.TenantId = tenantID;
         }
 
         private void DeleteAccessTokensWithIntersectingScopes(AuthenticationRequestParameters requestParams,
@@ -288,30 +263,6 @@ namespace Microsoft.Identity.Client
             {
                 tokenCacheAccessor.DeleteAccessToken(cacheItem.GetKey(), requestParams.RequestContext);
             }
-        }
-
-        private bool ContainsClaimsRequiredToStoreInCache(IdToken idToken, RequestContext requestContext, Core.Instance.AuthorityType authorityType)
-        {
-            //PreferredUsername is not required in B2C cache scenarios
-            if (idToken == null || string.IsNullOrEmpty(idToken.TenantId) || (string.IsNullOrEmpty(idToken.PreferredUsername) && authorityType != Core.Instance.AuthorityType.B2C))
-            {
-                string msg;
-                if (idToken == null)
-                {
-                    msg = "Skipping storing tokens in the cache - no IdToken in token response";
-                }
-                else
-                {
-                    msg = string.Format(CultureInfo.InvariantCulture, "Skipping storing tokens in the cache - " +
-                        "IdToken does not contain required claims of {0} or {1}. Please see " +
-                        "https://aka.ms/msal-net-token-cache-index-keys for more information.", IdTokenClaim.TenantId, IdTokenClaim.PreferredUsername);
-                }
-                requestContext.Logger.Warning(msg);
-                requestContext.Logger.WarningPii(msg);
-
-                return false;
-            }
-            return true;
         }
 
         internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(AuthenticationRequestParameters requestParams)
