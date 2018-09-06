@@ -62,8 +62,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             var msg = string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                platformInformation.GetProductName(), AdalIdHelper.GetAdalVersion(),
-                AdalIdHelper.GetAssemblyFileVersion(), AdalIdHelper.GetAssemblyInformationalVersion());
+                platformInformation.GetProductName(), CorePlatformInformationBase.GetClientVersion(),
+                CorePlatformInformationBase.GetAssemblyFileVersion(), CorePlatformInformationBase.GetAssemblyInformationalVersion());
             RequestContext.Logger.Info(msg);
             RequestContext.Logger.InfoPii(msg);
 
@@ -113,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerParameters[BrokerParameter.Resource] = requestData.Resource;
             brokerParameters[BrokerParameter.ClientId] = requestData.ClientKey.ClientId;
             brokerParameters[BrokerParameter.CorrelationId] = RequestContext.Logger.CorrelationId.ToString();
-            brokerParameters[BrokerParameter.ClientVersion] = AdalIdHelper.GetAdalVersion();
+            brokerParameters[BrokerParameter.ClientVersion] = CorePlatformInformationBase.GetClientVersion();
             this.ResultEx = null;
 
             CacheQueryData.ExtendedLifeTimeEnabled = requestData.ExtendedLifeTimeEnabled;

@@ -34,6 +34,7 @@ using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
@@ -168,7 +169,7 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for Adal version creation with Regex")]
         public void AdalVersionRegexTest()
         {
-            string adalVersion = AdalIdHelper.GetAdalVersion();
+            string adalVersion = CorePlatformInformationBase.GetClientVersion();
             Assert.IsNotNull(adalVersion);
         }
 
@@ -227,7 +228,7 @@ namespace Test.ADAL.NET.Unit
         [Description("Test for ADAL Id")]
         public void AdalIdTest()
         {
-            CommonUnitTests.AdalIdTest();
+            CommonUnitTests.AdalUriParamsTest();
         }
 
         [TestMethod]

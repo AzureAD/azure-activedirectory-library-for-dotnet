@@ -29,39 +29,23 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal abstract class PlatformInformationBase
+    internal abstract class PlatformInformationBase : CorePlatformInformationBase
     {
-        public abstract string GetProductName();
-
-        public abstract string GetEnvironmentVariable(string variable);
-
         public abstract Task<string> GetUserPrincipalNameAsync();
 
-        public abstract string GetProcessorArchitecture();
-
-        public abstract string GetOperatingSystem();
-
-        public abstract string GetDeviceModel();
-
-        public virtual string GetAssemblyFileVersionAttribute()
+        public override string GetAssemblyFileVersionAttribute()
         {
-            var assemblyFileVersion = typeof(AdalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+            var assemblyFileVersion = typeof(UriParamsHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
             return assemblyFileVersion != null ? assemblyFileVersion.Version : "internal";
         }
 
-        public async virtual Task<bool> IsUserLocalAsync(RequestContext requestContext)
+        public async override Task<bool> IsUserLocalAsync(RequestContext requestContext)
         {
             return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
-        }
-
-        public virtual bool IsDomainJoined()
-        {
-            return false;
         }
 
         public virtual void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
@@ -74,19 +58,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return true;
         }
 
-        public virtual Uri ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        public override void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
         {
             if (redirectUri == null)
             {
-                throw new ArgumentNullException("redirectUri");
+                throw new ArgumentNullException(nameof(redirectUri));
             }
 
-            return redirectUri;
-        }
-
-        public virtual string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
-        {
-            return redirectUri.OriginalString;
         }
     }
 }

@@ -237,7 +237,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authorizationRequestParameters[OAuth2Parameter.CorrelationId] = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString();
             }
 
-            IDictionary<string, string> adalIdParameters = MsalIdHelper.GetMsalIdParameters();
+            IDictionary<string, string> adalIdParameters = UriParamsHelper.GetUriParameters();
             foreach (KeyValuePair<string, string> kvp in adalIdParameters)
             {
                 authorizationRequestParameters[kvp.Key] = kvp.Value;

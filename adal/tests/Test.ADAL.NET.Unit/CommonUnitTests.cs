@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.ADAL.NET.Unit
@@ -43,24 +42,24 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(hash, "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=");
         }
 
-        public static void AdalIdTest()
+        public static void AdalUriParamsTest()
         {
-            var adalParameters = AdalIdHelper.GetAdalIdParameters();
+            var adalParameters = UriParamsHelper.GetUriParameters(); 
 
             Assert.AreEqual(4, adalParameters.Count);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.Product]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.Version]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.CpuPlatform]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.OS]);
-            Assert.IsFalse(adalParameters.ContainsKey(AdalIdParameter.DeviceModel));
-            adalParameters = AdalIdHelper.GetAdalIdParameters();
+            Assert.IsNotNull(adalParameters[UriParamsHelper.Product]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.Version]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.CpuPlatform]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.OS]);
+            Assert.IsFalse(adalParameters.ContainsKey(UriParamsHelper.DeviceModel));
+            adalParameters = UriParamsHelper.GetUriParameters();
 
             Assert.AreEqual(4, adalParameters.Count);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.Product]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.Version]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.CpuPlatform]);
-            Assert.IsNotNull(adalParameters[AdalIdParameter.OS]);
-            Assert.IsFalse(adalParameters.ContainsKey(AdalIdParameter.DeviceModel));
+            Assert.IsNotNull(adalParameters[UriParamsHelper.Product]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.Version]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.CpuPlatform]);
+            Assert.IsNotNull(adalParameters[UriParamsHelper.OS]);
+            Assert.IsFalse(adalParameters.ContainsKey(UriParamsHelper.DeviceModel));
         }
     }
 }

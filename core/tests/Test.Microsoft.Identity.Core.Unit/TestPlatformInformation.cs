@@ -34,8 +34,14 @@ using Microsoft.Identity.Core;
 
 namespace Test.Microsoft.Identity.Core.Unit
 {
-    class TestPlatformInformation : CorePlatformInformationBase
+    internal class TestPlatformInformation : CorePlatformInformationBase
     {
+        public const string TestProductName = "test";
+        public const string TestCPU = "test cpu";
+        public const string TestOS = "test os";
+        public const string TestDevice = "test device";
+        public const string TestAssemblyFileVersion = "1.0.0.0";
+
         static TestPlatformInformation()
         {
             Instance = new TestPlatformInformation();
@@ -43,7 +49,7 @@ namespace Test.Microsoft.Identity.Core.Unit
 
         public override string GetProductName()
         {
-            return null;
+            return TestProductName;
         }
 
         public override string GetEnvironmentVariable(string variable)
@@ -53,22 +59,22 @@ namespace Test.Microsoft.Identity.Core.Unit
 
         public override string GetProcessorArchitecture()
         {
-            return null;
+            return TestCPU;
         }
 
         public override string GetOperatingSystem()
         {
-            return null;
+            return TestOS;
         }
 
         public override string GetDeviceModel()
         {
-            return null;
+            return TestDevice;
         }
 
         public override string GetAssemblyFileVersionAttribute()
         {
-            return null;
+            return TestAssemblyFileVersion;
         }
 
         public override Task<bool> IsUserLocalAsync(RequestContext requestContext)

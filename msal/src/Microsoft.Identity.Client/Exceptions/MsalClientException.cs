@@ -129,6 +129,12 @@ namespace Microsoft.Identity.Client
         /// The library is loaded on a platform which is not supported.
         /// </summary>
         public const string PlatformNotSupported = "platform_not_supported";
+
+        /// <summary>
+        /// The library is loaded on a platform which has not been initialized.
+        /// </summary>
+        public const string PlatformNotInitialized = "platform_not_initialized";
+
 #if ANDROID
 
         /// <summary>

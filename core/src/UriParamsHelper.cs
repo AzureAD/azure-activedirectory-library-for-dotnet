@@ -25,22 +25,24 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.Identity.Core
 {
-    internal static class MsalIdParameter
+    /// <summary>
+    /// This class adds additional query parameters or headers to the requests sent to STS. This can help us in
+    /// collecting statistics and potentially on diagnostics.
+    /// </summary>
+    internal static class UriParamsHelper
     {
         /// <summary>
         /// MSAL Flavor: .NET or WinRT
+        /// ADAL Flavor: PCL.CoreCLR, PCL.Android, PCL.iOS, PCL.Desktop, PCL.WinRT
         /// </summary>
         public const string Product = "x-client-SKU";
 
         /// <summary>
-        /// MSAL assembly version
+        /// MSAL or ADAL assembly version
         /// </summary>
         public const string Version = "x-client-Ver";
 
@@ -58,72 +60,39 @@ namespace Microsoft.Identity.Core
         /// Device model. This will not be sent on .NET
         /// </summary>
         public const string DeviceModel = "x-client-DM";
-    }
 
-    /// <summary>
-    /// This class adds additional query parameters or headers to the requests sent to STS. This can help us in
-    /// collecting statistics and potentially on diagnostics.
-    /// </summary>
-    internal static class MsalIdHelper
-    {
-        public static IDictionary<string, string> GetMsalIdParameters()
+        public static IDictionary<string, string> GetUriParameters()
         {
             if (CorePlatformInformationBase.Instance == null)
             {
-                throw new InvalidOperationException("Internal error - PlatformInformation not initialized");
+                throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.PlatformNotInitialized, CoreErrorMessages.PlatformNotInitialized);
             }
 
             var parameters = new Dictionary<string, string>
             {
-                [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
-                [MsalIdParameter.Version] = GetMsalVersion()
+                [UriParamsHelper.Product] = CorePlatformInformationBase.Instance.GetProductName(),
+                [UriParamsHelper.Version] = CorePlatformInformationBase.GetClientVersion()
             };
 
             var processorInformation = CorePlatformInformationBase.Instance.GetProcessorArchitecture();
             if (processorInformation != null)
             {
-                parameters[MsalIdParameter.CpuPlatform] = processorInformation;
+                parameters[UriParamsHelper.CpuPlatform] = processorInformation;
             }
 
             var osInformation = CorePlatformInformationBase.Instance.GetOperatingSystem();
             if (osInformation != null)
             {
-                parameters[MsalIdParameter.OS] = osInformation;
+                parameters[UriParamsHelper.OS] = osInformation;
             }
 
             var deviceInformation = CorePlatformInformationBase.Instance.GetDeviceModel();
             if (deviceInformation != null)
             {
-                parameters[MsalIdParameter.DeviceModel] = deviceInformation;
+                parameters[UriParamsHelper.DeviceModel] = deviceInformation;
             }
 
             return parameters;
-        }
-
-        public static string GetMsalVersion()
-        {
-            string fullVersion = typeof (MsalIdHelper).GetTypeInfo().Assembly.FullName;
-            Regex regex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+");
-            Match match = regex.Match(fullVersion);
-            if (match.Success)
-            {
-                string[] version = match.Groups[0].Value.Split(new[] {'='}, StringSplitOptions.None);
-                return version[1];
-            }
-
-            return null;
-        }
-
-        public static string GetAssemblyFileVersion()
-        {
-            return CorePlatformInformationBase.Instance.GetAssemblyFileVersionAttribute();
-        }
-
-        public static string GetAssemblyInformationalVersion()
-        {
-            AssemblyInformationalVersionAttribute attribute =
-                typeof (MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            return (attribute != null) ? attribute.InformationalVersion : string.Empty;
         }
     }
 }

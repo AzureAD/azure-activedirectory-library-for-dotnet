@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Core.OAuth2
         private readonly Dictionary<string, string> _bodyParameters = new Dictionary<string, string>();
 
         private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
+            new Dictionary<string, string>(UriParamsHelper.GetUriParameters());
 
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
 

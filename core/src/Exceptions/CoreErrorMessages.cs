@@ -69,5 +69,7 @@ namespace Microsoft.Identity.Core
             "Cannot find the principal name for the user. Possible causes: the application does not request the User Account Information and the Enterprise Authentication capabilities or the user is not AD or AAD joined.";
 
         public const string PlatformNotSupported = "Platform Not Supported";
+
+        public const string PlatformNotInitialized = "Internal error - PlatformInformation not initialized";
     }
 }

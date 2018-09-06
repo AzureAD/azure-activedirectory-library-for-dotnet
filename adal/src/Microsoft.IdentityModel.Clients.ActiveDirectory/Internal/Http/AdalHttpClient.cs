@@ -73,7 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
             try
             {
-                IDictionary<string, string> adalIdHeaders = AdalIdHelper.GetAdalIdParameters();
+                IDictionary<string, string> adalIdHeaders = UriParamsHelper.GetUriParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdHeaders)
                 {
                     this.Client.Headers[kvp.Key] = kvp.Value;

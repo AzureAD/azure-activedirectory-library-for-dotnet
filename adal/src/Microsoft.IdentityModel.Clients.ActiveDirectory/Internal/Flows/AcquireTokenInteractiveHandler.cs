@@ -33,6 +33,7 @@ using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.Identity.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -58,8 +59,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
-            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
-
+            platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
+            this.redirectUri = redirectUri;
             if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
             {
                 throw new ArgumentException(AdalErrorMessage.RedirectUriContainsFragment, "redirectUri");
@@ -229,8 +230,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 platformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
             }
-            
-                IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
+
+            IDictionary<string, string> adalIdParameters = UriParamsHelper.GetUriParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdParameters)
                 {
                     authorizationRequestParameters[kvp.Key] = kvp.Value;

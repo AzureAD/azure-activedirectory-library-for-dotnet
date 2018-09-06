@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using System;
@@ -70,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public override string GetAssemblyFileVersionAttribute()
         {
             // TODO: Check if assembly file version can be read in iOS assembly as well or not. For now, we use assembly version instead.
-            return typeof(AdalIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
+            return typeof(UriParamsHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
         }
 
         public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)

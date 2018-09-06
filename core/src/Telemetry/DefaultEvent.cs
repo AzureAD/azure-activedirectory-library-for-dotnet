@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             this[EventNamePrefix + "client_id"] = clientId;
             this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
-            this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
+            this[EventNamePrefix + "sdk_version"] = CorePlatformInformationBase.GetClientVersion();
             // TODO: The following implementation will be used after the 3 helpers being implemented (in a separated PR)
             // this[EventNamePrefix + "application_name"] = MsalIdHelper.GetApplicationName();  // Not yet implemented
             // this[EventNamePrefix + "application_version"] = MsalIdHelper.GetApplicationVersion();  // Not yet implemented

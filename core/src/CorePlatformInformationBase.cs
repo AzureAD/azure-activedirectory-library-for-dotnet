@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
@@ -44,6 +46,8 @@ namespace Microsoft.Identity.Core
         public abstract string GetAssemblyFileVersionAttribute();
 
         public abstract Task<bool> IsUserLocalAsync(RequestContext requestContext);
+
+        private static readonly Regex ClientVersionRegex = new Regex(@"Version=[\d]+.[\d+]+.[\d]+.[\d]+", RegexOptions.CultureInvariant);
 
         public virtual bool IsDomainJoined()
         {
@@ -66,6 +70,31 @@ namespace Microsoft.Identity.Core
         public virtual string GetDefaultRedirectUri(string correlationId)
         {
             return DefaultRedirectUri;
+        }
+
+        public static string GetClientVersion()
+        {
+            string fullVersion = typeof(UriParamsHelper).GetTypeInfo().Assembly.FullName;
+            Match match = ClientVersionRegex.Match(fullVersion);
+            if (match.Success)
+            {
+                string[] version = match.Groups[0].Value.Split(new[] { '=' }, StringSplitOptions.None);
+                return version[1];
+            }
+
+            return null;
+        }
+
+        public static string GetAssemblyFileVersion()
+        {
+            return CorePlatformInformationBase.Instance.GetAssemblyFileVersionAttribute();
+        }
+
+        public static string GetAssemblyInformationalVersion()
+        {
+            AssemblyInformationalVersionAttribute attribute =
+                typeof(UriParamsHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            return (attribute != null) ? attribute.InformationalVersion : string.Empty;
         }
     }
 }

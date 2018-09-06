@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Client
 
         public override string GetAssemblyFileVersionAttribute()
         {
-            return typeof (MsalIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
+            return typeof (UriParamsHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
         }
 
         public override void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)

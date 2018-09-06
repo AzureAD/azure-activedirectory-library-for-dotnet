@@ -120,16 +120,16 @@ namespace Microsoft.Identity.Client.Internal
                 ? string.Empty
                 : " - " + CorrelationId;
 
-            var msalIdParameters = MsalIdHelper.GetMsalIdParameters();
+            var msalIdParameters = UriParamsHelper.GetUriParameters();
             string os = "N/A";
-            if (msalIdParameters.ContainsKey(MsalIdParameter.OS))
+            if (msalIdParameters.ContainsKey(UriParamsHelper.OS))
             {
-                os = msalIdParameters[MsalIdParameter.OS];
+                os = msalIdParameters[UriParamsHelper.OS];
             }
 
             string log = string.Format(CultureInfo.InvariantCulture, "MSAL {0} {1} {2} [{3}{4}]{5} {6}",
-                MsalIdHelper.GetMsalVersion(),
-                msalIdParameters[MsalIdParameter.Product],
+                CorePlatformInformationBase.GetClientVersion(),
+                msalIdParameters[UriParamsHelper.Product],
                 os, DateTime.UtcNow, correlationId, Component, logMessage);
 
             if (Logger.PiiLoggingEnabled && containsPii)

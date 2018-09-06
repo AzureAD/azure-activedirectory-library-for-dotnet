@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Client.Internal
         public override string GetAssemblyFileVersionAttribute()
         {
             return
-                typeof (MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+                typeof (UriParamsHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
         }
 
         public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)

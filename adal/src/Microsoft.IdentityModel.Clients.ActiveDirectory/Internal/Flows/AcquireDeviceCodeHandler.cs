@@ -64,7 +64,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 deviceCodeRequestParameters[OAuthParameter.CorrelationId] = this.requestContext.Logger.CorrelationId.ToString();
             }
             
-                IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
+                IDictionary<string, string> adalIdParameters = UriParamsHelper.GetUriParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdParameters)
                 {
                     deviceCodeRequestParameters[kvp.Key] = kvp.Value;

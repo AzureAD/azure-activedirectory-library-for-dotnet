@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
@@ -67,6 +68,12 @@ namespace Test.ADAL.NET.Unit
             ExtendedLifeTimeEnabled = false
         };
 
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+        }
+
         [TestMethod]
         [Description("Test setting of brokerParameters by AcquireTokenInteractiveHandler constructor")]
         public void AcquireTokenInteractiveHandlerConstructor_InitializeBrokerParameters()
@@ -84,7 +91,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
 
             Assert.AreEqual(acquireTokenInteractiveHandler.RequestContext.Logger.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual(CorePlatformInformationBase.GetClientVersion(), brokerParams[BrokerParameter.ClientVersion]);
             Assert.AreEqual("NO", brokerParams[BrokerParameter.Force]);
             Assert.AreEqual(string.Empty, brokerParams[BrokerParameter.Username]);
             Assert.AreEqual(UserIdentifierType.OptionalDisplayableId.ToString(), brokerParams[BrokerParameter.UsernameType]);
@@ -109,7 +116,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);
             Assert.AreEqual(ClientId, brokerParams[BrokerParameter.ClientId]);
             Assert.AreEqual(acquireTokenSilentHandler.RequestContext.Logger.CorrelationId.ToString(), brokerParams[BrokerParameter.CorrelationId]);
-            Assert.AreEqual(AdalIdHelper.GetAdalVersion(), brokerParams[BrokerParameter.ClientVersion]);
+            Assert.AreEqual(CorePlatformInformationBase.GetClientVersion(), brokerParams[BrokerParameter.ClientVersion]);
             Assert.AreEqual(UniqueUserId, brokerParams[BrokerParameter.Username]);
             Assert.AreEqual(UserIdentifierType.UniqueId.ToString(), brokerParams[BrokerParameter.UsernameType]);
 
