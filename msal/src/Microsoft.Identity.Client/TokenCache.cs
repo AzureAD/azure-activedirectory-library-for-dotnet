@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Client
     /// </summary>
     public sealed class TokenCache
     {
-        private const string notReturnedFromServer = "Not returned from server";
+        private const string preferred_usernameNotInIdtoken = "preferred_username not in idtoken";
 
         static TokenCache()
         {
@@ -128,7 +128,9 @@ namespace Microsoft.Identity.Client
 
             IdToken idToken = IdToken.Parse(response.IdToken);
 
-            var preferredUsername = !String.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : notReturnedFromServer;
+            //The preferred_username value cannot be null or empty in order to comply with the ADAL/MSAL Unified cache schema. 
+            //It will be set to "preferred_username not in idtoken" 
+            var preferredUsername = !String.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : preferred_usernameNotInIdtoken;
 
             var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
 
