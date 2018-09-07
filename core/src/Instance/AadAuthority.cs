@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.OAuth2;
@@ -107,6 +108,13 @@ namespace Microsoft.Identity.Core.Instance
         {
             return GetFirstPathSegment(CanonicalAuthority);
         }
-        
+
+        internal override void UpdateTenantId(string tenantId)
+        {
+            Uri authorityUri = new Uri(CanonicalAuthority);
+
+            CanonicalAuthority = 
+                string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authorityUri.Authority, tenantId);
+        }
     }
 }
