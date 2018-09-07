@@ -71,8 +71,11 @@ namespace Microsoft.Identity.Core.Instance
             Uri authorityUri = new Uri(CanonicalAuthority);
             var segments = authorityUri.Segments;
 
+            var b2cPrefix = segments[1].TrimEnd('/');
+            var b2cPolicy = segments[3].TrimEnd('/');
+
             CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, B2CCanonicalAuthorityTemplate, 
-                authorityUri.Authority, segments[1].TrimEnd('/'), tenantId, segments[3].TrimEnd('/'));
+                authorityUri.Authority, b2cPrefix, tenantId, b2cPolicy);
         }
     }
 }

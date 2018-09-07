@@ -51,6 +51,8 @@ namespace Microsoft.Identity.Core.Instance
 
         private const string AadInstanceDiscoveryEndpoint = "https://login.microsoftonline.com/common/discovery/instance";
 
+        public const string AADCanonicalAuthorityTemplate = "https://{0}/{1}/";
+
         internal AadAuthority(string authority, bool validateAuthority) : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Aad;
@@ -114,7 +116,7 @@ namespace Microsoft.Identity.Core.Instance
             Uri authorityUri = new Uri(CanonicalAuthority);
 
             CanonicalAuthority = 
-                string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authorityUri.Authority, tenantId);
+                string.Format(CultureInfo.InvariantCulture, AADCanonicalAuthorityTemplate, authorityUri.Authority, tenantId);
         }
     }
 }

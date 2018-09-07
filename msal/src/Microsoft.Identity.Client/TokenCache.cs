@@ -339,7 +339,7 @@ namespace Microsoft.Identity.Client
 
             lock (LockObject)
             {
-                msg = "Looking up access token in the cache..";
+                msg = "Looking up access token in the cache.";
                 requestParams.RequestContext.Logger.Info(msg);
                 requestParams.RequestContext.Logger.InfoPii(msg);
                 MsalAccessTokenCacheItem msalAccessTokenCacheItem = null;
@@ -400,8 +400,7 @@ namespace Microsoft.Identity.Client
                 IEnumerable<MsalAccessTokenCacheItem> filteredItems =
                     tokenCacheItems.Where(
                             item =>
-                                item.ScopeSet.ScopeContains(requestParams.Scope))
-                        .ToList();
+                                item.ScopeSet.ScopeContains(requestParams.Scope));
 
                 msg = "Matching entry count after filtering by scopes - " + filteredItems.Count();
                 requestParams.RequestContext.Logger.Info(msg);
@@ -410,8 +409,7 @@ namespace Microsoft.Identity.Client
                 //filter by authority
                 IEnumerable<MsalAccessTokenCacheItem> filteredByPrefferedAlias =
                     filteredItems.Where
-                    (item => item.Environment.Equals(preferredEnvironmentAlias, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                    (item => item.Environment.Equals(preferredEnvironmentAlias, StringComparison.OrdinalIgnoreCase));
 
                 if (filteredByPrefferedAlias.Any())
                 {
@@ -421,7 +419,7 @@ namespace Microsoft.Identity.Client
                 {
                     filteredItems = filteredItems.Where(
                         item => environmentAliases.Contains(item.Environment) &&
-                        item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase)).ToList();
+                        item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase));
                 }
 
                 //no match
