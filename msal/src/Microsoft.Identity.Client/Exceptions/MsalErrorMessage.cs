@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Core
         public const string MissingAuthenticateHeader = "WWW-Authenticate header was expected in the response";
 
         public const string MultipleTokensMatched =
-            "The cache contains multiple tokens satisfying the requirements. Try to clear token cache and report the issue";
+            "The cache contains multiple tokens satisfying the requirements. Try to clear token cache";
 
         public const string NetworkNotAvailable = "The network is down so authentication cannot proceed";
         public const string NoDataFromSTS = "No data received from security token service";
