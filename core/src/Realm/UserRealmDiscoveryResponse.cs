@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
@@ -54,13 +55,16 @@ namespace Microsoft.Identity.Core.Realm
         [DataMember(Name = "cloud_audience_urn")]
         public string CloudAudienceUrn { get; set; }
 
-        internal static async Task<UserRealmDiscoveryResponse> CreateByDiscoveryAsync(string userRealmUri, string userName, RequestContext requestContext)
+        internal static async Task<UserRealmDiscoveryResponse> CreateByDiscoveryAsync(string userRealmUriPrefix, string userName, RequestContext requestContext)
         {
             var msg = "Sending request to userrealm endpoint.";
             requestContext.Logger.Info(msg);
             requestContext.Logger.InfoPii(msg);
+
+            Debug.Assert(userRealmUriPrefix.EndsWith("/"), "Expecting the userRealmUriPrefix to end in / so that it can be appended to");
+
             var httpResponse = await HttpRequest.SendGetAsync(
-                new UriBuilder(userRealmUri + userName + "?api-version=1.0").Uri, null, requestContext).ConfigureAwait(false);
+                new UriBuilder(userRealmUriPrefix + userName + "?api-version=1.0").Uri, null, requestContext).ConfigureAwait(false);
             return httpResponse.StatusCode == System.Net.HttpStatusCode.OK ? JsonHelper.DeserializeFromJson<UserRealmDiscoveryResponse>(httpResponse.Body) : null;
         }
     }
