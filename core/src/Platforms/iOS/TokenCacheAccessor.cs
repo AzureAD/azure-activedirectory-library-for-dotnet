@@ -29,9 +29,7 @@ using System;
 using System.Collections.Generic;
 using Security;
 using Foundation;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-using System.Collections.ObjectModel;
 using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core
@@ -63,12 +61,13 @@ namespace Microsoft.Identity.Core
         private readonly string TeamIdKey = "teamIDHint";
 
         private string keychainGroup;
+        private RequestContext _requestContext;
 
         private string GetBundleId()
         {
             return NSBundle.MainBundle.BundleIdentifier;
         }
-   
+
         public void SetKeychainSecurityGroup(string keychainSecurityGroup)
         {
             if (keychainSecurityGroup == null)
@@ -97,10 +96,13 @@ namespace Microsoft.Identity.Core
                 match = SecKeyChain.QueryAsRecord(queryRecord, out resultCode);
             }
 
+            if (resultCode != SecStatusCode.Success)
+            {
+                return string.Empty;
+            }
+
             return match.AccessGroup.Split('.')[0];
         }
-
-        private RequestContext _requestContext;
 
         public TokenCacheAccessor()
         {
@@ -127,7 +129,7 @@ namespace Microsoft.Identity.Core
                           key.ClientId + CacheKeyDelimiter +
                           key.TenantId;
 
-            var type = (int)CredentialAttrType.AccessToken; 
+            var type = (int)CredentialAttrType.AccessToken;
 
             var value = JsonHelper.SerializeToJson(item);
 
@@ -192,10 +194,10 @@ namespace Microsoft.Identity.Core
             Save(account, service, generic, type, value);
         }
 
-        
+
         public void DeleteAccessToken(MsalAccessTokenCacheKey cacheKey)
         {
-            var account = cacheKey.HomeAccountId + CacheKeyDelimiter + 
+            var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
                 cacheKey.Environment;
 
             var service = cacheKey.CredentialType + CacheKeyDelimiter +
@@ -247,7 +249,7 @@ namespace Microsoft.Identity.Core
 
             Remove(account, service, type);
         }
-        
+
 
         public ICollection<string> GetAllAccessTokensAsString()
         {
@@ -390,7 +392,7 @@ namespace Microsoft.Identity.Core
                 Synchronizable = _defaultSyncSetting,
             };
         }
-        
+
         private SecStatusCode Remove(string account, string service, int type)
         {
             var record = new SecRecord(SecKind.GenericPassword)
