@@ -26,35 +26,52 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
-    internal abstract class PlatformInformationBase : CorePlatformInformationBase
+    internal class AcquireTokenUserAssertionHandler : AcquireTokenHandlerBase
     {
-        public override string GetAssemblyFileVersionAttribute()
+        private UserAssertion userAssertion;
+
+
+        public AcquireTokenUserAssertionHandler(RequestData requestData, UserAssertion userAssertion)
+            : base(requestData)
         {
-            var assemblyFileVersion = typeof(AdalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-            return assemblyFileVersion != null ? assemblyFileVersion.Version : "internal";
+            if (userAssertion == null)
+            {
+                throw new ArgumentNullException("userAssertion");
+            }
+
+            if (string.IsNullOrWhiteSpace(userAssertion.AssertionType))
+            {
+                throw new ArgumentException(AdalErrorMessage.UserCredentialAssertionTypeEmpty, "userAssertion");
+            }
+            this.userAssertion = userAssertion;
         }
 
-        public async override Task<bool> IsUserLocalAsync(RequestContext requestContext)
+        protected override async Task PreRunAsync()
         {
-            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
+            await base.PreRunAsync().ConfigureAwait(false);
+            this.DisplayableId = userAssertion.UserName;
         }
 
-        public virtual void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
+        protected override async Task PreTokenRequestAsync()
         {
-            authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.Login;
+            await base.PreTokenRequestAsync().ConfigureAwait(false);
         }
 
-        public virtual bool GetCacheLoadPolicy(IPlatformParameters parameters)
+        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
-            return true;
+            requestParameters[OAuthParameter.GrantType] = this.userAssertion.AssertionType;
+            requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(this.userAssertion.Assertion));
+
+
+            // To request id_token in response
+            requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
+
     }
 }

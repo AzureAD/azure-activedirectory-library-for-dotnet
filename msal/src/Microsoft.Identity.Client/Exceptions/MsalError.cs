@@ -103,6 +103,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public const string FederatedServiceReturnedError = "federated_service_returned_error";
 
+        /// <summary>
         /// User Realm Discovery Failed.
         /// </summary>
         public const string UserRealmDiscoveryFailed = "user_realm_discovery_failed";
