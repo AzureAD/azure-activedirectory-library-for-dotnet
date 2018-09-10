@@ -25,43 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory
+namespace Microsoft.Identity.Core
 {
+    internal interface IUsernameInput
+    {
+        string UserName { get; }
+    }
 
     /// <summary>
-    /// Credential used for integrated authentication on domain-joined machines.
+    /// Integrated Windows Authentication request data object. Used in the IWA workflow.
     /// </summary>
-    public class UserCredential
+    internal class IWAInput : IUsernameInput
     {
-        internal IWAInput IWAInput  { get;} 
-
-        /// <summary>
-        /// Constructor to create user credential. Using this constructor would imply integrated authentication with logged in user
-        /// and it can only be used in domain joined scenarios.
-        /// </summary>
-        public UserCredential()
-        {
-            IWAInput = new IWAInput();
-        }
-
-        /// <summary>
-        /// Constructor to create credential with username
-        /// </summary>
-        /// <param name="userName">Identifier of the user application requests token on behalf.</param>
-        public UserCredential(string userName)
-        {
-            IWAInput = new IWAInput(userName);
-        }
-
         /// <summary>
         /// Gets identifier of the user.
         /// </summary>
-        public string UserName
+        public string UserName { get; set; }
+
+        public IWAInput()
         {
-            get { return IWAInput.UserName; }
+            this.UserName = null;
         }
+
+        public IWAInput(string userName)
+        {
+            this.UserName = userName;
+        }       
+    
     }
 }

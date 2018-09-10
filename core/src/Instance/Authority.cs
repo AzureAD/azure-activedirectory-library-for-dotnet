@@ -78,6 +78,8 @@ namespace Microsoft.Identity.Core.Instance
 
         public string SelfSignedJwtAudience { get; set; }
 
+        public string UserRealmUriPrefix { get; private set; }
+
         public string Host { get; set; }
 
         internal virtual async Task UpdateCanonicalAuthorityAsync(RequestContext requestContext)
@@ -179,6 +181,8 @@ namespace Microsoft.Identity.Core.Instance
                 msg = "Is Authority tenantless? - " + IsTenantless;
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
+
+                UserRealmUriPrefix = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm/", this.Host);
 
                 if (ExistsInValidatedAuthorityCache(userPrincipalName))
                 {

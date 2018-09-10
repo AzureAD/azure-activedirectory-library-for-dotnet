@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -329,6 +330,79 @@ namespace Test.MSAL.NET.Unit
             Assert.IsNotNull(result.Account);
             Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
             Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+            Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        }
+
+        [TestMethod]
+        [TestCategory("PublicClientApplicationTests")]
+        [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
+        [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
+        public async Task AcquireTokenByWindowsIntegratedAuthTest()
+        {
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+            });
+
+            // user realm discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
+                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
+                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
+                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
+                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+                }
+            });
+
+            // MEX
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
+                }
+            });
+
+            // WsTrust
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
+                Method = HttpMethod.Post,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
+                }
+            });
+
+            // AAD
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
+                Method = HttpMethod.Post,
+                PostData = new Dictionary<string, string>()
+                {
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+                    {"scope", "offline_access openid profile r1/scope1 r1/scope2"}
+                },
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+            });
+
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+            AuthenticationResult result = await app.AcquireTokenByIntegratedWindowsAuthAsync(TestConstants.Scope, TestConstants.User.Username).ConfigureAwait(false);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("some-access-token", result.AccessToken);
+            Assert.IsNotNull(result.Account);
             Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");

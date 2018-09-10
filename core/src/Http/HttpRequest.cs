@@ -41,12 +41,23 @@ namespace Microsoft.Identity.Core.Http
         {
         }
 
-        public static async Task<HttpResponse> SendPostAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, RequestContext requestContext)
+        public static async Task<HttpResponse> SendPostAsync(Uri endpoint, IDictionary<string, string> headers,
+            IDictionary<string, string> bodyParameters, RequestContext requestContext)
+        {
+            HttpContent body = null;
+            if (bodyParameters != null)
+            {
+                body = new FormUrlEncodedContent(bodyParameters);
+            }
+            return await SendPostAsync(endpoint, headers, body, requestContext).ConfigureAwait(false);
+        }
+
+        public static async Task<HttpResponse> SendPostAsync(Uri endpoint, IDictionary<string, string> headers,
+            HttpContent body, RequestContext requestContext)
         {
             return
                 await
-                    ExecuteWithRetryAsync(endpoint, headers, bodyParameters, HttpMethod.Post, requestContext)
+                    ExecuteWithRetryAsync(endpoint, headers, body, HttpMethod.Post, requestContext)
                         .ConfigureAwait(false);
         }
 
@@ -56,7 +67,7 @@ namespace Microsoft.Identity.Core.Http
             return await ExecuteWithRetryAsync(endpoint, headers, null, HttpMethod.Get, requestContext).ConfigureAwait(false);
         }
 
-        private static HttpRequestMessage CreateRequestMessage(Uri endpoint, Dictionary<string, string> headers)
+        private static HttpRequestMessage CreateRequestMessage(Uri endpoint, IDictionary<string, string> headers)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage { RequestUri = endpoint };
             requestMessage.Headers.Accept.Clear();
@@ -71,8 +82,8 @@ namespace Microsoft.Identity.Core.Http
             return requestMessage;
         }
 
-        private static async Task<HttpResponse> ExecuteWithRetryAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, HttpMethod method,
+        private static async Task<HttpResponse> ExecuteWithRetryAsync(Uri endpoint, IDictionary<string, string> headers,
+            HttpContent body, HttpMethod method,
             RequestContext requestContext, bool retry = true)
         {
             Exception toThrow = null;
@@ -80,7 +91,14 @@ namespace Microsoft.Identity.Core.Http
             HttpResponse response = null;
             try
             {
-                response = await ExecuteAsync(endpoint, headers, bodyParameters, method).ConfigureAwait(false);
+                HttpContent clonedBody = null;
+                if (body != null)
+                {
+                    // Since HttpContent would be disposed by underlying client.SendAsync(),
+                    // we duplicate it so that we will have a copy in case we would need to retry
+                    clonedBody = await Helpers.CoreHelpers.DeepCopyAsync(body).ConfigureAwait(false);
+                }
+                response = await ExecuteAsync(endpoint, headers, clonedBody, method).ConfigureAwait(false);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -88,8 +106,8 @@ namespace Microsoft.Identity.Core.Http
                 }
 
                 var msg = string.Format(CultureInfo.InvariantCulture,
-                    "Response status code does not indicate success: {0} ({1}).",
-                    (int) response.StatusCode, response.StatusCode);
+                    CoreErrorMessages.HttpRequestUnsuccessful,
+                    (int)response.StatusCode, response.StatusCode);
                 requestContext.Logger.Info(msg);
                 requestContext.Logger.InfoPii(msg);
 
@@ -115,7 +133,7 @@ namespace Microsoft.Identity.Core.Http
                     requestContext.Logger.Info(msg);
                     requestContext.Logger.InfoPii(msg);
                     await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
-                    return await ExecuteWithRetryAsync(endpoint, headers, bodyParameters, method, requestContext, false).ConfigureAwait(false);
+                    return await ExecuteWithRetryAsync(endpoint, headers, body, method, requestContext, false).ConfigureAwait(false);
                 }
 
                 const string message = "Request retry failed.";
@@ -132,25 +150,22 @@ namespace Microsoft.Identity.Core.Http
                 throw CoreExceptionFactory.Instance.GetServiceException(
                     CoreErrorCodes.ServiceNotAvailable,
                     "Service is unavailable to process the request",
-                    null, 
+                    null,
                     new ExceptionDetail { StatusCode = (int)response.StatusCode });
             }
 
             return response;
         }
 
-        private static async Task<HttpResponse> ExecuteAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, HttpMethod method)
+        private static async Task<HttpResponse> ExecuteAsync(Uri endpoint, IDictionary<string, string> headers,
+            HttpContent body, HttpMethod method)
         {
             HttpClient client = HttpClientFactory.GetHttpClient();
 
             using (HttpRequestMessage requestMessage = CreateRequestMessage(endpoint, headers))
             {
                 requestMessage.Method = method;
-                if (bodyParameters != null)
-                {
-                    requestMessage.Content = new FormUrlEncodedContent(bodyParameters);
-                }
+                requestMessage.Content = body;
 
                 using (HttpResponseMessage responseMessage =
                     await client.SendAsync(requestMessage).ConfigureAwait(false))
@@ -159,6 +174,7 @@ namespace Microsoft.Identity.Core.Http
                     returnValue.UserAgent = client.DefaultRequestHeaders.UserAgent.ToString();
                     return returnValue;
                 }
+
             }
         }
 
