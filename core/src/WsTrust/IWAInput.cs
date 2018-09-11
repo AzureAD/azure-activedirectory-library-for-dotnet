@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,17 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-
-namespace Microsoft.Identity.Core.Telemetry
+namespace Microsoft.Identity.Core
 {
-    internal class DefaultEvent : EventBase
+    internal interface IUsernameInput
     {
-        public DefaultEvent(string clientId) : base((string) (EventBase.EventNamePrefix + "default_event"))
+        string UserName { get; }
+    }
+
+    /// <summary>
+    /// Integrated Windows Authentication request data object. Used in the IWA workflow.
+    /// </summary>
+    internal class IWAInput : IUsernameInput
+    {
+        /// <summary>
+        /// Gets identifier of the user.
+        /// </summary>
+        public string UserName { get; set; }
+
+        public IWAInput()
         {
-            this[EventNamePrefix + "client_id"] = clientId;
-            this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
-            this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
+            this.UserName = null;
         }
+
+        public IWAInput(string userName)
+        {
+            this.UserName = userName;
+        }       
+    
     }
 }
