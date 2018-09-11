@@ -61,8 +61,6 @@ namespace Microsoft.Identity.Core.Realm
             requestContext.Logger.Info(msg);
             requestContext.Logger.InfoPii(msg);
 
-            Debug.Assert(userRealmUriPrefix.EndsWith("/"), "Expecting the userRealmUriPrefix to end in / so that it can be appended to");
-
             var httpResponse = await HttpRequest.SendGetAsync(
                 new UriBuilder(userRealmUriPrefix + userName + "?api-version=1.0").Uri, null, requestContext).ConfigureAwait(false);
             return httpResponse.StatusCode == System.Net.HttpStatusCode.OK ? JsonHelper.DeserializeFromJson<UserRealmDiscoveryResponse>(httpResponse.Body) : null;
