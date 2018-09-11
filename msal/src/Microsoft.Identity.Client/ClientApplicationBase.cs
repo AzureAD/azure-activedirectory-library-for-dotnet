@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Client
         /// <Summary>
         /// Default Authority used for interactive calls.
         /// </Summary>
-        protected const string DefaultAuthority = "https://login.microsoftonline.com/common/";
+        internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
         /// <summary>
         /// Constructor of the base application
@@ -282,7 +282,8 @@ namespace Microsoft.Identity.Client
                 authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
                 var tenantId = authority.GetTenantId();
 
-                if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId))
+                if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId) 
+                    && account.HomeAccountId?.TenantId != null)
                 {
                     authority.UpdateTenantId(account.HomeAccountId.TenantId);
                 }
