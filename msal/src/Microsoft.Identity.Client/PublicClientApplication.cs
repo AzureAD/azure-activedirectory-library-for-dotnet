@@ -419,19 +419,7 @@ namespace Microsoft.Identity.Client
         }
 
       
-        
-        private async Task<AuthenticationResult> AcquireTokenByIWAAsync(IEnumerable<string> scopes, IWAInput iwaInput)
-        {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
-            var handler = new NonInteractiveRequest(requestParams, iwaInput)
-            {
-                ApiId = ApiEvent.ApiIds.AcquireTokenWithScopeUser
-            };
-
-            return await handler.RunAsync().ConfigureAwait(false);
-        }
-
+     
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
         {
             //create instance of UIParent and assign useCorporateNetwork to UIParent 
@@ -540,6 +528,20 @@ namespace Microsoft.Identity.Client
         {
             return await AcquireTokenByIWAAsync(scopes, new IWAInput(username)).ConfigureAwait(false);
         }
+
+
+        private async Task<AuthenticationResult> AcquireTokenByIWAAsync(IEnumerable<string> scopes, IWAInput iwaInput)
+        {
+            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
+            var handler = new NonInteractiveRequest(requestParams, iwaInput)
+            {
+                ApiId = ApiEvent.ApiIds.AcquireTokenWithScopeUser
+            };
+
+            return await handler.RunAsync().ConfigureAwait(false);
+        }
+
 
 #endif
     }
