@@ -59,7 +59,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenADFSv4FederatedInteractiveTest()
         {
-            CoreMobileADALTests.AcquireTokenADFSv4FederatedInteractiveTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, true);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv4NonFederatedTest()
         {
-            CoreMobileADALTests.AcquireTokenInteractiveADFSv4NonFederatedTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, false);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenADFSv3FederatedInteractiveTest()
         {
-            CoreMobileADALTests.AcquireTokenADFSv3FederatedInteractiveTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, true);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
-            CoreMobileADALTests.AcquireTokenInteractiveADFSv3NonFederatedTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, false);
         }
     }
 }

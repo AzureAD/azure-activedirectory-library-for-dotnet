@@ -144,6 +144,7 @@ namespace XForms
         private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
+            acquireResponseTitleLabel.Text = "Result:";
             await Task.Delay(700);
 
             try
@@ -160,7 +161,12 @@ namespace XForms
                 var res = await App.MsalPublicClient.AcquireTokenSilentAsync(GetScopes(),
                     getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled);
 
-                acquireResponseLabel.Text = ToString(res);
+                var resText = ToString(res);
+
+                if (resText.Contains("AccessToken"))
+                    acquireResponseTitleLabel.Text = "Result: Success";
+
+                acquireResponseLabel.Text = resText;
             }
             catch (Exception exception)
             {
@@ -172,6 +178,7 @@ namespace XForms
         {
             try
             {
+                acquireResponseTitleLabel.Text = "Result:";
                 AuthenticationResult res;
                 if (LoginHintSwitch.IsToggled)
                 {

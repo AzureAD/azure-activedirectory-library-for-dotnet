@@ -212,7 +212,7 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        async void AcquireTokenButton_Clicked(object sender, EventArgs e)
+        private async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");

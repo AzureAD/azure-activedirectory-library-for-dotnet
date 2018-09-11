@@ -54,8 +54,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreMobileMSALTests.cs" />
     <Compile Include="CoreMobileADALTests.cs" />
     <Compile Include="XamarinDroidADALTests.cs" />
+    <Compile Include="XamarinDroidMSALTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
