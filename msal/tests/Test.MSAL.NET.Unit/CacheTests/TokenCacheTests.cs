@@ -89,6 +89,18 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.Clear();
         }
 
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CanDeserializeTokenCacheInNet462()
+        {
+            var previousLogLevel = Logger.Level;
+            // Setting LogLevel.Verbose causes certain static dependencies to load
+            Logger.Level = LogLevel.Verbose;
+            TokenCache tokenCache = new TokenCache();
+            tokenCache.Deserialize(null);
+            Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
+            Logger.Level = previousLogLevel;
+        }
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
@@ -868,6 +880,40 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             Assert.IsNotNull(item);
             Assert.IsTrue(item.ScopeSet.Contains(scopeInCache));
+        }
+
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CacheB2CTokenTest()
+        {
+            TokenCache B2CCache = new TokenCache();
+            var tenantID = "someTenantID";
+            var authority = Authority.CreateAuthority(String.Format("https://login.microsoftonline.com/tfp/{0}/somePolicy/oauth2/v2.0/authorize", tenantID), false);
+
+            MsalTokenResponse response = new MsalTokenResponse();
+            //creating IDToken with empty tenantID and displayableID/PreferedUserName for B2C scenario
+            response.IdToken = MockHelpers.CreateIdToken(String.Empty, String.Empty, String.Empty);
+            response.ClientInfo = MockHelpers.CreateClientInfo();
+            response.AccessToken = "access-token";
+            response.ExpiresIn = 3599;
+            response.CorrelationId = "correlation-id";
+            response.RefreshToken = "refresh-token";
+            response.Scope = TestConstants.Scope.AsSingleString();
+            response.TokenType = "Bearer";
+
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
+            {
+                RequestContext = requestContext,
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                TenantUpdatedCanonicalAuthority = TestConstants.AuthorityTestTenant
+            };
+
+            B2CCache.SaveAccessAndRefreshToken(requestParams, response);
+
+            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
         }
 
         /*

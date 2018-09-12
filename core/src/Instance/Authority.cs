@@ -37,8 +37,8 @@ namespace Microsoft.Identity.Core.Instance
 {
     internal abstract class Authority
     {
-        private static readonly HashSet<string> TenantlessTenantNames =
-            new HashSet<string>(new[] {"common", "organizations"});
+        internal static readonly HashSet<string> TenantlessTenantNames =
+            new HashSet<string>(new[] {"common", "organizations", "consumers"});
         private bool _resolved;
 
         internal static readonly ConcurrentDictionary<string, Authority> ValidatedAuthorities =
@@ -242,6 +242,8 @@ namespace Microsoft.Identity.Core.Instance
         protected abstract string GetDefaultOpenIdConfigurationEndpoint();
 
         internal abstract string GetTenantId();
+
+        internal abstract void UpdateTenantId(string tenantId);
 
         private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(string openIdConfigurationEndpoint,
             RequestContext requestContext)

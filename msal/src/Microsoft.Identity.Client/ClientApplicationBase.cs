@@ -39,18 +39,22 @@ using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client
 {
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
     /// <Summary>
     /// Abstract class containing common API methods and properties. Both <see cref="Microsoft.Identity.Client.PublicClientApplication"/> and <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/> 
     /// extend this class. For details see https://aka.ms/msal-net-client-applications
     /// </Summary>
     public abstract partial class ClientApplicationBase
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         private TokenCache userTokenCache;
 
         /// <Summary>
         /// Default Authority used for interactive calls.
         /// </Summary>
-        protected const string DefaultAuthority = "https://login.microsoftonline.com/common/";
+        internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
         /// <summary>
         /// Constructor of the base application
@@ -115,6 +119,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public string ClientId { get; }
 
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
         /// <summary>
         /// The redirect URI (also known as Reply URI or Reply URL), is the URI at which Azure AD will contact back the application with the tokens. 
         /// This redirect URI needs to be registered in the app registration (https://aka.ms/msal-net-register-app).
@@ -131,6 +136,7 @@ namespace Microsoft.Identity.Client
         /// <remarks>This is especially important when you deploy an application that you have initially tested locally; 
         /// you then need to add the reply URL of the deployed application in the application registration portal</remarks>
         public string RedirectUri { get; set; }
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
 
         /// <summary>
         /// Sets or Gets a custom query parameters that may be sent to the STS for dogfood testing or debugging. This is a string of segments
@@ -268,9 +274,33 @@ namespace Microsoft.Identity.Client
             await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
         }
 
+        internal Authority GetAuthority(IAccount account)
+        {
+            var authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            var tenantId = authority.GetTenantId();
+
+            if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId)
+                && account.HomeAccountId?.TenantId != null)
+            {
+                authority.UpdateTenantId(account.HomeAccountId.TenantId);
+            }
+
+            return authority;
+        }
+
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
             IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
+            if (account == null)
+            {
+                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, MsalErrorMessage.MsalUiRequiredMessage);
+            }
+
+            if (authority == null)
+            {
+                authority = GetAuthority(account);
+            }
+
             var handler = new SilentRequest(
                 CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
@@ -286,7 +316,7 @@ namespace Microsoft.Identity.Client
             {
                 SliceParameters = SliceParameters,
                 Authority = authority,
-                ClientId =  ClientId,
+                ClientId = ClientId,
                 TokenCache = cache,
                 Account = account,
                 Scope = scopes.CreateSetFromEnumerable(),

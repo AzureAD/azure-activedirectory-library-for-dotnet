@@ -33,7 +33,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
@@ -57,6 +56,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
@@ -805,7 +806,7 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.ClientId,
                 TestConstants.ScopeForAnotherResourceStr).ToString());
 
-            Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), 
+            Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(),
                 new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null));
             AuthenticationResult result = task.Result;
             Assert.IsNotNull(result);
@@ -870,7 +871,7 @@ namespace Test.MSAL.NET.Unit
 
             HttpMessageHandlerFactory.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.PrefCacheAuthorityCommonTenant)));
+                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
 
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
@@ -1141,6 +1142,56 @@ namespace Test.MSAL.NET.Unit
             }
 
             Assert.Fail("Should not reach here. Exception was not thrown.");
+        }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithNullIdPassed_CommonAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(new Account(null, TestConstants.Name, TestConstants.ProductionPrefNetworkEnvironment));
+            Assert.AreEqual(ClientApplicationBase.DefaultAuthority, authoriy.CanonicalAuthority);
+        }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithIdPassed_TenantedAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(
+                new Account(
+                    new AccountId("objectId." + TestConstants.Utid, "objectId", TestConstants.Utid),
+                    TestConstants.Name,
+                    TestConstants.ProductionPrefNetworkEnvironment));
+
+            Assert.AreEqual(TestConstants.AuthorityTestTenant, authoriy.CanonicalAuthority);
+        }
+
+        [TestCategory("PublicClientApplicationTests")]
+        public async Task AcquireTokenSilentNullAccountErrorTest()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
+            {
+                ValidateAuthority = false
+            };
+
+            cache = new TokenCache()
+            {
+                ClientId = TestConstants.ClientId
+            };
+
+            app.UserTokenCache = cache;
+            try
+            {
+                AuthenticationResult result = await app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), null).ConfigureAwait(false);
+            }
+            catch (MsalUiRequiredException exc)
+            {
+                Assert.IsTrue(exc is MsalUiRequiredException);
+                Assert.AreEqual("user_null", MsalUiRequiredException.UserNullError);
+            }
         }
     }
 }
