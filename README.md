@@ -1,26 +1,33 @@
-# Active Directory Authentication Library (ADAL) for .NET, Windows Store, .NET Core, Xamarin iOS and Xamarin Android.
+# Active Directory Authentication Library (ADAL) for .NET, Windows Store, .NET Core, Xamarin iOS and Xamarin Android
 
-| [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-dotnet) | [Reference Docs](https://docs.microsoft.com/active-directory/adal/microsoft.identitymodel.clients.activedirectory) | [Developer Guide](https://aka.ms/aaddev)
-| --- | --- | --- |
+| [Conceptual documentation](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki#documentation) | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-dotnet) | [Reference Docs](https://docs.microsoft.com/active-directory/adal/microsoft.identitymodel.clients.activedirectory) | [Developer Guide](https://aka.ms/aaddev) | [API Reference](https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.clients.activedirectory?view=azure-dotnet) |
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 
-Active Directory Authentication Library (ADAL) provides easy to use authentication functionality for your .NET/.NET Core client, Windows Store/Xamarin.iOS/Xamarin.Android apps by taking advantage of Windows Server Active Directory and Windows Azure Active Directory.
+Active Directory Authentication Library for .NET (ADAL.NET) is an easy to use authentication library. You can use ADAL.NET to acquire **security tokens to access protected Web APIs**, for instance Microsoft Graph, or another Web APIs. ADAL.NET is available on various .NET Desktop/Mobile platforms to acquire a token for the signed-in user ( Windows desktop, UWP, Windows 8.1, Xamarin iOS and Xamarin Android). It can also be used in Web applications and Web APIs (ASP.NET, .NET Core, ASP.NET Core) that call other Web APIs in the name of a user, or without a user. ADAL.NET takes advantage of Windows Server Active Directory and Windows Azure Active Directory.
 
-
- Stable (`master` branch)    | Nightly (`dev` branch)
------------------------------|-------------------------
- [![NuGet](https://img.shields.io/nuget/v/Microsoft.IdentityModel.Clients.ActiveDirectory.svg?style=flat-square&label=nuget&colorB=00b200)](https://www.nuget.org/packages/Microsoft.IdentityModel.Clients.ActiveDirectory/) | [![MyGet](https://img.shields.io/myget/aad-clients-nightly/vpre/Microsoft.IdentityModel.Clients.ActiveDirectory.svg?style=flat-square&label=myget&colorB=ff0000)](https://www.myget.org/feed/aad-clients-nightly/package/nuget/Microsoft.IdentityModel.Clients.ActiveDirectory)
+| Release | Location                                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stable  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.IdentityModel.Clients.ActiveDirectory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.IdentityModel.Clients.ActiveDirectory/) |
 
 ## Build status
-| Branch  | Status |
-| ------------- | ------------- |
-| dev (AppVeyor)  | [![Build status](https://ci.appveyor.com/api/projects/status/e9rsfjshqr3vj6b7/branch/dev?svg=true)](https://ci.appveyor.com/project/AADDevExLibraries/azure-activedirectory-library-for-dotnet/branch/dev) |
+
+| dev                                                                                                                                                                                                                                  | adalV3/dev                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [![Build status](https://identitydivision.visualstudio.com/_apis/public/build/definitions/a7934fdd-dcde-4492-a406-7fad6ac00e17/556/badge)](https://identitydivision.visualstudio.com/IDDP/IDDP%20Team/_build/index?definitionId=556) | [![Build status](https://identitydivision.visualstudio.com/_apis/public/build/definitions/a7934fdd-dcde-4492-a406-7fad6ac00e17/187/badge)](https://identitydivision.visualstudio.com/IDDP/IDDP%20Team/_build/index?definitionId=187) |
+
+## Branches
+
+**dev**: Contains newest development of both ADAL (v4+) and MSAL (v2+). This is where all current and future development of ADAL and MSAL takes place.  
+**adalV3/dev** : Holds the v3 branch. Only security fixes will make it to v3.
 
 ## Versions
+
 Current version - latest one at [nuget.org](https://www.nuget.org/packages/Microsoft.IdentityModel.Clients.ActiveDirectory/).  
 Minimum recommended version - 2.29.0
+
 You can find the changes for each version in the [change log](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/blob/master/changelog.txt).
 
-## Security Issue in Multiple Versions of ADAL .Net ###
+## Security Issue in Multiple Versions of ADAL .Net
 
 A defect in ADAL .Net can result in an elevation of privilege in specific problem scenarios. The problem scenarios involve the On Behalf Of protocol flow and specific use cases of a ClientAssertion/ClientAssertionCertificate/ClientCredential and UserAssertion being passed to the AcquireToken* API. Multiple versions of the library are affected. Affected versions are listed below.
 
@@ -66,156 +73,11 @@ This is obviously the first diagnostic.  We try to provide helpful error message
 
 ### Logs
 
-Until ADAL.Net 3.18, in order to configure logging, you had to implement the ``IAdalLogCallback`` interface
+In order to configure logging, see the [wiki](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Logging-in-ADAL.Net) page for implementation details.
 
-```C#
-class LoggerCallbackImpl : IAdalLogCallback
-{
-    public void Log(LogLevel level, string message)
-    {
-        // process log message, for example write it to your favorite logging framework
-    }
-}
-```
-and then you had to set the static property ``Callback`` of the ``LoggerCallbackHandler`` class to the instance of a class implementing the ``IAdalLogCallback`` interface. 
+### Using brokers
 
-```CSharp
-LoggerCallbackHandler.Callback = new LoggerCallbackImpl();
-```
-
-
-This interface was logging all the information including the information containing Personally Identifyable Information (PII)
-
-
-From ADAL.NET 3.17.2, we help you to be [GDPR](https://gdpr-info.eu/) compliant out of the box, by not logging PII any longer through the ``IAdalLogCallback`` interface.
-
-Now, if you really need/want to log PII to help you with debugging, you can leverage a new mechanism in ADAL.NET 3.18:
--	You can subscribe to every message (including the ones filtered out because they contain PII information), by setting the ``LogCallback`` delegate of ``LoggerCallbackHandler``. You will be told by the ``containsPii`` parameter, if a message contains PII or not. Note that using ``LoggerCallbackHandler.LogCallback`` delegate will disable the legacy mechanism of logging the messages through the ``LoggerCallbackHandler.Callback`` property.
--	Once you have set the ``LoggerCallbackHandler.LogCallback`` property, you can also control if you want to log PII or not by settting the ``LoggerCallbackHandler.PiiLoggingEnabled`` property. By default, this Boolean is set to ``false`` (still to help you being GDPR compliant). If you set it to ``true``, messages will be logged twice (one which does not contain PII, for which ``containsPii`` will be false), and the second which will contain PII (and for which ``containsPii`` will be true)
-Finally, in any case, when PII information is logged, it’s systematically hashed.
-
-```CSharp
-  private static void Log(LogLevel level, string message, bool containsPii)
-  {
-   if (containsPii)
-   {
-    Console.ForegroundColor = ConsoleColor.Red;
-   }
-   Console.WriteLine($"{level} {message}");
-   Console.ResetColor();
-  }
-
-  static void Main(string[] args)
-  {
-   LoggerCallbackHandler.LogCallback = Log;
-   LoggerCallbackHandler.PiiLoggingEnabled = true;
-   ...
-```
-
-### Brokered Authentication for iOS
-
-If your app requires conditional access or certificate authentication (currently in preview) support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app. Make sure that your Redirect URI and application's bundle id is all in lower case.
-
-#### Enable Broker Mode on Your Context
-Broker is enabled on a per-authentication-context basis. It is disabled by default. You must set useBroker flag to true in PlatformParameters constructor if you wish ADAL to call to broker:
-
-```C#
-public PlatformParameters(UIViewController callerViewController, bool useBroker)
-```
-
-The userBroker flag setting will allow ADAL to try to call out to the broker.
-
-#### AppDelegate changes
-Update the AppDelegate.cs file to  include the override method below. This method is invoked everytime the application is launched and is used as an opportunity to process response from the Broker and complete the authentication process.
-```C#
-public override bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)
-{            
-	if (AuthenticationContinuationHelper.IsBrokerResponse(sourceApplication))
-    {
-		AuthenticationContinuationHelper.SetBrokerContinuationEventArgs(url);    
-    }
-	
-    return true;
-}
-```
-
-#### Registering a URL Scheme
-ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
-```
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLName</key>
-        <string>com.mycompany.myapp</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>mytestiosapp</string>
-        </array>
-    </dict>
-</array>
-```
-
-#### LSApplicationQueriesSchemes
-ADAL uses –canOpenURL: to check if the broker is installed on the device. in iOS 9 Apple locked down what schemes an application can query for. You will need to add “msauth” to the LSApplicationQueriesSchemes section of your info.plist file.
-
-```
-<key>LSApplicationQueriesSchemes</key>
-<array>
-     <string>msauth</string>
-</array>
-````
-
-#### Redirect URI
-This adds extra requirements on your redirect URI. Your redirect URI must be in the proper form.
-
-```
-<app-scheme>://<your.bundle.id>
-ex: mytestiosapp://com.mycompany.myapp
-```
-
-This Redirect URI needs to be registered on the app portal as a valid redirect URI. Additionally a second "msauth" form needs to be registered to handle certificate authentication in Azure Authenticator.
-
-```
-msauth://code/<broker-redirect-uri-in-url-encoded-form>
-AND
-msauth://code/<broker-redirect-uri-in-url-encoded-form>/
-ex: msauth://code/mytestiosapp%3A%2F%2Fcom.mycompany.myapp and msauth://code/mytestiosapp%3A%2F%2Fcom.mycompany.myapp/  
-```
-### Brokered Authentication for Android
-
-If your app or your app users require conditional access or certificate authentication support, you must set up your AuthenticationContext and redirectURI to be able to talk to the Azure Authenticator app OR Company Portal. Make sure that your Redirect URI and application's bundle id is all in lower case.
-
-#### Enable Broker Mode on Your Context
-Broker is enabled on a per-authentication-context basis. It is disabled by default. You must set useBroker flag to true in PlatformParameters constructor if you wish ADAL to call to broker:
-
-```C#
-public PlatformParameters(Activity callerActivity, bool useBroker)
-public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior)
-```
-
-The useBroker flag setting will allow ADAL to try to call out to the broker.
-
-If target version is lower than 23, calling app has to have the following permissions declared in manifest(http://developer.android.com/reference/android/accounts/AccountManager.html):
- - GET_ACCOUNTS
- - USE_CREDENTIALS
- - MANAGE_ACCOUNTS
-If target version is 23, USE_CREDENTIALS and MANAGE_ACCOUNTS have been deprecated and GET_ACCOUNTS is under protection level "dangerous". The calling app is responsible for requesting the runtime permission for GET_ACCOUNTS. You can reference Runtime permission request for API 23.
-
-#### Registering Redirect URI
-ADAL uses URLs to invoke the broker and then return back to your app. To finish that round trip you need a URL scheme registered for your app. We recommend making the URL scheme fairly unique to minimize the chances of another app using the same URL scheme.
-You can call generateRedirectUriForBroker.ps1 (requires updates from the developer to fill in values and details about the app) to compute the redirect uri.
-
-#### App Activity changes
-Update the MainActivity.cs file to  include the override method below. This method is invoked when the activity receives a callback from webview or the broker application. This code snippet is required complete the authentication process.
-```C#
-protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-{
-    base.OnActivityResult(requestCode, resultCode, data);
-	AuthenticationAgentContinuationHelper.SetAuthenticationAgentContinuationEventArgs(requestCode, resultCode, data);
-}
-```
+See [Leveraging brokers on Android and iOS](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/leveraging-brokers-on-Android-and-iOS)
 
 ### Network Traces
 
