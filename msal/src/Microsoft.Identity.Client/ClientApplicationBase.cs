@@ -291,6 +291,11 @@ namespace Microsoft.Identity.Client
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
             IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
+            if (account == null)
+            {
+                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, MsalErrorMessage.MsalUiRequiredMessage);
+            }
+
             if (authority == null)
             {
                 authority = GetAuthority(account);
@@ -311,7 +316,7 @@ namespace Microsoft.Identity.Client
             {
                 SliceParameters = SliceParameters,
                 Authority = authority,
-                ClientId =  ClientId,
+                ClientId = ClientId,
                 TokenCache = cache,
                 Account = account,
                 Scope = scopes.CreateSetFromEnumerable(),
