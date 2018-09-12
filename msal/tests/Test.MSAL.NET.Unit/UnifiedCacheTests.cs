@@ -153,23 +153,5 @@ namespace Test.MSAL.NET.Unit
 
             Assert.IsNotNull(result1);
         }
-
-        [TestMethod]
-        [Description("Test unified token cache")]
-        public void UnifedCache_MsalSilentApiCommonAuthorityUsedForAdalAccountsWithNullAccountId()
-        {
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-            try
-            {
-                var res = app.AcquireTokenSilentAsync(TestConstants.Scope, 
-                    new Account(null, TestConstants.Name, TestConstants.ProductionPrefNetworkEnvironment)).Result;
-            }
-            catch (AggregateException ae)
-            {
-                Assert.IsTrue(ae.InnerException is MsalUiRequiredException);
-            }
-
-            Assert.AreEqual(app.Authority, ClientApplicationBase.DefaultAuthority);
-        }
     }
 }

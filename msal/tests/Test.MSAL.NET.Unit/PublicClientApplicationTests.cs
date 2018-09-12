@@ -1142,5 +1142,30 @@ namespace Test.MSAL.NET.Unit
 
             Assert.Fail("Should not reach here. Exception was not thrown.");
         }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithNullIdPassed_CommonAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(new Account(null, TestConstants.Name, TestConstants.ProductionPrefNetworkEnvironment));
+            Assert.AreEqual(ClientApplicationBase.DefaultAuthority, authoriy.CanonicalAuthority);
+        }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithIdPassed_TenantedAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(
+                new Account(
+                    new AccountId("objectId." + TestConstants.Utid, "objectId", TestConstants.Utid),
+                    TestConstants.Name,
+                    TestConstants.ProductionPrefNetworkEnvironment));
+
+            Assert.AreEqual(TestConstants.AuthorityTestTenant, authoriy.CanonicalAuthority);
+        }
     }
 }
