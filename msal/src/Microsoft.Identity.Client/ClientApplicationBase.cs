@@ -279,8 +279,7 @@ namespace Microsoft.Identity.Client
         {
             if (account == null)
             {
-                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, "Null user was passed in AcquiretokenSilent API. Pass in " +
-                                                                                         "a user object or call acquireToken to authenticate.");
+                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, MsalErrorMessage.MsalUiRequiredMessage);
             }
 
             if (authority == null)
