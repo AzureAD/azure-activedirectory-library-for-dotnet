@@ -188,8 +188,7 @@ namespace Microsoft.Identity.Core
 
             Save(account, service, generic, type, value);
         }
-
-
+        
         public void DeleteAccessToken(MsalAccessTokenCacheKey cacheKey)
         {
             var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
@@ -244,8 +243,6 @@ namespace Microsoft.Identity.Core
 
             Remove(account, service, type);
         }
-
-
         public ICollection<string> GetAllAccessTokensAsString()
         {
             return GetValues((int)CredentialAttrType.AccessToken);
