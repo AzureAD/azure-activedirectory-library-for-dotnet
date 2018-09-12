@@ -49,6 +49,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
@@ -80,22 +81,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = TestConstants.Scope,
                 TokenCache = cache,
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
-
-            parameters.Account = null;
-            try
-            {
-                new SilentRequest(parameters, false);
-                Assert.Fail("MsalUiRequiredException should have been thrown here");
-            }
-            catch (MsalUiRequiredException exc)
-            {
-                Assert.AreEqual(exc.ErrorCode, MsalUiRequiredException.UserNullError);
-            }
-
-            parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
-
+            
             SilentRequest request = new SilentRequest(parameters, false);
             Assert.IsNotNull(request);
 

@@ -277,6 +277,12 @@ namespace Microsoft.Identity.Client
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
             IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
+            if (account == null)
+            {
+                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, "Null user was passed in AcquiretokenSilent API. Pass in " +
+                                                                                         "a user object or call acquireToken to authenticate.");
+            }
+
             if (authority == null)
             {
                 authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
@@ -303,7 +309,7 @@ namespace Microsoft.Identity.Client
             {
                 SliceParameters = SliceParameters,
                 Authority = authority,
-                ClientId =  ClientId,
+                ClientId = ClientId,
                 TokenCache = cache,
                 Account = account,
                 Scope = scopes.CreateSetFromEnumerable(),

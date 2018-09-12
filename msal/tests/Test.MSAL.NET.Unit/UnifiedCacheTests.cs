@@ -50,6 +50,7 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();

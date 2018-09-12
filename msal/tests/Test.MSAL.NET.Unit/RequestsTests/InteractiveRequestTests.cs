@@ -57,6 +57,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
@@ -250,6 +251,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
+            HttpMessageHandlerFactory.AddMockHandler(
+               MockHelpers.CreateInstanceDiscoveryMockHandler(
+                   TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
+
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
@@ -257,9 +262,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
             });
 
-            MockWebUI webUi = new MockWebUI();
-            webUi.MockResult = new AuthorizationResult(AuthorizationStatus.ErrorHttp,
-                TestConstants.AuthorityHomeTenant + "?error=" + OAuth2Error.LoginRequired);
+            MockWebUI webUi = new MockWebUI()
+            {
+                MockResult = new AuthorizationResult(AuthorizationStatus.ErrorHttp,
+                TestConstants.AuthorityHomeTenant + "?error=" + OAuth2Error.LoginRequired)
+            };
 
             AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {

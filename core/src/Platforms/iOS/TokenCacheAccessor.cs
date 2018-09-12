@@ -96,11 +96,6 @@ namespace Microsoft.Identity.Core
                 match = SecKeyChain.QueryAsRecord(queryRecord, out resultCode);
             }
 
-            if (resultCode != SecStatusCode.Success)
-            {
-                return string.Empty;
-            }
-
             return match.AccessGroup.Split('.')[0];
         }
 
