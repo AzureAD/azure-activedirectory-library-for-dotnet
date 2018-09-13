@@ -41,7 +41,11 @@ namespace DesktopTestApp
     public partial class MainForm : Form
     {
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
+        public const string B2cClientId = "90c0fe63-bcf2-44d5-8fb7-b8bbc0b29dc6";
+
+        public static string[] B2cScopes = { "https://fabrikamb2c.onmicrosoft.com/demoapi/demo.read" };
+
+        private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(B2cClientId);
 
         public MainForm()
         {
@@ -81,14 +85,14 @@ namespace DesktopTestApp
         public void RefreshUserList()
         {
             List<IAccount> accounts = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result.ToList();
-            if (accounts.Count > 0)
-            {
-                accounts.Insert(0, new Account(_publicClientHandler.CurrentUser.HomeAccountId, 
-                    _publicClientHandler.CurrentUser.Username, _publicClientHandler.CurrentUser.Environment));
-            }
+            //if (accounts.Count > 0)
+            //{
+            //    accounts.Insert(0, new Account(_publicClientHandler.CurrentUser.HomeAccountId,
+            //        _publicClientHandler.CurrentUser.Username, _publicClientHandler.CurrentUser.Environment));
+            //}
 
             userList.DataSource = accounts;
-            userList.DisplayMember = "DisplayableId";
+            //userList.DisplayMember = "DisplayableId";
             userList.Refresh();
         }
 
@@ -138,8 +142,8 @@ namespace DesktopTestApp
         {
             ClearResultPageInfo();
             _publicClientHandler.LoginHint = loginHintTextBox.Text;
-            _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
-            _publicClientHandler.InteractiveAuthority = authority.Text;
+            // _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
+            // _publicClientHandler.InteractiveAuthority = authority.Text;
 
             if (userList.SelectedIndex == 0)
             {
@@ -152,7 +156,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(B2cScopes, GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                 SetResultPageInfo(authenticationResult);
                 RefreshUserList();
@@ -162,7 +166,7 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-        
+
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
@@ -189,7 +193,7 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-        
+
         private async void acquireTokenInteractiveAuthority_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
@@ -208,7 +212,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthorityAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthorityAsync(B2cScopes, GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -275,7 +279,7 @@ namespace DesktopTestApp
                               @"User: " + authenticationResult.Account.Username + Environment.NewLine +
                               @"Id Token: " + authenticationResult.IdToken;
         }
-        
+
         public void ClearResultPageInfo()
         {
             callResult.Text = string.Empty;
