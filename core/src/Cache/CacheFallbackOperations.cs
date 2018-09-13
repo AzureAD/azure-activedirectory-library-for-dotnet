@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.Cache
@@ -183,8 +184,7 @@ namespace Microsoft.Identity.Core.Cache
                 List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in dictionary)
                 {
-                    if (environmentAliases.Contains(new Uri(pair.Key.Authority).Host) &&
-                         displayableId.Equals(pair.Key.DisplayableId) &&
+                    if (KeyMatches(pair.Key, displayableId, environmentAliases) &&
                          identifier.Equals(ClientInfo.CreateFromJson(pair.Value.RawClientInfo).ToAccountIdentifier()))
                     {
                         keysToRemove.Add(pair.Key);
@@ -206,6 +206,17 @@ namespace Microsoft.Identity.Core.Cache
                 CoreLoggerBase.Default.Warning(msg + noPiiMsg);
                 CoreLoggerBase.Default.WarningPii(msg + ex);
             }
+        }
+
+        private static bool KeyMatches(AdalTokenCacheKey key, string displayableId, ISet<string> environmentAliases)
+        {
+            return environmentAliases.Contains(new Uri(key.Authority).Host) &&
+                (
+                    (displayableId == null && key.DisplayableId == null) || //B2C accounts do not have displayable IDs
+                    (displayableId == null && key.DisplayableId == TokenCache.NullPreferredUsernameDisplayLabel) || //B2C accounts do not have displayable IDs
+                    (displayableId == TokenCache.NullPreferredUsernameDisplayLabel && key.DisplayableId == null) || //B2C accounts do not have displayable IDs
+
+                    displayableId.Equals(key.DisplayableId));
         }
 
         public static List<MsalRefreshTokenCacheItem> GetAllAdalEntriesForMsal(ILegacyCachePersistance legacyCachePersistance, 
