@@ -193,7 +193,7 @@ namespace Microsoft.Identity.Core.Cache
         public static void RemoveAdalUser(ILegacyCachePersistance legacyCachePersistance,
             string displayableId, ISet<string> environmentAliases, string identifier)
         {
-            if (String.IsNullOrEmpty(displayableId))
+            if (string.IsNullOrEmpty(displayableId))
             {
                 throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.InternalError,
