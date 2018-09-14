@@ -205,7 +205,7 @@ namespace Microsoft.Identity.Core.Cache
                 IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary =
                     AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
 
-                if (!String.IsNullOrEmpty(identifier))
+                if (!string.IsNullOrEmpty(identifier))
                 {
                     RemoveEntriesWithMatchingId(environmentAliases, identifier, dictionary);
                 }
@@ -238,7 +238,7 @@ namespace Microsoft.Identity.Core.Cache
                 string environment = new Uri(kvp.Key.Authority).Host;
                 string cachedAcccountDisplayableId = kvp.Key.DisplayableId;
                 if (environmentAliases.Contains(environment, StringComparer.OrdinalIgnoreCase) &&
-                    String.Equals(displayableId, cachedAcccountDisplayableId, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(displayableId, cachedAcccountDisplayableId, StringComparison.OrdinalIgnoreCase))
                 {
                     keysToRemove.Add(kvp.Key);
                 }
@@ -263,7 +263,7 @@ namespace Microsoft.Identity.Core.Cache
                 string cachedAccountId = ClientInfo.CreateFromJson(kvp.Value.RawClientInfo).ToAccountIdentifier();
 
                 if (environmentAliases.Contains(environment, StringComparer.OrdinalIgnoreCase) &&
-                    String.Equals(identifier, cachedAccountId, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(identifier, cachedAccountId, StringComparison.OrdinalIgnoreCase))
                 {
                     keysToRemove.Add(kvp.Key);
                 }
