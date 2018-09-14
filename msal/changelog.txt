@@ -1,3 +1,14 @@
+2.0.1-preview
+=============
+This release contains:
+- Resolved logger issue in b2 cpm sample for msal with object null reference.
+- Adding required claims to error messages.
+- Resolving issue where B2C access and refresh tokens were not cached due to missing claims in the id Token.
+- Resolved issue with AcquireTokenSilent without passing authority when migrating from ADAL V4 to MSAL V2.
+- Resolved issue with duplicate key when caching.
+- MSAL will now use the common authority if account with null id is passed to silent api
+- Fixed issue with accounts not being removed from cache.
+
 2.0.0-preview
 =============
 This release contains:
