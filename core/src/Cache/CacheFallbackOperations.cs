@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Core.Cache
             }
         }
 
-        public static void WriteAdalRefreshToken(ILegacyCachePersistance legacyCachePersistance, 
+        public static void WriteAdalRefreshToken(ILegacyCachePersistance legacyCachePersistance,
             MsalRefreshTokenCacheItem rtItem, MsalIdTokenCacheItem idItem, string authority, string uniqueId, string scope)
         {
             try
@@ -145,7 +145,7 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase) 
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase)
                         && environments.Contains(new Uri(p.Key.Authority).Host)).ToList();
 
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
@@ -173,27 +173,46 @@ namespace Microsoft.Identity.Core.Cache
             return Tuple.Create(clientInfoToAdalUserMap, adalUsersWithoutClientInfo);
         }
 
+        /// <summary>
+        /// Algorith to delete: 
+        /// 
+        /// Invariant: displayableId is not null 
+        /// 
+        /// if identifier != null then delete everything with the same client info and env
+        /// othewise, delete everything with the same displayableId
+        /// 
+        /// Notes: 
+        /// - displayableId can change rarely
+        /// - ClientCredential Grant uses the app token cache, not the user token cache, so this algorithm does not apply
+        /// (nor will GetAccounts / RemoveAccount work)
+        /// 
+        /// </summary>
+        /// <param name="legacyCachePersistance"></param>
+        /// <param name="displayableId"></param>
+        /// <param name="environmentAliases"></param>
+        /// <param name="identifier"></param>
         public static void RemoveAdalUser(ILegacyCachePersistance legacyCachePersistance,
             string displayableId, ISet<string> environmentAliases, string identifier)
         {
+            if (String.IsNullOrEmpty(displayableId))
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InternalError,
+                    "Internal error - trying to remove an ADAL user with an empty username. Please log a bug.");
+            }
+
             try
             {
                 IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary =
                     AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
 
-                List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
-                foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in dictionary)
+                if (!String.IsNullOrEmpty(identifier))
                 {
-                    if (KeyMatches(pair.Key, displayableId, environmentAliases) &&
-                         identifier.Equals(ClientInfo.CreateFromJson(pair.Value.RawClientInfo).ToAccountIdentifier()))
-                    {
-                        keysToRemove.Add(pair.Key);
-                    }
+                    RemoveEntriesWithMatchingId(environmentAliases, identifier, dictionary);
                 }
-
-                foreach (AdalTokenCacheKey key in keysToRemove)
+                else
                 {
-                    dictionary.Remove(key);
+                    RemoveEntriesWithMatchingName(environmentAliases, displayableId, dictionary);
                 }
 
                 legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
@@ -208,18 +227,56 @@ namespace Microsoft.Identity.Core.Cache
             }
         }
 
-        private static bool KeyMatches(AdalTokenCacheKey key, string displayableId, ISet<string> environmentAliases)
+        private static void RemoveEntriesWithMatchingName(
+            ISet<string> environmentAliases, 
+            string displayableId, 
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary)
         {
-            return environmentAliases.Contains(new Uri(key.Authority).Host) &&
-                (
-                    (displayableId == null && key.DisplayableId == null) || //B2C accounts do not have displayable IDs
-                    (displayableId == null && key.DisplayableId == TokenCache.NullPreferredUsernameDisplayLabel) || //B2C accounts do not have displayable IDs
-                    (displayableId == TokenCache.NullPreferredUsernameDisplayLabel && key.DisplayableId == null) || //B2C accounts do not have displayable IDs
+            List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
 
-                    displayableId.Equals(key.DisplayableId));
+            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in dictionary)
+            {
+                string environment = new Uri(kvp.Key.Authority).Host;
+                string cachedAcccountDisplayableId = kvp.Key.DisplayableId;
+                if (environmentAliases.Contains(environment, StringComparer.OrdinalIgnoreCase) &&
+                    String.Equals(displayableId, cachedAcccountDisplayableId, StringComparison.OrdinalIgnoreCase))
+                {
+                    keysToRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (AdalTokenCacheKey key in keysToRemove)
+            {
+                dictionary.Remove(key);
+            }
         }
 
-        public static List<MsalRefreshTokenCacheItem> GetAllAdalEntriesForMsal(ILegacyCachePersistance legacyCachePersistance, 
+        private static void RemoveEntriesWithMatchingId(
+            ISet<string> environmentAliases,
+            string identifier,
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary)
+        {
+            List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
+
+            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in dictionary)
+            {
+                string environment = new Uri(kvp.Key.Authority).Host;
+                string cachedAccountId = ClientInfo.CreateFromJson(kvp.Value.RawClientInfo).ToAccountIdentifier();
+
+                if (environmentAliases.Contains(environment, StringComparer.OrdinalIgnoreCase) &&
+                    String.Equals(identifier, cachedAccountId, StringComparison.OrdinalIgnoreCase))
+                {
+                    keysToRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (AdalTokenCacheKey key in keysToRemove)
+            {
+                dictionary.Remove(key);
+            }
+        }
+
+        public static List<MsalRefreshTokenCacheItem> GetAllAdalEntriesForMsal(ILegacyCachePersistance legacyCachePersistance,
             ISet<string> environmentAliases, string clientId, string upn, string uniqueId, string rawClientInfo)
         {
             try
@@ -287,7 +344,7 @@ namespace Microsoft.Identity.Core.Cache
             }
         }
 
-        public static MsalRefreshTokenCacheItem GetAdalEntryForMsal(ILegacyCachePersistance legacyCachePersistance, 
+        public static MsalRefreshTokenCacheItem GetAdalEntryForMsal(ILegacyCachePersistance legacyCachePersistance,
             string preferredEnvironment, ISet<string> environmentAliases, string clientId, string upn, string uniqueId, string rawClientInfo)
         {
             var adalRts = GetAllAdalEntriesForMsal(legacyCachePersistance, environmentAliases, clientId, upn, uniqueId, rawClientInfo);
