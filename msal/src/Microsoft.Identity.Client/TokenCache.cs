@@ -386,13 +386,13 @@ namespace Microsoft.Identity.Client
                 requestParams.RequestContext.Logger.InfoPii(msg);
 
                 //filter by authority
-                IEnumerable<MsalAccessTokenCacheItem> filteredByPrefferedAlias =
+                IEnumerable<MsalAccessTokenCacheItem> filteredByPreferredAlias =
                     filteredItems.Where
                     (item => item.Environment.Equals(preferredEnvironmentAlias, StringComparison.OrdinalIgnoreCase));
 
-                if (filteredByPrefferedAlias.Any())
+                if (filteredByPreferredAlias.Any())
                 {
-                    filteredItems = filteredByPrefferedAlias;
+                    filteredItems = filteredByPreferredAlias;
                 }
                 else
                 {
@@ -951,11 +951,11 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal void RemoveMsalAccount(IAccount account, ISet<string> environmnetAliases, RequestContext requestContext)
+        internal void RemoveMsalAccount(IAccount account, ISet<string> environmentAliases, RequestContext requestContext)
         {
             IList<MsalRefreshTokenCacheItem> allRefreshTokens = GetAllRefreshTokensForClient(requestContext)
                 .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                               environmnetAliases.Contains(item.Environment))
+                               environmentAliases.Contains(item.Environment))
                 .ToList();
             foreach (MsalRefreshTokenCacheItem refreshTokenCacheItem in allRefreshTokens)
             {
@@ -967,7 +967,7 @@ namespace Microsoft.Identity.Client
             requestContext.Logger.InfoPii(msg);
             IList<MsalAccessTokenCacheItem> allAccessTokens = GetAllAccessTokensForClient(requestContext)
                 .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                               environmnetAliases.Contains(item.Environment))
+                               environmentAliases.Contains(item.Environment))
                 .ToList();
             foreach (MsalAccessTokenCacheItem accessTokenCacheItem in allAccessTokens)
             {
@@ -980,7 +980,7 @@ namespace Microsoft.Identity.Client
 
             IList<MsalIdTokenCacheItem> allIdTokens = GetAllIdTokensForClient(requestContext)
                 .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                               environmnetAliases.Contains(item.Environment))
+                               environmentAliases.Contains(item.Environment))
                 .ToList();
             foreach (MsalIdTokenCacheItem idTokenCacheItem in allIdTokens)
             {
@@ -993,7 +993,7 @@ namespace Microsoft.Identity.Client
 
             IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
                 .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                               environmnetAliases.Contains(item.Environment))
+                               environmentAliases.Contains(item.Environment))
                 .ToList();
             foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
             {
