@@ -62,7 +62,6 @@ namespace XForms
                 Select(x => x.Username).ToList();
 
             userIds.Add(UserNotSelected);
-           // usersPicker.ItemsSource = userIds;
             usersPicker.SelectedIndex = 0;
         }
 

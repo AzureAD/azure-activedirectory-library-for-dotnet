@@ -186,35 +186,24 @@ namespace Microsoft.Identity.Core.Cache
         /// (nor will GetAccounts / RemoveAccount work)
         /// 
         /// </summary>
-        /// <param name="legacyCachePersistance"></param>
-        /// <param name="displayableId"></param>
-        /// <param name="environmentAliases"></param>
-        /// <param name="identifier"></param>
         public static void RemoveAdalUser(ILegacyCachePersistance legacyCachePersistance,
             string displayableId, ISet<string> environmentAliases, string identifier)
         {
-            if (string.IsNullOrEmpty(displayableId))
-            {
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.InternalError,
-                    "Internal error - trying to remove an ADAL user with an empty username. Please log a bug.");
-            }
-
             try
             {
-                IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary =
+                IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache =
                     AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
 
                 if (!string.IsNullOrEmpty(identifier))
                 {
-                    RemoveEntriesWithMatchingId(environmentAliases, identifier, dictionary);
+                    RemoveEntriesWithMatchingId(environmentAliases, identifier, adalCache);
                 }
                 else
                 {
-                    RemoveEntriesWithMatchingName(environmentAliases, displayableId, dictionary);
+                    RemoveEntriesWithMatchingName(environmentAliases, displayableId, adalCache);
                 }
 
-                legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
+                legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(adalCache));
             }
             catch (Exception ex)
             {
@@ -229,14 +218,15 @@ namespace Microsoft.Identity.Core.Cache
         private static void RemoveEntriesWithMatchingName(
             ISet<string> environmentAliases, 
             string displayableId, 
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary)
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache)
         {
             List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
 
-            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in dictionary)
+            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
             {
                 string environment = new Uri(kvp.Key.Authority).Host;
                 string cachedAcccountDisplayableId = kvp.Key.DisplayableId;
+
                 if (environmentAliases.Contains(environment, StringComparer.OrdinalIgnoreCase) &&
                     string.Equals(displayableId, cachedAcccountDisplayableId, StringComparison.OrdinalIgnoreCase))
                 {
@@ -246,18 +236,18 @@ namespace Microsoft.Identity.Core.Cache
 
             foreach (AdalTokenCacheKey key in keysToRemove)
             {
-                dictionary.Remove(key);
+                adalCache.Remove(key);
             }
         }
 
         private static void RemoveEntriesWithMatchingId(
             ISet<string> environmentAliases,
             string identifier,
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary)
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache)
         {
             List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
 
-            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in dictionary)
+            foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
             {
                 string environment = new Uri(kvp.Key.Authority).Host;
                 string cachedAccountId = ClientInfo.CreateFromJson(kvp.Value.RawClientInfo).ToAccountIdentifier();
@@ -271,7 +261,7 @@ namespace Microsoft.Identity.Core.Cache
 
             foreach (AdalTokenCacheKey key in keysToRemove)
             {
-                dictionary.Remove(key);
+                adalCache.Remove(key);
             }
         }
 

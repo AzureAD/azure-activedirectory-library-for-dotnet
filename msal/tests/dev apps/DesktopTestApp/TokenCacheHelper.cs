@@ -44,7 +44,7 @@ namespace DesktopTestApp
             return UserTokenCache;
         }
 
-        public static string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + "msalcache2.txt";
+        public static string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + "msalcache.txt";
 
         private static readonly object FileLock = new object();
 
