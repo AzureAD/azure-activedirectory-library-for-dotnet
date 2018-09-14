@@ -192,7 +192,7 @@ namespace Microsoft.Identity.Core.Cache
             try
             {
                 IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache =
-                    AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
+                AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
 
                 if (!string.IsNullOrEmpty(identifier))
                 {
@@ -216,10 +216,17 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         private static void RemoveEntriesWithMatchingName(
-            ISet<string> environmentAliases, 
-            string displayableId, 
+            ISet<string> environmentAliases,
+            string displayableId,
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache)
         {
+            if (String.IsNullOrEmpty(displayableId))
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InternalError,
+                    CoreErrorMessages.InternalErrorCacheEmptyUsername);
+            }
+
             List<AdalTokenCacheKey> keysToRemove = new List<AdalTokenCacheKey>();
 
             foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
