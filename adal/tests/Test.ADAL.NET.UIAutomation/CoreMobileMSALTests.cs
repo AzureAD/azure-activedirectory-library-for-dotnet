@@ -24,18 +24,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenTest(ITestController controller)
         {
-            //Get User from Lab
-            var user = controller.GetUser(
-                new UserQueryParameters
-                {
-                    IsMamUser = false,
-                    IsMfaUser = false,
-                    IsFederatedUser = false
-                });
-
-            //Clear Cache
-            controller.Tap("Cache");
-            controller.Tap("clearCache");
+            var user = prepareForAuthentication(controller);
 
             SetInputData(controller, UIAutomationAppV2, "User.Read");
 
@@ -51,18 +40,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenSilentTest(ITestController controller)
         {
-            //Get User from Lab
-            var user = controller.GetUser(
-                new UserQueryParameters
-                {
-                    IsMamUser = false,
-                    IsMfaUser = false,
-                    IsFederatedUser = false
-                });
-
-            //Clear Cache
-            controller.Tap("Cache");
-            controller.Tap("clearCache");
+            var user = prepareForAuthentication(controller);
 
             SetInputData(controller, UIAutomationAppV2, "User.Read");
 
@@ -84,19 +62,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenADFSvXInteractiveMSALTest(ITestController controller, FederationProvider federationProvider, bool isFederated)
         {
-            //Get User from Lab
-            var user = controller.GetUser(
-                new UserQueryParameters
-                {
-                    FederationProvider = federationProvider,
-                    IsMamUser = false,
-                    IsMfaUser = false,
-                    IsFederatedUser = isFederated
-                });
-
-            //Clear Cache
-            controller.Tap("Cache");
-            controller.Tap("clearCache");
+            var user = prepareForAuthentication(controller);
 
             SetInputData(controller, UIAutomationAppV2, "User.Read");
 
@@ -104,6 +70,22 @@ namespace Test.MSAL.NET.UIAutomation
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+        }
+
+        private static IUser prepareForAuthentication(ITestController controller)
+        {
+            //Clear Cache
+            controller.Tap("Cache");
+            controller.Tap("clearCache");
+
+            //Get User from Lab
+            return controller.GetUser(
+                new UserQueryParameters
+                {
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = false
+                });
         }
 
         private static void SetInputData(ITestController controller, string ClientID, string scopes)

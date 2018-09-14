@@ -21,18 +21,18 @@ namespace XFormsApp
             //Adding default applications and resources to make testing easier by removing the need to rebuild the application 
             //whenever a user wants to change a resource. You can add new applications and resources here and they will be available via 
             //drop down when the app runs.
-            Applications = new Dictionary<string, string>();
-            Applications.Add("Ui Test App", UiAutomationTestClientId);
-            Applications.Add("MSID Lab 4", MSIDLAB4ClientId);
+            LabelToApplicationUriMap = new Dictionary<string, string>();
+            LabelToApplicationUriMap.Add("Ui Test App", UiAutomationTestClientId);
+            LabelToApplicationUriMap.Add("MSID Lab 4", MSIDLAB4ClientId);
 
-            Resources = new Dictionary<string, string>();
-            Resources.Add("MS Graph", MSGraph);
-            Resources.Add("Ui Test Resource", UiAutomationTestResource);
-            Resources.Add("Exchange", Exchange);
-            Resources.Add("SharePoint", SharePoint);
+            LabelToResourceUriMap = new Dictionary<string, string>();
+            LabelToResourceUriMap.Add("MS Graph", MSGraph);
+            LabelToResourceUriMap.Add("Ui Test Resource", UiAutomationTestResource);
+            LabelToResourceUriMap.Add("Exchange", Exchange);
+            LabelToResourceUriMap.Add("SharePoint", SharePoint);
         }
 
-        public static Dictionary<string, string> Applications { get; set; }
-        public static Dictionary<string, string> Resources { get; set; }
+        public static Dictionary<string, string> LabelToApplicationUriMap { get; set; }
+        public static Dictionary<string, string> LabelToResourceUriMap { get; set; }
     }
 }

@@ -122,14 +122,14 @@ namespace XFormsApp
             clientIdPicker = new Picker
             {
                 Title = "Pick an application",
-                ItemsSource = new List<string>(AppConstants.Applications.Keys),
+                ItemsSource = new List<string>(AppConstants.LabelToApplicationUriMap.Keys),
                 AutomationId = "clientIdPicker"
             };
 
             resourcePicker = new Picker
             {
                 Title = "Pick a resource",
-                ItemsSource = new List<string>(AppConstants.Resources.Keys),
+                ItemsSource = new List<string>(AppConstants.LabelToResourceUriMap.Keys),
                 AutomationId = "resourcePicker"
             };
 
@@ -344,8 +344,6 @@ namespace XFormsApp
             switch (Device.RuntimePlatform)
             {
                 case Device.iOS:
-                    AcquireTokenWithBroker();
-                    break;
                 case Device.Android:
                     AcquireTokenWithBroker();
                     break;
@@ -399,12 +397,12 @@ namespace XFormsApp
 
         void UpdateClientId(object sender, EventArgs e)
         {
-            ClientId = clientIdInput.Text = AppConstants.Applications.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
+            ClientId = clientIdInput.Text = AppConstants.LabelToApplicationUriMap.Where(x => x.Key == (string)clientIdPicker.SelectedItem).FirstOrDefault().Value;
         }
 
         void UpdateResourceId(object sender, EventArgs e)
         {
-            Resource = resourceInput.Text = AppConstants.Resources.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
+            Resource = resourceInput.Text = AppConstants.LabelToResourceUriMap.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
         }
 
         void UpdateClientIdFromInput(object sender, EventArgs e)
