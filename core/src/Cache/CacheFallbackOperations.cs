@@ -173,12 +173,12 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         /// <summary>
-        /// Algorith to delete: 
+        /// Algorithm to delete: 
         /// 
         /// Invariant: displayableId is not null 
         /// 
         /// if identifier != null then delete everything with the same client info and env
-        /// othewise, delete everything with the same displayableId
+        /// otherwise, delete everything with the same displayableId
         /// 
         /// Notes: 
         /// - displayableId can change rarely

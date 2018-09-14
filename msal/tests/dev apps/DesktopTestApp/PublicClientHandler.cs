@@ -33,12 +33,11 @@ namespace DesktopTestApp
     class PublicClientHandler
     {
         private string _component = "DesktopTestApp";
-        public const string B2cAuthority = "https://login.microsoftonline.com/tfp/fabrikamb2c.onmicrosoft.com/b2c_1_susi/";
 
         public PublicClientHandler(string clientId)
         {
             ApplicationId = clientId;
-            PublicClientApplication = new PublicClientApplication(ApplicationId, B2cAuthority)
+            PublicClientApplication = new PublicClientApplication(ApplicationId)
             {
                 UserTokenCache = TokenCacheHelper.GetUserCache(),
                 Component = _component
@@ -64,7 +63,7 @@ namespace DesktopTestApp
 
         public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(string[] scopes, UIBehavior uiBehavior, string extraQueryParams, UIParent uiParent)
         {
-            CreatePublicClientApplication(B2cAuthority, ApplicationId);
+            CreatePublicClientApplication(InteractiveAuthority, ApplicationId);
 
             AuthenticationResult result;
             if (CurrentUser != null)
@@ -87,7 +86,7 @@ namespace DesktopTestApp
 
         public async Task<AuthenticationResult> AcquireTokenInteractiveWithAuthorityAsync(string[] scopes, UIBehavior uiBehavior, string extraQueryParams, UIParent uiParent)
         {
-            CreatePublicClientApplication(B2cAuthority, ApplicationId);
+            CreatePublicClientApplication(InteractiveAuthority, ApplicationId);
 
             AuthenticationResult result;
             if (CurrentUser != null)
