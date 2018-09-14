@@ -48,11 +48,6 @@ namespace DesktopTestApp
 
         private async void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
-            //await publicClient.RemoveAsync(
-            //    new Account(
-            //        AccountId.FromClientInfo(rtItem.ClientInfo), 
-            //        accountItem.PreferredUsername, 
-            //        accountItem.Environment)).ConfigureAwait(false);
 
             IEnumerable<IAccount> accounts = await publicClient.GetAccountsAsync();
 
@@ -60,6 +55,9 @@ namespace DesktopTestApp
             {
                 await publicClient.RemoveAsync(accounts.FirstOrDefault());
                 accounts = await publicClient.GetAccountsAsync();
+
+
+
             }
 
             RefreshViewDelegate?.Invoke();

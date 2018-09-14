@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Client
     public sealed class TokenCache
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
-        internal const string NullPreferredUsernameDisplayLabel = "preferred_username not in idtoken";
+        internal const string NullPreferredUsernameDisplayLabel = "preferred_username not in id_token";
 
         static TokenCache()
         {
@@ -134,7 +134,7 @@ namespace Microsoft.Identity.Client
 
             //The preferred_username value cannot be null or empty in order to comply with the ADAL/MSAL Unified cache schema. 
             //It will be set to "preferred_username not in idtoken" 
-            var preferredUsername = !String.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
+            var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
 
             var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
 
@@ -202,7 +202,8 @@ namespace Microsoft.Identity.Client
                     }
 
                     //save RT in ADAL cache for public clients
-                    if (!requestParams.IsClientCredentialRequest)
+                    //do not save RT in ADAL cache for MSAL B2C scenarios
+                    if (!requestParams.IsClientCredentialRequest && !requestParams.Authority.AuthorityType.Equals(Core.Instance.AuthorityType.B2C))
                     {
                         CacheFallbackOperations.WriteAdalRefreshToken
                             (legacyCachePersistance, msalRefreshTokenCacheItem, msalIdTokenCacheItem,
