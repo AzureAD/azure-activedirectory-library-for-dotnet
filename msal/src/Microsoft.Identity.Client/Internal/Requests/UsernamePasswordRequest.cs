@@ -39,13 +39,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
     /// <summary>
     /// Handles requests that are non-interactive. Currently MSAL supports Integrated Windows Auth.
     /// </summary>
-    internal class NonInteractiveRequest : RequestBase
+    internal class UsernamePasswordRequest : RequestBase
     {
-        private IWAInput iwaInput;
+        private UsernamePasswordInput usernamePasswordInput;
         private UserAssertion userAssertion;
+
         private CommonNonInteractiveHandler commonNonInteractiveHandler;
 
-        public NonInteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters, IWAInput iwaInput)
+        public UsernamePasswordRequest(AuthenticationRequestParameters authenticationRequestParameters, IWAInput iwaInput)
             : base(authenticationRequestParameters)
         {
             if (iwaInput == null)
@@ -53,7 +54,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 throw new ArgumentNullException(nameof(iwaInput));
             }
 
-            this.iwaInput = iwaInput;
+            this.usernamePasswordInput = usernamePasswordInput;
             this.commonNonInteractiveHandler = new CommonNonInteractiveHandler(
                 authenticationRequestParameters.RequestContext,
                 this.iwaInput);

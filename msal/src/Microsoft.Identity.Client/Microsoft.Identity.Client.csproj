@@ -164,6 +164,7 @@
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Internal\Requests\UsernamePasswordRequest.cs" />
     <None Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 

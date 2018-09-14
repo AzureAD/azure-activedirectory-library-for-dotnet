@@ -508,6 +508,21 @@ namespace Microsoft.Identity.Client
         {
             return await AcquireTokenByIWAAsync(scopes, new IWAInput()).ConfigureAwait(false);
         }
+
+
+#if DESKTOP
+        public async Task<AuthenticationResult> AcqjkreTokenByUsernamePassword(IEnumerable<string> scopes, System.Security.SecureString password)
+        {
+            UsernamePasswordInput input = new UsernamePasswordInput("", password);
+            // todo
+        }
+
+        public async Task<AuthenticationResult> AcqjkreTokenByUsernamePassword(IEnumerable<string> scopes, string username, System.Security.SecureString password)
+        {
+            UsernamePasswordInput input = new UsernamePasswordInput(username, password);
+            // todo
+        }
+#endif
 #endif
 
 
@@ -534,7 +549,7 @@ namespace Microsoft.Identity.Client
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
-            var handler = new NonInteractiveRequest(requestParams, iwaInput)
+            var handler = new Internal.Requests.UsernamePasswordInput(requestParams, iwaInput)
             {
                 ApiId = ApiEvent.ApiIds.AcquireTokenWithScopeUser
             };
