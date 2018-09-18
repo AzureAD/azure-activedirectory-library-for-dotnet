@@ -84,8 +84,18 @@ namespace Microsoft.Identity.Client
         /// </list>
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>
-        public PublicClientApplication(string clientId, string authority)
-            : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+        public PublicClientApplication(string clientId, string authority) : this(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId))
+        {
+        }
+
+        /// <summary>
+        /// Constructor of the application
+        /// </summary>
+        /// <param name="clientId">Client id of thje app</param>
+        /// <param name="authority">Authority of the security token service (STS) from which MSAL.NET will acquire the tokens.</param>
+        /// <param name="redirectUri">Redirect uri of the application</param>
+        public PublicClientApplication(string clientId, string authority, string redirectUri)
+        : base(clientId, authority, redirectUri, true)
         {
             UserTokenCache = new TokenCache()
             {

@@ -52,9 +52,10 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (string.IsNullOrEmpty(userPrincipalName))
             {
-                throw CoreExceptionFactory.Instance.GetClientException(
+                /*throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.UpnRequired,
-                    CoreErrorMessages.UpnRequiredForAuthroityValidation);
+                    CoreErrorMessages.UpnRequiredForAuthroityValidation);*/
+                return false;
             }
 
             return ValidatedAuthorities.ContainsKey(CanonicalAuthority) &&
@@ -66,25 +67,11 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (ValidateAuthority)
             {
-                DrsMetadataResponse drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(drsResponse.Error))
-                {
-                    CoreExceptionFactory.Instance.GetServiceException(
-                        drsResponse.Error,
-                        drsResponse.ErrorDescription);
-                }
-
-                if (drsResponse.IdentityProviderService?.PassiveAuthEndpoint == null)
-                {
-                    throw CoreExceptionFactory.Instance.GetServiceException(
-                        CoreErrorCodes.MissingPassiveAuthEndpoint,
-                        CoreErrorMessages.CannotFindTheAuthEndpont);
-                }
 
                 string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
                 string webfingerUrl = string.Format(CultureInfo.InvariantCulture,
-                    "https://{0}/adfs/.well-known/webfinger?rel={1}&resource={2}",
-                    drsResponse.IdentityProviderService.PassiveAuthEndpoint.Host,
+                    "https://{0}/.well-known/webfinger?rel={1}&resource={2}",
+                    Host,
                     DefaultRealm, resource);
 
                 HttpResponse httpResponse =
@@ -103,7 +90,7 @@ namespace Microsoft.Identity.Core.Instance
                     wfr.Links.FirstOrDefault(
                         a =>
                             (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
-                             a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase))) == null)
+                             a.Href.Equals("https://"+ Host, StringComparison.OrdinalIgnoreCase))) == null)
                 {
                     throw CoreExceptionFactory.Instance.GetServiceException(
                         CoreErrorCodes.InvalidAuthority,
@@ -127,7 +114,10 @@ namespace Microsoft.Identity.Core.Instance
                 authorityInstance = (AdfsAuthority) ValidatedAuthorities[CanonicalAuthority];
             }
 
-            authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
+            if(!string.IsNullOrEmpty(userPrincipalName))
+            {
+                authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
+            }
             ValidatedAuthorities[CanonicalAuthority] = authorityInstance;
         }
 
@@ -173,7 +163,7 @@ namespace Microsoft.Identity.Core.Instance
 
         internal override string GetTenantId()
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

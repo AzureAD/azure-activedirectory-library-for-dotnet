@@ -59,7 +59,7 @@ namespace Test.MSAL.NET.Unit
         {
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
+            //HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
@@ -1141,6 +1141,20 @@ namespace Test.MSAL.NET.Unit
             }
 
             Assert.Fail("Should not reach here. Exception was not thrown.");
+        }
+
+        [TestMethod]
+        [TestCategory("PublicClientApplicationTests")]
+        public async Task TestAdfsAuthority()
+        {
+            PublicClientApplication myApp = new PublicClientApplication("http://my/client", "https://fs.rewilli40d.dft.com/adfs", "https://mytestmachine/testRedirect");
+            string[] scopesForCustomerApi = new string[]
+            {
+                "http://testrp/openid"
+            };
+
+            AuthenticationResult authenticationResult = await myApp.AcquireTokenAsync(scopesForCustomerApi, "administrator@rewilli40d.dft.com").ConfigureAwait(false);
+            Assert.IsNotNull(authenticationResult);
         }
     }
 }

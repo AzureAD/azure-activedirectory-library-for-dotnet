@@ -58,7 +58,7 @@ namespace Test.MSAL.NET.Unit
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
+            //HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         
@@ -674,6 +674,30 @@ namespace Test.MSAL.NET.Unit
 
             var users = app.GetAccountsAsync().Result;
             Assert.AreEqual(1, users.Count());
+        }
+
+        [TestMethod]
+        [TestCategory("ConfidentialClientApplicationTests")]
+        public async Task TestAdfsAuthority()
+        {
+            TokenCache cache = new TokenCache()
+            {
+                BeforeAccess = BeforeCacheAccess,
+                AfterAccess = AfterCacheAccess
+            };
+
+            ClientCredential cc =
+                new ClientCredential("apwNJ0-uM_JMhZuTTtlbeuLAluvtE3avTtAGiIjx");
+            ConfidentialClientApplication myApp = new ConfidentialClientApplication("http://my/client", "https://fs.rewilli40d.dft.com/adfs", "https://mytestmachine/testRedirect", cc, null, cache);
+            string[] scopesForCustomerApi = new string[]
+            {
+                "http://testrp/profile"
+            };
+
+            AuthenticationResult authenticationResult = await myApp.AcquireTokenForClientAsync(scopesForCustomerApi).ConfigureAwait(false);
+            Assert.IsNotNull(authenticationResult);
+
+            authenticationResult = await myApp.AcquireTokenForClientAsync(scopesForCustomerApi).ConfigureAwait(false);
         }
 
         private void BeforeCacheAccess(TokenCacheNotificationArgs args)

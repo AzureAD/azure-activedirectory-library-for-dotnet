@@ -233,7 +233,8 @@ namespace Microsoft.Identity.Client
 
                 if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
                     environmentAliases.Contains(msalAccessTokenItem.Environment) &&
-                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase) &&
+                    (String.IsNullOrEmpty(msalAccessTokenItem.TenantId) ? msalAccessTokenItem.TenantId==tenantId :
+                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase)) &&
                     msalAccessTokenItem.ScopeSet.ScopeIntersects(scopeSet))
                 {
                     msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
@@ -303,7 +304,10 @@ namespace Microsoft.Identity.Client
                     environmentAliases.UnionWith
                         (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
-                    preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                        preferredEnvironmentAlias = requestParams.Authority.CanonicalAuthority;
+                    else
+                        preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
                 }
 
                 return FindAccessTokenCommon

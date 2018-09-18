@@ -47,7 +47,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
     [DeploymentItem("Resources\\drs-response.json")]
     [DeploymentItem("Resources\\OpenidConfiguration-OnPremise.json")]
     [DeploymentItem("Resources\\OpenidConfiguration-MissingFields-OnPremise.json")]
-    [Ignore] //disable until we support ADFS
     public class AdfsAuthorityTests
     {
         [TestInitialize]
