@@ -122,16 +122,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected override void SetAdditionalRequestParameters(OAuth2Client client)
         {
-            if (userAssertion != null)
-            {
-                // TODO: test if this is hit
-                client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.Password);
-                client.AddBodyParameter(OAuth2Parameter.Username, this.usernamePasswordInput.UserName);
-                client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
+            client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.Password);
+            client.AddBodyParameter(OAuth2Parameter.Username, this.usernamePasswordInput.UserName);
+            client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
 
-                // To request id_token in response
-                client.AddBodyParameter(OAuth2Parameter.Scope, OAuth2Value.ScopeOpenId);
-            }
+            // To request id_token in response
+            client.AddBodyParameter(OAuth2Parameter.Scope, OAuth2Value.ScopeOpenId);
         }
     }
 }
