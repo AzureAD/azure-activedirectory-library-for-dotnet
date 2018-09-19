@@ -80,7 +80,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 {
 
                     WsTrustResponse wsTrustResponse = await this.commonNonInteractiveHandler.QueryWsTrustAsync(
-                        new MexParser(UserAuthType.IntegratedAuth, this.AuthenticationRequestParameters.RequestContext),
+                        new MexParser(UserAuthType.UsernamePassword, this.AuthenticationRequestParameters.RequestContext),
                         userRealmResponse,
                         (cloudAudience, trustAddress, userName) =>
                         {
@@ -122,9 +122,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected override void SetAdditionalRequestParameters(OAuth2Client client)
         {
-            client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.Password);
-            client.AddBodyParameter(OAuth2Parameter.Username, this.usernamePasswordInput.UserName);
-            client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
+            if (this.userAssertion != null)
+            {
+                client.AddBodyParameter(OAuth2Parameter.GrantType, this.userAssertion.AssertionType);
+                client.AddBodyParameter(OAuth2Parameter.Assertion, Convert.ToBase64String(Encoding.UTF8.GetBytes(this.userAssertion.Assertion)));
+            }
+            else
+            {
+                client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.Password);
+                client.AddBodyParameter(OAuth2Parameter.Username, this.usernamePasswordInput.UserName);
+                client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
+            }
 
             // To request id_token in response
             client.AddBodyParameter(OAuth2Parameter.Scope, OAuth2Value.ScopeOpenId);

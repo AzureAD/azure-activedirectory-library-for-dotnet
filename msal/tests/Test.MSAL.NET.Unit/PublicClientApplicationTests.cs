@@ -415,24 +415,17 @@ namespace Test.MSAL.NET.Unit
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
-
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task EmptyStringUsernamePasswordWithSecureStringAcquireTokenTest()
+        public async Task FederatedUsernamePasswordAcquireTokenTest()
         {
-            MockWebUI ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                  TestConstants.AuthorityHomeTenant + "?code=some-code")
-            };
-
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
             });
 
             // user realm discovery
@@ -446,88 +439,10 @@ namespace Test.MSAL.NET.Unit
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                }
-            });
-
-            // MEX
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                }
-            });
-
-            // WsTrust
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
-                }
-            });
-
-            // AAD
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
-                {
-                    {"grant_type", "password"}
                 },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
-
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-
-            SecureString str = new SecureString();
-            str.AppendChar('x');
-            str.MakeReadOnly();
-            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, "", str).ConfigureAwait(false);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.IsNotNull(result.Account);
-            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
-        }
-
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
-        [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task EmptyStringUsernamePasswordAcquireTokenTest()
-        {
-            MockWebUI ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                  TestConstants.AuthorityHomeTenant + "?code=some-code")
-            };
-
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
-
-            // user realm discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                 QueryParams = new Dictionary<string, string>()
                 {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+                    {"api-version", "1.0"}
                 }
             });
 
@@ -545,7 +460,7 @@ namespace Test.MSAL.NET.Unit
             // WsTrust
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
+                Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -560,86 +475,8 @@ namespace Test.MSAL.NET.Unit
                 Method = HttpMethod.Post,
                 PostData = new Dictionary<string, string>()
                 {
-                    {"grant_type", "password"}
-                },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
-
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-
-            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, "", TestConstants.DefaultPassword).ConfigureAwait(false);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.IsNotNull(result.Account);
-            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
-        }
-
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
-        [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task UsernamePasswordAcquireTokenTest()
-        {
-            MockWebUI ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                  TestConstants.AuthorityHomeTenant + "?code=some-code")
-            };
-
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
-
-            // user realm discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                }
-            });
-
-            // MEX
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                }
-            });
-
-            // WsTrust
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
-                }
-            });
-
-            // AAD
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
-                {
-                    {"grant_type", "password"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+                    {"scope", "openid"}
                 },
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
             });
@@ -660,19 +497,13 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("PublicClientApplicationTests")]
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task UsernamePasswordWithSecureStringAcquireTokenTest()
+        public async Task FederatedUsernamePasswordWithSecureStringAcquireTokenTest()
         {
-            MockWebUI ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                  TestConstants.AuthorityHomeTenant + "?code=some-code")
-            };
-
             //add mock response for tenant endpoint discovery
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
             });
 
             // user realm discovery
@@ -686,6 +517,10 @@ namespace Test.MSAL.NET.Unit
                                                 "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
                                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+                },
+                QueryParams = new Dictionary<string, string>()
+                {
+                    {"api-version", "1.0"}
                 }
             });
 
@@ -703,7 +538,7 @@ namespace Test.MSAL.NET.Unit
             // WsTrust
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
+                Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
                 Method = HttpMethod.Post,
                 ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -718,7 +553,8 @@ namespace Test.MSAL.NET.Unit
                 Method = HttpMethod.Post,
                 PostData = new Dictionary<string, string>()
                 {
-                    {"grant_type", "password"}
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+                    {"scope", "openid"}
                 },
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
             });
@@ -728,6 +564,114 @@ namespace Test.MSAL.NET.Unit
             SecureString str = new SecureString();
             str.AppendChar('x');
             str.MakeReadOnly();
+            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, str).ConfigureAwait(false);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("some-access-token", result.AccessToken);
+            Assert.IsNotNull(result.Account);
+            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        }
+
+        [TestMethod]
+        [TestCategory("PublicClientApplicationTests")]
+        public async Task ManagedUsernamePasswordAcquireTokenTest()
+        {
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+            });
+
+            // user realm discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content =
+                        new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
+                },
+                QueryParams = new Dictionary<string, string>()
+                {
+                    {"api-version", "1.0"}
+                }
+            });
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                PostData = new Dictionary<string, string>()
+                {
+                    {"grant_type", "password"},
+                    {"username", TestConstants.User.Username},
+                    {"password", TestConstants.DefaultPassword}
+                }
+            });
+
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            TokenCache cache = new TokenCache();
+
+            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, TestConstants.DefaultPassword).ConfigureAwait(false);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("some-access-token", result.AccessToken);
+            Assert.IsNotNull(result.Account);
+            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        }
+
+        [TestMethod]
+        [TestCategory("PublicClientApplicationTests")]
+        public async Task ManagedUsernameSecureStringPasswordAcquireTokenTest()
+        {
+            SecureString str = new SecureString();
+            str.AppendChar('x');
+            str.MakeReadOnly();
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+            });
+
+            // user realm discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content =
+                        new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
+                },
+                QueryParams = new Dictionary<string, string>()
+                {
+                    {"api-version", "1.0"}
+                }
+            });
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                PostDataObject = new Dictionary<string, object>()
+                {
+                    {"grant_type", "password"},
+                    {"username", TestConstants.User.Username},
+                    {"password", TestConstants.DefaultPassword}
+                }
+            });
+
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            TokenCache cache = new TokenCache();
+
+           
             AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, str).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
