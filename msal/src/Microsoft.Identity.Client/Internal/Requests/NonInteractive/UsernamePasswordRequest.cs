@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         wsTrustResponse.Token,
                         (wsTrustResponse.TokenType == WsTrustResponse.Saml1Assertion) ? OAuth2GrantType.Saml11Bearer : OAuth2GrantType.Saml20Bearer);
                 }
-                else if (AuthenticationRequestParameters.Authority.AuthorityType == Core.Instance.AuthorityType.Aad)
+                else if (string.Equals(userRealmResponse.AccountType, "managed", StringComparison.OrdinalIgnoreCase))
                 {
                     // handle grant flow
                     if (!this.usernamePasswordInput.HasPassword())
