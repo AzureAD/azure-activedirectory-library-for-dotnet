@@ -46,18 +46,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private CommonNonInteractiveHandler commonNonInteractiveHandler;
 
-        public UsernamePasswordRequest(AuthenticationRequestParameters authenticationRequestParameters, IWAInput iwaInput)
-            : base(authenticationRequestParameters)
+        public UsernamePasswordRequest(AuthenticationRequestParameters authenticationRequestParameters, UsernamePasswordInput usernamePasswordInput)
+       : base(authenticationRequestParameters)
         {
-            if (iwaInput == null)
+            if (usernamePasswordInput == null)
             {
-                throw new ArgumentNullException(nameof(iwaInput));
+                throw new ArgumentNullException(nameof(usernamePasswordInput));
             }
 
             this.usernamePasswordInput = usernamePasswordInput;
             this.commonNonInteractiveHandler = new CommonNonInteractiveHandler(
-                authenticationRequestParameters.RequestContext,
-                this.iwaInput);
+                authenticationRequestParameters.RequestContext, usernamePasswordInput);
         }
 
         protected override async Task SendTokenRequestAsync()
@@ -85,13 +84,21 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         userRealmResponse,
                         (cloudAudience, trustAddress, userName) =>
                         {
-                            return WsTrustRequestBuilder.BuildMessage(cloudAudience, trustAddress, (IWAInput)userName);
+                            return WsTrustRequestBuilder.BuildMessage(cloudAudience, trustAddress, (UsernamePasswordInput)userName);
                         }).ConfigureAwait(false);
 
                     // We assume that if the response token type is not SAML 1.1, it is SAML 2
                     userAssertion = new UserAssertion(
                         wsTrustResponse.Token,
                         (wsTrustResponse.TokenType == WsTrustResponse.Saml1Assertion) ? OAuth2GrantType.Saml11Bearer : OAuth2GrantType.Saml20Bearer);
+                }
+                else if (AuthenticationRequestParameters.Authority.AuthorityType == Core.Instance.AuthorityType.Aad)
+                {
+                    // handle grant flow
+                    if (!this.usernamePasswordInput.HasPassword())
+                    {
+                        throw new MsalException(MsalError.PasswordRequiredForManagedUserError);
+                    }
                 }
                 else
                 {
@@ -103,12 +110,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private async Task UpdateUsernameAsync()
         {
-            if (string.IsNullOrWhiteSpace(iwaInput.UserName))
+            if (usernamePasswordInput != null)
             {
-                string platformUsername = await this.commonNonInteractiveHandler.GetPlatformUserAsync()
-                    .ConfigureAwait(false);
-
-                this.iwaInput.UserName = platformUsername;
+                if (string.IsNullOrWhiteSpace(usernamePasswordInput.UserName))
+                {
+                    string platformUsername = await this.commonNonInteractiveHandler.GetPlatformUserAsync().ConfigureAwait(false);
+                    this.usernamePasswordInput.UserName = platformUsername;
+                }
             }
         }
 
@@ -116,8 +124,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
         {
             if (userAssertion != null)
             {
-                client.AddBodyParameter(OAuth2Parameter.GrantType, userAssertion.AssertionType);
-                client.AddBodyParameter(OAuth2Parameter.Assertion, Convert.ToBase64String(Encoding.UTF8.GetBytes(userAssertion.Assertion)));
+                // TODO: test if this is hit
+                client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.Password);
+                client.AddBodyParameter(OAuth2Parameter.Username, this.usernamePasswordInput.UserName);
+                client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
+
+                // To request id_token in response
+                client.AddBodyParameter(OAuth2Parameter.Scope, OAuth2Value.ScopeOpenId);
             }
         }
     }
