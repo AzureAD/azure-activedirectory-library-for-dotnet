@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core
             "Loading an assembly required for the platform failed. Make sure assembly for the correct platform '{0}' exists";
 
         public const string AuthenticationUiFailed = "The browser based authentication dialog failed to complete";
-        
+
         public const string DeprecatedAuthorityError = "login.windows.net has been deprecated. Use login.microsoftonline.com instead.";
 
         public const string CertificateKeySizeTooSmallTemplate =

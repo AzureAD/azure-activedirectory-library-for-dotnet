@@ -36,9 +36,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal abstract class PlatformInformationBase : CorePlatformInformationBase
     {
+        public abstract Task<string> GetUserPrincipalNameAsync();
+
         public override string GetAssemblyFileVersionAttribute()
         {
-            var assemblyFileVersion = typeof(AdalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+            var assemblyFileVersion = typeof(AdalIdParameter).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
             return assemblyFileVersion != null ? assemblyFileVersion.Version : "internal";
         }
 
@@ -55,6 +57,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public virtual bool GetCacheLoadPolicy(IPlatformParameters parameters)
         {
             return true;
+        }
+
+        public override void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        {
+            if (redirectUri == null)
+            {
+                throw new ArgumentNullException(nameof(redirectUri));
+            }
         }
     }
 }

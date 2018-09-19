@@ -56,6 +56,7 @@ namespace Test.ADAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
         }
