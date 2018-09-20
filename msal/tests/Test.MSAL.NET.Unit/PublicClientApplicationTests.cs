@@ -415,164 +415,165 @@ namespace Test.MSAL.NET.Unit
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
-        [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task FederatedUsernamePasswordAcquireTokenTest()
-        {
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-            });
 
-            // user realm discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                },
-                 QueryParams = new Dictionary<string, string>()
-                {
-                    {"api-version", "1.0"}
-                }
-            });
+        //[TestMethod]
+        //[TestCategory("PublicClientApplicationTests")]
+        //[DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
+        //[DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
+        //public async Task FederatedUsernamePasswordAcquireTokenTest()
+        //{
+        //    //add mock response for tenant endpoint discovery
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+        //    });
 
-            // MEX
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                }
-            });
+        //    // user realm discovery
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
+        //                                        "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
+        //                                        "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
+        //                                        "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
+        //                                        ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+        //        },
+        //         QueryParams = new Dictionary<string, string>()
+        //        {
+        //            {"api-version", "1.0"}
+        //        }
+        //    });
 
-            // WsTrust
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
-                }
-            });
+        //    // MEX
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
+        //        }
+        //    });
 
-            // AAD
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
-                {
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
-                    {"scope", "openid"}
-                },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+        //    // WsTrust
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
+        //        Method = HttpMethod.Post,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
+        //        }
+        //    });
 
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+        //    // AAD
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
+        //        Method = HttpMethod.Post,
+        //        PostData = new Dictionary<string, string>()
+        //        {
+        //            {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+        //            {"scope", "openid"}
+        //        },
+        //        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+        //    });
 
-            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, TestConstants.DefaultPassword).ConfigureAwait(false);
+        //    PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.IsNotNull(result.Account);
-            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
+        //    AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, TestConstants.DefaultPassword).ConfigureAwait(false);
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
-        }
+        //    Assert.IsNotNull(result);
+        //    Assert.AreEqual("some-access-token", result.AccessToken);
+        //    Assert.IsNotNull(result.Account);
+        //    Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
 
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
-        [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task FederatedUsernamePasswordWithSecureStringAcquireTokenTest()
-        {
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-            });
+        //    Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        //}
 
-            // user realm discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                },
-                QueryParams = new Dictionary<string, string>()
-                {
-                    {"api-version", "1.0"}
-                }
-            });
+        //[TestMethod]
+        //[TestCategory("PublicClientApplicationTests")]
+        //[DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
+        //[DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
+        //public async Task FederatedUsernamePasswordWithSecureStringAcquireTokenTest()
+        //{
+        //    //add mock response for tenant endpoint discovery
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+        //    });
 
-            // MEX
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                }
-            });
+        //    // user realm discovery
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
+        //                                        "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
+        //                                        "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
+        //                                        "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
+        //                                        ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+        //        },
+        //        QueryParams = new Dictionary<string, string>()
+        //        {
+        //            {"api-version", "1.0"}
+        //        }
+        //    });
 
-            // WsTrust
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
-                }
-            });
+        //    // MEX
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
+        //        Method = HttpMethod.Get,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
+        //        }
+        //    });
 
-            // AAD
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
-                {
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
-                    {"scope", "openid"}
-                },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+        //    // WsTrust
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
+        //        Method = HttpMethod.Post,
+        //        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        //        {
+        //            Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
+        //        }
+        //    });
 
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+        //    // AAD
+        //    HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+        //    {
+        //        Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
+        //        Method = HttpMethod.Post,
+        //        PostData = new Dictionary<string, string>()
+        //        {
+        //            {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+        //            {"scope", "openid"}
+        //        },
+        //        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+        //    });
 
-            SecureString str = new SecureString();
-            str.AppendChar('x');
-            str.MakeReadOnly();
-            AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, str).ConfigureAwait(false);
+        //    PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.IsNotNull(result.Account);
-            Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
+        //    SecureString str = new SecureString();
+        //    str.AppendChar('x');
+        //    str.MakeReadOnly();
+        //    AuthenticationResult result = await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, str).ConfigureAwait(false);
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
-        }
+        //    Assert.IsNotNull(result);
+        //    Assert.AreEqual("some-access-token", result.AccessToken);
+        //    Assert.IsNotNull(result.Account);
+        //    Assert.AreEqual(TestConstants.User.Username, result.Account.Username);
+
+        //    Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        //}
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
