@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,9 +63,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         protected override async Task SendTokenRequestAsync()
         {
             await UpdateUsernameAsync().ConfigureAwait(false);
-
             await FetchAssertionFromWsTrustAsync().ConfigureAwait(false);
-
             await base.SendTokenRequestAsync().ConfigureAwait(false);
         }
 
@@ -134,8 +133,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 client.AddBodyParameter(OAuth2Parameter.Password, new string(this.usernamePasswordInput.PasswordToCharArray()));
             }
 
+            SortedSet<string> unionScope =
+                new SortedSet<string>() { OAuth2Value.ScopeOpenId, OAuth2Value.ScopeOfflineAccess, OAuth2Value.ScopeProfile };
+
+            unionScope.UnionWith(this.AuthenticationRequestParameters.Scope);
+
             // To request id_token in response
-            client.AddBodyParameter(OAuth2Parameter.Scope, OAuth2Value.ScopeOpenId);
+            client.AddBodyParameter(OAuth2Parameter.Scope, unionScope.AsSingleString());
         }
     }
 }
