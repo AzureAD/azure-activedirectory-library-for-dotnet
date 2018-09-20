@@ -512,12 +512,12 @@ namespace Microsoft.Identity.Client
 
 #if DESKTOP
         /// <summary>
-        /// 
+        /// Acquires security token from the authority, used for username/password authentication.
         /// </summary>
-        /// <param name="scopes"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
+        /// <param name="username">Identifier of the user application requests token on behalf.</param>
+        /// <param name="password">User password.</param>
+        /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, string username, string password)
         {
             UsernamePasswordInput usernamePasswordInput = new UsernamePasswordInput(username, password);
@@ -525,15 +525,15 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// 
+        /// Acquires security token from the authority, used for username/password authentication.
         /// </summary>
-        /// <param name="scopes"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, string username, System.Security.SecureString password)
+        /// <param name="scopes">Scopes requested to access a protected API</param>
+        /// <param name="username">Identifier of the user application requests token on behalf.</param>
+        /// <param name="securePassword">User password.</param>
+        /// <returns>Authentication result containing a token for the requested scopes and account</returns>
+        public async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, string username, System.Security.SecureString securePassword)
         {
-            UsernamePasswordInput usernamePasswordInput = new UsernamePasswordInput(username, password);
+            UsernamePasswordInput usernamePasswordInput = new UsernamePasswordInput(username, securePassword);
 
             return await AcquireTokenByUsernamePasswordAsync(scopes, usernamePasswordInput).ConfigureAwait(false);
         }
