@@ -96,6 +96,32 @@ namespace Microsoft.Identity.Client
                 ClientId = clientId
             };
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="deviceCodeResultCallback"></param>
+        /// <returns></returns>
+        public async Task<AuthenticationResult> AcquireTokenAsync(
+            IEnumerable<string> scopes, 
+            string extraQueryParameters, 
+            Action<DeviceCodeResult> deviceCodeResultCallback)
+        {
+            // todo:  Need to work with Bogdan/JM/Henrik on API semantics and get this exposed
+            // on the IPublicClientApplication interface as well once I determine the final appropriate
+            // placement for this call.
+
+            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+
+            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
+            requestParams.ExtraQueryParameters = extraQueryParameters;
+
+            var handler = new DeviceCodeRequest(requestParams, deviceCodeResultCallback);
+            return await handler.RunAsync().ConfigureAwait(false);
+        }
+
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
 #if !NET_CORE
 
