@@ -96,8 +96,8 @@ namespace Microsoft.Identity.Core
         public const string UnauthorizedResponseExpected = "Unauthorized http response (status code 401) was expected";
         public const string UnexpectedAuthorityValidList = "Unexpected list of valid addresses";
 
-        public const string UnknownUser = "Could not identify logged in user";
-        public const string UnsupportedUserType = "Unsupported User Type '{0}'. Possible cause: the user {1} is not domain joined.";
+        public const string UnknownUser = "Could not identify logged in user. See https://aka.ms/msal-net-iwa for more details.";
+        public const string UnsupportedUserType = "Unsupported User Type '{0}'. Possible cause: the user {1} is not domain joined. See https://aka.ms/msal-net-iwa for more details.";
 
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";
