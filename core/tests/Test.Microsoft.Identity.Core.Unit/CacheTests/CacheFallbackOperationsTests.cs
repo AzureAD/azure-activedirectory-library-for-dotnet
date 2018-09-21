@@ -254,7 +254,15 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             string uniqueTenantId,
             string username)
         {
-            var clientInfoString = MockHelpers.CreateClientInfo(uid, uniqueTenantId);
+            string clientInfoString;
+            if (String.IsNullOrEmpty(uid) || String.IsNullOrEmpty(uniqueTenantId))
+            {
+                clientInfoString = null;
+            }
+            else
+            {
+                clientInfoString = MockHelpers.CreateClientInfo(uid, uniqueTenantId);
+            }
 
             MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem(
                 env,
