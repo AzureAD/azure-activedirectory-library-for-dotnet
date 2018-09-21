@@ -39,7 +39,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenInteractiveTest()
+        public void AcquireTokenInteractiveTestADAL()
         {
             CoreMobileADALTests.AcquireTokenInteractiveTest(xamarinController);
         }
@@ -48,7 +48,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         [Test]
-        public void AcquireTokenSilentTest()
+        public void AcquireTokenSilentTestADAL()
         {
             CoreMobileADALTests.AcquireTokenSilentTest(xamarinController);
         }
@@ -57,7 +57,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenADFSv4FederatedInteractiveTest()
+        public void AcquireTokenADFSv4FederatedInteractiveTestADAL()
         {
             CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, true);
         }
@@ -66,7 +66,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenInteractiveADFSv4NonFederatedTest()
+        public void AcquireTokenInteractiveADFSv4NonFederatedTestADAL()
         {
             CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, false);
         }
@@ -75,7 +75,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenADFSv3FederatedInteractiveTest()
+        public void AcquireTokenADFSv3FederatedInteractiveTestADAL()
         {
             CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, true);
         }
@@ -84,7 +84,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenInteractiveADFSv3NonFederatedTest()
+        public void AcquireTokenInteractiveADFSv3NonFederatedTestADAL()
         {
             CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, false);
         }
