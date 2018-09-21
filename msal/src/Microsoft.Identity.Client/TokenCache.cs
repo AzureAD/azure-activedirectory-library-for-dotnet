@@ -1007,7 +1007,8 @@ namespace Microsoft.Identity.Client
 
         internal void RemoveAdalUser(IAccount account, ISet<string> environmentAliases)
         {
-            CacheFallbackOperations.RemoveAdalUser(legacyCachePersistance, account.Username, environmentAliases, account.HomeAccountId.Identifier);
+            CacheFallbackOperations.RemoveAdalUser
+                (legacyCachePersistance, ClientId, account.Username, environmentAliases, account.HomeAccountId.Identifier);
         }
 
         internal ICollection<string> GetAllAccessTokenCacheItems(RequestContext requestContext)
