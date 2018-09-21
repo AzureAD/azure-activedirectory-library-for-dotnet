@@ -172,32 +172,45 @@ namespace DesktopTestApp
                 var app = new PublicClientApplication(publicClientId, authority.Text);
                 AuthenticationResult authenticationResult = await app.AcquireTokenByIntegratedWindowsAuthAsync(scopes.Text.AsArray(), username);
                 SetResultPageInfo(authenticationResult);
-                
+
             }
             catch (Exception exc)
             {
                 CreateException(exc);
             }
         }
-               
+
         private async void acquireTokenByUPButton_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
 
             string username = loginHintTextBox.Text; //Can be blank for U/P
+
             var password = Microsoft.VisualBasic.Interaction.InputBox("Password?");
+            SecureString securePassword = ConvertToSecureString(password);
 
             try
             {
-                // SecureString secureString = new SecureString()
                 var app = new PublicClientApplication(publicClientId, authority.Text);
-                AuthenticationResult authResult = await app.AcquireTokenByUsernamePasswordAsync(scopes.Text.AsArray(), username, password);
+                AuthenticationResult authResult = await app.AcquireTokenByUsernamePasswordAsync(scopes.Text.AsArray(), username, securePassword);
                 SetResultPageInfo(authResult);
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 CreateException(exc);
             }
+        }
+
+        private SecureString ConvertToSecureString(string password)
+        {
+            if(password.Length > 0)
+            {
+                SecureString securePassword = new SecureString();
+                password.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
+                securePassword.MakeReadOnly();
+                return securePassword;                
+            }
+            return null;
         }
 
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
@@ -226,7 +239,7 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
-        
+
         private async void acquireTokenInteractiveAuthority_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
@@ -312,7 +325,7 @@ namespace DesktopTestApp
                               @"User: " + authenticationResult.Account.Username + Environment.NewLine +
                               @"Id Token: " + authenticationResult.IdToken;
         }
-        
+
         public void ClearResultPageInfo()
         {
             callResult.Text = string.Empty;
@@ -327,7 +340,7 @@ namespace DesktopTestApp
             {
                 cachePageTableLayout.Controls[0].Dispose();
             }
-            
+
             // Bring the cache back into memory
             var acc = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result;
             Trace.WriteLine("Accounts: " + acc.Count());
@@ -360,7 +373,7 @@ namespace DesktopTestApp
                 }
             }
 
-            
+
         }
 
         private void AddControlToCachePageTableLayout(Control ctl)

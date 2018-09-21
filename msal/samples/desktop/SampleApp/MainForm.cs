@@ -81,8 +81,21 @@ namespace SampleApp
         {
             tokenResultBox.Text = string.Format("");
             string password = tokenResultBox.Text;
+            SecureString securePassword = ConvertToSecureString(password);
 
-            token = await _msalHelper.GetTokenWithUsernamePasswordAsync(new[] { "user.read" }, password).ConfigureAwait(false);
+            token = await _msalHelper.GetTokenWithUsernamePasswordAsync(new[] { "user.read" }, securePassword).ConfigureAwait(false);
+        }
+
+        private SecureString ConvertToSecureString(string password)
+        {
+            if (password.Length > 0)
+            {
+                SecureString securePassword = new SecureString();
+                password.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
+                securePassword.MakeReadOnly();
+                return securePassword;
+            }
+            return null;
         }
 
         private void UpdateResponse(string token)
