@@ -62,10 +62,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             OAuth2Client client = new OAuth2Client();
 
-            // todo: this should be in there by default.  why isn't it?  also, this is being added in Jenny's PR, so use it as a constant from there...
-            //AuthenticationRequestParameters.Scope.Add("offline_access");
-            //AuthenticationRequestParameters.Scope.Add("profile");
-
             var deviceCodeScopes = new SortedSet<string>();
             deviceCodeScopes.UnionWith(AuthenticationRequestParameters.Scope);
             deviceCodeScopes.Add("offline_access");
@@ -74,12 +70,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.Scope, deviceCodeScopes.AsSingleString());
-
-            // Add correlation id
-            // client.AddQueryParameter(OAuth2Parameter.CorrelationId, AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
-
-            // todo: add AdalIdParameters (for info like platform, version, etc)
-            // todo: add ExtraQueryParameters from AuthenticationRequestParameters.ExtraQueryParameters
 
             // todo: THIS IS A MAJOR HACK.  Work with Shiung/Henrik on proper way to determine the device code endpoint
             string deviceCodeEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint
@@ -131,15 +121,5 @@ namespace Microsoft.Identity.Client.Internal.Requests
             client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.DeviceCode);
             client.AddBodyParameter(OAuth2Parameter.Code, _deviceCodeResult.DeviceCode);
         }
-
-        // todo: where do we put this validation check for MSAL?
-        //private void ValidateAuthorityType()
-        //{
-        //    if (this.authenticator.AuthorityType == AuthorityType.ADFS)
-        //    {
-        //        throw new AdalException(AdalError.InvalidAuthorityType,
-        //            string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.InvalidAuthorityTypeTemplate, this.authenticator.Authority));
-        //    }
-        //}
     }
 }

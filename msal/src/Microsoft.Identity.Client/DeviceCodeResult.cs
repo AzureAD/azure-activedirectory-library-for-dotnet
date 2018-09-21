@@ -26,20 +26,19 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// 
+    /// This object is returned as part of the device code flow
+    /// and has information intended to be shown to the user about
+    /// where to navigate to login and what the device code is that needs
+    /// to be entered.
     /// </summary>
     public class DeviceCodeResult
     {
         /// <summary>
-        /// 
+        /// Constructor
         /// </summary>
         /// <param name="userCode"></param>
         /// <param name="deviceCode"></param>
