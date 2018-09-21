@@ -124,7 +124,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
             });
 
-
             DeviceCodeResult actualDeviceCodeResult = null;
             DeviceCodeRequest request = new DeviceCodeRequest(parameters, result => { actualDeviceCodeResult = result; });
             var task = request.RunAsync();
