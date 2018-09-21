@@ -31,6 +31,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Internal.Requests
@@ -61,18 +62,35 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             OAuth2Client client = new OAuth2Client();
 
+            // todo: this should be in there by default.  why isn't it?  also, this is being added in Jenny's PR, so use it as a constant from there...
+            //AuthenticationRequestParameters.Scope.Add("offline_access");
+            //AuthenticationRequestParameters.Scope.Add("profile");
+
+            var deviceCodeScopes = new SortedSet<string>();
+            deviceCodeScopes.UnionWith(AuthenticationRequestParameters.Scope);
+            deviceCodeScopes.Add("offline_access");
+            deviceCodeScopes.Add("profile");
+            deviceCodeScopes.Add("openid");
+
+            client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
+            client.AddBodyParameter(OAuth2Parameter.Scope, deviceCodeScopes.AsSingleString());
+
             // Add correlation id
-            client.AddQueryParameter(OAuth2Parameter.CorrelationId, AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
+            // client.AddQueryParameter(OAuth2Parameter.CorrelationId, AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
 
             // todo: add AdalIdParameters (for info like platform, version, etc)
             // todo: add ExtraQueryParameters from AuthenticationRequestParameters.ExtraQueryParameters
 
             // todo: THIS IS A MAJOR HACK.  Work with Shiung/Henrik on proper way to determine the device code endpoint
-            string deviceCodeEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint.Replace("token", "devicecode");
+            string deviceCodeEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint
+                .Replace("token", "devicecode")
+                .Replace("common", "organizations");
+
+            AuthenticationRequestParameters.Authority.TokenEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint.Replace("common", "organizations");
 
             DeviceCodeResponse response = await client.ExecuteRequestAsync<DeviceCodeResponse>(
                 client.CreateFullEndpointUri(new Uri(deviceCodeEndpoint)), 
-                HttpMethod.Get,
+                HttpMethod.Post,
                 AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             // todo: fix resource/scopes here for how we want to invoke this...
