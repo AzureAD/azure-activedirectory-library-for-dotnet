@@ -54,6 +54,7 @@ namespace DesktopTestApp
             tabControl1.SizeMode = TabSizeMode.Fixed;
             tabControl1.Selecting += TabControl1_Selecting;
             logLevel.SelectedIndex = logLevel.Items.Count - 1;
+            userPasswordTextBox.PasswordChar = '*';
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
@@ -180,19 +181,24 @@ namespace DesktopTestApp
             }
         }
 
-        private async void acquireTokenByUPButton_Click(object sender, EventArgs e)
+        private void acquireTokenByUPButton_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
+            userPasswordTextBox.PasswordChar = '*';
 
-            string username = loginHintTextBox.Text; //Can be blank for U/P
+            string username = loginHintTextBox.Text; //Can be blank for U/P 
+            SecureString securePassword = ConvertToSecureString(userPasswordTextBox);
+           
+            AcquireTokenByUsernamePassword(username, securePassword);
+        }
 
-            var password = Microsoft.VisualBasic.Interaction.InputBox("Password?");
-            SecureString securePassword = ConvertToSecureString(password);
-
+        private async void AcquireTokenByUsernamePassword(string username, SecureString password)
+        {
             try
             {
-                var app = new PublicClientApplication(publicClientId, authority.Text);
-                AuthenticationResult authResult = await app.AcquireTokenByUsernamePasswordAsync(scopes.Text.AsArray(), username, securePassword);
+                _publicClientHandler.PublicClientApplication = new PublicClientApplication(publicClientId, "https://login.microsoftonline.com/organizations");
+                AuthenticationResult authResult = await _publicClientHandler.PublicClientApplication.AcquireTokenByUsernamePasswordAsync(
+                    scopes.Text.AsArray(), username, password);
                 SetResultPageInfo(authResult);
             }
             catch (Exception exc)
@@ -201,12 +207,12 @@ namespace DesktopTestApp
             }
         }
 
-        private SecureString ConvertToSecureString(string password)
+        private SecureString ConvertToSecureString(TextBox textBox)
         {
-            if(password.Length > 0)
+            if(userPasswordTextBox.Text.Length > 0)
             {
                 SecureString securePassword = new SecureString();
-                password.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
+                userPasswordTextBox.Text.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
                 securePassword.MakeReadOnly();
                 return securePassword;                
             }
