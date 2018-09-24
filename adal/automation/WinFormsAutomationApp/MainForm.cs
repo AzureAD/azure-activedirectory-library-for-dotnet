@@ -99,6 +99,11 @@ namespace WinFormsAutomationApp
         {
             _commandToRun = AuthenticationHelper.AcquireDeviceCodeAsync;
             pageControl1.SelectedTab = dataInputPage;
-        }        
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
