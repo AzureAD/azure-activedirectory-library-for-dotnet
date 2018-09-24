@@ -145,58 +145,5 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
-
-        // todo: this is my test sample app that I built as a standalone console app.
-        // Need to figure out where we can check this in to do manual testing 
-        // of real device code flow login until we get automation in place on the
-        // MSAL side.
-        private static class __Program
-        {
-            public static void Main(string[] args)
-            {
-                const string clientId = "b92e0ba5-f86e-4411-8e18-6b5f928d968a";
-                var scopes = new List<string>() { "https://graph.microsoft.com/.default" };
-                PublicClientApplication pca = new PublicClientApplication(clientId);
-
-                var authResult = GetTokenViaCode(pca, scopes).GetAwaiter().GetResult();
-                if (authResult != null)
-                {
-                    Console.WriteLine("Got Token!");
-                }
-                else
-                {
-                    Console.WriteLine("FAILED to get token...");
-                }
-                Console.ReadLine();
-            }
-
-            static async Task<AuthenticationResult> GetTokenViaCode(PublicClientApplication pca, IEnumerable<string> scopes)
-            {
-                AuthenticationResult result = null;
-
-                try
-                {
-                    string extraQueryParameters = string.Empty;
-                    result = await pca.AcquireTokenWithDeviceCodeAsync(
-                        scopes,
-                        extraQueryParameters,
-                        dcr =>
-                        {
-                            Console.ResetColor();
-                            Console.WriteLine("You need to sign in.");
-                            Console.WriteLine("Message: " + dcr.Message + "\n");
-                        });
-                }
-                catch (Exception exc)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Something went wrong.");
-                    Console.WriteLine("Message: " + exc.Message + "\n");
-                    Console.ResetColor();
-                }
-
-                return result;
-            }
-        }
     }
 }
