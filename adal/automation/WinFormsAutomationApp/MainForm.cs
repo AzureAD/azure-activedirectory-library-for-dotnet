@@ -21,7 +21,7 @@ namespace WinFormsAutomationApp
         }
 
         private Command _commandToRun = null;
-        private string AuthResultFile = "AuthResult.txt";
+        private const string AuthResultFile = "AuthResult.txt";
 
         public MainForm()
         {
