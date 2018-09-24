@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
@@ -40,8 +41,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
     // * unit tests
     // * integration/end2end tests in internal vsts repo
     // * sample app / test dev app as a console application for validation
-    // * do we have lab accounts/environments setup for device auth?
-    // * do we need to set SaveToCache in the constructor?
     internal class DeviceCodeRequest : RequestBase
     {
         private readonly Action<DeviceCodeResult> _deviceCodeResultCallback;
@@ -50,28 +49,32 @@ namespace Microsoft.Identity.Client.Internal.Requests
         public DeviceCodeRequest(AuthenticationRequestParameters authenticationRequestParameters, Action<DeviceCodeResult> deviceCodeResultCallback) 
             : base(authenticationRequestParameters)
         {
-            _deviceCodeResultCallback = deviceCodeResultCallback;
+            _deviceCodeResultCallback = deviceCodeResultCallback ?? throw new ArgumentNullException("A deviceCodeResultCallback must be provided for Device Code authentication to work properly");
             
             LoadFromCache = false;  // no cache lookup for token
             SupportADFS = false;
+            StoreToCache = true;
         }
 
-        internal override async Task PreTokenRequestAsync()
+        internal override async Task PreTokenRequestAsync(CancellationToken cancellationToken)
         {
-            await base.PreTokenRequestAsync().ConfigureAwait(false);
+            await base.PreTokenRequestAsync(cancellationToken).ConfigureAwait(false);
 
             OAuth2Client client = new OAuth2Client();
 
-            var deviceCodeScopes = new SortedSet<string>();
+            var deviceCodeScopes = new HashSet<string>();
             deviceCodeScopes.UnionWith(AuthenticationRequestParameters.Scope);
-            deviceCodeScopes.Add("offline_access");
-            deviceCodeScopes.Add("profile");
-            deviceCodeScopes.Add("openid");
+            deviceCodeScopes.Add(OAuth2Value.ScopeOfflineAccess);
+            deviceCodeScopes.Add(OAuth2Value.ScopeProfile);
+            deviceCodeScopes.Add(OAuth2Value.ScopeOpenId);
 
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.Scope, deviceCodeScopes.AsSingleString());
 
-            // todo: THIS IS A MAJOR HACK.  Work with Shiung/Henrik on proper way to determine the device code endpoint
+            // Talked with Shiung, devicecode will be added to the discovery endpoint "soon".
+            // Fow now, the string replace is correct.
+            // TODO: We should NOT be talking to common, need to work with henrik/bogdan on why /common is being set
+            // as default for msal.
             string deviceCodeEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint
                 .Replace("token", "devicecode")
                 .Replace("common", "organizations");
@@ -88,22 +91,27 @@ namespace Microsoft.Identity.Client.Internal.Requests
             _deviceCodeResultCallback(_deviceCodeResult);
         }
 
-        protected override async Task SendTokenRequestAsync()
+        protected override async Task SendTokenRequestAsync(CancellationToken cancellationToken)
         {
             TimeSpan timeRemaining = _deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
 
             while (timeRemaining.TotalSeconds > 0.0)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException();
+                }
+
                 try
                 {
-                    await base.SendTokenRequestAsync().ConfigureAwait(false);
+                    await base.SendTokenRequestAsync(cancellationToken).ConfigureAwait(false);
                     return;
                 }
                 catch (MsalServiceException ex)
                 {
-                    if (ex.ErrorCode.Equals("authorization_pending", StringComparison.OrdinalIgnoreCase))
+                    if (ex.ErrorCode.Equals(OAuth2Error.AuthorizationPending, StringComparison.OrdinalIgnoreCase))
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(_deviceCodeResult.Interval)).ConfigureAwait(false);
+                        await Task.Delay(TimeSpan.FromSeconds(_deviceCodeResult.Interval), cancellationToken).ConfigureAwait(false);
                         timeRemaining = _deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
                     }
                     else
@@ -113,7 +121,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 }
             }
 
-            throw new MsalServiceException("code_expired", "Verification code expired before contacting the server");
+            throw new MsalClientException(OAuth2Error.CodeExpired, "Verification code expired before contacting the server");
         }
 
         protected override void SetAdditionalRequestParameters(OAuth2Client client)

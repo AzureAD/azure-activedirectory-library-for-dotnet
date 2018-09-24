@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Client
@@ -170,6 +171,32 @@ namespace Microsoft.Identity.Client
 
         // endif !ANDROID
 #endif
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="deviceCodeResultCallback"></param>
+        /// <returns></returns>
+        Task<AuthenticationResult> AcquireTokenWithDeviceCodeAsync(
+            IEnumerable<string> scopes,
+            string extraQueryParameters,
+            Action<DeviceCodeResult> deviceCodeResultCallback);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="deviceCodeResultCallback"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<AuthenticationResult> AcquireTokenWithDeviceCodeAsync(
+            IEnumerable<string> scopes,
+            string extraQueryParameters,
+            Action<DeviceCodeResult> deviceCodeResultCallback,
+            CancellationToken cancellationToken);
 
         /// <summary>
         /// Interactive request to acquire token for the specified scopes. The interactive window will be parented to the specified

@@ -34,6 +34,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Telemetry;
+using System.Threading;
 
 namespace Microsoft.Identity.Client
 {
@@ -104,10 +105,27 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters"></param>
         /// <param name="deviceCodeResultCallback"></param>
         /// <returns></returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(
+        public async Task<AuthenticationResult> AcquireTokenWithDeviceCodeAsync(
+            IEnumerable<string> scopes,
+            string extraQueryParameters,
+            Action<DeviceCodeResult> deviceCodeResultCallback)
+        {
+            return await AcquireTokenWithDeviceCodeAsync(scopes, extraQueryParameters, deviceCodeResultCallback, CancellationToken.None).ConfigureAwait(false); ;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="deviceCodeResultCallback"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<AuthenticationResult> AcquireTokenWithDeviceCodeAsync(
             IEnumerable<string> scopes, 
             string extraQueryParameters, 
-            Action<DeviceCodeResult> deviceCodeResultCallback)
+            Action<DeviceCodeResult> deviceCodeResultCallback,
+            CancellationToken cancellationToken)
         {
             // todo:  Need to work with Bogdan/JM/Henrik on API semantics and get this exposed
             // on the IPublicClientApplication interface as well once I determine the final appropriate
@@ -119,7 +137,7 @@ namespace Microsoft.Identity.Client
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
             var handler = new DeviceCodeRequest(requestParams, deviceCodeResultCallback);
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
@@ -162,16 +180,25 @@ namespace Microsoft.Identity.Client
         /// Interactive request to acquire token for the specified scopes. The user is required to select an account
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         /// <remarks>The user will be signed-in interactively if needed,
         /// and will consent to scopes and do multi-factor authentication if such a policy was enabled in the Azure AD tenant.</remarks>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes)
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
+                UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScope, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes)
+        {
+            return AcquireTokenAsync(scopes, CancellationToken.None);
         }
 
         /// <summary>
@@ -180,14 +207,24 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint)
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeHint).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint, 
+                UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeHint, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint)
+        {
+            return AcquireTokenAsync(scopes, loginHint, CancellationToken.None);
         }
 
         /// <summary>
@@ -196,16 +233,29 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IAccount account)
+            IAccount account,
+            CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, account,
-                        UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeUser).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authority, scopes, null, account, 
+                UIBehavior.SelectAccount, null, null, ApiEvent.ApiIds.AcquireTokenWithScopeUser, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(
+            IEnumerable<string> scopes,
+            IAccount account)
+        {
+            return AcquireTokenAsync(scopes, account, CancellationToken.None);
         }
 
         /// <summary>
@@ -217,15 +267,28 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
-            UIBehavior behavior, string extraQueryParameters)
+            UIBehavior behavior, string extraQueryParameters, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint, 
+                behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
+            UIBehavior behavior, string extraQueryParameters)
+        {
+            return AcquireTokenAsync(scopes, loginHint, behavior, extraQueryParameters, CancellationToken.None);
         }
 
         /// <summary>
@@ -237,16 +300,30 @@ namespace Microsoft.Identity.Client
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
-            UIBehavior behavior, string extraQueryParameters)
+            UIBehavior behavior, string extraQueryParameters, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior,
-                        extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior,
+                extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior, cancellationToken).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
+            UIBehavior behavior, string extraQueryParameters)
+        {
+            return AcquireTokenAsync(scopes, account, behavior, extraQueryParameters, CancellationToken.None);
+        }
+
 
         /// <summary>
         /// Interactive request to acquire token for a given login, with the possibility of controlling the user experience, passing extra query
@@ -261,15 +338,32 @@ namespace Microsoft.Identity.Client
         /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
-            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority,
+            CancellationToken cancellationToken)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
-                        loginHint, behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent, 
+                loginHint, behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="extraScopesToConsent"></param>
+        /// <param name="authority"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
+        {
+            return AcquireTokenAsync(scopes, loginHint, behavior, extraQueryParameters, extraScopesToConsent, authority, CancellationToken.None);
         }
 
         /// <summary>
@@ -285,16 +379,34 @@ namespace Microsoft.Identity.Client
         /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
-            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority,
+            CancellationToken cancellationToken)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account,
-                        behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account,
+                behavior, extraQueryParameters, null, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority,
+                cancellationToken).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="extraScopesToConsent"></param>
+        /// <param name="authority"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
+        {
+            return AcquireTokenAsync(scopes, account, behavior, extraQueryParameters, extraScopesToConsent, authority, CancellationToken.None);
+        }
+
 #endif
 
         /// <summary>
@@ -303,16 +415,26 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         /// <remarks>The user will be signed-in interactively if needed,
         /// and will consent to scopes and do multi-factor authentication if such a policy was enabled in the Azure AD tenant.</remarks>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, UIParent parent)
+        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, UIParent parent, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
-                        UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScope).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null, 
+                UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScope, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -323,14 +445,26 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and login</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint, UIParent parent)
+        public async Task<AuthenticationResult> AcquireTokenAsync(
+            IEnumerable<string> scopes, string loginHint, UIParent parent, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHint).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint, UIBehavior.SelectAccount, 
+                null, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHint, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, loginHint, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -340,16 +474,31 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(
             IEnumerable<string> scopes,
-            IAccount account, UIParent parent)
+            IAccount account, 
+            UIParent parent,
+            CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, account,
-                        UIBehavior.SelectAccount, null, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUser).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authority, scopes, null, account, UIBehavior.SelectAccount, 
+                null, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUser, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(
+            IEnumerable<string> scopes,
+            IAccount account, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, account, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -362,15 +511,29 @@ namespace Microsoft.Identity.Client
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
-            UIBehavior behavior, string extraQueryParameters, UIParent parent)
+            UIBehavior behavior, string extraQueryParameters, UIParent parent, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
-                        behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint, behavior, 
+                extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehavior, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
+            UIBehavior behavior, string extraQueryParameters, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, loginHint, behavior, extraQueryParameters, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -383,15 +546,29 @@ namespace Microsoft.Identity.Client
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
-            UIBehavior behavior, string extraQueryParameters, UIParent parent)
+            UIBehavior behavior, string extraQueryParameters, UIParent parent, CancellationToken cancellationToken)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior,
-                        extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior, extraQueryParameters, 
+                parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehavior, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
+            UIBehavior behavior, string extraQueryParameters, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, account, behavior, extraQueryParameters, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -408,15 +585,34 @@ namespace Microsoft.Identity.Client
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
-            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, 
+            UIParent parent, CancellationToken cancellationToken)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
-                        loginHint, behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority).ConfigureAwait(false);
+            return await AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
+                loginHint, behavior, extraQueryParameters, parent, 
+                ApiEvent.ApiIds.AcquireTokenWithScopeHintBehaviorAuthority, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="loginHint"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="extraScopesToConsent"></param>
+        /// <param name="authority"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, 
+            string authority, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, loginHint, behavior, extraQueryParameters, extraScopesToConsent, authority, parent, CancellationToken.None);
         }
 
         /// <summary>
@@ -433,19 +629,35 @@ namespace Microsoft.Identity.Client
         /// for which you want to acquire a security token.</param>
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured does not change the configured value</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
-        UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, 
+            string authority, UIParent parent, CancellationToken cancellationToken)
         {
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
-            return
-                await
-                    AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account,
-                        behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
+            return await AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account, behavior, 
+                extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority, cancellationToken).ConfigureAwait(false);
         }
 
-      
-     
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="behavior"></param>
+        /// <param name="extraQueryParameters"></param>
+        /// <param name="extraScopesToConsent"></param>
+        /// <param name="authority"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
+            UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, 
+            string authority, UIParent parent)
+        {
+            return AcquireTokenAsync(scopes, account, behavior, extraQueryParameters, extraScopesToConsent, authority, parent, CancellationToken.None);
+        }
+
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
         {
             //create instance of UIParent and assign useCorporateNetwork to UIParent 
@@ -467,7 +679,8 @@ namespace Microsoft.Identity.Client
 
         private async Task<AuthenticationResult> AcquireTokenForLoginHintCommonAsync(Authority authority, IEnumerable<string> scopes,
             IEnumerable<string> extraScopesToConsent, string loginHint, UIBehavior behavior,
-            string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
+            string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId,
+            CancellationToken cancellationToken)
         {
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
@@ -483,11 +696,12 @@ namespace Microsoft.Identity.Client
                 new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<AuthenticationResult> AcquireTokenForUserCommonAsync(Authority authority, IEnumerable<string> scopes,
-            IEnumerable<string> extraScopesToConsent, IAccount user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
+            IEnumerable<string> extraScopesToConsent, IAccount user, UIBehavior behavior, string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId,
+            CancellationToken cancellationToken)
         {
             var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
@@ -503,7 +717,7 @@ namespace Microsoft.Identity.Client
                 new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         internal override AuthenticationRequestParameters CreateRequestParameters(Authority authority,

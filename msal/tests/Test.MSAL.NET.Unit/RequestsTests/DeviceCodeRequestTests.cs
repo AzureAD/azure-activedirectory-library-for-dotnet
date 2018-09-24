@@ -94,11 +94,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
-            var expectedScopes = new SortedSet<string>();
+            var expectedScopes = new HashSet<string>();
             expectedScopes.UnionWith(TestConstants.Scope);
-            expectedScopes.Add("openid");
-            expectedScopes.Add("offline_access");
-            expectedScopes.Add("profile");
+            expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
+            expectedScopes.Add(OAuth2Value.ScopeProfile);
+            expectedScopes.Add(OAuth2Value.ScopeOpenId);
 
             // Mock Handler for device code request
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
@@ -177,7 +177,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 try
                 {
                     string extraQueryParameters = string.Empty;
-                    result = await pca.AcquireTokenAsync(
+                    result = await pca.AcquireTokenWithDeviceCodeAsync(
                         scopes,
                         extraQueryParameters,
                         dcr =>
