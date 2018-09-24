@@ -103,7 +103,7 @@ namespace WinFormsAutomationApp
             pageControl1.SelectedTab = dataInputPage;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void writeToFile_Click(object sender, EventArgs e)
         {
             if (File.Exists(AuthResultFile))
                 File.Delete(AuthResultFile);
