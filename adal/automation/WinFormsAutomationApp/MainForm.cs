@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,6 +21,7 @@ namespace WinFormsAutomationApp
         }
 
         private Command _commandToRun = null;
+        private string AuthResultFile = "AuthResult.txt";
 
         public MainForm()
         {
@@ -103,7 +105,10 @@ namespace WinFormsAutomationApp
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (File.Exists(AuthResultFile))
+                File.Delete(AuthResultFile);
 
+            File.WriteAllText(AuthResultFile, resultInfo.Text);
         }
     }
 }
