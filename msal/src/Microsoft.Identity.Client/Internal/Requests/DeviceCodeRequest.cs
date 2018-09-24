@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             AuthenticationRequestParameters.Authority.TokenEndpoint = AuthenticationRequestParameters.Authority.TokenEndpoint.Replace("common", "organizations");
 
             DeviceCodeResponse response = await client.ExecuteRequestAsync<DeviceCodeResponse>(
-                client.CreateFullEndpointUri(new Uri(deviceCodeEndpoint)), 
+                new Uri(deviceCodeEndpoint), 
                 HttpMethod.Post,
                 AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
