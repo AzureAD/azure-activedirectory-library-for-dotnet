@@ -27,8 +27,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Security;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
@@ -41,7 +44,6 @@ namespace DesktopTestApp
     public partial class MainForm : Form
     {
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
 
         public MainForm()
@@ -52,6 +54,7 @@ namespace DesktopTestApp
             tabControl1.SizeMode = TabSizeMode.Fixed;
             tabControl1.Selecting += TabControl1_Selecting;
             logLevel.SelectedIndex = logLevel.Items.Count - 1;
+            userPasswordTextBox.PasswordChar = '*';
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
@@ -84,6 +87,7 @@ namespace DesktopTestApp
             List<IAccount> accounts = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result.ToList();
 
             userList.DataSource = accounts;
+            userList.DisplayMember = "DisplayableId";
             userList.Refresh();
         }
 
@@ -156,6 +160,63 @@ namespace DesktopTestApp
             {
                 CreateException(exc);
             }
+        }
+
+        private async void acquireTokenByWindowsIntegratedAuth_Click(object sender, EventArgs e)
+        {
+            ClearResultPageInfo();
+
+            string username = loginHintTextBox.Text; // Can be blank 
+
+            try
+            {
+                var app = new PublicClientApplication(publicClientId, authority.Text);
+                AuthenticationResult authenticationResult = await app.AcquireTokenByIntegratedWindowsAuthAsync(scopes.Text.AsArray(), username);
+                SetResultPageInfo(authenticationResult);
+
+            }
+            catch (Exception exc)
+            {
+                CreateException(exc);
+            }
+        }
+
+        private void acquireTokenByUPButton_Click(object sender, EventArgs e)
+        {
+            ClearResultPageInfo();
+            userPasswordTextBox.PasswordChar = '*';
+
+            string username = loginHintTextBox.Text; //Can be blank for U/P 
+            SecureString securePassword = ConvertToSecureString(userPasswordTextBox);
+           
+            AcquireTokenByUsernamePassword(username, securePassword);
+        }
+
+        private async void AcquireTokenByUsernamePassword(string username, SecureString password)
+        {
+            try
+            {
+                _publicClientHandler.PublicClientApplication = new PublicClientApplication(publicClientId, "https://login.microsoftonline.com/organizations");
+                AuthenticationResult authResult = await _publicClientHandler.PublicClientApplication.AcquireTokenByUsernamePasswordAsync(
+                    scopes.Text.AsArray(), username, password);
+                SetResultPageInfo(authResult);
+            }
+            catch (Exception exc)
+            {
+                CreateException(exc);
+            }
+        }
+
+        private SecureString ConvertToSecureString(TextBox textBox)
+        {
+            if(userPasswordTextBox.Text.Length > 0)
+            {
+                SecureString securePassword = new SecureString();
+                userPasswordTextBox.Text.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
+                securePassword.MakeReadOnly();
+                return securePassword;                
+            }
+            return null;
         }
 
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
@@ -286,9 +347,17 @@ namespace DesktopTestApp
                 cachePageTableLayout.Controls[0].Dispose();
             }
 
+            // Bring the cache back into memory
+            var acc = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result;
+            Trace.WriteLine("Accounts: " + acc.Count());
+
             cachePageTableLayout.RowCount = 0;
-            foreach (MsalRefreshTokenCacheItem rtItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+            var allRefreshTokens = _publicClientHandler.PublicClientApplication.UserTokenCache
+                .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var allAccessTokens = _publicClientHandler.PublicClientApplication.UserTokenCache
+                    .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+
+            foreach (MsalRefreshTokenCacheItem rtItem in allRefreshTokens)
             {
                 AddControlToCachePageTableLayout(
                     new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication, rtItem)
@@ -296,8 +365,7 @@ namespace DesktopTestApp
                         RefreshViewDelegate = LoadCacheTabPage
                     });
 
-                foreach (MsalAccessTokenCacheItem atItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                    .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+                foreach (MsalAccessTokenCacheItem atItem in allAccessTokens)
                 {
                     if (atItem.HomeAccountId.Equals(rtItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                     {
@@ -310,6 +378,8 @@ namespace DesktopTestApp
                     }
                 }
             }
+
+
         }
 
         private void AddControlToCachePageTableLayout(Control ctl)

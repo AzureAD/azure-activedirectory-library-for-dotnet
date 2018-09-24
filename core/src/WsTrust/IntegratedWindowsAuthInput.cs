@@ -25,20 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http.Headers;
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
+namespace Microsoft.Identity.Core
 {
-    internal interface IHttpWebResponse : IDisposable
+    internal interface IUsernameInput
     {
-        HttpStatusCode StatusCode { get; }
+        string UserName { get; }
+    }
 
-        HttpResponseHeaders Headers { get; }
+    /// <summary>
+    /// Integrated Windows Authentication request data object. Used in the IWA workflow.
+    /// </summary>
+    internal class IntegratedWindowsAuthInput : IUsernameInput
+    {
+        /// <summary>
+        /// Gets identifier of the user.
+        /// </summary>
+        public string UserName { get; set; }
 
-        string ResponseString { get; }
+        public IntegratedWindowsAuthInput()
+        {
+            this.UserName = null;
+        }
+
+        public IntegratedWindowsAuthInput(string userName)
+        {
+            this.UserName = userName;
+        }       
+    
     }
 }
