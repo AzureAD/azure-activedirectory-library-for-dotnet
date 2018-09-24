@@ -47,6 +47,12 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
         void EnterText(string elementID, int waitTime, string text, bool isWebElement);
 
         /// <summary>
+        /// Dismisses the keyboard. This should be called after each text input operation with the keyboard because the keyboard can stay active and hide
+        /// buttons from the Ui Automation framework.
+        /// </summary>
+        void DismissKeyboard();
+
+        /// <summary>
         /// Querys the Ui until an element is found on the UI
         /// </summary>
         /// <param name="automationID">ID of the element to look for</param>

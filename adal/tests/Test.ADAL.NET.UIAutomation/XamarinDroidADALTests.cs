@@ -39,9 +39,54 @@ namespace Test.ADAL.NET.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void AcquireTokenTest()
+        public void AcquireTokenInteractiveTestADAL()
         {
-            CoreMobileADALTests.AcquireTokenTest(xamarinController);
+            CoreMobileADALTests.AcquireTokenInteractiveTest(xamarinController);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token silent flow
+        /// </summary>
+        //[Test]
+        public void AcquireTokenSilentTestADAL()
+        {
+            CoreMobileADALTests.AcquireTokenSilentTest(xamarinController);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        //[Test]
+        public void AcquireTokenADFSv4FederatedInteractiveTestADAL()
+        {
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, true);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        //[Test]
+        public void AcquireTokenInteractiveADFSv4NonFederatedTestADAL()
+        {
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV4, false);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        //[Test]
+        public void AcquireTokenADFSv3FederatedInteractiveTestADAL()
+        {
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, true);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token flow
+        /// </summary>
+        //[Test]
+        public void AcquireTokenInteractiveADFSv3NonFederatedTestADAL()
+        {
+            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, FederationProvider.AdfsV3, false);
         }
     }
 }
