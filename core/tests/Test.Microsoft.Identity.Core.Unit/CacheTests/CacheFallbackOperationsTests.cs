@@ -97,7 +97,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 expectedUsersWithClientInfo: new[] { "user2", "user1_other_env" },
                 expectedUsersWithoutClientInfo: new[] { "no_client_info_user3", "no_client_info_user4" });
 
-            
+
         }
 
         [TestMethod]
@@ -190,6 +190,40 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             CoreLoggerBase.Default.Received().ErrorPii(
                 Arg.Is<string>(CoreErrorMessages.InternalErrorCacheEmptyUsername));
 
+        }
+
+        [TestMethod]
+        public void WriteAdalRefreshToken_ErrorLog()
+        {
+            // Arrange
+            MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem(
+              TestConstants.ProductionPrefNetworkEnvironment,
+              TestConstants.ClientId,
+              "someRT",
+              MockHelpers.CreateClientInfo("u1", "ut1"));
+
+            MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem(
+               TestConstants.ProductionPrefCacheEnvironment, // different env
+               TestConstants.ClientId,
+               MockHelpers.CreateIdToken("u1", "username"),
+               MockHelpers.CreateClientInfo("u1", "ut1"),
+               "ut1");
+
+            // Act
+            CacheFallbackOperations.WriteAdalRefreshToken(
+                legacyCachePersistance,
+                rtItem,
+                idTokenCacheItem,
+                "https://some_env.com/common", // yet another env
+                "uid",
+                "scope1");
+
+            // Assert
+            CoreLoggerBase.Default.Received().Error(
+                Arg.Is<string>(CacheFallbackOperations.DifferentAuthorityError));
+
+            CoreLoggerBase.Default.Received().Error(
+                Arg.Is<string>(CacheFallbackOperations.DifferentEnvError));
         }
 
 

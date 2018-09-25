@@ -35,6 +35,11 @@ namespace Microsoft.Identity.Core.Cache
 {
     internal class CacheFallbackOperations
     {
+        internal /* internal for testing only */ const string DifferentEnvError = 
+            "Not expecting the RT and IdT to have different env when adding to legacy cache";
+        internal /* internal for testing only */ const string DifferentAuthorityError = 
+            "Not expecting authority to have a different env than the RT and IdT";
+
         public static void WriteMsalRefreshToken(ITokenCacheAccessor tokenCacheAccessor,
             AdalResultWrapper resultWrapper, string authority, string clientId, string displayableId,
              string givenName, string familyName, string objectId)
@@ -86,10 +91,10 @@ namespace Microsoft.Identity.Core.Cache
 
         public static void WriteAdalRefreshToken(
             ILegacyCachePersistance legacyCachePersistance,
-            MsalRefreshTokenCacheItem rtItem, 
-            MsalIdTokenCacheItem idItem, 
-            string authority, 
-            string uniqueId, 
+            MsalRefreshTokenCacheItem rtItem,
+            MsalIdTokenCacheItem idItem,
+            string authority,
+            string uniqueId,
             string scope)
         {
             try
@@ -102,17 +107,21 @@ namespace Microsoft.Identity.Core.Cache
                     return;
                 }
 
-                Debug.Assert(
-                    String.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase),
-                    "Not expecting the RT and IdT to have different env when adding to legacy cache");
+                if (!String.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase))
+                {
+                    CoreLoggerBase.Default.Error(DifferentEnvError);
+                    CoreLoggerBase.Default.ErrorPii(DifferentEnvError);
+                }
 
-                Debug.Assert(
-                 String.Equals(rtItem?.Environment, (new Uri(authority)).Host, StringComparison.OrdinalIgnoreCase),
-                 "Not expecting authority to have a different env than the RT and IdT");
+                if (!String.Equals(rtItem?.Environment, (new Uri(authority)).Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    CoreLoggerBase.Default.Error(DifferentAuthorityError);
+                    CoreLoggerBase.Default.ErrorPii(DifferentAuthorityError);
+                }
 
                 //Using scope instead of resource because that value does not exist. STS should return it.
                 AdalTokenCacheKey key = new AdalTokenCacheKey(authority, scope, rtItem.ClientId, TokenSubjectType.User,
-                    uniqueId, idItem.IdToken.PreferredUsername);
+                uniqueId, idItem.IdToken.PreferredUsername);
                 AdalResultWrapper wrapper = new AdalResultWrapper()
                 {
                     Result = new AdalResult(null, null, DateTimeOffset.MinValue)
@@ -300,7 +309,7 @@ namespace Microsoft.Identity.Core.Cache
                         keysToRemove.Add(kvp.Key);
                     }
                 }
-                
+
             }
 
             foreach (AdalTokenCacheKey key in keysToRemove)
