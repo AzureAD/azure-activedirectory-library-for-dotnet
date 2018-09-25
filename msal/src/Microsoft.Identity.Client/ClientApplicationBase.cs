@@ -36,6 +36,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Telemetry;
+using System.Threading;
 
 namespace Microsoft.Identity.Client
 {
@@ -204,6 +205,7 @@ namespace Microsoft.Identity.Client
         /// </summary> 
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account for which the token is requested. <see cref="IAccount"/></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>An <see cref="AuthenticationResult"/> containing the requested token</returns>
         /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
         /// for instance so that the user consents, or re-signs-in (for instance if the password expired), or performs two factor authentication</exception>
@@ -214,12 +216,23 @@ namespace Microsoft.Identity.Client
         /// 
         /// See https://aka.ms/msal-net-acquiretokensilent for more details
         /// </remarks>
-        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account)
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account, CancellationToken cancellationToken)
         {
             return
                 await
-                    AcquireTokenSilentCommonAsync(null, scopes, account, false, ApiEvent.ApiIds.AcquireTokenSilentWithoutAuthority)
+                    AcquireTokenSilentCommonAsync(null, scopes, account, false, ApiEvent.ApiIds.AcquireTokenSilentWithoutAuthority, cancellationToken)
                         .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account)
+        {
+            return await AcquireTokenSilentAsync(scopes, account, CancellationToken.None).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -233,6 +246,7 @@ namespace Microsoft.Identity.Client
         /// <param name="forceRefresh">If <c>true</c>, ignore any access token in the cache and attempt to acquire new access token 
         /// using the refresh token for the account if this one is available. This can be useful in the case when the application developer wants to make
         /// sure that conditional access policies are applied immediately, rather than after the expiration of the access token</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>An <see cref="AuthenticationResult"/> containing the requested access token</returns>
         /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
         /// for instance, if no refresh token was in the cache, or the user needs to consent, or re-sign-in (for instance if the password expired), 
@@ -245,7 +259,7 @@ namespace Microsoft.Identity.Client
         /// See https://aka.ms/msal-net-acquiretokensilent for more details
         /// </remarks>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account,
-            string authority, bool forceRefresh)
+            string authority, bool forceRefresh, CancellationToken cancellationToken)
         {
             Authority authorityInstance = null;
             if (!string.IsNullOrEmpty(authority))
@@ -253,10 +267,22 @@ namespace Microsoft.Identity.Client
                 authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             }
 
-            return
-                await
-                    AcquireTokenSilentCommonAsync(authorityInstance, scopes, account,
-                        forceRefresh, ApiEvent.ApiIds.AcquireTokenSilentWithAuthority).ConfigureAwait(false);
+            return await AcquireTokenSilentCommonAsync(authorityInstance, scopes, account, 
+                forceRefresh, ApiEvent.ApiIds.AcquireTokenSilentWithAuthority, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scopes"></param>
+        /// <param name="account"></param>
+        /// <param name="authority"></param>
+        /// <param name="forceRefresh"></param>
+        /// <returns></returns>
+        public Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account,
+            string authority, bool forceRefresh)
+        {
+            return AcquireTokenSilentAsync(scopes, account, authority, forceRefresh, CancellationToken.None);
         }
 
         /// <summary>
@@ -289,7 +315,8 @@ namespace Microsoft.Identity.Client
         }
 
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
-            IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
+            IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId, 
+            CancellationToken cancellationToken)
         {
             if (account == null)
             {
@@ -305,7 +332,7 @@ namespace Microsoft.Identity.Client
                 CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
             { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         internal virtual AuthenticationRequestParameters CreateRequestParameters(Authority authority,

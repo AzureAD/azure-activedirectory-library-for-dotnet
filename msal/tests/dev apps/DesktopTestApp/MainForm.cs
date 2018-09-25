@@ -321,6 +321,29 @@ namespace DesktopTestApp
                 CreateException(exc);
             }
         }
+
+        private async void acquireTokenDeviceCode_Click(object sender, EventArgs e)
+        {
+            ClearResultPageInfo();
+
+            try
+            {
+                AuthenticationResult authenticationResult = await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
+                    scopes.Text.AsArray(),
+                    string.Empty,  // extra query parameters
+                    dcr =>
+                    {
+                        BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
+                    });
+
+                SetResultPageInfo(authenticationResult);
+            }
+            catch (Exception ex)
+            {
+                CreateException(ex);
+            }
+        }
+
         #endregion
 
         private void CreateException(Exception ex)
@@ -473,7 +496,6 @@ namespace DesktopTestApp
         {
             _publicClientHandler.CreateOrUpdatePublicClientApp(this.authority.Text, publicClientId);
         }
-
     }
 
 

@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -129,7 +130,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
         }
 
-        public async Task<AuthenticationResult> RunAsync()
+        public Task<AuthenticationResult> RunAsync()
+        {
+            return RunAsync(CancellationToken.None);
+        }
+
+        public async Task<AuthenticationResult> RunAsync(CancellationToken cancellationToken)
         {
             //this method is the common entrance for all token requests, so it is a good place to put the generic Telemetry logic here
             AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Telemetry.GetInstance().GenerateNewRequestId();
@@ -160,10 +166,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 try
                 {
                     //authority endpoints resolution and validation
-                    await PreTokenRequestAsync().ConfigureAwait(false);
-                    await SendTokenRequestAsync().ConfigureAwait(false);
-                    AuthenticationResult result = PostTokenRequest();
-                    await PostRunAsync(result).ConfigureAwait(false);
+                    await PreTokenRequestAsync(cancellationToken).ConfigureAwait(false);
+                    await SendTokenRequestAsync(cancellationToken).ConfigureAwait(false);
+                    AuthenticationResult result = PostTokenRequest(cancellationToken);
+                    await PostRunAsync(result, cancellationToken).ConfigureAwait(false);
 
                     apiEvent.TenantId = result.TenantId;
                     apiEvent.AccountId = result.UniqueId;
@@ -246,13 +252,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
         }
 
-        protected virtual Task PostRunAsync(AuthenticationResult result)
+        protected virtual Task PostRunAsync(AuthenticationResult result, CancellationToken cancellationToken)
         {
             LogReturnedToken(result);
             return CompletedTask;
         }
 
-        internal virtual async Task PreTokenRequestAsync()
+        internal virtual async Task PreTokenRequestAsync(CancellationToken cancellationToken)
         {
             await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
         }
@@ -270,7 +276,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         }
 
 
-        protected virtual AuthenticationResult PostTokenRequest()
+        protected virtual AuthenticationResult PostTokenRequest(CancellationToken cancellationToken)
         {
             //save to cache if no access token item found
             //this means that no cached item was found
@@ -284,7 +290,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected abstract void SetAdditionalRequestParameters(OAuth2Client client);
 
-        protected virtual async Task SendTokenRequestAsync()
+        protected virtual async Task SendTokenRequestAsync(CancellationToken cancellationToken)
         {
             OAuth2Client client = new OAuth2Client();
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
