@@ -107,18 +107,6 @@ namespace Microsoft.Identity.Core.Cache
                     return;
                 }
 
-                if (!String.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase))
-                {
-                    CoreLoggerBase.Default.Error(DifferentEnvError);
-                    CoreLoggerBase.Default.ErrorPii(DifferentEnvError);
-                }
-
-                if (!String.Equals(rtItem?.Environment, (new Uri(authority)).Host, StringComparison.OrdinalIgnoreCase))
-                {
-                    CoreLoggerBase.Default.Error(DifferentAuthorityError);
-                    CoreLoggerBase.Default.ErrorPii(DifferentAuthorityError);
-                }
-
                 //Using scope instead of resource because that value does not exist. STS should return it.
                 AdalTokenCacheKey key = new AdalTokenCacheKey(authority, scope, rtItem.ClientId, TokenSubjectType.User,
                 uniqueId, idItem.IdToken.PreferredUsername);
@@ -146,6 +134,18 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
+                if (!String.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase))
+                {
+                    CoreLoggerBase.Default.Error(DifferentEnvError);
+                    CoreLoggerBase.Default.ErrorPii(DifferentEnvError);
+                }
+
+                if (!String.Equals(rtItem?.Environment, (new Uri(authority)).Host, StringComparison.OrdinalIgnoreCase))
+                {
+                    CoreLoggerBase.Default.Error(DifferentAuthorityError);
+                    CoreLoggerBase.Default.ErrorPii(DifferentAuthorityError);
+                }
+
                 string msg = "An error occurred while writing MSAL refresh token to the cache in ADAL format. " +
                              "For details please see https://aka.ms/net-cache-persistence-errors. ";
                 string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);

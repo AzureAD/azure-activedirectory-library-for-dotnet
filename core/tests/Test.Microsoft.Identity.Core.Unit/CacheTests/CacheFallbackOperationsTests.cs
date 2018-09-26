@@ -14,13 +14,14 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
     public class CacheFallbackOperationsTests
     {
         private TokenCacheAccessor tokenCacheAccessor;
-        private ILegacyCachePersistance legacyCachePersistance;
+        private InMemoryLegacyCachePersistance legacyCachePersistance;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            // do not initialize CoreExceptionFactory because all cache operations are silent
-            // so the tests would at least fail with null reference when the logic throws
+            // Methods in CacheFallbackOperations silently catch all exceptions and log them;
+            // By setting this to null, logging will fail, making the test fail.
+            CoreExceptionFactory.Instance = null; 
             CoreLoggerBase.Default = Substitute.For<CoreLoggerBase>();
             AadInstanceDiscovery.Instance.Cache.Clear();
 
@@ -196,6 +197,9 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         public void WriteAdalRefreshToken_ErrorLog()
         {
             // Arrange
+            legacyCachePersistance.ThrowOnWrite = true;
+            CoreExceptionFactory.Instance = new TestExceptionFactory(); 
+
             MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem(
               TestConstants.ProductionPrefNetworkEnvironment,
               TestConstants.ClientId,
@@ -337,9 +341,11 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
     }
 
-    class InMemoryLegacyCachePersistance : ILegacyCachePersistance
+    public class InMemoryLegacyCachePersistance : ILegacyCachePersistance
     {
         private byte[] data;
+        public bool ThrowOnWrite { get; set; } = false;
+
         public byte[] LoadCache()
         {
             return data;
@@ -347,6 +353,10 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
         public void WriteCache(byte[] serializedCache)
         {
+            if (ThrowOnWrite)
+            {
+                throw new Exception();
+            }
             data = serializedCache;
         }
     }
