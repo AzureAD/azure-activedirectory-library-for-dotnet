@@ -27,8 +27,6 @@
 
 using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
@@ -38,7 +36,7 @@ using Test.MSAL.NET.Integration.Infrastructure;
 namespace Test.MSAL.NET.Integration
 {
     [TestClass]
-    public class UsernamePasswordTests
+    public class UsernamePasswordIntegrationTests
     {
         public const string ClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
         public const string Authority = "https://login.microsoftonline.com/organizations/";

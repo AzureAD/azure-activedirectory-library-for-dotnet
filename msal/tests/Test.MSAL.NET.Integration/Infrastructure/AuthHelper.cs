@@ -26,11 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Test.Microsoft.Identity.Core.UIAutomation.infrastructure;
 
 namespace Test.MSAL.NET.Integration.Infrastructure
