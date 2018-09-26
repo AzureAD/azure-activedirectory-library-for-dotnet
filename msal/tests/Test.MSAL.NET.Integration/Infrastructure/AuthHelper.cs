@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,15 +26,23 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Test.Microsoft.Identity.Core.UIAutomation.infrastructure;
 
-namespace Test.MSAL.NET.Integration
+namespace Test.MSAL.NET.Integration.Infrastructure
 {
-    [TestClass]
-    public class UnitTest1
+    public class AuthHelper
     {
-        [TestMethod]
-        public void TestMethod1()
+        public IUser GetUser(UserQueryParameters query)
         {
+            ILabService _labService = new LabServiceApi();
+            var availableUsers = _labService.GetUsers(query);
+            Assert.AreNotEqual(0, availableUsers.Count(), "Found no users for the given query.");
+            return availableUsers.First();
         }
     }
 }
