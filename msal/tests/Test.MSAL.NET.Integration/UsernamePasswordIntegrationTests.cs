@@ -40,14 +40,13 @@ namespace Test.MSAL.NET.Integration
     {
         public const string ClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
         public const string Authority = "https://login.microsoftonline.com/organizations/";
-        public string[] Scopes = { "user.read" };
+        public string[] Scopes = { "User.Read" };
         AuthHelper authHelper = new AuthHelper();
 
         [TestMethod]
         [TestCategory("UsernamePasswordIntegrationTests")]
         public async Task AcquireTokenWithManagedUsernamePasswordAsync()
         {
-            //Get User from Lab
             var user = authHelper.GetUser(
                 new UserQueryParameters
                 {
@@ -63,6 +62,7 @@ namespace Test.MSAL.NET.Integration
             AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword);
             Assert.IsNotNull(authResult);
             Assert.IsNotNull(authResult.AccessToken);
+            Assert.IsNotNull(authResult.IdToken);
             Assert.AreEqual(user.Upn, authResult.Account.Username);
         }
 
@@ -70,7 +70,6 @@ namespace Test.MSAL.NET.Integration
         [TestCategory("UsernamePasswordIntegrationTests")]
         public async Task AcquireTokenWithFederatedUsernamePasswordAsync()
         {
-            //Get User from Lab
             var user = authHelper.GetUser(
                 new UserQueryParameters
                 {
@@ -85,6 +84,7 @@ namespace Test.MSAL.NET.Integration
             AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword);
             Assert.IsNotNull(authResult);
             Assert.IsNotNull(authResult.AccessToken);
+            Assert.IsNotNull(authResult.IdToken);
             Assert.AreEqual(user.Upn, authResult.Account.Username);
         }
 
@@ -92,7 +92,6 @@ namespace Test.MSAL.NET.Integration
         [TestCategory("UsernamePasswordIntegrationTests")]
         public void AcquireTokenWithManagedUsernameIncorrectPassword()
         {
-            //Get User from Lab
             var user = authHelper.GetUser(
                 new UserQueryParameters
                 {
@@ -101,22 +100,20 @@ namespace Test.MSAL.NET.Integration
                     IsFederatedUser = false
                 });
 
-            SecureString securePassword = new SecureString();
-            securePassword.AppendChar('x');
-            securePassword.MakeReadOnly();
+            SecureString incorrectSecurePassword = new SecureString();
+            incorrectSecurePassword.AppendChar('x');
+            incorrectSecurePassword.MakeReadOnly();
 
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
-
-            // Call aquire token, incorrect password
+            
             var result = Assert.ThrowsExceptionAsync<MsalException>(async () =>
-                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword));
+                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword));
         }
 
         [TestMethod]
         [TestCategory("UsernamePasswordIntegrationTests")]
         public void AcquireTokenWithFederatedUsernameIncorrectPassword()
         {
-            //Get User from Lab
             var user = authHelper.GetUser(
                 new UserQueryParameters
                 {
@@ -125,15 +122,14 @@ namespace Test.MSAL.NET.Integration
                     IsFederatedUser = true
                 });
 
-            SecureString securePassword = new SecureString();
-            securePassword.AppendChar('x');
-            securePassword.MakeReadOnly();
+            SecureString incorrectSecurePassword = new SecureString();
+            incorrectSecurePassword.AppendChar('x');
+            incorrectSecurePassword.MakeReadOnly();
 
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
-
-            // Call aquire token, incorrect password
+            
             var result = Assert.ThrowsExceptionAsync<MsalException>(async () =>
-                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword));
+                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword));
         }
     }
 }
