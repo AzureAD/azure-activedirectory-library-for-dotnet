@@ -25,25 +25,28 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using Microsoft.Identity.Core.Telemetry;
-using Test.MSAL.NET.Unit.Mocks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security;
+using System.Threading.Tasks;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Test.MSAL.NET.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
 {

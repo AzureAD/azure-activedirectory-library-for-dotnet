@@ -25,58 +25,43 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    internal enum UserAuthType
-    {
-        IntegratedAuth,
-        UsernamePassword
-    }
 
     /// <summary>
     /// Credential used for integrated authentication on domain-joined machines.
     /// </summary>
     public class UserCredential
     {
+        internal IntegratedWindowsAuthInput IWAInput  { get;} 
+
         /// <summary>
         /// Constructor to create user credential. Using this constructor would imply integrated authentication with logged in user
         /// and it can only be used in domain joined scenarios.
         /// </summary>
         public UserCredential()
         {
-            this.UserAuthType = UserAuthType.IntegratedAuth;
+            IWAInput = new IntegratedWindowsAuthInput();
         }
 
         /// <summary>
         /// Constructor to create credential with username
         /// </summary>
         /// <param name="userName">Identifier of the user application requests token on behalf.</param>
-        public UserCredential(string userName) : this(userName, UserAuthType.IntegratedAuth)
+        public UserCredential(string userName)
         {
-        }
-
-        internal UserCredential(string userName, UserAuthType userAuthType)
-        {
-            this.UserName = userName;
-            this.UserAuthType = userAuthType;
+            IWAInput = new IntegratedWindowsAuthInput(userName);
         }
 
         /// <summary>
         /// Gets identifier of the user.
         /// </summary>
-        public string UserName { get; internal set; }
-
-        internal UserAuthType UserAuthType { get; private set; }
-
-        internal virtual void ApplyTo(DictionaryRequestParameters requestParameters)
+        public string UserName
         {
-        }
-
-        internal virtual char[] PasswordToCharArray()
-        {
-            return null;
+            get { return IWAInput.UserName; }
         }
     }
 }

@@ -47,11 +47,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
         }
 
         protected static readonly Task CompletedTask = Task.FromResult(false);
-        internal readonly AuthenticationRequestParameters AuthenticationRequestParameters;
-        internal readonly TokenCache TokenCache;
-        protected MsalTokenResponse Response;
-        protected MsalAccessTokenCacheItem MsalAccessTokenItem;
-        protected MsalIdTokenCacheItem MsalIdTokenItem;
+        internal AuthenticationRequestParameters AuthenticationRequestParameters { get; }
+        internal TokenCache TokenCache { get; }
+        protected MsalTokenResponse Response { get; set; }
+        protected MsalAccessTokenCacheItem MsalAccessTokenItem { get; set; }
+        protected MsalIdTokenCacheItem MsalIdTokenItem { get; set; }
 
         public ApiEvent.ApiIds ApiId { get; set; }
         public bool IsConfidentialClient { get; set; }
@@ -152,40 +152,39 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 apiEvent.AuthorityType = AuthenticationRequestParameters.Authority.AuthorityType.ToString();
             }
 
-            Telemetry.GetInstance().StartEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
+            using (CoreTelemetryService.CreateTelemetryHelper(
+                AuthenticationRequestParameters.RequestContext.TelemetryRequestId, 
+                apiEvent, 
+                shouldFlush: true))
+            {
+                try
+                {
+                    //authority endpoints resolution and validation
+                    await PreTokenRequestAsync().ConfigureAwait(false);
+                    await SendTokenRequestAsync().ConfigureAwait(false);
+                    AuthenticationResult result = PostTokenRequest();
+                    await PostRunAsync(result).ConfigureAwait(false);
 
-            try
-            {
-                //authority endpoints resolution and validation
-                await PreTokenRequestAsync().ConfigureAwait(false);
-                await SendTokenRequestAsync().ConfigureAwait(false);
-                AuthenticationResult result = PostTokenRequest();
-                await PostRunAsync(result).ConfigureAwait(false);
-
-                apiEvent.TenantId = result.TenantId;
-                apiEvent.AccountId = result.UniqueId;
-                apiEvent.WasSuccessful = true;
-                return result;
-            }
-            catch (MsalException ex)
-            {
-                apiEvent.ApiErrorCode = ex.ErrorCode;
-                string noPiiMsg = MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex);
-                AuthenticationRequestParameters.RequestContext.Logger.Error(noPiiMsg);
-                AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(ex);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                string noPiiMsg = MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex);
-                AuthenticationRequestParameters.RequestContext.Logger.Error(noPiiMsg);
-                AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(ex);
-                throw;
-            }
-            finally
-            {
-                Telemetry.GetInstance().StopEvent(AuthenticationRequestParameters.RequestContext.TelemetryRequestId, apiEvent);
-                Telemetry.GetInstance().Flush(AuthenticationRequestParameters.RequestContext.TelemetryRequestId);
+                    apiEvent.TenantId = result.TenantId;
+                    apiEvent.AccountId = result.UniqueId;
+                    apiEvent.WasSuccessful = true;
+                    return result;
+                }
+                catch (MsalException ex)
+                {
+                    apiEvent.ApiErrorCode = ex.ErrorCode;
+                    string noPiiMsg = MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex);
+                    AuthenticationRequestParameters.RequestContext.Logger.Error(noPiiMsg);
+                    AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(ex);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    string noPiiMsg = MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex);
+                    AuthenticationRequestParameters.RequestContext.Logger.Error(noPiiMsg);
+                    AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(ex);
+                    throw;
+                }
             }
         }
 

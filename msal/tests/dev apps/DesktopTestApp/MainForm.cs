@@ -27,8 +27,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Security;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
@@ -40,6 +43,32 @@ namespace DesktopTestApp
 {
     public partial class MainForm : Form
     {
+        public class UIProgressScope : IDisposable
+        {
+            MainForm mainForm;
+
+            public UIProgressScope(MainForm mainForm)
+            {
+                this.mainForm = mainForm;
+                this.mainForm.Enabled = false;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Marquee;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 30;
+            }
+
+            #region IDisposable Support
+
+
+            public void Dispose()
+            {
+                this.mainForm.Enabled = true;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Continuous;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 0;
+            }
+
+            #endregion
+        }
+
+
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
@@ -52,6 +81,7 @@ namespace DesktopTestApp
             tabControl1.SizeMode = TabSizeMode.Fixed;
             tabControl1.Selecting += TabControl1_Selecting;
             logLevel.SelectedIndex = logLevel.Items.Count - 1;
+            userPasswordTextBox.PasswordChar = '*';
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
@@ -131,26 +161,90 @@ namespace DesktopTestApp
         #region PublicClientApplication Acquire Token
         private async void AcquireTokenInteractive_Click(object sender, EventArgs e)
         {
-            ClearResultPageInfo();
-            _publicClientHandler.LoginHint = loginHintTextBox.Text;
-            _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
-            _publicClientHandler.InteractiveAuthority = authority.Text;
-
-            if (userList.SelectedIndex == 0)
+            using (new UIProgressScope(this))
             {
-                _publicClientHandler.CurrentUser = null;
-            }
-            else
-            {
-                _publicClientHandler.CurrentUser = userList.SelectedItem as Account;
-            }
+                ClearResultPageInfo();
+                _publicClientHandler.LoginHint = loginHintTextBox.Text;
+                _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
+                _publicClientHandler.InteractiveAuthority = authority.Text;
 
+                if (IgnoreUserCbx.Checked)
+                {
+                    _publicClientHandler.CurrentUser = null;
+                }
+                else
+                {
+                    _publicClientHandler.CurrentUser = userList.SelectedItem as Account;
+                }
+
+                try
+                {
+                    AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+
+                    SetResultPageInfo(authenticationResult);
+                    RefreshUserList();
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
+            }
+        }
+
+        private async void acquireTokenByWindowsIntegratedAuth_Click(object sender, EventArgs e)
+        {
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
+                string username = loginHintTextBox.Text; // Can be blank 
+
+                try
+                {
+                    AuthenticationResult authenticationResult =
+                        await _publicClientHandler.PublicClientApplication.AcquireTokenByIntegratedWindowsAuthAsync(
+                            scopes.Text.AsArray(),
+                            username);
+
+                    SetResultPageInfo(authenticationResult);
+
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
+                finally
+                {
+
+                }
+            }
+        }
+
+        private void acquireTokenByUPButton_Click(object sender, EventArgs e)
+        {
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
+                userPasswordTextBox.PasswordChar = '*';
+
+                string username = loginHintTextBox.Text; //Can be blank for U/P 
+                SecureString securePassword = ConvertToSecureString(userPasswordTextBox);
+
+                AcquireTokenByUsernamePassword(username, securePassword);
+            }
+        }
+
+        private async void AcquireTokenByUsernamePassword(string username, SecureString password)
+        {
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
+                _publicClientHandler.PublicClientApplication = new PublicClientApplication(publicClientId, "https://login.microsoftonline.com/organizations");
 
-                SetResultPageInfo(authenticationResult);
-                RefreshUserList();
+                AuthenticationResult authResult = await _publicClientHandler.PublicClientApplication.AcquireTokenByUsernamePasswordAsync(
+                    scopes.Text.AsArray(),
+                    username,
+                    password);
+
+                SetResultPageInfo(authResult);
             }
             catch (Exception exc)
             {
@@ -158,30 +252,45 @@ namespace DesktopTestApp
             }
         }
 
+        private SecureString ConvertToSecureString(TextBox textBox)
+        {
+            if (userPasswordTextBox.Text.Length > 0)
+            {
+                SecureString securePassword = new SecureString();
+                userPasswordTextBox.Text.ToCharArray().ToList().ForEach(p => securePassword.AppendChar(p));
+                securePassword.MakeReadOnly();
+                return securePassword;
+            }
+            return null;
+        }
+
         private async void acquireTokenSilent_Click(object sender, EventArgs e)
         {
-            ClearResultPageInfo();
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
 
-            _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
-            if (userList.SelectedIndex == 0)
-            {
-                _publicClientHandler.CurrentUser = null;
-            }
-            else
-            {
-                _publicClientHandler.CurrentUser = userList.SelectedItem as Account;
-            }
+                _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
+                if (IgnoreUserCbx.Checked)
+                {
+                    _publicClientHandler.CurrentUser = null;
+                }
+                else
+                {
+                    _publicClientHandler.CurrentUser = userList.SelectedItem as Account;
+                }
 
-            try
-            {
-                AuthenticationResult authenticationResult =
-                    await _publicClientHandler.AcquireTokenSilentAsync(scopes.Text.AsArray());
+                try
+                {
+                    AuthenticationResult authenticationResult =
+                        await _publicClientHandler.AcquireTokenSilentAsync(scopes.Text.AsArray());
 
-                SetResultPageInfo(authenticationResult);
-            }
-            catch (Exception exc)
-            {
-                CreateException(exc);
+                    SetResultPageInfo(authenticationResult);
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
             }
         }
 
@@ -192,7 +301,7 @@ namespace DesktopTestApp
             _publicClientHandler.AuthorityOverride = overriddenAuthority.Text;
             _publicClientHandler.InteractiveAuthority = authority.Text;
 
-            if (userList.SelectedIndex == 0)
+            if (IgnoreUserCbx.Checked)
             {
                 _publicClientHandler.CurrentUser = null;
             }
@@ -286,9 +395,17 @@ namespace DesktopTestApp
                 cachePageTableLayout.Controls[0].Dispose();
             }
 
+            // Bring the cache back into memory
+            var acc = _publicClientHandler.PublicClientApplication.GetAccountsAsync().Result;
+            Trace.WriteLine("Accounts: " + acc.Count());
+
             cachePageTableLayout.RowCount = 0;
-            foreach (MsalRefreshTokenCacheItem rtItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+            var allRefreshTokens = _publicClientHandler.PublicClientApplication.UserTokenCache
+                .GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var allAccessTokens = _publicClientHandler.PublicClientApplication.UserTokenCache
+                    .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+
+            foreach (MsalRefreshTokenCacheItem rtItem in allRefreshTokens)
             {
                 AddControlToCachePageTableLayout(
                     new MsalUserRefreshTokenControl(_publicClientHandler.PublicClientApplication, rtItem)
@@ -296,8 +413,7 @@ namespace DesktopTestApp
                         RefreshViewDelegate = LoadCacheTabPage
                     });
 
-                foreach (MsalAccessTokenCacheItem atItem in _publicClientHandler.PublicClientApplication.UserTokenCache
-                    .GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+                foreach (MsalAccessTokenCacheItem atItem in allAccessTokens)
                 {
                     if (atItem.HomeAccountId.Equals(rtItem.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                     {
@@ -347,15 +463,18 @@ namespace DesktopTestApp
 
         #endregion
 
-        private void forceRefreshTrueBtn_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void clearLogsButton_Click(object sender, EventArgs e)
         {
             msalLogsTextBox.Text = string.Empty;
             msalPIILogsTextBox.Text = string.Empty;
         }
+
+        private void authority_FocusLeave(object sender, EventArgs e)
+        {
+            _publicClientHandler.CreateOrUpdatePublicClientApp(this.authority.Text, publicClientId);
+        }
+
     }
+
+
 }

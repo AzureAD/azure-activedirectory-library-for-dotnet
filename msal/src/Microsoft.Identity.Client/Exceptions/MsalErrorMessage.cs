@@ -54,7 +54,6 @@ namespace Microsoft.Identity.Core
         public const string EncodedTokenTooLong = "Encoded token size is beyond the upper limit";
         public const string FailedToAcquireTokenSilently = "Failed to acquire token silently. Call method AcquireToken";
         public const string FailedToRefreshToken = "Failed to refresh token";
-        public const string FederatedServiceReturnedErrorTemplate = "Federated service at {0} returned error: {1}";
         public const string IdentityProtocolLoginUrlNull = "The LoginUrl property in identityProvider cannot be null";
         public const string IdentityProtocolMismatch = "No identity provider matches the requested protocol";
 
@@ -98,7 +97,7 @@ namespace Microsoft.Identity.Core
         public const string UnexpectedAuthorityValidList = "Unexpected list of valid addresses";
 
         public const string UnknownUser = "Could not identify logged in user";
-        public const string UnsupportedUserType = "Unsupported User Type";
+        public const string UnsupportedUserType = "Unsupported User Type '{0}'. Please see https://aka.ms/msal-net-up";
 
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";

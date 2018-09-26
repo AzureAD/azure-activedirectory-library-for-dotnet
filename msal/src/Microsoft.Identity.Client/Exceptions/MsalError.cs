@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Client
         /// User Mismatch.
         /// </summary>
         public const string UserMismatch = "user_mismatch";
-        
+
         /// <summary>
         /// Failed to refresh token.
         /// </summary>
@@ -97,5 +97,65 @@ namespace Microsoft.Identity.Client
         /// Internal error
         /// </summary>
         public const string InternalError = "internal_error";
+
+        /// <summary>
+        /// Accessing WS Metadata Exchange Failed.
+        /// </summary>
+        public const string AccessingWsMetadataExchangeFailed = "accessing_ws_metadata_exchange_failed";
+
+        /// <summary>
+        /// Federated service returned error.
+        /// </summary>
+        public const string FederatedServiceReturnedError = "federated_service_returned_error";
+
+        /// <summary>
+        /// User Realm Discovery Failed.
+        /// </summary>
+        public const string UserRealmDiscoveryFailed = "user_realm_discovery_failed";
+
+        /// <summary>
+        /// Federation Metadata Url is missing for federated user.
+        /// </summary>
+        public const string MissingFederationMetadataUrl = "missing_federation_metadata_url";
+
+        /// <summary>
+        /// Parsing WS Metadata Exchange Failed.
+        /// </summary>
+        public const string ParsingWsMetadataExchangeFailed = "parsing_ws_metadata_exchange_failed";
+
+        /// <summary>
+        /// WS-Trust Endpoint Not Found in Metadata Document.
+        /// </summary>
+        public const string WsTrustEndpointNotFoundInMetadataDocument = "wstrust_endpoint_not_found";
+
+        /// <summary>
+        /// Parsing WS-Trust Response Failed.
+        /// </summary>
+        public const string ParsingWsTrustResponseFailed = "parsing_wstrust_response_failed";
+
+        /// <summary>
+        /// Unknown User Type.
+        /// </summary>
+        public const string UnknownUserType = "unknown_user_type";
+
+        /// <summary>
+        /// Unknown User.
+        /// </summary>
+        public const string UnknownUser = "unknown_user";
+
+        /// <summary>
+        /// Failed to get user name.
+        /// </summary>
+        public const string GetUserNameFailed = "get_user_name_failed";
+
+        /// <summary>
+        /// Password is required for managed user.
+        /// </summary>
+        public const string PasswordRequiredForManagedUserError = "password_required_for_managed_user";
+
+        /// <summary>
+        /// Request is invalid.
+        /// </summary>
+        public const string InvalidRequest = "invalid_request";
     }
 }
