@@ -25,9 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
+using LabInfrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using Test.Microsoft.Identity.Core.UIAutomation.infrastructure;
 
 namespace Test.MSAL.NET.Integration.Infrastructure
 {

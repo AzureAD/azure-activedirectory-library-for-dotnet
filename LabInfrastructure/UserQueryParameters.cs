@@ -25,28 +25,18 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using Xamarin.UITest;
-using Xamarin.UITest.Queries;
+using System.Collections.Generic;
 
-namespace Test.Microsoft.Identity.Core.UIAutomation
+namespace LabInfrastructure
 {
-    /// <summary>
-    /// Initializes the app object that represents the main gateway to interact with the app on the device
-    /// </summary>
-	public class AppFactory
-	{
-        public static IApp StartApp(Platform platform, string targetApp)
-        {
-            switch (platform)
-            {
-                case Platform.Android:
-                    return ConfigureApp.Android.InstalledApp(targetApp).StartApp();
-                case Platform.iOS:
-                    return ConfigureApp.iOS.StartApp();
-                default:
-                    throw new PlatformNotSupportedException();
-            }
-        }
+    public class UserQueryParameters
+    {
+        public FederationProvider? FederationProvider { get; set; }
+        public bool? IsMamUser { get; set; }
+        public bool? IsMfaUser { get; set; }
+        public ISet<string> Licenses { get; set; }
+        public bool? IsFederatedUser { get; set; }
+        public UserType? IsUserType { get; set; }
+        public bool? IsExternalUser { get; set; }
     }
 }

@@ -25,12 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
+using LabInfrastructure;
 using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.Security;
 using System.Threading.Tasks;
-using Test.Microsoft.Identity.Core.UIAutomation.infrastructure;
 using Test.MSAL.NET.Integration.Infrastructure;
 
 namespace Test.MSAL.NET.Integration
