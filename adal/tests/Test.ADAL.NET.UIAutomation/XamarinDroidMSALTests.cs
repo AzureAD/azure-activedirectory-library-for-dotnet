@@ -39,7 +39,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenTestMSAL()
         {
             CoreMobileMSALTests.AcquireTokenTest(xamarinController);
@@ -48,7 +48,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenSilentTestMSAL()
         {
             CoreMobileMSALTests.AcquireTokenSilentTest(xamarinController);
@@ -57,7 +57,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token ADFSV4 Federated flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenADFSV4InteractiveFederatedMSAL()
         {
             CoreMobileMSALTests.AcquireTokenADFSvXInteractiveMSALTest(xamarinController, FederationProvider.AdfsV4, true);
@@ -66,7 +66,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token ADFSV3 Federated flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenADFSV3InteractiveFederatedMSAL()
         {
             CoreMobileMSALTests.AcquireTokenADFSvXInteractiveMSALTest(xamarinController, FederationProvider.AdfsV3, true);
@@ -75,7 +75,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token ADFSV4 Non-Federated flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenADFSV4InteractiveNonFederatedMSAL()
         {
             CoreMobileMSALTests.AcquireTokenADFSvXInteractiveMSALTest(xamarinController, FederationProvider.AdfsV3, false);
@@ -84,7 +84,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token ADFSV3 Non-Federated flow
         /// </summary>
-        //[Test]
+        [Test]
         public void AcquireTokenADFSV3InteractiveNonFederatedMSAL()
         {
             CoreMobileMSALTests.AcquireTokenADFSvXInteractiveMSALTest(xamarinController, FederationProvider.AdfsV3, false);

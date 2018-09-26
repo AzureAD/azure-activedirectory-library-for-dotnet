@@ -19,6 +19,20 @@ namespace Test.ADAL.NET.UIAutomation
         private const string MSGraph = "https://graph.microsoft.com";
         private const string Exchange = "https://outlook.office365.com/";
         private const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
+        private const string AcquireTokenID = "acquireToken";
+        private const string AcquireTokenSilentID = "acquireTokenSilent";
+        private const string clientIdEntryID = "clientIdEntry";
+        private const string resourceEntryID = "resourceEntry";
+        private const string secondPageID = "secondPage";
+        private const string ClearCacheID = "clearCache";
+        private const string SaveID = "saveButton";
+        private const string WebUPNInputID = "i0116";
+        private const string AdfsV4WebPasswordID = "passwordInput";
+        private const string AdfsV4WebSubmitID = "submitButton";
+        private const string WebPasswordID = "i0118";
+        private const string WebSubmitID = "idSIButton9";
+        private const string TestResultID = "testResult";
+        private const string TestResultSuccsesfulMessage = "Result: Success";
 
         /// <summary>
         /// Runs through the standard acquire token interactive flow
@@ -26,28 +40,8 @@ namespace Test.ADAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenInteractiveTest(ITestController controller)
 		{
-            var user = prepareForAuthentication(controller);
-
-            // Create a string array with the lines of text
-            string[] lines = { "First line", "Second line", "Third line" };
-
-            // Set a variable to the My Documents path.
-            string mydocpath =
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            // Write the string array to a new file named "WriteLines.txt".
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(mydocpath, "WriteLines.txt")))
-            {
-                foreach (string line in lines)
-                    outputFile.WriteLine(line);
-            }
-
-            SetInputData(controller, UiAutomationTestClientId, MSGraph);
-
-            PerformSignInFlowFlow(controller, user);
-
-            //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+            AcquireTokenInteractivly(controller);
+            VerifyResult(controller);
         }
 
         /// <summary>
@@ -56,22 +50,17 @@ namespace Test.ADAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenSilentTest(ITestController controller)
         {
-            //Get User from Lab
-            var user = prepareForAuthentication(controller);
-
-            SetInputData(controller, UiAutomationTestClientId, MSGraph);
-
-            PerformSignInFlowFlow(controller, user);
+            AcquireTokenInteractivly(controller);
+            VerifyResult(controller);
 
             //Enter 2nd Resource
-            controller.EnterText("resourceEntry", Exchange, false);
+            controller.EnterText(resourceEntryID, Exchange, false);
             controller.DismissKeyboard();
 
             //Acquire token silently
-            controller.Tap("acquireTokenSilent");
+            controller.Tap(AcquireTokenSilentID);
 
-            //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+            VerifyResult(controller);
         }
 
         /// <summary>
@@ -80,23 +69,23 @@ namespace Test.ADAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenADFSvXInteractiveTest(ITestController controller, FederationProvider federationProvider, bool isFederated)
         {
-            //Get User from Lab
+            AcquireTokenInteractivly(controller);
+            VerifyResult(controller);
+        }
+
+        private static void AcquireTokenInteractivly(ITestController controller)
+        {
             var user = prepareForAuthentication(controller);
-
             SetInputData(controller, UiAutomationTestClientId, MSGraph);
-
-            PerformSignInFlowFlow(controller, user);
-
-            //Verify result. Test results are put into a label
-            Assert.IsTrue(controller.GetText("testResult") == "Result: Success");
+            PerformSignInFlow(controller, user);
         }
 
         private static IUser prepareForAuthentication(ITestController controller)
         {
-            controller.Tap("secondPage");
+            controller.Tap(secondPageID);
 
             //Clear Cache
-            controller.Tap("clearCache");
+            controller.Tap(ClearCacheID);
 
             //Get User from Lab
             return controller.GetUser(
@@ -111,40 +100,46 @@ namespace Test.ADAL.NET.UIAutomation
         private static void SetInputData(ITestController controller, string ClientID, string Resource)
         {
             //Enter ClientID
-            controller.EnterText("clientIdEntry", ClientID, false);
+            controller.EnterText(clientIdEntryID, ClientID, false);
             controller.DismissKeyboard();
 
             //Enter Resource
-            controller.EnterText("resourceEntry", Resource, false);
+            controller.EnterText(resourceEntryID, Resource, false);
             controller.DismissKeyboard();
         }
 
-        private static void PerformSignInFlowFlow(ITestController controller, IUser user)
+        private static void PerformSignInFlow(ITestController controller, IUser user)
         {
-            string passwordInputID = "";
-            string signInButtonID = "";
+            string passwordInputID = string.Empty;
+            string signInButtonID = string.Empty;
 
             switch (user.FederationProvider)
             {
                 case FederationProvider.AdfsV4:
-                    passwordInputID = "passwordInput";
-                    signInButtonID = "submitButton";
+                    passwordInputID = AdfsV4WebPasswordID;
+                    signInButtonID = AdfsV4WebSubmitID;
                     break;
                 default:
-                    passwordInputID = "i0118";
-                    signInButtonID = "idSIButton9";
+                    passwordInputID = WebPasswordID;
+                    signInButtonID = WebSubmitID;
                     break;
             }
 
             //Acquire token flow
-            controller.Tap("acquireToken");
+            controller.Tap(AcquireTokenID);
             //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText("i0116", user.Upn, true);
+            controller.EnterText(WebUPNInputID, 20, user.Upn, true);
             //idSIButton9 = Sign in button
-            controller.Tap("idSIButton9", true);
+            controller.Tap(WebSubmitID, true);
             //i0118 = password text field
             controller.EnterText(passwordInputID, ((LabUser)user).GetPassword(), true);
             controller.Tap(signInButtonID, true);
+        }
+
+        private static void VerifyResult(ITestController controller)
+        {
+            //Test results are put into a label that is checked for messages
+            Assert.IsTrue(controller.GetText(TestResultID).Contains(TestResultSuccsesfulMessage));
         }
     }
 }
