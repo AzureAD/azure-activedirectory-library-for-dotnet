@@ -68,7 +68,7 @@ namespace Test.MSAL.NET.Integration
             // Do the following: 
             // 1) Add in code to pull the user's password before creating the SecureString, and put a breakpoint there.
             // string password = ((LabUser)user).GetPassword();
-            // 2) Using the MSAL Desktop app, make use the ClientId matches the one used in integration testing.
+            // 2) Using the MSAL Desktop app, make sure the ClientId matches the one used in integration testing.
             // 3) Do the interactive sign-in with the MSAL Desktop app with the username and password from step 1.
             // 4) After successful log-in, remove the password line you added in with step 1, and run the integration test again.
         }
@@ -97,7 +97,7 @@ namespace Test.MSAL.NET.Integration
             // Do the following: 
             // 1) Add in code to pull the user's password before creating the SecureString, and put a breakpoint there.
             // string password = ((LabUser)user).GetPassword();
-            // 2) Using the MSAL Desktop app, make use the ClientId matches the one used in integration testing.
+            // 2) Using the MSAL Desktop app, make sure the ClientId matches the one used in integration testing.
             // 3) Do the interactive sign-in with the MSAL Desktop app with the username and password from step 1.
             // 4) After successful log-in, remove the password line you added in with step 1, and run the integration test again.
         }
