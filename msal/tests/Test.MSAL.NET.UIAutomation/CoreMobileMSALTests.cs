@@ -27,6 +27,7 @@
 
 using LabInfrastructure;
 using NUnit.Framework;
+using Test.Microsoft.Identity.Core.UIAutomation;
 
 namespace Test.MSAL.NET.UIAutomation
 {

@@ -25,7 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-namespace LabInfrastructure
+using LabInfrastructure;
+
+namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public interface ITestController
     {

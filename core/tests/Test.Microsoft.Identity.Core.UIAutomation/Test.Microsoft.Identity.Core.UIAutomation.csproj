@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppFactory.cs" />
+    <Compile Include="ITestController.cs" />
     <Compile Include="PlatformNotSupportedException.cs" />
     <Compile Include="XamarinUITestController.cs" />
   </ItemGroup>
