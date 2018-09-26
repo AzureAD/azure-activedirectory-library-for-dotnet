@@ -58,6 +58,8 @@ namespace DesktopTestApp
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.publicClientTabPage = new System.Windows.Forms.TabPage();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.IgnoreUserCbx = new System.Windows.Forms.CheckBox();
             this.passwordLabel = new System.Windows.Forms.Label();
             this.userPasswordTextBox = new System.Windows.Forms.TextBox();
             this.acquireTokenByUPButton = new System.Windows.Forms.Button();
@@ -85,8 +87,7 @@ namespace DesktopTestApp
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.IgnoreUserCbx = new System.Windows.Forms.CheckBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.acquireTokenDeviceCode = new System.Windows.Forms.Button();
             this.logsTabPage.SuspendLayout();
             this.cacheTabPage.SuspendLayout();
             this.settingsTabPage.SuspendLayout();
@@ -392,6 +393,7 @@ namespace DesktopTestApp
             // publicClientTabPage
             // 
             this.publicClientTabPage.BackColor = System.Drawing.SystemColors.Control;
+            this.publicClientTabPage.Controls.Add(this.acquireTokenDeviceCode);
             this.publicClientTabPage.Controls.Add(this.progressBar1);
             this.publicClientTabPage.Controls.Add(this.IgnoreUserCbx);
             this.publicClientTabPage.Controls.Add(this.passwordLabel);
@@ -422,6 +424,23 @@ namespace DesktopTestApp
             this.publicClientTabPage.Size = new System.Drawing.Size(668, 788);
             this.publicClientTabPage.TabIndex = 0;
             this.publicClientTabPage.Text = "publicClientTabPage";
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(15, 759);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(645, 23);
+            this.progressBar1.TabIndex = 37;
+            // 
+            // IgnoreUserCbx
+            // 
+            this.IgnoreUserCbx.AutoSize = true;
+            this.IgnoreUserCbx.Location = new System.Drawing.Point(505, 224);
+            this.IgnoreUserCbx.Name = "IgnoreUserCbx";
+            this.IgnoreUserCbx.Size = new System.Drawing.Size(56, 17);
+            this.IgnoreUserCbx.TabIndex = 36;
+            this.IgnoreUserCbx.Text = "Ignore";
+            this.IgnoreUserCbx.UseVisualStyleBackColor = true;
             // 
             // passwordLabel
             // 
@@ -689,22 +708,15 @@ namespace DesktopTestApp
             this.tabControl1.Size = new System.Drawing.Size(676, 814);
             this.tabControl1.TabIndex = 0;
             // 
-            // IgnoreUserCbx
+            // acquireTokenDeviceCode
             // 
-            this.IgnoreUserCbx.AutoSize = true;
-            this.IgnoreUserCbx.Location = new System.Drawing.Point(505, 224);
-            this.IgnoreUserCbx.Name = "IgnoreUserCbx";
-            this.IgnoreUserCbx.Size = new System.Drawing.Size(56, 17);
-            this.IgnoreUserCbx.TabIndex = 36;
-            this.IgnoreUserCbx.Text = "Ignore";
-            this.IgnoreUserCbx.UseVisualStyleBackColor = true;
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(15, 759);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(645, 23);
-            this.progressBar1.TabIndex = 37;
+            this.acquireTokenDeviceCode.Location = new System.Drawing.Point(496, 687);
+            this.acquireTokenDeviceCode.Name = "acquireTokenDeviceCode";
+            this.acquireTokenDeviceCode.Size = new System.Drawing.Size(164, 29);
+            this.acquireTokenDeviceCode.TabIndex = 38;
+            this.acquireTokenDeviceCode.Text = "Acquire Token By DeviceCode";
+            this.acquireTokenDeviceCode.UseVisualStyleBackColor = true;
+            this.acquireTokenDeviceCode.Click += new System.EventHandler(this.acquireTokenDeviceCode_Click);
             // 
             // MainForm
             // 
@@ -797,6 +809,7 @@ namespace DesktopTestApp
         private Label passwordLabel;
         private CheckBox IgnoreUserCbx;
         private ProgressBar progressBar1;
+        private Button acquireTokenDeviceCode;
     }
 }
 

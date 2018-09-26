@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Microsoft.Identity.Core.Unit.Mocks
@@ -109,7 +110,25 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 foreach (var key in PostData.Keys)
                 {
                     Assert.IsTrue(requestPostDataPairs.ContainsKey(key));
-                    Assert.AreEqual(PostData[key], requestPostDataPairs[key]);
+                    if (key.Equals(OAuth2Parameter.Scope, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        string expectedScopeString = PostData[key];
+                        string actualScopeString = requestPostDataPairs[key];
+
+                        var expectedScopes = expectedScopeString.AsLowerCaseSortedSet();
+                        var actualScopes = actualScopeString.AsLowerCaseSortedSet();
+
+                        // can't use Assert.AreEqual on HashSet, so we'll compare by hand.
+                        Assert.AreEqual(expectedScopes.Count, actualScopes.Count);
+                        foreach (string expectedScope in expectedScopes)
+                        {
+                            Assert.IsTrue(actualScopes.Contains(expectedScope));
+                        }
+                    }
+                    else
+                    {
+                        Assert.AreEqual(PostData[key], requestPostDataPairs[key]);
+                    }
                 }
             }
 
