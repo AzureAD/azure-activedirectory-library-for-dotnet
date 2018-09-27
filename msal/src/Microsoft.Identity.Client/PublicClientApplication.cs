@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -37,6 +37,9 @@ using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client
 {
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
     /// <summary>
     /// Class to be used to acquire tokens in desktop or mobile applications (Desktop / UWP / Xamarin.iOS / Xamarin.Android).
     /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
@@ -53,6 +56,7 @@ namespace Microsoft.Identity.Client
     /// </list>
     /// </remarks>
     public sealed partial class PublicClientApplication : ClientApplicationBase, IPublicClientApplication
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         static PublicClientApplication()
         {
@@ -84,11 +88,17 @@ namespace Microsoft.Identity.Client
         /// </list>
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>
-        public PublicClientApplication(string clientId, string authority) : this(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId))
+        public PublicClientApplication(string clientId, string authority)
+            : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
         {
+            UserTokenCache = new TokenCache()
+            {
+                ClientId = clientId
+            };
         }
 
-        /// <summary>
+
+            /// <summary>
         /// Constructor of the application
         /// </summary>
         /// <param name="clientId">Client id of thje app</param>

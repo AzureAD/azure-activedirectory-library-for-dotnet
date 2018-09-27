@@ -80,6 +80,18 @@ namespace Microsoft.Identity.Client
             ValidateId();
         }
 
+        /// <summary>
+        /// Constructor of AccountId for Adfs variations
+        /// </summary>
+        /// <param name="identifier"></param>
+        public AccountId(string identifier)
+        {
+            //Should only be used in the case of Adfs
+            this.Identifier = identifier;
+            this.ObjectId = identifier;
+            this.TenantId = null; //No tenant Id's in Adfs
+        }
+
       
 
         #region Adapter to / from ClientInfo

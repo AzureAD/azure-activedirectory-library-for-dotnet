@@ -687,7 +687,7 @@ namespace Test.MSAL.NET.Unit
             };
 
             ClientCredential cc =
-                new ClientCredential("apwNJ0-uM_JMhZuTTtlbeuLAluvtE3avTtAGiIjx");
+                new ClientCredential("JWLR7xS9agPYL8svB_rotxsbEm-36wsWUJVrCM6w");
             ConfidentialClientApplication myApp = new ConfidentialClientApplication("http://my/client", "https://fs.rewilli40d.dft.com/adfs", "https://mytestmachine/testRedirect", cc, null, cache);
             string[] scopesForCustomerApi = new string[]
             {

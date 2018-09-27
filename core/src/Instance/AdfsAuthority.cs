@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -65,7 +65,57 @@ namespace Microsoft.Identity.Core.Instance
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(string userPrincipalName, RequestContext requestContext)
         {
+        /*
             if (ValidateAuthority)
+            {
+                DrsMetadataResponse drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext).ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(drsResponse.Error))
+                {
+                    CoreExceptionFactory.Instance.GetServiceException(
+                        drsResponse.Error,
+                        drsResponse.ErrorDescription);
+                }
+
+                if (drsResponse.IdentityProviderService?.PassiveAuthEndpoint == null)
+                {
+                    throw CoreExceptionFactory.Instance.GetServiceException(
+                        CoreErrorCodes.MissingPassiveAuthEndpoint,
+                        CoreErrorMessages.CannotFindTheAuthEndpont);
+                }
+
+                string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
+                string webfingerUrl = string.Format(CultureInfo.InvariantCulture,
+                    "https://{0}/adfs/.well-known/webfinger?rel={1}&resource={2}",
+                    drsResponse.IdentityProviderService.PassiveAuthEndpoint.Host,
+                    DefaultRealm, resource);
+
+                HttpResponse httpResponse =
+                    await HttpRequest.SendGetAsync(new Uri(webfingerUrl), null, requestContext).ConfigureAwait(false);
+
+                if (httpResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    throw CoreExceptionFactory.Instance.GetServiceException(
+                        CoreErrorCodes.InvalidAuthority,
+                        CoreErrorMessages.AuthorityValidationFailed);
+                }
+
+                AdfsWebFingerResponse wfr = OAuth2Client.CreateResponse<AdfsWebFingerResponse>(httpResponse, requestContext,
+                    false);
+                if (
+                    wfr.Links.FirstOrDefault(
+                        a =>
+                            (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
+                             a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase))) == null)
+                {
+                    throw CoreExceptionFactory.Instance.GetServiceException(
+                        CoreErrorCodes.InvalidAuthority,
+                        CoreErrorMessages.InvalidAuthorityOpenId);
+                }
+            }
+
+            return GetDefaultOpenIdConfigurationEndpoint();
+            */
+               if (ValidateAuthority)
             {
 
                 string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
@@ -113,11 +163,8 @@ namespace Microsoft.Identity.Core.Instance
             {
                 authorityInstance = (AdfsAuthority) ValidatedAuthorities[CanonicalAuthority];
             }
-
             if(!string.IsNullOrEmpty(userPrincipalName))
-            {
                 authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
-            }
             ValidatedAuthorities[CanonicalAuthority] = authorityInstance;
         }
 
@@ -164,6 +211,11 @@ namespace Microsoft.Identity.Core.Instance
         internal override string GetTenantId()
         {
             return null;
+        }
+
+        internal override void UpdateTenantId(string tenantId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -53,11 +53,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
             this.AuthorityType = DetectAuthorityType(this.Authority);
 
-            if (this.AuthorityType != AuthorityType.AAD && validateAuthority)
-            {
-                throw new ArgumentException(AdalErrorMessage.UnsupportedAuthorityValidation, "validateAuthority");
-            }
-
             this.ValidateAuthority = validateAuthority;
         }
 

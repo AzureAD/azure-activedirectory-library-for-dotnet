@@ -392,6 +392,46 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
+        public void DoNotSaveRefreshTokenInAdalCacheForMsalB2CAuthorityTest()
+        {
+            TokenCache cache = new TokenCache()
+            {
+                ClientId = TestConstants.ClientId
+            };
+
+            MsalTokenResponse response = new MsalTokenResponse();
+            response.IdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId);
+            response.AccessToken = "access-token";
+            response.ClientInfo = MockHelpers.CreateClientInfo();
+            response.ExpiresIn = 3599;
+            response.CorrelationId = "correlation-id";
+            response.RefreshToken = "refresh-token";
+            response.Scope = TestConstants.Scope.AsSingleString();
+            response.TokenType = "Bearer";
+            AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
+            {
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+                Authority = Authority.CreateAuthority(TestConstants.B2CAuthority, false),
+                ClientId = TestConstants.ClientId,
+                TenantUpdatedCanonicalAuthority = TestConstants.AuthorityTestTenant
+            };
+
+            AddHostToInstanceCache(TestConstants.ProductionPrefNetworkEnvironment);
+
+            cache.SaveAccessAndRefreshToken(requestParams, response);
+
+            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(cache.legacyCachePersistance.LoadCache());
+            cache.legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
+
+            // ADAL cache is empty because B2C scenario is only for MSAL
+            Assert.AreEqual(0, dictionary.Count);
+        }
+
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
         public void GetAccessTokenNoUserAssertionInCacheTest()
         {
             TokenCache cache = new TokenCache()
@@ -880,6 +920,40 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             Assert.IsNotNull(item);
             Assert.IsTrue(item.ScopeSet.Contains(scopeInCache));
+        }
+
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CacheB2CTokenTest()
+        {
+            TokenCache B2CCache = new TokenCache();
+            var tenantID = "someTenantID";
+            var authority = Authority.CreateAuthority(String.Format("https://login.microsoftonline.com/tfp/{0}/somePolicy/oauth2/v2.0/authorize", tenantID), false);
+
+            MsalTokenResponse response = new MsalTokenResponse();
+            //creating IDToken with empty tenantID and displayableID/PreferedUserName for B2C scenario
+            response.IdToken = MockHelpers.CreateIdToken(String.Empty, String.Empty, String.Empty);
+            response.ClientInfo = MockHelpers.CreateClientInfo();
+            response.AccessToken = "access-token";
+            response.ExpiresIn = 3599;
+            response.CorrelationId = "correlation-id";
+            response.RefreshToken = "refresh-token";
+            response.Scope = TestConstants.Scope.AsSingleString();
+            response.TokenType = "Bearer";
+
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
+            {
+                RequestContext = requestContext,
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                TenantUpdatedCanonicalAuthority = TestConstants.AuthorityTestTenant
+            };
+
+            B2CCache.SaveAccessAndRefreshToken(requestParams, response);
+
+            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
         }
 
         /*

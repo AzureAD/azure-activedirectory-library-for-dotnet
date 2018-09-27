@@ -32,11 +32,15 @@ using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Client
 {
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
     /// <summary>
     /// Contains the results of one token acquisition operation in <see cref="PublicClientApplication"/>
-    /// or <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>. For details see https://aka.ms/msal-net-authenticationresult
-    /// </summary>
+    /// or <see cref="T:ConfidentialClientApplication"/>. For details see https://aka.ms/msal-net-authenticationresult
+    /// </summary> 
     public partial class AuthenticationResult
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         private const string Oauth2AuthorizationHeader = "Bearer ";
         private readonly MsalAccessTokenCacheItem _msalAccessTokenCacheItem;
@@ -53,8 +57,16 @@ namespace Microsoft.Identity.Client
             _msalIdTokenCacheItem = msalIdTokenCacheItem;
             if (_msalAccessTokenCacheItem.HomeAccountId != null)
             {
-                Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
-                    _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                if (_msalAccessTokenCacheItem.TenantId == null) //Indicates this is an Adfs authority
+                {
+                    AccountId id = new AccountId((_msalAccessTokenCacheItem.HomeAccountId));
+                    Account = new Account(id, _msalIdTokenCacheItem?.IdToken?.Upn, _msalAccessTokenCacheItem.Environment);
+                }
+                else
+                {
+                    Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
+                        _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                }
             }
         }
 

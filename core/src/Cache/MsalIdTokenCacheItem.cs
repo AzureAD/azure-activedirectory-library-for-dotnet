@@ -38,12 +38,12 @@ namespace Microsoft.Identity.Core.Cache
         {
             CredentialType = Cache.CredentialType.idtoken.ToString();
         }
-        internal MsalIdTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string tenantId)
-            : this(environment, clientId, response.IdToken, response.ClientInfo, tenantId)
+        internal MsalIdTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string tenantId, string userId=null)
+            : this(environment, clientId, response.IdToken, response.ClientInfo, tenantId, userId)
         {
         }
         internal MsalIdTokenCacheItem
-            (string environment, string clientId, string secret, string rawClientInfo, string tenantId) : this()
+            (string environment, string clientId, string secret, string rawClientInfo, string tenantId, string userId=null) : this()
         {
             Environment = environment;
             TenantId = tenantId;
@@ -51,6 +51,7 @@ namespace Microsoft.Identity.Core.Cache
             Secret = secret;
             RawClientInfo = rawClientInfo;
 
+            HomeAccountId = userId;
             InitUserIdentifier();
         }
 

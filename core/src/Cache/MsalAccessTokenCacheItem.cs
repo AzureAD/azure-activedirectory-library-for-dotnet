@@ -43,16 +43,16 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         internal MsalAccessTokenCacheItem
-            (string environment, string clientId, MsalTokenResponse response, string tenantId) : 
+            (string environment, string clientId, MsalTokenResponse response, string tenantId, string userId=null) : 
             
             this(environment, clientId, response.TokenType, response.Scope.AsLowerCaseSortedSet().AsSingleString(),
-                 tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo)
+                 tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo, userId)
         {
         }
 
         internal MsalAccessTokenCacheItem
             (string environment, string clientId, string tokenType, string scopes,
-             string tenantId, string secret, DateTimeOffset accessTokenExpiresOn, string rawClientInfo) : this()
+             string tenantId, string secret, DateTimeOffset accessTokenExpiresOn, string rawClientInfo, string userId=null) : this()
         {
             Environment = environment;
             ClientId = clientId;
@@ -63,6 +63,8 @@ namespace Microsoft.Identity.Core.Cache
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
             CachedAt = CoreHelpers.CurrDateTimeInUnixTimestamp();
             RawClientInfo = rawClientInfo;
+
+            HomeAccountId = userId;
 
             InitUserIdentifier();
         }

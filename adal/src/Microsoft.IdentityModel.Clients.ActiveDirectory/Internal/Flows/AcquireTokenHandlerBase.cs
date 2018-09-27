@@ -106,7 +106,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             this.LoadFromCache = (tokenCache != null);
             this.StoreToCache = (tokenCache != null);
-            this.SupportADFS = false;
+            this.SupportADFS = true;
 
             this.brokerParameters = new Dictionary<string, string>();
             brokerParameters[BrokerParameter.Authority] = requestData.Authenticator.Authority;
@@ -443,12 +443,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected void ValidateAuthorityType()
         {
-            if (!SupportADFS && Authenticator.AuthorityType == Instance.AuthorityType.ADFS)
+            /*if (!SupportADFS && Authenticator.AuthorityType == Instance.AuthorityType.ADFS)
             {
                 throw new AdalException(AdalError.InvalidAuthorityType,
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.InvalidAuthorityTypeTemplate,
                         Authenticator.Authority));
-            }
+            }*/
         }
     }
 }
