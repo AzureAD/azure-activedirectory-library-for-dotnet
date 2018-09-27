@@ -38,7 +38,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        [Test]
+        //[Test]
         public void AcquireTokenTest()
         {
             CoreMobileMSALTests.AcquireTokenTest(xamarinController);
