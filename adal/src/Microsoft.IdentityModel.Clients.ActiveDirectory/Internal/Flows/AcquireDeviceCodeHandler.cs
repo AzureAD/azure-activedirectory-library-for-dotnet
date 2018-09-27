@@ -117,15 +117,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             return response.GetResult(clientKey.ClientId, resource);
         }
-
-        private void ValidateAuthorityType()
-        {
-            if (this.authenticator.AuthorityType == AuthorityType.ADFS)
-            {
-                throw new AdalException(AdalError.InvalidAuthorityType,
-                    string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.InvalidAuthorityTypeTemplate, this.authenticator.Authority));
-            }
-        }
-
     }
 }
