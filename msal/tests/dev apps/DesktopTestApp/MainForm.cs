@@ -473,7 +473,7 @@ namespace DesktopTestApp
             _publicClientHandler.CreateOrUpdatePublicClientApp(this.authority.Text, publicClientId);
         }
 
-        private async void acquireTokenDeviceCode_Click(object sender, EventArgs e)
+        private void acquireTokenDeviceCode_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
 
@@ -481,18 +481,19 @@ namespace DesktopTestApp
             {
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                AuthenticationResult authenticationResult = 
-                    await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
-                        scopes.Text.AsArray(),
-                        string.Empty,  // extra query parameters
-                        dcr =>
-                        {
-                            BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
-                            return Task.FromResult(0);
-                        },
-                        _cancellationTokenSource.Token);
+                // TODO: re-enable when public API re-enabled.
+                //AuthenticationResult authenticationResult = 
+                //    await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
+                //        scopes.Text.AsArray(),
+                //        string.Empty,  // extra query parameters
+                //        dcr =>
+                //        {
+                //            BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
+                //            return Task.FromResult(0);
+                //        },
+                //        _cancellationTokenSource.Token);
 
-                SetResultPageInfo(authenticationResult);
+                //SetResultPageInfo(authenticationResult);
             }
             catch (Exception ex)
             {
