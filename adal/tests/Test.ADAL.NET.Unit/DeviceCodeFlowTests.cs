@@ -134,7 +134,7 @@ namespace Test.ADAL.NET.Unit
             });
 
             TokenCache cache = new TokenCache();
-            AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, cache);
+            AuthenticationContext ctx = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false, cache);
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -153,7 +153,7 @@ namespace Test.ADAL.NET.Unit
 
             AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
-            AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant);
+            AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false);
             DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId);
 
             Assert.IsNotNull(dcr);
