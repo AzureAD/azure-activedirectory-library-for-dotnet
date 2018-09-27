@@ -40,6 +40,7 @@ using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
@@ -68,13 +69,81 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
         {
-            return MockHelpers.CreateSuccessResponseMessage(
-                "{\"user_code\":\"B6SUYU5PL\",\"device_code\":\"BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA\",\"verification_url\":\"https://microsoft.com/devicelogin\",\"expires_in\":\"900\",\"interval\":\"5\",\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.\"}");
+            const string SuccessMessage = 
+                "{\"user_code\":\"B6SUYU5PL\"," +
+                 "\"device_code\":\"BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA\"," +
+                 "\"verification_url\":\"https://microsoft.com/devicelogin\"," +
+                 "\"expires_in\":\"900\"," +
+                 "\"interval\":\"5\"," +
+                 "\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.\"}";
+
+            return MockHelpers.CreateSuccessResponseMessage(SuccessMessage);
         }
 
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
+        {
+            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+
+            // Check that cache is empty
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            DeviceCodeResult actualDeviceCodeResult = null;
+            DeviceCodeRequest request = new DeviceCodeRequest(parameters, result => 
+            {
+                actualDeviceCodeResult = result;
+                return Task.FromResult(0);
+            });
+            var task = request.RunAsync(CancellationToken.None);
+            task.Wait();
+            var authenticationResult = task.Result;
+            Assert.IsNotNull(authenticationResult);
+            Assert.IsNotNull(actualDeviceCodeResult);
+
+            Assert.AreEqual("client_id", actualDeviceCodeResult.ClientId);
+            Assert.AreEqual("BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA", actualDeviceCodeResult.DeviceCode);
+            Assert.AreEqual(5, actualDeviceCodeResult.Interval);
+            Assert.AreEqual("To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.", actualDeviceCodeResult.Message);
+            Assert.AreEqual("B6SUYU5PL", actualDeviceCodeResult.UserCode);
+            Assert.AreEqual("https://microsoft.com/devicelogin", actualDeviceCodeResult.VerificationUrl);
+
+            CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
+
+            // Validate that entries were added to cache
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        }
+
+        [TestMethod]
+        [TestCategory("DeviceCodeRequestTests")]
+        public void TestDeviceCodeCancel()
+        {
+            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+
+            CancellationTokenSource cancellationSource = new CancellationTokenSource();
+
+            DeviceCodeResult actualDeviceCodeResult = null;
+            DeviceCodeRequest request = new DeviceCodeRequest(parameters, async result =>
+            {
+                await Task.Delay(200);
+                actualDeviceCodeResult = result;
+            });
+
+            // We setup the cancel before calling the RunAsync operation since we don't check the cancel
+            // until later and the mock network calls run insanely fast for us to timeout for them.
+            cancellationSource.Cancel();
+            AssertException.TaskThrows<OperationCanceledException>(() => request.RunAsync(cancellationSource.Token));
+        }
+
+        private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes)
         {
             Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
@@ -85,7 +154,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
                 Authority = authority,
-                // todo: what is this? SliceParameters = "key1=value1%20with%20encoded%20space&key2=value2",
                 ClientId = TestConstants.ClientId,
                 Scope = TestConstants.Scope,
                 TokenCache = _cache,
@@ -94,7 +162,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
-            var expectedScopes = new HashSet<string>();
+            expectedScopes = new HashSet<string>();
             expectedScopes.UnionWith(TestConstants.Scope);
             expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
             expectedScopes.Add(OAuth2Value.ScopeProfile);
@@ -124,30 +192,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
             });
 
-            DeviceCodeResult actualDeviceCodeResult = null;
-            DeviceCodeRequest request = new DeviceCodeRequest(parameters, result => 
-            {
-                actualDeviceCodeResult = result;
-                return Task.FromResult(0);
-            });
-            var task = request.RunAsync(CancellationToken.None);
-            task.Wait();
-            var authenticationResult = task.Result;
-            Assert.IsNotNull(authenticationResult);
-            Assert.IsNotNull(actualDeviceCodeResult);
-
-            Assert.AreEqual("client_id", actualDeviceCodeResult.ClientId);
-            Assert.AreEqual("BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA", actualDeviceCodeResult.DeviceCode);
-            Assert.AreEqual("client_id", actualDeviceCodeResult.ClientId);
-
-            // todo: figure out how to unit test this one since it's calculated from current time based on the datetime offset retrieved in the response
-            // Assert.AreEqual(5, actualDeviceCodeResult.ExpiresOn); 
-
-            Assert.AreEqual("To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.", actualDeviceCodeResult.Message);
-            Assert.AreEqual("B6SUYU5PL", actualDeviceCodeResult.UserCode);
-            Assert.AreEqual("https://microsoft.com/devicelogin", actualDeviceCodeResult.VerificationUrl);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+            return parameters;
         }
     }
 }

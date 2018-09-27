@@ -85,8 +85,7 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
                 HttpMethod.Post,
                 AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
-            // todo: fix resource/scopes here for how we want to invoke this...
-            _deviceCodeResult = response.GetResult(AuthenticationRequestParameters.ClientId, "todo resource");
+            _deviceCodeResult = response.GetResult(AuthenticationRequestParameters.ClientId, deviceCodeScopes);
             await _deviceCodeResultCallback(_deviceCodeResult).ConfigureAwait(false);
         }
 

@@ -32,6 +32,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Security;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
@@ -73,6 +74,7 @@ namespace DesktopTestApp
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
+        private CancellationTokenSource _cancellationTokenSource;
 
         public MainForm()
         {
@@ -477,6 +479,8 @@ namespace DesktopTestApp
 
             try
             {
+                _cancellationTokenSource = new CancellationTokenSource();
+
                 AuthenticationResult authenticationResult = 
                     await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
                         scopes.Text.AsArray(),
@@ -485,7 +489,8 @@ namespace DesktopTestApp
                         {
                             BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
                             return Task.FromResult(0);
-                        });
+                        },
+                        _cancellationTokenSource.Token);
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -494,7 +499,11 @@ namespace DesktopTestApp
                 CreateException(ex);
             }
         }
+
+        private void cancelOperationButton_Click(object sender, EventArgs e)
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = null;
+        }
     }
-
-
 }

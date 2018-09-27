@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Microsoft.Identity.Core.OAuth2;
 
@@ -54,7 +55,7 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
         [DataMember(Name = "message", IsRequired = false)]
         public string Message { get; internal set; }
 
-        public DeviceCodeResult GetResult(string clientId, string resource)
+        public DeviceCodeResult GetResult(string clientId, ISet<string> scopes)
         {
             return new DeviceCodeResult(
                 UserCode,
@@ -64,7 +65,7 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
                 Interval,
                 Message,
                 clientId,
-                resource);
+                scopes);
         }
     }
 }

@@ -112,18 +112,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                     Assert.IsTrue(requestPostDataPairs.ContainsKey(key));
                     if (key.Equals(OAuth2Parameter.Scope, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        string expectedScopeString = PostData[key];
-                        string actualScopeString = requestPostDataPairs[key];
-
-                        var expectedScopes = expectedScopeString.AsLowerCaseSortedSet();
-                        var actualScopes = actualScopeString.AsLowerCaseSortedSet();
-
-                        // can't use Assert.AreEqual on HashSet, so we'll compare by hand.
-                        Assert.AreEqual(expectedScopes.Count, actualScopes.Count);
-                        foreach (string expectedScope in expectedScopes)
-                        {
-                            Assert.IsTrue(actualScopes.Contains(expectedScope));
-                        }
+                        CoreAssert.AreScopesEqual(PostData[key], requestPostDataPairs[key]);
                     }
                     else
                     {

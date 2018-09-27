@@ -26,6 +26,9 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Microsoft.Identity.Client
 {
@@ -45,7 +48,7 @@ namespace Microsoft.Identity.Client
             long interval,
             string message,
             string clientId,
-            string resource)
+            ISet<string> scopes)
         {
             UserCode = userCode;
             DeviceCode = deviceCode;
@@ -54,7 +57,7 @@ namespace Microsoft.Identity.Client
             Interval = interval;
             Message = message;
             ClientId = clientId;
-            Resource = resource;
+            Scopes = new ReadOnlyCollection<string>(scopes.AsEnumerable().ToList());
         }
 
         /// <summary>
@@ -93,9 +96,8 @@ namespace Microsoft.Identity.Client
         public string ClientId { get; }
 
         /// <summary>
-        /// Identifier of the target resource that would be the recipient of the token.
+        /// List of the scopes that would be the recipient of the token.
         /// </summary>
-        public string Resource { get; }
-        // todo: this should be SCOPE(S) and not resource for v2 endpoint...
+        public IReadOnlyCollection<string> Scopes { get; }
     }
 }
