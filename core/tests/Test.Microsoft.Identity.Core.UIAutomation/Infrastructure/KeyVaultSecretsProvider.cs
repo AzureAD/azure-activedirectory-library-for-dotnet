@@ -4,8 +4,6 @@ using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
@@ -75,17 +73,14 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
         private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
         {
             var authContext = new AuthenticationContext(authority, keyVaultTokenCache);
-            X509Certificate2 cert = null;
+
             AuthenticationResult authResult;
             switch (_config.AuthType)
             {
                 case KeyVaultAuthenticationType.ClientCertificate:
                     if (_assertionCert == null)
                     {
-                        cert = CertificateHelper.FindCertificateByThumbprint(_config.CertThumbprint);
-                        if(cert == null)
-                            cert = new X509Certificate2("BuildCert.pfx");
-
+                        var cert = CertificateHelper.FindCertificateByThumbprint(_config.CertThumbprint);
                         _assertionCert = new ClientAssertionCertificate(_config.ClientId, cert);
                     }
                     authResult = await authContext.AcquireTokenAsync(resource, _assertionCert);

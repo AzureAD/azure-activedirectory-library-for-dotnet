@@ -19,8 +19,15 @@ namespace Test.MSAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenTest(ITestController controller)
         {
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = false
+                });
 
-<<<<<<< Updated upstream
             //Clear Cache
             controller.Tap("clearCache");
 
@@ -36,8 +43,6 @@ namespace Test.MSAL.NET.UIAutomation
 
             //Verify result. Test results are put into a label
             Assert.IsTrue(controller.GetText("testResult").Contains("Result: Success"));
-=======
->>>>>>> Stashed changes
         }
     }
 }

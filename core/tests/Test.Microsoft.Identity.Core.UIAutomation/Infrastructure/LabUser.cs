@@ -89,6 +89,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
                 throw new Exception("Error: CredentialUrl is not set on user. Password retrieval failed.");
             }
 
+
             return keyVault.GetSecret(CredentialUrl).Value;
         }
     }
