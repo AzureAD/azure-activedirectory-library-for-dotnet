@@ -1,3 +1,17 @@
+Version 4.1.0-preview
+=============
+
+This release includes: 
+
+- Integrated Windows Auth and Username / Password minor changes, such as improved error messages and http call resilience
+
+Version 4.0.1-preview
+==============
+
+This hotfix includes: 
+- Bug fixes on MSAL that touch some ADAL code
+
+
 Version 4.0.0-preview
 ==============
 This release includes:
