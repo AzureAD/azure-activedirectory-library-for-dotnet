@@ -67,17 +67,28 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
         }
 
+        private const string ExpectedDeviceCode = "BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA";
+        private const string ExpectedUserCode = "B6SUYU5PL";
+        private const int ExpectedExpiresIn = 900;
+        private const int ExpectedInterval = 5;
+        private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
+
+        private string ExpectedMessage =>
+            $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
+
+        private string ExpectedResponseMessage =>
+            $"{{" +
+            $"\"user_code\":\"{ExpectedUserCode}\"," +
+            $"\"device_code\":\"{ExpectedDeviceCode}\"," +
+            $"\"verification_url\":\"{ExpectedVerificationUrl}\"," +
+            $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
+            $"\"interval\":\"{ExpectedInterval}\"," +
+            $"\"message\":\"{ExpectedMessage}\"," +
+            $"}}";
+
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
         {
-            const string SuccessMessage = 
-                "{\"user_code\":\"B6SUYU5PL\"," +
-                 "\"device_code\":\"BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA\"," +
-                 "\"verification_url\":\"https://microsoft.com/devicelogin\"," +
-                 "\"expires_in\":\"900\"," +
-                 "\"interval\":\"5\"," +
-                 "\"message\":\"To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.\"}";
-
-            return MockHelpers.CreateSuccessResponseMessage(SuccessMessage);
+            return MockHelpers.CreateSuccessResponseMessage(ExpectedResponseMessage);
         }
 
         [TestMethod]
@@ -104,12 +115,12 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             Assert.IsNotNull(authenticationResult);
             Assert.IsNotNull(actualDeviceCodeResult);
 
-            Assert.AreEqual("client_id", actualDeviceCodeResult.ClientId);
-            Assert.AreEqual("BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA", actualDeviceCodeResult.DeviceCode);
-            Assert.AreEqual(5, actualDeviceCodeResult.Interval);
-            Assert.AreEqual("To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code B6SUYU5PL to authenticate.", actualDeviceCodeResult.Message);
-            Assert.AreEqual("B6SUYU5PL", actualDeviceCodeResult.UserCode);
-            Assert.AreEqual("https://microsoft.com/devicelogin", actualDeviceCodeResult.VerificationUrl);
+            Assert.AreEqual(TestConstants.ClientId, actualDeviceCodeResult.ClientId);
+            Assert.AreEqual(ExpectedDeviceCode, actualDeviceCodeResult.DeviceCode);
+            Assert.AreEqual(ExpectedInterval, actualDeviceCodeResult.Interval);
+            Assert.AreEqual(ExpectedMessage, actualDeviceCodeResult.Message);
+            Assert.AreEqual(ExpectedUserCode, actualDeviceCodeResult.UserCode);
+            Assert.AreEqual(ExpectedVerificationUrl, actualDeviceCodeResult.VerificationUrl);
 
             CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
 
