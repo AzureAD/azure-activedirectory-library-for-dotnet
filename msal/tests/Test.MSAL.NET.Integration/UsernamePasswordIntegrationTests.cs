@@ -42,11 +42,11 @@ namespace Test.MSAL.NET.Integration
         public const string Authority = "https://login.microsoftonline.com/organizations/";
         public string[] Scopes = { "User.Read" };
         AuthHelper authHelper = new AuthHelper();
-        
-        [TestInitialize]
-        public void TestInitialize()
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
 
         [TestMethod]
