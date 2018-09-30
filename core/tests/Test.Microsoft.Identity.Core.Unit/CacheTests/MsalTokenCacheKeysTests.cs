@@ -28,6 +28,7 @@
 using Microsoft.Identity.Core.Cache;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 {
@@ -66,6 +67,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             Assert.AreEqual("uid-env", key.GetiOSAccountKey());
             Assert.AreEqual("refreshtoken-cid--", key.GetiOSServiceKey()); // not a bug?
             Assert.AreEqual("refreshtoken-cid-", key.GetiOSGenericKey());
+
         }
 
         [TestMethod]
@@ -78,6 +80,21 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             Assert.AreEqual("uid-env", key.GetiOSAccountKey());
             Assert.AreEqual("accesstoken-cid-tid-scopes-", key.GetiOSServiceKey()); 
             Assert.AreEqual("accesstoken-cid-tid", key.GetiOSGenericKey());
+
+            Assert.AreEqual("uid-accesstoken-cid-tid-krjj0S5F3FnXeUU+V375jesmS5La9otPWXdAXCElvbo=", key.GetFixedSizeKey());
+        }
+
+        [TestMethod]
+        public void MsalAccessTokenCacheKey_IsDifferentWhenEnvAndScopesAreDifferent()
+        {
+            MsalAccessTokenCacheKey key1 = new MsalAccessTokenCacheKey("env", "tid", "uid", "cid", "scope1 scope2");
+            MsalAccessTokenCacheKey key2 = new MsalAccessTokenCacheKey("env", "tid", "uid", "cid", 
+                String.Join(" ", Enumerable.Range(1, 100).Select(i => "scope" + i)));
+
+            Assert.AreNotEqual(key1.GetFixedSizeKey(), key2.GetFixedSizeKey());
+            Assert.IsTrue(key2.GetFixedSizeKey().Length < 255);
+            Assert.IsTrue(key1.GetFixedSizeKey().Length < 255);
+
         }
 
         [TestMethod]

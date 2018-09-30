@@ -80,6 +80,39 @@ namespace Microsoft.Identity.Core.Cache
             return stringBuilder.ToString();
         }
 
+
+        #region UWP
+
+        /// <summary>
+        /// Gets a key that is smaller than 255 characters, which is a limitation for 
+        /// UWP storage. This is done by hashing the scopes and env.
+        /// </summary>
+        /// <remarks>
+        /// accountId - two guids - 72 chars        
+        /// "accesstoken" string - 11 chars
+        /// clientid - a guid - 36 chars
+        /// tenantid - a guid - 36 chars
+        /// scopes and env - a sha256 string - 44 chars
+        /// delimiters - 4 chars
+        /// total: 203 chars
+        /// </remarks>
+        public string GetFixedSizeKey()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append((_homeAccountId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
+            
+            stringBuilder.Append(MsalCacheConstants.AccessToken + MsalCacheConstants.CacheKeyDelimiter);
+            stringBuilder.Append(_clientId + MsalCacheConstants.CacheKeyDelimiter);
+            stringBuilder.Append((_tenantId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
+
+            // can't use scopes and env because they are of variable length
+            stringBuilder.Append(CoreCryptographyHelpers.CreateSha256Hash(_scopes + _environment));
+
+            return stringBuilder.ToString();
+        }
+        #endregion
+
+
         #region iOS
 
         public string GetiOSAccountKey()
