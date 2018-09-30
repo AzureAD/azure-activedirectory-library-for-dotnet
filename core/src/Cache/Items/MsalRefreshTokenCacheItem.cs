@@ -35,9 +35,9 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalRefreshTokenCacheItem()
         {
-            CredentialType = Cache.CredentialType.refreshtoken.ToString();
+            CredentialType = MsalCacheConstants.RefreshToken;
         }
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response) : 
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response) :
             this(environment, clientId, response.RefreshToken, response.ClientInfo)
         {
         }
