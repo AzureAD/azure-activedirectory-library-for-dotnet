@@ -97,11 +97,11 @@ namespace Microsoft.Identity.Client.Internal
             Log(LogLevel.Warning, messageWithPii, messageScrubbed);
         }
 
-        public override void Error(Exception ex)
+        public override void Error(Exception exWillBeScrubbed)
         {
             Log(LogLevel.Error,
                 string.Empty,
-                MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex));
+                MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWillBeScrubbed));
         }
 
         public override void Error(string messageScrubbed)

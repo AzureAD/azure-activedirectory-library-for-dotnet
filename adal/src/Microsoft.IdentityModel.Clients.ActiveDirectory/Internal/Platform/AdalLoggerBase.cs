@@ -134,9 +134,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             Log(LogLevel.Information, string.Empty, messageScrubbed);
         }
 
-        public override void Error(Exception ex)
+        public override void Error(Exception exWillBeScrubbed)
         {
-            Log(LogLevel.Error, AdalExceptionFactory.GetPiiScrubbedExceptionDetails(ex), string.Empty);
+            Log(LogLevel.Error, string.Empty, AdalExceptionFactory.GetPiiScrubbedExceptionDetails(exWillBeScrubbed));
         }
 
         public override void ErrorPii(Exception exWithPii)

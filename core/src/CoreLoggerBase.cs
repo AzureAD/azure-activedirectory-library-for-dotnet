@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Core
         void InfoPii(string messageWithPii, string messageScrubbed);
         void Verbose(string messageScrubbed);
         void VerbosePii(string messageWithPii, string messageScrubbed);
-        void Error(Exception exNoPii);
+        void Error(Exception exWillBeScrubbed);
         void ErrorPii(Exception exWithPii, string messageScrubbed);
     }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core
         public abstract void VerbosePii(string messageWithPii);
         public abstract void VerbosePii(string messageWithPii, string messageScrubbed);
 
-        public abstract void Error(Exception exNoPii);
+        public abstract void Error(Exception exWillBeScrubbed);
         public abstract void ErrorPii(Exception exWithPii);
         public abstract void ErrorPii(Exception exWithPii, string messageScrubbed);
     }
