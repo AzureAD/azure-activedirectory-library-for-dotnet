@@ -132,6 +132,8 @@ namespace Microsoft.Identity.Client
 
             IdToken idToken = IdToken.Parse(response.IdToken);
 
+            string subject = idToken?.Subject;
+
             //The preferred_username value cannot be null or empty in order to comply with the ADAL/MSAL Unified cache schema. 
             //It will be set to "preferred_username not in idtoken" 
             var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
@@ -156,21 +158,30 @@ namespace Microsoft.Identity.Client
             if (idToken != null)
             {
                 msalIdTokenCacheItem = new MsalIdTokenCacheItem
-                    (preferredEnvironmentHost, requestParams.ClientId, response, tenantId);
+                    (preferredEnvironmentHost, requestParams.ClientId, response, tenantId, subject);
             }
 
             lock (LockObject)
             {
                 try
                 {
+                    Account account = null;
+                    if(msalAccessTokenCacheItem.HomeAccountId != null)
+                    {
+                        if(requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                        {
+                            account = new Account(new AccountId(msalAccessTokenCacheItem.HomeAccountId), idToken.Upn, msalAccessTokenCacheItem.Environment);
+                        }
+                        else
+                        {
+                            account = new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo), preferredUsername, preferredEnvironmentHost);
+                        }
+                    }
                     var args = new TokenCacheNotificationArgs
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        Account = msalAccessTokenCacheItem.HomeAccountId != null ?
-                                    new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
-                                    preferredUsername, preferredEnvironmentHost) : 
-                                    null
+                        Account = account
                     };
 
                     HasStateChanged = true;
@@ -194,7 +205,7 @@ namespace Microsoft.Identity.Client
                     // if server returns the refresh token back, save it in the cache.
                     if (response.RefreshToken != null)
                     {
-                        msalRefreshTokenCacheItem = new MsalRefreshTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response);
+                        msalRefreshTokenCacheItem = new MsalRefreshTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, subject);
                         var msg = "Saving RT in cache...";
                         requestParams.RequestContext.Logger.Info(msg);
                         requestParams.RequestContext.Logger.InfoPii(msg);
@@ -240,7 +251,8 @@ namespace Microsoft.Identity.Client
 
                 if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
                     environmentAliases.Contains(msalAccessTokenItem.Environment) &&
-                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase) &&
+                    ((msalAccessTokenItem.TenantId == null && tenantId == null) ||
+                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase)) &&
                     msalAccessTokenItem.ScopeSet.ScopeIntersects(scopeSet))
                 {
                     msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
@@ -288,6 +300,10 @@ namespace Microsoft.Identity.Client
                     environmentAliases.UnionWith
                         (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
+                    if(requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                    {
+                        preferredEnvironmentAlias = requestParams.Authority.CanonicalAuthority;
+                    }
                     preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
                 }
 
@@ -371,10 +387,21 @@ namespace Microsoft.Identity.Client
                 requestParams.RequestContext.Logger.Info(msg);
                 requestParams.RequestContext.Logger.InfoPii(msg);
 
+                //Adfs does not return scopes in resource/scope format
+                SortedSet<string> scopes = requestParams.Scope;
+                if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                {
+                    scopes = new SortedSet<string>();
+                    foreach (string scope in requestParams.Scope)
+                    {
+                        scopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
+                    }
+                }
+
                 IEnumerable<MsalAccessTokenCacheItem> filteredItems =
                     tokenCacheItems.Where(
                             item =>
-                                item.ScopeSet.ScopeContains(requestParams.Scope));
+                                item.ScopeSet.ScopeContains(scopes));
 
                 msg = "Matching entry count after filtering by scopes - " + filteredItems.Count();
                 requestParams.RequestContext.Logger.Info(msg);
@@ -393,7 +420,8 @@ namespace Microsoft.Identity.Client
                 {
                     filteredItems = filteredItems.Where(
                         item => environmentAliases.Contains(item.Environment) &&
-                        item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase));
+                        ((item.TenantId==null && requestParams.Authority.GetTenantId()==null) ||
+                        item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase)));
                 }
 
                 //no match

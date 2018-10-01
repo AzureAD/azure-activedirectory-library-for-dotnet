@@ -66,25 +66,10 @@ namespace Microsoft.Identity.Core.Instance
         {
             if (ValidateAuthority)
             {
-                DrsMetadataResponse drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(drsResponse.Error))
-                {
-                    CoreExceptionFactory.Instance.GetServiceException(
-                        drsResponse.Error,
-                        drsResponse.ErrorDescription);
-                }
-
-                if (drsResponse.IdentityProviderService?.PassiveAuthEndpoint == null)
-                {
-                    throw CoreExceptionFactory.Instance.GetServiceException(
-                        CoreErrorCodes.MissingPassiveAuthEndpoint,
-                        CoreErrorMessages.CannotFindTheAuthEndpont);
-                }
-
                 string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
                 string webfingerUrl = string.Format(CultureInfo.InvariantCulture,
-                    "https://{0}/adfs/.well-known/webfinger?rel={1}&resource={2}",
-                    drsResponse.IdentityProviderService.PassiveAuthEndpoint.Host,
+                    "https://{0}/.well-known/webfinger?rel={1}&resource={2}",
+                    Host,
                     DefaultRealm, resource);
 
                 HttpResponse httpResponse =
@@ -103,7 +88,7 @@ namespace Microsoft.Identity.Core.Instance
                     wfr.Links.FirstOrDefault(
                         a =>
                             (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
-                             a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase))) == null)
+                           a.Href.Equals("https://" + Host, StringComparison.OrdinalIgnoreCase))) == null)
                 {
                     throw CoreExceptionFactory.Instance.GetServiceException(
                         CoreErrorCodes.InvalidAuthority,
@@ -127,39 +112,13 @@ namespace Microsoft.Identity.Core.Instance
                 authorityInstance = (AdfsAuthority) ValidatedAuthorities[CanonicalAuthority];
             }
 
-            authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
+            if(!string.IsNullOrEmpty(userPrincipalName))
+            {
+                authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
+            }
             ValidatedAuthorities[CanonicalAuthority] = authorityInstance;
         }
 
-        private async Task<DrsMetadataResponse> GetMetadataFromEnrollmentServerAsync(string userPrincipalName,
-            RequestContext requestContext)
-        {
-            try
-            {
-                //attempt to connect to on-premise enrollment server first.
-                return await QueryEnrollmentServerEndpointAsync(string.Format(CultureInfo.InvariantCulture,
-                    "https://enterpriseregistration.{0}/enrollmentserver/contract",
-                    GetDomainFromUpn(userPrincipalName)), requestContext).ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
-                const string msg = "On-Premise ADFS enrollment server endpoint lookup failed. Error - ";
-                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(exc);
-                requestContext.Logger.Info(msg + noPiiMsg);
-                requestContext.Logger.InfoPii(msg + exc);
-            }
-
-            return await QueryEnrollmentServerEndpointAsync(string.Format(CultureInfo.InvariantCulture,
-                "https://enterpriseregistration.windows.net/{0}/enrollmentserver/contract",
-                GetDomainFromUpn(userPrincipalName)), requestContext).ConfigureAwait(false);
-        }
-
-        private async Task<DrsMetadataResponse> QueryEnrollmentServerEndpointAsync(string endpoint, RequestContext requestContext)
-        {
-            OAuth2Client client = new OAuth2Client();
-            client.AddQueryParameter("api-version", "1.0");
-            return await client.ExecuteRequestAsync<DrsMetadataResponse>(new Uri(endpoint), HttpMethod.Get, requestContext).ConfigureAwait(false);
-        }
 
         private string GetDomainFromUpn(string upn)
         {
@@ -173,7 +132,7 @@ namespace Microsoft.Identity.Core.Instance
 
         internal override string GetTenantId()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         internal override void UpdateTenantId(string tenantId)

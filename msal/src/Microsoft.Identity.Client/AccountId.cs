@@ -80,6 +80,14 @@ namespace Microsoft.Identity.Client
             ValidateId();
         }
 
+        /// <summary>
+        /// Constructor of an AccountId meant for Adfs scenarios since Adfs instances lack tennt id's.
+        /// </summary>
+        /// <param name="identifier">Unique identifier for the account</param>
+        public AccountId(string identifier)
+        :this(identifier, identifier, null)
+        { }
+
       
 
         #region Adapter to / from ClientInfo
@@ -139,7 +147,7 @@ namespace Microsoft.Identity.Client
         [Conditional("DEBUG")]
         private void ValidateId()
         {
-            string expectedId = this.ObjectId + "." + this.TenantId;
+            string expectedId = this.TenantId==null ? this.ObjectId : this.ObjectId + "." + this.TenantId;
             if (!String.Equals(expectedId, this.Identifier, StringComparison.Ordinal))
             {
                 throw new InvalidOperationException(

@@ -57,8 +57,16 @@ namespace Microsoft.Identity.Client
             _msalIdTokenCacheItem = msalIdTokenCacheItem;
             if (_msalAccessTokenCacheItem.HomeAccountId != null)
             {
-                Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
-                    _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                if (_msalAccessTokenCacheItem.TenantId == null)
+                {
+                    //Null tenant is indicates Adfs authority
+                    Account = new Account(new AccountId(_msalAccessTokenCacheItem.HomeAccountId), _msalIdTokenCacheItem?.IdToken.Upn, _msalAccessTokenCacheItem.Environment);
+                }
+                else
+                {
+                    Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
+                        _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                }
             }
         }
 
