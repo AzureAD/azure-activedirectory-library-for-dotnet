@@ -25,30 +25,26 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class ExtensionMethods
+    internal static class UriBuilderExtensions
     {
-        public static void SecureClear(this byte[] bytes)
+        public static void AppendQueryParameters(this UriBuilder builder, string queryParams)
         {
-            if (bytes != null)
+            if (builder == null || String.IsNullOrEmpty(queryParams))
             {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    bytes[i] = 0;
-                }
+                return;
             }
-        }
 
-        public static void SecureClear(this char[] chars)
-        {
-            if (chars != null)
+            if (builder.Query.Length > 1)
             {
-                for (int i = 0; i < chars.Length; i++)
-                {
-                    chars[i] = '\0';
-                }
+                builder.Query = builder.Query.Substring(1) + "&" + queryParams;
+            }
+            else
+            {
+                builder.Query = queryParams;
             }
         }
     }

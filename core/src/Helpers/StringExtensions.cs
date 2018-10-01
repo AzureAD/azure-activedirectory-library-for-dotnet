@@ -25,34 +25,42 @@
 //
 //------------------------------------------------------------------------------
 
-using System.IO;
-using System.Runtime.Serialization.Json;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
+namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class JsonHelper
+    internal static class StringExtensions
     {
-        internal static string EncodeToJson<T>(T toEncode)
+        internal static SortedSet<string> AsLowerCaseSortedSet(this string singleString)
         {
-            using (MemoryStream stream = new MemoryStream())
+            if (String.IsNullOrEmpty(singleString))
             {
-                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
-                ser.WriteObject(stream, toEncode);
-                return Encoding.UTF8.GetString(stream.ToArray(), 0, (int)stream.Position);
+                return new SortedSet<string>();
             }
+
+            return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
         }
 
-        internal static T DecodeFromJson<T>(string json)
+        internal static string[] AsArray(this string singleString)
         {
-            T response;
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (T));
-            using (MemoryStream stream = new MemoryStream(new StringBuilder(json).ToByteArray()))
+            if (String.IsNullOrWhiteSpace(singleString))
             {
-                response = ((T) serializer.ReadObject(stream));
+                return new string[] { };
             }
 
-            return response;
+            return singleString.Split(new[] { " " }, StringSplitOptions.None);
+        }
+
+        /// <summary>
+        /// Create an array of bytes representing the UTF-8 encoding of the given string.
+        /// </summary>
+        /// <param name="stringInput">String to get UTF-8 bytes for</param>
+        /// <returns>Array of UTF-8 character bytes</returns>
+        public static byte[] ToByteArray(this string stringInput)
+        {
+            return new StringBuilder(stringInput).ToByteArray();
         }
     }
 }

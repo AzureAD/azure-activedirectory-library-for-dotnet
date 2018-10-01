@@ -25,31 +25,36 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class ExtensionMethods
+    internal static class EnumerableExtensions
     {
-        public static void SecureClear(this byte[] bytes)
+        internal static bool IsNullOrEmpty<T>(this IEnumerable<T> input)
         {
-            if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    bytes[i] = 0;
-                }
-            }
+            return input == null || !input.Any();
         }
 
-        public static void SecureClear(this char[] chars)
+        internal static SortedSet<string> CreateSetFromEnumerable(this IEnumerable<string> input)
         {
-            if (chars != null)
+            if (input == null || !input.Any())
             {
-                for (int i = 0; i < chars.Length; i++)
-                {
-                    chars[i] = '\0';
-                }
+                return new SortedSet<string>();
             }
+            return new SortedSet<string>(input);
+        }
+
+        internal static string AsSingleString(this IEnumerable<string> input)
+        {
+            if (input.IsNullOrEmpty())
+            {
+                return String.Empty;
+            }
+
+            return String.Join(" ", input);
         }
     }
 }

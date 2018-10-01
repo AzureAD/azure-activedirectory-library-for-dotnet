@@ -25,30 +25,49 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Text;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class ExtensionMethods
+    internal static class StringBuilderExtensions
     {
-        public static void SecureClear(this byte[] bytes)
+        /// <summary>
+        /// Create an array of bytes representing the UTF-8 encoding of the current string value of
+        /// the given <see cref="StringBuilder"/>.
+        /// </summary>
+        /// <param name="stringBuilder"><see cref="StringBuilder"/> to get the UTF-8 bytes for</param>
+        /// <returns>Array of UTF-8 character bytes</returns>
+        public static byte[] ToByteArray(this StringBuilder stringBuilder)
         {
-            if (bytes != null)
+            if (stringBuilder == null)
             {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    bytes[i] = 0;
-                }
+                return null;
+            }
+
+            UTF8Encoding encoding = new UTF8Encoding();
+            var messageChars = new char[stringBuilder.Length];
+
+            try
+            {
+                stringBuilder.CopyTo(0, messageChars, 0, stringBuilder.Length);
+                return encoding.GetBytes(messageChars);
+            }
+            finally
+            {
+                messageChars.SecureClear();
             }
         }
 
-        public static void SecureClear(this char[] chars)
+        public static void SecureClear(this StringBuilder stringBuilder)
         {
-            if (chars != null)
+            if (stringBuilder != null)
             {
-                for (int i = 0; i < chars.Length; i++)
+                for (int i = 0; i < stringBuilder.Length; i++)
                 {
-                    chars[i] = '\0';
+                    stringBuilder[i] = '\0';
                 }
+
+                stringBuilder.Length = 0;
             }
         }
     }

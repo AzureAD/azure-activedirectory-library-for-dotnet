@@ -25,31 +25,35 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class ExtensionMethods
+    internal static class SortedSetExtensions
     {
-        public static void SecureClear(this byte[] bytes)
+        public static bool ScopeContains(this SortedSet<string> scopes, SortedSet<string> otherScope)
         {
-            if (bytes != null)
+            foreach (string otherString in otherScope)
             {
-                for (int i = 0; i < bytes.Length; i++)
+                if (!scopes.Contains(otherString, StringComparer.OrdinalIgnoreCase))
                 {
-                    bytes[i] = 0;
+                    return false;
                 }
             }
+
+            return true;
         }
 
-        public static void SecureClear(this char[] chars)
+        public static bool ScopeIntersects(this SortedSet<string> scopes, SortedSet<string> otherScope)
         {
-            if (chars != null)
-            {
-                for (int i = 0; i < chars.Length; i++)
-                {
-                    chars[i] = '\0';
-                }
-            }
+            return scopes.Overlaps(otherScope);
+        }
+
+        internal static string[] AsArray(this SortedSet<string> setOfStrings)
+        {
+            return setOfStrings?.ToArray();
         }
     }
 }
