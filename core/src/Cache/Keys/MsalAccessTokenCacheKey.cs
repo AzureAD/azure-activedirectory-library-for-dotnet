@@ -36,11 +36,11 @@ namespace Microsoft.Identity.Core.Cache
     /// </summary>
     internal class MsalAccessTokenCacheKey
     {
-        private string _environment;
-        private string _homeAccountId;
-        private string _clientId;
-        private string _scopes;
-        private string _tenantId;
+        private readonly string _environment;
+        private readonly string _homeAccountId;
+        private readonly string _clientId;
+        private readonly string _scopes;
+        private readonly string _tenantId;
 
         internal MsalAccessTokenCacheKey(
             string environment,
@@ -59,11 +59,11 @@ namespace Microsoft.Identity.Core.Cache
                 throw new ArgumentNullException(nameof(clientId));
             }
 
-            this._environment = environment;
-            this._homeAccountId = userIdentifier;
-            this._clientId = clientId;
-            this._scopes = scopes;
-            this._tenantId = tenantId;
+           _environment = environment;
+           _homeAccountId = userIdentifier;
+           _clientId = clientId;
+           _scopes = scopes;
+           _tenantId = tenantId;
         }
 
 
@@ -88,13 +88,13 @@ namespace Microsoft.Identity.Core.Cache
         /// UWP storage. This is done by hashing the scopes and env.
         /// </summary>
         /// <remarks>
-        /// accountId - two guids - 72 chars        
+        /// accountId - two guids plus separator - 73 chars        
         /// "accesstoken" string - 11 chars
         /// clientid - a guid - 36 chars
         /// tenantid - a guid - 36 chars
         /// scopes and env - a sha256 string - 44 chars
         /// delimiters - 4 chars
-        /// total: 203 chars
+        /// total: 204 chars
         /// </remarks>
         public string GetFixedSizeKey()
         {

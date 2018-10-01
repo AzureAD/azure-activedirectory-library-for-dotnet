@@ -36,9 +36,9 @@ namespace Microsoft.Identity.Core.Cache
     /// </summary>
     internal class MsalRefreshTokenCacheKey
     {
-        private string _environment;
-        private string _homeAccountId;
-        private string _clientId;
+        private readonly string _environment;
+        private readonly string _homeAccountId;
+        private readonly string _clientId;
 
         internal MsalRefreshTokenCacheKey(string environment, string clientId, string userIdentifier)
         {
@@ -99,7 +99,9 @@ namespace Microsoft.Identity.Core.Cache
 
             stringBuilder.Append(_clientId);
             stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter); // not a bug
+
+            // no tenant id, but add the deliminter anyway
+            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter); 
 
             return stringBuilder.ToString();
         }

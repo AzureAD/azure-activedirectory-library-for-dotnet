@@ -36,10 +36,10 @@ namespace Microsoft.Identity.Core.Cache
     /// </summary>
     internal class MsalIdTokenCacheKey
     {
-        private string _environment;
-        private string _homeAccountId;
-        private string _clientId;
-        private string _tenantId;
+        private readonly string _environment;
+        private readonly string _homeAccountId;
+        private readonly string _clientId;
+        private readonly string _tenantId;
 
         public MsalIdTokenCacheKey(
             string environment,
