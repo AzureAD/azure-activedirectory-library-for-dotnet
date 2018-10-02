@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Core
     /// <remarks>On UWP, the ApplicationDataCompositeValue storage has a size limitation for keys 
     /// of no more than 255 chars. As such, keys cannot contain arbitrately long strings, i.e. they cannot contain the scopes. 
     /// This means that on UWP the AT key is not guaranteed to be unique, although the chances of collisions 
-    /// are astronomically small - <see cref="MsalAccessTokenCacheKey.GetFixedSizeKey"/>
+    /// are astronomically small - <see cref="MsalAccessTokenCacheKey.GetUWPFixedSizeKey"/>
     /// </remarks>
     internal class TokenCacheAccessor : ITokenCacheAccessor
     {
@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Core
         {
             ApplicationDataCompositeValue composite = new ApplicationDataCompositeValue();
             SetCacheValue(composite, JsonHelper.SerializeToJson(item));
-            var key = item.GetKey().GetFixedSizeKey();
+            var key = item.GetKey().GetUWPFixedSizeKey();
 
             _accessTokenContainer.Values[/*CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)*/key] = composite;
         }
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Core
 
         public string GetAccessToken(MsalAccessTokenCacheKey accessTokenKey)
         {
-            var keyStr = accessTokenKey.GetFixedSizeKey();
+            var keyStr = accessTokenKey.GetUWPFixedSizeKey();
             if (!_accessTokenContainer.Values.ContainsKey(/*encodedKey*/keyStr))
             {
                 return null;
@@ -155,7 +155,7 @@ namespace Microsoft.Identity.Core
 
         public void DeleteAccessToken(MsalAccessTokenCacheKey cacheKey)
         {
-            _accessTokenContainer.Values.Remove(/*CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)*/cacheKey.GetFixedSizeKey());
+            _accessTokenContainer.Values.Remove(/*CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(cacheKey)*/cacheKey.GetUWPFixedSizeKey());
         }
 
         public void DeleteRefreshToken(MsalRefreshTokenCacheKey cacheKey)

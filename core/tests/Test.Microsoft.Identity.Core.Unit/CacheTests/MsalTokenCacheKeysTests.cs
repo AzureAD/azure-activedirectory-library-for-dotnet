@@ -58,30 +58,29 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         }
 
         [TestMethod]
-        public void MsalRefreshTokenCacheKey()
+        public void MsalAccessTokenCacheKey()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey("env", "cid", "uid");
+            MsalAccessTokenCacheKey key = new MsalAccessTokenCacheKey("login.microsoftonline.com", "contoso.com", "uid.utid", "clientid", "user.read user.write");
 
-            Assert.AreEqual("uid-env-refreshtoken-cid-", key.ToString());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com-accesstoken-clientid-contoso.com-user.read user.write", key.ToString());
 
-            Assert.AreEqual("uid-env", key.GetiOSAccountKey());
-            Assert.AreEqual("refreshtoken-cid--", key.GetiOSServiceKey()); // not a bug?
-            Assert.AreEqual("refreshtoken-cid-", key.GetiOSGenericKey());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com", key.GetiOSAccountKey());
+            Assert.AreEqual("accesstoken-clientid-contoso.com-user.read user.write", key.GetiOSServiceKey());
+            Assert.AreEqual("accesstoken-clientid-contoso.com", key.GetiOSGenericKey());
 
+            Assert.AreEqual("uid.utid-login.microsoftonline.com-accesstoken-clientid-contoso.com-N5wvhDuSof/wFSjGK1MuXRK89NwFYNyMSL4QefKyNBU=", key.GetUWPFixedSizeKey());
         }
 
         [TestMethod]
-        public void MsalAccessTokenCacheKey()
+        public void MsalRefreshTokenCacheKey()
         {
-            MsalAccessTokenCacheKey key = new MsalAccessTokenCacheKey("env", "tid", "uid", "cid", "scopes");
+            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey("login.microsoftonline.com", "clientid", "uid.utid");
 
-            Assert.AreEqual("uid-env-accesstoken-cid-tid-scopes", key.ToString());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com-refreshtoken-clientid--", key.ToString());
 
-            Assert.AreEqual("uid-env", key.GetiOSAccountKey());
-            Assert.AreEqual("accesstoken-cid-tid-scopes-", key.GetiOSServiceKey()); 
-            Assert.AreEqual("accesstoken-cid-tid", key.GetiOSGenericKey());
-
-            Assert.AreEqual("uid-accesstoken-cid-tid-krjj0S5F3FnXeUU+V375jesmS5La9otPWXdAXCElvbo=", key.GetFixedSizeKey());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com", key.GetiOSAccountKey());
+            Assert.AreEqual("refreshtoken-clientid--", key.GetiOSServiceKey());
+            Assert.AreEqual("refreshtoken-clientid-", key.GetiOSGenericKey());
         }
 
         [TestMethod]
@@ -91,33 +90,33 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             MsalAccessTokenCacheKey key2 = new MsalAccessTokenCacheKey("env", "tid", "uid", "cid", 
                 String.Join(" ", Enumerable.Range(1, 100).Select(i => "scope" + i)));
 
-            Assert.AreNotEqual(key1.GetFixedSizeKey(), key2.GetFixedSizeKey());
-            Assert.IsTrue(key2.GetFixedSizeKey().Length < 255);
-            Assert.IsTrue(key1.GetFixedSizeKey().Length < 255);
+            Assert.AreNotEqual(key1.GetUWPFixedSizeKey(), key2.GetUWPFixedSizeKey());
+            Assert.IsTrue(key2.GetUWPFixedSizeKey().Length < 255);
+            Assert.IsTrue(key1.GetUWPFixedSizeKey().Length < 255);
 
         }
 
         [TestMethod]
         public void MsalIdTokenCacheKey()
         {
-            MsalIdTokenCacheKey key = new MsalIdTokenCacheKey("env", "tid", "uid", "cid");
+            MsalIdTokenCacheKey key = new MsalIdTokenCacheKey("login.microsoftonline.com", "contoso.com", "uid.utid", "clientid");
 
-            Assert.AreEqual("uid-env-idtoken-cid-tid-", key.ToString());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com-idtoken-clientid-contoso.com-", key.ToString());
 
-            Assert.AreEqual("uid-env", key.GetiOSAccountKey());
-            Assert.AreEqual("idtoken-cid-tid-", key.GetiOSServiceKey());
-            Assert.AreEqual("idtoken-cid-tid", key.GetiOSGenericKey());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com", key.GetiOSAccountKey());
+            Assert.AreEqual("idtoken-clientid-contoso.com-", key.GetiOSServiceKey());
+            Assert.AreEqual("idtoken-clientid-contoso.com", key.GetiOSGenericKey());
         }
 
         [TestMethod]
         public void MsalAccountCacheKey()
         {
-            MsalAccountCacheKey key = new MsalAccountCacheKey("env", "tid", "uid");
+            MsalAccountCacheKey key = new MsalAccountCacheKey("login.microsoftonline.com", "contoso.com", "uid.utid");
 
-            Assert.AreEqual("uid-env-tid", key.ToString());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com-contoso.com", key.ToString());
 
-            Assert.AreEqual("uid-env", key.GetiOSAccountKey());
-            Assert.AreEqual("tid", key.GetiOSServiceKey());
+            Assert.AreEqual("uid.utid-login.microsoftonline.com", key.GetiOSAccountKey());
+            Assert.AreEqual("contoso.com", key.GetiOSServiceKey());
         }
     }
 }

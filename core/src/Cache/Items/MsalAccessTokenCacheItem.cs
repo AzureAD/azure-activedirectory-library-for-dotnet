@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalAccessTokenCacheItem()
         {
-            CredentialType = MsalCacheConstants.AccessToken;
+            CredentialType = MsalCacheCommon.AccessToken;
         }
 
         internal MsalAccessTokenCacheItem

@@ -56,8 +56,8 @@ namespace Microsoft.Identity.Core.Cache
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.Append(_homeAccountId + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(_environment + MsalCacheConstants.CacheKeyDelimiter);
+            stringBuilder.Append(_homeAccountId + MsalCacheCommon.CacheKeyDelimiter);
+            stringBuilder.Append(_environment + MsalCacheCommon.CacheKeyDelimiter);
             stringBuilder.Append(_tenantId);
 
             return stringBuilder.ToString();
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Core.Cache
             var stringBuilder = new StringBuilder();
 
             stringBuilder.Append(_homeAccountId ?? "");
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
+            stringBuilder.Append(MsalCacheCommon.CacheKeyDelimiter);
 
             stringBuilder.Append(_environment);
 
@@ -81,6 +81,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             return _tenantId ?? "";
         }
+     
 
         #endregion
     }

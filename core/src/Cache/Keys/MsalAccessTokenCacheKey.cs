@@ -34,6 +34,7 @@ namespace Microsoft.Identity.Core.Cache
     /// An object representing the key of the token cache AT dictionary. The 
     /// format of the key is not important for this library, as long as it is unique.
     /// </summary>
+    /// <remarks>The format of the key is platform dependent</remarks>
     internal class MsalAccessTokenCacheKey
     {
         private readonly string _environment;
@@ -69,17 +70,14 @@ namespace Microsoft.Identity.Core.Cache
 
         public override string ToString()
         {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append((_homeAccountId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(this._environment + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(MsalCacheConstants.AccessToken + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(_clientId + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append((_tenantId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(_scopes);
-
-            return stringBuilder.ToString();
+            return MsalCacheCommon.GetCredentialKey(
+                _homeAccountId,
+                _environment,
+                MsalCacheCommon.AccessToken,
+                _clientId,
+                _tenantId,
+                _scopes);          
         }
-
 
         #region UWP
 
@@ -96,19 +94,15 @@ namespace Microsoft.Identity.Core.Cache
         /// delimiters - 4 chars
         /// total: 204 chars
         /// </remarks>
-        public string GetFixedSizeKey()
+        public string GetUWPFixedSizeKey()
         {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append((_homeAccountId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
-            
-            stringBuilder.Append(MsalCacheConstants.AccessToken + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append(_clientId + MsalCacheConstants.CacheKeyDelimiter);
-            stringBuilder.Append((_tenantId ?? "") + MsalCacheConstants.CacheKeyDelimiter);
-
-            // can't use scopes and env because they are of variable length
-            stringBuilder.Append(CoreCryptographyHelpers.CreateSha256Hash(_scopes + _environment));
-
-            return stringBuilder.ToString();
+            return MsalCacheCommon.GetCredentialKey(
+              _homeAccountId,
+              _environment,
+              MsalCacheCommon.AccessToken,
+              _clientId,
+              _tenantId,
+              CoreCryptographyHelpers.CreateSha256Hash(_scopes)); // can't use scopes and env because they are of variable length
         }
         #endregion
 
@@ -117,49 +111,17 @@ namespace Microsoft.Identity.Core.Cache
 
         public string GetiOSAccountKey()
         {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(_homeAccountId ?? "");
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_environment);
-
-            return stringBuilder.ToString();
+            return MsalCacheCommon.GetiOSAccountKey(_homeAccountId, _environment);
         }
-
 
         public string GetiOSServiceKey()
         {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(MsalCacheConstants.AccessToken);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_clientId);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_tenantId ?? "");
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_scopes);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            return stringBuilder.ToString();
+            return MsalCacheCommon.GetiOSServiceKey(MsalCacheCommon.AccessToken, _clientId, _tenantId, _scopes);
         }
 
         public string GetiOSGenericKey()
         {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(MsalCacheConstants.AccessToken);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_clientId);
-            stringBuilder.Append(MsalCacheConstants.CacheKeyDelimiter);
-
-            stringBuilder.Append(_tenantId ?? "");
-
-            return stringBuilder.ToString();
+            return MsalCacheCommon.GetiOSGenericKey(MsalCacheCommon.AccessToken, _clientId, _tenantId);           
         }
 
         #endregion

@@ -9,10 +9,9 @@ Details in the [wiki](https://github.com/AzureAD/azure-activedirectory-library-f
 ### B2C notes
 
 ADAL does not support B2C and there are no plans to add B2C support. As such, MSAL will not write B2C tokens to the ADAL token cache.
-
 In B2C, currently, the displayName (aka username aka preferred username) is null. This is a "bug" in B2C as they should provide a scope for the username. DisplayName should never be null - it would be a schema violation for it to be null. We have code that adds a constant (smth like "preferred_username not in id_token") in these cases.
 
-### Remove account algorithm
+### Account removal algorithm
 
 When removing an account, a removal is performed on both the MSAL and the ADAL cache
 
@@ -26,8 +25,15 @@ Note:
 - RemoveAdalUser is not scoped on ClientId, i.e. it will delete accoutns from different ClientIDs that match the criteria above
 - GetAccounts and RemoveAccount do not work for ClientCredentail Grant
 
+### Cache Schema
 
+The location, keys and values of the items stored in the cache are standardized to allow interop (Xamarin iOS <-> obj-c iOS; Xamarin Android <-> Android; interal C++ <-> other platforms). 
+The document is here:
+https://microsoft.sharepoint.com/:w:/r/teams/aad/devex/_layouts/15/WopiFrame.aspx?sourcedoc=%7B2b4ab244-6b63-402f-a0d8-0d2f9d955bf7%7D&action=edit&wdPid=2f255210
 
+Key calculation is platform specific because there are specificities on iOS (multiple keys) and UWP (key size limit of 255 chars).
+
+To ensure key uniqueness, scopes must be normalized (lowercased and oredred alphabetically).
 
 ## Other notes
 
