@@ -77,19 +77,12 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             {
                 if (UIDevice.CurrentDevice.CheckSystemVersion(12, 0))
                 {
-                    // use ASWebAuthenticationSession
                     asWebAuthenticationSession = new AuthenticationServices.ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
                         redirectUri.Scheme, (callbackUrl, error) =>
                         {
                             if (error != null)
                             {
-                                if (error.Code == 1)
-                                {
-                                    Debug.WriteLine("yay we are here, about to throw!!!");
-                                    //throw CoreExceptionFactory.Instance.GetClientException(
-                                    //    CoreErrorCodes.AuthenticationCanceledError,
-                                    //    "User cancelled authentication");
-                                }
+                                ProcessCompletionHandlerError(error);
                             }
                             else
                             {
@@ -105,19 +98,12 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
                 else if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
                 {
-                    // use SFAuthenticationSession
                     sfAuthenticationSession = new SFAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
                         redirectUri.Scheme, (callbackUrl, error) =>
                         {
                             if (error != null)
                             {
-                                if (error.Code == 1)
-                                {
-                                    Debug.WriteLine("yay we are here, about to throw!!!");
-                                    //throw CoreExceptionFactory.Instance.GetClientException(
-                                    //    CoreErrorCodes.AuthenticationCanceledError,
-                                    //    "User cancelled authentication");
-                                }
+                                ProcessCompletionHandlerError(error);
                             }
                             else
                             {
@@ -133,7 +119,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
                 else
                 {
-                    // use sfsafariViewController for all iOS versions <= 10
                     safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
                     safariViewController.Delegate = this;
                     vc.InvokeOnMainThread(() =>
@@ -154,6 +139,14 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             }
         }
 
+        public void ProcessCompletionHandlerError(NSError error)
+        {
+            if (returnedUriReady != null)
+            {
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
+                returnedUriReady.Release();
+            }
+        }
 
         [Export("safariViewControllerDidFinish:")]
         public void DidFinish(SFSafariViewController controller)
