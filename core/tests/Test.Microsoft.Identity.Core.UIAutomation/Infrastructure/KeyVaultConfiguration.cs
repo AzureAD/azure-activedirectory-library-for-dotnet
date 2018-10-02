@@ -37,6 +37,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
     public enum KeyVaultAuthenticationType
     {
         ClientCertificate,
+        ClientSecret,
         UserCredential
     }
 }

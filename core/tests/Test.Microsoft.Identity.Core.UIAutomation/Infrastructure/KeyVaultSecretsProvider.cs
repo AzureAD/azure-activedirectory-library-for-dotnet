@@ -4,6 +4,9 @@ using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
@@ -59,7 +62,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
         public KeyVaultSecretsProvider()
         {
             _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+            _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
             _config.ClientId = keyVaultClientID;
             _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
@@ -85,9 +88,15 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
                     }
                     authResult = await authContext.AcquireTokenAsync(resource, _assertionCert);
                     break;
-                case KeyVaultAuthenticationType.UserCredential:
-                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential());
+                case KeyVaultAuthenticationType.ClientSecret:
+                    var data = File.ReadAllText("data.txt");
+                    ClientCredential cred = new ClientCredential(_config.ClientId, data);
+                    authResult = await authContext.AcquireTokenAsync(resource, cred);
                     break;
+                //case KeyVaultAuthenticationType.UserCredential:
+                //    //var data = File.ReadAllText("data.txt");
+                //    //authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserPasswordCredential("temp@trwalke.onmicrosoft.com", data));
+                //    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
