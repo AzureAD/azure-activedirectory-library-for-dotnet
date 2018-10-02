@@ -243,7 +243,7 @@ namespace Microsoft.Identity.Client
                     msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase) &&
                     msalAccessTokenItem.ScopeSet.ScopeIntersects(scopeSet))
                 {
-                    msg = "Intersecting scopes found - " + msalAccessTokenItem.Scopes;
+                    msg = "Intersecting scopes found - " + msalAccessTokenItem.NormalizedScopes;
                     requestParams.RequestContext.Logger.Verbose(msg);
                     requestParams.RequestContext.Logger.VerbosePii(msg);
                     accessTokenItemList.Add(msalAccessTokenItem);

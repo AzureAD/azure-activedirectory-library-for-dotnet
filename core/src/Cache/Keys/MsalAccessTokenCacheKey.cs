@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Core.Cache
         private readonly string _environment;
         private readonly string _homeAccountId;
         private readonly string _clientId;
-        private readonly string _scopes;
+        private readonly string _normalizedScopes; // space separated, lowercase and ordered alphabetically
         private readonly string _tenantId;
 
         internal MsalAccessTokenCacheKey(
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Core.Cache
            _environment = environment;
            _homeAccountId = userIdentifier;
            _clientId = clientId;
-           _scopes = scopes;
+           _normalizedScopes = scopes;
            _tenantId = tenantId;
         }
 
@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Core.Cache
                 MsalCacheCommon.AccessToken,
                 _clientId,
                 _tenantId,
-                _scopes);          
+                _normalizedScopes);          
         }
 
         #region UWP
@@ -102,7 +102,7 @@ namespace Microsoft.Identity.Core.Cache
               MsalCacheCommon.AccessToken,
               _clientId,
               _tenantId,
-              CoreCryptographyHelpers.CreateSha256Hash(_scopes)); // can't use scopes and env because they are of variable length
+              CoreCryptographyHelpers.CreateSha256Hash(_normalizedScopes)); // can't use scopes and env because they are of variable length
         }
         #endregion
 
@@ -116,7 +116,7 @@ namespace Microsoft.Identity.Core.Cache
 
         public string GetiOSServiceKey()
         {
-            return MsalCacheCommon.GetiOSServiceKey(MsalCacheCommon.AccessToken, _clientId, _tenantId, _scopes);
+            return MsalCacheCommon.GetiOSServiceKey(MsalCacheCommon.AccessToken, _clientId, _tenantId, _normalizedScopes);
         }
 
         public string GetiOSGenericKey()
