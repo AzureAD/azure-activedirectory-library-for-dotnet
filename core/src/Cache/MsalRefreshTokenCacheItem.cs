@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core.Cache
         {
         }
 
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo, string userId) : this()
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo, string userId=null) : this()
         {
             ClientId = clientId;
             Environment = environment;

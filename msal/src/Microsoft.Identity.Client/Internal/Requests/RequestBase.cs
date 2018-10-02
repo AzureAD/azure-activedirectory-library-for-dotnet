@@ -198,9 +198,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             ClientInfo fromServer = null;
 
-            if (!AuthenticationRequestParameters.IsClientCredentialRequest)
+            if (!AuthenticationRequestParameters.IsClientCredentialRequest && AuthenticationRequestParameters.Authority.AuthorityType != Core.Instance.AuthorityType.Adfs)
             {
                 //client_info is not returned from client credential flows because there is no user present.
+                //Adfs does not return client_info
                 fromServer = ClientInfo.CreateFromJson(Response.ClientInfo);
             }
 

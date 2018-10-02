@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Client
                 instanceDiscoveryMetadataEntry);
 
             var msalAccessTokenCacheItem =
-                new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId)
+                new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId, subject)
                 {
                     UserAssertionHash = requestParams.UserAssertion?.AssertionHash
                 };
@@ -300,11 +300,14 @@ namespace Microsoft.Identity.Client
                     environmentAliases.UnionWith
                         (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
-                    if(requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                    if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
                     {
                         preferredEnvironmentAlias = requestParams.Authority.CanonicalAuthority;
                     }
-                    preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    else
+                    {
+                        preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    }
                 }
 
                 return FindAccessTokenCommon
