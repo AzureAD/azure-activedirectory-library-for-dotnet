@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,18 +25,36 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Core.Http
 {
-    internal class RequestContext
+    internal interface IHttpManager
     {
-        public RequestContext(ICoreLogger logger)
-        {
-            Logger = logger;
-        }
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            IDictionary<string, string> bodyParameters,
+            RequestContext requestContext);
 
-        public string TelemetryRequestId { get; set; }
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            HttpContent body,
+            RequestContext requestContext);
 
-        public ICoreLogger Logger { get; set; }
+        Task<HttpResponse> SendGetAsync(
+            Uri endpoint,
+            Dictionary<string, string> headers,
+            RequestContext requestContext);
+
+        Task<IHttpWebResponse> SendPostForceResponseAsync(
+            Uri uri,
+            Dictionary<string, string> headers,
+            StringContent body,
+            RequestContext requestContext);
     }
 }
