@@ -79,7 +79,9 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
                 }
             });
 
-            var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
+            var message = new WsTrustEndpoint(address.Uri, address.Version)
+                .BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
+            //var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
 
             WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(
                address, message.ToString(), null);
@@ -116,7 +118,9 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
             var requestContext = new RequestContext(new TestLogger(Guid.NewGuid(), null));
             try
             {
-                var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
+                var message = new WsTrustEndpoint(address.Uri, address.Version)
+                    .BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
+                //var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
                 WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(
                     address, message.ToString(), requestContext);
                 Assert.Fail("We expect an exception to be thrown here");

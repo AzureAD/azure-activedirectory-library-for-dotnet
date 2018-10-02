@@ -102,9 +102,11 @@ namespace Microsoft.Identity.Core.WsTrust
             MexPolicy policy = SelectPolicy(policies);
             if (policy != null)
             {
-                address = new WsTrustAddress();
-                address.Uri = policy.Url;
-                address.Version = policy.Version;
+                address = new WsTrustAddress
+                {
+                    Uri = policy.Url,
+                    Version = policy.Version
+                };
             }
             return address;
         }

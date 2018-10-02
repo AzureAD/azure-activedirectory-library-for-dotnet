@@ -25,13 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Realm;
 using System;
 using System.Globalization;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.Identity.Core.Realm;
 
 namespace Microsoft.Identity.Core.WsTrust
 {
@@ -54,29 +52,28 @@ namespace Microsoft.Identity.Core.WsTrust
         public async Task<string> GetPlatformUserAsync()
         {
             var logger = this.requestContext.Logger;
-            string platformUsername = await this.platformProxy.GetUserPrincipalNameAsync().ConfigureAwait(false);            
+            string platformUsername = await this.platformProxy.GetUserPrincipalNameAsync().ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(platformUsername))
             {
-                logger.Error("Could not find UPN for logged in user.");
+                _requestContext.Logger.Error("Could not find UPN for logged in user.");
 
                 throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.UnknownUser,
                     CoreErrorMessages.UnknownUser);
-
             }
 
-            logger.InfoPii($"Logged in user detected with user name '{platformUsername}'", "Logged in user detected");
-
+            _requestContext.Logger.InfoPii($"Logged in user detected with user name '{platformUsername}'", "Logged in user detected");
             return platformUsername;
         }
 
         public async Task<WsTrustResponse> QueryWsTrustAsync(
             MexParser mexParser,
             UserRealmDiscoveryResponse userRealmResponse,
-            Func<string, WsTrustAddress, IUsernameInput, StringBuilder> wsTrustMessageBuilder)
+            Func<string, WsTrustAddress, IUsernameInput, string> wsTrustMessageBuilder)
         {
-
-            WsTrustAddress wsTrustAddress = await QueryForWsTrustAddressAsync(userRealmResponse, mexParser).ConfigureAwait(false);
+            WsTrustAddress wsTrustAddress = await QueryForWsTrustAddressAsync(
+                userRealmResponse,
+                mexParser).ConfigureAwait(false);
 
             return await QueryWsTrustAsync(
                 wsTrustMessageBuilder,
@@ -86,12 +83,10 @@ namespace Microsoft.Identity.Core.WsTrust
 
         public async Task<UserRealmDiscoveryResponse> QueryUserRealmDataAsync(string userRealmUriPrefix)
         {
-            var logger = this.requestContext.Logger;
-
             var userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(
                 userRealmUriPrefix,
-                usernameInput.UserName,
-                requestContext).ConfigureAwait(false);
+                _usernameInput.UserName,
+                _requestContext).ConfigureAwait(false);
 
             if (userRealmResponse == null)
             {
@@ -100,11 +95,11 @@ namespace Microsoft.Identity.Core.WsTrust
                     CoreErrorMessages.UserRealmDiscoveryFailed);
             }
 
-            logger.InfoPii(
+            _requestContext.Logger.InfoPii(
                 string.Format(
                     CultureInfo.CurrentCulture,
-                    " User with user name '{0}' detected as '{1}'", 
-                    usernameInput.UserName,
+                    " User with user name '{0}' detected as '{1}'",
+                    _usernameInput.UserName,
                     userRealmResponse.AccountType),
                 string.Empty);
 
@@ -112,20 +107,26 @@ namespace Microsoft.Identity.Core.WsTrust
         }
 
         private async Task<WsTrustResponse> QueryWsTrustAsync(
-            Func<string, WsTrustAddress, IUsernameInput, StringBuilder> wsTrustMessageBuilder,
+            Func<string, WsTrustAddress, IUsernameInput, string> wsTrustMessageBuilder,
             string cloudAudience,
             WsTrustAddress wsTrustAddress)
         {
-            WsTrustResponse wsTrustResponse;
-            StringBuilder wsTrustRequest = null;
             try
             {
-                wsTrustRequest = wsTrustMessageBuilder(cloudAudience, wsTrustAddress, this.usernameInput);
+                string wsTrustRequest = wsTrustMessageBuilder(
+                    cloudAudience,
+                    wsTrustAddress,
+                    _usernameInput);
 
-                wsTrustResponse = await WsTrustRequest.SendRequestAsync(
+                WsTrustResponse wsTrustResponse = await WsTrustRequest.SendRequestAsync(
                     wsTrustAddress,
                     wsTrustRequest.ToString(),
-                    this.requestContext).ConfigureAwait(false);
+                    _requestContext).ConfigureAwait(false);
+
+                _requestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
+                    " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType));
+
+                return wsTrustResponse;
             }
             catch (Exception ex)
             {
@@ -134,28 +135,10 @@ namespace Microsoft.Identity.Core.WsTrust
                     ex.Message,
                     ex);
             }
-            finally
-            {
-                wsTrustRequest?.SecureClear();
-            }
-
-
-            if (wsTrustResponse == null)
-            {
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.ParsingWsTrustResponseFailed,
-                    CoreErrorMessages.ParsingWsTrustResponseFailed);
-            }
-
-            this.requestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
-                " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType));
-
-            return wsTrustResponse;
         }
 
-
         private async Task<WsTrustAddress> QueryForWsTrustAddressAsync(
-            UserRealmDiscoveryResponse userRealmResponse, 
+            UserRealmDiscoveryResponse userRealmResponse,
             MexParser mexParser)
         {
             if (string.IsNullOrWhiteSpace(userRealmResponse.FederationMetadataUrl))
@@ -165,12 +148,10 @@ namespace Microsoft.Identity.Core.WsTrust
                     CoreErrorMessages.MissingFederationMetadataUrl);
             }
 
-            WsTrustAddress wsTrustAddress = null;
             try
             {
-                wsTrustAddress = await mexParser.FetchWsTrustAddressFromMexAsync(
-                    userRealmResponse.FederationMetadataUrl)
-                    .ConfigureAwait(false);
+                WsTrustAddress wsTrustAddress = await mexParser.FetchWsTrustAddressFromMexAsync(
+                    userRealmResponse.FederationMetadataUrl).ConfigureAwait(false);
 
                 if (wsTrustAddress == null)
                 {
@@ -178,6 +159,13 @@ namespace Microsoft.Identity.Core.WsTrust
                       CoreErrorCodes.WsTrustEndpointNotFoundInMetadataDocument,
                       CoreErrorMessages.WsTrustEndpointNotFoundInMetadataDocument);
                 }
+
+                _requestContext.Logger.InfoPii(
+                    string.Format(CultureInfo.CurrentCulture, " WS-Trust endpoint '{0}' fetched from MEX at '{1}'",
+                        wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl),
+                    "Fetched and parsed MEX");
+
+                return wsTrustAddress;
             }
             catch (XmlException ex)
             {
@@ -186,13 +174,6 @@ namespace Microsoft.Identity.Core.WsTrust
                     CoreErrorMessages.ParsingMetadataDocumentFailed,
                     ex);
             }
-
-            this.requestContext.Logger.InfoPii(
-                string.Format(CultureInfo.CurrentCulture, " WS-Trust endpoint '{0}' fetched from MEX at '{1}'",
-                    wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl),
-                "Fetched and parsed MEX");
-
-            return wsTrustAddress;
         }
     }
 }

@@ -159,27 +159,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 };
             }
 
-            StringBuilder responseStreamString = new StringBuilder();
             TokenResponse tokenResponse = null;
             using (Stream responseStream = EncodingHelper.GenerateStreamFromString(webResponse.Body))
             {
-                if (responseStream == null)
-                {
-                    return new TokenResponse
-                    {
-                        Error = AdalError.Unknown,
-                        ErrorDescription = AdalErrorMessage.Unknown
-                    };
-                }
+                string responseStreamString = ReadStreamContent(responseStream);
 
                 try
                 {
-                    responseStreamString.Append(ReadStreamContent(responseStream));
-                    using (MemoryStream ms = new MemoryStream(responseStreamString.ToByteArray()))
-                    {
-                        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(TokenResponse));
-                        tokenResponse = ((TokenResponse)serializer.ReadObject(ms));
-                    }
+                    tokenResponse = JsonHelper.DeserializeFromJson<TokenResponse>(responseStreamString);
                 }
                 catch (SerializationException)
                 {
@@ -188,7 +175,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                         Error = (webResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
                             ? AdalError.ServiceUnavailable
                             : AdalError.Unknown,
-                        ErrorDescription = responseStreamString.ToString()
+                        ErrorDescription = responseStreamString
                     };
                 }
             }

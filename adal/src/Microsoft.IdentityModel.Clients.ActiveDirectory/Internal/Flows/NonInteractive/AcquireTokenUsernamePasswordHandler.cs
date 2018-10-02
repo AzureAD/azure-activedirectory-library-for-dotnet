@@ -93,7 +93,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         userRealmResponse,
                      (cloudAudience, trustAddress, userName) =>
                      {
-                         return WsTrustRequestBuilder.BuildMessage(cloudAudience, trustAddress, (UsernamePasswordInput)userName);
+                         var wsTrustEndpoint = new WsTrustEndpoint(trustAddress.Uri, trustAddress.Version);
+                         // TODO: get rid of this wonky casting...
+                         var upi = (UsernamePasswordInput)userName;
+                         return wsTrustEndpoint.BuildTokenRequestMessageUsernamePassword(cloudAudience, upi.UserName, new string(upi.PasswordToCharArray()));
                      }).ConfigureAwait(false);
 
                     // We assume that if the response token type is not SAML 1.1, it is SAML 2

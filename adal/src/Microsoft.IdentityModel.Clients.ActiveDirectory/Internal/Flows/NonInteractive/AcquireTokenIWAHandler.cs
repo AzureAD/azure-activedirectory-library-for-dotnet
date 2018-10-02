@@ -98,7 +98,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                          userRealmResponse,
                          (cloudAudience, trustAddress, userName) =>
                          {
-                             return WsTrustRequestBuilder.BuildMessage(cloudAudience, trustAddress, (IntegratedWindowsAuthInput)userName);
+                             var wsTrustEndpoint = new WsTrustEndpoint(trustAddress.Uri, trustAddress.Version);
+                             return wsTrustEndpoint.BuildTokenRequestMessageWindowsIntegratedAuth(cloudAudience);
+                             // return WsTrustRequestBuilder.BuildMessage(cloudAudience, trustAddress, (IntegratedWindowsAuthInput)userName);
                          }).ConfigureAwait(false);
 
                     // We assume that if the response token type is not SAML 1.1, it is SAML 2

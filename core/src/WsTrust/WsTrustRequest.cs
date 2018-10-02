@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.WsTrust
             var headers = new Dictionary<string, string>
             {
                 { "ContentType", "application/soap+xml" },
-                {"SOAPAction", (wsTrustAddress.Version == WsTrustVersion.WsTrust2005) ? XmlNamespace.Issue2005.ToString() : XmlNamespace.Issue.ToString() }
+                { "SOAPAction", (wsTrustAddress.Version == WsTrustVersion.WsTrust2005) ? XmlNamespace.Issue2005.ToString() : XmlNamespace.Issue.ToString() }
             };
             var body = new StringContent(
                 wsTrustRequest,
@@ -78,7 +78,6 @@ namespace Microsoft.Identity.Core.WsTrust
                     string.Format(CultureInfo.CurrentCulture, CoreErrorMessages.FederatedServiceReturnedErrorTemplate, wsTrustAddress.Uri, errorMessage)
                 );
             }
-
 
             try
             {

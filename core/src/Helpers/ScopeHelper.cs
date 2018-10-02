@@ -25,50 +25,35 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Identity.Core.Helpers
 {
-    internal static class StringBuilderExtensions
+    internal static class ScopeHelper
     {
-        /// <summary>
-        /// Create an array of bytes representing the UTF-8 encoding of the current string value of
-        /// the given <see cref="StringBuilder"/>.
-        /// </summary>
-        /// <param name="stringBuilder"><see cref="StringBuilder"/> to get the UTF-8 bytes for</param>
-        /// <returns>Array of UTF-8 character bytes</returns>
-        public static byte[] ToByteArray(this StringBuilder stringBuilder)
+        public static bool ScopeContains(SortedSet<string> outerSet, SortedSet<string> possibleContainedSet)
         {
-            if (stringBuilder == null)
+            foreach (string key in possibleContainedSet)
             {
-                return null;
+                if (!outerSet.Contains(key, StringComparer.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
             }
 
-            UTF8Encoding encoding = new UTF8Encoding();
-            var messageChars = new char[stringBuilder.Length];
-
-            try
-            {
-                stringBuilder.CopyTo(0, messageChars, 0, stringBuilder.Length);
-                return encoding.GetBytes(messageChars);
-            }
-            finally
-            {
-                messageChars.SecureClear();
-            }
+            return true;
         }
 
-        public static void SecureClear(this StringBuilder stringBuilder)
+        internal static SortedSet<string> ConvertStringToLowercaseSortedSet(this string singleString)
         {
-            if (stringBuilder != null)
+            if (String.IsNullOrEmpty(singleString))
             {
-                for (int i = 0; i < stringBuilder.Length; i++)
-                {
-                    stringBuilder[i] = '\0';
-                }
-
-                stringBuilder.Length = 0;
+                return new SortedSet<string>();
             }
+
+            return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
         }
     }
 }

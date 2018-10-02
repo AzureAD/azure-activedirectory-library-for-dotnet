@@ -25,34 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Microsoft.Identity.Core.Helpers
 {
     internal static class StringExtensions
     {
-        internal static SortedSet<string> AsLowerCaseSortedSet(this string singleString)
-        {
-            if (String.IsNullOrEmpty(singleString))
-            {
-                return new SortedSet<string>();
-            }
-
-            return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
-        }
-
-        internal static string[] AsArray(this string singleString)
-        {
-            if (String.IsNullOrWhiteSpace(singleString))
-            {
-                return new string[] { };
-            }
-
-            return singleString.Split(new[] { " " }, StringSplitOptions.None);
-        }
-
         /// <summary>
         /// Create an array of bytes representing the UTF-8 encoding of the given string.
         /// </summary>
@@ -60,7 +38,7 @@ namespace Microsoft.Identity.Core.Helpers
         /// <returns>Array of UTF-8 character bytes</returns>
         public static byte[] ToByteArray(this string stringInput)
         {
-            return new StringBuilder(stringInput).ToByteArray();
+            return new UTF8Encoding().GetBytes(stringInput);
         }
     }
 }
