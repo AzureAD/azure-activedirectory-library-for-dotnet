@@ -43,9 +43,9 @@ namespace Microsoft.Identity.Core.Http
         }
 
         public static async Task<HttpResponse> SendPostAsync(
-            Uri endpoint, 
+            Uri endpoint,
             IDictionary<string, string> headers,
-            IDictionary<string, string> bodyParameters, 
+            IDictionary<string, string> bodyParameters,
             RequestContext requestContext)
         {
             IHttpManager mgr = new HttpManager();
@@ -53,9 +53,9 @@ namespace Microsoft.Identity.Core.Http
         }
 
         public static async Task<HttpResponse> SendPostAsync(
-            Uri endpoint, 
+            Uri endpoint,
             IDictionary<string, string> headers,
-            HttpContent body, 
+            HttpContent body,
             RequestContext requestContext)
         {
             IHttpManager mgr = new HttpManager();
@@ -63,7 +63,7 @@ namespace Microsoft.Identity.Core.Http
         }
 
         public static async Task<HttpResponse> SendGetAsync(
-            Uri endpoint, 
+            Uri endpoint,
             Dictionary<string, string> headers,
             RequestContext requestContext)
         {
@@ -77,9 +77,9 @@ namespace Microsoft.Identity.Core.Http
         /// with the request.
         /// </summary>
         public static async Task<IHttpWebResponse> SendPostForceResponseAsync(
-            Uri uri, 
-            Dictionary<string, string> headers, 
-            StringContent body, 
+            Uri uri,
+            Dictionary<string, string> headers,
+            StringContent body,
             RequestContext requestContext)
         {
             IHttpManager mgr = new HttpManager();
