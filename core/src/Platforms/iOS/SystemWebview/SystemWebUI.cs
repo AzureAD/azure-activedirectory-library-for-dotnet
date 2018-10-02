@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using SafariServices;
 using UIKit;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Microsoft.Identity.Core.UI.SystemWebview
 {
@@ -60,10 +61,11 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             returnedUriReady = new SemaphoreSlim(0);
             Authenticate(authorizationUri, redirectUri, viewController, requestContext);
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
+
             //dismiss safariviewcontroller
             viewController.InvokeOnMainThread(() =>
             {
-                safariViewController.DismissViewController(false, null);
+                safariViewController?.DismissViewController(false, null);
             });
 
             return authorizationResult;
@@ -73,12 +75,72 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         {
             try
             {
-                safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
-                safariViewController.Delegate = this;
-                vc.InvokeOnMainThread(() =>
+                if (UIDevice.CurrentDevice.CheckSystemVersion(12, 0))
                 {
-                    vc.PresentViewController(safariViewController, false, null);
-                });
+                    // use ASWebAuthenticationSession
+                    asWebAuthenticationSession = new AuthenticationServices.ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                if (error.Code == 1)
+                                {
+                                    Debug.WriteLine("yay we are here, about to throw!!!");
+                                    //throw CoreExceptionFactory.Instance.GetClientException(
+                                    //    CoreErrorCodes.AuthenticationCanceledError,
+                                    //    "User cancelled authentication");
+                                }
+                            }
+                            else
+                            {
+                                vc.InvokeOnMainThread(() =>
+                                {
+                                    ContinueAuthentication(callbackUrl.ToString());
+                                });
+                            }
+                        });
+
+                    asWebAuthenticationSession.Start();
+                }
+
+                else if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+                {
+                    // use SFAuthenticationSession
+                    sfAuthenticationSession = new SFAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                if (error.Code == 1)
+                                {
+                                    Debug.WriteLine("yay we are here, about to throw!!!");
+                                    //throw CoreExceptionFactory.Instance.GetClientException(
+                                    //    CoreErrorCodes.AuthenticationCanceledError,
+                                    //    "User cancelled authentication");
+                                }
+                            }
+                            else
+                            {
+                                vc.InvokeOnMainThread(() =>
+                                {
+                                    ContinueAuthentication(callbackUrl.ToString());
+                                });
+                            }
+                        });
+
+                    sfAuthenticationSession.Start();
+                }
+
+                else
+                {
+                    // use sfsafariViewController for all iOS versions <= 10
+                    safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
+                    safariViewController.Delegate = this;
+                    vc.InvokeOnMainThread(() =>
+                    {
+                        vc.PresentViewController(safariViewController, false, null);
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -86,11 +148,12 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(ex);
                 throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.AuthenticationUiFailedError, 
-                    "Failed to invoke SFSafariViewController", 
+                    CoreErrorCodes.AuthenticationUiFailedError,
+                    "Failed to invoke SFSafariViewController",
                     ex);
             }
         }
+
 
         [Export("safariViewControllerDidFinish:")]
         public void DidFinish(SFSafariViewController controller)
@@ -108,7 +171,8 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         {
             //After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background in order to prevent the system from reclaiming network resources from the app. 
             //This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
-            this.taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
+            this.taskId = UIApplication.SharedApplication.BeginBackgroundTask(() =>
+            {
                 if (this.taskId != UIApplication.BackgroundTaskInvalid)
                 {
                     UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
