@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core.WsTrust
         public CommonNonInteractiveHandler(
             RequestContext requestContext,
             IUsernameInput usernameInput,
-            IPlatformProxy platformProxy,
+            IPlatformProxy platformProxy = null,
             IWsTrustWebRequestManager wsTrustWebRequestManager = null)
         {
             _requestContext = requestContext;
@@ -56,8 +56,7 @@ namespace Microsoft.Identity.Core.WsTrust
         /// </summary>
         public async Task<string> GetPlatformUserAsync()
         {
-            var logger = this.requestContext.Logger;
-            string platformUsername = await this.platformProxy.GetUserPrincipalNameAsync().ConfigureAwait(false);
+            string platformUsername = await _platformProxy.GetUserPrincipalNameAsync().ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(platformUsername))
             {
                 _requestContext.Logger.Error("Could not find UPN for logged in user.");

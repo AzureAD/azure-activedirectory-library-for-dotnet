@@ -487,7 +487,7 @@ namespace DesktopTestApp
 
                 AuthenticationResult authenticationResult =
                     await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
-                        scopes.Text.AsArray(),
+                        SplitScopeString(scopes.Text),
                         dcr =>
                         {
                             BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
