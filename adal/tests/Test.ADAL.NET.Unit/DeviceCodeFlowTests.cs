@@ -138,6 +138,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
+            Assert.AreEqual(AdalHttpMessageHandlerFactory.MockHandlersCount(), 0);
         }
 
         [TestMethod]
@@ -158,6 +159,7 @@ namespace Test.ADAL.NET.Unit
 
             Assert.IsNotNull(dcr);
             Assert.AreEqual(dcr.UserCode, "some-user-code");
+            Assert.AreEqual(AdalHttpMessageHandlerFactory.MockHandlersCount(), 0);
         }
     }
 }
