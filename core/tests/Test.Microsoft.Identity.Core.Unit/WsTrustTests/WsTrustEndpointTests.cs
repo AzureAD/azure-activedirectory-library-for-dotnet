@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Identity.Core.WsTrust;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.Microsoft.Identity.Core.Unit.WsTrustTests
 {

@@ -32,98 +32,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.WsTrust
 {
-    internal interface ITimeService
-    {
-        DateTime GetUtcNow();
-    }
-
-    internal class TimeService : ITimeService
-    {
-        public DateTime GetUtcNow()
-        {
-            return DateTime.UtcNow;
-        }
-    }
-
-    // todo: move to test utilities in core..
-    internal class TestTimeService : ITimeService
-    {
-        public TestTimeService(DateTime utcNow)
-        {
-            UtcNow = utcNow;
-        }
-
-        public DateTime UtcNow { get; set; }
-
-        public DateTime GetUtcNow()
-        {
-            return UtcNow;
-        }
-    }
-
-    internal class StringWriterWithEncoding : StringWriter
-    {
-        private readonly Encoding encoding;
-
-        public StringWriterWithEncoding(Encoding encoding)
-        {
-            this.encoding = encoding;
-        }
-
-        public override Encoding Encoding
-        {
-            get { return encoding; }
-        }
-    }
-
-    internal interface IGuidFactory
-    {
-        Guid NewGuid();
-    }
-
-    internal class GuidFactory : IGuidFactory
-    {
-        public Guid NewGuid()
-        {
-            return Guid.NewGuid();
-        }
-    }
-
-    internal class TestGuidFactory : IGuidFactory
-    {
-        public TestGuidFactory(Guid guid)
-        {
-            Guid = guid;
-        }
-
-        public Guid NewGuid()
-        {
-            return Guid;
-        }
-
-        public Guid Guid { get; set; }
-    }
-
-    internal class TestGuidQueueFactory : IGuidFactory
-    {
-        private readonly List<Guid> _guids;
-
-        public TestGuidQueueFactory(IEnumerable<Guid> guids)
-        {
-            _guids = guids.ToList();
-        }
-
-        public Guid NewGuid()
-        {
-            Guid guid = _guids[0];
-            _guids.RemoveAt(0);
-            return guid;
-        }
-    }
-
     internal class WsTrustEndpoint
     {
         private const string envelopeNamespaceValue = "http://www.w3.org/2003/05/soap-envelope";

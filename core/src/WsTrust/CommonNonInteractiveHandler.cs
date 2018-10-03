@@ -26,24 +26,28 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.Identity.Core.Realm;
 
 namespace Microsoft.Identity.Core.WsTrust
 {
     internal class CommonNonInteractiveHandler
     {
-        private readonly RequestContext requestContext;
-        private readonly IUsernameInput usernameInput;
-        private readonly IPlatformProxy platformProxy;
+        private readonly RequestContext _requestContext;
+        private readonly IUsernameInput _usernameInput;
+        private readonly IPlatformProxy _platformProxy;
+        private readonly IWsTrustWebRequestManager _wsTrustWebRequestManager;
 
-        public CommonNonInteractiveHandler(RequestContext requestContext, IUsernameInput usernameInput)
+        public CommonNonInteractiveHandler(
+            RequestContext requestContext,
+            IUsernameInput usernameInput,
+            IPlatformProxy platformProxy,
+            IWsTrustWebRequestManager wsTrustWebRequestManager = null)
         {
-            this.requestContext = requestContext;
-            this.usernameInput = usernameInput;
-            this.platformProxy = PlatformProxyFactory.GetPlatformProxy();
+            _requestContext = requestContext;
+            _usernameInput = usernameInput;
+            _platformProxy = platformProxy ?? PlatformProxyFactory.GetPlatformProxy();
+            _wsTrustWebRequestManager = wsTrustWebRequestManager ?? new WsTrustWebRequestManager();
         }
 
         /// <summary>
@@ -66,24 +70,9 @@ namespace Microsoft.Identity.Core.WsTrust
             return platformUsername;
         }
 
-        public async Task<WsTrustResponse> QueryWsTrustAsync(
-            MexParser mexParser,
-            UserRealmDiscoveryResponse userRealmResponse,
-            Func<string, WsTrustAddress, IUsernameInput, string> wsTrustMessageBuilder)
-        {
-            WsTrustAddress wsTrustAddress = await QueryForWsTrustAddressAsync(
-                userRealmResponse,
-                mexParser).ConfigureAwait(false);
-
-            return await QueryWsTrustAsync(
-                wsTrustMessageBuilder,
-                userRealmResponse.CloudAudienceUrn,
-                wsTrustAddress).ConfigureAwait(false);
-        }
-
         public async Task<UserRealmDiscoveryResponse> QueryUserRealmDataAsync(string userRealmUriPrefix)
         {
-            var userRealmResponse = await UserRealmDiscoveryResponse.CreateByDiscoveryAsync(
+            var userRealmResponse = await _wsTrustWebRequestManager.GetUserRealmAsync(
                 userRealmUriPrefix,
                 _usernameInput.UserName,
                 _requestContext).ConfigureAwait(false);
@@ -96,36 +85,58 @@ namespace Microsoft.Identity.Core.WsTrust
             }
 
             _requestContext.Logger.InfoPii(
-                string.Format(
-                    CultureInfo.CurrentCulture,
-                    " User with user name '{0}' detected as '{1}'",
-                    _usernameInput.UserName,
-                    userRealmResponse.AccountType),
+                $"User with user name '{_usernameInput.UserName}' detected as '{userRealmResponse.AccountType}'",
                 string.Empty);
 
             return userRealmResponse;
         }
 
-        private async Task<WsTrustResponse> QueryWsTrustAsync(
-            Func<string, WsTrustAddress, IUsernameInput, string> wsTrustMessageBuilder,
-            string cloudAudience,
-            WsTrustAddress wsTrustAddress)
+        public async Task<WsTrustResponse> PerformWsTrustMexExchangeAsync(
+            string federationMetadataUrl, string cloudAudienceUrn, UserAuthType userAuthType)
         {
+            MexDocument mexDocument = await _wsTrustWebRequestManager.GetMexDocumentAsync(
+                federationMetadataUrl, _requestContext).ConfigureAwait(false);
+
+            WsTrustEndpoint wsTrustEndpoint = userAuthType == UserAuthType.IntegratedAuth
+                ? mexDocument.GetWsTrustWindowsTransportEndpoint()
+                : mexDocument.GetWsTrustUsernamePasswordEndpoint();
+
+            _requestContext.Logger.InfoPii(
+                $"WS-Trust endpoint '{wsTrustEndpoint.Uri}' being used from MEX at '{federationMetadataUrl}'",
+                "Fetched and parsed MEX");
+
+            WsTrustResponse wsTrustResponse = await GetWsTrustResponseAsync(
+                userAuthType,
+                cloudAudienceUrn,
+                wsTrustEndpoint,
+                _usernameInput).ConfigureAwait(false);
+
+            _requestContext.Logger.Info($"Token of type '{wsTrustResponse.TokenType}' acquired from WS-Trust endpoint");
+
+            return wsTrustResponse;
+        }
+
+        internal async Task<WsTrustResponse> GetWsTrustResponseAsync(
+            UserAuthType userAuthType,
+            string cloudAudienceUrn,
+            WsTrustEndpoint endpoint,
+            IUsernameInput usernameInput)
+        {
+            // TODO: need to clean up the casting to UsernamePasswordInput as well as removing the PasswordToCharArray
+            // since we're putting the strings onto the managed heap anyway.
+            string wsTrustRequestMessage = userAuthType == UserAuthType.IntegratedAuth
+                ? endpoint.BuildTokenRequestMessageWindowsIntegratedAuth(cloudAudienceUrn)
+                : endpoint.BuildTokenRequestMessageUsernamePassword(
+                    cloudAudienceUrn,
+                    usernameInput.UserName,
+                    new string(((UsernamePasswordInput)usernameInput).PasswordToCharArray()));
+
             try
             {
-                string wsTrustRequest = wsTrustMessageBuilder(
-                    cloudAudience,
-                    wsTrustAddress,
-                    _usernameInput);
+                WsTrustResponse wsTrustResponse = await _wsTrustWebRequestManager.GetWsTrustResponseAsync(
+                    endpoint, wsTrustRequestMessage, _requestContext).ConfigureAwait(false);
 
-                WsTrustResponse wsTrustResponse = await WsTrustRequest.SendRequestAsync(
-                    wsTrustAddress,
-                    wsTrustRequest.ToString(),
-                    _requestContext).ConfigureAwait(false);
-
-                _requestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
-                    " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType));
-
+                _requestContext.Logger.Info($"Token of type '{wsTrustResponse.TokenType}' acquired from WS-Trust endpoint");
                 return wsTrustResponse;
             }
             catch (Exception ex)
@@ -133,45 +144,6 @@ namespace Microsoft.Identity.Core.WsTrust
                 throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.ParsingWsTrustResponseFailed,
                     ex.Message,
-                    ex);
-            }
-        }
-
-        private async Task<WsTrustAddress> QueryForWsTrustAddressAsync(
-            UserRealmDiscoveryResponse userRealmResponse,
-            MexParser mexParser)
-        {
-            if (string.IsNullOrWhiteSpace(userRealmResponse.FederationMetadataUrl))
-            {
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.MissingFederationMetadataUrl,
-                    CoreErrorMessages.MissingFederationMetadataUrl);
-            }
-
-            try
-            {
-                WsTrustAddress wsTrustAddress = await mexParser.FetchWsTrustAddressFromMexAsync(
-                    userRealmResponse.FederationMetadataUrl).ConfigureAwait(false);
-
-                if (wsTrustAddress == null)
-                {
-                    CoreExceptionFactory.Instance.GetClientException(
-                      CoreErrorCodes.WsTrustEndpointNotFoundInMetadataDocument,
-                      CoreErrorMessages.WsTrustEndpointNotFoundInMetadataDocument);
-                }
-
-                _requestContext.Logger.InfoPii(
-                    string.Format(CultureInfo.CurrentCulture, " WS-Trust endpoint '{0}' fetched from MEX at '{1}'",
-                        wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl),
-                    "Fetched and parsed MEX");
-
-                return wsTrustAddress;
-            }
-            catch (XmlException ex)
-            {
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.ParsingWsMetadataExchangeFailed,
-                    CoreErrorMessages.ParsingMetadataDocumentFailed,
                     ex);
             }
         }
