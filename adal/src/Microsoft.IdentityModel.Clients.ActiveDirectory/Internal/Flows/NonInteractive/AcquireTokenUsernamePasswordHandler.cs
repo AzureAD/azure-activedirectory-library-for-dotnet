@@ -50,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 SupportADFS = true;
             }
 
-            _userPasswordInput = userPasswordInput ?? throw new ArgumentNullException("userPasswordInput");
+            _userPasswordInput = userPasswordInput ?? throw new ArgumentNullException(nameof(userPasswordInput));
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(RequestContext, _userPasswordInput);
             DisplayableId = userPasswordInput.UserName;
         }
