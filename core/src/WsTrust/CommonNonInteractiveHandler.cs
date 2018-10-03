@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Identity.Core.Realm;
 
 namespace Microsoft.Identity.Core.WsTrust
@@ -94,12 +95,31 @@ namespace Microsoft.Identity.Core.WsTrust
         public async Task<WsTrustResponse> PerformWsTrustMexExchangeAsync(
             string federationMetadataUrl, string cloudAudienceUrn, UserAuthType userAuthType)
         {
-            MexDocument mexDocument = await _wsTrustWebRequestManager.GetMexDocumentAsync(
+            MexDocument mexDocument;
+
+            try
+            {
+                mexDocument = await _wsTrustWebRequestManager.GetMexDocumentAsync(
                 federationMetadataUrl, _requestContext).ConfigureAwait(false);
+            }
+            catch (XmlException ex)
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.ParsingWsMetadataExchangeFailed,
+                    CoreErrorMessages.ParsingMetadataDocumentFailed,
+                    ex);
+            }
 
             WsTrustEndpoint wsTrustEndpoint = userAuthType == UserAuthType.IntegratedAuth
                 ? mexDocument.GetWsTrustWindowsTransportEndpoint()
                 : mexDocument.GetWsTrustUsernamePasswordEndpoint();
+
+            if (wsTrustEndpoint == null)
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(
+                  CoreErrorCodes.WsTrustEndpointNotFoundInMetadataDocument,
+                  CoreErrorMessages.WsTrustEndpointNotFoundInMetadataDocument);
+            }
 
             _requestContext.Logger.InfoPii(
                 $"WS-Trust endpoint '{wsTrustEndpoint.Uri}' being used from MEX at '{federationMetadataUrl}'",

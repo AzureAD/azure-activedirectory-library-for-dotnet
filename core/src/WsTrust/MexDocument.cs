@@ -47,8 +47,8 @@ namespace Microsoft.Identity.Core.WsTrust
     internal class MexDocument
     {
         private const string WsTrustSoapTransport = "http://schemas.xmlsoap.org/soap/http";
-        private readonly Dictionary<string, MexPolicy> _policies;
-        private readonly Dictionary<string, MexPolicy> _bindings;
+        private readonly Dictionary<string, MexPolicy> _policies = new Dictionary<string, MexPolicy>();
+        private readonly Dictionary<string, MexPolicy> _bindings = new Dictionary<string, MexPolicy>();
 
         private class MexPolicy
         {
@@ -61,8 +61,8 @@ namespace Microsoft.Identity.Core.WsTrust
         public MexDocument(string responseBody)
         {
             var mexDocument = XDocument.Parse(responseBody, LoadOptions.None);
-            _policies = ReadPolicies(mexDocument);
-            _bindings = ReadPolicyBindings(mexDocument);
+            ReadPolicies(mexDocument);
+            ReadPolicyBindings(mexDocument);
             SetPolicyEndpointAddresses(mexDocument);
         }
 
@@ -100,9 +100,8 @@ namespace Microsoft.Identity.Core.WsTrust
                         .FirstOrDefault();
         }
 
-        private Dictionary<string, MexPolicy> ReadPolicies(XContainer mexDocument)
+        private void ReadPolicies(XContainer mexDocument)
         {
-            var policies = new Dictionary<string, MexPolicy>();
             IEnumerable<XElement> policyElements = mexDocument.Elements().First().Elements(XmlNamespace.Wsp + "Policy");
             foreach (XElement policy in policyElements)
             {
@@ -155,13 +154,10 @@ namespace Microsoft.Identity.Core.WsTrust
                     }
                 }
             }
-
-            return policies;
         }
 
-        private Dictionary<string, MexPolicy> ReadPolicyBindings(XContainer mexDocument)
+        private void ReadPolicyBindings(XContainer mexDocument)
         {
-            var bindings = new Dictionary<string, MexPolicy>();
             IEnumerable<XElement> bindingElements = mexDocument.Elements().First().Elements(XmlNamespace.Wsdl + "binding");
             foreach (XElement binding in bindingElements)
             {
@@ -214,12 +210,10 @@ namespace Microsoft.Identity.Core.WsTrust
                     XAttribute soapBindingTransport = soapBinding.Attribute("transport");
                     if (soapBindingTransport != null && string.Compare(WsTrustSoapTransport, soapBindingTransport.Value, StringComparison.OrdinalIgnoreCase) == 0)
                     {
-                        bindings.Add(bindingName.Value, _policies[policyUri.Value]);
+                        _bindings.Add(bindingName.Value, _policies[policyUri.Value]);
                     }
                 }
             }
-
-            return bindings;
         }
 
         private void SetPolicyEndpointAddresses(XContainer mexDocument)
