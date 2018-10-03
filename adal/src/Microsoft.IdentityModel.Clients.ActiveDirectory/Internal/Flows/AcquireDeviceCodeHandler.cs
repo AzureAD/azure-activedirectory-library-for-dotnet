@@ -87,27 +87,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return deviceCodeRequestParameters;
         }
 
-        private string CreateDeviceCodeRequestUriString()
-        {
-            DictionaryRequestParameters deviceCodeRequestParameters = GetRequestParameters();
-
-            return new Uri(new Uri(this.authenticator.DeviceCodeUri), "?" + deviceCodeRequestParameters).AbsoluteUri;
-        }
-
         internal async Task<DeviceCodeResult> RunHandlerAsync()
         {
             await this.authenticator.UpdateFromTemplateAsync(this.requestContext).ConfigureAwait(false);
-            AdalHttpClient client;
-            if (authenticator.AuthorityType == AuthorityType.ADFS)
-            {
-                //Adfs devicecode endpoint only supports POST requests
-                client = new AdalHttpClient(authenticator.DeviceCodeUri, this.requestContext);
-                client.Client.BodyParameters = GetRequestParameters();
-            }
-            else
-            {
-                client = new AdalHttpClient(CreateDeviceCodeRequestUriString(), this.requestContext);
-            }
+            AdalHttpClient client = new AdalHttpClient(authenticator.DeviceCodeUri, this.requestContext);
+            client.Client.BodyParameters = GetRequestParameters();
             DeviceCodeResponse response = await client.GetResponseAsync<DeviceCodeResponse>().ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(response.Error))

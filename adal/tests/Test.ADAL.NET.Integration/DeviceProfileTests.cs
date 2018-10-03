@@ -114,7 +114,7 @@ namespace Test.ADAL.NET.Integration
 
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
             };
@@ -170,7 +170,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateDeviceCodeErrorResponse()
             };
@@ -191,7 +191,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
                     // do not lower this to 1-2s as test execution may be slow and the flow 
@@ -242,7 +242,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
                     expirationTimeInSeconds: 0,
