@@ -33,6 +33,7 @@ namespace Test.ADAL.NET.UIAutomation
         private const string WebSubmitID = "idSIButton9";
         private const string TestResultID = "testResult";
         private const string TestResultSuccsesfulMessage = "Result: Success";
+        private const string TestResultFailureMessage = "Result: Failure";
 
         /// <summary>
         /// Runs through the standard acquire token interactive flow
@@ -93,7 +94,8 @@ namespace Test.ADAL.NET.UIAutomation
                 {
                     IsMamUser = false,
                     IsMfaUser = false,
-                    IsFederatedUser = false
+                    IsFederatedUser = false,
+                    IsExternalUser = false
                 });
         }
 
@@ -138,8 +140,31 @@ namespace Test.ADAL.NET.UIAutomation
 
         private static void VerifyResult(ITestController controller)
         {
-            //Test results are put into a label that is checked for messages
-            Assert.IsTrue(controller.GetText(TestResultID).Contains(TestResultSuccsesfulMessage));
+            //There may be a delay in the amount of time it takes for an authentication request to complete.
+            //Thus this method will check the result once a second for 10 seconds.
+            bool done = false;
+            int attempts = 0;
+            int maximumAttempts = 20;
+
+            while (!done)
+            {
+                Thread.Sleep(1000);
+                attempts++;
+
+                //Test results are put into a label that is checked for messages
+                var result = controller.GetText(TestResultID);
+                if (result.Contains(TestResultSuccsesfulMessage))
+                {
+                    return;
+                }
+                else if (result.Contains(TestResultFailureMessage))
+                {
+                    Assert.Fail();
+                    return;
+                }
+                else if (attempts > maximumAttempts)
+                    done = true;
+            }
         }
     }
 }

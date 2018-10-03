@@ -93,10 +93,9 @@ namespace Test.Microsoft.Identity.Core.UIAutomation.infrastructure
                     ClientCredential cred = new ClientCredential(_config.ClientId, data);
                     authResult = await authContext.AcquireTokenAsync(resource, cred);
                     break;
-                //case KeyVaultAuthenticationType.UserCredential:
-                //    //var data = File.ReadAllText("data.txt");
-                //    //authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserPasswordCredential("temp@trwalke.onmicrosoft.com", data));
-                //    break;
+                case KeyVaultAuthenticationType.UserCredential:
+                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential(""));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
