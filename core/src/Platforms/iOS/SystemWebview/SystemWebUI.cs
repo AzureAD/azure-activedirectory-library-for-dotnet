@@ -134,6 +134,9 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         {
             if (returnedUriReady != null)
             {
+                // The authorizationResult is set on the class and sent back to the InteractiveRequest
+                // There it's processed in VerifyAuthorizationResult() and an MsalClientException
+                // will be thrown.
                 authorizationResult = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
                 returnedUriReady.Release();
             }
