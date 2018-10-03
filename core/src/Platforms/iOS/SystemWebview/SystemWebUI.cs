@@ -50,7 +50,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
-            UIViewController viewController = null;
+            viewController = null;
             InvokeOnMainThread(() =>
             {
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             });
 
             returnedUriReady = new SemaphoreSlim(0);
-            Authenticate(authorizationUri, redirectUri, viewController, requestContext);
+            Authenticate(authorizationUri, redirectUri, requestContext);
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
 
             //dismiss safariviewcontroller
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             return authorizationResult;
         }
 
-        public void Authenticate(Uri authorizationUri, Uri redirectUri, UIViewController vc, RequestContext requestContext)
+        public void Authenticate(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
             try
             {
@@ -85,10 +85,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                             }
                             else
                             {
-                                vc.InvokeOnMainThread(() =>
-                                {
-                                    ContinueAuthentication(callbackUrl.ToString());
-                                });
+                                ContinueAuthentication(callbackUrl.ToString());
                             }
                         });
 
@@ -106,10 +103,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                             }
                             else
                             {
-                                vc.InvokeOnMainThread(() =>
-                                {
-                                    ContinueAuthentication(callbackUrl.ToString());
-                                });
+                                ContinueAuthentication(callbackUrl.ToString());
                             }
                         });
 
@@ -120,9 +114,9 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 {
                     safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
                     safariViewController.Delegate = this;
-                    vc.InvokeOnMainThread(() =>
+                    viewController.InvokeOnMainThread(() =>
                     {
-                        vc.PresentViewController(safariViewController, false, null);
+                        viewController.PresentViewController(safariViewController, false, null);
                     });
                 }
             }
