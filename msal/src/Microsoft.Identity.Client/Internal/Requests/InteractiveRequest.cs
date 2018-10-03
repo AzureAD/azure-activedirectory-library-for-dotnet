@@ -69,7 +69,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             _extraScopesToConsent = new SortedSet<string>();
             if (!extraScopesToConsent.IsNullOrEmpty())
             {
-                _extraScopesToConsent = extraScopesToConsent.CreateSetFromEnumerable();
+                _extraScopesToConsent = ScopeHelper.CreateSortedSetFromEnumerable(extraScopesToConsent);
             }
 
             ValidateScopeInput(_extraScopesToConsent);

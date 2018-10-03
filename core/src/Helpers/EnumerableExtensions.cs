@@ -38,15 +38,6 @@ namespace Microsoft.Identity.Core.Helpers
             return input == null || !input.Any();
         }
 
-        internal static SortedSet<string> CreateSetFromEnumerable(this IEnumerable<string> input)
-        {
-            if (input == null || !input.Any())
-            {
-                return new SortedSet<string>();
-            }
-            return new SortedSet<string>(input);
-        }
-
         internal static string AsSingleString(this IEnumerable<string> input)
         {
             if (input.IsNullOrEmpty())

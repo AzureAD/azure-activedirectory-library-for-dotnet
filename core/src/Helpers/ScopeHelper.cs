@@ -55,5 +55,14 @@ namespace Microsoft.Identity.Core.Helpers
 
             return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
         }
+
+        internal static SortedSet<string> CreateSortedSetFromEnumerable(this IEnumerable<string> input)
+        {
+            if (input == null || !input.Any())
+            {
+                return new SortedSet<string>();
+            }
+            return new SortedSet<string>(input);
+        }
     }
 }
