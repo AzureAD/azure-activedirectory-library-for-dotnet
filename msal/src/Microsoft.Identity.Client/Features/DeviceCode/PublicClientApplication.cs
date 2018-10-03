@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Client
             Func<DeviceCodeResult, Task> deviceCodeResultCallback,
             CancellationToken cancellationToken)
         {
-            return AcquireTokenWithDeviceCodeAsync(scopes, string.Empty, k deviceCodeResultCallback, cancellationToken);
+            return AcquireTokenWithDeviceCodeAsync(scopes, string.Empty, deviceCodeResultCallback, cancellationToken);
         }
 
         /// <summary>
