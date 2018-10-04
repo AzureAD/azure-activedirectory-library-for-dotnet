@@ -63,6 +63,7 @@
     <Compile Include="Infrastructure\UserQueryParameters.cs" />
     <Compile Include="Infrastructure\UserType.cs" />
     <Compile Include="PlatformNotSupportedException.cs" />
+    <Compile Include="UiTestConstants.cs" />
     <Compile Include="XamarinUITestController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

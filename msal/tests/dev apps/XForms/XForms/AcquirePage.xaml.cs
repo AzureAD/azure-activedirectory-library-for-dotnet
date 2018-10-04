@@ -43,6 +43,8 @@ namespace XForms
     public partial class AcquirePage : ContentPage
     {
         private const string UserNotSelected = "not selected";
+        private const string EmptyResult = "Result:";
+        private const string SuccsessfulResult = "Result: Success";
 
         public AcquirePage()
         {
@@ -144,7 +146,7 @@ namespace XForms
         private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
-            acquireResponseTitleLabel.Text = "Result:";
+            acquireResponseTitleLabel.Text = EmptyResult;
             await Task.Delay(700);
 
             try
@@ -164,7 +166,7 @@ namespace XForms
                 var resText = ToString(res);
 
                 if (resText.Contains("AccessToken"))
-                    acquireResponseTitleLabel.Text = "Result: Success";
+                    acquireResponseTitleLabel.Text = SuccsessfulResult;
 
                 acquireResponseLabel.Text = resText;
             }
@@ -178,7 +180,7 @@ namespace XForms
         {
             try
             {
-                acquireResponseTitleLabel.Text = "Result:";
+                acquireResponseTitleLabel.Text = EmptyResult;
                 AuthenticationResult res;
                 if (LoginHintSwitch.IsToggled)
                 {
@@ -198,7 +200,7 @@ namespace XForms
                 var resText = ToString(res);
 
                 if (resText.Contains("AccessToken"))
-                    acquireResponseTitleLabel.Text = "Result: Success";
+                    acquireResponseTitleLabel.Text = SuccsessfulResult;
 
                 acquireResponseLabel.Text = resText;
                 RefreshUsers();
@@ -212,7 +214,7 @@ namespace XForms
         private void OnClearClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "";
-            acquireResponseTitleLabel.Text = "Result:";
+            acquireResponseTitleLabel.Text = EmptyResult;
         }
 
         private async Task OnClearCacheClickedAsync(object sender, EventArgs e)
@@ -226,7 +228,7 @@ namespace XForms
             }
 
             acquireResponseLabel.Text = "";
-            acquireResponseTitleLabel.Text = "Result:";
+            acquireResponseTitleLabel.Text = EmptyResult;
         }
 
         private void CreateExceptionMessage(Exception exception)
