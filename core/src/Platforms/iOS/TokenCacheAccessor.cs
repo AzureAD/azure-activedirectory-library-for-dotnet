@@ -102,8 +102,8 @@ namespace Microsoft.Identity.Core
             }
 
             throw CoreExceptionFactory.Instance.GetClientException(
-                CoreErrorCodes.GetTeamIdReturnedNull,
-                CoreErrorMessages.GetTeamIdReturnedNull);
+                CoreErrorCodes.CannotAccessPublisherKeyChain,
+                CoreErrorMessages.CannotAccessPublisherKeyChain);
         }
 
         public TokenCacheAccessor()

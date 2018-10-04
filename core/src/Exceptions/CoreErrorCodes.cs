@@ -78,7 +78,7 @@ namespace Microsoft.Identity.Core
 
         public const string GetUserNameFailed = "get_user_name_failed";
 #if iOS
-        public const string GetTeamIdReturnedNull = "null_TeamId";
+        public const string CannotAccessPublisherKeyChain = "cannot_access_publisher_keychain";
 #endif
 
 #if ANDROID
