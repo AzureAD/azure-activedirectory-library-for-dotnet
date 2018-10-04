@@ -91,6 +91,8 @@ namespace Microsoft.Identity.Core
 
         public const string GetUserNameFailed = "Failed to get user name from the operating system.";
 
+        public const string NonParsableOAuthError = "An error response was returned by the OAuth2 server, but it could not be parsed. Please inspect the exception properties for details.";
+
         public const string CannotAccessPublisherKeyChain =
            "The application cannot access the iOS keychain for the application publisher (the TeamId is null). " +
            "This is needed to enable Single Sign On between applications of the same publisher. " +
