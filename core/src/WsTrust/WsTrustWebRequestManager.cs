@@ -111,11 +111,16 @@ namespace Microsoft.Identity.Core.WsTrust
                 throw _coreExceptionFactory.GetServiceException(
                     CoreErrorCodes.FederatedServiceReturnedError,
                     string.Format(
-                        CultureInfo.CurrentCulture, 
-                        CoreErrorMessages.FederatedServiceReturnedErrorTemplate, 
-                        wsTrustEndpoint.Uri, 
-                        errorMessage)
-                );
+                        CultureInfo.CurrentCulture,
+                        CoreErrorMessages.FederatedServiceReturnedErrorTemplate,
+                        wsTrustEndpoint.Uri,
+                        errorMessage),
+                    new ExceptionDetail()
+                    {
+                        StatusCode = (int)resp.StatusCode,
+                        ResponseBody = resp.Body,
+                        HttpResponseHeaders = resp.Headers
+                    });
             }
 
             try
@@ -124,7 +129,7 @@ namespace Microsoft.Identity.Core.WsTrust
             }
             catch (System.Xml.XmlException ex)
             {
-                throw _coreExceptionFactory.GetServiceException(
+                throw _coreExceptionFactory.GetClientException(
                     CoreErrorCodes.ParsingWsTrustResponseFailed, CoreErrorCodes.ParsingWsTrustResponseFailed, ex);
             }
         }

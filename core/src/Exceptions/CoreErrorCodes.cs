@@ -77,7 +77,11 @@ namespace Microsoft.Identity.Core
         public const string UapCannotFindUpn = "uap_cannot_find_upn";
 
         public const string GetUserNameFailed = "get_user_name_failed";
+        public const string NonParsableOAuthError = "non_parsable_oauth_error";
 
+#if iOS
+        public const string CannotAccessPublisherKeyChain = "cannot_access_publisher_keychain";
+#endif
 
 #if ANDROID
         public const string FailedToCreateSharedPreference = "shared_preference_creation_failed";

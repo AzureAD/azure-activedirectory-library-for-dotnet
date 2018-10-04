@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Core.WsTrust
         WsTrust2005
     }
 
-    internal enum UserAuthType 
+    internal enum UserAuthType
     {
         IntegratedAuth,
         UsernamePassword
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Core.WsTrust
             return _policies
                 .Values
                 .Where(p => p.Url != null && p.AuthType == userAuthType && p.Version == WsTrustVersion.WsTrust13)
-                .FirstOrDefault() ?? 
+                .FirstOrDefault() ??
                     _policies
                         .Values
                         .Where(p => p.Url != null && p.AuthType == userAuthType)
@@ -125,7 +125,7 @@ namespace Microsoft.Identity.Core.WsTrust
                     if (auth == null && ((auth = element.Elements(XmlNamespace.Sp2005 + "SignedSupportingTokens").FirstOrDefault()) ==
                                          null))
                     {
-                            continue;
+                        continue;
                     }
 
                     securityPolicy = XmlNamespace.Sp2005;
@@ -199,7 +199,6 @@ namespace Microsoft.Identity.Core.WsTrust
                         string.Compare(XmlNamespace.Issue2005.ToString(), soapAction.Value,
                             StringComparison.OrdinalIgnoreCase) == 0;
                     _policies[policyUri.Value].Version = isWsTrust2005 ? WsTrustVersion.WsTrust2005:WsTrustVersion.WsTrust13;
-
 
                     XElement soapBinding = binding.Elements(XmlNamespace.Soap12 + "binding").FirstOrDefault();
                     if (soapBinding == null)
