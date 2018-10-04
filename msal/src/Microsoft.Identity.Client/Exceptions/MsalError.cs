@@ -171,6 +171,6 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// An error response was returned by the OAuth2 server and it could not be parsed
         /// </summary>
-        public const string NonParsableOAuthError = "oauth_non_json_error";
+        public const string NonParsableOAuthError = "non_parsable_oauth_error";
     }
 }
