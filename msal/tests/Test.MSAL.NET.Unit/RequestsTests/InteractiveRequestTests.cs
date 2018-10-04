@@ -144,7 +144,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             };
 
             var atItem = new MsalAccessTokenCacheItem(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.ClientId,
                 "Bearer",
                 TestConstants.Scope.AsSingleString(),

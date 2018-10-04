@@ -565,7 +565,7 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(1, users.Count());
 
             var atItem = new MsalAccessTokenCacheItem(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.ClientId,
                 "Bearer",
                 TestConstants.Scope.AsSingleString(),
@@ -582,13 +582,13 @@ namespace Test.MSAL.NET.Unit
             // another cache entry for different uid. user count should be 2.
 
             MsalRefreshTokenCacheItem rtItem = new MsalRefreshTokenCacheItem
-                (TestConstants.ProductionPrefNetworkEnvironment, TestConstants.ClientId, "someRT", MockHelpers.CreateClientInfo("uId1", "uTId1"));
+                (TestConstants.ProdPrefNetworkEnv, TestConstants.ClientId, "someRT", MockHelpers.CreateClientInfo("uId1", "uTId1"));
 
             cache.tokenCacheAccessor.RefreshTokenCacheDictionary[rtItem.GetKey().ToString()] =
                 JsonHelper.SerializeToJson(rtItem);
 
             MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.ClientId,
                 MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId),
                 MockHelpers.CreateClientInfo("uId1", "uTId1"),
@@ -598,7 +598,7 @@ namespace Test.MSAL.NET.Unit
 
 
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
-                (TestConstants.ProductionPrefNetworkEnvironment, null, MockHelpers.CreateClientInfo("uId1", "uTId1"), null, null, "uTId1");
+                (TestConstants.ProdPrefNetworkEnv, null, MockHelpers.CreateClientInfo("uId1", "uTId1"), null, null, "uTId1");
 
             cache.tokenCacheAccessor.AccountCacheDictionary[accountCacheItem.GetKey().ToString()] = JsonHelper.SerializeToJson(accountCacheItem);
 
@@ -736,7 +736,7 @@ namespace Test.MSAL.NET.Unit
             app.UserTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier.Identifier,
                 TestConstants.ClientId,
@@ -770,7 +770,7 @@ namespace Test.MSAL.NET.Unit
             app.UserTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier.Identifier,
                 TestConstants.ClientId,
@@ -803,7 +803,7 @@ namespace Test.MSAL.NET.Unit
             app.UserTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier.Identifier,
                 TestConstants.ClientId,
@@ -835,7 +835,7 @@ namespace Test.MSAL.NET.Unit
             app.UserTokenCache = cache;
             TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
             cache.tokenCacheAccessor.AccessTokenCacheDictionary.Remove(new MsalAccessTokenCacheKey(
-                TestConstants.ProductionPrefNetworkEnvironment,
+                TestConstants.ProdPrefNetworkEnv,
                 TestConstants.Utid,
                 TestConstants.UserIdentifier.Identifier,
                 TestConstants.ClientId,
@@ -1149,11 +1149,11 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [Description("ClientApplicationBase.GetAuthoriy tests")]
-        public void GetAuthority_AccountWithNullIdPassed_CommonAuthorityUsed()
+        public void GetAuthority_AccountWithNullIdPassed_CommonAuthorityReturned()
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            var authoriy = app.GetAuthority(new Account(null, TestConstants.Name, TestConstants.ProductionPrefNetworkEnvironment));
+            var authoriy = app.GetAuthority(new Account(null, TestConstants.Name, TestConstants.ProdPrefNetworkEnv));
             Assert.AreEqual(ClientApplicationBase.DefaultAuthority, authoriy.CanonicalAuthority);
         }
 
@@ -1167,7 +1167,7 @@ namespace Test.MSAL.NET.Unit
                 new Account(
                     new AccountId("objectId." + TestConstants.Utid, "objectId", TestConstants.Utid),
                     TestConstants.Name,
-                    TestConstants.ProductionPrefNetworkEnvironment));
+                    TestConstants.ProdPrefNetworkEnv));
 
             Assert.AreEqual(TestConstants.AuthorityTestTenant, authoriy.CanonicalAuthority);
         }
