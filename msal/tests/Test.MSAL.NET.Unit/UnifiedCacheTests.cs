@@ -35,7 +35,9 @@ using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
@@ -125,7 +127,7 @@ namespace Test.MSAL.NET.Unit
             foreach (IAccount user in users)
             {
                 ISet<string> authorityHostAliases = new HashSet<string>();
-                authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
+                authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
 
                 app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
             }
@@ -159,7 +161,7 @@ namespace Test.MSAL.NET.Unit
             app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
 
             ISet<string> authorityHostAliases = new HashSet<string>();
-            authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
+            authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
 
             CreateAdalCache(app.UserTokenCache.legacyCachePersistance, TestConstants.Scope.ToString());
 
