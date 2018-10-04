@@ -91,7 +91,9 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             //The data.txt is a place holder for the keyvault secret. it will only be written to during build time when testing appcenter
             var data = File.ReadAllText("data.txt");
             if (string.IsNullOrWhiteSpace(data))
+            {
                 _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+            }
             else
             {
                 _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
@@ -128,7 +130,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     authResult = await authContext.AcquireTokenAsync(resource, cred);
                     break;
                 case KeyVaultAuthenticationType.UserCredential:
-                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential(""));
+                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

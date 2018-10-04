@@ -166,7 +166,9 @@ namespace XForms
                 var resText = ToString(res);
 
                 if (resText.Contains("AccessToken"))
+                {
                     acquireResponseTitleLabel.Text = SuccsessfulResult;
+                }
 
                 acquireResponseLabel.Text = resText;
             }
