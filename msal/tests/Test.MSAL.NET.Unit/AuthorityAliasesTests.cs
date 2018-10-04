@@ -45,7 +45,7 @@ using Test.MSAL.NET.Unit.Mocks;
 namespace Test.MSAL.NET.Unit
 {
     [TestClass]
-    public class UnifiedCacheTests
+    class AuthorityAliasesTests
     {
         private MyReceiver _myReceiver = new MyReceiver();
 
@@ -81,125 +81,6 @@ namespace Test.MSAL.NET.Unit
             {
                 data = serializedCache;
             }
-        }
-
-        [TestMethod]
-        [Description("Test unified token cache")]
-        public void UnifiedCache_MsalStoresToAndReadRtFromAdalCache()
-        {
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
-
-            MockWebUI ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                    TestConstants.AuthorityHomeTenant + "?code=some-code")
-            };
-
-            MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                app.RedirectUri + "?code=some-code"));
-
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
-
-            AuthenticationResult result = app.AcquireTokenAsync(TestConstants.Scope).Result;
-            Assert.IsNotNull(result);
-
-            // make sure Msal stored RT in Adal cache
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCacheDictionary =
-                AdalCacheOperations.Deserialize(app.UserTokenCache.legacyCachePersistance.LoadCache());
-
-            Assert.IsTrue(adalCacheDictionary.Count == 1);
-
-            var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-            var users = app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
-            foreach (IAccount user in users)
-            {
-                ISet<string> authorityHostAliases = new HashSet<string>();
-                authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
-
-                app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
-            }
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
-                {
-                    {"grant_type", "refresh_token"}
-                },
-                ResponseMessage =
-                    MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.UniqueId,
-                        TestConstants.DisplayableId,
-                        TestConstants.Scope.ToArray())
-            });
-
-            // Using RT from Adal cache for silent call
-            AuthenticationResult result1 = app.AcquireTokenSilentAsync
-                (TestConstants.Scope, result.Account, TestConstants.AuthorityCommonTenant, false).Result;
-
-            Assert.IsNotNull(result1);
-        }
-
-        [TestMethod]
-        [Description("Test for duplicate key in ADAL cache")]
-        public void UnifiedCache_ProcessAdalDictionaryForDuplicateKeyTest()
-        {
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
-
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
-
-            ISet<string> authorityHostAliases = new HashSet<string>();
-            authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
-
-            CreateAdalCache(app.UserTokenCache.legacyCachePersistance, TestConstants.Scope.ToString());
-
-            var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(app.UserTokenCache.legacyCachePersistance, authorityHostAliases, TestConstants.ClientId);
-
-            CreateAdalCache(app.UserTokenCache.legacyCachePersistance, "user.read");
-
-            var tuple2 = CacheFallbackOperations.GetAllAdalUsersForMsal(app.UserTokenCache.legacyCachePersistance, authorityHostAliases, TestConstants.ClientId);
-
-            Assert.AreEqual(tuple.Item1.Keys.First(), tuple2.Item1.Keys.First());
-
-            app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-            app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
-        }
-
-        private void CreateAdalCache(ILegacyCachePersistance legacyCachePersistance, string scopes)
-        {
-            AdalTokenCacheKey key = new AdalTokenCacheKey(TestConstants.AuthorityHomeTenant, scopes,
-                TestConstants.ClientId, TestConstants.TokenSubjectTypeUser, TestConstants.UniqueId, TestConstants.User.Username);
-
-            AdalResultWrapper wrapper = new AdalResultWrapper()
-            {
-                Result = new AdalResult(null, null, DateTimeOffset.MinValue)
-                {
-                    UserInfo = new AdalUserInfo()
-                    {
-                        UniqueId = TestConstants.UniqueId,
-                        DisplayableId = TestConstants.User.Username
-                    }
-                },
-                RefreshToken = TestConstants.ClientSecret,
-                RawClientInfo = TestConstants.RawClientId,
-                ResourceInResponse = scopes
-            };
-
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
-            dictionary[key] = wrapper;
-            legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
         }
 
         [TestMethod]
@@ -279,7 +160,8 @@ namespace Test.MSAL.NET.Unit
                     ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
                 });
 
-                try {
+                try
+                {
                     result = app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource,
                         app.GetAccountsAsync().Result.First(),
                         string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", envAlias, TestConstants.Utid),
@@ -321,7 +203,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(expectedEnvironment, account.Environment);
             }
 
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache = 
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache =
                 AdalCacheOperations.Deserialize(cache.legacyCachePersistance.LoadCache());
 
             foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
@@ -330,4 +212,5 @@ namespace Test.MSAL.NET.Unit
             }
         }
     }
+}
 }
