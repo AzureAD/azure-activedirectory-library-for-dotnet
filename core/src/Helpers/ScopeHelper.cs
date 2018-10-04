@@ -46,9 +46,9 @@ namespace Microsoft.Identity.Core.Helpers
             return true;
         }
 
-        internal static SortedSet<string> ConvertStringToLowercaseSortedSet(this string singleString)
+        internal static SortedSet<string> ConvertStringToLowercaseSortedSet(string singleString)
         {
-            if (String.IsNullOrEmpty(singleString))
+            if (string.IsNullOrEmpty(singleString))
             {
                 return new SortedSet<string>();
             }
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Core.Helpers
             return new SortedSet<string>(singleString.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.None));
         }
 
-        internal static SortedSet<string> CreateSortedSetFromEnumerable(this IEnumerable<string> input)
+        internal static SortedSet<string> CreateSortedSetFromEnumerable(IEnumerable<string> input)
         {
             if (input == null || !input.Any())
             {
