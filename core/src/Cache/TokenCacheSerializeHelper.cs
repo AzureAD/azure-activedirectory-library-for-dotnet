@@ -59,6 +59,8 @@ namespace Microsoft.Identity.Core.Cache
                 return;
             }
 
+            tokenCacheAccessor.Clear();
+
             if (cacheDict.ContainsKey(AccessTokenKey))
             {
                 foreach (var atItem in cacheDict[AccessTokenKey])

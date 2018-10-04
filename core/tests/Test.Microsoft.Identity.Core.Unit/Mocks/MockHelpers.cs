@@ -51,7 +51,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
 
         public static readonly string DefaultTokenResponse =
             "{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"scope\":" +
-            "\"some-scope1 some-scope2\",\"access_token\":\"some-access-token\"" +
+            "\"r1/scope1 r1/scope2\",\"access_token\":\"some-access-token\"" +
             ",\"refresh_token\":\"OAAsomethingencryptedQwgAA\",\"client_info\"" +
             ":\"" + CreateClientInfo() + "\",\"id_token\"" +
             ":\"" + CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId) +
