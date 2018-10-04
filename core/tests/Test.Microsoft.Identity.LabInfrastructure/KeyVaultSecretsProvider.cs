@@ -87,7 +87,17 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         public KeyVaultSecretsProvider()
         {
             _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+
+            //The data.txt is a place holder for the keyvault secret. it will only be written to during build time when testing appcenter
+            var data = File.ReadAllText("data.txt");
+            if (string.IsNullOrWhiteSpace(data))
+                _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+            else
+            {
+                _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
+                _config.KeyVaultSecret = data;
+            }
+
             _config.ClientId = keyVaultClientID;
             _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
@@ -114,8 +124,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     authResult = await authContext.AcquireTokenAsync(resource, _assertionCert);
                     break;
                 case KeyVaultAuthenticationType.ClientSecret:
-                    var data = File.ReadAllText("data.txt");
-                    ClientCredential cred = new ClientCredential(_config.ClientId, data);
+                    ClientCredential cred = new ClientCredential(_config.ClientId, _config.KeyVaultSecret);
                     authResult = await authContext.AcquireTokenAsync(resource, cred);
                     break;
                 case KeyVaultAuthenticationType.UserCredential:
