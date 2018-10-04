@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Client
         /// <list type="bullet">
         /// <item><description>the method first acquires a device code from the authority and returns it to the caller via
         /// the <paramref name="deviceCodeResultCallback"/>. This callback takes care of interacting with the user
-        /// to direct him to authenticate (to a specific URL, with a code)</description></item>
+        /// to direct them to authenticate (to a specific URL, with a code)</description></item>
         /// <item><description>The method then proceeds to poll for the security
         /// token which is granted upon successful login by the user based on the device code information</description></item>
         /// </list>
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Client
         /// <list type="bullet">
         /// <item><description>the method first acquires a device code from the authority and returns it to the caller via
         /// the <paramref name="deviceCodeResultCallback"/>. This callback takes care of interacting with the user
-        /// to direct him to authenticate (to a specific URL, with a code)</description></item>
+        /// to direct them to authenticate (to a specific URL, with a code)</description></item>
         /// <item><description>The method then proceeds to poll for the security
         /// token which is granted upon successful login by the user based on the device code information</description></item>
         /// </list>
@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Client
         /// <list type="bullet">
         /// <item><description>the method first acquires a device code from the authority and returns it to the caller via
         /// the <paramref name="deviceCodeResultCallback"/>. This callback takes care of interacting with the user
-        /// to direct him to authenticate (to a specific URL, with a code)</description></item>
+        /// to direct them to authenticate (to a specific URL, with a code)</description></item>
         /// <item><description>The method then proceeds to poll for the security
         /// token which is granted upon successful login by the user based on the device code information. This step is cancelable</description></item>
         /// </list>
@@ -123,7 +123,7 @@ namespace Microsoft.Identity.Client
         /// <list type="bullet">
         /// <item><description>the method first acquires a device code from the authority and returns it to the caller via
         /// the <paramref name="deviceCodeResultCallback"/>. This callback takes care of interacting with the user
-        /// to direct him to authenticate (to a specific URL, with a code)</description></item>
+        /// to direct them to authenticate (to a specific URL, with a code)</description></item>
         /// <item><description>The method then proceeds to poll for the security
         /// token which is granted upon successful login by the user based on the device code information. This step is cancelable</description></item>
         /// </list>
