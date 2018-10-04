@@ -91,5 +91,7 @@ namespace Microsoft.Identity.Core
 
         public const string GetUserNameFailed = "Failed to get user name from the operating system.";
 
+        public const string OAuthNonJsonError = "An error response was returned by the OAuth2 server. Please inspect the exception properties for details.";
+
     }
 }
