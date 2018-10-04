@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Core.Instance
     internal abstract class Authority
     {
         internal static readonly HashSet<string> TenantlessTenantNames =
-            new HashSet<string>(new[] {"common", "organizations"});
+            new HashSet<string>(new[] {"common", "organizations", "consumers"});
         private bool _resolved;
 
         internal static readonly ConcurrentDictionary<string, Authority> ValidatedAuthorities =
@@ -77,6 +77,8 @@ namespace Microsoft.Identity.Core.Instance
         public string EndSessionEndpoint { get; set; }
 
         public string SelfSignedJwtAudience { get; set; }
+
+        public string UserRealmUriPrefix { get; private set; }
 
         public string Host { get; set; }
 
@@ -164,9 +166,7 @@ namespace Microsoft.Identity.Core.Instance
 
         public async Task ResolveEndpointsAsync(string userPrincipalName, RequestContext requestContext)
         {
-            var msg = "Resolving authority endpoints... Already resolved? - " + _resolved;
-            requestContext.Logger.Info(msg);
-            requestContext.Logger.InfoPii(msg);
+            requestContext.Logger.Info("Resolving authority endpoints... Already resolved? - " + _resolved);
 
             if (!_resolved)
             {
@@ -176,15 +176,13 @@ namespace Microsoft.Identity.Core.Instance
                 string tenant = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
                 IsTenantless = TenantlessTenantNames.Contains(tenant.ToLowerInvariant());
                 // create log message
-                msg = "Is Authority tenantless? - " + IsTenantless;
-                requestContext.Logger.Info(msg);
-                requestContext.Logger.InfoPii(msg);
+                requestContext.Logger.Info("Is Authority tenantless? - " + IsTenantless);
+
+                UserRealmUriPrefix = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm/", this.Host);
 
                 if (ExistsInValidatedAuthorityCache(userPrincipalName))
                 {
-                    msg = "Authority found in validated authority cache";
-                    requestContext.Logger.Info(msg);
-                    requestContext.Logger.InfoPii(msg);
+                    requestContext.Logger.Info("Authority found in validated authority cache");
                     Authority authority = ValidatedAuthorities[CanonicalAuthority];
                     AuthorityType = authority.AuthorityType;
                     CanonicalAuthority = authority.CanonicalAuthority;

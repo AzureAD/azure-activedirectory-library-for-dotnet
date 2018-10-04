@@ -27,8 +27,10 @@
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.Web.Http;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -40,6 +42,7 @@ namespace UAPTestApp
     public sealed partial class MainPage : Page
     {
         private const string ClientId = "cd01dc27-9d3c-4812-beda-8229d5d4a8d5";
+
         private const string ReturnUri = "https://MyDirectorySearcherApp";
 
         public MainPage()
@@ -66,7 +69,7 @@ namespace UAPTestApp
             }
             catch (Exception exc)
             {
-                this.AccessToken.Text = exc.Message;
+                await ShowError(exc);
             }
         }
 
@@ -85,7 +88,7 @@ namespace UAPTestApp
             }
             catch (Exception exc)
             {
-                this.AccessToken.Text = exc.Message;
+                await ShowError(exc);
             }
         }
 
@@ -103,13 +106,8 @@ namespace UAPTestApp
             }
             catch (Exception exc)
             {
-                this.AccessToken.Text = exc.Message;
+                await ShowError(exc);
             }
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            this.AccessToken.Text = string.Empty;
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -131,7 +129,7 @@ namespace UAPTestApp
                 AuthenticationResult result = await ctx.AcquireTokenAsync(
                     "https://graph.windows.net",
                     ClientId,
-                    new UserCredential());
+                    new UserCredential()); // can add a
 
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
                     () =>
@@ -141,7 +139,7 @@ namespace UAPTestApp
             }
             catch (Exception exc)
             {
-                this.AccessToken.Text = exc.Message;
+                await ShowError(exc);
             }
         }
 
@@ -161,8 +159,45 @@ namespace UAPTestApp
             }
             catch (Exception exc)
             {
-                this.AccessToken.Text = "Auth failed: " + exc.Message;
+                await ShowError(exc);
             }
+        }
+
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
+        private async void AcquireTokenIWA_Click(object sender, RoutedEventArgs e) // make sure to use a client id that is configured, such as the one from the .net sample
+        {
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
+            this.AccessToken.Text = string.Empty;
+            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common");
+            try
+            {
+                AuthenticationResult authResult = await context.AcquireTokenAsync(
+                    "https://graph.microsoft.com",
+                    ClientId, new UserCredential())
+                        .ConfigureAwait(false);
+
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
+                       () =>
+                       {
+                           AccessToken.Text = "Acquire Token Silent:\nSigned in User - " + authResult.UserInfo.DisplayableId + "\nAccessToken: \n" + authResult.AccessToken;
+                       });
+            }
+            catch (Exception exc)
+            {
+                await ShowError(exc);
+            }
+        }
+
+        private async System.Threading.Tasks.Task ShowError(Exception exc)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
+                  () =>
+                  {
+                      this.AccessToken.Text = "Auth failed: " + exc.Message;
+                  });
         }
     }
 }

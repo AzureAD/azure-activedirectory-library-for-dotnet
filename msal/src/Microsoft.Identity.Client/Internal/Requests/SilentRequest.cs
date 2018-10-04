@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.OAuth2;
@@ -39,12 +40,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
         public SilentRequest(AuthenticationRequestParameters authenticationRequestParameters, bool forceRefresh)
             : base(authenticationRequestParameters)
         {
-            if (authenticationRequestParameters.Account == null)
-            {
-                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, "Null user was passed in AcquiretokenSilent API. Pass in " +
-                                                                                         "a user object or call acquireToken authenticate.");
-            }
-
             ForceRefresh = forceRefresh;
         }
 
@@ -54,7 +49,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             client.AddBodyParameter(OAuth2Parameter.RefreshToken, _msalRefreshTokenItem.Secret);
         }
 
-        internal override async Task PreTokenRequestAsync()
+        internal override async Task PreTokenRequestAsync(CancellationToken cancellationToken)
         {
             if (!LoadFromCache)
             {
@@ -78,7 +73,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             await CompletedTask.ConfigureAwait(false);
         }
 
-        protected override async Task SendTokenRequestAsync()
+        protected override async Task SendTokenRequestAsync(CancellationToken cancellationToken)
         {
             if (MsalAccessTokenItem == null)
             {
@@ -87,9 +82,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
                 if (_msalRefreshTokenItem == null)
                 {
-                    const string msg = "No Refresh Token was found in the cache";
-                    AuthenticationRequestParameters.RequestContext.Logger.Verbose(msg);
-                    AuthenticationRequestParameters.RequestContext.Logger.VerbosePii(msg);
+                    AuthenticationRequestParameters.RequestContext.Logger.Verbose("No Refresh Token was found in the cache");
 
                     throw new MsalUiRequiredException(MsalUiRequiredException.NoTokensFoundError,
                         "No Refresh Token found in the cache");
@@ -97,14 +90,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
                 AuthenticationRequestParameters.RequestContext.Logger.Verbose("Refreshing access token...");
                 await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
-                await base.SendTokenRequestAsync().ConfigureAwait(false);
+                await base.SendTokenRequestAsync(cancellationToken).ConfigureAwait(false);
 
                 if (Response.RefreshToken == null)
                 {
                     Response.RefreshToken = _msalRefreshTokenItem.Secret;
-                    const string msg = "Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead";
-                    AuthenticationRequestParameters.RequestContext.Logger.Info(msg);
-                    AuthenticationRequestParameters.RequestContext.Logger.InfoPii(msg);
+                    AuthenticationRequestParameters.RequestContext.Logger.Info("Refresh token was missing from the token refresh response, so the refresh token in the request is returned instead");
                 }
             }
         }

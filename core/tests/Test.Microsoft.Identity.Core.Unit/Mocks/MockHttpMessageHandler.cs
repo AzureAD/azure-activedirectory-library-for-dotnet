@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Microsoft.Identity.Core.Unit.Mocks
@@ -46,6 +47,8 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
         public IDictionary<string, string> QueryParams { get; set; }
 
         public IDictionary<string, string> PostData { get; set; }
+
+        public IDictionary<string, object> PostDataObject { get; set; }
 
         public IDictionary<string, string> Headers { get; set; }
 
@@ -107,7 +110,14 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 foreach (var key in PostData.Keys)
                 {
                     Assert.IsTrue(requestPostDataPairs.ContainsKey(key));
-                    Assert.AreEqual(PostData[key], requestPostDataPairs[key]);
+                    if (key.Equals(OAuth2Parameter.Scope, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        CoreAssert.AreScopesEqual(PostData[key], requestPostDataPairs[key]);
+                    }
+                    else
+                    {
+                        Assert.AreEqual(PostData[key], requestPostDataPairs[key]);
+                    }
                 }
             }
 

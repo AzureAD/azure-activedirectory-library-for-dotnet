@@ -34,6 +34,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Telemetry;
+using System.Threading;
 
 namespace Microsoft.Identity.Client
 {
@@ -50,9 +51,7 @@ namespace Microsoft.Identity.Client
     /// <item><description>Contrary to <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets, 
     /// and as a result have no client secret</description></item>
     /// <item><description>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructor</description></item>
-    /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods. Actually
-    /// until MSAL.NET supports Windows integrated authentication, Username/Password, and Device Code Flow, the .NET Core platform does not
-    /// provide any public client application flows</description></item>
+    /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods</description></item>
     /// </list>
     /// </remarks>
     public sealed partial class PublicClientApplication : ClientApplicationBase, IPublicClientApplication
@@ -125,7 +124,7 @@ namespace Microsoft.Identity.Client
 
 #if WINDOWS_APP
         /// <summary>
-        /// Flag to enable authentication with the user currently logeed-in in Windows.
+        /// Flag to enable authentication with the user currently logged-in in Windows.
         /// When set to true, the application will try to connect to the corporate network using windows integrated authentication.
         /// </summary>
         public bool UseCorporateNetwork { get; set; }
@@ -418,6 +417,8 @@ namespace Microsoft.Identity.Client
                         behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
         }
 
+      
+     
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
         {
             //create instance of UIParent and assign useCorporateNetwork to UIParent 
@@ -455,7 +456,7 @@ namespace Microsoft.Identity.Client
                 new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         private async Task<AuthenticationResult> AcquireTokenForUserCommonAsync(Authority authority, IEnumerable<string> scopes,
@@ -475,7 +476,7 @@ namespace Microsoft.Identity.Client
                 new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         internal override AuthenticationRequestParameters CreateRequestParameters(Authority authority,
@@ -485,7 +486,9 @@ namespace Microsoft.Identity.Client
             return parameters;
         }
 
-// endif for !NET_CORE
+        // endif for !NET_CORE
 #endif
+
+
     }
 }

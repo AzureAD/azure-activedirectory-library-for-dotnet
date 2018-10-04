@@ -27,6 +27,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
@@ -49,11 +50,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestInitialize]
         public void TestInitialize()
         {
+            RequestTestsCommon.InitializeRequestTests();
             cache = new TokenCache();
-            Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
         }
+
+   
 
         [TestCleanup]
         public void TestCleanup()
@@ -80,22 +81,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId,
                 Scope = TestConstants.Scope,
                 TokenCache = cache,
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
-
-            parameters.Account = null;
-            try
-            {
-                new SilentRequest(parameters, false);
-                Assert.Fail("MsalUiRequiredException should have been thrown here");
-            }
-            catch (MsalUiRequiredException exc)
-            {
-                Assert.AreEqual(exc.ErrorCode, MsalUiRequiredException.UserNullError);
-            }
-
-            parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
-
+            
             SilentRequest request = new SilentRequest(parameters, false);
             Assert.IsNotNull(request);
 
@@ -129,12 +118,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             };
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -143,7 +127,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             });
 
             SilentRequest request = new SilentRequest(parameters, false);
-            Task<AuthenticationResult> task = request.RunAsync();
+            Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
             AuthenticationResult result = task.Result;
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -160,12 +144,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             cache = null;
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
             AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
@@ -180,7 +159,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             try
             {
                 SilentRequest request = new SilentRequest(parameters, false);
-                Task<AuthenticationResult> task = request.RunAsync();
+                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                 var authenticationResult = task.Result;
                 Assert.Fail("MsalUiRequiredException should be thrown here");
             }
@@ -202,14 +181,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = TestConstants.ClientId
             };
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
-            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+              AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
                 Authority = authority,
                 ClientId = TestConstants.ClientId,
@@ -222,7 +196,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             try
             {
                 SilentRequest request = new SilentRequest(parameters, false);
-                Task<AuthenticationResult> task = request.RunAsync();
+                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                 var authenticationResult = task.Result;
                 Assert.Fail("MsalUiRequiredException should be thrown here");
             }

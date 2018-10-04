@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,6 +21,9 @@ namespace WinFormsAutomationApp
         }
 
         private Command _commandToRun = null;
+
+        //This is the location of the automation app during UI Testing on the test agents
+        private const string AuthResultFile = "C:\\UITest\\AuthResult.txt";
 
         public MainForm()
         {
@@ -99,6 +103,14 @@ namespace WinFormsAutomationApp
         {
             _commandToRun = AuthenticationHelper.AcquireDeviceCodeAsync;
             pageControl1.SelectedTab = dataInputPage;
-        }        
+        }
+
+        private void writeToFile_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(AuthResultFile))
+                File.Delete(AuthResultFile);
+
+            File.WriteAllText(AuthResultFile, resultInfo.Text);
+        }
     }
 }

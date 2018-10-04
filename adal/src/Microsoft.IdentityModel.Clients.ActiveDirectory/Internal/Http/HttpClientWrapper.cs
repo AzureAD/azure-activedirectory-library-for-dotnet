@@ -35,6 +35,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
@@ -141,7 +142,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         string.Format(CultureInfo.CurrentCulture,
                             "Response status code does not indicate success: {0} ({1}).",
                             (int) webResponse.StatusCode, webResponse.StatusCode),
-                        new AdalException(webResponse.ResponseString)));
+                        new AdalException(webResponse.Body)));
                 }
 
                 if (addCorrelationId)
@@ -171,18 +172,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     Guid correlationIdInResponse;
                     if (!Guid.TryParse(correlationIdHeader, out correlationIdInResponse))
                     {
-                        var msg = string.Format(CultureInfo.CurrentCulture,
-                            "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader);
-                        RequestContext.Logger.Warning(msg);
-                        RequestContext.Logger.WarningPii(msg);
+                        RequestContext.Logger.Warning(string.Format(CultureInfo.CurrentCulture,
+                            "Returned correlation id '{0}' is not in GUID format.", correlationIdHeader));
                     }
                     else if (correlationIdInResponse != this.RequestContext.Logger.CorrelationId)
                     {
-                        var msg = string.Format(CultureInfo.CurrentCulture,
+                        RequestContext.Logger.Warning(string.Format(CultureInfo.CurrentCulture,
                             "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                            correlationIdHeader, RequestContext.Logger.CorrelationId);
-                        RequestContext.Logger.Warning(msg);
-                        RequestContext.Logger.WarningPii(msg);
+                            correlationIdHeader, RequestContext.Logger.CorrelationId));
                     }
 
                     break;

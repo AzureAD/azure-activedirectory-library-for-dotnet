@@ -25,12 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
@@ -39,12 +33,20 @@ using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using Microsoft.Identity.Core.Telemetry;
-using Test.MSAL.NET.Unit.Mocks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security;
+using System.Threading.Tasks;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Test.MSAL.NET.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
 {
@@ -57,6 +59,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             HttpClientFactory.ReturnHttpClientForMocks = true;
@@ -460,9 +464,9 @@ namespace Test.MSAL.NET.Unit
             }
             catch (AggregateException ex)
             {
-                MsalServiceException exc = (MsalServiceException)ex.InnerException;
+                MsalClientException exc = (MsalClientException)ex.InnerException;
                 Assert.IsNotNull(exc);
-                Assert.AreEqual("user_mismatch", exc.ErrorCode);
+                Assert.AreEqual(MsalError.UserMismatch, exc.ErrorCode);
             }
             Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
                 anEvent[EventBase.EventNameKey].EndsWith("api_event") && anEvent[ApiEvent.ApiIdKey] == "174"
@@ -805,7 +809,7 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.ClientId,
                 TestConstants.ScopeForAnotherResourceStr).ToString());
 
-            Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), 
+            Task<AuthenticationResult> task = app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(),
                 new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null));
             AuthenticationResult result = task.Result;
             Assert.IsNotNull(result);
@@ -1141,6 +1145,56 @@ namespace Test.MSAL.NET.Unit
             }
 
             Assert.Fail("Should not reach here. Exception was not thrown.");
+        }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithNullIdPassed_CommonAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(new Account(null, TestConstants.Name, TestConstants.ProductionPrefNetworkEnvironment));
+            Assert.AreEqual(ClientApplicationBase.DefaultAuthority, authoriy.CanonicalAuthority);
+        }
+
+        [TestMethod]
+        [Description("ClientApplicationBase.GetAuthoriy tests")]
+        public void GetAuthority_AccountWithIdPassed_TenantedAuthorityUsed()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
+
+            var authoriy = app.GetAuthority(
+                new Account(
+                    new AccountId("objectId." + TestConstants.Utid, "objectId", TestConstants.Utid),
+                    TestConstants.Name,
+                    TestConstants.ProductionPrefNetworkEnvironment));
+
+            Assert.AreEqual(TestConstants.AuthorityTestTenant, authoriy.CanonicalAuthority);
+        }
+
+        [TestCategory("PublicClientApplicationTests")]
+        public async Task AcquireTokenSilentNullAccountErrorTest()
+        {
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
+            {
+                ValidateAuthority = false
+            };
+
+            cache = new TokenCache()
+            {
+                ClientId = TestConstants.ClientId
+            };
+
+            app.UserTokenCache = cache;
+            try
+            {
+                AuthenticationResult result = await app.AcquireTokenSilentAsync(TestConstants.Scope.ToArray(), null).ConfigureAwait(false);
+            }
+            catch (MsalUiRequiredException exc)
+            {
+                Assert.IsTrue(exc is MsalUiRequiredException);
+                Assert.AreEqual("user_null", MsalUiRequiredException.UserNullError);
+            }
         }
     }
 }

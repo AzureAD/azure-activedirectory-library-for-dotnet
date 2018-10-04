@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core
             "Loading an assembly required for the platform failed. Make sure assembly for the correct platform '{0}' exists";
 
         public const string AuthenticationUiFailed = "The browser based authentication dialog failed to complete";
-        
+
         public const string DeprecatedAuthorityError = "login.windows.net has been deprecated. Use login.microsoftonline.com instead.";
 
         public const string CertificateKeySizeTooSmallTemplate =
@@ -54,7 +54,6 @@ namespace Microsoft.Identity.Core
         public const string EncodedTokenTooLong = "Encoded token size is beyond the upper limit";
         public const string FailedToAcquireTokenSilently = "Failed to acquire token silently. Call method AcquireToken";
         public const string FailedToRefreshToken = "Failed to refresh token";
-        public const string FederatedServiceReturnedErrorTemplate = "Federated service at {0} returned error: {1}";
         public const string IdentityProtocolLoginUrlNull = "The LoginUrl property in identityProvider cannot be null";
         public const string IdentityProtocolMismatch = "No identity provider matches the requested protocol";
 
@@ -98,7 +97,7 @@ namespace Microsoft.Identity.Core
         public const string UnexpectedAuthorityValidList = "Unexpected list of valid addresses";
 
         public const string UnknownUser = "Could not identify logged in user";
-        public const string UnsupportedUserType = "Unsupported User Type";
+        public const string UnsupportedUserType = "Unsupported User Type '{0}'. Please see https://aka.ms/msal-net-up";
 
         public const string UnsupportedMultiRefreshToken =
             "This authority does not support refresh token for multiple resources. Pass null as a resource";
@@ -131,6 +130,10 @@ namespace Microsoft.Identity.Core
 
         public const string DuplicateQueryParameterTemplate = "Duplicate query parameter '{0}' in extraQueryParameters";
         public const string DeviceCertificateNotFoundTemplate = "Device Certificate was not found for {0}";
+        public const string MsalUiRequiredMessage =
+            "Null account was passed in AcquiretokenSilent API. Pass in an account object or call acquireToken to authenticate.";
+
+        public const string UserMismatchSaveToken = "Returned user identifier does not match the sent user identifier when saving the token to the cache.";
     }
 
 }

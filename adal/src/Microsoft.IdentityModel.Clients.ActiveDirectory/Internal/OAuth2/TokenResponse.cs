@@ -35,6 +35,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
@@ -159,7 +160,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 
             StringBuilder responseStreamString = new StringBuilder();
             TokenResponse tokenResponse = null;
-            using (Stream responseStream = EncodingHelper.GenerateStreamFromString(webResponse.ResponseString))
+            using (Stream responseStream = EncodingHelper.GenerateStreamFromString(webResponse.Body))
             {
                 if (responseStream == null)
                 {
@@ -202,11 +203,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
             // the value to 0.
             if (ExtendedExpiresIn < ExpiresIn)
             {
-                string msg = string.Format(CultureInfo.InvariantCulture,
+                CoreLoggerBase.Default.Info(string.Format(CultureInfo.InvariantCulture,
                         "ExtendedExpiresIn({0}) is less than ExpiresIn({1}). Set ExpiresIn as ExtendedExpiresIn",
-                        this.ExtendedExpiresIn, this.ExpiresIn);
-                CoreLoggerBase.Default.Info(msg);
-                CoreLoggerBase.Default.InfoPii(msg);
+                        this.ExtendedExpiresIn, this.ExpiresIn));
                 ExtendedExpiresIn = ExpiresIn;
             }
 

@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Client
     /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
     /// (they only support public client flows). For details see https://aka.ms/msal-net-client-applications
     /// </summary>
-    public interface IPublicClientApplication : IClientApplicationBase
+    public partial interface IPublicClientApplication : IClientApplicationBase
     {
 
 #if !NET_CORE
@@ -168,6 +168,7 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> extraScopesToConsent,
             string authority);
 
+        // endif !ANDROID
 #endif
 
         /// <summary>
@@ -284,6 +285,8 @@ namespace Microsoft.Identity.Client
             string extraQueryParameters,
             IEnumerable<string> extraScopesToConsent,
             string authority, UIParent parent);
+        // endif !NOT_CORE
 #endif
+
     }
 }

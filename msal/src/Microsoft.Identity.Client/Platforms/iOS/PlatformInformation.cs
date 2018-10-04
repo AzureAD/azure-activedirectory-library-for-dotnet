@@ -42,26 +42,6 @@ namespace Microsoft.Identity.Client
             return "MSAL.Xamarin.iOS";
         }
 
-        public override string GetEnvironmentVariable(string variable)
-        {
-            return null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return UIDevice.CurrentDevice.SystemVersion;
-        }
-
-        public override string GetDeviceModel()
-        {
-            return UIDevice.CurrentDevice.Model;
-        }
-
         public override string GetAssemblyFileVersionAttribute()
         {
             return typeof (MsalIdHelper).GetTypeInfo().Assembly.GetName().Version.ToString();
@@ -71,9 +51,11 @@ namespace Microsoft.Identity.Client
         {
             base.ValidateRedirectUri(redirectUri, requestContext);
 
-            if (PlatformInformationBase.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+            if (DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+            {
                 throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + PlatformInformationBase.DefaultRedirectUri +
                                         " can not be used on iOS platform");
+            }
         }
 
         public override string GetDefaultRedirectUri(string clientId)

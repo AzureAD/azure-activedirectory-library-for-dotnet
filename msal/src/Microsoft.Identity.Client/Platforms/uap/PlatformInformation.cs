@@ -27,18 +27,12 @@
 
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Windows.Networking;
-using Windows.Networking.Connectivity;
 using Windows.Security.Authentication.Web;
-using Windows.Storage;
-using Windows.System.UserProfile;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using System.Collections.Generic;
 using Windows.System;
-using Microsoft.Identity.Core.Platforms;
 
 namespace Microsoft.Identity.Client
 {
@@ -47,41 +41,6 @@ namespace Microsoft.Identity.Client
         public override string GetProductName()
         {
             return "MSAL.UAP";
-        }
-
-        public override string GetEnvironmentVariable(string variable)
-        {
-            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-            return localSettings.Values.ContainsKey(variable) ? localSettings.Values[variable].ToString() : null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return WindowsNativeMethods.GetProcessorArchitecture();
-        }
-
-        public override string GetOperatingSystem()
-        {
-            // In WinRT, there is no way to reliably get OS version. All can be done reliably is to check 
-            // for existence of specific features which does not help in this case, so we do not emit OS in WinRT.
-            return null;
-        }
-
-        public override string GetDeviceModel()
-        {
-            var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
-            return deviceInformation.SystemProductName;
-        }
-
-        public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)
-        {
-            IReadOnlyList<Windows.System.User> users = await Windows.System.User.FindAllAsync();
-            return users.Any(u => u.Type == UserType.LocalUser || u.Type == UserType.LocalGuest);
-        }
-
-        public override bool IsDomainJoined()
-        {
-            return NetworkInformation.GetHostNames().Any(entry => entry.Type == HostNameType.DomainName);
         }
 
         public override string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)

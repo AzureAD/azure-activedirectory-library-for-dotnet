@@ -48,20 +48,14 @@
       <Project>{AECE489D-9ED4-442D-8D8F-0F383AEBB781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Test.Microsoft.Identity.LabInfrastructure\Test.Microsoft.Identity.LabInfrastructure.csproj">
+      <Project>{a181778d-5917-41ce-aa5f-7daaa7b7f5bb}</Project>
+      <Name>Test.Microsoft.Identity.LabInfrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppFactory.cs" />
-    <Compile Include="Infrastructure\CertificateHelper.cs" />
-    <Compile Include="Infrastructure\FederationProvider.cs" />
-    <Compile Include="Infrastructure\ILabService.cs" />
-    <Compile Include="Infrastructure\IUser.cs" />
-    <Compile Include="Infrastructure\KeyVaultConfiguration.cs" />
-    <Compile Include="Infrastructure\KeyVaultSecretsProvider.cs" />
-    <Compile Include="Infrastructure\ITestController.cs" />
-    <Compile Include="Infrastructure\LabServiceApi.cs" />
-    <Compile Include="Infrastructure\LabUser.cs" />
-    <Compile Include="Infrastructure\UserQueryParameters.cs" />
-    <Compile Include="Infrastructure\UserType.cs" />
+    <Compile Include="ITestController.cs" />
     <Compile Include="PlatformNotSupportedException.cs" />
     <Compile Include="UiTestConstants.cs" />
     <Compile Include="XamarinUITestController.cs" />

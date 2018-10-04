@@ -58,7 +58,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
-            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
+            platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
+            this.redirectUri = redirectUri;
 
             if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
             {
@@ -91,11 +92,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             if (!String.IsNullOrEmpty(claims))
             {
                 this.LoadFromCache = false;
-
-                var msg = "Claims present. Skip cache lookup.";
-                RequestContext.Logger.Verbose(msg);
-                RequestContext.Logger.VerbosePii(msg);
-
+                RequestContext.Logger.Verbose("Claims present. Skip cache lookup.");
                 this.claims = claims;
             }
             else

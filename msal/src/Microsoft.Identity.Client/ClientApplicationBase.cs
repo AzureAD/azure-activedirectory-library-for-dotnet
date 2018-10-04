@@ -36,6 +36,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Telemetry;
+using System.Threading;
 
 namespace Microsoft.Identity.Client
 {
@@ -54,7 +55,7 @@ namespace Microsoft.Identity.Client
         /// <Summary>
         /// Default Authority used for interactive calls.
         /// </Summary>
-        protected const string DefaultAuthority = "https://login.microsoftonline.com/common/";
+        internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
         /// <summary>
         /// Constructor of the base application
@@ -92,12 +93,10 @@ namespace Microsoft.Identity.Client
 
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-            var msg = string.Format(CultureInfo.InvariantCulture,
+            requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
                 new PlatformInformation().GetProductName(), MsalIdHelper.GetMsalVersion(),
-                MsalIdHelper.GetAssemblyFileVersion(), MsalIdHelper.GetAssemblyInformationalVersion());
-            requestContext.Logger.Info(msg);
-            requestContext.Logger.InfoPii(msg);
+                MsalIdHelper.GetAssemblyFileVersion(), MsalIdHelper.GetAssemblyInformationalVersion()));
         }
 
         /// <summary>
@@ -178,9 +177,7 @@ namespace Microsoft.Identity.Client
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
             if (UserTokenCache == null)
             {
-                const string msg = "Token cache is null or empty. Returning empty list of accounts.";
-                requestContext.Logger.Info(msg);
-                requestContext.Logger.InfoPii(msg);
+                requestContext.Logger.Info("Token cache is null or empty. Returning empty list of accounts.");
                 return Enumerable.Empty<Account>();
             }
             return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
@@ -274,25 +271,38 @@ namespace Microsoft.Identity.Client
             await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
         }
 
+        internal Authority GetAuthority(IAccount account)
+        {
+            var authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            var tenantId = authority.GetTenantId();
+
+            if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId)
+                && account.HomeAccountId?.TenantId != null)
+            {
+                authority.UpdateTenantId(account.HomeAccountId.TenantId);
+            }
+
+            return authority;
+        }
+
         internal async Task<AuthenticationResult> AcquireTokenSilentCommonAsync(Authority authority,
             IEnumerable<string> scopes, IAccount account, bool forceRefresh, ApiEvent.ApiIds apiId)
         {
+            if (account == null)
+            {
+                throw new MsalUiRequiredException(MsalUiRequiredException.UserNullError, MsalErrorMessage.MsalUiRequiredMessage);
+            }
+
             if (authority == null)
             {
-                authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
-                var tenantId = authority.GetTenantId();
-
-                if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId))
-                {
-                    authority.UpdateTenantId(account.HomeAccountId.TenantId);
-                }
+                authority = GetAuthority(account);
             }
 
             var handler = new SilentRequest(
                 CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
             { ApiId = apiId };
-            return await handler.RunAsync().ConfigureAwait(false);
+            return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         internal virtual AuthenticationRequestParameters CreateRequestParameters(Authority authority,
@@ -303,7 +313,7 @@ namespace Microsoft.Identity.Client
             {
                 SliceParameters = SliceParameters,
                 Authority = authority,
-                ClientId =  ClientId,
+                ClientId = ClientId,
                 TokenCache = cache,
                 Account = account,
                 Scope = scopes.CreateSetFromEnumerable(),

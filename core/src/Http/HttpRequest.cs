@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -35,150 +36,60 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Http
 {
+    /// <summary>
+    /// Sends an HTTP request. Uses a simple retry mechanism - if the request
+    /// timed out or returned error code 500-600, then retry once. 
+    /// After retry, throw a "service not available" service exception (i.e. only for 500-600 errors).
+    /// Does not retry / throw in case of other errors (e.g. 429), just returns the http response.
+    /// </summary>
     internal class HttpRequest
     {
         private HttpRequest()
         {
         }
 
-        public static async Task<HttpResponse> SendPostAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, RequestContext requestContext)
-        {
-            return
-                await
-                    ExecuteWithRetryAsync(endpoint, headers, bodyParameters, HttpMethod.Post, requestContext)
-                        .ConfigureAwait(false);
-        }
-
-        public static async Task<HttpResponse> SendGetAsync(Uri endpoint, Dictionary<string, string> headers,
+        public static async Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            IDictionary<string, string> bodyParameters,
             RequestContext requestContext)
         {
-            return await ExecuteWithRetryAsync(endpoint, headers, null, HttpMethod.Get, requestContext).ConfigureAwait(false);
+            IHttpManager mgr = new HttpManager();
+            return await mgr.SendPostAsync(endpoint, headers, bodyParameters, requestContext).ConfigureAwait(false);
         }
 
-        private static HttpRequestMessage CreateRequestMessage(Uri endpoint, Dictionary<string, string> headers)
+        public static async Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            HttpContent body,
+            RequestContext requestContext)
         {
-            HttpRequestMessage requestMessage = new HttpRequestMessage { RequestUri = endpoint };
-            requestMessage.Headers.Accept.Clear();
-            if (headers != null)
-            {
-                foreach (KeyValuePair<string, string> kvp in headers)
-                {
-                    requestMessage.Headers.Add(kvp.Key, kvp.Value);
-                }
-            }
-
-            return requestMessage;
+            IHttpManager mgr = new HttpManager();
+            return await mgr.SendPostAsync(endpoint, headers, body, requestContext).ConfigureAwait(false);
         }
 
-        private static async Task<HttpResponse> ExecuteWithRetryAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, HttpMethod method,
-            RequestContext requestContext, bool retry = true)
+        public static async Task<HttpResponse> SendGetAsync(
+            Uri endpoint,
+            Dictionary<string, string> headers,
+            RequestContext requestContext)
         {
-            Exception toThrow = null;
-            bool isRetryable = false;
-            HttpResponse response = null;
-            try
-            {
-                response = await ExecuteAsync(endpoint, headers, bodyParameters, method).ConfigureAwait(false);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    return response;
-                }
-
-                var msg = string.Format(CultureInfo.InvariantCulture,
-                    "Response status code does not indicate success: {0} ({1}).",
-                    (int) response.StatusCode, response.StatusCode);
-                requestContext.Logger.Info(msg);
-                requestContext.Logger.InfoPii(msg);
-
-                if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
-                {
-                    isRetryable = true;
-                }
-            }
-            catch (TaskCanceledException exception)
-            {
-                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(exception);
-                requestContext.Logger.Error(noPiiMsg);
-                requestContext.Logger.ErrorPii(exception);
-                isRetryable = true;
-                toThrow = exception;
-            }
-
-            if (isRetryable)
-            {
-                if (retry)
-                {
-                    const string msg = "Retrying one more time..";
-                    requestContext.Logger.Info(msg);
-                    requestContext.Logger.InfoPii(msg);
-                    await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
-                    return await ExecuteWithRetryAsync(endpoint, headers, bodyParameters, method, requestContext, false).ConfigureAwait(false);
-                }
-
-                const string message = "Request retry failed.";
-                requestContext.Logger.Info(message);
-                requestContext.Logger.InfoPii(message);
-                if (toThrow != null)
-                {
-                    throw CoreExceptionFactory.Instance.GetServiceException(
-                        CoreErrorCodes.RequestTimeout,
-                        "Request to the endpoint timed out.",
-                        toThrow);
-                }
-
-                throw CoreExceptionFactory.Instance.GetServiceException(
-                    CoreErrorCodes.ServiceNotAvailable,
-                    "Service is unavailable to process the request",
-                    null, 
-                    new ExceptionDetail { StatusCode = (int)response.StatusCode });
-            }
-
-            return response;
+            IHttpManager mgr = new HttpManager();
+            return await mgr.SendGetAsync(endpoint, headers, requestContext).ConfigureAwait(false);
         }
 
-        private static async Task<HttpResponse> ExecuteAsync(Uri endpoint, Dictionary<string, string> headers,
-            Dictionary<string, string> bodyParameters, HttpMethod method)
+        /// <summary>
+        /// Performs the POST request just like <see cref="SendPostAsync(Uri, IDictionary{string, string}, HttpContent, RequestContext)"/>
+        /// but does not throw a ServiceUnavailable service exception. Instead, it returns the <see cref="IHttpWebResponse"/> associated
+        /// with the request.
+        /// </summary>
+        public static async Task<IHttpWebResponse> SendPostForceResponseAsync(
+            Uri uri,
+            Dictionary<string, string> headers,
+            StringContent body,
+            RequestContext requestContext)
         {
-            HttpClient client = HttpClientFactory.GetHttpClient();
-
-            using (HttpRequestMessage requestMessage = CreateRequestMessage(endpoint, headers))
-            {
-                requestMessage.Method = method;
-                if (bodyParameters != null)
-                {
-                    requestMessage.Content = new FormUrlEncodedContent(bodyParameters);
-                }
-
-                using (HttpResponseMessage responseMessage =
-                    await client.SendAsync(requestMessage).ConfigureAwait(false))
-                {
-                    HttpResponse returnValue = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
-                    returnValue.UserAgent = client.DefaultRequestHeaders.UserAgent.ToString();
-                    return returnValue;
-                }
-            }
-        }
-
-        private static async Task<HttpResponse> CreateResponseAsync(HttpResponseMessage response)
-        {
-            var headers = new Dictionary<string, string>();
-            if (response.Headers != null)
-            {
-                foreach (var kvp in response.Headers)
-                {
-                    headers[kvp.Key] = kvp.Value.First();
-                }
-            }
-
-            return new HttpResponse
-            {
-                Headers = headers,
-                Body = await response.Content.ReadAsStringAsync().ConfigureAwait(false),
-                StatusCode = response.StatusCode
-            };
+            IHttpManager mgr = new HttpManager();
+            return await mgr.SendPostForceResponseAsync(uri, headers, body, requestContext).ConfigureAwait(false);
         }
     }
 }
