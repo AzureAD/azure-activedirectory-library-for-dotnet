@@ -91,5 +91,7 @@ namespace Microsoft.Identity.Core
 
         public const string GetUserNameFailed = "Failed to get user name from the operating system.";
 
+        public const string GetTeamIdReturnedNull =
+           "TeamId returned null from iOS keychain. See https://aka.ms/msal-net-enable-keychain-access for more details on enabling keychain access.";
     }
 }

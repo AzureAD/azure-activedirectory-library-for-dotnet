@@ -129,6 +129,20 @@ namespace Microsoft.Identity.Client
         /// The library is loaded on a platform which is not supported.
         /// </summary>
         public const string PlatformNotSupported = "platform_not_supported";
+
+#if iOS
+        /// <summary>
+        /// Xamarin.iOS specific. This erorr indicates that keychain access has not be enabled for the application.
+        /// From MSAL 2.x and ADAL 4.x, the TeamId is used to access the keychain, this enables the authentication 
+        /// libraries to provide SSO between applications of the same publisher.
+        /// <para>Mitigation</para> In order to access the keychain on iOS, you will need to ensure the Entitlements.plist
+        /// file is configured and included under <CodesignEntitlements>Entitlements.plist</CodesignEntitlements> in the 
+        /// csproj file of the iOS app.
+        /// <para>For more details</para> See https://aka.ms/msal-net-enable-keychain-access
+        /// </summary>
+        public const string GetTeamIdReturnedNull = "null_TeamId";
+#endif
+
 #if ANDROID
 
         /// <summary>
