@@ -137,8 +137,33 @@ namespace Test.ADAL.NET.UIAutomation
 
         private static void VerifyResult(ITestController controller)
         {
-            //Test results are put into a label that is checked for messages
-            Assert.IsTrue(controller.GetText(UiTestConstants.TestResultID).Contains(UiTestConstants.TestResultSuccsesfulMessage));
+            //There may be a delay in the amount of time it takes for an authentication request to complete.
+            //Thus this method will check the result once a second for 10 seconds.
+            bool done = false;
+            int attempts = 0;
+            int maximumAttempts = 20;
+
+            while (!done)
+            {
+                if (attempts > maximumAttempts)
+                    done = true;
+
+                attempts++;
+
+                //Test results are put into a label that is checked for messages
+                var result = controller.GetText(TestResultID);
+                if (result.Contains(TestResultSuccsesfulMessage))
+                {
+                    return;
+                }
+                else if (result.Contains(TestResultFailureMessage))
+                {
+                    Assert.Fail();
+                    return;
+                }
+
+				Thread.Sleep(1000);
+            }
         }
     }
 }

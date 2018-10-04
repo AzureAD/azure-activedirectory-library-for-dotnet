@@ -29,6 +29,9 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
@@ -84,7 +87,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         public KeyVaultSecretsProvider()
         {
             _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+            _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
             _config.ClientId = keyVaultClientID;
             _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
@@ -110,8 +113,13 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     }
                     authResult = await authContext.AcquireTokenAsync(resource, _assertionCert);
                     break;
+                case KeyVaultAuthenticationType.ClientSecret:
+                    var data = File.ReadAllText("data.txt");
+                    ClientCredential cred = new ClientCredential(_config.ClientId, data);
+                    authResult = await authContext.AcquireTokenAsync(resource, cred);
+                    break;
                 case KeyVaultAuthenticationType.UserCredential:
-                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential());
+                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential(""));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
