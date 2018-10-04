@@ -27,6 +27,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string WebSubmitID = "idSIButton9";
         public const string TestResultID = "testResult";
         public const string TestResultSuccsesfulMessage = "Result: Success";
+        public const string TestResultFailureMessage = "Result: Failure";
 
         public const string UIAutomationAppV2 = "1e245a30-49aa-43eb-b9c1-c11b072cc92b";
         public const string DefaultScope = "User.Read";

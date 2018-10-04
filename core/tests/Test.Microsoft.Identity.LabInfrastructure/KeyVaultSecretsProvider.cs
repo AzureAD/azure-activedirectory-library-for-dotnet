@@ -87,7 +87,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         public KeyVaultSecretsProvider()
         {
             _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
+            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
             _config.ClientId = keyVaultClientID;
             _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);

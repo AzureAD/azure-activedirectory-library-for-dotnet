@@ -30,6 +30,7 @@ using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
 using Xamarin.UITest;
 using Xamarin.UITest.Queries;
+using System.Threading;
 
 namespace Test.ADAL.NET.UIAutomation
 {
@@ -151,12 +152,12 @@ namespace Test.ADAL.NET.UIAutomation
                 attempts++;
 
                 //Test results are put into a label that is checked for messages
-                var result = controller.GetText(TestResultID);
-                if (result.Contains(TestResultSuccsesfulMessage))
+                var result = controller.GetText(UiTestConstants.TestResultID);
+                if (result.Contains(UiTestConstants.TestResultSuccsesfulMessage))
                 {
                     return;
                 }
-                else if (result.Contains(TestResultFailureMessage))
+                else if (result.Contains(UiTestConstants.TestResultFailureMessage))
                 {
                     Assert.Fail();
                     return;

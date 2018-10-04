@@ -51,6 +51,10 @@
       <Project>{AECE489D-9ED4-442D-8D8F-0F383AEBB781}</Project>
       <Name>Microsoft.IdentityModel.Clients.ActiveDirectory</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.Identity.Core.csproj">
+      <Project>{3eef5981-8f11-4f54-9ddf-2f63c574d028}</Project>
+      <Name>Microsoft.Identity.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Test.Microsoft.Identity.LabInfrastructure\Test.Microsoft.Identity.LabInfrastructure.csproj">
       <Project>{a181778d-5917-41ce-aa5f-7daaa7b7f5bb}</Project>
       <Name>Test.Microsoft.Identity.LabInfrastructure</Name>

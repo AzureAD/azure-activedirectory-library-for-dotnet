@@ -57,6 +57,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
     public enum KeyVaultAuthenticationType
     {
         ClientCertificate,
+        ClientSecret,
         UserCredential
     }
 }
