@@ -41,64 +41,81 @@ namespace Microsoft.Identity.Client.Internal
                 //space is intentional for formatting of the message
                 Component = string.Format(CultureInfo.InvariantCulture, " ({0})", component);
             }
-
-            PiiLoggingEnabled = Logger.PiiLoggingEnabled;
         }
+
+        public override bool PiiLoggingEnabled => Logger.PiiLoggingEnabled;
 
         internal string Component { get; set; }
 
-        public override void InfoPii(string message)
+        public override void Info(string messageScrubbed)
         {
-            Log(LogLevel.Info, message, true);
+            Log(LogLevel.Info, string.Empty, messageScrubbed);
         }
 
-        public override void Verbose(string message)
+        public override void InfoPii(string messageWithPii, string messageScrubbed)
         {
-            Log(LogLevel.Verbose, message, false);
+            Log(LogLevel.Info, messageWithPii, messageScrubbed);
         }
 
-        public override void VerbosePii(string message)
+        public override void InfoPii(Exception exWithPii)
         {
-            Log(LogLevel.Verbose, message, true);
+            Log(LogLevel.Info, exWithPii.ToString(), MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
         }
 
-        public override void ErrorPii(string message)
+        public override void InfoPiiWithPrefix(Exception exWithPii, string prefix)
         {
-            Log(LogLevel.Error, message, true);
+            Log(LogLevel.Info, prefix + exWithPii.ToString(), prefix + MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
         }
 
-        public override void Warning(string message)
+        public override void Verbose(string messageScrubbed)
         {
-            Log(LogLevel.Warning, message, false);
+            Log(LogLevel.Verbose, string.Empty, messageScrubbed);
         }
 
-        public override void WarningPii(string message)
+        public override void VerbosePii(string messageWithPii, string messageScrubbed)
         {
-            Log(LogLevel.Warning, message, true);
+            Log(LogLevel.Verbose, messageWithPii, messageScrubbed);
         }
 
-        public override void Info(string message)
+        public override void Warning(string messageScrubbed)
         {
-            Log(LogLevel.Info, message, false);
+            Log(LogLevel.Warning, string.Empty, messageScrubbed);
         }
 
-        public override void Error(Exception ex)
+        public override void WarningPii(string messageWithPii, string messageScrubbed)
         {
-            Log(LogLevel.Error,
-                MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex),
-                false);
+            Log(LogLevel.Warning, messageWithPii, messageScrubbed);
         }
 
-        public override void ErrorPii(Exception ex)
+        public override void WarningPii(Exception exWithPii)
         {
-            ErrorPii(ex.ToString());
+            Log(LogLevel.Warning, exWithPii.ToString(), MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
         }
 
-        public override void Error(string message)
+        public override void WarningPiiWithPrefix(Exception exWithPii, string prefix)
         {
-            Log(LogLevel.Error, message, false);
+            Log(LogLevel.Warning, prefix + exWithPii.ToString(), prefix + MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
         }
 
+        public override void Error(string messageScrubbed)
+        {
+            Log(LogLevel.Error, string.Empty, messageScrubbed);
+        }
+
+        public override void ErrorPii(Exception exWithPii)
+        {
+            Log(LogLevel.Error, exWithPii.ToString(), MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
+        }
+
+        public override void ErrorPiiWithPrefix(Exception exWithPii, string prefix)
+        {
+            Log(LogLevel.Error, prefix + exWithPii.ToString(), prefix + MsalExceptionFactory.GetPiiScrubbedExceptionDetails(exWithPii));
+        }
+
+        public override void ErrorPii(string messageWithPii, string messageScrubbed)
+        {
+            Log(LogLevel.Error, messageWithPii, messageScrubbed);
+        }
 
         private static void ExecuteCallback(LogLevel level, string message, bool containsPii)
         {
@@ -108,9 +125,9 @@ namespace Microsoft.Identity.Client.Internal
             }
         }
 
-        private void Log(LogLevel msalLogLevel, string logMessage, bool containsPii)
+        private void Log(LogLevel msalLogLevel, string messageWithPii, string messageScrubbed)
         {
-            if ((msalLogLevel > Logger.Level) || (!Logger.PiiLoggingEnabled && containsPii))
+            if (msalLogLevel > Logger.Level)
             {
                 return;
             }
@@ -127,28 +144,23 @@ namespace Microsoft.Identity.Client.Internal
                 os = msalIdParameters[MsalIdParameter.OS];
             }
 
-            string log = string.Format(CultureInfo.InvariantCulture, "MSAL {0} {1} {2} [{3}{4}]{5} {6}",
+            bool messageWithPiiExists = !string.IsNullOrWhiteSpace(messageWithPii);
+            // If we have a message with PII, and PII logging is enabled, use the PII message, else use the scrubbed message.
+            bool isLoggingPii = messageWithPiiExists && Logger.PiiLoggingEnabled;
+            string messageToLog = isLoggingPii ? messageWithPii : messageScrubbed;
+
+            string log = string.Format(CultureInfo.InvariantCulture, "{0} MSAL {1} {2} {3} [{4}{5}]{6} {7}",
+                isLoggingPii ? "(True)" : "(False)",
                 MsalIdHelper.GetMsalVersion(),
                 msalIdParameters[MsalIdParameter.Product],
-                os, DateTime.UtcNow, correlationId, Component, logMessage);
-
-            if (Logger.PiiLoggingEnabled && containsPii)
-            {
-                const string piiLogMsg = "(True) ";
-                log = piiLogMsg + log;
-            }
-            else
-            {
-                const string noPiiLogMsg = "(False) ";
-                log = noPiiLogMsg + log;
-            }
+                os, DateTime.UtcNow, correlationId, Component, messageToLog);
 
             if (Logger.DefaultLoggingEnabled)
             {
                 PlatformPlugin.LogMessage(Logger.Level, log);
             }
 
-            ExecuteCallback(msalLogLevel, log, containsPii);
+            ExecuteCallback(msalLogLevel, log, isLoggingPii);
         }
     }
 }

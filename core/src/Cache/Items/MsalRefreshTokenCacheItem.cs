@@ -25,38 +25,37 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Cache;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Identity.Core.OAuth2;
+using System.Runtime.Serialization;
 
-namespace Test.Microsoft.Identity.Core.Unit.CacheTests
+namespace Microsoft.Identity.Core.Cache
 {
-    [TestClass]
-    public class MsalRefreshTokenCacheKeyTests
+    [DataContract]
+    internal class MsalRefreshTokenCacheItem : MsalCredentialCacheItemBase
     {
-        [TestMethod]
-        [TestCategory("RefreshTokenCacheKeyTests")]
-        public void ConstructorTest()
+        internal MsalRefreshTokenCacheItem()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
-                TestConstants.ClientId, TestConstants.UserIdentifier);
-
-            Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
-            Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
+            CredentialType = MsalCacheCommon.RefreshToken;
+        }
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string userId=null) : 
+            this(environment, clientId, response.RefreshToken, response.ClientInfo, userId)
+        {
         }
 
-        [TestMethod]
-        [TestCategory("RefreshTokenCacheKeyTests")]
-        public void ToStringTest()
+        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo, string userId=null) : this()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
-                TestConstants.ClientId, TestConstants.UserIdentifier);
+            ClientId = clientId;
+            Environment = environment;
+            Secret = secret;
+            RawClientInfo = rawClientInfo;
 
-            Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
-            Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
+            HomeAccountId = userId;
+            InitUserIdentifier();
+        }
+
+        internal MsalRefreshTokenCacheKey GetKey()
+        {
+            return new MsalRefreshTokenCacheKey(Environment, ClientId, HomeAccountId);
         }
     }
 }

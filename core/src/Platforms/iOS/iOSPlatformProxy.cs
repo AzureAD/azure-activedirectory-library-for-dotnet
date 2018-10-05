@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,15 +25,52 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using UIKit;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core
 {
-    internal class MsalAccessTokenCacheKey : MsalCredentialCacheKey
+    /// <summary>
+    /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here. 
+    /// </summary>
+    internal class iOSPlatformProxy : IPlatformProxy
     {
-        internal MsalAccessTokenCacheKey(string environment, string tenantId, string userIdentifier, string clientId, string scopes)
-            : base(environment, tenantId, userIdentifier, CredentialType.accesstoken, clientId, scopes)
+        /// <summary>
+        /// Get the user logged 
+        /// </summary>
+        public async Task<string> GetUserPrincipalNameAsync()
         {
+            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
+        }
+
+        public async Task<bool> IsUserLocalAsync(RequestContext requestContext)
+        {
+            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
+        }
+
+        public bool IsDomainJoined()
+        {
+            return false;
+        }
+
+        public string GetEnvironmentVariable(string variable)
+        {
+            return null;
+        }
+
+        public string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public string GetOperatingSystem()
+        {
+            return UIDevice.CurrentDevice.SystemVersion;
+        }
+
+        public string GetDeviceModel()
+        {
+            return UIDevice.CurrentDevice.Model;
         }
     }
 }

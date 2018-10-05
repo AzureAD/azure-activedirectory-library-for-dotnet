@@ -39,11 +39,13 @@ namespace Microsoft.Identity.Core.WsTrust
     {
         private readonly RequestContext requestContext;
         private readonly IUsernameInput usernameInput;
+        private readonly IPlatformProxy platformProxy;
 
         public CommonNonInteractiveHandler(RequestContext requestContext, IUsernameInput usernameInput)
         {
             this.requestContext = requestContext;
             this.usernameInput = usernameInput;
+            this.platformProxy = PlatformProxyFactory.GetPlatformProxy();
         }
 
         /// <summary>
@@ -52,13 +54,10 @@ namespace Microsoft.Identity.Core.WsTrust
         public async Task<string> GetPlatformUserAsync()
         {
             var logger = this.requestContext.Logger;
-            string platformUsername = await CorePlatformInformationBase.Instance.GetUserPrincipalNameAsync().ConfigureAwait(false);
-            string msg;
+            string platformUsername = await this.platformProxy.GetUserPrincipalNameAsync().ConfigureAwait(false);            
             if (string.IsNullOrWhiteSpace(platformUsername))
             {
-                msg = "Could not find UPN for logged in user.";
-                logger.Error(msg);
-                logger.ErrorPii(msg);
+                logger.Error("Could not find UPN for logged in user.");
 
                 throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.UnknownUser,
@@ -66,12 +65,7 @@ namespace Microsoft.Identity.Core.WsTrust
 
             }
 
-            msg = "Logged in user detected";
-            logger.Info(msg);
-
-            var piiMsg = msg + string.Format(CultureInfo.CurrentCulture, " with user name '{0}'",
-                             platformUsername);
-            logger.InfoPii(piiMsg);
+            logger.InfoPii($"Logged in user detected with user name '{platformUsername}'", "Logged in user detected");
 
             return platformUsername;
         }
@@ -106,9 +100,13 @@ namespace Microsoft.Identity.Core.WsTrust
                     CoreErrorMessages.UserRealmDiscoveryFailed);
             }
 
-            logger.InfoPii(string.Format(CultureInfo.CurrentCulture,
-                " User with user name '{0}' detected as '{1}'", usernameInput.UserName,
-                userRealmResponse.AccountType));
+            logger.InfoPii(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    " User with user name '{0}' detected as '{1}'", 
+                    usernameInput.UserName,
+                    userRealmResponse.AccountType),
+                string.Empty);
 
             return userRealmResponse;
         }
@@ -149,10 +147,8 @@ namespace Microsoft.Identity.Core.WsTrust
                     CoreErrorMessages.ParsingWsTrustResponseFailed);
             }
 
-            var msg = string.Format(CultureInfo.CurrentCulture,
-                " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType);
-            this.requestContext.Logger.Info(msg);
-            this.requestContext.Logger.InfoPii(msg);
+            this.requestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
+                " Token of type '{0}' acquired from WS-Trust endpoint", wsTrustResponse.TokenType));
 
             return wsTrustResponse;
         }
@@ -191,10 +187,10 @@ namespace Microsoft.Identity.Core.WsTrust
                     ex);
             }
 
-            this.requestContext.Logger.Info("Fetched and parsed MEX");
             this.requestContext.Logger.InfoPii(
                 string.Format(CultureInfo.CurrentCulture, " WS-Trust endpoint '{0}' fetched from MEX at '{1}'",
-                    wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl));
+                    wsTrustAddress.Uri, userRealmResponse.FederationMetadataUrl),
+                "Fetched and parsed MEX");
 
             return wsTrustAddress;
         }

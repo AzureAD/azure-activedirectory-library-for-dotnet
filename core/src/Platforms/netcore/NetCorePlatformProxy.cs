@@ -25,13 +25,52 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache
+using System.Threading.Tasks;
+
+namespace Microsoft.Identity.Core
 {
-    class MsalIdTokenCacheKey : MsalCredentialCacheKey
+    /// <summary>
+    /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here. 
+    /// </summary>
+    internal class NetCorePlatformProxy : IPlatformProxy
     {
-        internal MsalIdTokenCacheKey(string environment, string tenantId, string userIdentifier, string clientId)
-            : base(environment, tenantId, userIdentifier, CredentialType.idtoken, clientId, null)
+        /// <summary>
+        /// Get the user logged in 
+        /// </summary>
+        public async Task<string> GetUserPrincipalNameAsync()
         {
+            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
+
+        }
+        public async Task<bool> IsUserLocalAsync(RequestContext requestContext)
+        {
+            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
+        }
+
+        public bool IsDomainJoined()
+        {
+            return false;
+        }
+
+        public string GetEnvironmentVariable(string variable)
+        {
+            string value = System.Environment.GetEnvironmentVariable(variable);
+            return !string.IsNullOrWhiteSpace(value) ? value : null;
+        }
+
+        public string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public string GetOperatingSystem()
+        {
+            return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+        }
+
+        public string GetDeviceModel()
+        {
+            return null;
         }
     }
 }

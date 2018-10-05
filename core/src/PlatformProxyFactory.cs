@@ -25,12 +25,42 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache
+using System;
+
+namespace Microsoft.Identity.Core
 {
-    internal enum CredentialType
+    /// <summary>
+    /// Returns the platform / os specific implementation of a PlatformProxy. 
+    /// </summary>
+    internal class PlatformProxyFactory
     {
-        idtoken,
-        accesstoken,
-        refreshtoken
+        private PlatformProxyFactory() { }
+
+        // thread safety ensured by implicit LazyThreadSafetyMode.ExecutionAndPublication
+        private static readonly Lazy<IPlatformProxy> _platformProxyLazy = new Lazy<IPlatformProxy>(() =>
+#if NET_CORE
+            new NetCorePlatformProxy()
+#elif ANDROID
+            new AndroidPlatformProxy()
+#elif iOS
+            new iOSPlatformProxy()
+#elif WINDOWS_APP
+            new UapPlatformProxy()
+#elif FACADE
+            new NetStandard11PlatformProxy()
+#elif NETSTANDARD1_3
+            new Netstandard13PlatformProxy()
+#elif DESKTOP
+            new NetDesktopPlatformProxy()
+#endif
+        );
+
+        /// <summary>
+        /// Gets the platform proxy, which can be used to perform platform specific operations
+        /// </summary>
+        public static IPlatformProxy GetPlatformProxy()
+        {
+            return _platformProxyLazy.Value;
+        }
     }
 }

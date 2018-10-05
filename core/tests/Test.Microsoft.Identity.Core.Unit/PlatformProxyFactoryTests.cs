@@ -25,37 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.OAuth2;
-using System.Runtime.Serialization;
+using Microsoft.Identity.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Test.Microsoft.Identity.Core.Unit
 {
-    [DataContract]
-    internal class MsalRefreshTokenCacheItem : MsalCredentialCacheItemBase
+    [TestClass]
+    public class PlatformProxyFactoryTests
     {
-        internal MsalRefreshTokenCacheItem()
+        [TestMethod]
+        public void PlatformProxyFactoryCachesTheProxy()
         {
-            CredentialType = Cache.CredentialType.refreshtoken.ToString();
-        }
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string userId=null) : 
-            this(environment, clientId, response.RefreshToken, response.ClientInfo, userId)
-        {
-        }
+            // Act 
+            var proxy1 = PlatformProxyFactory.GetPlatformProxy();
+            var proxy2 = PlatformProxyFactory.GetPlatformProxy();
 
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo, string userId=null) : this()
-        {
-            ClientId = clientId;
-            Environment = environment;
-            Secret = secret;
-            RawClientInfo = rawClientInfo;
-
-            HomeAccountId = userId;
-            InitUserIdentifier();
-        }
-
-        internal MsalRefreshTokenCacheKey GetKey()
-        {
-            return new MsalRefreshTokenCacheKey(Environment, ClientId, HomeAccountId);
+            // Assert
+            Assert.IsTrue(proxy1 == proxy2);
         }
     }
 }

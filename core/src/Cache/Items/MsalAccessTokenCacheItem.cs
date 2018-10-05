@@ -39,7 +39,7 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalAccessTokenCacheItem()
         {
-            CredentialType = Cache.CredentialType.accesstoken.ToString();
+            CredentialType = MsalCacheCommon.AccessToken;
         }
 
         internal MsalAccessTokenCacheItem
@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Core.Cache
             Environment = environment;
             ClientId = clientId;
             TokenType = tokenType;
-            Scopes = scopes;        
+            NormalizedScopes = scopes;        
             TenantId = tenantId;
             Secret = secret;
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
@@ -71,8 +71,12 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "realm")]
         internal string TenantId { get; set; }
 
+        /// <summary>
+        /// String comprised of scopes that have been lowercased and ordered. 
+        /// </summary>
+        /// <remarks>Normalization is important when creating unique keys.</remarks>
         [DataMember(Name = "target", IsRequired = true)]
-        internal string Scopes { get; set; }
+        internal string NormalizedScopes { get; set; }
 
         [DataMember(Name = "cached_at", IsRequired = true)]
         internal long CachedAt { get; set; }
@@ -98,7 +102,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             get
             {
-                return Scopes.AsLowerCaseSortedSet();
+                return NormalizedScopes.AsLowerCaseSortedSet();
             }
         }
         internal DateTimeOffset ExpiresOn
@@ -112,7 +116,7 @@ namespace Microsoft.Identity.Core.Cache
 
         internal MsalAccessTokenCacheKey GetKey()
         {
-            return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, Scopes);
+            return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, NormalizedScopes);
         }
         internal MsalIdTokenCacheKey GetIdTokenItemKey()
         {

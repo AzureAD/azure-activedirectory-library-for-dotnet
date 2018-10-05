@@ -26,16 +26,17 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 
 namespace Test.Microsoft.Identity.Core.Unit
 {
     internal class TestLogger : CoreLoggerBase
     {
+        public TestLogger()
+            : this(Guid.Empty)
+        {
+        }
+
         public TestLogger(Guid correlationId) : base(correlationId)
         {
             Default = this;
@@ -46,11 +47,14 @@ namespace Test.Microsoft.Identity.Core.Unit
             Default = this;
         }
 
-        public override void Error(string message)
+        private bool _isPiiLoggingEnabled;
+        public override bool PiiLoggingEnabled => _isPiiLoggingEnabled;
+        public void SetPiiLoggingEnabled(bool isEnabled)
         {
+            _isPiiLoggingEnabled = isEnabled;
         }
 
-        public override void ErrorPii(string message)
+        public override void Error(string message)
         {
         }
 
@@ -58,7 +62,11 @@ namespace Test.Microsoft.Identity.Core.Unit
         {
         }
 
-        public override void WarningPii(string message)
+        public override void WarningPii(string messageWithPii, string messageScrubbed)
+        {
+        }
+
+        public override void WarningPii(Exception ex)
         {
         }
 
@@ -66,7 +74,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         {
         }
 
-        public override void InfoPii(string message)
+        public override void InfoPii(string messageWithPii, string messageScrubbed)
         {
         }
 
@@ -74,15 +82,31 @@ namespace Test.Microsoft.Identity.Core.Unit
         {
         }
 
-        public override void VerbosePii(string message)
-        {
-        }
-
-        public override void Error(Exception ex)
+        public override void VerbosePii(string messageWithPii, string messageScrubbed)
         {
         }
 
         public override void ErrorPii(Exception ex)
+        {
+        }
+
+        public override void ErrorPii(string messageWithPii, string messageScrubbed)
+        {
+        }
+
+        public override void ErrorPiiWithPrefix(Exception exWithPii, string prefix)
+        {
+        }
+
+        public override void WarningPiiWithPrefix(Exception exWithPii, string prefix)
+        {
+        }
+
+        public override void InfoPii(Exception exWithPii)
+        {
+        }
+
+        public override void InfoPiiWithPrefix(Exception exWithPii, string prefix)
         {
         }
     }

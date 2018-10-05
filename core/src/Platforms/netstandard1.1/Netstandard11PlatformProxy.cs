@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,19 +25,53 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core
 {
-    internal class MsalRefreshTokenCacheKey : MsalCredentialCacheKey
+    /// <summary>
+    /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here. 
+    /// </summary>
+    internal class NetStandard11PlatformProxy : IPlatformProxy
     {
-        internal MsalRefreshTokenCacheKey(string environment, string clientId, string userIdentifier)
-            : base(environment, null, userIdentifier, CredentialType.refreshtoken, clientId, null)
+        /// <summary>
+        /// Get the user logged in 
+        /// </summary>
+        public  async Task<string> GetUserPrincipalNameAsync()
         {
+            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
         }
+
+        public  async Task<bool> IsUserLocalAsync(RequestContext requestContext)
+        {
+            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
+        }
+
+        public  bool IsDomainJoined()
+        {
+            return false;
+        }
+
+        public  string GetEnvironmentVariable(string variable)
+        {
+            return null;
+        }
+
+        public  string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public  string GetOperatingSystem()
+        {
+            return null;
+        }
+
+        public  string GetDeviceModel()
+        {
+            return null;
+        }
+
+
     }
 }

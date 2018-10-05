@@ -25,31 +25,53 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core
 {
-    internal class MsalAccountCacheKey : MsalCacheKeyBase
+    /// <summary>
+    /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here. 
+    /// </summary>
+    internal class Netstandard13PlatformProxy : IPlatformProxy
     {
-        public MsalAccountCacheKey(string environment, string tenantId, string userIdentifier) : base(environment, userIdentifier)
+        /// <summary>
+        /// Get the user logged in
+        /// </summary>
+        public async Task<string> GetUserPrincipalNameAsync()
         {
-            TenantId = tenantId;
+            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
         }
-        internal string TenantId { get; set; }
 
-        public override string ToString()
+        public async Task<bool> IsUserLocalAsync(RequestContext requestContext)
         {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(HomeAccountId + CacheKeyDelimiter);
-            stringBuilder.Append(Environment + CacheKeyDelimiter);
-            stringBuilder.Append(TenantId);
-
-            return stringBuilder.ToString();
+            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
         }
+
+        public bool IsDomainJoined()
+        {
+            return false;
+        }
+
+        public string GetEnvironmentVariable(string variable)
+        {
+            return null;
+        }
+
+        public string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public string GetOperatingSystem()
+        {
+            return null;
+        }
+
+        public string GetDeviceModel()
+        {
+            return null;
+        }
+
+
     }
 }

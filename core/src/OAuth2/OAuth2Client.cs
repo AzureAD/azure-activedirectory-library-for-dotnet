@@ -97,7 +97,17 @@ namespace Microsoft.Identity.Core.OAuth2
                 httpEvent.UserAgent = response.UserAgent;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
+                    try
+                    {
+                        httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
+                    }
+                    catch (SerializationException) // in the rare case we get an error response we cannot deserialize
+                    {
+                        throw CoreExceptionFactory.Instance.GetServiceException(
+                            CoreErrorCodes.NonParsableOAuthError,
+                            CoreErrorMessages.NonParsableOAuthError,
+                            response);
+                    }
                 }
             }
             finally
@@ -126,6 +136,7 @@ namespace Microsoft.Identity.Core.OAuth2
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
             Exception serviceEx;
+
             try
             {
                 MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
@@ -137,33 +148,22 @@ namespace Microsoft.Identity.Core.OAuth2
                         CoreErrorCodes.InvalidGrantError,
                         msalTokenResponse.ErrorDescription,
                         null,
-                         new ExceptionDetail()
-                         {
-                             Claims = msalTokenResponse.Claims,
-                         });
+                        ExceptionDetail.FromHttpResponse(response));
                 }
 
                 serviceEx = CoreExceptionFactory.Instance.GetServiceException(
                     msalTokenResponse.Error,
                     msalTokenResponse.ErrorDescription,
-                    null,
-                    new ExceptionDetail()
-                    {
-                        ResponseBody = response.Body,
-                        StatusCode = (int)response.StatusCode,
-                        Claims = msalTokenResponse.Claims,
-                    });
+                    response);
             }
-            catch (SerializationException)
+            catch (SerializationException ex)
             {
-                serviceEx = CoreExceptionFactory.Instance.GetServiceException(
+                serviceEx = CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.UnknownError,
-                    response.Body,
-                    new ExceptionDetail() { StatusCode = (int)response.StatusCode });
+                    response.Body, 
+                    ex);
             }
 
-            string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(serviceEx);
-            requestContext.Logger.Error(noPiiMsg);
             requestContext.Logger.ErrorPii(serviceEx);
             throw serviceEx;
         }
@@ -187,10 +187,11 @@ namespace Microsoft.Identity.Core.OAuth2
                     string correlationIdHeader = headers[trimmedKey].Trim();
                     if (!string.Equals(correlationIdHeader, requestContext.Logger.CorrelationId))
                     {
-                        requestContext.Logger.Warning("Returned correlation id does not match the sent correlation id");
-                        requestContext.Logger.WarningPii(string.Format(CultureInfo.InvariantCulture,
-                            "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                            correlationIdHeader, requestContext.Logger.CorrelationId));
+                        requestContext.Logger.WarningPii(
+                            string.Format(CultureInfo.InvariantCulture,
+                               "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
+                                correlationIdHeader, requestContext.Logger.CorrelationId),
+                            "Returned correlation id does not match the sent correlation id");
                     }
 
                     break;

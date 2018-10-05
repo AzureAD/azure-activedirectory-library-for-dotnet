@@ -75,7 +75,8 @@ namespace Microsoft.Identity.Core.Instance
                 {
                     throw CoreExceptionFactory.Instance.GetServiceException(
                         CoreErrorCodes.InvalidAuthority,
-                        CoreErrorMessages.AuthorityValidationFailed);
+                        CoreErrorMessages.AuthorityValidationFailed,
+                        httpResponse);
                 }
 
                 AdfsWebFingerResponse wfr = OAuth2Client.CreateResponse<AdfsWebFingerResponse>(httpResponse, requestContext,
@@ -86,7 +87,7 @@ namespace Microsoft.Identity.Core.Instance
                             (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
                            a.Href.Equals("https://" + Host, StringComparison.OrdinalIgnoreCase))) == null)
                 {
-                    throw CoreExceptionFactory.Instance.GetServiceException(
+                    throw CoreExceptionFactory.Instance.GetClientException(
                         CoreErrorCodes.InvalidAuthority,
                         CoreErrorMessages.InvalidAuthorityOpenId);
                 }

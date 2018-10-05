@@ -27,29 +27,34 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core.Http
 {
-    internal abstract class MsalCacheKeyBase
+    internal interface IHttpManager
     {
-        public const string CacheKeyDelimiter = "-";
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            IDictionary<string, string> bodyParameters,
+            RequestContext requestContext);
 
-        internal MsalCacheKeyBase(string environment, string userIdentifier)
-        {
-            if (string.IsNullOrEmpty(environment))
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            HttpContent body,
+            RequestContext requestContext);
 
-            Environment = environment;
-            HomeAccountId = userIdentifier;
-        }
+        Task<HttpResponse> SendGetAsync(
+            Uri endpoint,
+            Dictionary<string, string> headers,
+            RequestContext requestContext);
 
-        internal string Environment { get; set; }
-
-        internal string HomeAccountId { get; set; }
+        Task<IHttpWebResponse> SendPostForceResponseAsync(
+            Uri uri,
+            Dictionary<string, string> headers,
+            StringContent body,
+            RequestContext requestContext);
     }
 }
