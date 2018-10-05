@@ -38,7 +38,7 @@ using System.IO;
 using System.Linq;
 using System;
 
-namespace MSAL.NET.Integration
+namespace Test.MSAL.NET.Integration
 {
     [TestClass]
     public class UnifiedCacheTests
