@@ -956,6 +956,38 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.AreEqual(1, B2CCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
         }
 
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CacheAdfsTokenTest()
+        {
+            TokenCache AdfsCache = new TokenCache();
+            var authority = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, false);
+
+            MsalTokenResponse response = new MsalTokenResponse();
+            //creating IDToken with empty tenantID and displayableID/PreferedUserName for B2C scenario
+            response.IdToken = MockHelpers.CreateIdToken(String.Empty, String.Empty, null);
+            response.ClientInfo = null;
+            response.AccessToken = "access-token";
+            response.ExpiresIn = 3599;
+            response.CorrelationId = "correlation-id";
+            response.RefreshToken = "refresh-token";
+            response.Scope = TestConstants.Scope.AsSingleString();
+            response.TokenType = "Bearer";
+
+            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            AuthenticationRequestParameters requestParams = new AuthenticationRequestParameters()
+            {
+                RequestContext = requestContext,
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                TenantUpdatedCanonicalAuthority = TestConstants.OnPremiseAuthority
+            };
+
+            AdfsCache.SaveAccessAndRefreshToken(requestParams, response);
+
+            Assert.AreEqual(1, AdfsCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, AdfsCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+        }
         /*
         [TestMethod]
         [TestCategory("TokenCacheTests")]

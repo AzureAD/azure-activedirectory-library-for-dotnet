@@ -390,21 +390,25 @@ namespace Microsoft.Identity.Client
                 requestParams.RequestContext.Logger.Info(msg);
                 requestParams.RequestContext.Logger.InfoPii(msg);
 
+                IEnumerable<MsalAccessTokenCacheItem> filteredItems =
+                   tokenCacheItems.Where(
+                           item => item.ScopeSet.ScopeContains(requestParams.Scope));
+
                 //Adfs does not return scopes in resource/scope format
-                SortedSet<string> scopes = requestParams.Scope;
-                if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+                if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs && filteredItems.Count()==0)
                 {
-                    scopes = new SortedSet<string>();
+                    SortedSet<string> scopes = new SortedSet<string>();
                     foreach (string scope in requestParams.Scope)
                     {
                         scopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
                     }
+
+                    filteredItems =
+                        tokenCacheItems.Where(
+                            item => item.ScopeSet.ScopeContains(scopes));
                 }
 
-                IEnumerable<MsalAccessTokenCacheItem> filteredItems =
-                    tokenCacheItems.Where(
-                            item =>
-                                item.ScopeSet.ScopeContains(scopes));
+                
 
                 msg = "Matching entry count after filtering by scopes - " + filteredItems.Count();
                 requestParams.RequestContext.Logger.Info(msg);

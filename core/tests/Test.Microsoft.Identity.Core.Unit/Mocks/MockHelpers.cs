@@ -53,6 +53,14 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             ":\"" + CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId) +
             "\",\"id_token_expires_in\":\"3600\"}";
 
+        public static readonly string DefaultAdfsTokenResponse =
+            "{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"scope\":" +
+            "\"scope1 scope2\",\"access_token\":\"some-access-token\"" +
+            ",\"refresh_token\":\"OAAsomethingencryptedQwgAA\",\"id_token\"" +
+            ":\"" + CreateAdfsIdToken(TestConstants.OnPremiseDisplayableId) +
+            "\",\"id_token_expires_in\":\"3600\"}";
+
+
         public static string CreateClientInfo()
         {
             return CreateClientInfo(TestConstants.Uid, TestConstants.Utid);
@@ -118,6 +126,11 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
         public static HttpResponseMessage CreateSuccessTokenResponseMessage()
         {
             return CreateSuccessResponseMessage(DefaultTokenResponse);
+        }
+
+        public static HttpResponseMessage CreateAdfsSuccessTokenResponseMessage()
+        {
+            return CreateSuccessResponseMessage(DefaultAdfsTokenResponse);
         }
 
         public static HttpResponseMessage CreateInvalidGrantTokenResponseMessage()
@@ -192,6 +205,22 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             return string.Format(CultureInfo.InvariantCulture, "someheader.{0}.somesignature", Base64UrlHelpers.Encode(id));
         }
 
+        public static string CreateAdfsIdToken(string upn)
+        {
+            string id = "{\"aud\": \"e854a4a7-6c34-449c-b237-fc7a28093d84\"," +
+                        "\"iss\": \"" + TestConstants.OnPremiseAuthority + "\"," +
+                        "\"iat\": 1455833828," +
+                        "\"nbf\": 1455833828," +
+                        "\"exp\": 1455837728," +
+                        "\"ipaddr\": \"131.107.159.117\"," +
+                        "\"name\": \"Marrrrrio Bossy\"," +
+                        "\"upn\": \"" + upn + "\"," +
+                        "\"sub\": \"" + TestConstants.OnPremiseUniqueId + "\"," +
+                        "\"ver\": \"2.0\"}";
+
+            return string.Format(CultureInfo.InvariantCulture, "someheader.{0}.somesignature", Base64UrlHelpers.Encode(id));
+        }
+
         public static HttpResponseMessage CreateSuccessWebFingerResponseMessage(string href)
         {
             return
@@ -235,6 +264,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 "{{\"authorization_endpoint\":\"{0}oauth2/v2.0/authorize{2}\",\"token_endpoint\":\"{0}oauth2/v2.0/token{2}\",\"issuer\":\"https://sts.windows.net/{1}\"}}",
                 authority, tenant, qp));
         }
+
 
         public static HttpMessageHandler CreateInstanceDiscoveryMockHandler(string url)
         {

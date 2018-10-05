@@ -50,6 +50,9 @@ namespace Microsoft.Identity.Core.Instance
 
         protected override bool ExistsInValidatedAuthorityCache(string userPrincipalName)
         {
+            if (userPrincipalName == null)
+                return false;
+
             return ValidatedAuthorities.ContainsKey(CanonicalAuthority) &&
                    ((AdfsAuthority) ValidatedAuthorities[CanonicalAuthority])._validForDomainsList.Contains(
                        GetDomainFromUpn(userPrincipalName));

@@ -58,7 +58,7 @@ namespace Test.MSAL.NET.Unit
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
+            //HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         
@@ -170,6 +170,12 @@ namespace Test.MSAL.NET.Unit
                 TestConstants.RedirectUri, new ClientCredential("secret"), new TokenCache(),
                 new TokenCache());
             Assert.AreEqual(TestConstants.AuthorityGuestTenant, app.Authority);
+
+            app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.OnPremiseAuthority, 
+                TestConstants.RedirectUri, new ClientCredential(TestConstants.OnPremiseClientSecret), 
+                new TokenCache(), new TokenCache());
+            Assert.IsNotNull(app);
+            Assert.AreEqual(TestConstants.OnPremiseAuthority, app.Authority);
         }
 
         [TestMethod]
@@ -212,6 +218,63 @@ namespace Test.MSAL.NET.Unit
         public void ConfidentialClientUsingSecretTest()
         {
             ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
+                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
+                new TokenCache(), new TokenCache())
+            {
+                ValidateAuthority = false
+            };
+
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+            });
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
+            });
+
+            Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+            AuthenticationResult result = task.Result;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull("header.payload.signature", result.AccessToken);
+            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+
+            //make sure user token cache is empty
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            //check app token cache count to be 1
+            Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+
+            //call AcquireTokenForClientAsync again to get result back from the cache
+            task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+            result = task.Result;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull("header.payload.signature", result.AccessToken);
+            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+
+            //make sure user token cache is empty
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            //check app token cache count to be 1
+            Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+        }
+
+        [TestMethod]
+        [TestCategory("ConfidentialClientApplicationTests")]
+        public void ConfidentialClientUsingSecretTestAndAdfs()
+        {
+            HttpMessageHandlerFactory.ClearMockHandlers();
+            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.OnPremiseAuthority,
                 TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
                 new TokenCache(), new TokenCache())
             {

@@ -156,6 +156,13 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(TestConstants.ClientId, app.ClientId);
             Assert.AreEqual("urn:ietf:wg:oauth:2.0:oob", app.RedirectUri);
             Assert.IsTrue(app.ValidateAuthority);
+
+            app = new PublicClientApplication(TestConstants.ClientId, TestConstants.OnPremiseAuthority);
+            Assert.IsNotNull(app);
+            Assert.AreEqual("https://fs.contoso.com/adfs/", app.Authority);
+            Assert.AreEqual(TestConstants.ClientId, app.ClientId);
+            Assert.AreEqual("urn:ietf:wg:oauth:2.0:oob", app.RedirectUri);
+            Assert.IsTrue(app.ValidateAuthority);
         }
 
         [TestMethod]
@@ -1196,5 +1203,72 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual("user_null", MsalUiRequiredException.UserNullError);
             }
         }
+
+        [TestMethod]
+        [TestCategory("PublicClientApplicationTests")]
+        public void AcquireTokenFromAdfs()
+        {
+            HttpMessageHandlerFactory.ClearMockHandlers();
+            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId, TestConstants.OnPremiseAuthority);
+            app.ValidateAuthority = false;
+
+
+            cache = new TokenCache()
+            {
+                ClientId = TestConstants.ClientId
+            };
+
+            app.UserTokenCache = cache;
+
+            MockWebUI ui = new MockWebUI()
+            {
+                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
+                    TestConstants.AuthorityHomeTenant + "?code=some-code")
+            };
+
+            MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                app.RedirectUri + "?code=some-code"));
+
+            //add mock response for tenant endpoint discovery
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.OnPremiseAuthority)
+            });
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateAdfsSuccessTokenResponseMessage()
+            });
+
+            AuthenticationResult result = app.AcquireTokenAsync(TestConstants.Scope).Result;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Account);
+            Assert.AreEqual(TestConstants.OnPremiseUniqueId, result.UniqueId);
+            Assert.AreEqual(new AccountId(TestConstants.OnPremiseUniqueId), result.Account.HomeAccountId);
+            Assert.AreEqual(TestConstants.OnPremiseDisplayableId, result.Account.Username);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+
+            //Find token in cache now
+
+            AuthenticationResult cachedAuth = null;
+            try
+            {
+                cachedAuth = app.AcquireTokenSilentAsync(TestConstants.Scope, result.Account).Result;
+            }
+            catch
+            {
+                Assert.Fail("Did not find access token");
+            }
+            Assert.IsNotNull(cachedAuth);
+            Assert.IsNotNull(cachedAuth.Account);
+            Assert.AreEqual(TestConstants.OnPremiseUniqueId, cachedAuth.UniqueId);
+            Assert.AreEqual(new AccountId(TestConstants.OnPremiseUniqueId), cachedAuth.Account.HomeAccountId);
+            Assert.AreEqual(TestConstants.OnPremiseDisplayableId, cachedAuth.Account.Username);
+
+        }
+
     }
 }
