@@ -45,7 +45,7 @@ using Test.MSAL.NET.Unit.Mocks;
 namespace Test.MSAL.NET.Unit
 {
     [TestClass]
-    class AuthorityAliasesTests
+    public class AuthorityAliasesTests
     {
         private MyReceiver _myReceiver = new MyReceiver();
 
@@ -69,20 +69,6 @@ namespace Test.MSAL.NET.Unit
                     TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
-        class TestLegacyCachePersistance : ILegacyCachePersistance
-        {
-            private byte[] data;
-            public byte[] LoadCache()
-            {
-                return data;
-            }
-
-            public void WriteCache(byte[] serializedCache)
-            {
-                data = serializedCache;
-            }
-        }
-
         [TestMethod]
         [Description("Test authority migration")]
         public void AuthorityMigration_IntegrationTest()
@@ -94,7 +80,7 @@ namespace Test.MSAL.NET.Unit
             // init public client app
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId,
                 string.Format(CultureInfo.InvariantCulture, "https://{0}/common", TestConstants.ProdNotPrefEnvAlias));
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
 
             // mock for openId config request
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
@@ -162,6 +148,7 @@ namespace Test.MSAL.NET.Unit
 
                 try
                 {
+                    result = null;
                     result = app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource,
                         app.GetAccountsAsync().Result.First(),
                         string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", envAlias, TestConstants.Utid),
@@ -173,7 +160,7 @@ namespace Test.MSAL.NET.Unit
                     Assert.IsTrue(ex.InnerException is MsalUiRequiredException);
                 }
 
-                Assert.IsNotNull(result);
+                Assert.IsNull(result);
             }
         }
 

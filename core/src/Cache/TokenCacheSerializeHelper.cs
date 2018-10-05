@@ -50,6 +50,8 @@ namespace Microsoft.Identity.Core.Cache
         /// <param name="requestContext">call state to pass correlation id and logger instance</param>
         internal static void DeserializeUnifiedCache(TokenCacheAccessor tokenCacheAccessor, byte[] unifiedState, RequestContext requestContext)
         {
+            tokenCacheAccessor.Clear();
+
             Dictionary<string, IEnumerable<string>> cacheDict = JsonHelper
                 .DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(unifiedState);
 
@@ -58,8 +60,6 @@ namespace Microsoft.Identity.Core.Cache
                 CoreLoggerBase.Default.Info("Msal Cache is empty.");
                 return;
             }
-
-            tokenCacheAccessor.Clear();
 
             if (cacheDict.ContainsKey(AccessTokenKey))
             {

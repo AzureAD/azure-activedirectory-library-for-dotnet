@@ -69,27 +69,13 @@ namespace Test.MSAL.NET.Unit
                     TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
-        class TestLegacyCachePersistance : ILegacyCachePersistance
-        {
-            private byte[] data;
-            public byte[] LoadCache()
-            {
-                return data;
-            }
-
-            public void WriteCache(byte[] serializedCache)
-            {
-                data = serializedCache;
-            }
-        }
-
         [TestMethod]
         [Description("Test unified token cache")]
         public void UnifiedCache_MsalStoresToAndReadRtFromAdalCache()
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
 
             MockWebUI ui = new MockWebUI()
             {
@@ -158,7 +144,7 @@ namespace Test.MSAL.NET.Unit
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
 
             ISet<string> authorityHostAliases = new HashSet<string>();
             authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);

@@ -32,6 +32,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using NSubstitute;
 
@@ -314,6 +315,20 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                     Content = new StringContent(content)
                 }
             };
+        }
+
+        public class TestLegacyCachePersistance : ILegacyCachePersistance
+        {
+            private byte[] data;
+            public byte[] LoadCache()
+            {
+                return data;
+            }
+
+            public void WriteCache(byte[] serializedCache)
+            {
+                data = serializedCache;
+            }
         }
     }
 }
