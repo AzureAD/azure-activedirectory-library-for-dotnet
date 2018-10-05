@@ -213,4 +213,3 @@ namespace Test.MSAL.NET.Unit
         }
     }
 }
-}
