@@ -1,20 +1,20 @@
-﻿//------------------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,8 +22,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -42,11 +42,14 @@ namespace Microsoft.Identity.Core.OAuth2
     internal class OAuth2Client
     {
         private readonly Dictionary<string, string> _bodyParameters = new Dictionary<string, string>();
-
-        private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
-
+        private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
+        private readonly IHttpManager _httpManager;
+
+        public OAuth2Client(IHttpManager httpManager = null)
+        {
+            _httpManager = httpManager ?? new HttpManager();
+        }
 
         public void AddQueryParameter(string key, string value)
         {
@@ -60,7 +63,8 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public async Task<InstanceDiscoveryResponse> DiscoverAadInstanceAsync(Uri endPoint, RequestContext requestContext)
         {
-            return await ExecuteRequestAsync<InstanceDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext).ConfigureAwait(false);
+            return await ExecuteRequestAsync<InstanceDiscoveryResponse>(endPoint, HttpMethod.Get, requestContext)
+                       .ConfigureAwait(false);
         }
 
         public async Task<MsalTokenResponse> GetTokenAsync(Uri endPoint, RequestContext requestContext)
@@ -70,7 +74,8 @@ namespace Microsoft.Identity.Core.OAuth2
 
         internal async Task<T> ExecuteRequestAsync<T>(Uri endPoint, HttpMethod method, RequestContext requestContext)
         {
-            bool addCorrelationId = (requestContext != null && !string.IsNullOrEmpty(requestContext.Logger.CorrelationId.ToString()));
+            bool addCorrelationId =
+                requestContext != null && !string.IsNullOrEmpty(requestContext.Logger.CorrelationId.ToString());
             if (addCorrelationId)
             {
                 _headers.Add(OAuth2Header.CorrelationId, requestContext.Logger.CorrelationId.ToString());
@@ -78,19 +83,24 @@ namespace Microsoft.Identity.Core.OAuth2
             }
 
             HttpResponse response = null;
-            Uri endpointUri = CreateFullEndpointUri(endPoint);
-            var httpEvent = new HttpEvent() { HttpPath = endpointUri, QueryParams = endpointUri.Query };
+            var endpointUri = CreateFullEndpointUri(endPoint);
+            var httpEvent = new HttpEvent()
+            {
+                HttpPath = endpointUri,
+                QueryParams = endpointUri.Query
+            };
             var telemetry = CoreTelemetryService.GetInstance();
             telemetry.StartEvent(requestContext.TelemetryRequestId, httpEvent);
             try
             {
                 if (method == HttpMethod.Post)
                 {
-                    response = await HttpRequest.SendPostAsync(endpointUri, _headers, _bodyParameters, requestContext).ConfigureAwait(false);
+                    response = await _httpManager.SendPostAsync(endpointUri, _headers, _bodyParameters, requestContext)
+                                                .ConfigureAwait(false);
                 }
                 else
                 {
-                    response = await HttpRequest.SendGetAsync(endpointUri, _headers, requestContext).ConfigureAwait(false);
+                    response = await _httpManager.SendGetAsync(endpointUri, _headers, requestContext).ConfigureAwait(false);
                 }
 
                 httpEvent.HttpResponseStatus = (int)response.StatusCode;
@@ -139,10 +149,9 @@ namespace Microsoft.Identity.Core.OAuth2
 
             try
             {
-                MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
+                var msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
 
-                if (CoreErrorCodes.InvalidGrantError.Equals(msalTokenResponse.Error,
-                    StringComparison.OrdinalIgnoreCase))
+                if (CoreErrorCodes.InvalidGrantError.Equals(msalTokenResponse.Error, StringComparison.OrdinalIgnoreCase))
                 {
                     throw CoreExceptionFactory.Instance.GetUiRequiredException(
                         CoreErrorCodes.InvalidGrantError,
@@ -158,10 +167,7 @@ namespace Microsoft.Identity.Core.OAuth2
             }
             catch (SerializationException ex)
             {
-                serviceEx = CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.UnknownError,
-                    response.Body, 
-                    ex);
+                serviceEx = CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.UnknownError, response.Body, ex);
             }
 
             requestContext.Logger.ErrorPii(serviceEx);
@@ -170,14 +176,16 @@ namespace Microsoft.Identity.Core.OAuth2
 
         private Uri CreateFullEndpointUri(Uri endPoint)
         {
-            UriBuilder endpointUri = new UriBuilder(endPoint);
+            var endpointUri = new UriBuilder(endPoint);
             string extraQp = _queryParameters.ToQueryParameter();
             endpointUri.AppendQueryParameters(extraQp);
 
             return endpointUri.Uri;
         }
 
-        private static void VerifyCorrelationIdHeaderInResponse(IDictionary<string, string> headers, RequestContext requestContext)
+        private static void VerifyCorrelationIdHeaderInResponse(
+            IDictionary<string, string> headers,
+            RequestContext requestContext)
         {
             foreach (string responseHeaderKey in headers.Keys)
             {
@@ -185,12 +193,17 @@ namespace Microsoft.Identity.Core.OAuth2
                 if (string.Compare(trimmedKey, OAuth2Header.CorrelationId, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     string correlationIdHeader = headers[trimmedKey].Trim();
-                    if (string.Compare(correlationIdHeader, requestContext.Logger.CorrelationId.ToString(), StringComparison.OrdinalIgnoreCase) != 0)
+                    if (string.Compare(
+                            correlationIdHeader,
+                            requestContext.Logger.CorrelationId.ToString(),
+                            StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         requestContext.Logger.WarningPii(
-                            string.Format(CultureInfo.InvariantCulture,
-                               "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
-                                correlationIdHeader, requestContext.Logger.CorrelationId),
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "Returned correlation id '{0}' does not match the sent correlation id '{1}'",
+                                correlationIdHeader,
+                                requestContext.Logger.CorrelationId),
                             "Returned correlation id does not match the sent correlation id");
                     }
 

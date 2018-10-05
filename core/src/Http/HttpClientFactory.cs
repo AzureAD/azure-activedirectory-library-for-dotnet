@@ -38,7 +38,7 @@ namespace Microsoft.Identity.Core.Http
 
     internal class HttpClientFactory : IHttpClientFactory
     {
-        // as per guidelines HttpClient should be a singeton instance in an application.
+        // as per guidelines HttpClient should be a singleton instance in an application.
         private static HttpClient _client;
         private static readonly object LockObj = new object();
         public static bool ReturnHttpClientForMocks { set; get; }
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Core.Http
 
         public static HttpClient GetHttpClient()
         {
-            // we return a new instanceof httpclient beacause there
+            // we return a new instance of httpclient because there
             // is no way to provide new http request message handler
             // for each request made and it makes mocking of network calls 
             // impossible. So to circumvent, we simply return new instance for

@@ -41,8 +41,10 @@ using Test.Microsoft.Identity.Core.Unit.Mocks;
 namespace Test.Microsoft.Identity.Unit.HttpTests
 {
     [TestClass]
-    public class HttpRequestTests
+    public class HttpManagerTests
     {
+        private IHttpManager _httpManager;
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -50,10 +52,11 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
             HttpClientFactory.ReturnHttpClientForMocks = true;
             HttpMessageHandlerFactory.ClearMockHandlers();
             CoreExceptionFactory.Instance = new TestExceptionFactory();
+            _httpManager = new HttpManager();
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public void TestSendPostNullHeaderNullBody()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -63,7 +66,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
             });
 
             HttpResponse response =
-                HttpRequest.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                     null, (IDictionary<string, string>)null, null).Result;
 
             Assert.IsNotNull(response);
@@ -74,7 +77,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public void TestSendPostNoFailure()
         {
             Dictionary<string, string> bodyParameters = new Dictionary<string, string> { ["key1"] = "some value1", ["key2"] = "some value2" };
@@ -90,7 +93,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
 
             HttpResponse response =
-                HttpRequest.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
+                _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
                     queryParams, bodyParameters, null).Result;
 
             Assert.IsNotNull(response);
@@ -101,7 +104,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public void TestSendGetNoFailure()
         {
             Dictionary<string, string> queryParams = new Dictionary<string, string> { ["key1"] = "qp1", ["key2"] = "qp2" };
@@ -113,7 +116,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
             });
 
             HttpResponse response =
-                HttpRequest.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"), queryParams, null).Result;
+                _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"), queryParams, null).Result;
 
             Assert.IsNotNull(response);
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -123,7 +126,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithHttp500TypeFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -140,7 +143,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             try
             {
-                var msalHttpResponse = await HttpRequest.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                var msalHttpResponse = await _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                     new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
@@ -154,7 +157,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithHttp500TypeFailure2()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -169,7 +172,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
                 ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
             });
 
-            var msalHttpResponse = await HttpRequest.SendPostForceResponseAsync(
+            var msalHttpResponse = await _httpManager.SendPostForceResponseAsync(
                 new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                 new Dictionary<string, string>(),
                 new StringContent("body"),
@@ -181,7 +184,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public async Task TestSendPostWithHttp500TypeFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -198,7 +201,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             try
             {
-                var msalHttpResponse = await HttpRequest.SendPostAsync(
+                var msalHttpResponse = await _httpManager.SendPostAsync(
                     new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                     new Dictionary<string, string>(),
                     (IDictionary<string, string>)null,
@@ -215,7 +218,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithRetryOnTimeoutFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -234,7 +237,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             try
             {
-                var msalHttpResponse = await HttpRequest.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                var msalHttpResponse = await _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                     new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }
@@ -249,7 +252,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         }
 
         [TestMethod]
-        [TestCategory("HttpRequestTests")]
+        [TestCategory("HttpManagerTests")]
         public async Task TestSendPostWithRetryOnTimeoutFailure()
         {
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -268,7 +271,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             try
             {
-                var msalHttpResponse = await HttpRequest.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                var msalHttpResponse = await _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
                     new Dictionary<string, string>(), new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                 Assert.Fail("request should have failed");
             }

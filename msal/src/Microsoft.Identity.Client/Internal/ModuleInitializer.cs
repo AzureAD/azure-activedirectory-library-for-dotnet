@@ -42,8 +42,8 @@ namespace Microsoft.Identity.Client.Internal
     /// </remarks>
     internal class ModuleInitializer
     {
-        private static bool isInitialized = false;
-        private static readonly object lockObj = new object();
+        private static bool _isInitialized = false;
+        private static readonly object LockObj = new object();
 
         /// <summary>
         /// Handle all the initialization of singletons, factories, statics etc. Initialization will only happen once.
@@ -51,11 +51,11 @@ namespace Microsoft.Identity.Client.Internal
         public static void EnsureModuleInitialized()
         {
             // double check locking instead locking first to improve performace
-            if (!isInitialized)
+            if (!_isInitialized)
             {
-                lock (lockObj)
+                lock (LockObj)
                 {
-                    if (!isInitialized)
+                    if (!_isInitialized)
                     {
                         InitializeModule();
                     }
@@ -70,7 +70,7 @@ namespace Microsoft.Identity.Client.Internal
         /// acceptable for tests to reinitialize the module. </remarks>
         public static void ForceModuleInitializationTestOnly()
         {
-            lock (lockObj)
+            lock (LockObj)
             {
                 InitializeModule();
             }
@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Client.Internal
             CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
             CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
             CorePlatformInformationBase.Instance = new PlatformInformation();
-            isInitialized = true;
+            _isInitialized = true;
         }
     }
 }

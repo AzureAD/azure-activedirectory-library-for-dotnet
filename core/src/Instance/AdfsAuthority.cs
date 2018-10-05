@@ -1,29 +1,29 @@
-﻿//------------------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
-// Permission is hereby granted free of charge to any person obtaining a copy
-// of this software and associated documentation files(the "Software") to deal
-// in the Software without restriction including without limitation the rights
-// to use copy modify merge publish distribute sublicense and / or sell
-// copies of the Software and to permit persons to whom the Software is
-// furnished to do so subject to the following conditions :
-//
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND EXPRESS OR
-// IMPLIED INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM DAMAGES OR OTHER
-// LIABILITY WHETHER IN AN ACTION OF CONTRACT TORT OR OTHERWISE ARISING FROM
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -40,12 +40,14 @@ namespace Microsoft.Identity.Core.Instance
     internal class AdfsAuthority : Authority
     {
         private const string DefaultRealm = "http://schemas.microsoft.com/rel/trusted-realm";
-        
-
         private readonly HashSet<string> _validForDomainsList = new HashSet<string>();
-        public AdfsAuthority(string authority, bool validateAuthority) : base(authority, validateAuthority)
+        private readonly IHttpManager _httpManager;
+
+        public AdfsAuthority(string authority, bool validateAuthority, IHttpManager httpManager = null)
+            : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Adfs;
+            _httpManager = httpManager ?? new HttpManager();
         }
 
         protected override bool ExistsInValidatedAuthorityCache(string userPrincipalName)
@@ -58,21 +60,24 @@ namespace Microsoft.Identity.Core.Instance
             }
 
             return ValidatedAuthorities.ContainsKey(CanonicalAuthority) &&
-                   ((AdfsAuthority) ValidatedAuthorities[CanonicalAuthority])._validForDomainsList.Contains(
+                   ((AdfsAuthority)ValidatedAuthorities[CanonicalAuthority])._validForDomainsList.Contains(
                        GetDomainFromUpn(userPrincipalName));
         }
 
-        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(string userPrincipalName, RequestContext requestContext)
+        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
+            string userPrincipalName,
+            RequestContext requestContext)
         {
             if (ValidateAuthority)
             {
-                DrsMetadataResponse drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext).ConfigureAwait(false);
-                
+                var drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext)
+                                      .ConfigureAwait(false);
+
                 if (!string.IsNullOrEmpty(drsResponse.Error))
                 {
                     CoreExceptionFactory.Instance.GetServiceException(
                         drsResponse.Error,
-                        drsResponse.ErrorDescription, 
+                        drsResponse.ErrorDescription,
                         ExceptionDetail.FromDrsResponse(drsResponse));
                 }
 
@@ -80,18 +85,20 @@ namespace Microsoft.Identity.Core.Instance
                 {
                     throw CoreExceptionFactory.Instance.GetServiceException(
                         CoreErrorCodes.MissingPassiveAuthEndpoint,
-                        CoreErrorMessages.CannotFindTheAuthEndpont, 
-                        ExceptionDetail.FromDrsResponse(drsResponse));                        
+                        CoreErrorMessages.CannotFindTheAuthEndpont,
+                        ExceptionDetail.FromDrsResponse(drsResponse));
                 }
 
                 string resource = string.Format(CultureInfo.InvariantCulture, CanonicalAuthority);
-                string webfingerUrl = string.Format(CultureInfo.InvariantCulture,
+                string webfingerUrl = string.Format(
+                    CultureInfo.InvariantCulture,
                     "https://{0}/adfs/.well-known/webfinger?rel={1}&resource={2}",
                     drsResponse.IdentityProviderService.PassiveAuthEndpoint.Host,
-                    DefaultRealm, resource);
+                    DefaultRealm,
+                    resource);
 
-                HttpResponse httpResponse =
-                    await HttpRequest.SendGetAsync(new Uri(webfingerUrl), null, requestContext).ConfigureAwait(false);
+                var httpResponse =
+                    await _httpManager.SendGetAsync(new Uri(webfingerUrl), null, requestContext).ConfigureAwait(false);
 
                 if (httpResponse.StatusCode != HttpStatusCode.OK)
                 {
@@ -101,13 +108,10 @@ namespace Microsoft.Identity.Core.Instance
                         httpResponse);
                 }
 
-                AdfsWebFingerResponse wfr = OAuth2Client.CreateResponse<AdfsWebFingerResponse>(httpResponse, requestContext,
-                    false);
-                if (
-                    wfr.Links.FirstOrDefault(
-                        a =>
-                            (a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
-                             a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase))) == null)
+                var wfr = OAuth2Client.CreateResponse<AdfsWebFingerResponse>(httpResponse, requestContext, false);
+                if (wfr.Links.FirstOrDefault(
+                        a => a.Rel.Equals(DefaultRealm, StringComparison.OrdinalIgnoreCase) &&
+                             a.Href.Equals(resource, StringComparison.OrdinalIgnoreCase)) == null)
                 {
                     throw CoreExceptionFactory.Instance.GetClientException(
                         CoreErrorCodes.InvalidAuthority,
@@ -125,41 +129,51 @@ namespace Microsoft.Identity.Core.Instance
 
         protected override void AddToValidatedAuthorities(string userPrincipalName)
         {
-            AdfsAuthority authorityInstance = this;
+            var authorityInstance = this;
             if (ValidatedAuthorities.ContainsKey(CanonicalAuthority))
             {
-                authorityInstance = (AdfsAuthority) ValidatedAuthorities[CanonicalAuthority];
+                authorityInstance = (AdfsAuthority)ValidatedAuthorities[CanonicalAuthority];
             }
 
             authorityInstance._validForDomainsList.Add(GetDomainFromUpn(userPrincipalName));
             ValidatedAuthorities[CanonicalAuthority] = authorityInstance;
         }
 
-        private async Task<DrsMetadataResponse> GetMetadataFromEnrollmentServerAsync(string userPrincipalName,
+        private async Task<DrsMetadataResponse> GetMetadataFromEnrollmentServerAsync(
+            string userPrincipalName,
             RequestContext requestContext)
         {
             try
             {
                 //attempt to connect to on-premise enrollment server first.
-                return await QueryEnrollmentServerEndpointAsync(string.Format(CultureInfo.InvariantCulture,
-                    "https://enterpriseregistration.{0}/enrollmentserver/contract",
-                    GetDomainFromUpn(userPrincipalName)), requestContext).ConfigureAwait(false);
+                return await QueryEnrollmentServerEndpointAsync(
+                           string.Format(
+                               CultureInfo.InvariantCulture,
+                               "https://enterpriseregistration.{0}/enrollmentserver/contract",
+                               GetDomainFromUpn(userPrincipalName)),
+                           requestContext).ConfigureAwait(false);
             }
             catch (Exception exc)
             {
-                requestContext.Logger.InfoPiiWithPrefix(exc, "On-Premise ADFS enrollment server endpoint lookup failed. Error - ");
+                requestContext.Logger.InfoPiiWithPrefix(
+                    exc,
+                    "On-Premise ADFS enrollment server endpoint lookup failed. Error - ");
             }
 
-            return await QueryEnrollmentServerEndpointAsync(string.Format(CultureInfo.InvariantCulture,
-                "https://enterpriseregistration.windows.net/{0}/enrollmentserver/contract",
-                GetDomainFromUpn(userPrincipalName)), requestContext).ConfigureAwait(false);
+            return await QueryEnrollmentServerEndpointAsync(
+                       string.Format(
+                           CultureInfo.InvariantCulture,
+                           "https://enterpriseregistration.windows.net/{0}/enrollmentserver/contract",
+                           GetDomainFromUpn(userPrincipalName)),
+                       requestContext).ConfigureAwait(false);
         }
 
         private async Task<DrsMetadataResponse> QueryEnrollmentServerEndpointAsync(string endpoint, RequestContext requestContext)
         {
-            OAuth2Client client = new OAuth2Client();
+            var client = new OAuth2Client();
             client.AddQueryParameter("api-version", "1.0");
-            return await client.ExecuteRequestAsync<DrsMetadataResponse>(new Uri(endpoint), HttpMethod.Get, requestContext).ConfigureAwait(false);
+            return await client.ExecuteRequestAsync<DrsMetadataResponse>(new Uri(endpoint), HttpMethod.Get, requestContext)
+                               .ConfigureAwait(false);
         }
 
         private string GetDomainFromUpn(string upn)
