@@ -38,6 +38,12 @@ namespace Microsoft.Identity.Core.Telemetry
         public const string ApiVersionKey = EventNamePrefix + "api_version";
         public const string ResponseCodeKey = EventNamePrefix + "response_code";
         public const string OauthErrorCodeKey = EventNamePrefix + "oauth_error_code";
+        public const string HttpMethodKey = EventNamePrefix + "http_method";
+        public const string RequestIdHeaderKey = EventNamePrefix + "request_id_header";
+        public const string TokenAgeKey = EventNamePrefix + "token_age";
+        public const string SpeInfoKey = EventNamePrefix + "spe_info";
+        public const string ServerErrorCodeKey = EventNamePrefix + "server_error_code";
+        public const string ServerSubErrorCodeKey = EventNamePrefix + "server_sub_error_code";
 
         public HttpEvent() : base(EventNamePrefix + "http_event") {}
 
@@ -75,6 +81,35 @@ namespace Microsoft.Identity.Core.Telemetry
         public string OauthErrorCode
         {
             set { this[OauthErrorCodeKey] = value; }
+        }
+
+        public string HttpMethod
+        {
+            set { this[HttpMethodKey] = value;  }
+        }
+
+        public string RequestIdHeader
+        {
+            set { this[RequestIdHeaderKey] = value; }
+        }
+        public string TokenAge
+        {
+            set { this[TokenAgeKey] = value; }
+        }
+
+        public string SpeInfo
+        {
+            set { this[SpeInfoKey] = value; }
+        }
+
+        public string ServerErrorCode
+        {
+            set { this[ServerErrorCodeKey] = value; }
+        }
+
+        public string ServerSubErrorCode
+        {
+            set { this[ServerSubErrorCodeKey] = value; }
         }
     }
 }

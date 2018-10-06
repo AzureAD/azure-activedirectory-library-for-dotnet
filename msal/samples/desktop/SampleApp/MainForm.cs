@@ -37,7 +37,7 @@ namespace SampleApp
 {
     public partial class MainForm : Form
     {
-        private readonly MsalAuthHelper _msalHelper = new MsalAuthHelper("1950a258-227b-4e31-a9cf-717495945fc2");
+        private readonly MsalAuthHelper _msalHelper = new MsalAuthHelper("dfd67f99-a2ce-4d8f-8b25-9ef7bfe3a76d");
         private IAccount account = null;
         private string token;
 
