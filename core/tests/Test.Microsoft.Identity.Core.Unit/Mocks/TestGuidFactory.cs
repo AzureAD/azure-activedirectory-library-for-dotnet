@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,15 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
+using System;
+using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Test.Microsoft.Identity.Core.Unit.Mocks
 {
-    internal class MsalAccessTokenCacheKey : MsalCredentialCacheKey
+    internal class TestGuidFactory : IGuidFactory
     {
-        internal MsalAccessTokenCacheKey(string environment, string tenantId, string userIdentifier, string clientId, string scopes)
-            : base(environment, tenantId, userIdentifier, CredentialType.accesstoken, clientId, scopes)
+        public TestGuidFactory(Guid guid)
         {
+            Guid = guid;
         }
+
+        public Guid NewGuid()
+        {
+            return Guid;
+        }
+
+        public Guid Guid { get; set; }
     }
 }

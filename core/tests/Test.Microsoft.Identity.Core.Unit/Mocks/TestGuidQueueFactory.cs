@@ -25,13 +25,27 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Identity.Core.Helpers;
+
+namespace Test.Microsoft.Identity.Core.Unit.Mocks
 {
-    class MsalIdTokenCacheKey : MsalCredentialCacheKey
+    internal class TestGuidQueueFactory : IGuidFactory
     {
-        internal MsalIdTokenCacheKey(string environment, string tenantId, string userIdentifier, string clientId)
-            : base(environment, tenantId, userIdentifier, CredentialType.idtoken, clientId, null)
+        private readonly List<Guid> _guids;
+
+        public TestGuidQueueFactory(IEnumerable<Guid> guids)
         {
+            _guids = guids.ToList();
+        }
+
+        public Guid NewGuid()
+        {
+            Guid guid = _guids[0];
+            _guids.RemoveAt(0);
+            return guid;
         }
     }
 }

@@ -37,11 +37,6 @@ namespace Microsoft.Identity.Core.Helpers
 {
     internal static class CoreHelpers
     {
-        internal static bool IsNullOrEmpty(IEnumerable<string> input)
-        {
-            return input == null || !input.Any();
-        }
-
         internal static string ByteArrayToString(byte[] input)
         {
             if (input == null || input.Length == 0)
@@ -168,10 +163,8 @@ namespace Microsoft.Identity.Core.Helpers
 
                     if (response.ContainsKey(key))
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture,
-                            "Key/value pair list contains redundant key '{0}'.", key);
-                        requestContext?.Logger.Warning(msg);
-                        requestContext?.Logger.WarningPii(msg);
+                        requestContext?.Logger.Warning(string.Format(CultureInfo.InvariantCulture,
+                            "Key/value pair list contains redundant key '{0}'.", key));
                     }
 
                     response[key] = value;

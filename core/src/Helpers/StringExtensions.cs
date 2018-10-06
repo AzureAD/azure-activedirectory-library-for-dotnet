@@ -25,36 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.OAuth2;
-using System.Runtime.Serialization;
+using System.Text;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core.Helpers
 {
-    [DataContract]
-    internal class MsalRefreshTokenCacheItem : MsalCredentialCacheItemBase
+    internal static class StringExtensions
     {
-        internal MsalRefreshTokenCacheItem()
+        /// <summary>
+        /// Create an array of bytes representing the UTF-8 encoding of the given string.
+        /// </summary>
+        /// <param name="stringInput">String to get UTF-8 bytes for</param>
+        /// <returns>Array of UTF-8 character bytes</returns>
+        public static byte[] ToByteArray(this string stringInput)
         {
-            CredentialType = Cache.CredentialType.refreshtoken.ToString();
-        }
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, MsalTokenResponse response) : 
-            this(environment, clientId, response.RefreshToken, response.ClientInfo)
-        {
-        }
-
-        internal MsalRefreshTokenCacheItem(string environment, string clientId, string secret, string rawClientInfo) : this()
-        {
-            ClientId = clientId;
-            Environment = environment;
-            Secret = secret;
-            RawClientInfo = rawClientInfo;
-
-            InitUserIdentifier();
-        }
-
-        internal MsalRefreshTokenCacheKey GetKey()
-        {
-            return new MsalRefreshTokenCacheKey(Environment, ClientId, HomeAccountId);
+            return new UTF8Encoding().GetBytes(stringInput);
         }
     }
 }

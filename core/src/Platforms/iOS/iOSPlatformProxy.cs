@@ -25,56 +25,52 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.OAuth2;
-using System.Runtime.Serialization;
-using System.Globalization;
+using System.Threading.Tasks;
+using UIKit;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core
 {
-    [DataContract]
-    internal class MsalIdTokenCacheItem : MsalCredentialCacheItemBase
+    /// <summary>
+    /// Platform / OS specific logic.  No library (ADAL / MSAL) specific code should go in here. 
+    /// </summary>
+    internal class iOSPlatformProxy : IPlatformProxy
     {
-        internal MsalIdTokenCacheItem()
+        /// <summary>
+        /// Get the user logged 
+        /// </summary>
+        public async Task<string> GetUserPrincipalNameAsync()
         {
-            CredentialType = Cache.CredentialType.idtoken.ToString();
-        }
-        internal MsalIdTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string tenantId)
-            : this(environment, clientId, response.IdToken, response.ClientInfo, tenantId)
-        {
-        }
-        internal MsalIdTokenCacheItem
-            (string environment, string clientId, string secret, string rawClientInfo, string tenantId) : this()
-        {
-            Environment = environment;
-            TenantId = tenantId;
-            ClientId = clientId;
-            Secret = secret;
-            RawClientInfo = rawClientInfo;
-
-            InitUserIdentifier();
+            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
         }
 
-        [DataMember(Name = "realm")]
-        internal string TenantId { get; set; }
-
-        internal string Authority
+        public async Task<bool> IsUserLocalAsync(RequestContext requestContext)
         {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
-            }
+            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
         }
 
-        internal IdToken IdToken {
-            get
-            {
-                return IdToken.Parse(Secret);
-            }
+        public bool IsDomainJoined()
+        {
+            return false;
         }
 
-        internal MsalIdTokenCacheKey GetKey()
+        public string GetEnvironmentVariable(string variable)
         {
-            return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);
+            return null;
+        }
+
+        public string GetProcessorArchitecture()
+        {
+            return null;
+        }
+
+        public string GetOperatingSystem()
+        {
+            return UIDevice.CurrentDevice.SystemVersion;
+        }
+
+        public string GetDeviceModel()
+        {
+            return UIDevice.CurrentDevice.Model;
         }
     }
 }

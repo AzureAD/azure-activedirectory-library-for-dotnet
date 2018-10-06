@@ -43,36 +43,7 @@ namespace Microsoft.Identity.Client
             return "MSAL.Xamarin.Android";
         }
 
-        public override string GetEnvironmentVariable(string variable)
-        {
-            return null;
-        }
 
-        public override string GetProcessorArchitecture()
-        {
-            if (Android.OS.Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.Lollipop)
-            {
-                return Android.OS.Build.CpuAbi;
-            }
-
-            IList<string> supportedABIs = Android.OS.Build.SupportedAbis;
-            if (supportedABIs != null && supportedABIs.Count > 0)
-            {
-                return supportedABIs[0];
-            }
-
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return Android.OS.Build.VERSION.Sdk;
-        }
-
-        public override string GetDeviceModel()
-        {
-            return Android.OS.Build.Model;
-        }
 
         public override void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
         {

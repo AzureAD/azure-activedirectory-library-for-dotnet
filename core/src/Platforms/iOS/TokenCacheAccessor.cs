@@ -96,7 +96,14 @@ namespace Microsoft.Identity.Core
                 match = SecKeyChain.QueryAsRecord(queryRecord, out resultCode);
             }
 
-            return match.AccessGroup.Split('.')[0];
+            if (resultCode == SecStatusCode.Success)
+            {
+                return match.AccessGroup.Split('.')[0];
+            }
+
+            throw CoreExceptionFactory.Instance.GetClientException(
+                CoreErrorCodes.CannotAccessPublisherKeyChain,
+                CoreErrorMessages.CannotAccessPublisherKeyChain);
         }
 
         public TokenCacheAccessor()
@@ -112,18 +119,10 @@ namespace Microsoft.Identity.Core
         public void SaveAccessToken(MsalAccessTokenCacheItem item)
         {
             var key = item.GetKey();
-            var account = key.HomeAccountId + CacheKeyDelimiter +
-                          key.Environment;
 
-            var service = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter +
-                          key.TenantId + CacheKeyDelimiter +
-                          key.Scopes;
-
-            var generic = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter +
-                          key.TenantId;
-
+            var account = key.GetiOSAccountKey();
+            var service = key.GetiOSServiceKey();
+            var generic = key.GetiOSGenericKey();
             var type = (int)CredentialAttrType.AccessToken;
 
             var value = JsonHelper.SerializeToJson(item);
@@ -134,15 +133,9 @@ namespace Microsoft.Identity.Core
         public void SaveRefreshToken(MsalRefreshTokenCacheItem item)
         {
             var key = item.GetKey();
-            var account = key.HomeAccountId + CacheKeyDelimiter +
-                          key.Environment;
-
-            var service = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter +
-                          "" + CacheKeyDelimiter;
-
-            var generic = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter;
+            var account = key.GetiOSAccountKey();
+            var service = key.GetiOSServiceKey();
+            var generic = key.GetiOSGenericKey();
 
             var type = (int)CredentialAttrType.RefreshToken;
 
@@ -154,16 +147,9 @@ namespace Microsoft.Identity.Core
         public void SaveIdToken(MsalIdTokenCacheItem item)
         {
             var key = item.GetKey();
-            var account = key.HomeAccountId + CacheKeyDelimiter +
-                          key.Environment;
-
-            var service = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter +
-                          key.TenantId + CacheKeyDelimiter;
-
-            var generic = key.CredentialType + CacheKeyDelimiter +
-                          key.ClientId + CacheKeyDelimiter +
-                          key.TenantId;
+            var account = key.GetiOSAccountKey();
+            var service = key.GetiOSServiceKey();
+            var generic = key.GetiOSGenericKey();
 
             var type = (int)CredentialAttrType.IdToken;
 
@@ -175,12 +161,9 @@ namespace Microsoft.Identity.Core
         public void SaveAccount(MsalAccountCacheItem item)
         {
             var key = item.GetKey();
-            var account = key.HomeAccountId + CacheKeyDelimiter +
-                          key.Environment;
-
-            var service = key.TenantId;
-
-            var generic = item.LocalAccountId;
+            var account = key.GetiOSAccountKey();
+            var service = key.GetiOSServiceKey();
+            var generic = key.GetiOSGenericKey();
 
             var type = AuthorityTypeToAttrType[item.AuthorityType];
 
@@ -188,16 +171,11 @@ namespace Microsoft.Identity.Core
 
             Save(account, service, generic, type, value);
         }
-        
+
         public void DeleteAccessToken(MsalAccessTokenCacheKey cacheKey)
         {
-            var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
-                cacheKey.Environment;
-
-            var service = cacheKey.CredentialType + CacheKeyDelimiter +
-                          cacheKey.ClientId + CacheKeyDelimiter +
-                          cacheKey.TenantId + CacheKeyDelimiter +
-                          cacheKey.Scopes;
+            var account = cacheKey.GetiOSAccountKey();
+            var service = cacheKey.GetiOSServiceKey();
 
             var type = (int)CredentialAttrType.AccessToken;
 
@@ -206,12 +184,8 @@ namespace Microsoft.Identity.Core
 
         public void DeleteRefreshToken(MsalRefreshTokenCacheKey cacheKey)
         {
-            var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
-                          cacheKey.Environment;
-
-            var service = cacheKey.CredentialType + CacheKeyDelimiter +
-                          cacheKey.ClientId + CacheKeyDelimiter +
-                          "" + CacheKeyDelimiter;
+            var account = cacheKey.GetiOSAccountKey();
+            var service = cacheKey.GetiOSServiceKey();
 
             var type = (int)CredentialAttrType.RefreshToken;
 
@@ -220,12 +194,8 @@ namespace Microsoft.Identity.Core
 
         public void DeleteIdToken(MsalIdTokenCacheKey cacheKey)
         {
-            var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
-                          cacheKey.Environment;
-
-            var service = cacheKey.CredentialType + CacheKeyDelimiter +
-                          cacheKey.ClientId + CacheKeyDelimiter +
-                          cacheKey.TenantId + CacheKeyDelimiter;
+            var account = cacheKey.GetiOSAccountKey();
+            var service = cacheKey.GetiOSServiceKey();
 
             var type = (int)CredentialAttrType.IdToken;
 
@@ -234,10 +204,8 @@ namespace Microsoft.Identity.Core
 
         public void DeleteAccount(MsalAccountCacheKey cacheKey)
         {
-            var account = cacheKey.HomeAccountId + CacheKeyDelimiter +
-                          cacheKey.Environment;
-
-            var service = cacheKey.TenantId;
+            var account = cacheKey.GetiOSAccountKey();
+            var service = cacheKey.GetiOSServiceKey();
 
             var type = AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()];
 
@@ -262,27 +230,7 @@ namespace Microsoft.Identity.Core
         {
             return GetValues(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]);
         }
-        /*
-        public ICollection<string> GetAllAccessTokenKeys()
-        {
-            return GetKeys(AccessTokenServiceId);
-        }
-        
-        public ICollection<string> GetAllRefreshTokenKeys()
-        {
-            return GetKeys(RefreshTokenServiceId);
-        }
 
-        public ICollection<string> GetAllIdTokenKeys()
-        {
-            return GetKeys(IdTokenServiceId);
-        }
-
-        public ICollection<string> GetAllAccountKeys()
-        {
-            return GetKeys(AccountServiceId);
-        }
-        */
         private string GetValue(string account, string service, int type)
         {
             var queryRecord = new SecRecord(SecKind.GenericPassword)
@@ -323,30 +271,7 @@ namespace Microsoft.Identity.Core
 
             return res;
         }
-        /*
-        private ICollection<string> GetKeys(string service)
-        {
-            var queryRecord = new SecRecord(SecKind.GenericPassword)
-            {
-                Service = service,
-                AccessGroup = keychainGroup,
-            };
 
-            SecRecord[] records = SecKeyChain.QueryAsRecord(queryRecord, Int32.MaxValue, out SecStatusCode resultCode);
-
-            ICollection<string> res = new List<string>();
-
-            if (resultCode == SecStatusCode.Success)
-            {
-                foreach (var record in records)
-                {
-                    res.Add(record.Account);
-                }
-            }
-
-            return res;
-        }
-        */
         private SecStatusCode Save(string account, string service, string generic, int type, string value)
         {
             SecRecord recordToSave = CreateRecord(account, service, generic, type, value);
@@ -360,16 +285,7 @@ namespace Microsoft.Identity.Core
 
             return secStatusCode;
         }
-        /*
-        private SecStatusCode SetValueForKey(string key, string value, string service)
-        {
-            Remove(key, service);
 
-            var result = SecKeyChain.Add(CreateRecord(key, value, service));
-
-            return result;
-        }
-        */
         private SecRecord CreateRecord(string account, string service, string generic, int type, string value)
         {
             return new SecRecord(SecKind.GenericPassword)
@@ -436,13 +352,8 @@ namespace Microsoft.Identity.Core
 
         public string GetAccessToken(MsalAccessTokenCacheKey accessTokenKey)
         {
-            var account = accessTokenKey.HomeAccountId + CacheKeyDelimiter +
-                          accessTokenKey.Environment;
-
-            var service = accessTokenKey.CredentialType + CacheKeyDelimiter +
-                          accessTokenKey.ClientId + CacheKeyDelimiter +
-                          accessTokenKey.TenantId + CacheKeyDelimiter +
-                          accessTokenKey.Scopes;
+            var account = accessTokenKey.GetiOSAccountKey();
+            var service = accessTokenKey.GetiOSServiceKey();
 
             var type = (int)CredentialAttrType.AccessToken;
 
@@ -451,12 +362,9 @@ namespace Microsoft.Identity.Core
 
         public string GetRefreshToken(MsalRefreshTokenCacheKey refreshTokenKey)
         {
-            var account = refreshTokenKey.HomeAccountId + CacheKeyDelimiter +
-                          refreshTokenKey.Environment;
+            var account = refreshTokenKey.GetiOSAccountKey();
+            var service = refreshTokenKey.GetiOSServiceKey();
 
-            var service = refreshTokenKey.CredentialType + CacheKeyDelimiter +
-                          refreshTokenKey.ClientId + CacheKeyDelimiter +
-                          "" + CacheKeyDelimiter;
 
             var type = (int)CredentialAttrType.RefreshToken;
 
@@ -465,12 +373,8 @@ namespace Microsoft.Identity.Core
 
         public string GetIdToken(MsalIdTokenCacheKey idTokenKey)
         {
-            var account = idTokenKey.HomeAccountId + CacheKeyDelimiter +
-                          idTokenKey.Environment;
-
-            var service = idTokenKey.CredentialType + CacheKeyDelimiter +
-                          idTokenKey.ClientId + CacheKeyDelimiter +
-                          idTokenKey.TenantId + CacheKeyDelimiter;
+            var account = idTokenKey.GetiOSAccountKey();
+            var service = idTokenKey.GetiOSServiceKey();
 
             var type = (int)CredentialAttrType.IdToken;
 
@@ -479,10 +383,8 @@ namespace Microsoft.Identity.Core
 
         public string GetAccount(MsalAccountCacheKey accountKey)
         {
-            var account = accountKey.HomeAccountId + CacheKeyDelimiter +
-                          accountKey.Environment;
-
-            var service = accountKey.TenantId;
+            var account = accountKey.GetiOSAccountKey();
+            var service = accountKey.GetiOSServiceKey();
 
             var type = AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()];
 
