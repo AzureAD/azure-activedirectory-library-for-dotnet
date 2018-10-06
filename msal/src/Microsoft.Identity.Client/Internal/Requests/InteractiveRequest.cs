@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
@@ -48,18 +49,18 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private string _codeVerifier;
         private string _state;
 
-        public InteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters,
+        public InteractiveRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters,
             IEnumerable<string> extraScopesToConsent, UIBehavior UIBehavior, IWebUI webUI)
             : this(
-                authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.Account?.Username,
+                httpManager, authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.Account?.Username,
                 UIBehavior, webUI)
         {
         }
 
-        public InteractiveRequest(AuthenticationRequestParameters authenticationRequestParameters,
+        public InteractiveRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters,
             IEnumerable<string> extraScopesToConsent, string loginHint,
             UIBehavior UIBehavior, IWebUI webUI)
-            : base(authenticationRequestParameters)
+            : base(httpManager, authenticationRequestParameters)
         {
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
@@ -120,10 +121,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
             await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
-                (AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+                (HttpManager, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             //this method is used in confidential clients to create authorization URLs.
-            await AuthenticationRequestParameters.Authority.ResolveEndpointsAsync(AuthenticationRequestParameters.LoginHint, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+            await AuthenticationRequestParameters.Authority.ResolveEndpointsAsync(HttpManager, AuthenticationRequestParameters.LoginHint, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
             return CreateAuthorizationUri();
         }
 

@@ -34,6 +34,7 @@ using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Telemetry;
 using System.Threading;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -71,7 +72,7 @@ namespace Microsoft.Identity.Client
         /// See https://aka.ms/msal-net-client-applications for a description of confidential client applications (and public client applications)
         /// Client credential grants are overrides of <see cref="ConfidentialClientApplication.AcquireTokenForClientAsync(IEnumerable{string})"/>
         /// </remarks>
-        /// <seealso cref="ConfidentialClientApplication.ConfidentialClientApplication(string, string, string, ClientCredential, TokenCache, TokenCache)"/> which 
+        /// <seealso cref="ConfidentialClientApplication"/> which 
         /// enables app developers to specify the authority
         public ConfidentialClientApplication(string clientId, string redirectUri,
             ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
@@ -107,11 +108,17 @@ namespace Microsoft.Identity.Client
         /// See https://aka.ms/msal-net-client-applications for a description of confidential client applications (and public client applications)
         /// Client credential grants are overrides of <see cref="ConfidentialClientApplication.AcquireTokenForClientAsync(IEnumerable{string})"/>
         /// </remarks>
-        /// <seealso cref="ConfidentialClientApplication.ConfidentialClientApplication(string, string, ClientCredential, TokenCache, TokenCache)"/> which 
+        /// <seealso cref="ConfidentialClientApplication"/> which 
         /// enables app developers to create a confidential client application requesting tokens with the default authority.
         public ConfidentialClientApplication(string clientId, string authority, string redirectUri,
             ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
-            : base(clientId, authority, redirectUri, true)
+            : this(null, clientId, authority, redirectUri, clientCredential, userTokenCache, appTokenCache)
+        {
+        }
+
+        internal ConfidentialClientApplication(IHttpManager httpManager, string clientId, string authority, string redirectUri,
+                                               ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
+            : base(clientId, authority, redirectUri, true, httpManager)
         {
             ClientCredential = clientCredential;
             UserTokenCache = userTokenCache;
@@ -320,7 +327,7 @@ namespace Microsoft.Identity.Client
             requestParameters.ExtraQueryParameters = extraQueryParameters;
 
             var handler =
-                new InteractiveRequest(requestParameters, null, loginHint, UIBehavior.SelectAccount, null);
+                new InteractiveRequest(HttpManager, requestParameters, null, loginHint, UIBehavior.SelectAccount, null);
             return await handler.CreateAuthorizationUriAsync().ConfigureAwait(false);
         }
 
@@ -351,7 +358,7 @@ namespace Microsoft.Identity.Client
             requestParameters.ExtraQueryParameters = extraQueryParameters;
 
             var handler =
-                new InteractiveRequest(requestParameters, extraScopesToConsent, loginHint, UIBehavior.SelectAccount, null);
+                new InteractiveRequest(HttpManager, requestParameters, extraScopesToConsent, loginHint, UIBehavior.SelectAccount, null);
             return await handler.CreateAuthorizationUriAsync().ConfigureAwait(false);
         }
 
@@ -366,7 +373,7 @@ namespace Microsoft.Identity.Client
                 AppTokenCache);
             parameters.IsClientCredentialRequest = true;
             parameters.SendCertificate = sendCertificate;
-            var handler = new ClientCredentialRequest(parameters, forceRefresh){ApiId = apiId, IsConfidentialClient = true};
+            var handler = new ClientCredentialRequest(HttpManager, parameters, forceRefresh){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
@@ -376,7 +383,7 @@ namespace Microsoft.Identity.Client
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.UserAssertion = userAssertion;
             requestParams.SendCertificate = sendCertificate;
-            var handler = new OnBehalfOfRequest(requestParams){ApiId = apiId, IsConfidentialClient = true};
+            var handler = new OnBehalfOfRequest(HttpManager, requestParams){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
@@ -389,7 +396,7 @@ namespace Microsoft.Identity.Client
             requestParams.RedirectUri = redirectUri;
             requestParams.SendCertificate = sendCertificate;
             var handler =
-                new AuthorizationCodeRequest(requestParams){ApiId = apiId, IsConfidentialClient = true};
+                new AuthorizationCodeRequest(HttpManager, requestParams){ApiId = apiId, IsConfidentialClient = true};
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 

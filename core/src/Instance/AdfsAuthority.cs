@@ -41,13 +41,11 @@ namespace Microsoft.Identity.Core.Instance
     {
         private const string DefaultRealm = "http://schemas.microsoft.com/rel/trusted-realm";
         private readonly HashSet<string> _validForDomainsList = new HashSet<string>();
-        private readonly IHttpManager _httpManager;
 
-        public AdfsAuthority(string authority, bool validateAuthority, IHttpManager httpManager = null)
+        public AdfsAuthority(string authority, bool validateAuthority)
             : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Adfs;
-            _httpManager = httpManager ?? new HttpManager();
         }
 
         protected override bool ExistsInValidatedAuthorityCache(string userPrincipalName)
@@ -65,12 +63,13 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
+            IHttpManager httpManager,
             string userPrincipalName,
             RequestContext requestContext)
         {
             if (ValidateAuthority)
             {
-                var drsResponse = await GetMetadataFromEnrollmentServerAsync(userPrincipalName, requestContext)
+                var drsResponse = await GetMetadataFromEnrollmentServerAsync(httpManager, userPrincipalName, requestContext)
                                       .ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(drsResponse.Error))
@@ -98,7 +97,7 @@ namespace Microsoft.Identity.Core.Instance
                     resource);
 
                 var httpResponse =
-                    await _httpManager.SendGetAsync(new Uri(webfingerUrl), null, requestContext).ConfigureAwait(false);
+                    await httpManager.SendGetAsync(new Uri(webfingerUrl), null, requestContext).ConfigureAwait(false);
 
                 if (httpResponse.StatusCode != HttpStatusCode.OK)
                 {
@@ -140,6 +139,7 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         private async Task<DrsMetadataResponse> GetMetadataFromEnrollmentServerAsync(
+            IHttpManager httpManager,
             string userPrincipalName,
             RequestContext requestContext)
         {
@@ -147,6 +147,7 @@ namespace Microsoft.Identity.Core.Instance
             {
                 //attempt to connect to on-premise enrollment server first.
                 return await QueryEnrollmentServerEndpointAsync(
+                           httpManager,
                            string.Format(
                                CultureInfo.InvariantCulture,
                                "https://enterpriseregistration.{0}/enrollmentserver/contract",
@@ -161,6 +162,7 @@ namespace Microsoft.Identity.Core.Instance
             }
 
             return await QueryEnrollmentServerEndpointAsync(
+                       httpManager,
                        string.Format(
                            CultureInfo.InvariantCulture,
                            "https://enterpriseregistration.windows.net/{0}/enrollmentserver/contract",
@@ -168,9 +170,9 @@ namespace Microsoft.Identity.Core.Instance
                        requestContext).ConfigureAwait(false);
         }
 
-        private async Task<DrsMetadataResponse> QueryEnrollmentServerEndpointAsync(string endpoint, RequestContext requestContext)
+        private async Task<DrsMetadataResponse> QueryEnrollmentServerEndpointAsync(IHttpManager httpManager, string endpoint, RequestContext requestContext)
         {
-            var client = new OAuth2Client();
+            var client = new OAuth2Client(httpManager);
             client.AddQueryParameter("api-version", "1.0");
             return await client.ExecuteRequestAsync<DrsMetadataResponse>(new Uri(endpoint), HttpMethod.Get, requestContext)
                                .ConfigureAwait(false);

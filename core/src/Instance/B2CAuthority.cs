@@ -28,6 +28,7 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Core.Instance
 {
@@ -51,7 +52,8 @@ namespace Microsoft.Identity.Core.Instance
             AuthorityType = AuthorityType.B2C;
         }
 
-        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(string userPrincipalName, RequestContext requestContext)
+        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
+            IHttpManager httpManager, string userPrincipalName, RequestContext requestContext)
         {
             if (ValidateAuthority && !IsInTrustedHostList(new Uri(CanonicalAuthority).Host))
             {

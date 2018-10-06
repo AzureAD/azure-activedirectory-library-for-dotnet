@@ -54,6 +54,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         // Passing a seed to make repro possible
         private static readonly Random Rand = new Random(42);
 
+        // TODO: rename this to _cache, since other tests ALSO use the local variable cache which is confusing.
         TokenCache cache;
 
         [TestInitialize]
@@ -63,14 +64,12 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache = new TokenCache();
             new TestLogger(Guid.Empty);
 
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
-
             AadInstanceDiscovery.Instance.Cache.Clear();
 
-            HttpMessageHandlerFactory.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
+            // TODO: see what tests this belongs in...
+            //HttpMessageHandlerFactory.AddMockHandler(
+            //    MockHelpers.CreateInstanceDiscoveryMockHandler(
+            //        TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
         
         void AddHostToInstanceCache(String host)

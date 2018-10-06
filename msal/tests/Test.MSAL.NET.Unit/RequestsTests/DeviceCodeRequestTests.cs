@@ -95,115 +95,131 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
-
-            // Check that cache is empty
-            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
-            Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
-            Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
-
-            DeviceCodeResult actualDeviceCodeResult = null;
-            DeviceCodeRequest request = new DeviceCodeRequest(parameters, result => 
+            using (var httpManager = new MockHttpManager())
             {
-                actualDeviceCodeResult = result;
-                return Task.FromResult(0);
-            });
-            var task = request.RunAsync(CancellationToken.None);
-            task.Wait();
-            var authenticationResult = task.Result;
-            Assert.IsNotNull(authenticationResult);
-            Assert.IsNotNull(actualDeviceCodeResult);
+                var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
 
-            Assert.AreEqual(TestConstants.ClientId, actualDeviceCodeResult.ClientId);
-            Assert.AreEqual(ExpectedDeviceCode, actualDeviceCodeResult.DeviceCode);
-            Assert.AreEqual(ExpectedInterval, actualDeviceCodeResult.Interval);
-            Assert.AreEqual(ExpectedMessage, actualDeviceCodeResult.Message);
-            Assert.AreEqual(ExpectedUserCode, actualDeviceCodeResult.UserCode);
-            Assert.AreEqual(ExpectedVerificationUrl, actualDeviceCodeResult.VerificationUrl);
+                // Check that cache is empty
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
-            CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
+                DeviceCodeResult actualDeviceCodeResult = null;
+                DeviceCodeRequest request = new DeviceCodeRequest(
+                    httpManager,
+                    parameters,
+                    result =>
+                    {
+                        actualDeviceCodeResult = result;
+                        return Task.FromResult(0);
+                    });
+                var task = request.RunAsync(CancellationToken.None);
+                task.Wait();
+                var authenticationResult = task.Result;
+                Assert.IsNotNull(authenticationResult);
+                Assert.IsNotNull(actualDeviceCodeResult);
 
-            // Validate that entries were added to cache
-            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
-            Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
-            Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(TestConstants.ClientId, actualDeviceCodeResult.ClientId);
+                Assert.AreEqual(ExpectedDeviceCode, actualDeviceCodeResult.DeviceCode);
+                Assert.AreEqual(ExpectedInterval, actualDeviceCodeResult.Interval);
+                Assert.AreEqual(ExpectedMessage, actualDeviceCodeResult.Message);
+                Assert.AreEqual(ExpectedUserCode, actualDeviceCodeResult.UserCode);
+                Assert.AreEqual(ExpectedVerificationUrl, actualDeviceCodeResult.VerificationUrl);
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
+
+                // Validate that entries were added to cache
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            }
         }
 
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeCancel()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
-
-            CancellationTokenSource cancellationSource = new CancellationTokenSource();
-
-            DeviceCodeResult actualDeviceCodeResult = null;
-            DeviceCodeRequest request = new DeviceCodeRequest(parameters, async result =>
+            using (var httpManager = new MockHttpManager())
             {
-                await Task.Delay(200);
-                actualDeviceCodeResult = result;
-            });
+                var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
 
-            // We setup the cancel before calling the RunAsync operation since we don't check the cancel
-            // until later and the mock network calls run insanely fast for us to timeout for them.
-            cancellationSource.Cancel();
-            AssertException.TaskThrows<OperationCanceledException>(() => request.RunAsync(cancellationSource.Token));
+                CancellationTokenSource cancellationSource = new CancellationTokenSource();
+
+                DeviceCodeResult actualDeviceCodeResult = null;
+                DeviceCodeRequest request = new DeviceCodeRequest(
+                    httpManager,
+                    parameters,
+                    async result =>
+                    {
+                        await Task.Delay(200);
+                        actualDeviceCodeResult = result;
+                    });
+
+                // We setup the cancel before calling the RunAsync operation since we don't check the cancel
+                // until later and the mock network calls run insanely fast for us to timeout for them.
+                cancellationSource.Cancel();
+                AssertException.TaskThrows<OperationCanceledException>(() => request.RunAsync(cancellationSource.Token));
+            }
         }
 
         private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes)
         {
-            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-            _cache = new TokenCache()
+            using (var httpManager = new MockHttpManager())
             {
-                ClientId = TestConstants.ClientId
-            };
 
-            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
-            {
-                Authority = authority,
-                ClientId = TestConstants.ClientId,
-                Scope = TestConstants.Scope,
-                TokenCache = _cache,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
-            };
-
-            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
-
-            expectedScopes = new HashSet<string>();
-            expectedScopes.UnionWith(TestConstants.Scope);
-            expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
-            expectedScopes.Add(OAuth2Value.ScopeProfile);
-            expectedScopes.Add(OAuth2Value.ScopeOpenId);
-
-            // Mock Handler for device code request
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
+                Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                _cache = new TokenCache()
                 {
-                    {OAuth2Parameter.ClientId, TestConstants.ClientId},
-                    {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
-                },
-                ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
-            });
+                    ClientId = TestConstants.ClientId
+                };
 
-            // Mock Handler for devicecode->token exchange request
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
+                AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
                 {
-                    {OAuth2Parameter.ClientId, TestConstants.ClientId},
-                    {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
-                },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                    Authority = authority,
+                    ClientId = TestConstants.ClientId,
+                    Scope = TestConstants.Scope,
+                    TokenCache = _cache,
+                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                };
 
-            return parameters;
+                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+
+                expectedScopes = new HashSet<string>();
+                expectedScopes.UnionWith(TestConstants.Scope);
+                expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
+                expectedScopes.Add(OAuth2Value.ScopeProfile);
+                expectedScopes.Add(OAuth2Value.ScopeOpenId);
+
+                // Mock Handler for device code request
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Post,
+                        PostData = new Dictionary<string, string>()
+                        {
+                            {OAuth2Parameter.ClientId, TestConstants.ClientId},
+                            {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
+                        },
+                        ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
+                    });
+
+                // Mock Handler for devicecode->token exchange request
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Post,
+                        PostData = new Dictionary<string, string>()
+                        {
+                            {OAuth2Parameter.ClientId, TestConstants.ClientId},
+                            {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
+                        },
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
+
+                return parameters;
+            }
         }
     }
 }

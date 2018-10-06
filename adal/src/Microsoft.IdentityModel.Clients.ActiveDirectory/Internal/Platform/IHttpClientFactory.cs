@@ -29,8 +29,8 @@ using Microsoft.Identity.Core;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    interface IHttpClientFactory
-    {
-        IHttpClient Create(string uri, RequestContext requestContext);
-    }
+    //interface IHttpClientFactory
+    //{
+    //    IHttpClient Create(string uri, RequestContext requestContext);
+    //}
 }

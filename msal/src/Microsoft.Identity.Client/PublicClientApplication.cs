@@ -35,6 +35,7 @@ using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Telemetry;
 using System.Threading;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -88,13 +89,28 @@ namespace Microsoft.Identity.Client
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>
         public PublicClientApplication(string clientId, string authority)
-            : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+            : this(null, clientId, authority)
         {
             UserTokenCache = new TokenCache()
             {
                 ClientId = clientId
             };
         }
+
+        internal PublicClientApplication(IHttpManager httpManager, string clientId, string authority)
+            : base(
+                clientId,
+                authority,
+                PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId),
+                true,
+                httpManager)
+        {
+            UserTokenCache = new TokenCache()
+            {
+                ClientId = clientId
+            };
+        }
+
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
 #if !NET_CORE
 
@@ -453,7 +469,7 @@ namespace Microsoft.Identity.Client
 #endif
 
             var handler =
-                new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
+                new InteractiveRequest(HttpManager, requestParams, extraScopesToConsent, loginHint, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
@@ -473,7 +489,7 @@ namespace Microsoft.Identity.Client
 #endif
 
             var handler =
-                new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
+                new InteractiveRequest(HttpManager, requestParams, extraScopesToConsent, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);

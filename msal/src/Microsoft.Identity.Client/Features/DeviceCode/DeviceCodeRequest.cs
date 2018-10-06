@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Features.DeviceCode
@@ -44,9 +45,10 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
         private DeviceCodeResult _deviceCodeResult;
 
         public DeviceCodeRequest(
+            IHttpManager httpManager,
             AuthenticationRequestParameters authenticationRequestParameters, 
             Func<DeviceCodeResult, Task> deviceCodeResultCallback)
-            : base(authenticationRequestParameters)
+            : base(httpManager, authenticationRequestParameters)
         {
             _deviceCodeResultCallback = deviceCodeResultCallback;
 
@@ -59,7 +61,7 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
         {
             await base.PreTokenRequestAsync(cancellationToken).ConfigureAwait(false);
 
-            OAuth2Client client = new OAuth2Client();
+            OAuth2Client client = new OAuth2Client(HttpManager);
 
             var deviceCodeScopes = new HashSet<string>();
             deviceCodeScopes.UnionWith(AuthenticationRequestParameters.Scope);

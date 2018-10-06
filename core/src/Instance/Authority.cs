@@ -1,20 +1,20 @@
-﻿//----------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,8 +22,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Concurrent;
@@ -31,58 +31,62 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Core.Instance
 {
     internal abstract class Authority
     {
-        internal static readonly HashSet<string> TenantlessTenantNames =
-            new HashSet<string>(new[] {"common", "organizations", "consumers"});
-        private bool _resolved;
+        internal static readonly HashSet<string> TenantlessTenantNames = new HashSet<string>(
+            new[]
+            {
+                "common",
+                "organizations",
+                "consumers"
+            });
 
         internal static readonly ConcurrentDictionary<string, Authority> ValidatedAuthorities =
             new ConcurrentDictionary<string, Authority>();
 
-        protected abstract Task<string> GetOpenIdConfigurationEndpointAsync(string userPrincipalName, RequestContext requestContext);
-
-        public static Authority CreateAuthority(string authority, bool validateAuthority)
-        {
-            return CreateInstance(authority, validateAuthority);
-        }
+        private bool _resolved;
 
         protected Authority(string authority, bool validateAuthority)
         {
-            UriBuilder authorityUri = new UriBuilder(authority);
+            var authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
 
-            CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authorityUri.Uri.Authority,
+            CanonicalAuthority = string.Format(
+                CultureInfo.InvariantCulture,
+                "https://{0}/{1}/",
+                authorityUri.Uri.Authority,
                 GetFirstPathSegment(authority));
 
             ValidateAuthority = validateAuthority;
         }
 
         public AuthorityType AuthorityType { get; set; }
-
         public string CanonicalAuthority { get; set; }
-
         public bool ValidateAuthority { get; set; }
-
         public bool IsTenantless { get; set; }
-
         public string AuthorizationEndpoint { get; set; }
-
         public string TokenEndpoint { get; set; }
-
         public string EndSessionEndpoint { get; set; }
-
         public string SelfSignedJwtAudience { get; set; }
-
         public string UserRealmUriPrefix { get; private set; }
-
         public string Host { get; set; }
 
-        internal virtual async Task UpdateCanonicalAuthorityAsync(RequestContext requestContext)
+        protected abstract Task<string> GetOpenIdConfigurationEndpointAsync(
+            IHttpManager httpManager,
+            string userPrincipalName,
+            RequestContext requestContext);
+
+        public static Authority CreateAuthority(string authority, bool validateAuthority)
+        {
+            return CreateInstance(authority, validateAuthority);
+        }
+
+        internal virtual async Task UpdateCanonicalAuthorityAsync(IHttpManager httpManager, RequestContext requestContext)
         {
             await Task.FromResult(0).ConfigureAwait(false);
         }
@@ -98,7 +102,7 @@ namespace Microsoft.Identity.Core.Instance
             {
                 throw new ArgumentException(CoreErrorMessages.AuthorityInvalidUriFormat, nameof(authority));
             }
-            
+
             var authorityUri = new Uri(authority);
             if (authorityUri.Scheme != "https")
             {
@@ -121,11 +125,11 @@ namespace Microsoft.Identity.Core.Instance
         internal static string GetFirstPathSegment(string authority)
         {
             return new Uri(authority).Segments[1].TrimEnd('/');
-        } 
+        }
 
         internal static AuthorityType GetAuthorityType(string authority)
         {
-            var firstPathSegment = GetFirstPathSegment(authority);
+            string firstPathSegment = GetFirstPathSegment(authority);
 
             if (string.Equals(firstPathSegment, "adfs", StringComparison.OrdinalIgnoreCase))
             {
@@ -148,23 +152,25 @@ namespace Microsoft.Identity.Core.Instance
 
             switch (GetAuthorityType(authority))
             {
-                case AuthorityType.Adfs:
-                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
-                       "ADFS is not a supported authority");
+            case AuthorityType.Adfs:
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InvalidAuthorityType,
+                    "ADFS is not a supported authority");
 
-                case AuthorityType.B2C:
-                    return new B2CAuthority(authority, validateAuthority);
+            case AuthorityType.B2C:
+                return new B2CAuthority(authority, validateAuthority);
 
-                case AuthorityType.Aad:
-                    return new AadAuthority(authority, validateAuthority);
+            case AuthorityType.Aad:
+                return new AadAuthority(authority, validateAuthority);
 
-                default:
-                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
-                     "Usupported authority type");
+            default:
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InvalidAuthorityType,
+                    "Usupported authority type");
             }
         }
 
-        public async Task ResolveEndpointsAsync(string userPrincipalName, RequestContext requestContext)
+        public async Task ResolveEndpointsAsync(IHttpManager httpManager, string userPrincipalName, RequestContext requestContext)
         {
             requestContext.Logger.Info("Resolving authority endpoints... Already resolved? - " + _resolved);
 
@@ -178,12 +184,12 @@ namespace Microsoft.Identity.Core.Instance
                 // create log message
                 requestContext.Logger.Info("Is Authority tenantless? - " + IsTenantless);
 
-                UserRealmUriPrefix = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm/", this.Host);
+                UserRealmUriPrefix = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm/", Host);
 
                 if (ExistsInValidatedAuthorityCache(userPrincipalName))
                 {
                     requestContext.Logger.Info("Authority found in validated authority cache");
-                    Authority authority = ValidatedAuthorities[CanonicalAuthority];
+                    var authority = ValidatedAuthorities[CanonicalAuthority];
                     AuthorityType = authority.AuthorityType;
                     CanonicalAuthority = authority.CanonicalAuthority;
                     ValidateAuthority = authority.ValidateAuthority;
@@ -196,30 +202,30 @@ namespace Microsoft.Identity.Core.Instance
                     return;
                 }
 
-                string openIdConfigurationEndpoint =
-                    await
-                        GetOpenIdConfigurationEndpointAsync(userPrincipalName, requestContext)
-                            .ConfigureAwait(false);
+                string openIdConfigurationEndpoint = await GetOpenIdConfigurationEndpointAsync(httpManager, userPrincipalName, requestContext)
+                                                         .ConfigureAwait(false);
 
                 //discover endpoints via openid-configuration
-                TenantDiscoveryResponse edr =
-                    await DiscoverEndpointsAsync(openIdConfigurationEndpoint, requestContext).ConfigureAwait(false);
+                var edr = await DiscoverEndpointsAsync(httpManager, openIdConfigurationEndpoint, requestContext).ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(edr.AuthorizationEndpoint))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.TenantDiscoveryFailedError,
+                    throw CoreExceptionFactory.Instance.GetClientException(
+                        CoreErrorCodes.TenantDiscoveryFailedError,
                         "Authorize endpoint was not found in the openid configuration");
                 }
 
                 if (string.IsNullOrEmpty(edr.TokenEndpoint))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.TenantDiscoveryFailedError,
+                    throw CoreExceptionFactory.Instance.GetClientException(
+                        CoreErrorCodes.TenantDiscoveryFailedError,
                         "Token endpoint was not found in the openid configuration");
                 }
 
                 if (string.IsNullOrEmpty(edr.Issuer))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.TenantDiscoveryFailedError,
+                    throw CoreExceptionFactory.Instance.GetClientException(
+                        CoreErrorCodes.TenantDiscoveryFailedError,
                         "Issuer was not found in the openid configuration");
                 }
 
@@ -234,34 +240,36 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         protected abstract bool ExistsInValidatedAuthorityCache(string userPrincipalName);
-
         protected abstract void AddToValidatedAuthorities(string userPrincipalName);
-
         protected abstract string GetDefaultOpenIdConfigurationEndpoint();
-
         internal abstract string GetTenantId();
-
         internal abstract void UpdateTenantId(string tenantId);
 
-        private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(string openIdConfigurationEndpoint,
+        private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(
+            IHttpManager httpManager,
+            string openIdConfigurationEndpoint,
             RequestContext requestContext)
         {
-            OAuth2Client client = new OAuth2Client();
-            return
-                await
-                    client.ExecuteRequestAsync<TenantDiscoveryResponse>(new Uri(openIdConfigurationEndpoint),
-                        HttpMethod.Get, requestContext).ConfigureAwait(false);
+            var client = new OAuth2Client(httpManager);
+            return await client.ExecuteRequestAsync<TenantDiscoveryResponse>(
+                       new Uri(openIdConfigurationEndpoint),
+                       HttpMethod.Get,
+                       requestContext).ConfigureAwait(false);
         }
 
         public static string UpdateTenantId(string authority, string replacementTenantId)
         {
-            Uri authUri = new Uri(authority);
-            string[] pathSegments = authUri.AbsolutePath.Substring(1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var authUri = new Uri(authority);
+            string[] pathSegments = authUri.AbsolutePath.Substring(1).Split(
+                new[]
+                {
+                    '/'
+                },
+                StringSplitOptions.RemoveEmptyEntries);
 
             if (TenantlessTenantNames.Contains(pathSegments[0]) && !string.IsNullOrWhiteSpace(replacementTenantId))
             {
-                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authUri.Authority,
-                    replacementTenantId);
+                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", authUri.Authority, replacementTenantId);
             }
 
             return authority;
@@ -269,7 +277,7 @@ namespace Microsoft.Identity.Core.Instance
 
         internal static string UpdateHost(string authority, string host)
         {
-            UriBuilder uriBuilder = new UriBuilder(authority)
+            var uriBuilder = new UriBuilder(authority)
             {
                 Host = host
             };

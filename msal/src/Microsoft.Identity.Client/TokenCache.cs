@@ -36,6 +36,7 @@ using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
@@ -56,6 +57,9 @@ namespace Microsoft.Identity.Client
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         internal const string NullPreferredUsernameDisplayLabel = "preferred_username not in id_token";
+
+        // TODO: the TokenCache itself shouldn't be doing http access (SRP)
+        internal IHttpManager HttpManager { get; set; }
 
         static TokenCache()
         {
@@ -639,7 +643,7 @@ namespace Microsoft.Identity.Client
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
                 instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync
-                    (new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
+                    (HttpManager, new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
             }
             return instanceDiscoveryMetadata;
         }

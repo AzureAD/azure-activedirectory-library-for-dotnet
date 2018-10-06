@@ -37,6 +37,8 @@ using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Telemetry;
 using System.Threading;
+using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Client
 {
@@ -56,6 +58,9 @@ namespace Microsoft.Identity.Client
         /// Default Authority used for interactive calls.
         /// </Summary>
         internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
+
+        internal IHttpManager HttpManager { get; }
+        internal IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
 
         /// <summary>
         /// Constructor of the base application
@@ -78,9 +83,13 @@ namespace Microsoft.Identity.Client
         /// <param name="validateAuthority">Boolean telling MSAL.NET if the authority needs to be verified against a list of known authorities. 
         /// This should be set to <c>false</c> for Azure AD B2C authorities as those are customer specific (a list of known B2C authorities
         /// cannot be maintained by MSAL.NET</param>
-        protected ClientApplicationBase(string clientId, string authority, string redirectUri,
-            bool validateAuthority)
+        /// <param name="httpManager"></param>
+        internal ClientApplicationBase(string clientId, string authority, string redirectUri,
+            bool validateAuthority, IHttpManager httpManager)
         {
+            // TODO: instantiate coreexceptionfactory and such at this level as well...
+            HttpManager = httpManager ?? new HttpManager();
+            WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
             Authority = authorityInstance.CanonicalAuthority;
@@ -299,7 +308,7 @@ namespace Microsoft.Identity.Client
             }
 
             var handler = new SilentRequest(
-                CreateRequestParameters(authority, scopes, account, UserTokenCache),
+                    HttpManager, CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
             { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);

@@ -28,14 +28,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal class ClientCredentialRequest : RequestBase
     {
-        public ClientCredentialRequest(AuthenticationRequestParameters authenticationRequestParameters, bool forceRefresh)
-            : base(authenticationRequestParameters)
+        public ClientCredentialRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters, bool forceRefresh)
+            : base(httpManager, authenticationRequestParameters)
         {
             ForceRefresh = forceRefresh;
         }

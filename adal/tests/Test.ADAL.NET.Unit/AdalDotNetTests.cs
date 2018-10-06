@@ -36,6 +36,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+using PromptBehavior = Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior;
 using Microsoft.Identity.Core.UI;
 using System.Collections.Generic;
 using Test.ADAL.Common;
@@ -67,7 +68,7 @@ namespace Test.ADAL.NET.Unit
             InstanceDiscovery.InstanceCache.Clear();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
-            _platformParameters = new PlatformParameters(Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
         }
 
         [TestCleanup()]

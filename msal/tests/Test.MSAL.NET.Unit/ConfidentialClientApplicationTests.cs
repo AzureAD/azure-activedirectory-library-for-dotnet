@@ -58,17 +58,16 @@ namespace Test.MSAL.NET.Unit
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
         
             AadInstanceDiscovery.Instance.Cache.Clear();
-            AddMockResponseForInstanceDisovery();
+            // AddMockResponseForInstanceDiscovery();
         }
 
-        internal void AddMockResponseForInstanceDisovery()
+        // TODO: can we move this and other setups directly as methods to MockHttpManager?
+        internal void AddMockResponseForInstanceDiscovery(MockHttpManager mockHttpManager)
         {
-            HttpMessageHandlerFactory.AddMockHandler(
+            mockHttpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
                     TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
@@ -176,104 +175,134 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("ConfidentialClientApplicationTests")]
         public void ConfidentialClientUsingSecretNoCacheProvidedTest()
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                null, null)
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    userTokenCache: null,
+                    appTokenCache: null)
+                {
+                    ValidateAuthority = false
+                };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-            });
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
 
-            Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
-            AuthenticationResult result = task.Result;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull("header.payload.signature", result.AccessToken);
-            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
+                    });
 
-            Assert.IsNull(app.UserTokenCache);
-            Assert.IsNull(app.AppTokenCache);
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                AuthenticationResult result = task.Result;
+                Assert.IsNotNull(result);
+                Assert.IsNotNull("header.payload.signature", result.AccessToken);
+                Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+
+                Assert.IsNull(app.UserTokenCache);
+                Assert.IsNull(app.AppTokenCache);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void ConfidentialClientUsingSecretTest()
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                new TokenCache(), new TokenCache())
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
+                {
+                    ValidateAuthority = false
+                };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-            });
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
 
-            Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
-            AuthenticationResult result = task.Result;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull("header.payload.signature", result.AccessToken);
-            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
+                    });
 
-            //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                AuthenticationResult result = task.Result;
+                Assert.IsNotNull(result);
+                Assert.IsNotNull("header.payload.signature", result.AccessToken);
+                Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
-            //check app token cache count to be 1
-            Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                //make sure user token cache is empty
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                //check app token cache count to be 1
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(
+                    0,
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
 
-            //call AcquireTokenForClientAsync again to get result back from the cache
-            task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
-            result = task.Result;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull("header.payload.signature", result.AccessToken);
-            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+                //call AcquireTokenForClientAsync again to get result back from the cache
+                task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                result = task.Result;
+                Assert.IsNotNull(result);
+                Assert.IsNotNull("header.payload.signature", result.AccessToken);
+                Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
-            //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                //make sure user token cache is empty
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
-            //check app token cache count to be 1
-            Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                //check app token cache count to be 1
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(
+                    0,
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+            }
         }
 
-        private ConfidentialClientApplication CreateConfidentialClient(ClientCredential cc, int tokenResponses)
+        private ConfidentialClientApplication CreateConfidentialClient(MockHttpManager httpManager, ClientCredential cc, int tokenResponses)
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, cc, new TokenCache(),
+            ConfidentialClientApplication app = new ConfidentialClientApplication(
+                httpManager, 
+                TestConstants.ClientId,
+                ClientApplicationBase.DefaultAuthority,
+                TestConstants.RedirectUri, 
+                cc, 
+                new TokenCache(),
                 new TokenCache())
             {
                 ValidateAuthority = false
             };
 
             //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            httpManager.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Get,
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
@@ -281,7 +310,7 @@ namespace Test.MSAL.NET.Unit
 
             for (int i = 0; i < tokenResponses; i++)
             {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+                httpManager.AddMockHandler(new MockHttpMessageHandler()
                 {
                     Method = HttpMethod.Post,
                     ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
@@ -294,182 +323,235 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("ConfidentialClientApplicationTests")]
         public void ConfidentialClientUsingCertificateTest()
         {
-            ClientCredential cc =
-                new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-            var app = CreateConfidentialClient(cc, 3);
+            using (var httpManager = new MockHttpManager())
+            {
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
-            AuthenticationResult result = task.Result;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull("header.payload.signature", result.AccessToken);
-            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
+                ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
+                var app = CreateConfidentialClient(httpManager, cc, 3);
 
-            //make sure user token cache is empty
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                AuthenticationResult result = task.Result;
+                Assert.IsNotNull(result);
+                Assert.IsNotNull("header.payload.signature", result.AccessToken);
+                Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
-            //check app token cache count to be 1
-            Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(0, app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                //make sure user token cache is empty
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
-            //assert client credential
-            Assert.IsNotNull(cc.Assertion);
-            Assert.AreNotEqual(0, cc.ValidTo);
+                //check app token cache count to be 1
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(
+                    0,
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
 
-            //save client assertion.
-            string cachedAssertion = cc.Assertion;
-            long cacheValidTo = cc.ValidTo;
+                //assert client credential
+                Assert.IsNotNull(cc.Assertion);
+                Assert.AreNotEqual(0, cc.ValidTo);
 
-            task = app.AcquireTokenForClientAsync(TestConstants.ScopeForAnotherResource.ToArray());
-            result = task.Result;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(cacheValidTo, cc.ValidTo);
-            Assert.AreEqual(cachedAssertion, cc.Assertion);
+                //save client assertion.
+                string cachedAssertion = cc.Assertion;
+                long cacheValidTo = cc.ValidTo;
 
-            //validate the send x5c forces a refresh of the cached client assertion
-            (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(TestConstants.Scope.ToArray(), true);
-            Assert.AreNotEqual(cachedAssertion, cc.Assertion);
+                task = app.AcquireTokenForClientAsync(TestConstants.ScopeForAnotherResource.ToArray());
+                result = task.Result;
+                Assert.IsNotNull(result);
+                Assert.AreEqual(cacheValidTo, cc.ValidTo);
+                Assert.AreEqual(cachedAssertion, cc.Assertion);
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                //validate the send x5c forces a refresh of the cached client assertion
+                (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(
+                    TestConstants.Scope.ToArray(),
+                    true);
+                Assert.AreNotEqual(cachedAssertion, cc.Assertion);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void ConfidentialClientUsingCertificateTelemetryTest()
         {
-            ClientCredential cc =
-                new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-            var app = CreateConfidentialClient(cc, 2);
-            Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
-            AuthenticationResult result = task.Result;
-            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent => // Expect finding such an event
-                anEvent[EventBase.EventNameKey].EndsWith("http_event") && anEvent[HttpEvent.ResponseCodeKey] == "200"
-                && anEvent[HttpEvent.HttpPathKey].Contains(EventBase.TenantPlaceHolder) // The tenant info is expected to be replaced by a holder
-                ));
-            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent => // Expect finding such an event
-                anEvent[EventBase.EventNameKey].EndsWith("token_cache_lookup") && anEvent[CacheEvent.TokenTypeKey] == "at"));
-            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent => // Expect finding such an event
-                anEvent[EventBase.EventNameKey].EndsWith("token_cache_write") && anEvent[CacheEvent.TokenTypeKey] == "at"));
-            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
-                anEvent[EventBase.EventNameKey].EndsWith("api_event") && anEvent[ApiEvent.WasSuccessfulKey] == "true"
-                && anEvent[ApiEvent.ApiIdKey] == "726"));
+            using (var httpManager = new MockHttpManager())
+            {
+                AddMockResponseForInstanceDiscovery(httpManager);
+
+                ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
+                var app = CreateConfidentialClient(httpManager, cc, 2);
+                Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                AuthenticationResult result = task.Result;
+                Assert.IsNotNull(
+                    _myReceiver.EventsReceived.Find(
+                        anEvent => // Expect finding such an event
+                            anEvent[EventBase.EventNameKey].EndsWith("http_event") &&
+                            anEvent[HttpEvent.ResponseCodeKey] == "200" &&
+                            anEvent[HttpEvent.HttpPathKey]
+                                .Contains(
+                                    EventBase
+                                        .TenantPlaceHolder) // The tenant info is expected to be replaced by a holder
+                    ));
+                Assert.IsNotNull(
+                    _myReceiver.EventsReceived.Find(
+                        anEvent => // Expect finding such an event
+                            anEvent[EventBase.EventNameKey].EndsWith("token_cache_lookup") &&
+                            anEvent[CacheEvent.TokenTypeKey] == "at"));
+                Assert.IsNotNull(
+                    _myReceiver.EventsReceived.Find(
+                        anEvent => // Expect finding such an event
+                            anEvent[EventBase.EventNameKey].EndsWith("token_cache_write") &&
+                            anEvent[CacheEvent.TokenTypeKey] == "at"));
+                Assert.IsNotNull(
+                    _myReceiver.EventsReceived.Find(
+                        anEvent => // Expect finding such an event
+                            anEvent[EventBase.EventNameKey].EndsWith("api_event") &&
+                            anEvent[ApiEvent.WasSuccessfulKey] == "true" && anEvent[ApiEvent.ApiIdKey] == "726"));
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void GetAuthorizationRequestUrlNoRedirectUriTest()
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                new TokenCache(), new TokenCache())
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
+                {
+                    ValidateAuthority = false
+                };
 
-            Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope,
-                TestConstants.DisplayableId, null);
-            Uri uri = task.Result;
-            Assert.IsNotNull(uri);
-            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
-            Assert.IsNotNull(qp);
-            Assert.AreEqual(11, qp.Count);
-            Assert.IsTrue(qp.ContainsKey("client-request-id"));
-            Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2", qp["scope"]);
-            Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
-            Assert.AreEqual("code", qp["response_type"]);
-            Assert.AreEqual(TestConstants.RedirectUri, qp["redirect_uri"]);
-            Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
-            Assert.AreEqual(UIBehavior.SelectAccount.PromptValue, qp["prompt"]);
-            Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope, TestConstants.DisplayableId, null);
+                Uri uri = task.Result;
+                Assert.IsNotNull(uri);
+                Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+                Assert.IsNotNull(qp);
+                Assert.AreEqual(11, qp.Count);
+                Assert.IsTrue(qp.ContainsKey("client-request-id"));
+                Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2", qp["scope"]);
+                Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
+                Assert.AreEqual("code", qp["response_type"]);
+                Assert.AreEqual(TestConstants.RedirectUri, qp["redirect_uri"]);
+                Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
+                Assert.AreEqual(UIBehavior.SelectAccount.PromptValue, qp["prompt"]);
+                Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void GetAuthorizationRequestUrlB2CTest()
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                new TokenCache(), new TokenCache())
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateSuccessResponseMessage(File.ReadAllText(@"OpenidConfiguration-B2C.json"))
-            });
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
+                {
+                    ValidateAuthority = false
+                };
 
-            Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope,
-                TestConstants.DisplayableId, null);
-            Uri uri = task.Result;
-            Assert.IsNotNull(uri);
-            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
-            Assert.IsNotNull(qp);
-            Assert.AreEqual(12, qp.Count);
-            Assert.AreEqual("my-policy", qp["p"]);
-            Assert.IsTrue(qp.ContainsKey("client-request-id"));
-            Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2", qp["scope"]);
-            Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
-            Assert.AreEqual("code", qp["response_type"]);
-            Assert.AreEqual(TestConstants.RedirectUri, qp["redirect_uri"]);
-            Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
-            Assert.AreEqual(UIBehavior.SelectAccount.PromptValue, qp["prompt"]);
-            Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage =
+                            MockHelpers.CreateSuccessResponseMessage(File.ReadAllText(@"OpenidConfiguration-B2C.json"))
+                    });
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope, TestConstants.DisplayableId, null);
+                Uri uri = task.Result;
+                Assert.IsNotNull(uri);
+                Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+                Assert.IsNotNull(qp);
+                Assert.AreEqual(12, qp.Count);
+                Assert.AreEqual("my-policy", qp["p"]);
+                Assert.IsTrue(qp.ContainsKey("client-request-id"));
+                Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2", qp["scope"]);
+                Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
+                Assert.AreEqual("code", qp["response_type"]);
+                Assert.AreEqual(TestConstants.RedirectUri, qp["redirect_uri"]);
+                Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
+                Assert.AreEqual(UIBehavior.SelectAccount.PromptValue, qp["prompt"]);
+                Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void GetAuthorizationRequestUrlDuplicateParamsTest()
         {
-            ConfidentialClientApplication app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                new TokenCache(), new TokenCache())
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
+                {
+                    ValidateAuthority = false
+                };
 
-            try
-            {
-                Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope,
-                    TestConstants.DisplayableId, "login_hint=some@value.com");
-                Uri uri = task.Result;
-                Assert.Fail("MSALException should be thrown here");
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
+
+                try
+                {
+                    Task<Uri> task = app.GetAuthorizationRequestUrlAsync(
+                        TestConstants.Scope,
+                        TestConstants.DisplayableId,
+                        "login_hint=some@value.com");
+                    Uri uri = task.Result;
+                    Assert.Fail("MSALException should be thrown here");
+                }
+                catch (Exception exc)
+                {
+                    Assert.IsTrue(exc.InnerException is MsalException);
+                    Assert.AreEqual("duplicate_query_parameter", ((MsalException)exc.InnerException).ErrorCode);
+                    Assert.AreEqual(
+                        "Duplicate query parameter 'login_hint' in extraQueryParameters",
+                        ((MsalException)exc.InnerException).Message);
+                }
             }
-            catch (Exception exc)
-            {
-                Assert.IsTrue(exc.InnerException is MsalException);
-                Assert.AreEqual("duplicate_query_parameter", ((MsalException) exc.InnerException).ErrorCode);
-                Assert.AreEqual("Duplicate query parameter 'login_hint' in extraQueryParameters",
-                    ((MsalException) exc.InnerException).Message);
-            }
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
 
@@ -477,44 +559,58 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("ConfidentialClientApplicationTests")]
         public void GetAuthorizationRequestUrlCustomRedirectUriTest()
         {
-            ConfidentialClientApplication app =
-                new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.AuthorityGuestTenant,
-                    TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                    new TokenCache(), new TokenCache())
-                { ValidateAuthority = false };
-
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            const string CustomRedirectUri = "custom://redirect-uri";
-            Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope,
-                CustomRedirectUri, TestConstants.DisplayableId, "extra=qp",
-                TestConstants.ScopeForAnotherResource, TestConstants.AuthorityGuestTenant);
-            Uri uri = task.Result;
-            Assert.IsNotNull(uri);
-            Assert.IsTrue(uri.AbsoluteUri.StartsWith(TestConstants.AuthorityGuestTenant, StringComparison.CurrentCulture));
-            Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
-            Assert.IsNotNull(qp);
-            Assert.AreEqual(12, qp.Count);
-            Assert.IsTrue(qp.ContainsKey("client-request-id"));
-            Assert.IsFalse(qp.ContainsKey("client_secret"));
-            Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2 r2/scope1 r2/scope2", qp["scope"]);
-            Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
-            Assert.AreEqual("code", qp["response_type"]);
-            Assert.AreEqual(CustomRedirectUri, qp["redirect_uri"]);
-            Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
-            Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
-            Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
-            Assert.AreEqual("qp", qp["extra"]);
-            Assert.AreEqual("select_account", qp["prompt"]);
+                ConfidentialClientApplication app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    TestConstants.AuthorityGuestTenant,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
+                {
+                    ValidateAuthority = false
+                };
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
+
+                const string CustomRedirectUri = "custom://redirect-uri";
+                Task<Uri> task = app.GetAuthorizationRequestUrlAsync(
+                    TestConstants.Scope,
+                    CustomRedirectUri,
+                    TestConstants.DisplayableId,
+                    "extra=qp",
+                    TestConstants.ScopeForAnotherResource,
+                    TestConstants.AuthorityGuestTenant);
+                Uri uri = task.Result;
+                Assert.IsNotNull(uri);
+                Assert.IsTrue(uri.AbsoluteUri.StartsWith(TestConstants.AuthorityGuestTenant, StringComparison.CurrentCulture));
+                Dictionary<string, string> qp = CoreHelpers.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
+                Assert.IsNotNull(qp);
+                Assert.AreEqual(12, qp.Count);
+                Assert.IsTrue(qp.ContainsKey("client-request-id"));
+                Assert.IsFalse(qp.ContainsKey("client_secret"));
+                Assert.AreEqual("offline_access openid profile r1/scope1 r1/scope2 r2/scope1 r2/scope2", qp["scope"]);
+                Assert.AreEqual(TestConstants.ClientId, qp["client_id"]);
+                Assert.AreEqual("code", qp["response_type"]);
+                Assert.AreEqual(CustomRedirectUri, qp["redirect_uri"]);
+                Assert.AreEqual(TestConstants.DisplayableId, qp["login_hint"]);
+                Assert.AreEqual("MSAL.Desktop", qp["x-client-sku"]);
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-ver"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-cpu"]));
+                Assert.IsFalse(string.IsNullOrEmpty(qp["x-client-os"]));
+                Assert.AreEqual("qp", qp["extra"]);
+                Assert.AreEqual("select_account", qp["prompt"]);
+            }
         }
 
         [TestMethod]
@@ -522,154 +618,207 @@ namespace Test.MSAL.NET.Unit
         [ExpectedException(typeof(HttpRequestException), "Cannot write more bytes to the buffer than the configured maximum buffer size: 1048576.")]
         public async Task HttpRequestExceptionIsNotSuppressed()
         {
-            var app = new ConfidentialClientApplication(TestConstants.ClientId,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                new TokenCache(), new TokenCache())
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            // add mock response bigger than 1MB for Http Client
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                var app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    ClientApplicationBase.DefaultAuthority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    new TokenCache(),
+                    new TokenCache())
                 {
-                    Content = new StringContent(new string(new char[1048577]))
-                }
-            });
+                    ValidateAuthority = false
+                };
 
-            await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                // add mock response bigger than 1MB for Http Client
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(new string(new char[1048577]))
+                        }
+                    });
+
+                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public void ForceRefreshParameterFalseTestAsync()
         {
-            var cache = new TokenCache();
-            TokenCacheHelper.PopulateCacheForClientCredential(cache.tokenCacheAccessor);
-
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
-            var app = new ConfidentialClientApplication(TestConstants.ClientId, authority,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                null, cache)
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
+                var cache = new TokenCache();
+                TokenCacheHelper.PopulateCacheForClientCredential(cache.tokenCacheAccessor);
 
-            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
-            var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, TestConstants.Scope))
-                .ToList()
-                .FirstOrDefault();
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    authority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    null,
+                    cache)
+                {
+                    ValidateAuthority = false
+                };
 
-            //add mock to fail in case of network call
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                ExceptionToThrow = new AssertFailedException("Unexpected Network Call")
-            });
+                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+                var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, TestConstants.Scope))
+                                                     .ToList().FirstOrDefault();
 
-            var task = app.AcquireTokenForClientAsync(TestConstants.Scope, false);
-            var result = task.Result;
+                //add mock to fail in case of network call
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        ExceptionToThrow = new AssertFailedException("Unexpected Network Call")
+                    });
 
-            Assert.AreEqual(accessTokenInCache.Secret, result.AccessToken);
+                var task = app.AcquireTokenForClientAsync(TestConstants.Scope, false);
+                var result = task.Result;
+
+                Assert.AreEqual(accessTokenInCache.Secret, result.AccessToken);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public async Task ForceRefreshParameterTrueTestAsync()
         {
-            var cache = new TokenCache();
-            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
-
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
-            var app = new ConfidentialClientApplication(TestConstants.ClientId, authority,
-                TestConstants.RedirectUri, new ClientCredential(TestConstants.ClientSecret),
-                null, cache)
+            using (var httpManager = new MockHttpManager())
             {
-                ValidateAuthority = false
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+                var cache = new TokenCache();
+                TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-            //add mock response for successful token retrival
-            const string tokenRetrievedFromNetCall = "token retrieved from network call";
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage =
-                    MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage(tokenRetrievedFromNetCall)
-            });
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    authority,
+                    TestConstants.RedirectUri,
+                    new ClientCredential(TestConstants.ClientSecret),
+                    null,
+                    cache)
+                {
+                    ValidateAuthority = false
+                };
 
-            var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true);
-            Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
+                    });
 
-            // make sure token in Cache was updated
-            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
-            var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, TestConstants.Scope))
-                .ToList()
-                .FirstOrDefault();
+                //add mock response for successful token retrival
+                const string tokenRetrievedFromNetCall = "token retrieved from network call";
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage =
+                            MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage(tokenRetrievedFromNetCall)
+                    });
 
-            Assert.AreEqual(tokenRetrievedFromNetCall, accessTokenInCache.Secret);
-            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
-                anEvent[EventBase.EventNameKey].EndsWith("api_event") && anEvent[ApiEvent.WasSuccessfulKey] == "true"
-                && anEvent[ApiEvent.ApiIdKey] == "727"));
+                var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true);
+                Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
+
+                // make sure token in Cache was updated
+                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+                var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, TestConstants.Scope))
+                                                     .ToList().FirstOrDefault();
+
+                Assert.AreEqual(tokenRetrievedFromNetCall, accessTokenInCache.Secret);
+                Assert.IsNotNull(
+                    _myReceiver.EventsReceived.Find(
+                        anEvent => // Expect finding such an event
+                            anEvent[EventBase.EventNameKey].EndsWith("api_event") &&
+                            anEvent[ApiEvent.WasSuccessfulKey] == "true" && anEvent[ApiEvent.ApiIdKey] == "727"));
+            }
         }
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         public async Task AuthorizationCodeRequestTest()
         {
-            TokenCache cache = new TokenCache()
+            using (var httpManager = new MockHttpManager())
             {
-                BeforeAccess = BeforeCacheAccess,
-                AfterAccess = AfterCacheAccess
-            };
+                AddMockResponseForInstanceDiscovery(httpManager);
 
-            ClientCredential cc =
-                new ClientCredential("secret");
-            var app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
-                TestConstants.RedirectUri, cc, cache, null)
-            {
-                ValidateAuthority = false
-            };
+                TokenCache cache = new TokenCache()
+                {
+                    BeforeAccess = BeforeCacheAccess,
+                    AfterAccess = AfterCacheAccess
+                };
 
-            //add mock response for tenant endpoint discovery
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant, "p=policy")
-            });
+                ClientCredential cc = new ClientCredential("secret");
+                var app = new ConfidentialClientApplication(
+                    httpManager,
+                    TestConstants.ClientId,
+                    "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
+                    TestConstants.RedirectUri,
+                    cc,
+                    cache,
+                    null)
+                {
+                    ValidateAuthority = false
+                };
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                //add mock response for tenant endpoint discovery
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(
+                            TestConstants.AuthorityHomeTenant,
+                            "p=policy")
+                    });
 
-            AuthenticationResult result = await app.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.Scope).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-            Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
 
-            cache = new TokenCache()
-            {
-                BeforeAccess = BeforeCacheAccess,
-                AfterAccess = AfterCacheAccess
-            };
+                AuthenticationResult result = await app.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.Scope)
+                                                       .ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
-            app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
-                TestConstants.RedirectUri, cc, cache, null)
-            {
-                ValidateAuthority = false
-            };
+                cache = new TokenCache()
+                {
+                    BeforeAccess = BeforeCacheAccess,
+                    AfterAccess = AfterCacheAccess
+                };
 
-            var users = app.GetAccountsAsync().Result;
-            Assert.AreEqual(1, users.Count());
+                app = new ConfidentialClientApplication(
+                    TestConstants.ClientId,
+                    "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
+                    TestConstants.RedirectUri,
+                    cc,
+                    cache,
+                    null)
+                {
+                    ValidateAuthority = false
+                };
+
+                var users = app.GetAccountsAsync().Result;
+                Assert.AreEqual(1, users.Count());
+            }
         }
 
         private void BeforeCacheAccess(TokenCacheNotificationArgs args)

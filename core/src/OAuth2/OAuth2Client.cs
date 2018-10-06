@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Core.OAuth2
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
         private readonly IHttpManager _httpManager;
 
-        public OAuth2Client(IHttpManager httpManager = null)
+        public OAuth2Client(IHttpManager httpManager)
         {
             _httpManager = httpManager ?? new HttpManager();
         }

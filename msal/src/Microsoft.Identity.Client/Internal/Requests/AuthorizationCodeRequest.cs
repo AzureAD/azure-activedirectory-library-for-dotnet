@@ -27,14 +27,15 @@
 
 using System;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal class AuthorizationCodeRequest : RequestBase
     {
-        public AuthorizationCodeRequest(AuthenticationRequestParameters authenticationRequestParameters)
-            : base(authenticationRequestParameters)
+        public AuthorizationCodeRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters)
+            : base(httpManager, authenticationRequestParameters)
         {
             if (string.IsNullOrWhiteSpace(authenticationRequestParameters.AuthorizationCode))
             {

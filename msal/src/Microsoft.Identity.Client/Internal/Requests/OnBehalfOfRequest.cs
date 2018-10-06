@@ -28,14 +28,15 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal class OnBehalfOfRequest : RequestBase
     {
-        public OnBehalfOfRequest(AuthenticationRequestParameters authenticationRequestParameters)
-            : base(authenticationRequestParameters)
+        public OnBehalfOfRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters)
+            : base(httpManager, authenticationRequestParameters)
         {
             if (authenticationRequestParameters.UserAssertion == null)
             {

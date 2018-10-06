@@ -1,20 +1,20 @@
-﻿//----------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,8 +22,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -43,246 +43,292 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
     [TestClass]
     public class HttpManagerTests
     {
-        private IHttpManager _httpManager;
-
         [TestInitialize]
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
             CoreExceptionFactory.Instance = new TestExceptionFactory();
-            _httpManager = new HttpManager();
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public void TestSendPostNullHeaderNullBody()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
 
-            HttpResponse response =
-                _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    null, (IDictionary<string, string>)null, null).Result;
+                var response = httpManager.SendPostAsync(
+                    new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                    null,
+                    (IDictionary<string, string>)null,
+                    null).Result;
 
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
+            }
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public void TestSendPostNoFailure()
         {
-            Dictionary<string, string> bodyParameters = new Dictionary<string, string> { ["key1"] = "some value1", ["key2"] = "some value2" };
-            Dictionary<string, string> queryParams = new Dictionary<string, string> { ["key1"] = "qp1", ["key2"] = "qp2" };
-
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            var bodyParameters = new Dictionary<string, string>
             {
-                Method = HttpMethod.Post,
-                PostData = bodyParameters,
-                QueryParams = queryParams,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                ["key1"] = "some value1",
+                ["key2"] = "some value2"
+            };
+            var queryParams = new Dictionary<string, string>
+            {
+                ["key1"] = "qp1",
+                ["key2"] = "qp2"
+            };
 
+            using (var httpManager = new MockHttpManager())
+            {
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        PostData = bodyParameters,
+                        QueryParams = queryParams,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
 
-            HttpResponse response =
-                _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
-                    queryParams, bodyParameters, null).Result;
+                var response = httpManager.SendPostAsync(
+                    new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
+                    queryParams,
+                    bodyParameters,
+                    null).Result;
 
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
+            }
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public void TestSendGetNoFailure()
         {
-            Dictionary<string, string> queryParams = new Dictionary<string, string> { ["key1"] = "qp1", ["key2"] = "qp2" };
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            var queryParams = new Dictionary<string, string>
             {
-                Method = HttpMethod.Get,
-                QueryParams = queryParams,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                ["key1"] = "qp1",
+                ["key2"] = "qp2"
+            };
 
-            HttpResponse response =
-                _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"), queryParams, null).Result;
+            using (var httpManager = new MockHttpManager())
+            {
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Get,
+                        QueryParams = queryParams,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
 
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
+                var response = httpManager.SendGetAsync(
+                    new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
+                    queryParams,
+                    null).Result;
 
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Assert.AreEqual(MockHelpers.DefaultTokenResponse, response.Body);
+            }
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithHttp500TypeFailure()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.InternalServerError),
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.InternalServerError),
+                    });
 
-            try
-            {
-                var msalHttpResponse = await _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-                Assert.Fail("request should have failed");
+                try
+                {
+                    var msalHttpResponse = await httpManager.SendGetAsync(
+                                                                new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                                                                new Dictionary<string, string>(),
+                                                                new RequestContext(new TestLogger(Guid.NewGuid(), null)))
+                                                            .ConfigureAwait(false);
+                    Assert.Fail("request should have failed");
+                }
+                catch (TestServiceException exc)
+                {
+                    Assert.IsNotNull(exc);
+                    Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
+                }
             }
-            catch (TestServiceException exc)
-            {
-                Assert.IsNotNull(exc);
-                Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
-            }
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithHttp500TypeFailure2()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
+                    });
 
-            var msalHttpResponse = await _httpManager.SendPostForceResponseAsync(
-                new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                new Dictionary<string, string>(),
-                new StringContent("body"),
-                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                var msalHttpResponse = await httpManager.SendPostForceResponseAsync(
+                                                            new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                                                            new Dictionary<string, string>(),
+                                                            new StringContent("body"),
+                                                            new RequestContext(new TestLogger(Guid.NewGuid(), null)))
+                                                        .ConfigureAwait(false);
 
-            Assert.AreEqual(HttpStatusCode.BadGateway, msalHttpResponse.StatusCode);
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Assert.AreEqual(HttpStatusCode.BadGateway, msalHttpResponse.StatusCode);
+            }
         }
-
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public async Task TestSendPostWithHttp500TypeFailure()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.ServiceUnavailable),
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.ServiceUnavailable),
+                    });
 
-            try
-            {
-                var msalHttpResponse = await _httpManager.SendPostAsync(
-                    new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(),
-                    (IDictionary<string, string>)null,
-                    new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-                Assert.Fail("request should have failed");
+                try
+                {
+                    var msalHttpResponse = await httpManager.SendPostAsync(
+                                                                new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                                                                new Dictionary<string, string>(),
+                                                                (IDictionary<string, string>)null,
+                                                                new RequestContext(new TestLogger(Guid.NewGuid(), null)))
+                                                            .ConfigureAwait(false);
+                    Assert.Fail("request should have failed");
+                }
+                catch (TestServiceException exc)
+                {
+                    Assert.IsNotNull(exc);
+                    Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
+                }
             }
-            catch (TestServiceException exc)
-            {
-                Assert.IsNotNull(exc);
-                Assert.AreEqual(CoreErrorCodes.ServiceNotAvailable, exc.ErrorCode);
-            }
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public async Task TestSendGetWithRetryOnTimeoutFailure()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                ExceptionToThrow = new TaskCanceledException("request timed out")
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
+                        ExceptionToThrow = new TaskCanceledException("request timed out")
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                ExceptionToThrow = new TaskCanceledException("request timed out")
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
+                        ExceptionToThrow = new TaskCanceledException("request timed out")
+                    });
 
-            try
-            {
-                var msalHttpResponse = await _httpManager.SendGetAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-                Assert.Fail("request should have failed");
+                try
+                {
+                    var msalHttpResponse = await httpManager.SendGetAsync(
+                                                                new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                                                                new Dictionary<string, string>(),
+                                                                new RequestContext(new TestLogger(Guid.NewGuid(), null)))
+                                                            .ConfigureAwait(false);
+                    Assert.Fail("request should have failed");
+                }
+                catch (TestServiceException exc)
+                {
+                    Assert.IsNotNull(exc);
+                    Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
+                    Assert.IsTrue(exc.InnerException is TaskCanceledException);
+                }
             }
-            catch (TestServiceException exc)
-            {
-                Assert.IsNotNull(exc);
-                Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
-                Assert.IsTrue(exc.InnerException is TaskCanceledException);
-            }
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
         public async Task TestSendPostWithRetryOnTimeoutFailure()
         {
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                ExceptionToThrow = new TaskCanceledException("request timed out")
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
+                        ExceptionToThrow = new TaskCanceledException("request timed out")
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                ExceptionToThrow = new TaskCanceledException("request timed out")
-            });
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
+                        ExceptionToThrow = new TaskCanceledException("request timed out")
+                    });
 
-            try
-            {
-                var msalHttpResponse = await _httpManager.SendPostAsync(new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
-                    new Dictionary<string, string>(), new Dictionary<string, string>(), new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-                Assert.Fail("request should have failed");
+                try
+                {
+                    var msalHttpResponse = await httpManager.SendPostAsync(
+                                                                new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
+                                                                new Dictionary<string, string>(),
+                                                                new Dictionary<string, string>(),
+                                                                new RequestContext(new TestLogger(Guid.NewGuid(), null)))
+                                                            .ConfigureAwait(false);
+                    Assert.Fail("request should have failed");
+                }
+                catch (TestServiceException exc)
+                {
+                    Assert.IsNotNull(exc);
+                    Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
+                    Assert.IsTrue(exc.InnerException is TaskCanceledException);
+                }
             }
-            catch (TestServiceException exc)
-            {
-                Assert.IsNotNull(exc);
-                Assert.AreEqual(CoreErrorCodes.RequestTimeout, exc.ErrorCode);
-                Assert.IsTrue(exc.InnerException is TaskCanceledException);
-            }
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
     }
 }

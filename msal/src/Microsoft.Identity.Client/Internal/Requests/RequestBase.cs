@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
@@ -69,8 +70,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected bool StoreToCache { get; set; }
 
-        protected RequestBase(AuthenticationRequestParameters authenticationRequestParameters)
+        protected IHttpManager HttpManager { get; }
+
+        protected RequestBase(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters)
         {
+            HttpManager = httpManager;
             TokenCache = authenticationRequestParameters.TokenCache;
 
             {
@@ -259,10 +263,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task ResolveAuthorityEndpointsAsync()
         {
             await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
-                (AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+                (HttpManager, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             await AuthenticationRequestParameters.Authority
-                .ResolveEndpointsAsync(AuthenticationRequestParameters.LoginHint,
+                .ResolveEndpointsAsync(HttpManager, AuthenticationRequestParameters.LoginHint,
                     AuthenticationRequestParameters.RequestContext)
                 .ConfigureAwait(false);
         }
@@ -284,7 +288,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected virtual async Task SendTokenRequestAsync(CancellationToken cancellationToken)
         {
-            OAuth2Client client = new OAuth2Client();
+            OAuth2Client client = new OAuth2Client(HttpManager);
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.ClientInfo, "1");
             foreach (var entry in AuthenticationRequestParameters.ToParameters())

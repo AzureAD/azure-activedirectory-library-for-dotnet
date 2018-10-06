@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -38,8 +39,23 @@ namespace Microsoft.Identity.Client
         /// <param name="clientId">Client id of the application</param>
         /// <param name="authority">Default authority to be used for the application</param>
         /// <param name="userTokenCache">Instance of TokenCache.</param>
-        public PublicClientApplication(string clientId, string authority, TokenCache userTokenCache) : base(clientId,
-            authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+        public PublicClientApplication(string clientId, string authority, TokenCache userTokenCache) 
+            : this(null, clientId, authority, userTokenCache)
+        {
+            UserTokenCache = userTokenCache;
+        }
+
+        internal PublicClientApplication(
+            IHttpManager httpManager,
+            string clientId,
+            string authority,
+            TokenCache userTokenCache)
+            : base(
+                clientId,
+                authority,
+                PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId),
+                true,
+                httpManager)
         {
             UserTokenCache = userTokenCache;
         }

@@ -30,26 +30,26 @@ using System.Net.Http;
 
 namespace Microsoft.Identity.Core.Http
 {
-    internal static class HttpMessageHandlerFactory
-    {
-        private static readonly Queue<HttpMessageHandler> MockHttpMessageHandlerQueue = new Queue<HttpMessageHandler>();
+    //internal static class HttpMessageHandlerFactory
+    //{
+    //    private static readonly Queue<HttpMessageHandler> MockHttpMessageHandlerQueue = new Queue<HttpMessageHandler>();
 
-        internal static HttpMessageHandler GetMessageHandler(bool forMock)
-        {
-            return forMock ? MockHttpMessageHandlerQueue.Dequeue() : new HttpClientHandler() { UseDefaultCredentials = true };
-        }
+    //    internal static HttpMessageHandler GetMessageHandler(bool forMock)
+    //    {
+    //        return forMock ? MockHttpMessageHandlerQueue.Dequeue() : new HttpClientHandler() { UseDefaultCredentials = true };
+    //    }
 
-        internal static void AddMockHandler(HttpMessageHandler mockHandler)
-        {
-            MockHttpMessageHandlerQueue.Enqueue(mockHandler);
-        }
+    //    internal static void AddMockHandler(HttpMessageHandler mockHandler)
+    //    {
+    //        MockHttpMessageHandlerQueue.Enqueue(mockHandler);
+    //    }
 
-        internal static void ClearMockHandlers()
-        {
-            MockHttpMessageHandlerQueue.Clear();
-        }
+    //    internal static void ClearMockHandlers()
+    //    {
+    //        MockHttpMessageHandlerQueue.Clear();
+    //    }
 
-        internal static bool IsMocksQueueEmpty => MockHttpMessageHandlerQueue.Count == 0;
-        internal static int MockCount => MockHttpMessageHandlerQueue.Count;
-    }
+    //    internal static bool IsMocksQueueEmpty => MockHttpMessageHandlerQueue.Count == 0;
+    //    internal static int MockCount => MockHttpMessageHandlerQueue.Count;
+    //}
 }
