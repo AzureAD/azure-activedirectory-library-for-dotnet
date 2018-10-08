@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             //look for access token.
             MsalAccessTokenItem
-                = await TokenCache.FindAccessTokenAsync(AuthenticationRequestParameters).ConfigureAwait(false);
+                = await TokenCache.FindAccessTokenAsync(PlatformInformation, AuthenticationRequestParameters).ConfigureAwait(false);
             if (MsalAccessTokenItem != null)
             {
                 MsalIdTokenItem = TokenCache.GetIdTokenCacheItem(MsalAccessTokenItem.GetIdTokenItemKey(), AuthenticationRequestParameters.RequestContext);
@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             if (MsalAccessTokenItem == null)
             {
                 _msalRefreshTokenItem =
-                    await TokenCache.FindRefreshTokenAsync(AuthenticationRequestParameters).ConfigureAwait(false);
+                    await TokenCache.FindRefreshTokenAsync(PlatformInformation, AuthenticationRequestParameters).ConfigureAwait(false);
 
                 if (_msalRefreshTokenItem == null)
                 {

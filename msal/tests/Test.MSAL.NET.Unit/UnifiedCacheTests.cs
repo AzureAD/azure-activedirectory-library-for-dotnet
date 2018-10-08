@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -82,7 +83,7 @@ namespace Test.MSAL.NET.Unit
         [TestMethod]
         [Description("Test unified token cache")]
         public void UnifiedCache_MsalStoresToAndReadRtFromAdalCache()
-        {            
+        {
             MockWebUI ui = new MockWebUI()
             {
                 MockResult = new AuthorizationResult(AuthorizationStatus.Success,
@@ -131,7 +132,7 @@ namespace Test.MSAL.NET.Unit
 
                 var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
                 var users =
-                    app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+                    app.UserTokenCache.GetAccountsAsync(new TestPlatformInformation(), TestConstants.AuthorityCommonTenant, false, requestContext).Result;
                 foreach (IAccount user in users)
                 {
                     ISet<string> authorityHostAliases = new HashSet<string>();

@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.Instance
 
         private bool _resolved;
 
-        protected Authority(string authority, bool validateAuthority)
+        protected Authority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
         {
             var authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
@@ -81,9 +81,29 @@ namespace Microsoft.Identity.Core.Instance
             string userPrincipalName,
             RequestContext requestContext);
 
-        public static Authority CreateAuthority(string authority, bool validateAuthority)
+        public static Authority CreateAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
         {
-            return CreateInstance(authority, validateAuthority);
+            authority = CanonicalizeUri(authority);
+            ValidateAsUri(authority);
+
+            switch (GetAuthorityType(authority))
+            {
+            case AuthorityType.Adfs:
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InvalidAuthorityType,
+                    "ADFS is not a supported authority");
+
+            case AuthorityType.B2C:
+                return new B2CAuthority(platformInformation, authority, validateAuthority);
+
+            case AuthorityType.Aad:
+                return new AadAuthority(platformInformation, authority, validateAuthority);
+
+            default:
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.InvalidAuthorityType,
+                    "Usupported authority type");
+            }
         }
 
         internal virtual async Task UpdateCanonicalAuthorityAsync(IHttpManager httpManager, RequestContext requestContext)
@@ -142,31 +162,6 @@ namespace Microsoft.Identity.Core.Instance
             else
             {
                 return AuthorityType.Aad;
-            }
-        }
-
-        private static Authority CreateInstance(string authority, bool validateAuthority)
-        {
-            authority = CanonicalizeUri(authority);
-            ValidateAsUri(authority);
-
-            switch (GetAuthorityType(authority))
-            {
-            case AuthorityType.Adfs:
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.InvalidAuthorityType,
-                    "ADFS is not a supported authority");
-
-            case AuthorityType.B2C:
-                return new B2CAuthority(authority, validateAuthority);
-
-            case AuthorityType.Aad:
-                return new AadAuthority(authority, validateAuthority);
-
-            default:
-                throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.InvalidAuthorityType,
-                    "Usupported authority type");
             }
         }
 

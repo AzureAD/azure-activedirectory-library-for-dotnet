@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -36,6 +36,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
@@ -68,7 +69,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
                 {
                     ClientId = TestConstants.ClientId
@@ -102,7 +103,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
                 {
                     ClientId = TestConstants.ClientId
@@ -148,7 +149,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
                 _cache = null;
 
                 RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
@@ -190,7 +191,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
                 _cache = new TokenCache()
                 {
                     ClientId = TestConstants.ClientId

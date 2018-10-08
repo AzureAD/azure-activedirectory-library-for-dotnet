@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -55,7 +55,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             try
             {
-                var instance = Authority.CreateAuthority("https://login.microsoftonline.in/tfp/", false);
+                var instance = Authority.CreateAuthority(new TestPlatformInformation(), "https://login.microsoftonline.in/tfp/", false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task.Run(
@@ -76,7 +76,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("B2CAuthorityTests")]
         public void ValidationEnabledNotSupportedTest()
         {
-            var instance = Authority.CreateAuthority(TestConstants.B2CAuthority, true);
+            var instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.B2CAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
             try
@@ -107,13 +107,13 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             const string uriCustomPort = "https://login.microsoftonline.in:444/tfp/tenant/policy";
             const string uriCustomPortTailSlash = "https://login.microsoftonline.in:444/tfp/tenant/policy/";
 
-            var authority = new B2CAuthority(uriNoPort, false);
+            var authority = new B2CAuthority(new TestPlatformInformation(), uriNoPort, false);
             Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(uriDefaultPort, false);
+            authority = new B2CAuthority(new TestPlatformInformation(), uriDefaultPort, false);
             Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(uriCustomPort, false);
+            authority = new B2CAuthority(new TestPlatformInformation(), uriCustomPort, false);
             Assert.AreEqual(uriCustomPortTailSlash, authority.CanonicalAuthority);
         }
     }

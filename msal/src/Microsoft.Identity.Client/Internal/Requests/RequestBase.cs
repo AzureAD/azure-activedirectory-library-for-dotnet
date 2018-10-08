@@ -43,10 +43,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal abstract class RequestBase
     {
-        static RequestBase()
-        {
-            PlatformPlugin.PlatformInformation = new PlatformInformation();
-        }
+        internal CorePlatformInformationBase PlatformInformation => new PlatformInformation();
 
         protected static readonly Task CompletedTask = Task.FromResult(false);
         internal AuthenticationRequestParameters AuthenticationRequestParameters { get; }
@@ -161,8 +158,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             using (CoreTelemetryService.CreateTelemetryHelper(
-                AuthenticationRequestParameters.RequestContext.TelemetryRequestId, 
-                apiEvent, 
+                AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
+                apiEvent,
                 shouldFlush: true))
             {
                 try
@@ -235,7 +232,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Info("Saving Token Response to cache..");
 
-                var tuple = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
+                var tuple = TokenCache.SaveAccessAndRefreshToken(PlatformInformation, AuthenticationRequestParameters, Response);
                 MsalAccessTokenItem = tuple.Item1;
                 MsalIdTokenItem = tuple.Item2;
             }
@@ -325,7 +322,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Info(
                     string.Format(
-                        CultureInfo.InvariantCulture, 
+                        CultureInfo.InvariantCulture,
                         "=== Token Acquisition finished successfully. An access token was returned with Expiration Time: {0} ===",
                         result.ExpiresOn));
             }

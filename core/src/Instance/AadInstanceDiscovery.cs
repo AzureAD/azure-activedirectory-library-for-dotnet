@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Core.Instance
             return string.Format(CultureInfo.InvariantCulture, "https://{0}/common/discovery/instance", host);
         }
 
-        internal async Task<InstanceDiscoveryResponse> 
+        internal async Task<InstanceDiscoveryResponse>
             DoInstanceDiscoveryAndCacheAsync(IHttpManager httpManager, Uri authority, bool validateAuthority, RequestContext requestContext)
         {
             InstanceDiscoveryResponse discoveryResponse =

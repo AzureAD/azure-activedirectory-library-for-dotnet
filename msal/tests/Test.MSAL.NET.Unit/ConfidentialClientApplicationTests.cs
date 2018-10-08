@@ -42,6 +42,7 @@ using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using NSubstitute;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
@@ -59,7 +60,7 @@ namespace Test.MSAL.NET.Unit
         {
             Authority.ValidatedAuthorities.Clear();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-        
+
             AadInstanceDiscovery.Instance.Cache.Clear();
             // AddMockResponseForInstanceDiscovery();
         }
@@ -290,11 +291,11 @@ namespace Test.MSAL.NET.Unit
         private ConfidentialClientApplication CreateConfidentialClient(MockHttpManager httpManager, ClientCredential cc, int tokenResponses)
         {
             ConfidentialClientApplication app = new ConfidentialClientApplication(
-                httpManager, 
+                httpManager,
                 TestConstants.ClientId,
                 ClientApplicationBase.DefaultAuthority,
-                TestConstants.RedirectUri, 
-                cc, 
+                TestConstants.RedirectUri,
+                cc,
                 new TokenCache(),
                 new TokenCache())
             {
@@ -659,7 +660,7 @@ namespace Test.MSAL.NET.Unit
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCacheForClientCredential(cache.tokenCacheAccessor);
 
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
                     TestConstants.ClientId,
@@ -701,7 +702,7 @@ namespace Test.MSAL.NET.Unit
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
                     TestConstants.ClientId,

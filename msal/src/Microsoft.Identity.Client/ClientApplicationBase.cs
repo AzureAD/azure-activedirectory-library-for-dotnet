@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Helpers;
@@ -46,13 +47,19 @@ namespace Microsoft.Identity.Client
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
 #endif
     /// <Summary>
-    /// Abstract class containing common API methods and properties. Both <see cref="Microsoft.Identity.Client.PublicClientApplication"/> and <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/> 
+    /// Abstract class containing common API methods and properties. Both <see cref="Microsoft.Identity.Client.PublicClientApplication"/> and <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>
     /// extend this class. For details see https://aka.ms/msal-net-client-applications
     /// </Summary>
     public abstract partial class ClientApplicationBase
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
+        static ClientApplicationBase()
+        {
+            ModuleInitializer.EnsureModuleInitialized();
+        }
+
         private TokenCache userTokenCache;
+        internal CorePlatformInformationBase PlatformInformation { get; }
 
         /// <Summary>
         /// Default Authority used for interactive calls.
@@ -65,10 +72,10 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Constructor of the base application
         /// </summary>
-        /// <param name="clientId">Client ID (also known as <i>Application ID</i>) of the application as registered in the 
+        /// <param name="clientId">Client ID (also known as <i>Application ID</i>) of the application as registered in the
         /// application registration portal (https://aka.ms/msal-net-register-app)</param>
         /// <param name="authority">URL of the security token service (STS) from which MSAL.NET will acquire the tokens.
-        /// 
+        ///
         /// Usual authorities endpoints for the Azure public Cloud are:
         /// <list type="bullet">
         /// <item><description><c>https://login.microsoftonline.com/tenant/</c> where <c>tenant</c> is the tenant ID of the Azure AD tenant
@@ -80,7 +87,7 @@ namespace Microsoft.Identity.Client
         /// Note that this setting needs to be consistent with what is declared in the application registration portal
         /// </param>
         /// <param name="redirectUri">also named <i>Reply URI</i>, the redirect URI is the URI where the STS will call back the application with the security token. For details see https://aka.ms/msal-net-client-applications</param>
-        /// <param name="validateAuthority">Boolean telling MSAL.NET if the authority needs to be verified against a list of known authorities. 
+        /// <param name="validateAuthority">Boolean telling MSAL.NET if the authority needs to be verified against a list of known authorities.
         /// This should be set to <c>false</c> for Azure AD B2C authorities as those are customer specific (a list of known B2C authorities
         /// cannot be maintained by MSAL.NET</param>
         /// <param name="httpManager"></param>
@@ -90,8 +97,10 @@ namespace Microsoft.Identity.Client
             // TODO: instantiate coreexceptionfactory and such at this level as well...
             HttpManager = httpManager ?? new HttpManager();
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
+            PlatformInformation = new PlatformInformation();
+
             ClientId = clientId;
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, validateAuthority);
             Authority = authorityInstance.CanonicalAuthority;
             RedirectUri = redirectUri;
             ValidateAuthority = validateAuthority;
@@ -104,19 +113,26 @@ namespace Microsoft.Identity.Client
 
             requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                new PlatformInformation().GetProductName(), MsalIdHelper.GetMsalVersion(),
-                MsalIdHelper.GetAssemblyFileVersion(), MsalIdHelper.GetAssemblyInformationalVersion()));
+                PlatformInformation.GetProductName(), MsalIdHelper.GetMsalVersion(),
+                PlatformInformation.GetAssemblyFileVersionAttribute(), GetAssemblyInformationalVersion()));
+        }
+
+        private static string GetAssemblyInformationalVersion()
+        {
+            AssemblyInformationalVersionAttribute attribute =
+                typeof(ClientApplicationBase).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            return (attribute != null) ? attribute.InformationalVersion : string.Empty;
         }
 
         /// <summary>
-        /// Identifier of the component (libraries/SDK) consuming MSAL.NET. 
+        /// Identifier of the component (libraries/SDK) consuming MSAL.NET.
         /// This will allow for disambiguation between MSAL usage by the app vs MSAL usage by component libraries.
         /// </summary>
         public string Component { get; set; }
 
         /// <Summary>
         /// Gets the URL of the authority, or security token service (STS) from which MSAL.NET will acquire security tokens
-        /// The return value of this property is either the value provided by the developer in the constructor of the application, or otherwise 
+        /// The return value of this property is either the value provided by the developer in the constructor of the application, or otherwise
         /// the value of the <see cref="DefaultAuthority"/> static member (that is <c>https://login.microsoftonline.com/common/</c>)
         /// </Summary>
         public string Authority { get; }
@@ -129,7 +145,7 @@ namespace Microsoft.Identity.Client
 
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
         /// <summary>
-        /// The redirect URI (also known as Reply URI or Reply URL), is the URI at which Azure AD will contact back the application with the tokens. 
+        /// The redirect URI (also known as Reply URI or Reply URL), is the URI at which Azure AD will contact back the application with the tokens.
         /// This redirect URI needs to be registered in the app registration (https://aka.ms/msal-net-register-app).
         /// In MSAL.NET, <see cref="T:PublicClientApplication"/> define the following default RedirectUri values:
         /// <list type="bullet">
@@ -141,7 +157,7 @@ namespace Microsoft.Identity.Client
         /// These default URIs could change in the future.
         /// In <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, this can be the URL of the Web application / Web API.
         /// </summary>
-        /// <remarks>This is especially important when you deploy an application that you have initially tested locally; 
+        /// <remarks>This is especially important when you deploy an application that you have initially tested locally;
         /// you then need to add the reply URL of the deployed application in the application registration portal</remarks>
         public string RedirectUri { get; set; }
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
@@ -172,7 +188,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Gets/sets a boolean value telling the application if the authority needs to be verified against a list of known authorities. The default
-        /// value is <c>true</c>. It should currently be set to <c>false</c> for Azure AD B2C authorities as those are customer specific 
+        /// value is <c>true</c>. It should currently be set to <c>false</c> for Azure AD B2C authorities as those are customer specific
         /// (a list of known B2C authorities cannot be maintained by MSAL.NET). This property can be set just after the construction of the application
         /// and before an operation acquiring a token or interacting with the STS.
         /// </summary>
@@ -189,7 +205,7 @@ namespace Microsoft.Identity.Client
                 requestContext.Logger.Info("Token cache is null or empty. Returning empty list of accounts.");
                 return Enumerable.Empty<Account>();
             }
-            return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
+            return await UserTokenCache.GetAccountsAsync(PlatformInformation, Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -206,18 +222,18 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Attempts to acquire an access token for the <paramref name="account"/> from the user token cache. 
-        /// </summary> 
+        /// Attempts to acquire an access token for the <paramref name="account"/> from the user token cache.
+        /// </summary>
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account for which the token is requested. <see cref="IAccount"/></param>
         /// <returns>An <see cref="AuthenticationResult"/> containing the requested token</returns>
-        /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
+        /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application,
         /// for instance so that the user consents, or re-signs-in (for instance if the password expired), or performs two factor authentication</exception>
         /// <remarks>
         /// The access token is considered a match if it contains <b>at least</b> all the requested scopes.
-        /// This means that an access token with more scopes than requested could be returned as well. If the access token is expired or 
+        /// This means that an access token with more scopes than requested could be returned as well. If the access token is expired or
         /// close to expiration (within a 5 minute window), then the cached refresh token (if available) is used to acquire a new access token by making a silent network call.
-        /// 
+        ///
         /// See https://aka.ms/msal-net-acquiretokensilent for more details
         /// </remarks>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account)
@@ -236,18 +252,18 @@ namespace Microsoft.Identity.Client
         /// <param name="authority">Specific authority for which the token is requested. Passing a different value than configured in the application constructor
         /// narrows down the selection to a specific tenant. This does not change the configured value in the application. This is specific
         /// to applications managing several accounts (like a mail client with several mailboxes)</param>
-        /// <param name="forceRefresh">If <c>true</c>, ignore any access token in the cache and attempt to acquire new access token 
+        /// <param name="forceRefresh">If <c>true</c>, ignore any access token in the cache and attempt to acquire new access token
         /// using the refresh token for the account if this one is available. This can be useful in the case when the application developer wants to make
         /// sure that conditional access policies are applied immediately, rather than after the expiration of the access token</param>
         /// <returns>An <see cref="AuthenticationResult"/> containing the requested access token</returns>
-        /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application, 
-        /// for instance, if no refresh token was in the cache, or the user needs to consent, or re-sign-in (for instance if the password expired), 
+        /// <exception cref="MsalUiRequiredException">can be thrown in the case where an interaction is required with the end user of the application,
+        /// for instance, if no refresh token was in the cache, or the user needs to consent, or re-sign-in (for instance if the password expired),
         /// or performs two factor authentication</exception>
         /// <remarks>
-        /// The access token is considered a match if it contains <b>at least</b> all the requested scopes. This means that an access token with more scopes than 
-        /// requested could be returned as well. If the access token is expired or close to expiration (within a 5 minute window), 
+        /// The access token is considered a match if it contains <b>at least</b> all the requested scopes. This means that an access token with more scopes than
+        /// requested could be returned as well. If the access token is expired or close to expiration (within a 5 minute window),
         /// then the cached refresh token (if available) is used to acquire a new access token by making a silent network call.
-        /// 
+        ///
         /// See https://aka.ms/msal-net-acquiretokensilent for more details
         /// </remarks>
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes, IAccount account,
@@ -256,7 +272,7 @@ namespace Microsoft.Identity.Client
             Authority authorityInstance = null;
             if (!string.IsNullOrEmpty(authority))
             {
-                authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
             }
 
             return
@@ -277,12 +293,12 @@ namespace Microsoft.Identity.Client
                 return;
             }
 
-            await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
+            await UserTokenCache.RemoveAsync(PlatformInformation, Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
         }
 
         internal Authority GetAuthority(IAccount account)
         {
-            var authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            var authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             var tenantId = authority.GetTenantId();
 
             if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId)

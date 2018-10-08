@@ -169,7 +169,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             using (var httpManager = new MockHttpManager())
             {
 
-                Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+                Authority authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
                 _cache = new TokenCache()
                 {
                     ClientId = TestConstants.ClientId
