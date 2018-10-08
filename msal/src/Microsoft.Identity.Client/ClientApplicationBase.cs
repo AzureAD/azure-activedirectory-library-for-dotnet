@@ -102,12 +102,10 @@ namespace Microsoft.Identity.Client
 
             RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
 
-            var platformInformation = new PlatformInformation();
-
             requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                new PlatformInformation().GetProductName(), MsalIdHelper.GetMsalVersion(),
-                platformInformation.GetAssemblyFileVersionAttribute(), GetAssemblyInformationalVersion()));
+                PlatformInformation.GetProductName(), MsalIdHelper.GetMsalVersion(),
+                PlatformInformation.GetAssemblyFileVersionAttribute(), GetAssemblyInformationalVersion()));
         }
 
         private static string GetAssemblyInformationalVersion()
