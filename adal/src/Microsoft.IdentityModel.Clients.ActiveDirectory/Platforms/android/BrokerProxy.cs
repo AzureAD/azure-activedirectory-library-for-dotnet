@@ -423,7 +423,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             else if(!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
-                throw new AdalException(AdalError.BrokerRedirectUriIncorrect, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriWrongValue, computedRedirectUri));
+                throw new AdalException(AdalError.BrokerRedirectUriIncorrect, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrect, computedRedirectUri));
             }
 
             brokerOptions.PutString(BrokerConstants.AccountRedirect, request.RedirectUri);
