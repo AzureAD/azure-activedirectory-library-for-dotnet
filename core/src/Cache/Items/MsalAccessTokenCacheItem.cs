@@ -39,13 +39,13 @@ namespace Microsoft.Identity.Core.Cache
     {
         internal MsalAccessTokenCacheItem()
         {
-            CredentialType = Cache.CredentialType.accesstoken.ToString();
+            CredentialType = MsalCacheCommon.AccessToken;
         }
 
         internal MsalAccessTokenCacheItem
-            (string environment, string clientId, MsalTokenResponse response, string tenantId) : 
-            
-            this(environment, clientId, response.TokenType, response.Scope.AsLowerCaseSortedSet().AsSingleString(),
+            (string environment, string clientId, MsalTokenResponse response, string tenantId) :
+
+            this(environment, clientId, response.TokenType, ScopeHelper.ConvertStringToLowercaseSortedSet(response.Scope).AsSingleString(),
                  tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo)
         {
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Core.Cache
             Environment = environment;
             ClientId = clientId;
             TokenType = tokenType;
-            Scopes = scopes;        
+            NormalizedScopes = scopes;
             TenantId = tenantId;
             Secret = secret;
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
@@ -70,8 +70,12 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "realm")]
         internal string TenantId { get; set; }
 
+        /// <summary>
+        /// String comprised of scopes that have been lowercased and ordered.
+        /// </summary>
+        /// <remarks>Normalization is important when creating unique keys.</remarks>
         [DataMember(Name = "target", IsRequired = true)]
-        internal string Scopes { get; set; }
+        internal string NormalizedScopes { get; set; }
 
         [DataMember(Name = "cached_at", IsRequired = true)]
         internal long CachedAt { get; set; }
@@ -92,12 +96,12 @@ namespace Microsoft.Identity.Core.Cache
                 return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
             }
         }
-        
+
         internal SortedSet<string> ScopeSet
         {
             get
             {
-                return Scopes.AsLowerCaseSortedSet();
+                return ScopeHelper.ConvertStringToLowercaseSortedSet(NormalizedScopes);
             }
         }
         internal DateTimeOffset ExpiresOn
@@ -111,7 +115,7 @@ namespace Microsoft.Identity.Core.Cache
 
         internal MsalAccessTokenCacheKey GetKey()
         {
-            return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, Scopes);
+            return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, NormalizedScopes);
         }
         internal MsalIdTokenCacheKey GetIdTokenItemKey()
         {

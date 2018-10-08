@@ -42,11 +42,13 @@ namespace Microsoft.Identity.Core.OAuth2
     internal class OAuth2Client
     {
         private readonly Dictionary<string, string> _bodyParameters = new Dictionary<string, string>();
-
-        private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
-
+        private readonly Dictionary<string, string> _headers;
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
+
+        public OAuth2Client(CorePlatformInformationBase platformInformation)
+        {
+            _headers = new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters(platformInformation));
+        }
 
         public void AddQueryParameter(string key, string value)
         {
@@ -97,7 +99,17 @@ namespace Microsoft.Identity.Core.OAuth2
                 httpEvent.UserAgent = response.UserAgent;
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
+                    try
+                    {
+                        httpEvent.OauthErrorCode = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body).Error;
+                    }
+                    catch (SerializationException) // in the rare case we get an error response we cannot deserialize
+                    {
+                        throw CoreExceptionFactory.Instance.GetServiceException(
+                            CoreErrorCodes.NonParsableOAuthError,
+                            CoreErrorMessages.NonParsableOAuthError,
+                            response);
+                    }
                 }
             }
             finally
@@ -126,6 +138,7 @@ namespace Microsoft.Identity.Core.OAuth2
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
             Exception serviceEx;
+
             try
             {
                 MsalTokenResponse msalTokenResponse = JsonHelper.DeserializeFromJson<MsalTokenResponse>(response.Body);
@@ -137,29 +150,20 @@ namespace Microsoft.Identity.Core.OAuth2
                         CoreErrorCodes.InvalidGrantError,
                         msalTokenResponse.ErrorDescription,
                         null,
-                         new ExceptionDetail()
-                         {
-                             Claims = msalTokenResponse.Claims,
-                         });
+                        ExceptionDetail.FromHttpResponse(response));
                 }
 
                 serviceEx = CoreExceptionFactory.Instance.GetServiceException(
                     msalTokenResponse.Error,
                     msalTokenResponse.ErrorDescription,
-                    null,
-                    new ExceptionDetail()
-                    {
-                        ResponseBody = response.Body,
-                        StatusCode = (int)response.StatusCode,
-                        Claims = msalTokenResponse.Claims,
-                    });
+                    response);
             }
-            catch (SerializationException)
+            catch (SerializationException ex)
             {
-                serviceEx = CoreExceptionFactory.Instance.GetServiceException(
+                serviceEx = CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.UnknownError,
-                    response.Body,
-                    new ExceptionDetail() { StatusCode = (int)response.StatusCode });
+                    response.Body, 
+                    ex);
             }
 
             requestContext.Logger.ErrorPii(serviceEx);
@@ -177,13 +181,13 @@ namespace Microsoft.Identity.Core.OAuth2
 
         private static void VerifyCorrelationIdHeaderInResponse(IDictionary<string, string> headers, RequestContext requestContext)
         {
-            foreach (string reponseHeaderKey in headers.Keys)
+            foreach (string responseHeaderKey in headers.Keys)
             {
-                string trimmedKey = reponseHeaderKey.Trim();
+                string trimmedKey = responseHeaderKey.Trim();
                 if (string.Compare(trimmedKey, OAuth2Header.CorrelationId, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     string correlationIdHeader = headers[trimmedKey].Trim();
-                    if (!string.Equals(correlationIdHeader, requestContext.Logger.CorrelationId))
+                    if (string.Compare(correlationIdHeader, requestContext.Logger.CorrelationId.ToString(), StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         requestContext.Logger.WarningPii(
                             string.Format(CultureInfo.InvariantCulture,

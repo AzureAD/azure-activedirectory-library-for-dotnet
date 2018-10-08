@@ -51,9 +51,7 @@ namespace Microsoft.Identity.Client
     /// <item><description>Contrary to <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets, 
     /// and as a result have no client secret</description></item>
     /// <item><description>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructor</description></item>
-    /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods. Actually
-    /// until MSAL.NET supports Windows integrated authentication, Username/Password, and Device Code Flow, the .NET Core platform does not
-    /// provide any public client application flows</description></item>
+    /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods</description></item>
     /// </list>
     /// </remarks>
     public sealed partial class PublicClientApplication : ClientApplicationBase, IPublicClientApplication
@@ -90,7 +88,7 @@ namespace Microsoft.Identity.Client
         /// Note that this setting needs to be consistent with what is declared in the application registration portal 
         /// </param>
         public PublicClientApplication(string clientId, string authority)
-            : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+            : base(clientId, authority, new PlatformInformation().GetDefaultRedirectUri(clientId), true)
         {
             UserTokenCache = new TokenCache()
             {
@@ -126,7 +124,7 @@ namespace Microsoft.Identity.Client
 
 #if WINDOWS_APP
         /// <summary>
-        /// Flag to enable authentication with the user currently logeed-in in Windows.
+        /// Flag to enable authentication with the user currently logged-in in Windows.
         /// When set to true, the application will try to connect to the corporate network using windows integrated authentication.
         /// </summary>
         public bool UseCorporateNetwork { get; set; }
@@ -142,7 +140,7 @@ namespace Microsoft.Identity.Client
         /// and will consent to scopes and do multi-factor authentication if such a policy was enabled in the Azure AD tenant.</remarks>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
@@ -158,7 +156,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
@@ -176,7 +174,7 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> scopes,
             IAccount account)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authority, scopes, null, account,
@@ -196,7 +194,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
@@ -216,7 +214,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
             UIBehavior behavior, string extraQueryParameters)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior,
@@ -240,7 +238,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
@@ -264,7 +262,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account,
@@ -283,7 +281,7 @@ namespace Microsoft.Identity.Client
         /// and will consent to scopes and do multi-factor authentication if such a policy was enabled in the Azure AD tenant.</remarks>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, null,
@@ -301,7 +299,7 @@ namespace Microsoft.Identity.Client
         /// <returns>Authentication result containing a token for the requested scopes and login</returns>
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
@@ -320,7 +318,7 @@ namespace Microsoft.Identity.Client
             IEnumerable<string> scopes,
             IAccount account, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authority, scopes, null, account,
@@ -341,7 +339,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authority, scopes, null, loginHint,
@@ -362,7 +360,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
             UIBehavior behavior, string extraQueryParameters, UIParent parent)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authority, scopes, null, account, behavior,
@@ -387,7 +385,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
             UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForLoginHintCommonAsync(authorityInstance, scopes, extraScopesToConsent,
@@ -412,7 +410,7 @@ namespace Microsoft.Identity.Client
         public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, IAccount account,
         UIBehavior behavior, string extraQueryParameters, IEnumerable<string> extraScopesToConsent, string authority, UIParent parent)
         {
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
             return
                 await
                     AcquireTokenForUserCommonAsync(authorityInstance, scopes, extraScopesToConsent, account,
@@ -437,7 +435,7 @@ namespace Microsoft.Identity.Client
 #endif
 #endif
 
-            return PlatformPlugin.WebUIFactory.CreateAuthenticationDialog(parent.CoreUIParent, requestContext);
+            return PlatformPlugin.GetWebUiFactory().CreateAuthenticationDialog(parent.CoreUIParent, requestContext);
         }
 
         private async Task<AuthenticationResult> AcquireTokenForLoginHintCommonAsync(Authority authority, IEnumerable<string> scopes,
@@ -450,7 +448,7 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 
@@ -470,7 +468,7 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 

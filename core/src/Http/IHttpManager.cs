@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -27,17 +27,34 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Microsoft.Identity.Core.Http
 {
-    internal class MsalRefreshTokenCacheKey : MsalCredentialCacheKey
+    internal interface IHttpManager
     {
-        internal MsalRefreshTokenCacheKey(string environment, string clientId, string userIdentifier)
-            : base(environment, null, userIdentifier, CredentialType.refreshtoken, clientId, null)
-        {
-        }
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            IDictionary<string, string> bodyParameters,
+            RequestContext requestContext);
+
+        Task<HttpResponse> SendPostAsync(
+            Uri endpoint,
+            IDictionary<string, string> headers,
+            HttpContent body,
+            RequestContext requestContext);
+
+        Task<HttpResponse> SendGetAsync(
+            Uri endpoint,
+            Dictionary<string, string> headers,
+            RequestContext requestContext);
+
+        Task<IHttpWebResponse> SendPostForceResponseAsync(
+            Uri uri,
+            Dictionary<string, string> headers,
+            StringContent body,
+            RequestContext requestContext);
     }
 }

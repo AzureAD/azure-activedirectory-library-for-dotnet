@@ -26,30 +26,22 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Identity.Core.Helpers;
 
-namespace Microsoft.Identity.Core.Cache
+namespace Test.Microsoft.Identity.Core.Unit.Mocks
 {
-    internal abstract class MsalCacheKeyBase
+    internal class TestTimeService : ITimeService
     {
-        public const string CacheKeyDelimiter = "-";
-
-        internal MsalCacheKeyBase(string environment, string userIdentifier)
+        public TestTimeService(DateTime utcNow)
         {
-            if (string.IsNullOrEmpty(environment))
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-
-            Environment = environment;
-            HomeAccountId = userIdentifier;
+            UtcNow = utcNow;
         }
 
-        internal string Environment { get; set; }
+        public DateTime UtcNow { get; set; }
 
-        internal string HomeAccountId { get; set; }
+        public DateTime GetUtcNow()
+        {
+            return UtcNow;
+        }
     }
 }

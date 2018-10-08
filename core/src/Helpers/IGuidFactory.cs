@@ -25,12 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core.Cache
+using System;
+
+namespace Microsoft.Identity.Core.Helpers
 {
-    internal enum CredentialType
+    internal interface IGuidFactory
     {
-        idtoken,
-        accesstoken,
-        refreshtoken
+        Guid NewGuid();
     }
 }

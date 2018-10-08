@@ -168,6 +168,9 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public const string UapCannotFindUpn = "uap_cannot_find_upn";
 
-
+        /// <summary>
+        /// An error response was returned by the OAuth2 server and it could not be parsed
+        /// </summary>
+        public const string NonParsableOAuthError = "non_parsable_oauth_error";
     }
 }

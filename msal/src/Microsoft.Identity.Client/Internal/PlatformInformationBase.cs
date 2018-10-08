@@ -25,30 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal
 {
     internal abstract class PlatformInformationBase : CorePlatformInformationBase
     {
-           
-        static PlatformInformationBase()
-        {
-            Instance = new PlatformInformation();
-        }
-
         public override string GetAssemblyFileVersionAttribute()
         {
             return
-                typeof (MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
-        }
-
-        public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)
-        {
-            return await Task.Factory.StartNew(() => false).ConfigureAwait(false);
+                typeof(MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
         }
     }
 }

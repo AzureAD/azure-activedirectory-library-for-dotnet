@@ -25,38 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Test.Microsoft.Identity.Core.Unit.CacheTests
+namespace Test.Microsoft.Identity.Core.Unit
 {
     [TestClass]
-    public class MsalRefreshTokenCacheKeyTests
+    public class PlatformProxyFactoryTests
     {
         [TestMethod]
-        [TestCategory("RefreshTokenCacheKeyTests")]
-        public void ConstructorTest()
+        public void PlatformProxyFactoryCachesTheProxy()
         {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
-                TestConstants.ClientId, TestConstants.UserIdentifier);
+            // Act 
+            var proxy1 = PlatformProxyFactory.GetPlatformProxy();
+            var proxy2 = PlatformProxyFactory.GetPlatformProxy();
 
-            Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
-            Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
-        }
-
-        [TestMethod]
-        [TestCategory("RefreshTokenCacheKeyTests")]
-        public void ToStringTest()
-        {
-            MsalRefreshTokenCacheKey key = new MsalRefreshTokenCacheKey(TestConstants.ProductionPrefNetworkEnvironment,
-                TestConstants.ClientId, TestConstants.UserIdentifier);
-
-            Assert.IsNotNull(key);
-            Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, key.Environment);
-            Assert.AreEqual(TestConstants.ClientId, key.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier, key.HomeAccountId);
+            // Assert
+            Assert.IsTrue(proxy1 == proxy2);
         }
     }
 }
