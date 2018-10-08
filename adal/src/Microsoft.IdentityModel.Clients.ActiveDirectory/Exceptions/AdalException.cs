@@ -223,6 +223,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     message = AdalErrorMessage.InteractionRequired;
                     break;
 
+                case AdalError.BrokerRedirectUriNullOrEmpty:
+                    message = AdalErrorMessage.BrokerRedirectUriNullOrEmpty;
+                    break;
+
                 default:
                     message = AdalErrorMessage.Unknown;
                     break;
