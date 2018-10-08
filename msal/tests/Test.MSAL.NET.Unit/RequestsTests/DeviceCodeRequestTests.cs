@@ -72,6 +72,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         private const int ExpectedExpiresIn = 900;
         private const int ExpectedInterval = 5;
         private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
+        private const string ExpectedAdfsVerificationUrl = "https://fs.contoso.com/adfs/oauth2/deviceauth";
 
         private string ExpectedMessage =>
             $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
@@ -86,16 +87,32 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             $"\"message\":\"{ExpectedMessage}\"," +
             $"}}";
 
+        private string ExpectedAdfsResponseMessage =>
+            $"{{" +
+            $"\"user_code\":\"{ExpectedUserCode}\"," +
+            $"\"device_code\":\"{ExpectedDeviceCode}\"," +
+            $"\"verification_url\":\"{ExpectedAdfsVerificationUrl}\"," +
+            $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
+            $"\"interval\":\"{ExpectedInterval}\"," +
+            $"\"message\":\"{ExpectedMessage}\"," +
+            $"}}";
+
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
         {
             return MockHelpers.CreateSuccessResponseMessage(ExpectedResponseMessage);
+        }
+
+        private HttpResponseMessage CreateAdfsDeviceCodeResponseSuccessMessage()
+        {
+            return MockHelpers.CreateSuccessResponseMessage(ExpectedAdfsResponseMessage);
         }
 
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes, authority);
 
             // Check that cache is empty
             Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -135,9 +152,53 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
+        public void TestDeviceCodeAuthSuccessWithAdfs()
+        {
+            Authority authority = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, false);
+            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes, authority);
+
+            // Check that cache is empty
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+            Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            DeviceCodeResult actualDeviceCodeResult = null;
+            DeviceCodeRequest request = new DeviceCodeRequest(parameters, result =>
+            {
+                actualDeviceCodeResult = result;
+                return Task.FromResult(0);
+            });
+            var task = request.RunAsync(CancellationToken.None);
+            task.Wait();
+            var authenticationResult = task.Result;
+            Assert.IsNotNull(authenticationResult);
+            Assert.IsNotNull(actualDeviceCodeResult);
+
+            Assert.AreEqual(TestConstants.ClientId, actualDeviceCodeResult.ClientId);
+            Assert.AreEqual(ExpectedDeviceCode, actualDeviceCodeResult.DeviceCode);
+            Assert.AreEqual(ExpectedInterval, actualDeviceCodeResult.Interval);
+            Assert.AreEqual(ExpectedMessage, actualDeviceCodeResult.Message);
+            Assert.AreEqual(ExpectedUserCode, actualDeviceCodeResult.UserCode);
+            Assert.AreEqual(ExpectedAdfsVerificationUrl, actualDeviceCodeResult.VerificationUrl);
+
+            CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
+
+            // Validate that entries were added to cache
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
+            Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+        }
+
+        [TestMethod]
+        [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeCancel()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes, authority);
 
             CancellationTokenSource cancellationSource = new CancellationTokenSource();
 
@@ -154,9 +215,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             AssertException.TaskThrows<OperationCanceledException>(() => request.RunAsync(cancellationSource.Token));
         }
 
-        private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes)
+        private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes, Authority authority)
         {
-            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            bool isAdfs = authority.AuthorityType == AuthorityType.Adfs;
+
             _cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
@@ -171,8 +233,18 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
-            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
-
+            if (isAdfs)
+            {
+                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+                });
+            }
+            else
+            {
+                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+            }
             expectedScopes = new HashSet<string>();
             expectedScopes.UnionWith(TestConstants.Scope);
             expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
@@ -188,7 +260,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     {OAuth2Parameter.ClientId, TestConstants.ClientId},
                     {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
                 },
-                ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
+                ResponseMessage = isAdfs ? CreateAdfsDeviceCodeResponseSuccessMessage() : CreateDeviceCodeResponseSuccessMessage()
             });
 
             // Mock Handler for devicecode->token exchange request
@@ -200,7 +272,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     {OAuth2Parameter.ClientId, TestConstants.ClientId},
                     {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
                 },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                ResponseMessage = isAdfs ? MockHelpers.CreateAdfsSuccessTokenResponseMessage() : MockHelpers.CreateSuccessTokenResponseMessage()
             });
 
             return parameters;

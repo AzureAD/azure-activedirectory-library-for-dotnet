@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
             _deviceCodeResultCallback = deviceCodeResultCallback;
 
             LoadFromCache = false;  // no cache lookup for token
-            SupportADFS = false;
+            SupportADFS = true;
             StoreToCache = true;
         }
 
