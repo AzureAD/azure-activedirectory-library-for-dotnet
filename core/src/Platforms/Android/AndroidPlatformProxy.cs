@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
@@ -37,6 +38,8 @@ namespace Microsoft.Identity.Core
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class AndroidPlatformProxy : IPlatformProxy
     {
+        internal const string AndroidDefaultRedirectUriTemplate = "msal{0}://auth";
+
         private readonly bool _isMsal;
 
         public AndroidPlatformProxy(bool isMsal)
@@ -101,6 +104,17 @@ namespace Microsoft.Identity.Core
             {
                 throw new ArgumentNullException(nameof(redirectUri));
             }
+
+            if (_isMsal)
+            {
+                if (Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+                {
+                    // TODO: Need to use CoreExceptionFactory here...?
+                    //throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + Constants.DefaultRedirectUri +
+                    //                                                               " cannot be used on iOS platform");
+                    throw new InvalidOperationException($"Default redirect URI - {Constants.DefaultRedirectUri} cannot be used on Android platform");
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -112,7 +126,7 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public string GetDefaultRedirectUri(string correlationId)
         {
-            return Constants.DefaultRedirectUri;
+            return string.Format(CultureInfo.InvariantCulture, AndroidDefaultRedirectUriTemplate, correlationId);
         }
 
         public string GetProductName()

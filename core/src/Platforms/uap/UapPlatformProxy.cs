@@ -173,17 +173,9 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
         {
-            if (_isMsal)
-            {
-                return redirectUri.OriginalString;
-            }
-            else
-            {
-                // FROM ADAL
-                return ReferenceEquals(redirectUri, Constants.SsoPlaceHolderUri)
-                           ? WebAuthenticationBroker.GetCurrentApplicationCallbackUri().OriginalString
-                           : redirectUri.OriginalString;
-            }
+            return ReferenceEquals(redirectUri, Constants.SsoPlaceHolderUri)
+                       ? WebAuthenticationBroker.GetCurrentApplicationCallbackUri().OriginalString
+                       : redirectUri.OriginalString;
         }
 
         /// <inheritdoc />
