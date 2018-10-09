@@ -84,9 +84,14 @@ namespace XForms
             var selectedUIBehavior = UIBehaviorPicker.SelectedItem as string;
 
             if (UIBehavior.ForceLogin.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
+            {
                 return UIBehavior.ForceLogin;
+            }
+
             if (UIBehavior.Consent.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
+            {
                 return UIBehavior.Consent;
+            }
 
             return UIBehavior.SelectAccount;
         }
@@ -135,7 +140,10 @@ namespace XForms
 
         private string GetSelectedUserId()
         {
-            if (usersPicker.SelectedIndex == -1) return null;
+            if (usersPicker.SelectedIndex == -1)
+            {
+                return null;
+            }
 
             var selectedUserId = usersPicker.SelectedItem as string;
             return UserNotSelected.Equals(selectedUserId, StringComparison.OrdinalIgnoreCase) ? null : selectedUserId;
@@ -191,7 +199,9 @@ namespace XForms
                 var resText = ToString(res);
 
                 if (resText.Contains("AccessToken"))
+                {
                     acquireResponseTitleLabel.Text = "Result: Success";
+                }
 
                 acquireResponseLabel.Text = resText;
                 RefreshUsers();
@@ -210,10 +220,7 @@ namespace XForms
 
         private async Task OnClearCacheClickedAsync(object sender, EventArgs e)
         {
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
-            var users = await tokenCache.GetAccountsAsync
-                (new PlatformInformation(), App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-            foreach (var user in users)
+            foreach (var user in await App.MsalPublicClient.GetAccountsAsync())
             {
                 await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
             }
