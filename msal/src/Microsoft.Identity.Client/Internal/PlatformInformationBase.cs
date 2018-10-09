@@ -30,12 +30,7 @@ using Microsoft.Identity.Core;
 
 namespace Microsoft.Identity.Client.Internal
 {
-    internal abstract class PlatformInformationBase : CorePlatformInformationBase
-    {
-        public override string GetAssemblyFileVersionAttribute()
-        {
-            return
-                typeof(MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
-        }
-    }
+    //internal abstract class PlatformInformationBase : CorePlatformInformationBase
+    //{
+    //}
 }

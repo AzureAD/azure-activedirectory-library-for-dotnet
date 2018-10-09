@@ -53,24 +53,14 @@ namespace Test.MSAL.NET.Unit
     public class ConfidentialClientApplicationTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
-        private byte[] serializedCache = null;
+        private byte[] _serializedCache = null;
 
         [TestInitialize]
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-
             AadInstanceDiscovery.Instance.Cache.Clear();
-            // AddMockResponseForInstanceDiscovery();
-        }
-
-        // TODO: can we move this and other setups directly as methods to MockHttpManager?
-        internal void AddMockResponseForInstanceDiscovery(MockHttpManager mockHttpManager)
-        {
-            mockHttpManager.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -178,7 +168,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -224,7 +214,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -326,7 +316,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
                 var app = CreateConfidentialClient(httpManager, cc, 3);
@@ -375,10 +365,15 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-                var app = CreateConfidentialClient(httpManager, cc, 2);
+                
+                // TODO: previous test had the final parameter here as 2 instead of 1.
+                // However, this 2nd one is NOT consumed by this test and the previous
+                // test did not check for all mock requests to be flushed out...
+
+                var app = CreateConfidentialClient(httpManager, cc, 1);
                 Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
                 AuthenticationResult result = task.Result;
                 Assert.IsNotNull(
@@ -415,7 +410,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -463,7 +458,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -513,7 +508,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -562,7 +557,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
@@ -621,7 +616,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
                     httpManager,
@@ -656,11 +651,11 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCacheForClientCredential(cache.tokenCacheAccessor);
 
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
                     TestConstants.ClientId,
@@ -677,12 +672,9 @@ namespace Test.MSAL.NET.Unit
                 var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, TestConstants.Scope))
                                                      .ToList().FirstOrDefault();
 
-                //add mock to fail in case of network call
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        ExceptionToThrow = new AssertFailedException("Unexpected Network Call")
-                    });
+                // Don't add mock to fail in case of network call
+                // If there's a network call by mistake, then there won't be a proper number
+                // of mock web request/response objects in the queue and we'll fail.
 
                 var task = app.AcquireTokenForClientAsync(TestConstants.Scope, false);
                 var result = task.Result;
@@ -697,12 +689,12 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
                     TestConstants.ClientId,
@@ -756,7 +748,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 TokenCache cache = new TokenCache()
                 {
@@ -824,12 +816,12 @@ namespace Test.MSAL.NET.Unit
 
         private void BeforeCacheAccess(TokenCacheNotificationArgs args)
         {
-            args.TokenCache.Deserialize(serializedCache);
+            args.TokenCache.Deserialize(_serializedCache);
         }
 
         private void AfterCacheAccess(TokenCacheNotificationArgs args)
         {
-            serializedCache = args.TokenCache.Serialize();
+            _serializedCache = args.TokenCache.Serialize();
         }
     }
 }

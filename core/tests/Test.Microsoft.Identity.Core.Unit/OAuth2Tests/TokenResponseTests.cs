@@ -26,16 +26,13 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
-using Test.Microsoft.Identity.Unit.HttpTests;
 
 namespace Test.Microsoft.Identity.Unit.OAuth2Tests
 {
@@ -45,9 +42,6 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            new TestPlatformInformation();
-            //HttpClientFactory.ReturnHttpClientForMocks = true;
-            //HttpMessageHandlerFactory.ClearMockHandlers();
             CoreTelemetryService.InitializeCoreTelemetryService(new TestTelemetry());
         }
 

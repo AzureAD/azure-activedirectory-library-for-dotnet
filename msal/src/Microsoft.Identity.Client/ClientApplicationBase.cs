@@ -58,8 +58,7 @@ namespace Microsoft.Identity.Client
             ModuleInitializer.EnsureModuleInitialized();
         }
 
-        private TokenCache userTokenCache;
-        internal CorePlatformInformationBase PlatformInformation { get; }
+        private TokenCache _userTokenCache;
 
         /// <Summary>
         /// Default Authority used for interactive calls.
@@ -94,13 +93,11 @@ namespace Microsoft.Identity.Client
         internal ClientApplicationBase(string clientId, string authority, string redirectUri,
             bool validateAuthority, IHttpManager httpManager)
         {
-            // TODO: instantiate coreexceptionfactory and such at this level as well...
             HttpManager = httpManager ?? new HttpManager();
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
-            PlatformInformation = new PlatformInformation();
 
             ClientId = clientId;
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, validateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
             Authority = authorityInstance.CanonicalAuthority;
             RedirectUri = redirectUri;
             ValidateAuthority = validateAuthority;
@@ -113,15 +110,8 @@ namespace Microsoft.Identity.Client
 
             requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
-                PlatformInformation.GetProductName(), MsalIdHelper.GetMsalVersion(),
-                PlatformInformation.GetAssemblyFileVersionAttribute(), GetAssemblyInformationalVersion()));
-        }
-
-        private static string GetAssemblyInformationalVersion()
-        {
-            AssemblyInformationalVersionAttribute attribute =
-                typeof(ClientApplicationBase).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            return (attribute != null) ? attribute.InformationalVersion : string.Empty;
+                PlatformProxyFactory.GetPlatformProxy().GetProductName(), MsalIdHelper.GetMsalVersion(),
+                AssemblyUtils.GetAssemblyFileVersionAttribute(), AssemblyUtils.GetAssemblyInformationalVersion()));
         }
 
         /// <summary>
@@ -175,13 +165,14 @@ namespace Microsoft.Identity.Client
         /// </Summary>
         internal TokenCache UserTokenCache
         {
-            get { return userTokenCache; }
+            get { return _userTokenCache; }
             set
             {
-                userTokenCache = value;
-                if (userTokenCache != null)
+                _userTokenCache = value;
+                if (_userTokenCache != null)
                 {
-                    userTokenCache.ClientId = ClientId;
+                    _userTokenCache.ClientId = ClientId;
+                    _userTokenCache.HttpManager = HttpManager;
                 }
             }
         }
@@ -205,7 +196,7 @@ namespace Microsoft.Identity.Client
                 requestContext.Logger.Info("Token cache is null or empty. Returning empty list of accounts.");
                 return Enumerable.Empty<Account>();
             }
-            return await UserTokenCache.GetAccountsAsync(PlatformInformation, Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
+            return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -272,7 +263,7 @@ namespace Microsoft.Identity.Client
             Authority authorityInstance = null;
             if (!string.IsNullOrEmpty(authority))
             {
-                authorityInstance = Core.Instance.Authority.CreateAuthority(PlatformInformation, authority, ValidateAuthority);
+                authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
             }
 
             return
@@ -293,12 +284,12 @@ namespace Microsoft.Identity.Client
                 return;
             }
 
-            await UserTokenCache.RemoveAsync(PlatformInformation, Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
+            await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
         }
 
         internal Authority GetAuthority(IAccount account)
         {
-            var authority = Core.Instance.Authority.CreateAuthority(PlatformInformation, Authority, ValidateAuthority);
+            var authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var tenantId = authority.GetTenantId();
 
             if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId)

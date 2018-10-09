@@ -1,20 +1,20 @@
-﻿//----------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,22 +22,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.UI;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.UI;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -46,9 +45,9 @@ namespace Test.MSAL.NET.Unit
     [TestClass]
     public class IntegratedWindowsAuthAndUsernamePasswordTests
     {
-        TokenCache cache;
-        private MyReceiver _myReceiver = new MyReceiver();
-        SecureString secureString;
+        private readonly MyReceiver _myReceiver = new MyReceiver();
+        private TokenCache cache;
+        private SecureString secureString;
 
         [TestInitialize]
         public void TestInitialize()
@@ -63,17 +62,10 @@ namespace Test.MSAL.NET.Unit
             CreateSecureString();
         }
 
-        internal void AddMockResponseForInstanceDiscovery(MockHttpManager httpManager)
-        {
-            httpManager.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
-        }
-
         internal void CreateSecureString()
         {
             secureString = null;
-            SecureString str = new SecureString();
+            var str = new SecureString();
             str.AppendChar('x');
             str.MakeReadOnly();
             secureString = str;
@@ -81,92 +73,100 @@ namespace Test.MSAL.NET.Unit
 
         internal void AddMockResponseForFederatedAccounts(MockHttpManager httpManager)
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
             };
 
             //add mock response for tenant endpoint discovery
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-            });
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+                });
 
             // user realm discovery
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                }
-            });
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
+                            "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
+                            "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
+                            "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
+                            ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+                    }
+                });
 
             // MEX
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                }
-            });
+                    Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
+                    }
+                });
 
             // WsTrust
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse.xml"))
-                }
-            });
+                    Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
+                    Method = HttpMethod.Post,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse.xml"))
+                    }
+                });
 
             // AAD
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/token",
-                Method = HttpMethod.Post,
-                PostData = new Dictionary<string, string>()
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
-                    {"scope", "openid offline_access profile r1/scope1 r1/scope2"}
-                },
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                    Url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/token",
+                    Method = HttpMethod.Post,
+                    PostData = new Dictionary<string, string>()
+                    {
+                        {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
+                        {"scope", "openid offline_access profile r1/scope1 r1/scope2"}
+                    },
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
         }
 
         private void AddMockResponseforManagedAccounts(MockHttpManager httpManager)
         {
             //add mock response for tenant endpoint discovery
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-            });
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
+                });
 
             // user realm discovery
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    Content =
-                        new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
-                },
-                QueryParams = new Dictionary<string, string>()
-                {
-                    {"api-version", "1.0"}
-                }
-            });
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
+                    },
+                    QueryParams = new Dictionary<string, string>()
+                    {
+                        {"api-version", "1.0"}
+                    }
+                });
         }
 
         [TestCleanup]
@@ -182,14 +182,16 @@ namespace Test.MSAL.NET.Unit
         [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
         public async Task AcquireTokenByIntegratedWindowsAuthTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                  TestConstants.AuthorityHomeTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityHomeTenant + "?code=some-code")
             };
 
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -253,10 +255,10 @@ namespace Test.MSAL.NET.Unit
                         ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
                     });
 
-                PublicClientApplication app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
-                AuthenticationResult result =
-                    await app.AcquireTokenByIntegratedWindowsAuthAsync(TestConstants.Scope, TestConstants.User.Username)
-                             .ConfigureAwait(false);
+                var app =
+                    new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
+                var result = await app.AcquireTokenByIntegratedWindowsAuthAsync(TestConstants.Scope, TestConstants.User.Username)
+                                      .ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -273,13 +275,16 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
                 AddMockResponseForFederatedAccounts(httpManager);
 
-                PublicClientApplication app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
+                var app =
+                    new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
 
-                AuthenticationResult result =
-                    await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, secureString)
-                             .ConfigureAwait(false);
+                var result = await app.AcquireTokenByUsernamePasswordAsync(
+                                 TestConstants.Scope,
+                                 TestConstants.User.Username,
+                                 secureString).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -293,14 +298,16 @@ namespace Test.MSAL.NET.Unit
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         public void MexEndpointFailsToResolveTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                 TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
             };
 
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -340,10 +347,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -369,14 +373,16 @@ namespace Test.MSAL.NET.Unit
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         public void MexDoesNotReturnAuthEndpointTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                 TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
             };
 
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -428,7 +434,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -452,16 +458,19 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
         public void MexParsingFailsTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                 TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
             };
 
-            using (var httpManger = new MockHttpManager())
+            using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
                 //add mock response for tenant endpoint discovery
-                httpManger.AddMockHandler(
+                httpManager.AddMockHandler(
                     new MockHttpMessageHandler
                     {
                         Method = HttpMethod.Get,
@@ -470,7 +479,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 // user realm discovery
-                httpManger.AddMockHandler(
+                httpManager.AddMockHandler(
                     new MockHttpMessageHandler
                     {
                         Method = HttpMethod.Get,
@@ -486,7 +495,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 // MEX
-                httpManger.AddMockHandler(
+                httpManager.AddMockHandler(
                     new MockHttpMessageHandler
                     {
                         Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
@@ -498,10 +507,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManger,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -527,14 +533,17 @@ namespace Test.MSAL.NET.Unit
         [DeploymentItem(@"Resources\WsTrustResponse.xml", "MsalResource")]
         public void FederatedUsernameNullPasswordTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
             };
 
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -585,10 +594,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -616,14 +622,17 @@ namespace Test.MSAL.NET.Unit
         [DeploymentItem(@"Resources\WsTrustResponse.xml", "MsalResource")]
         public void FederatedUsernamePasswordCommonAuthorityTest()
         {
-            MockWebUI ui = new MockWebUI()
+            var ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
-                TestConstants.AuthorityCommonTenant + "?code=some-code")
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityCommonTenant + "?code=some-code")
             };
 
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -682,10 +691,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -711,6 +717,8 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -740,14 +748,10 @@ namespace Test.MSAL.NET.Unit
                     {
                         Method = HttpMethod.Post,
                         ResponseMessage = MockHelpers.CreateInvalidRequestTokenResponseMessage(),
-
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -773,6 +777,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
                 AddMockResponseforManagedAccounts(httpManager);
 
                 httpManager.AddMockHandler(
@@ -788,14 +793,15 @@ namespace Test.MSAL.NET.Unit
                         }
                     });
 
-                PublicClientApplication app = new PublicClientApplication(
+                var app = new PublicClientApplication(
                     httpManager,
                     TestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
-                AuthenticationResult result =
-                    await app.AcquireTokenByUsernamePasswordAsync(TestConstants.Scope, TestConstants.User.Username, secureString)
-                             .ConfigureAwait(false);
+                var result = await app.AcquireTokenByUsernamePasswordAsync(
+                                 TestConstants.Scope,
+                                 TestConstants.User.Username,
+                                 secureString).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -810,13 +816,11 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
                 AddMockResponseforManagedAccounts(httpManager);
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };
@@ -844,9 +848,10 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                httpManager.AddInstanceDiscoveryMockHandler();
                 AddMockResponseforManagedAccounts(httpManager);
 
-                SecureString str = new SecureString();
+                var str = new SecureString();
                 str.AppendChar('y');
                 str.MakeReadOnly();
 
@@ -864,10 +869,7 @@ namespace Test.MSAL.NET.Unit
                     });
 
                 cache.ClientId = TestConstants.ClientId;
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority)
+                var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache = cache
                 };

@@ -55,7 +55,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             try
             {
-                var instance = Authority.CreateAuthority(new TestPlatformInformation(), "https://login.microsoftonline.in/tfp/", false);
+                var instance = Authority.CreateAuthority("https://login.microsoftonline.in/tfp/", false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task.Run(
@@ -76,7 +76,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("B2CAuthorityTests")]
         public void ValidationEnabledNotSupportedTest()
         {
-            var instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.B2CAuthority, true);
+            var instance = Authority.CreateAuthority(TestConstants.B2CAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
             try
@@ -107,13 +107,13 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             const string uriCustomPort = "https://login.microsoftonline.in:444/tfp/tenant/policy";
             const string uriCustomPortTailSlash = "https://login.microsoftonline.in:444/tfp/tenant/policy/";
 
-            var authority = new B2CAuthority(new TestPlatformInformation(), uriNoPort, false);
+            var authority = new B2CAuthority(uriNoPort, false);
             Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(new TestPlatformInformation(), uriDefaultPort, false);
+            authority = new B2CAuthority(uriDefaultPort, false);
             Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(new TestPlatformInformation(), uriCustomPort, false);
+            authority = new B2CAuthority(uriCustomPort, false);
             Assert.AreEqual(uriCustomPortTailSlash, authority.CanonicalAuthority);
         }
     }

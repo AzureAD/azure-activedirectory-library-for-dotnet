@@ -43,8 +43,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal abstract class RequestBase
     {
-        internal CorePlatformInformationBase PlatformInformation => new PlatformInformation();
-
         protected static readonly Task CompletedTask = Task.FromResult(false);
         internal AuthenticationRequestParameters AuthenticationRequestParameters { get; }
         internal TokenCache TokenCache { get; }
@@ -232,7 +230,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Info("Saving Token Response to cache..");
 
-                var tuple = TokenCache.SaveAccessAndRefreshToken(PlatformInformation, AuthenticationRequestParameters, Response);
+                var tuple = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
                 MsalAccessTokenItem = tuple.Item1;
                 MsalIdTokenItem = tuple.Item2;
             }

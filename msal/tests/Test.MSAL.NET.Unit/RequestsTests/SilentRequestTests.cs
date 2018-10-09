@@ -69,7 +69,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
                 {
                     ClientId = TestConstants.ClientId
@@ -103,10 +103,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
                 {
-                    ClientId = TestConstants.ClientId
+                    ClientId = TestConstants.ClientId,
+                    HttpManager = httpManager
                 };
                 TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
@@ -149,10 +150,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
                 _cache = null;
-
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var parameters = new AuthenticationRequestParameters()
                 {
@@ -191,13 +190,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
                 _cache = new TokenCache()
                 {
-                    ClientId = TestConstants.ClientId
+                    ClientId = TestConstants.ClientId,
+                    HttpManager = httpManager
                 };
 
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 var parameters = new AuthenticationRequestParameters()
                 {

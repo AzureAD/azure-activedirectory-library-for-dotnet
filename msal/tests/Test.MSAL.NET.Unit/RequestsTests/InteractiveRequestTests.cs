@@ -74,7 +74,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void SliceParametersTest()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
@@ -141,7 +141,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void NoCacheLookup()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
@@ -227,7 +227,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void RedirectUriContainsFragmentErrorTest()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             try
             {
                 using (var httpManager = new MockHttpManager())
@@ -263,7 +263,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void OAuthClient_FailsWithServiceExceptionWhenItCannotParseJsonResponse()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
             using (var httpManager = new MockHttpManager())
             {
@@ -316,7 +316,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void OAuthClient_FailsWithServiceExceptionWhenItCanParseJsonResponse()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
             using (var httpManager = new MockHttpManager())
             {
@@ -368,7 +368,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void VerifyAuthorizationResultTest()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
             using (var httpManager = new MockHttpManager())
             {
@@ -445,7 +445,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("InteractiveRequestTests")]
         public void DuplicateQueryParameterErrorTest()
         {
-            var authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
             var parameters = new AuthenticationRequestParameters
             {

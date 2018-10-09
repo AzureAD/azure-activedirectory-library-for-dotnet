@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -36,6 +37,13 @@ namespace Microsoft.Identity.Core
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class AndroidPlatformProxy : IPlatformProxy
     {
+        private readonly bool _isMsal;
+
+        public AndroidPlatformProxy(bool isMsal)
+        {
+            _isMsal = isMsal;
+        }
+
         /// <summary>
         /// Get the user logged in 
         /// </summary>
@@ -84,6 +92,32 @@ namespace Microsoft.Identity.Core
         public string GetDeviceModel()
         {
             return Android.OS.Build.Model;
+        }
+
+        /// <inheritdoc />
+        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        {
+            if (redirectUri == null)
+            {
+                throw new ArgumentNullException(nameof(redirectUri));
+            }
+        }
+
+        /// <inheritdoc />
+        public string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
+        {
+            return redirectUri.OriginalString;
+        }
+
+        /// <inheritdoc />
+        public string GetDefaultRedirectUri(string correlationId)
+        {
+            return Constants.DefaultRedirectUri;
+        }
+
+        public string GetProductName()
+        {
+            return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
         }
     }
 }

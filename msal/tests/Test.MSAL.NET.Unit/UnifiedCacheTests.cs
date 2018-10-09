@@ -25,19 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Cache;
-using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.UI;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Test.Microsoft.Identity.Core.Unit;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.UI;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -46,7 +44,7 @@ namespace Test.MSAL.NET.Unit
     [TestClass]
     public class UnifiedCacheTests
     {
-        private MyReceiver _myReceiver = new MyReceiver();
+        private readonly MyReceiver _myReceiver = new MyReceiver();
 
         [TestInitialize]
         public void TestInitialize()
@@ -56,14 +54,6 @@ namespace Test.MSAL.NET.Unit
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
             AadInstanceDiscovery.Instance.Cache.Clear();
-            //AddMockResponseForInstanceDiscovery();
-        }
-
-        internal void AddMockResponseForInstanceDiscovery(MockHttpManager httpManager)
-        {
-            httpManager.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
         class TestLegacyCachePersistance : ILegacyCachePersistance
@@ -93,7 +83,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
+                httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
@@ -132,7 +122,7 @@ namespace Test.MSAL.NET.Unit
 
                 var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
                 var users =
-                    app.UserTokenCache.GetAccountsAsync(new TestPlatformInformation(), TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+                    app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
                 foreach (IAccount user in users)
                 {
                     ISet<string> authorityHostAliases = new HashSet<string>();
@@ -172,8 +162,6 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                AddMockResponseForInstanceDiscovery(httpManager);
-
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
                     TestConstants.ClientId,

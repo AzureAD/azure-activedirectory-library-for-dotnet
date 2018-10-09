@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core
 {
@@ -32,5 +33,11 @@ namespace Microsoft.Identity.Core
         bool IsDomainJoined();
 
         Task<bool> IsUserLocalAsync(RequestContext requestContext);
+
+        void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext);
+        string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext);
+        string GetDefaultRedirectUri(string correlationId);
+
+        string GetProductName();
     }
 }

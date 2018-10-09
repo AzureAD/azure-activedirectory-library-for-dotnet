@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
@@ -53,7 +54,7 @@ namespace Microsoft.Identity.Client
             : base(
                 clientId,
                 authority,
-                new PlatformInformation().GetDefaultRedirectUri(clientId),
+                PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId),
                 true,
                 httpManager)
         {

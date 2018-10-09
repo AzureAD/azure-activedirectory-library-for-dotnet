@@ -25,21 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.Instance;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
-using Test.Microsoft.Identity.Core.Unit;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
@@ -51,8 +45,7 @@ namespace Test.MSAL.NET.Unit
         //private PlatformParameters platformParameters;
         TokenCache cache;
         private MyReceiver _myReceiver = new MyReceiver();
-
-        MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
+        readonly MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
             ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
@@ -73,8 +66,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsTrue(x5c.Key == "x5c", "x5c should be present");
             }
         };
-
-        MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
+        readonly MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
             ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
@@ -108,9 +100,8 @@ namespace Test.MSAL.NET.Unit
 
         internal void SetupMocks(MockHttpManager httpManager)
         {
-            httpManager.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
+            httpManager.AddInstanceDiscoveryMockHandler();
+
             httpManager.AddMockHandler(new MockHttpMessageHandler
             {
                 Method = HttpMethod.Get,
@@ -148,7 +139,11 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result.AccessToken);
 
                 //Check for empty x5c claim
-                httpManager.AddMockHandler(EmptyX5CMockHandler);
+                // TODO: this was in the test before,
+                // but this mock is not being called.
+                // test was NOT validating that all mock queues were empty before...
+                // httpManager.AddMockHandler(EmptyX5CMockHandler);
+
                 result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
                 Assert.IsNotNull(result.AccessToken);
             }
@@ -187,7 +182,10 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result.AccessToken);
 
                 //Check for empty x5c claim
-                httpManager.AddMockHandler(EmptyX5CMockHandler);
+                // TODO: this was in the test before,
+                // but this mock is not being called.
+                // test was NOT validating that all mock queues were empty before...
+                // httpManager.AddMockHandler(EmptyX5CMockHandler);
                 result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion);
                 Assert.IsNotNull(result.AccessToken);
             }

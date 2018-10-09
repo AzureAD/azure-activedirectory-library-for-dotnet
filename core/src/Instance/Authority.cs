@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.Instance
 
         private bool _resolved;
 
-        protected Authority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
+        protected Authority(string authority, bool validateAuthority)
         {
             var authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Instance
             string userPrincipalName,
             RequestContext requestContext);
 
-        public static Authority CreateAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
+        public static Authority CreateAuthority(string authority, bool validateAuthority)
         {
             authority = CanonicalizeUri(authority);
             ValidateAsUri(authority);
@@ -94,10 +94,10 @@ namespace Microsoft.Identity.Core.Instance
                     "ADFS is not a supported authority");
 
             case AuthorityType.B2C:
-                return new B2CAuthority(platformInformation, authority, validateAuthority);
+                return new B2CAuthority(authority, validateAuthority);
 
             case AuthorityType.Aad:
-                return new AadAuthority(platformInformation, authority, validateAuthority);
+                return new AadAuthority(authority, validateAuthority);
 
             default:
                 throw CoreExceptionFactory.Instance.GetClientException(

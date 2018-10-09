@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using UIKit;
 
@@ -35,6 +36,15 @@ namespace Microsoft.Identity.Core
     /// </summary>
     internal class iOSPlatformProxy : IPlatformProxy
     {
+        internal const string IosDefaultRedirectUriTemplate = "msal{0}://auth";
+
+        private readonly bool _isMsal;
+
+        public iOSPlatformProxy(bool isMsal)
+        {
+            _isMsal = isMsal;
+        }
+
         /// <summary>
         /// Get the user logged 
         /// </summary>
@@ -72,5 +82,42 @@ namespace Microsoft.Identity.Core
         {
             return UIDevice.CurrentDevice.Model;
         }
+
+        /// <inheritdoc />
+        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        {
+            if (redirectUri == null)
+            {
+                throw new ArgumentNullException(nameof(redirectUri));
+            }
+
+            if (_isMsal)
+            {
+                if (Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+                {
+                    // TODO: Need to use CoreExceptionFactory here...?
+                    //throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + Constants.DefaultRedirectUri +
+                    //                                                               " cannot be used on iOS platform");
+                    throw new InvalidOperationException($"Default redirect URI - {Constants.DefaultRedirectUri} cannot be used on iOS platform");
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
+        {
+            return redirectUri.OriginalString;
+        }
+
+        /// <inheritdoc />
+        public string GetDefaultRedirectUri(string correlationId)
+        {
+            return _isMsal ? string.Format(IosDefaultRedirectUriTemplate, correlationId) : Constants.DefaultRedirectUri;
+        }
+
+        public string GetProductName()
+    {
+        return _isMsal ? "MSAL.Xamarin.iOS" : "PCL.iOS";
+    }
     }
 }

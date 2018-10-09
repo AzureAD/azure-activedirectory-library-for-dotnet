@@ -1,20 +1,20 @@
-﻿//----------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,8 +22,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,6 @@ using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,8 +47,23 @@ namespace Test.MSAL.NET.Unit.RequestsTests
     [TestClass]
     public class DeviceCodeRequestTests
     {
-        private TokenCache _cache;
+        private const string ExpectedDeviceCode =
+            "BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA";
+
+        private const string ExpectedUserCode = "B6SUYU5PL";
+        private const int ExpectedExpiresIn = 900;
+        private const int ExpectedInterval = 5;
+        private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
         private readonly MyReceiver _myReceiver = new MyReceiver();
+        private TokenCache _cache;
+
+        private string ExpectedMessage =>
+            $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
+
+        private string ExpectedResponseMessage =>
+            $"{{" + $"\"user_code\":\"{ExpectedUserCode}\"," + $"\"device_code\":\"{ExpectedDeviceCode}\"," +
+            $"\"verification_url\":\"{ExpectedVerificationUrl}\"," + $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
+            $"\"interval\":\"{ExpectedInterval}\"," + $"\"message\":\"{ExpectedMessage}\"," + $"}}";
 
         [TestInitialize]
         public void TestInitialize()
@@ -67,25 +81,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
         }
 
-        private const string ExpectedDeviceCode = "BAQABAAEAAADXzZ3ifr-GRbDT45zNSEFEfU4P-bZYS1vkvv8xiXdb1_zX2xAcdcfEoei1o-t9-zTB9sWyTcddFEWahP1FJJJ_YVA1zvPM2sV56d_8O5G23ti5uu0nRbIsniczabYYEr-2ZsbgRO62oZjKlB1zF3EkuORg2QhMOjtsk-KP0aw8_iAA";
-        private const string ExpectedUserCode = "B6SUYU5PL";
-        private const int ExpectedExpiresIn = 900;
-        private const int ExpectedInterval = 5;
-        private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
-
-        private string ExpectedMessage =>
-            $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
-
-        private string ExpectedResponseMessage =>
-            $"{{" +
-            $"\"user_code\":\"{ExpectedUserCode}\"," +
-            $"\"device_code\":\"{ExpectedDeviceCode}\"," +
-            $"\"verification_url\":\"{ExpectedVerificationUrl}\"," +
-            $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
-            $"\"interval\":\"{ExpectedInterval}\"," +
-            $"\"message\":\"{ExpectedMessage}\"," +
-            $"}}";
-
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
         {
             return MockHelpers.CreateSuccessResponseMessage(ExpectedResponseMessage);
@@ -97,7 +92,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+                var parameters = CreateAuthenticationParametersAndSetupMocks(
+                    httpManager,
+                    true,
+                    out HashSet<string> expectedScopes);
 
                 // Check that cache is empty
                 Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -106,7 +104,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
 
                 DeviceCodeResult actualDeviceCodeResult = null;
-                DeviceCodeRequest request = new DeviceCodeRequest(
+                var request = new DeviceCodeRequest(
                     httpManager,
                     parameters,
                     result =>
@@ -114,7 +112,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         actualDeviceCodeResult = result;
                         return Task.FromResult(0);
                     });
-                var task = request.RunAsync(CancellationToken.None);
+                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                 task.Wait();
                 var authenticationResult = task.Result;
                 Assert.IsNotNull(authenticationResult);
@@ -143,12 +141,15 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var parameters = CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes);
+                var parameters = CreateAuthenticationParametersAndSetupMocks(
+                    httpManager,
+                    false,
+                    out HashSet<string> expectedScopes);
 
-                CancellationTokenSource cancellationSource = new CancellationTokenSource();
+                var cancellationSource = new CancellationTokenSource();
 
                 DeviceCodeResult actualDeviceCodeResult = null;
-                DeviceCodeRequest request = new DeviceCodeRequest(
+                var request = new DeviceCodeRequest(
                     httpManager,
                     parameters,
                     async result =>
@@ -164,47 +165,49 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
         }
 
-        private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(out HashSet<string> expectedScopes)
+        private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(
+            MockHttpManager httpManager,
+            bool expectTokenExchange,
+            out HashSet<string> expectedScopes)
         {
-            using (var httpManager = new MockHttpManager())
+            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            _cache = new TokenCache()
             {
+                ClientId = TestConstants.ClientId
+            };
 
-                Authority authority = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.AuthorityHomeTenant, false);
-                _cache = new TokenCache()
+            var parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = TestConstants.Scope,
+                TokenCache = _cache,
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
+
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+
+            expectedScopes = new HashSet<string>();
+            expectedScopes.UnionWith(TestConstants.Scope);
+            expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
+            expectedScopes.Add(OAuth2Value.ScopeProfile);
+            expectedScopes.Add(OAuth2Value.ScopeOpenId);
+
+            // Mock Handler for device code request
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
                 {
-                    ClientId = TestConstants.ClientId
-                };
-
-                AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
-                };
-
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
-
-                expectedScopes = new HashSet<string>();
-                expectedScopes.UnionWith(TestConstants.Scope);
-                expectedScopes.Add(OAuth2Value.ScopeOfflineAccess);
-                expectedScopes.Add(OAuth2Value.ScopeProfile);
-                expectedScopes.Add(OAuth2Value.ScopeOpenId);
-
-                // Mock Handler for device code request
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
+                    Method = HttpMethod.Post,
+                    PostData = new Dictionary<string, string>()
                     {
-                        Method = HttpMethod.Post,
-                        PostData = new Dictionary<string, string>()
-                        {
-                            {OAuth2Parameter.ClientId, TestConstants.ClientId},
-                            {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
-                        },
-                        ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
-                    });
+                        {OAuth2Parameter.ClientId, TestConstants.ClientId},
+                        {OAuth2Parameter.Scope, expectedScopes.AsSingleString()}
+                    },
+                    ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
+                });
 
+            if (expectTokenExchange)
+            {
                 // Mock Handler for devicecode->token exchange request
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -217,9 +220,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         },
                         ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
                     });
-
-                return parameters;
             }
+
+            return parameters;
         }
     }
 }

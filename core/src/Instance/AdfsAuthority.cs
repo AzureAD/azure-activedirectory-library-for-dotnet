@@ -42,8 +42,8 @@ namespace Microsoft.Identity.Core.Instance
         private const string DefaultRealm = "http://schemas.microsoft.com/rel/trusted-realm";
         private readonly HashSet<string> _validForDomainsList = new HashSet<string>();
 
-        public AdfsAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
-            : base(platformInformation, authority, validateAuthority)
+        public AdfsAuthority(string authority, bool validateAuthority)
+            : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Adfs;
         }

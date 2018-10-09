@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,7 +49,13 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
         /// <inheritdoc />
         public void Dispose()
         {
-            Assert.AreEqual(0, _httpMessageHandlerQueue.Count, "All mocks should have been consumed");
+            // This ensures we only check the mock queue on dispose when we're not in the middle of an
+            // exception flow.  Otherwise, any early assertion will cause this to likely fail
+            // even though it's not the root cause.
+            if (Marshal.GetExceptionCode() == 0)
+            {
+                Assert.AreEqual(0, _httpMessageHandlerQueue.Count, "All mocks should have been consumed");
+            }
         }
 
         public void AddMockHandler(HttpMessageHandler handler)

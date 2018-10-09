@@ -228,7 +228,7 @@ namespace Test.ADAL.NET.Integration
                 Assert.AreEqual("user2@id.com", result.UserInfo.DisplayableId);
                 Assert.AreEqual(TestConstants.DefaultUniqueId + "2", result.UserInfo.UniqueId);
 
-                // There should be only two cache entrys.
+                // There should be only two cache entries.
                 Assert.AreEqual(2, context.TokenCache.Count);
 
                 var keys = context.TokenCache.tokenCacheDictionary.Values.ToList();
@@ -313,9 +313,6 @@ namespace Test.ADAL.NET.Integration
 
                 // There should be one cached entry.
                 Assert.AreEqual(1, context.TokenCache.Count);
-
-                // All mocks are consumed
-                Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             }
         }
 
@@ -329,7 +326,7 @@ namespace Test.ADAL.NET.Integration
                     httpManager,
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
-                    null);
+                    TokenCache.DefaultShared);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler(
@@ -370,7 +367,7 @@ namespace Test.ADAL.NET.Integration
                     httpManager,
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
-                    null);
+                    TokenCache.DefaultShared);
 
                 await context.Authenticator.UpdateFromTemplateAsync(null);
 

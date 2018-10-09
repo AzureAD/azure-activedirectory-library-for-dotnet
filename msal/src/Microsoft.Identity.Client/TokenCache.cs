@@ -129,9 +129,9 @@ namespace Microsoft.Identity.Client
         }
 
         internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken
-            (CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams, MsalTokenResponse response)
+            (AuthenticationRequestParameters requestParams, MsalTokenResponse response)
         {
-            var tenantId = Authority.CreateAuthority(platformInformation, requestParams.TenantUpdatedCanonicalAuthority, false)
+            var tenantId = Authority.CreateAuthority(requestParams.TenantUpdatedCanonicalAuthority, false)
                 .GetTenantId();
 
             IdToken idToken = IdToken.Parse(response.IdToken);
@@ -252,7 +252,7 @@ namespace Microsoft.Identity.Client
 
             if (!requestParams.IsClientCredentialRequest)
             {
-                //filter by identifer of the user instead
+                // filter by identifier of the user instead
                 accessTokenItemList =
                     accessTokenItemList.Where(
                             item => item.HomeAccountId.Equals(homeAccountId, StringComparison.OrdinalIgnoreCase))
@@ -266,7 +266,7 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams)
+        internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(AuthenticationRequestParameters requestParams)
         {
             using (CoreTelemetryService.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.AT }))
@@ -276,7 +276,7 @@ namespace Microsoft.Identity.Client
 
                 if (requestParams.Authority != null)
                 {
-                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation,
+                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(
                         requestParams.Authority.CanonicalAuthority,
                         requestParams.ValidateAuthority, requestParams.RequestContext).ConfigureAwait(false);
 
@@ -409,23 +409,23 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams)
+        internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(AuthenticationRequestParameters requestParams)
         {
             using (CoreTelemetryService.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.RT }))
             {
-                return await FindRefreshTokenCommonAsync(platformInformation, requestParams).ConfigureAwait(false);
+                return await FindRefreshTokenCommonAsync(requestParams).ConfigureAwait(false);
             }
         }
 
-        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommonAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParam)
+        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommonAsync(AuthenticationRequestParameters requestParam)
         {
             if (requestParam.Authority == null)
             {
                 return null;
             }
 
-            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, requestParam.Authority.CanonicalAuthority,
+            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(requestParam.Authority.CanonicalAuthority,
                 requestParam.ValidateAuthority, requestParam.RequestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(requestParam.Authority.CanonicalAuthority,
@@ -636,7 +636,7 @@ namespace Microsoft.Identity.Client
         }
 
         private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaDataAsync
-            (CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, RequestContext requestContext)
+            (string authority, bool validateAuthority, RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
@@ -692,10 +692,10 @@ namespace Microsoft.Identity.Client
             return preferredEnvironmentHost;
         }
 
-        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, RequestContext requestContext)
+        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(string authority, bool validateAuthority, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry =
-                await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 
@@ -867,10 +867,10 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task RemoveAsync(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, IAccount account, RequestContext requestContext)
+        internal async Task RemoveAsync(string authority, bool validateAuthority, IAccount account, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry =
-                await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 

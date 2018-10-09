@@ -51,8 +51,8 @@ namespace Microsoft.Identity.Core.Instance
             "login.cloudgovapi.us" // Microsoft Azure US Government
         };
 
-        internal AadAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
-            : base(platformInformation, authority, validateAuthority)
+        internal AadAuthority(string authority, bool validateAuthority)
+            : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Aad;
         }
