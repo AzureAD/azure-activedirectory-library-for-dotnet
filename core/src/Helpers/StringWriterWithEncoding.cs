@@ -32,13 +32,11 @@ namespace Microsoft.Identity.Core.Helpers
 {
     internal class StringWriterWithEncoding : StringWriter
     {
-        private readonly Encoding _encoding;
-
         public StringWriterWithEncoding(Encoding encoding)
         {
-            _encoding = encoding;
+            Encoding = encoding;
         }
 
-        public override Encoding Encoding => _encoding;
+        public override Encoding Encoding { get; }
     }
 }
