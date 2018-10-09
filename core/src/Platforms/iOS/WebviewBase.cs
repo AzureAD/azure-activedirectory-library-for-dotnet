@@ -88,5 +88,12 @@ namespace Microsoft.Identity.Core.UI
                 taskId = UIApplication.BackgroundTaskInvalid;
             }
         }
+
+        //Hiding NSObject.Dispose() with new to implement IDisposable interface
+        public new void Dispose()
+        {
+            didEnterBackgroundNotification.Dispose();
+            willEnterForegroundNotification.Dispose();
+        }
     }
 }
