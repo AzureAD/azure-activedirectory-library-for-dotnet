@@ -47,11 +47,12 @@ namespace XForms.Droid
             global::Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App());
 
-            //App.UIParent = new UIParent(this);
+            // To activate system webview, remove '//' from line 51 below, and comment out line 57 ;
+            App.UIParent = new UIParent(this);
 
             #region Web browsers for MSAL.NET Android
-            // To activate embedded webview, remove '//' from line 56 below, 
-            // and comment out line 50 above -> App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity);
+            // To activate embedded webview, remove '//' from line 57 below, 
+            // and comment out line 51 above -> App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity);
 
             App.UIParent = new UIParent(this, true);
 
