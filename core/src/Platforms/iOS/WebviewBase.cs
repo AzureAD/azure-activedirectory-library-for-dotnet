@@ -42,6 +42,10 @@ namespace Microsoft.Identity.Core.UI
         protected SFAuthenticationSession sfAuthenticationSession;
         protected ASWebAuthenticationSession asWebAuthenticationSession;
 
+        protected nint taskId = UIApplication.BackgroundTaskInvalid;
+        protected NSObject didEnterBackgroundNotification;
+        protected NSObject willEnterForegroundNotification;
+
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext);
 
@@ -59,6 +63,30 @@ namespace Microsoft.Identity.Core.UI
             });
 
             return true;
+        }
+
+        protected void OnMoveToBackground(NSNotification notification)
+        {
+            // After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background 
+            // in order to prevent the system from reclaiming network resources from the app. 
+            // This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
+            taskId = UIApplication.SharedApplication.BeginBackgroundTask(() =>
+            {
+                if (taskId != UIApplication.BackgroundTaskInvalid)
+                {
+                    UIApplication.SharedApplication.EndBackgroundTask(taskId);
+                    taskId = UIApplication.BackgroundTaskInvalid;
+                }
+            });
+        }
+
+        protected void OnMoveToForeground(NSNotification notification)
+        {
+            if (taskId != UIApplication.BackgroundTaskInvalid)
+            {
+                UIApplication.SharedApplication.EndBackgroundTask(taskId);
+                taskId = UIApplication.BackgroundTaskInvalid;
+            }
         }
     }
 }
