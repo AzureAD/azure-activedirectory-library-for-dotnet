@@ -169,9 +169,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
       
         public const string GetUserNameFailed = "Failed to get user name";
 
-        public const string BrokerRedirectUriNullOrEmpty = "The broker redirect URI cannot be null or empty. Please visit https://aka.ms/adal-net-broker-redirect-uri-android for more details.";
-
-        public const string BrokerRedirectUriIncorrect = "The broker redirect URI is incorrect, it should be {0}. Please visit https://aka.ms/adal-net-broker-redirect-uri-android for more details.";
+        public const string BrokerRedirectUriIncorrectFormat = "The broker redirect URI is incorrect, it should be {0}. Please visit https://aka.ms/adal-net-broker-redirect-uri-android for more details.";
     }
 
     internal static class XmlNamespace

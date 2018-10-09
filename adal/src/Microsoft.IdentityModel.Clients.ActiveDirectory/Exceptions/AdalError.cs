@@ -294,11 +294,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Broker redirectUri has incorrect format
         /// </summary>
-        public const string BrokerRedirectUriIncorrect = "broker_redirect_uri_incorrect";
-
-        /// <summary>
-        /// Broker redirectUri is null or empty
-        /// </summary>
-        public const string BrokerRedirectUriNullOrEmpty = "broker_redirect_uri_null_or_empty";
+        public const string BrokerRedirectUriIncorrectFormat = "broker_redirect_uri_incorrect_format";
     }
 }
