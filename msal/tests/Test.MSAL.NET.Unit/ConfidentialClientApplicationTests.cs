@@ -250,14 +250,14 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
                 //make sure user token cache is empty
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCount);
 
                 //check app token cache count to be 1
-                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(
                     0,
-                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCount); //no refresh tokens are returned
 
                 //call AcquireTokenForClientAsync again to get result back from the cache
                 task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
@@ -267,14 +267,14 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
                 //make sure user token cache is empty
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCount);
 
                 //check app token cache count to be 1
-                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(
                     0,
-                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCount); //no refresh tokens are returned
             }
         }
 
@@ -328,14 +328,14 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
                 //make sure user token cache is empty
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCount);
 
                 //check app token cache count to be 1
-                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, app.AppTokenCache.tokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(
                     0,
-                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count); //no refresh tokens are returned
+                    app.AppTokenCache.tokenCacheAccessor.RefreshTokenCount); //no refresh tokens are returned
 
                 //assert client credential
                 Assert.IsNotNull(cc.Assertion);
@@ -789,8 +789,8 @@ namespace Test.MSAL.NET.Unit
                 AuthenticationResult result = await app.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.Scope)
                                                        .ConfigureAwait(false);
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCount);
 
                 cache = new TokenCache()
                 {

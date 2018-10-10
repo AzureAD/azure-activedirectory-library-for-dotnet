@@ -58,18 +58,19 @@ namespace Microsoft.Identity.Client.Internal.Requests
         }
 
         protected bool SupportADFS { get; set; }
-
         protected bool LoadFromCache { get; set; }
-
         protected bool ForceRefresh { get; set; }
-
         protected bool StoreToCache { get; set; }
-
         protected IHttpManager HttpManager { get; }
+        protected ICryptographyManager CryptographyManager { get; }
 
-        protected RequestBase(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters)
+        protected RequestBase(
+            IHttpManager httpManager, 
+            ICryptographyManager cryptographyManager, 
+            AuthenticationRequestParameters authenticationRequestParameters)
         {
             HttpManager = httpManager;
+            CryptographyManager = cryptographyManager;
             TokenCache = authenticationRequestParameters.TokenCache;
 
             {

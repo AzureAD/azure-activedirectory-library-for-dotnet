@@ -27,7 +27,7 @@
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class LegacyCachePersistance : ILegacyCachePersistance
+    internal class NetDesktopLegacyCachePersistance : ILegacyCachePersistance
     {
         private byte[] data;
 

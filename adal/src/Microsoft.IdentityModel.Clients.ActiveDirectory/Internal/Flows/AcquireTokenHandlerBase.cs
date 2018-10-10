@@ -413,7 +413,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if (result.AccessToken != null)
             {
-                var accessTokenHash = CoreCryptographyHelpers.CreateSha256Hash(result.AccessToken);
+                var accessTokenHash = PlatformProxyFactory
+                                      .GetPlatformProxy()
+                                      .CreateCryptographyManager()
+                                      .CreateSha256Hash(result.AccessToken);
 
                 {
                     var msg = string.Format(CultureInfo.CurrentCulture,

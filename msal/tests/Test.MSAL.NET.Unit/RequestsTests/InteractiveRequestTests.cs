@@ -66,8 +66,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-            _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
+            _cache.tokenCacheAccessor.ClearAccessTokens();
+            _cache.tokenCacheAccessor.ClearRefreshTokens();
         }
 
         [TestMethod]
@@ -122,6 +122,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -131,8 +132,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
             }
         }
@@ -159,7 +160,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             string atKey = atItem.GetKey().ToString();
             atItem.Secret = atKey;
-            _cache.tokenCacheAccessor.AccessTokenCacheDictionary[atKey] = JsonHelper.SerializeToJson(atItem);
+            _cache.tokenCacheAccessor.SaveAccessToken(atItem);
 
             var ui = new MockWebUI()
             {
@@ -192,6 +193,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -201,8 +203,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
 
                 Assert.IsNotNull(
@@ -245,6 +247,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                     new InteractiveRequest(
                         httpManager,
+                        PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                         parameters,
                         TestConstants.ScopeForAnotherResource.ToArray(),
                         (string)null,
@@ -288,6 +291,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -341,6 +345,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -394,6 +399,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     (string)null,
@@ -421,6 +427,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     (string)null,
@@ -464,6 +471,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     null,

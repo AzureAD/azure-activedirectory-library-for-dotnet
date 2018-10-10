@@ -46,8 +46,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private UserAssertion _userAssertion;
         private readonly CommonNonInteractiveHandler _commonNonInteractiveHandler;
 
-        public IntegratedWindowsAuthRequest(IHttpManager httpManager, IWsTrustWebRequestManager wsTrustWebRequestManager, AuthenticationRequestParameters authenticationRequestParameters, Core.IntegratedWindowsAuthInput iwaInput)
-            : base(httpManager, authenticationRequestParameters)
+        public IntegratedWindowsAuthRequest(
+            IHttpManager httpManager, 
+            ICryptographyManager cryptographyManager,
+            IWsTrustWebRequestManager wsTrustWebRequestManager, 
+            AuthenticationRequestParameters authenticationRequestParameters, 
+            Core.IntegratedWindowsAuthInput iwaInput)
+            : base(httpManager, cryptographyManager, authenticationRequestParameters)
         {
             _iwaInput = iwaInput ?? throw new ArgumentNullException(nameof(iwaInput));
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(

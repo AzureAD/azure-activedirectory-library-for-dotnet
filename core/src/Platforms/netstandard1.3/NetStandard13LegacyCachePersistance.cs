@@ -29,7 +29,7 @@ using System;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class LegacyCachePersistance : ILegacyCachePersistance
+    internal class NetStandard13LegacyCachePersistance : ILegacyCachePersistance
     {
         private byte[] data;
 

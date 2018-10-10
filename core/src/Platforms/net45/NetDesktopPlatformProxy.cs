@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Security.Principal;
 using Microsoft.Identity.Core.Platforms;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -200,6 +201,21 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return _isMsal ? "MSAL.Desktop" : "PCL.Desktop";
+        }
+
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new NetDesktopLegacyCachePersistance();
+        }
+
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new TokenCacheAccessor();
+        }
+
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new NetDesktopCryptographyManager();
         }
     }
 }

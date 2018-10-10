@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -105,6 +106,24 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return _isMsal ? "MSAL.NetCore" : null;
+        }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new NetCoreLegacyCachePersistance();
+        }
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new TokenCacheAccessor();
+        }
+
+        /// <inheritdoc />
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new NetCoreCryptographyManager();
         }
     }
 }

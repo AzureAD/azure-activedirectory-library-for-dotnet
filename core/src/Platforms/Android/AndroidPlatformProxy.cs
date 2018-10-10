@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -132,6 +133,24 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
+        }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new AndroidLegacyCachePersistance();
+        }
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new AndroidTokenCacheAccessor();
+        }
+
+        /// <inheritdoc />
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new AndroidCryptographyManager();
         }
     }
 }

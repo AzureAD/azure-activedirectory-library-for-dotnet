@@ -28,6 +28,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
@@ -38,8 +39,12 @@ namespace Microsoft.Identity.Client.Internal.Requests
     {
         private MsalRefreshTokenCacheItem _msalRefreshTokenItem;
 
-        public SilentRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters, bool forceRefresh)
-            : base(httpManager, authenticationRequestParameters)
+        public SilentRequest(
+            IHttpManager httpManager, 
+            ICryptographyManager cryptographyManager,
+            AuthenticationRequestParameters authenticationRequestParameters, 
+            bool forceRefresh)
+            : base(httpManager, cryptographyManager, authenticationRequestParameters)
         {
             ForceRefresh = forceRefresh;
         }

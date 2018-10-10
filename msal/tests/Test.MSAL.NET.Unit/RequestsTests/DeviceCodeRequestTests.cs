@@ -77,8 +77,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-            _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
+            _cache.tokenCacheAccessor.ClearAccessTokens();
+            _cache.tokenCacheAccessor.ClearRefreshTokens();
         }
 
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
@@ -98,14 +98,15 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     out HashSet<string> expectedScopes);
 
                 // Check that cache is empty
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCount);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCount);
 
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     result =>
                     {
@@ -128,10 +129,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
 
                 // Validate that entries were added to cache
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCacheDictionary.Count);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCacheDictionary.Count);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCount);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
             }
         }
 
@@ -151,6 +152,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
+                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
                     parameters,
                     async result =>
                     {

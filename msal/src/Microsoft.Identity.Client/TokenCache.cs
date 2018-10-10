@@ -68,9 +68,19 @@ namespace Microsoft.Identity.Client
 
         private const int DefaultExpirationBufferInMinutes = 5;
 
-        internal readonly TelemetryTokenCacheAccessor tokenCacheAccessor = new TelemetryTokenCacheAccessor();
+        internal readonly TelemetryTokenCacheAccessor tokenCacheAccessor;
 
-        internal ILegacyCachePersistance legacyCachePersistance = new LegacyCachePersistance();
+        internal ILegacyCachePersistance legacyCachePersistance;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public TokenCache()
+        {
+            var proxy = PlatformProxyFactory.GetPlatformProxy();
+            tokenCacheAccessor = new TelemetryTokenCacheAccessor(proxy.CreateTokenCacheAccessor());
+            legacyCachePersistance = proxy.CreateLegacyCachePersistence();
+        }
 
         /// <summary>
         /// Notification for certain token cache interactions during token acquisition. This delegate is

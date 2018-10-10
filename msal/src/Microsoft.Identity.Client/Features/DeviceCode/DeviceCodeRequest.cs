@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
@@ -47,9 +48,10 @@ namespace Microsoft.Identity.Client.Features.DeviceCode
 
         public DeviceCodeRequest(
             IHttpManager httpManager,
+            ICryptographyManager cryptographyManager,
             AuthenticationRequestParameters authenticationRequestParameters,
             Func<DeviceCodeResult, Task> deviceCodeResultCallback)
-            : base(httpManager, authenticationRequestParameters)
+            : base(httpManager, cryptographyManager, authenticationRequestParameters)
         {
             _deviceCodeResultCallback = deviceCodeResultCallback;
 

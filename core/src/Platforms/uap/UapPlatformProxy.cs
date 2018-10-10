@@ -37,6 +37,7 @@ using Windows.Networking.Connectivity;
 using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -187,6 +188,24 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return _isMsal ? "MSAL.UAP" : "PCL.UAP";
+        }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new UapLegacyCachePersistance(CreateCryptographyManager());
+        }
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new UapTokenCacheAccessor(CreateCryptographyManager());
+        }
+
+        /// <inheritdoc />
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new UapCryptographyManager();
         }
     }
 }

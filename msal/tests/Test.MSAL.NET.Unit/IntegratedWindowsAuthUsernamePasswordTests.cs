@@ -172,8 +172,8 @@ namespace Test.MSAL.NET.Unit
         [TestCleanup]
         public void TestCleanup()
         {
-            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-            cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
+            cache.tokenCacheAccessor.ClearAccessTokens();
+            cache.tokenCacheAccessor.ClearRefreshTokens();
         }
 
         [TestMethod]
@@ -364,7 +364,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual("parsing_ws_metadata_exchange_failed", result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -450,7 +450,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(CoreErrorCodes.ParsingWsTrustResponseFailed, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -523,7 +523,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual("Response status code does not indicate success: 404 (NotFound).", result.Message);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -612,7 +612,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(CoreErrorCodes.ParsingWsTrustResponseFailed, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -707,7 +707,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(CoreErrorCodes.InvalidRequest, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -767,7 +767,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(CoreErrorCodes.InvalidRequest, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -838,7 +838,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(MsalError.PasswordRequiredForManagedUserError, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -885,7 +885,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(CoreErrorCodes.InvalidGrantError, result.ErrorCode);
 
                 // There should be no cached entries.
-                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+                Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
             }
         }
     }

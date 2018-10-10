@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 using UIKit;
 
 namespace Microsoft.Identity.Core
@@ -119,5 +120,23 @@ namespace Microsoft.Identity.Core
     {
         return _isMsal ? "MSAL.Xamarin.iOS" : "PCL.iOS";
     }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new iOSLegacyCachePersistance();
+        }
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new iOSTokenCacheAccessor();
+        }
+
+        /// <inheritdoc />
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new iOSCryptographyManager();
+        }
     }
 }

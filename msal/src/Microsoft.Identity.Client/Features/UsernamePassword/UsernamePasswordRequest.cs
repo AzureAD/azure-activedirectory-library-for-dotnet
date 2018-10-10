@@ -49,8 +49,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private readonly CommonNonInteractiveHandler _commonNonInteractiveHandler;
 
-        public UsernamePasswordRequest(IHttpManager httpManager, IWsTrustWebRequestManager wsTrustWebRequestManager, AuthenticationRequestParameters authenticationRequestParameters, UsernamePasswordInput usernamePasswordInput)
-       : base(httpManager, authenticationRequestParameters)
+        public UsernamePasswordRequest(
+            IHttpManager httpManager, 
+            ICryptographyManager cryptographyManager,
+            IWsTrustWebRequestManager wsTrustWebRequestManager, 
+            AuthenticationRequestParameters authenticationRequestParameters, 
+            UsernamePasswordInput usernamePasswordInput)
+       : base(httpManager, cryptographyManager, authenticationRequestParameters)
         {
             this._usernamePasswordInput = usernamePasswordInput ?? throw new ArgumentNullException(nameof(usernamePasswordInput));
             this._commonNonInteractiveHandler = new CommonNonInteractiveHandler(

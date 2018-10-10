@@ -49,18 +49,18 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private string _codeVerifier;
         private string _state;
 
-        public InteractiveRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters,
+        public InteractiveRequest(IHttpManager httpManager, ICryptographyManager cryptographyManager, AuthenticationRequestParameters authenticationRequestParameters,
             IEnumerable<string> extraScopesToConsent, UIBehavior UIBehavior, IWebUI webUI)
             : this(
-                httpManager, authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.Account?.Username,
+                httpManager, cryptographyManager, authenticationRequestParameters, extraScopesToConsent, authenticationRequestParameters.Account?.Username,
                 UIBehavior, webUI)
         {
         }
 
-        public InteractiveRequest(IHttpManager httpManager, AuthenticationRequestParameters authenticationRequestParameters,
+        public InteractiveRequest(IHttpManager httpManager, ICryptographyManager cryptographyManager, AuthenticationRequestParameters authenticationRequestParameters,
             IEnumerable<string> extraScopesToConsent, string loginHint,
             UIBehavior UIBehavior, IWebUI webUI)
-            : base(httpManager, authenticationRequestParameters)
+            : base(httpManager, cryptographyManager, authenticationRequestParameters)
         {
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
@@ -142,8 +142,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             if (addVerifier)
             {
-                _codeVerifier = CoreCryptographyHelpers.GenerateCodeVerifier();
-                string codeVerifierHash = CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(_codeVerifier);
+                _codeVerifier = CryptographyManager.GenerateCodeVerifier();
+                string codeVerifierHash = CryptographyManager.CreateBase64UrlEncodedSha256Hash(_codeVerifier);
 
                 requestParameters[OAuth2Parameter.CodeChallenge] = codeVerifierHash;
                 requestParameters[OAuth2Parameter.CodeChallengeMethod] = OAuth2Value.CodeChallengeMethodValue;

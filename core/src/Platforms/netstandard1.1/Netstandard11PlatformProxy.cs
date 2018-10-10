@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -105,6 +106,24 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return null;
+        }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistance CreateLegacyCachePersistence()
+        {
+            return new Netstandard11LegacyCachePersistance();
+        }
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new TokenCacheAccessor();
+        }
+
+        /// <inheritdoc />
+        public ICryptographyManager CreateCryptographyManager()
+        {
+            return new Netstandard11CryptographyManager();
         }
     }
 }

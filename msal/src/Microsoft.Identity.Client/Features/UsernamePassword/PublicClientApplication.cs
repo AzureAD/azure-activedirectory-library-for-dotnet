@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Client
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
-            var handler = new UsernamePasswordRequest(HttpManager, WsTrustWebRequestManager, requestParams, usernamePasswordInput)
+            var handler = new UsernamePasswordRequest(HttpManager, CryptographyManager, WsTrustWebRequestManager, requestParams, usernamePasswordInput)
             {
                 ApiId = ApiEvent.ApiIds.AcquireTokenWithScopeUser
             };

@@ -180,7 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             set
             {
                 keychainSecurityGroup = value;
-                StorageDelegates.legacyCachePersistance.SetKeychainSecurityGroup(value);
+                StorageDelegates.LegacyCachePersistance.SetKeychainSecurityGroup(value);
                 TokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
             }
         }

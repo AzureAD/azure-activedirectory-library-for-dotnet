@@ -31,7 +31,7 @@ using System;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class LegacyCachePersistance : ILegacyCachePersistance
+    internal class iOSLegacyCachePersistance : ILegacyCachePersistance
     {
         const string NAME = "ADAL.PCL.iOS";
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";

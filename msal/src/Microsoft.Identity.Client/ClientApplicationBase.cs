@@ -66,6 +66,7 @@ namespace Microsoft.Identity.Client
         internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
         internal IHttpManager HttpManager { get; }
+        internal ICryptographyManager CryptographyManager { get; }
         internal IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
 
         /// <summary>
@@ -94,6 +95,7 @@ namespace Microsoft.Identity.Client
             bool validateAuthority, IHttpManager httpManager)
         {
             HttpManager = httpManager ?? new HttpManager();
+            CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
 
             ClientId = clientId;
@@ -315,7 +317,7 @@ namespace Microsoft.Identity.Client
             }
 
             var handler = new SilentRequest(
-                    HttpManager, CreateRequestParameters(authority, scopes, account, UserTokenCache),
+                    HttpManager, CryptographyManager, CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 forceRefresh)
             { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);

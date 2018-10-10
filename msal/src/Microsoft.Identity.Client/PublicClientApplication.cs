@@ -469,7 +469,7 @@ namespace Microsoft.Identity.Client
 #endif
 
             var handler =
-                new InteractiveRequest(HttpManager, requestParams, extraScopesToConsent, loginHint, behavior,
+                new InteractiveRequest(HttpManager, CryptographyManager, requestParams, extraScopesToConsent, loginHint, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
@@ -489,7 +489,7 @@ namespace Microsoft.Identity.Client
 #endif
 
             var handler =
-                new InteractiveRequest(HttpManager, requestParams, extraScopesToConsent, behavior,
+                new InteractiveRequest(HttpManager, CryptographyManager, requestParams, extraScopesToConsent, behavior,
                     CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
                 { ApiId = apiId };
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);

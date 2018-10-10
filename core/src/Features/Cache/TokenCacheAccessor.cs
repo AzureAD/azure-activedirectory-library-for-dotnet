@@ -47,6 +47,30 @@ namespace Microsoft.Identity.Core
         internal readonly IDictionary<string, string> AccountCacheDictionary =
             new ConcurrentDictionary<string, string>();
 
+        /// <inheritdoc />
+        public int RefreshTokenCount => RefreshTokenCacheDictionary.Count;
+
+        /// <inheritdoc />
+        public int AccessTokenCount => AccessTokenCacheDictionary.Count;
+
+        /// <inheritdoc />
+        public int AccountCount => AccountCacheDictionary.Count;
+
+        /// <inheritdoc />
+        public int IdTokenCount => IdTokenCacheDictionary.Count;
+
+        /// <inheritdoc />
+        public void ClearRefreshTokens()
+        {
+            RefreshTokenCacheDictionary.Clear();
+        }
+
+        /// <inheritdoc />
+        public void ClearAccessTokens()
+        {
+            AccessTokenCacheDictionary.Clear();
+        }
+
         public void SaveAccessToken(MsalAccessTokenCacheItem item)
         {
             AccessTokenCacheDictionary[item.GetKey().ToString()] = JsonHelper.SerializeToJson(item);
@@ -157,6 +181,12 @@ namespace Microsoft.Identity.Core
             return
                 new ReadOnlyCollection<string>(
                    AccountCacheDictionary.Values.ToList());
+        }
+
+        /// <inheritdoc />
+        public void SetKeychainSecurityGroup(string keychainSecurityGroup)
+        {
+            throw new System.NotImplementedException();
         }
         /*
         public ICollection<string> GetAllAccessTokenKeys()

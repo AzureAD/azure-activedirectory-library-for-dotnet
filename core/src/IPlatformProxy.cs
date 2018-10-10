@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Core
 {
@@ -39,5 +40,9 @@ namespace Microsoft.Identity.Core
         string GetDefaultRedirectUri(string correlationId);
 
         string GetProductName();
+
+        ILegacyCachePersistance CreateLegacyCachePersistence();
+        ITokenCacheAccessor CreateTokenCacheAccessor();
+        ICryptographyManager CreateCryptographyManager();
     }
 }

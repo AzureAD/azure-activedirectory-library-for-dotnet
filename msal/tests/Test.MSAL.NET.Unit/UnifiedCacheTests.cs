@@ -192,8 +192,8 @@ namespace Test.MSAL.NET.Unit
 
                 Assert.AreEqual(tuple.Item1.Keys.First(), tuple2.Item1.Keys.First());
 
-                app.UserTokenCache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
-                app.UserTokenCache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
+                app.UserTokenCache.tokenCacheAccessor.ClearAccessTokens();
+                app.UserTokenCache.tokenCacheAccessor.ClearRefreshTokens();
             }
         }
 
