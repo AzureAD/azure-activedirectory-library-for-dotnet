@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Core
     internal class PlatformProxyFactory
     {
         // thread safety ensured by implicit LazyThreadSafetyMode.ExecutionAndPublication
-        private static readonly Lazy<IPlatformProxy> _platformProxyLazy = new Lazy<IPlatformProxy>(
+        private static readonly Lazy<IPlatformProxy> PlatformProxyLazy = new Lazy<IPlatformProxy>(
             () =>
 #if NET_CORE
             new NetCorePlatformProxy(IsMsal())
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Core
 #elif IS_MSAL
             return true;
 #else
-            return true;  // TODO: should we default to MSAL or should we default to throw exception?
+            throw new InvalidOperationException("Neither IS_ADAL nor IS_MSAL are set.");
 #endif
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Identity.Core
         /// </summary>
         public static IPlatformProxy GetPlatformProxy()
         {
-            return _platformProxyLazy.Value;
+            return PlatformProxyLazy.Value;
         }
     }
 }

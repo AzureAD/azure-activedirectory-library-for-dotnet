@@ -29,16 +29,16 @@ using System;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class NetStandard13LegacyCachePersistance : ILegacyCachePersistance
+    internal class NetStandard13LegacyCachePersistence : ILegacyCachePersistence
     {
         private byte[] data;
 
-        byte[] ILegacyCachePersistance.LoadCache()
+        byte[] ILegacyCachePersistence.LoadCache()
         {
             return data;
         }
 
-        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
+        void ILegacyCachePersistence.WriteCache(byte[] serializedCache)
         {
             data = serializedCache;
         }

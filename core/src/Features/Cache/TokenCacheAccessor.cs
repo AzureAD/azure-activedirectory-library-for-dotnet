@@ -183,40 +183,10 @@ namespace Microsoft.Identity.Core
                    AccountCacheDictionary.Values.ToList());
         }
 
-        /// <inheritdoc />
         public void SetKeychainSecurityGroup(string keychainSecurityGroup)
         {
             throw new System.NotImplementedException();
         }
-        /*
-        public ICollection<string> GetAllAccessTokenKeys()
-        {
-            return
-                new ReadOnlyCollection<string>(
-                    AccessTokenCacheDictionary.Keys.ToList());
-        }
-
-        public ICollection<string> GetAllRefreshTokenKeys()
-        {
-            return
-                new ReadOnlyCollection<string>(
-                    RefreshTokenCacheDictionary.Keys.ToList());
-        }
-
-        public ICollection<string> GetAllIdTokenKeys()
-        {
-            return
-                new ReadOnlyCollection<string>(
-                    IdTokenCacheDictionary.Keys.ToList());
-        }
-
-        public ICollection<string> GetAllAccountKeys()
-        {
-            return
-                new ReadOnlyCollection<string>(
-                    AccountCacheDictionary.Keys.ToList());
-        }
-        */
 
         public void Clear()
         {

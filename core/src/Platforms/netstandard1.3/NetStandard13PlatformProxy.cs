@@ -84,22 +84,13 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public ILegacyCachePersistance CreateLegacyCachePersistence()
-        {
-            return new NetStandard13LegacyCachePersistance();
-        }
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetStandard13LegacyCachePersistence();
 
         /// <inheritdoc />
-        public ITokenCacheAccessor CreateTokenCacheAccessor()
-        {
-            return new TokenCacheAccessor();
-        }
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
 
         /// <inheritdoc />
-        public ICryptographyManager CreateCryptographyManager()
-        {
-            return new NetStandard13CryptographyManager();
-        }
+        public ICryptographyManager CryptographyManager { get; } = new NetStandard13CryptographyManager();
 
         public bool IsDomainJoined()
         {

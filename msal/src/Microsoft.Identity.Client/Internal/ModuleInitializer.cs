@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Client.Internal
     /// </remarks>
     internal class ModuleInitializer
     {
-        private static bool _isInitialized = false;
+        private static volatile bool _isInitialized = false;
         private static readonly object LockObj = new object();
 
         /// <summary>

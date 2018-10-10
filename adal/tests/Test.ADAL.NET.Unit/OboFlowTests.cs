@@ -65,7 +65,7 @@ namespace Test.ADAL.NET.Unit
             ModuleInitializer.ForceModuleInitializationTestOnly();
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
             ResetInstanceDiscovery();
-            _crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+            _crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
         }
 
         public void ResetInstanceDiscovery()

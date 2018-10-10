@@ -198,24 +198,19 @@ namespace Microsoft.Identity.Core
             return Constants.DefaultRedirectUri;
         }
 
+        /// <inheritdoc />
         public string GetProductName()
         {
             return _isMsal ? "MSAL.Desktop" : "PCL.Desktop";
         }
 
-        public ILegacyCachePersistance CreateLegacyCachePersistence()
-        {
-            return new NetDesktopLegacyCachePersistance();
-        }
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence => new NetDesktopLegacyCachePersistence();
 
-        public ITokenCacheAccessor CreateTokenCacheAccessor()
-        {
-            return new TokenCacheAccessor();
-        }
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor => new TokenCacheAccessor();
 
-        public ICryptographyManager CreateCryptographyManager()
-        {
-            return new NetDesktopCryptographyManager();
-        }
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new NetDesktopCryptographyManager();
     }
 }

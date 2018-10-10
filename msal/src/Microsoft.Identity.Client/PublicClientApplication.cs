@@ -133,7 +133,7 @@ namespace Microsoft.Identity.Client
             {
                 keychainSecurityGroup = value;
                 UserTokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
-                UserTokenCache.legacyCachePersistance.SetKeychainSecurityGroup(value);
+                UserTokenCache.legacyCachePersistence.SetKeychainSecurityGroup(value);
             }
         }
 #endif

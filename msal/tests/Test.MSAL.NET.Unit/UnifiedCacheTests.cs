@@ -56,7 +56,7 @@ namespace Test.MSAL.NET.Unit
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
-        class TestLegacyCachePersistance : ILegacyCachePersistance
+        class TestLegacyCachePersistence : ILegacyCachePersistence
         {
             private byte[] data;
             public byte[] LoadCache()
@@ -89,7 +89,7 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistance = new TestLegacyCachePersistance()
+                        legacyCachePersistence = new TestLegacyCachePersistence()
                     }
                 };
 
@@ -116,7 +116,7 @@ namespace Test.MSAL.NET.Unit
 
                 // make sure Msal stored RT in Adal cache
                 IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCacheDictionary =
-                    AdalCacheOperations.Deserialize(app.UserTokenCache.legacyCachePersistance.LoadCache());
+                    AdalCacheOperations.Deserialize(app.UserTokenCache.legacyCachePersistence.LoadCache());
 
                 Assert.IsTrue(adalCacheDictionary.Count == 1);
 
@@ -169,24 +169,24 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistance = new TestLegacyCachePersistance()
+                        legacyCachePersistence = new TestLegacyCachePersistence()
                     }
                 };
 
                 ISet<string> authorityHostAliases = new HashSet<string>();
                 authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
-                CreateAdalCache(app.UserTokenCache.legacyCachePersistance, TestConstants.Scope.ToString());
+                CreateAdalCache(app.UserTokenCache.legacyCachePersistence, TestConstants.Scope.ToString());
 
                 var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    app.UserTokenCache.legacyCachePersistance,
+                    app.UserTokenCache.legacyCachePersistence,
                     authorityHostAliases,
                     TestConstants.ClientId);
 
-                CreateAdalCache(app.UserTokenCache.legacyCachePersistance, "user.read");
+                CreateAdalCache(app.UserTokenCache.legacyCachePersistence, "user.read");
 
                 var tuple2 = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    app.UserTokenCache.legacyCachePersistance,
+                    app.UserTokenCache.legacyCachePersistence,
                     authorityHostAliases,
                     TestConstants.ClientId);
 
@@ -197,7 +197,7 @@ namespace Test.MSAL.NET.Unit
             }
         }
 
-        private void CreateAdalCache(ILegacyCachePersistance legacyCachePersistance, string scopes)
+        private void CreateAdalCache(ILegacyCachePersistence legacyCachePersistence, string scopes)
         {
             AdalTokenCacheKey key = new AdalTokenCacheKey(TestConstants.AuthorityHomeTenant, scopes,
                 TestConstants.ClientId, TestConstants.TokenSubjectTypeUser, TestConstants.UniqueId, TestConstants.User.Username);
@@ -217,9 +217,9 @@ namespace Test.MSAL.NET.Unit
                 ResourceInResponse = scopes
             };
 
-            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(legacyCachePersistance.LoadCache());
+            IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary = AdalCacheOperations.Deserialize(legacyCachePersistence.LoadCache());
             dictionary[key] = wrapper;
-            legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
+            legacyCachePersistence.WriteCache(AdalCacheOperations.Serialize(dictionary));
         }
     }
 }

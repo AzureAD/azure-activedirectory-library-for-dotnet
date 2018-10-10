@@ -41,17 +41,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 #endif
     internal static class StorageDelegates
     {
-        internal static readonly ILegacyCachePersistance LegacyCachePersistance;
+        internal static readonly ILegacyCachePersistence LegacyCachePersistence;
 
         static StorageDelegates()
         {
-            LegacyCachePersistance = PlatformProxyFactory.GetPlatformProxy().CreateLegacyCachePersistence();
+            LegacyCachePersistence = PlatformProxyFactory.GetPlatformProxy().LegacyCachePersistence;
         }
 
         public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            args?.TokenCache?.Deserialize(LegacyCachePersistance.LoadCache());
+            args?.TokenCache?.Deserialize(LegacyCachePersistence.LoadCache());
 #endif
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 #if ANDROID || iOS || WINDOWS_APP
             if (args?.TokenCache != null && args.TokenCache.HasStateChanged)
             {
-                LegacyCachePersistance.WriteCache(args.TokenCache.Serialize());
+                LegacyCachePersistence.WriteCache(args.TokenCache.Serialize());
                 args.TokenCache.HasStateChanged = false;
             }
 #endif

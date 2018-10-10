@@ -56,6 +56,8 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
+            TokenCache.DefaultShared.Clear();
+
             ResetInstanceDiscovery();
             CoreExceptionFactory.Instance = new AdalExceptionFactory();
         }

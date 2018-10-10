@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Client
             bool validateAuthority, IHttpManager httpManager)
         {
             HttpManager = httpManager ?? new HttpManager();
-            CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+            CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
 
             ClientId = clientId;

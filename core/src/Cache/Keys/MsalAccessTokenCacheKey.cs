@@ -97,7 +97,7 @@ namespace Microsoft.Identity.Core.Cache
         /// </remarks>
         public string GetUWPFixedSizeKey()
         {
-            var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+            var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             return MsalCacheCommon.GetCredentialKey(
               _homeAccountId,
               _environment,

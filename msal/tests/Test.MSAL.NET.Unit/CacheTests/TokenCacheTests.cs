@@ -473,8 +473,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
 
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary =
-                AdalCacheOperations.Deserialize(cache.legacyCachePersistance.LoadCache());
-            cache.legacyCachePersistance.WriteCache(AdalCacheOperations.Serialize(dictionary));
+                AdalCacheOperations.Deserialize(cache.legacyCachePersistence.LoadCache());
+            cache.legacyCachePersistence.WriteCache(AdalCacheOperations.Serialize(dictionary));
 
             // ADAL cache is empty because B2C scenario is only for MSAL
             Assert.AreEqual(0, dictionary.Count);
@@ -516,7 +516,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     ClientId = TestConstants.ClientId,
                     Authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false),
                     Scope = TestConstants.Scope,
-                    UserAssertion = new UserAssertion(PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager().CreateBase64UrlEncodedSha256Hash(atKey.ToString()))
+                    UserAssertion = new UserAssertion(PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey.ToString()))
                 };
 
                 var item = cache.FindAccessTokenAsync(param).Result;
@@ -557,7 +557,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager().CreateBase64UrlEncodedSha256Hash(atKey);
+                atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey);
 
                 cache.tokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()
@@ -605,7 +605,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 // set it as the value of the access token.
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
-                atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager().CreateBase64UrlEncodedSha256Hash(atKey);
+                atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey);
 
                 cache.tokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()

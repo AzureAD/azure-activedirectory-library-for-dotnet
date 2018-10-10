@@ -35,7 +35,7 @@ namespace Test.ADAL.NET.Unit
     {
         public static void CreateSha256HashTest()
         {
-            var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+            var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
             string hash = crypto.CreateSha256Hash("abc");
             string hash2 = crypto.CreateSha256Hash("abd");

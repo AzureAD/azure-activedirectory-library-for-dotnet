@@ -31,7 +31,7 @@ using Windows.Storage;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class UapLegacyCachePersistance : ILegacyCachePersistance
+    internal class UapLegacyCachePersistence : ILegacyCachePersistence
     {
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
 
@@ -42,12 +42,12 @@ namespace Microsoft.Identity.Core.Cache
 
         private readonly ICryptographyManager _cryptographyManager;
 
-        public UapLegacyCachePersistance(ICryptographyManager cryptographyManager)
+        public UapLegacyCachePersistence(ICryptographyManager cryptographyManager)
         {
             _cryptographyManager = cryptographyManager;
         }
 
-        byte[] ILegacyCachePersistance.LoadCache()
+        byte[] ILegacyCachePersistence.LoadCache()
         {
             try
             {
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Core.Cache
             return null;
         }
 
-        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
+        void ILegacyCachePersistence.WriteCache(byte[] serializedCache)
         {
             try
             {

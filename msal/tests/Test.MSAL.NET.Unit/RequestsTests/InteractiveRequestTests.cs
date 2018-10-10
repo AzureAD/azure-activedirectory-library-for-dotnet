@@ -122,7 +122,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -193,7 +193,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -247,7 +247,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                     new InteractiveRequest(
                         httpManager,
-                        PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                        PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                         parameters,
                         TestConstants.ScopeForAnotherResource.ToArray(),
                         (string)null,
@@ -291,7 +291,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -345,7 +345,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     TestConstants.DisplayableId,
@@ -399,7 +399,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     (string)null,
@@ -427,7 +427,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     (string)null,
@@ -471,7 +471,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var request = new InteractiveRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     TestConstants.ScopeForAnotherResource.ToArray(),
                     null,

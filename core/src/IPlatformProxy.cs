@@ -41,8 +41,8 @@ namespace Microsoft.Identity.Core
 
         string GetProductName();
 
-        ILegacyCachePersistance CreateLegacyCachePersistence();
-        ITokenCacheAccessor CreateTokenCacheAccessor();
-        ICryptographyManager CreateCryptographyManager();
+        ILegacyCachePersistence LegacyCachePersistence { get; }
+        ITokenCacheAccessor TokenCacheAccessor { get; }
+        ICryptographyManager CryptographyManager { get; }
     }
 }

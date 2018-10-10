@@ -415,7 +415,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 var accessTokenHash = PlatformProxyFactory
                                       .GetPlatformProxy()
-                                      .CreateCryptographyManager()
+                                      .CryptographyManager
                                       .CreateSha256Hash(result.AccessToken);
 
                 {

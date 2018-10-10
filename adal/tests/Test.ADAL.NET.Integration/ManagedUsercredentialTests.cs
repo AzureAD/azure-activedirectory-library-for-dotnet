@@ -51,6 +51,7 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
+            TokenCache.DefaultShared.Clear();
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
             ResetInstanceDiscovery();
         }
@@ -104,6 +105,9 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityHomeTenant, 
                     AuthorityValidationType.True, 
                     cache);
+
+                Assert.AreEqual(0, context.TokenCache.Count);
+
                 var result = await context.AcquireTokenAsync(
                                  TestConstants.DefaultResource,
                                  TestConstants.DefaultClientId,
@@ -361,6 +365,8 @@ namespace Test.ADAL.NET.Integration
         [Description("Test case where user realm discovery cannot determine the user type.")]
         public async Task UnknownUserRealmDiscoveryTestAsync()
         {
+            Assert.AreEqual(1, AdalHttpMessageHandlerFactory.MockHandlersCount());
+
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
                 AuthenticationContext context = new AuthenticationContext(

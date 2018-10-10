@@ -45,7 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.DisplayableId = userAssertion.UserName;
             CacheQueryData.AssertionHash = PlatformProxyFactory
                                            .GetPlatformProxy()
-                                           .CreateCryptographyManager()
+                                           .CryptographyManager
                                            .CreateSha256Hash(userAssertion.Assertion);
 
             RequestContext.Logger.Verbose(string.Format(CultureInfo.InvariantCulture,

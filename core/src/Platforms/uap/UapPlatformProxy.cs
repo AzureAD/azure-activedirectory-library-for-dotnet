@@ -191,21 +191,12 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public ILegacyCachePersistance CreateLegacyCachePersistence()
-        {
-            return new UapLegacyCachePersistance(CreateCryptographyManager());
-        }
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new UapLegacyCachePersistence(new UapCryptographyManager());
 
         /// <inheritdoc />
-        public ITokenCacheAccessor CreateTokenCacheAccessor()
-        {
-            return new UapTokenCacheAccessor(CreateCryptographyManager());
-        }
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new UapTokenCacheAccessor(new UapCryptographyManager());
 
         /// <inheritdoc />
-        public ICryptographyManager CreateCryptographyManager()
-        {
-            return new UapCryptographyManager();
-        }
+        public ICryptographyManager CryptographyManager { get; } = new UapCryptographyManager();
     }
 }

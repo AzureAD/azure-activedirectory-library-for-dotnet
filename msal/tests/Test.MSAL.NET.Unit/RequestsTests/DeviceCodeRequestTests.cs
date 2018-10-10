@@ -106,7 +106,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     result =>
                     {
@@ -152,7 +152,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager(),
+                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
                     parameters,
                     async result =>
                     {

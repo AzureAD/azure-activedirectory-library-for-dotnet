@@ -27,16 +27,16 @@
 
 namespace Microsoft.Identity.Core.Cache
 {
-    internal class NetDesktopLegacyCachePersistance : ILegacyCachePersistance
+    internal class NetDesktopLegacyCachePersistence : ILegacyCachePersistence
     {
         private byte[] data;
 
-        byte[] ILegacyCachePersistance.LoadCache()
+        byte[] ILegacyCachePersistence.LoadCache()
         {
             return data;
         }
 
-        void ILegacyCachePersistance.WriteCache(byte[] serializedCache)
+        void ILegacyCachePersistence.WriteCache(byte[] serializedCache)
         {
             data = serializedCache;  
         }

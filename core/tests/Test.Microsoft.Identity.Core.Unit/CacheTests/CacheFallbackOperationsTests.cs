@@ -40,7 +40,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
     [TestClass]
     public class CacheFallbackOperationsTests
     {
-        private InMemoryLegacyCachePersistance _legacyCachePersistance;
+        private InMemoryLegacyCachePersistence _legacyCachePersistence;
 
         [TestInitialize]
         public void TestInitialize()
@@ -52,19 +52,19 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             AadInstanceDiscovery.Instance.Cache.Clear();
 
             // Use the net45 accessor for tests
-            _legacyCachePersistance = new InMemoryLegacyCachePersistance();
+            _legacyCachePersistence = new InMemoryLegacyCachePersistence();
         }
 
         [TestMethod]
         public void GetAllAdalUsersForMsal_ScopedBy_ClientIdAndEnv()
         {
             // Arrange
-            PopulateLegacyCache(_legacyCachePersistance);
+            PopulateLegacyCache(_legacyCachePersistence);
 
             // Act - query users by env and clientId
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    _legacyCachePersistance,
+                    _legacyCachePersistence,
                     new HashSet<string>
                     {
                         TestConstants.ProductionPrefNetworkEnvironment,
@@ -87,7 +87,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             // Act - query users for different clientId and env
             userTuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 new HashSet<string>
                 {
                     TestConstants.SovereignEnvironment
@@ -108,10 +108,10 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         public void RemoveAdalUser_RemovesUserWithSameId()
         {
             // Arrange
-            PopulateLegacyCache(_legacyCachePersistance);
+            PopulateLegacyCache(_legacyCachePersistence);
 
             PopulateLegacyWithRtAndId( //different clientId -> should not be deleted
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 "other_client_id",
                 TestConstants.ProductionPrefNetworkEnvironment,
                 "uid1",
@@ -119,7 +119,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "user1_other_client_id");
 
             PopulateLegacyWithRtAndId( //different env -> should not be deleted
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 TestConstants.ClientId,
                 "other_env",
                 "uid1",
@@ -128,7 +128,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             // Act - delete with id and displayname
             CacheFallbackOperations.RemoveAdalUser(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 new HashSet<string>
                 {
                     TestConstants.ProductionPrefNetworkEnvironment
@@ -140,7 +140,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Assert 
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    _legacyCachePersistance,
+                    _legacyCachePersistence,
                     new HashSet<string>
                     {
                         TestConstants.ProductionPrefNetworkEnvironment,
@@ -166,10 +166,10 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         public void RemoveAdalUser_RemovesUserNoClientInfo()
         {
             // Arrange
-            PopulateLegacyCache(_legacyCachePersistance);
+            PopulateLegacyCache(_legacyCachePersistence);
 
             PopulateLegacyWithRtAndId(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 "other_client_id",
                 TestConstants.ProductionPrefNetworkEnvironment,
                 null,
@@ -177,7 +177,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "no_client_info_user3"); // no client info, different client id -> won't be deleted
 
             PopulateLegacyWithRtAndId(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 TestConstants.ClientId,
                 "other_env",
                 null,
@@ -188,7 +188,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    _legacyCachePersistance,
+                    _legacyCachePersistence,
                     new HashSet<string>
                     {
                         TestConstants.ProductionPrefNetworkEnvironment,
@@ -212,7 +212,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             // Act - delete with no client info -> displayable id is used
             CacheFallbackOperations.RemoveAdalUser(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 new HashSet<string>
                 {
                     TestConstants.ProductionPrefNetworkEnvironment
@@ -225,7 +225,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             // Assert 
             userTuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 new HashSet<string>
                 {
                     TestConstants.ProductionPrefNetworkEnvironment,
@@ -250,7 +250,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         private void AssertCacheEntryCount(int expectedEntryCount)
         {
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> cache =
-                AdalCacheOperations.Deserialize(_legacyCachePersistance.LoadCache());
+                AdalCacheOperations.Deserialize(_legacyCachePersistence.LoadCache());
             Assert.AreEqual(expectedEntryCount, cache.Count);
         }
 
@@ -258,14 +258,14 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         public void RemoveAdalUser_RemovesUserNoClientInfo_And_NoDisplayName()
         {
             // Arrange
-            PopulateLegacyCache(_legacyCachePersistance);
+            PopulateLegacyCache(_legacyCachePersistence);
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCacheBeforeDelete =
-                AdalCacheOperations.Deserialize(_legacyCachePersistance.LoadCache());
+                AdalCacheOperations.Deserialize(_legacyCachePersistence.LoadCache());
             Assert.AreEqual(6, adalCacheBeforeDelete.Count);
 
             // Act - nothing happens and a message is logged
             CacheFallbackOperations.RemoveAdalUser(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 new HashSet<string>
                 {
                     TestConstants.ProductionPrefNetworkEnvironment
@@ -284,7 +284,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         public void WriteAdalRefreshToken_ErrorLog()
         {
             // Arrange
-            _legacyCachePersistance.ThrowOnWrite = true;
+            _legacyCachePersistence.ThrowOnWrite = true;
             CoreExceptionFactory.Instance = new TestExceptionFactory();
 
             var rtItem = new MsalRefreshTokenCacheItem(
@@ -302,7 +302,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             // Act
             CacheFallbackOperations.WriteAdalRefreshToken(
-                _legacyCachePersistance,
+                _legacyCachePersistence,
                 rtItem,
                 idTokenCacheItem,
                 "https://some_env.com/common", // yet another env
@@ -315,10 +315,10 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             CoreLoggerBase.Default.Received().Error(Arg.Is<string>(CacheFallbackOperations.DifferentEnvError));
         }
 
-        private static void PopulateLegacyCache(ILegacyCachePersistance legacyCachePersistance)
+        private static void PopulateLegacyCache(ILegacyCachePersistence legacyCachePersistence)
         {
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 TestConstants.ClientId,
                 TestConstants.ProductionPrefNetworkEnvironment,
                 "uid1",
@@ -326,7 +326,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "user1");
 
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 TestConstants.ClientId,
                 TestConstants.ProductionPrefNetworkEnvironment,
                 "uid2",
@@ -334,7 +334,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "user2");
 
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 TestConstants.ClientId,
                 TestConstants.ProductionPrefNetworkEnvironment,
                 null,
@@ -342,7 +342,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "no_client_info_user3");
 
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 TestConstants.ClientId,
                 TestConstants.ProductionPrefNetworkEnvironment,
                 null,
@@ -350,7 +350,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "no_client_info_user4");
 
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 TestConstants.ClientId,
                 TestConstants.SovereignEnvironment, // different env
                 "uid4",
@@ -358,7 +358,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "sovereign_user5");
 
             PopulateLegacyWithRtAndId(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 "other_client_id", // different client id
                 TestConstants.SovereignEnvironment,
                 "uid5",
@@ -377,7 +377,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         }
 
         private static void PopulateLegacyWithRtAndId(
-            ILegacyCachePersistance legacyCachePersistance,
+            ILegacyCachePersistence legacyCachePersistence,
             string clientId,
             string env,
             string uid,
@@ -404,7 +404,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 uniqueTenantId);
 
             CacheFallbackOperations.WriteAdalRefreshToken(
-                legacyCachePersistance,
+                legacyCachePersistence,
                 rtItem,
                 idTokenCacheItem,
                 "https://" + env + "/common",
@@ -429,7 +429,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
         }
     }
 
-    public class InMemoryLegacyCachePersistance : ILegacyCachePersistance
+    public class InMemoryLegacyCachePersistence : ILegacyCachePersistence
     {
         private byte[] data;
         public bool ThrowOnWrite { get; set; } = false;

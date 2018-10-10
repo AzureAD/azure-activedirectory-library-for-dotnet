@@ -136,21 +136,12 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public ILegacyCachePersistance CreateLegacyCachePersistence()
-        {
-            return new AndroidLegacyCachePersistance();
-        }
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new AndroidLegacyCachePersistence();
 
         /// <inheritdoc />
-        public ITokenCacheAccessor CreateTokenCacheAccessor()
-        {
-            return new AndroidTokenCacheAccessor();
-        }
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new AndroidTokenCacheAccessor();
 
         /// <inheritdoc />
-        public ICryptographyManager CreateCryptographyManager()
-        {
-            return new AndroidCryptographyManager();
-        }
+        public ICryptographyManager CryptographyManager { get; } = new AndroidCryptographyManager();
     }
 }

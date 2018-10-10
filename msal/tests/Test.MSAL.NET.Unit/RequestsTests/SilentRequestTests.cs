@@ -84,7 +84,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
                 };
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
                 var request = new SilentRequest(httpManager, crypto, parameters, false);
                 Assert.IsNotNull(request);
@@ -137,7 +137,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
                     });
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
                 var request = new SilentRequest(httpManager, crypto, parameters, false);
                 Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
@@ -172,7 +172,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
                 };
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
                 try
                 {
@@ -220,7 +220,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
                 };
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CreateCryptographyManager();
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
                 try
                 {
