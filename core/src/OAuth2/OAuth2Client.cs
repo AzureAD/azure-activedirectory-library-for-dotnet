@@ -95,6 +95,28 @@ namespace Microsoft.Identity.Core.OAuth2
 
                 httpEvent.HttpResponseStatus = (int)response.StatusCode;
                 httpEvent.UserAgent = response.UserAgent;
+                
+                httpEvent.HttpMethod = method.Method.ToString();
+
+                if(response.HeadersAsDictionary.ContainsKey("x-ms-request-id") &&
+                    response.HeadersAsDictionary["x-ms-request-id"] != null)
+                {
+                    httpEvent.RequestIdHeader = response.HeadersAsDictionary["x-ms-request-id"];
+                }
+
+                if(response.HeadersAsDictionary.ContainsKey("x-ms-clitelem") && 
+                    response.HeadersAsDictionary["x-ms-clitelem"] != null)
+                {
+                    XMsTelemInfo xMsTeleminfo = XMsTelemInfoHelper.parseXMsTelemHeader(response.HeadersAsDictionary["x-ms-clitelem"], requestContext);
+                    if (xMsTeleminfo != null)
+                    {
+                        httpEvent.TokenAge = xMsTeleminfo.TokenAge;
+                        httpEvent.SpeInfo = xMsTeleminfo.SpeInfo;
+                        httpEvent.ServerErrorCode = xMsTeleminfo.ServerErrorCode;
+                        httpEvent.ServerErrorCode = xMsTeleminfo.ServerSubErrorCode;
+                    }
+                }
+
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     try

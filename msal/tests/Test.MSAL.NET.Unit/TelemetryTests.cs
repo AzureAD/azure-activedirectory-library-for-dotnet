@@ -290,7 +290,7 @@ namespace Test.MSAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("PiiLoggingEnabled set to true, TenantId & UserId are hashed values")]
+        [TestCategory("PiiLoggingEnabled set to true, TenantId, UserId, and Login Hint are hashed values")]
         public void PiiLoggingEnabledTrue_TenantAndUserIdHashedTest()
         {
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
@@ -304,6 +304,7 @@ namespace Test.MSAL.NET.Unit
             try
             {
                 var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad", TenantId = TenantId, AccountId = UserId };
+                e1.LoginHint = "loginHint";
                 telemetry.StartEvent(reqId, e1);
                 // do some stuff...
                 e1.WasSuccessful = true;
@@ -319,6 +320,12 @@ namespace Test.MSAL.NET.Unit
                 {
                     Assert.AreNotEqual(null, e1[ApiEvent.UserIdKey]);
                     Assert.AreNotEqual(UserId, e1[ApiEvent.UserIdKey]);
+                }
+
+                if (e1.ContainsKey(ApiEvent.LoginHintKey))
+                {
+                    Assert.AreNotEqual(null, e1[ApiEvent.LoginHintKey]);
+                    Assert.AreNotEqual("loginHint", e1[ApiEvent.LoginHintKey]);
                 }
 
                 telemetry.StopEvent(reqId, e1);
@@ -345,6 +352,7 @@ namespace Test.MSAL.NET.Unit
             try
             {
                 var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad", TenantId = TenantId, AccountId = UserId };
+                e1.LoginHint = "loginHint";
                 telemetry.StartEvent(reqId, e1);
                 // do some stuff...
                 e1.WasSuccessful = true;
@@ -358,6 +366,11 @@ namespace Test.MSAL.NET.Unit
                 if (e1.ContainsKey(ApiEvent.UserIdKey))
                 {
                     Assert.AreEqual(null, e1[ApiEvent.UserIdKey]);
+                }
+
+                if(e1.ContainsKey(ApiEvent.LoginHintKey))
+                {
+                    Assert.AreEqual(null, e1[ApiEvent.LoginHintKey]);
                 }
 
                 telemetry.StopEvent(reqId, e1);

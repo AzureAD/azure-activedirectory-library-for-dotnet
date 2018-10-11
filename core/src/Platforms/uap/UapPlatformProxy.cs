@@ -35,6 +35,7 @@ using Windows.Networking;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System;
+using Windows.ApplicationModel;
 
 namespace Microsoft.Identity.Core
 {
@@ -142,6 +143,20 @@ namespace Microsoft.Identity.Core
         {
             var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
             return deviceInformation.SystemProductName;
+        }
+        public string GetApplicationName()
+        {
+            return Package.Current.DisplayName;
+        }
+
+        public string GetApplicationVersion()
+        {
+            return Package.Current.Id.Version.ToString();
+        }
+
+        public string GetDeviceId()
+        {
+            return null;
         }
     }
 }

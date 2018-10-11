@@ -72,6 +72,20 @@ namespace Microsoft.Identity.Core
             return null;
         }
 
+        public string GetApplicationName()
+        {
+            return null;
+        }
+
+        public string GetApplicationVersion()
+        {
+            return null;
+        }
+
+        public string GetDeviceId()
+        {
+            return null;
+        }
 
     }
 }

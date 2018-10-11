@@ -27,6 +27,8 @@
 
 using System.Threading.Tasks;
 using UIKit;
+using Foundation;
+
 
 namespace Microsoft.Identity.Core
 {
@@ -71,6 +73,20 @@ namespace Microsoft.Identity.Core
         public string GetDeviceModel()
         {
             return UIDevice.CurrentDevice.Model;
+        }
+        public string GetApplicationName()
+        {
+            return (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleName"].ToString();
+        }
+
+        public string GetApplicationVersion()
+        {
+            return (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
+        }
+
+        public string GetDeviceId()
+        {
+            return UIDevice.CurrentDevice.IdentifierForVendor.AsString();
         }
     }
 }

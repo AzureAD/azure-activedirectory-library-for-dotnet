@@ -150,6 +150,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 WasSuccessful = false
             };
 
+            if(AuthenticationRequestParameters.LoginHint != null)
+            {
+                apiEvent.LoginHint = AuthenticationRequestParameters.LoginHint;
+            }
+            
             if (AuthenticationRequestParameters.Authority != null)
             {
                 apiEvent.Authority = new Uri(AuthenticationRequestParameters.Authority.CanonicalAuthority);

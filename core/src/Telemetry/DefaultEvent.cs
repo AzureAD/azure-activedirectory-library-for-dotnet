@@ -25,17 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
+using System.Diagnostics;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
     internal class DefaultEvent : EventBase
-    {
+    {   
         public DefaultEvent(string clientId) : base((string) (EventBase.EventNamePrefix + "default_event"))
         {
             this[EventNamePrefix + "client_id"] = clientId;
             this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
             this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
+            this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationName()?.ToLowerInvariant();
+            this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationVersion()?.ToLowerInvariant();
+            this[EventNamePrefix + "device_id"] = PlatformProxyFactory.GetPlatformProxy().GetDeviceId()?.ToLowerInvariant();
         }
     }
 }

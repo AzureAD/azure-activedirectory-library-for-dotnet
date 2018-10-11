@@ -26,12 +26,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Text;
 using System.Security.Principal;
 using Microsoft.Identity.Core.Platforms;
+
 
 namespace Microsoft.Identity.Core
 {
@@ -162,6 +165,19 @@ namespace Microsoft.Identity.Core
             }
         }
 
+        public string GetApplicationName()
+        {
+            return Assembly.GetEntryAssembly().GetName().ToString();
+        }
 
+        public string GetApplicationVersion()
+        {
+            return Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        public string GetDeviceId()
+        {
+            return Environment.MachineName;
+        }
     }
 }

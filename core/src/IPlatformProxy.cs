@@ -32,5 +32,23 @@ namespace Microsoft.Identity.Core
         bool IsDomainJoined();
 
         Task<bool> IsUserLocalAsync(RequestContext requestContext);
+
+        /// <summary>
+        /// Returns the name of the application
+        /// </summary>
+        /// <returns></returns>
+        string GetApplicationName();
+
+        /// <summary>
+        /// Returns the version of the application
+        /// </summary>
+        /// <returns></returns>
+        string GetApplicationVersion();
+
+        /// <summary>
+        /// Returns the deviceId
+        /// </summary>
+        /// <returns></returns>
+        string GetDeviceId();
     }
 }

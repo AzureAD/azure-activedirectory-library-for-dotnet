@@ -45,6 +45,7 @@ namespace Microsoft.Identity.Core.Telemetry
         public const string RequestIdKey = EventNamePrefix + "request_id";
         public const string IsConfidentialClientKey = EventNamePrefix + "is_confidential_client";
         public const string ApiErrorCodeKey = EventNamePrefix + "api_error_code";
+        public const string LoginHintKey = EventNamePrefix + "login_hint";
 
         public enum ApiIds
         {
@@ -141,8 +142,17 @@ namespace Microsoft.Identity.Core.Telemetry
             set { this[IsConfidentialClientKey] = value.ToString().ToLowerInvariant(); }
         }
 
-        public string ApiErrorCode {
+        public string ApiErrorCode
+        {
             set { this[ApiErrorCodeKey] = value; }
+        }
+
+        public string LoginHint
+        {
+            set { this[LoginHintKey] = value != null && _logger.PiiLoggingEnabled
+                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    : null;
+            }
         }
     }
 }

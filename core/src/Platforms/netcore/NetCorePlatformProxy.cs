@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Microsoft.Identity.Core
 {
@@ -71,6 +72,21 @@ namespace Microsoft.Identity.Core
         public string GetDeviceModel()
         {
             return null;
+        }
+
+        public string GetApplicationName()
+        {
+            return Assembly.GetEntryAssembly().GetName().ToString();
+        }
+
+        public string GetApplicationVersion()
+        {
+            return Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        public string GetDeviceId()
+        {
+            return System.Environment.MachineName;
         }
     }
 }
