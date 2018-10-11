@@ -38,12 +38,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
     {
         public RequestContext RequestContext { get; set; }
 
-        public SystemWebUI()
-        {
-            didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
-            willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
-        }
-
         public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {

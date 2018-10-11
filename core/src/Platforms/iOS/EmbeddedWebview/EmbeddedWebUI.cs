@@ -38,12 +38,6 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
         public RequestContext RequestContext { get; internal set; }
         public CoreUIParent CoreUIParent { get; set; }
 
-        public EmbeddedWebUI()
-        {
-            didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
-            willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
-        }
-
         public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
             returnedUriReady = new SemaphoreSlim(0);

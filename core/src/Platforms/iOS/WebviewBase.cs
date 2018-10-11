@@ -46,6 +46,12 @@ namespace Microsoft.Identity.Core.UI
         protected NSObject didEnterBackgroundNotification;
         protected NSObject willEnterForegroundNotification;
 
+        public WebviewBase()
+        {
+            didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
+            willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
+        }
+
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext);
 
@@ -88,12 +94,22 @@ namespace Microsoft.Identity.Core.UI
                 taskId = UIApplication.BackgroundTaskInvalid;
             }
         }
-
-        //Hiding NSObject.Dispose() with new to implement IDisposable interface
-        public new void Dispose()
+        
+        protected override void Dispose(bool disposing)
         {
-            didEnterBackgroundNotification.Dispose();
-            willEnterForegroundNotification.Dispose();
+            if (disposing)
+            {
+                if (didEnterBackgroundNotification != null)
+                {
+                    didEnterBackgroundNotification.Dispose();
+                    didEnterBackgroundNotification = null;
+                }
+                if (willEnterForegroundNotification != null)
+                {
+                    willEnterForegroundNotification.Dispose();
+                    willEnterForegroundNotification = null;
+                }
+            }
         }
     }
 }
