@@ -39,6 +39,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -109,7 +110,7 @@ namespace Test.MSAL.NET.Unit
             Assert.IsTrue(adalCacheDictionary.Count == 1);
 
             var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-            var users = app.UserTokenCache.GetAccountsAsync(TestConstants.AuthorityCommonTenant, false, requestContext).Result;
+            var users = app.UserTokenCache.GetAccountsAsync(new TestPlatformInformation(), TestConstants.AuthorityCommonTenant, false, requestContext).Result;
             foreach (IAccount user in users)
             {
                 ISet<string> authorityHostAliases = new HashSet<string>();

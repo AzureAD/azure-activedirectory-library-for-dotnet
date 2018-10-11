@@ -67,9 +67,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             _extraScopesToConsent = new SortedSet<string>();
-            if (!CoreHelpers.IsNullOrEmpty(extraScopesToConsent))
+            if (!extraScopesToConsent.IsNullOrEmpty())
             {
-                _extraScopesToConsent = extraScopesToConsent.CreateSetFromEnumerable();
+                _extraScopesToConsent = ScopeHelper.CreateSortedSetFromEnumerable(extraScopesToConsent);
             }
 
             ValidateScopeInput(_extraScopesToConsent);
@@ -234,7 +234,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authorizationRequestParameters[OAuth2Parameter.CorrelationId] = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString();
             }
 
-            foreach (var kvp in MsalIdHelper.GetMsalIdParameters())
+            foreach (var kvp in MsalIdHelper.GetMsalIdParameters(PlatformInformation))
             {
                 authorizationRequestParameters[kvp.Key] = kvp.Value;
             }
