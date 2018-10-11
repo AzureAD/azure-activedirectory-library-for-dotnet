@@ -59,10 +59,6 @@ namespace Test.MSAL.NET.Integration
 
         private byte[] AdalV3StateStorage;
         private byte[] UnifiedStateStorage;
-        public UnifiedCacheTests () {
-            AdalV3StateStorage = new byte[0];
-            UnifiedStateStorage = new byte[0];
-        }
 
         [TestInitialize]
         public void TestInitialize()
@@ -469,7 +465,7 @@ namespace Test.MSAL.NET.Integration
             Assert.IsNotNull(account.HomeAccountId);
             Assert.IsNotNull(account.Environment);
 
-            // validate than Adal writes only RT in Msal format, no AT
+            // validate than Adal writes only Rt in Msal format  an
             Assert.AreEqual(0, msalCache.tokenCacheAccessor.GetAllAccessTokensAsString().Count);
             Assert.AreEqual(1, msalCache.tokenCacheAccessor.GetAllRefreshTokensAsString().Count);
             Assert.AreEqual(0, msalCache.tokenCacheAccessor.GetAllIdTokensAsString().Count);
