@@ -45,17 +45,17 @@ namespace Test.MSAL.NET.Unit
         public static readonly string Uid = "my-uid";
         public static readonly string Utid = "my-utid";
 
-        public static readonly string ProdPrefNetworkEnv = "login.microsoftonline.com";
-        public static readonly string ProdPrefCacheEnv = "login.windows.net";
-        public static readonly string ProdNotPrefEnvAlias = "sts.windows.net";
+        public static readonly string ProductionPrefNetworkEnvironment = "login.microsoftonline.com";
+        public static readonly string ProductionPrefCacheEnvironment = "login.windows.net";
+        public static readonly string ProductionNotPrefEnvironmentAlias = "sts.windows.net";
 
         public static readonly string SovereignEnvironment = "login.microsoftonline.de";
-        public static readonly string AuthorityHomeTenant = "https://" + ProdPrefNetworkEnv + "/home/";
-        public static readonly string AuthorityUtidTenant = "https://" + ProdPrefNetworkEnv + "/" + Utid + "/";
-        public static readonly string AuthorityGuestTenant = "https://" + ProdPrefNetworkEnv + "/guest/";
-        public static readonly string AuthorityCommonTenant = "https://" + ProdPrefNetworkEnv + "/common/";
-        public static readonly string PrefCacheAuthorityCommonTenant = "https://" + ProdPrefCacheEnv + "/common/";
-        public static readonly string AuthorityOrganizationsTenant = "https://" + ProdPrefNetworkEnv + "/organizations/";
+        public static readonly string AuthorityHomeTenant = "https://" + ProductionPrefNetworkEnvironment + "/home/";
+        public static readonly string AuthorityUtidTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
+        public static readonly string AuthorityGuestTenant = "https://" + ProductionPrefNetworkEnvironment + "/guest/";
+        public static readonly string AuthorityCommonTenant = "https://" + ProductionPrefNetworkEnvironment + "/common/";
+        public static readonly string PrefCacheAuthorityCommonTenant = "https://" + ProductionPrefCacheEnvironment + "/common/";
+        public static readonly string AuthorityOrganizationsTenant = "https://" + ProductionPrefNetworkEnvironment + "/organizations/";
         public const string B2CAuthority = "https://login.microsoftonline.in/tfp/tenant/policy/";
         public static readonly string ClientId = "client_id";
         public static readonly string UniqueId = "unique_id";
@@ -66,7 +66,7 @@ namespace Test.MSAL.NET.Unit
         public static readonly string ClientSecret = "client_secret";
         public static readonly ClientCredential CredentialWithSecret = new ClientCredential(ClientSecret);
         public static readonly string DefaultPassword = "password";
-        public static readonly string AuthorityTestTenant = "https://" + ProdPrefNetworkEnv + "/" + Utid + "/";
+        public static readonly string AuthorityTestTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
         public static readonly string DefaultAuthorizationCode = "DefaultAuthorizationCode";
         public static readonly string DefaultAccessToken = "DefaultAccessToken";
@@ -97,7 +97,7 @@ namespace Test.MSAL.NET.Unit
             return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
         }
 
-        public static readonly Account User = new Account(UserIdentifier, DisplayableId, ProdPrefNetworkEnv);
+        public static readonly Account User = new Account(UserIdentifier, DisplayableId, ProductionPrefNetworkEnvironment);
   
         public static readonly string OnPremiseAuthority = "https://fs.contoso.com/adfs/";
         public static readonly string OnPremiseClientId = "on_premise_client_id";

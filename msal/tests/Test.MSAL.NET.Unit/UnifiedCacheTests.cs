@@ -75,7 +75,7 @@ namespace Test.MSAL.NET.Unit
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
 
             MockWebUI ui = new MockWebUI()
             {
@@ -113,7 +113,7 @@ namespace Test.MSAL.NET.Unit
             foreach (IAccount user in users)
             {
                 ISet<string> authorityHostAliases = new HashSet<string>();
-                authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
+                authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
                 app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
             }
@@ -144,10 +144,10 @@ namespace Test.MSAL.NET.Unit
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId);
 
-            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
+            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
 
             ISet<string> authorityHostAliases = new HashSet<string>();
-            authorityHostAliases.Add(TestConstants.ProdPrefNetworkEnv);
+            authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
             CreateAdalCache(app.UserTokenCache.legacyCachePersistance, TestConstants.Scope.ToString());
 

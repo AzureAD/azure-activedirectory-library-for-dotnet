@@ -636,7 +636,7 @@ namespace Test.MSAL.NET.Unit
 
             ClientCredential cc =
                 new ClientCredential("secret");
-            var app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProdPrefNetworkEnv + "/tfp/home/policy",
+            var app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
                 TestConstants.RedirectUri, cc, cache, null)
             {
                 ValidateAuthority = false
@@ -666,7 +666,7 @@ namespace Test.MSAL.NET.Unit
                 AfterAccess = AfterCacheAccess
             };
 
-            app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProdPrefNetworkEnv + "/tfp/home/policy",
+            app = new ConfidentialClientApplication(TestConstants.ClientId, "https://" + TestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
                 TestConstants.RedirectUri, cc, cache, null)
             {
                 ValidateAuthority = false

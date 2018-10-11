@@ -316,19 +316,5 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 }
             };
         }
-
-        public class TestLegacyCachePersistance : ILegacyCachePersistance
-        {
-            private byte[] data;
-            public byte[] LoadCache()
-            {
-                return data;
-            }
-
-            public void WriteCache(byte[] serializedCache)
-            {
-                data = serializedCache;
-            }
-        }
     }
 }

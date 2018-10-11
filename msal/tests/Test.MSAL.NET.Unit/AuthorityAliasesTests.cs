@@ -79,27 +79,27 @@ namespace Test.MSAL.NET.Unit
 
             // init public client app
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId,
-                string.Format(CultureInfo.InvariantCulture, "https://{0}/common", TestConstants.ProdNotPrefEnvAlias));
-            app.UserTokenCache.legacyCachePersistance = new MockHelpers.TestLegacyCachePersistance();
+                string.Format(CultureInfo.InvariantCulture, "https://{0}/common", TestConstants.ProductionNotPrefEnvironmentAlias));
+            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
 
             // mock for openId config request
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/v2.0/.well-known/openid-configuration",
-                    TestConstants.ProdPrefNetworkEnv),
+                    TestConstants.ProductionPrefNetworkEnvironment),
                 Method = HttpMethod.Get,
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
             });
 
             // mock webUi authorization
             MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                app.RedirectUri + "?code=some-code"), null, TestConstants.ProdPrefNetworkEnv);
+                app.RedirectUri + "?code=some-code"), null, TestConstants.ProductionPrefNetworkEnvironment);
 
             // mock token request
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/home/oauth2/v2.0/token",
-                    TestConstants.ProdPrefNetworkEnv),
+                    TestConstants.ProductionPrefNetworkEnvironment),
                 Method = HttpMethod.Post,
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
             });
@@ -108,7 +108,7 @@ namespace Test.MSAL.NET.Unit
 
             // make sure that all cache entities are stored with "preferred_cache" environment
             // (it is taken from metadata in instance discovery response)
-            ValidateCacheEntitiesEnvironment(app.UserTokenCache, TestConstants.ProdPrefCacheEnv);
+            ValidateCacheEntitiesEnvironment(app.UserTokenCache, TestConstants.ProductionPrefCacheEnvironment);
 
             // silent request targeting at, should return at from cache for any environment alias
             foreach (var envAlias in TestConstants.ProdEnvAliases)
@@ -125,7 +125,7 @@ namespace Test.MSAL.NET.Unit
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
             {
                 Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/v2.0/.well-known/openid-configuration",
-                    TestConstants.ProdPrefNetworkEnv, TestConstants.Utid),
+                    TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
                 Method = HttpMethod.Get,
                 ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityUtidTenant)
             });
@@ -136,7 +136,7 @@ namespace Test.MSAL.NET.Unit
                 HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
                 {
                     Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/v2.0/token",
-                        TestConstants.ProdPrefNetworkEnv, TestConstants.Utid),
+                        TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
                     Method = HttpMethod.Post,
                     PostData = new Dictionary<string, string>()
                     {
@@ -166,25 +166,26 @@ namespace Test.MSAL.NET.Unit
 
         private void ValidateCacheEntitiesEnvironment(TokenCache cache, string expectedEnvironment)
         {
-            var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            var accessTokens = cache.GetAllAccessTokensForClient(requestContext);
             foreach (var at in accessTokens)
             {
                 Assert.AreEqual(expectedEnvironment, at.Environment);
             }
 
-            var refreshTokens = cache.GetAllRefreshTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var refreshTokens = cache.GetAllRefreshTokensForClient(requestContext);
             foreach (var rt in refreshTokens)
             {
                 Assert.AreEqual(expectedEnvironment, rt.Environment);
             }
 
-            var idTokens = cache.GetAllIdTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var idTokens = cache.GetAllIdTokensForClient(requestContext);
             foreach (var id in idTokens)
             {
                 Assert.AreEqual(expectedEnvironment, id.Environment);
             }
 
-            var accounts = cache.GetAllAccounts(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            var accounts = cache.GetAllAccounts(requestContext);
             foreach (var account in accounts)
             {
                 Assert.AreEqual(expectedEnvironment, account.Environment);
