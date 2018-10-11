@@ -33,6 +33,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -113,11 +114,22 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             {
                 Authority = authority,
                 ClientId = TestConstants.ClientId,
-                Scope = ScopeHelper.CreateSortedSetFromEnumerable(new[] { "some-scope1", "some-scope2" }),
+                Scope = TestConstants.Scope,
                 TokenCache = cache,
                 RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
                 Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
             };
+
+            // set access tokens as expired
+            foreach (var atCacheItemStr in cache.GetAllAccessTokenCacheItems(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+            {
+                MsalAccessTokenCacheItem accessItem =
+                    JsonHelper.DeserializeFromJson<MsalAccessTokenCacheItem>(atCacheItemStr);
+                accessItem.ExpiresOnUnixTimestamp =
+                    (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                cache.AddAccessTokenCacheItem(accessItem);
+            }
 
             RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
@@ -132,7 +144,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             AuthenticationResult result = task.Result;
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual("some-scope1 some-scope2", result.Scopes.AsSingleString());
+            Assert.AreEqual(TestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
             Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
