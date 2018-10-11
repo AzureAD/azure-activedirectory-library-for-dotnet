@@ -37,6 +37,7 @@ using Test.MSAL.NET.Integration.Infrastructure;
 using System.IO;
 using System.Linq;
 using System;
+using msal::Microsoft.Identity.Client;
 
 namespace Test.MSAL.NET.Integration
 {
@@ -49,20 +50,19 @@ namespace Test.MSAL.NET.Integration
         public string[] MsalScopes = { "https://graph.microsoft.com/.default" };
         public string[] MsalScopes1 = { "https://graph.windows.net/.default" };
 
-        AuthHelper authHelper = new AuthHelper();
-
         private const string AdalResource1 = "https://graph.windows.net";
         private const string AdalResource2 = "https://graph.microsoft.com";
 
-        private Test.Microsoft.Identity.LabInfrastructure.IUser user;
-        private SecureString securePassword;
+        private static Test.Microsoft.Identity.LabInfrastructure.IUser user;
+        private static SecureString securePassword;
 
         private byte[] AdalV3StateStorage;
         private byte[] UnifiedStateStorage;
 
-        [TestInitialize]
-        public void TestInitialize()
+        static UnifiedCacheTests()
         {
+            AuthHelper authHelper = new AuthHelper();
+
             user = authHelper.GetUser(
                 new Test.Microsoft.Identity.LabInfrastructure.UserQueryParameters
                 {
@@ -71,8 +71,12 @@ namespace Test.MSAL.NET.Integration
                     IsFederatedUser = false
                 });
 
-            securePassword = new NetworkCredential("", ((LabUser)user).GetPassword()).SecurePassword;
+            securePassword = new NetworkCredential("", ((LabUser) user).GetPassword()).SecurePassword;
+        }
 
+        [TestInitialize]
+        public void TestInitialize()
+        {
             InitAdal();
             InitMsal();
         }
@@ -465,7 +469,7 @@ namespace Test.MSAL.NET.Integration
             Assert.IsNotNull(account.HomeAccountId);
             Assert.IsNotNull(account.Environment);
 
-            // validate than Adal writes only Rt in Msal format  an
+            // validate that Adal writes only RT and Account cache entities in Msal format
             Assert.AreEqual(0, msalCache.tokenCacheAccessor.GetAllAccessTokensAsString().Count);
             Assert.AreEqual(1, msalCache.tokenCacheAccessor.GetAllRefreshTokensAsString().Count);
             Assert.AreEqual(0, msalCache.tokenCacheAccessor.GetAllIdTokensAsString().Count);
