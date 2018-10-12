@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="ownerWindow"></param>
         public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
         {
-            _syncContext = SynchronizationContext.Current;
+            _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
             this.PromptBehavior = promptBehavior;
             this.OwnerWindow = ownerWindow;
         }
