@@ -32,7 +32,6 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -138,6 +137,8 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
+            bool shouldLogAsError = true;
+
             Exception serviceEx;
 
             try
@@ -158,6 +159,17 @@ namespace Microsoft.Identity.Core.OAuth2
                     msalTokenResponse.Error,
                     msalTokenResponse.ErrorDescription,
                     response);
+
+                // For device code flow, AuthorizationPending can occur a lot while waiting
+                // for the user to auth via browser and this causes a lot of error noise in the logs.
+                // So suppress this particular case to an Info so we still see the data but don't 
+                // log it as an error since it's expected behavior while waiting for the user.
+                if (string.Compare(msalTokenResponse.Error, OAuth2Error.AuthorizationPending,
+                        StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    shouldLogAsError = false;
+                }
+
             }
             catch (SerializationException ex)
             {
@@ -167,24 +179,13 @@ namespace Microsoft.Identity.Core.OAuth2
                     ex);
             }
 
-            // For device code flow, AuthorizationPending can occur a lot while waiting
-            // for the user to auth via browser and this causes a lot of error noise in the logs.
-            // So suppress this particular case to an Info so we still see the data but don't 
-            // log it as an error since it's expected behavior while waiting for the user.
-            bool shouldLogError = true;
-            if (serviceEx is MsalServiceException msalServiceException)
-            {
-                if (string.Compare(msalServiceException.ErrorCode, OAuth2Error.AuthorizationPending,
-                        StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    requestContext.Logger.InfoPii(serviceEx);
-                    shouldLogError = false;
-                }
-            }
-
-            if (shouldLogError)
+            if (shouldLogAsError)
             {
                 requestContext.Logger.ErrorPii(serviceEx);
+            }
+            else
+            {
+                requestContext.Logger.InfoPii(serviceEx);
             }
 
             throw serviceEx;

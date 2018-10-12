@@ -55,14 +55,11 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// The request could not be preformed because the network is down.
-        /// <para>Mitigation [App development]</para> In the application you could either inform the user that there are network issues
+        /// <para>Mitigation [App development]</para> in the application you could either inform the user that there are network issues
         /// or retry later
         /// </summary>
         public const string NetworkNotAvailableError = "network_not_available";
 
-#if !DESKTOP && !NET_CORE
-#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
-#endif
         /// <summary>
         /// Duplicate query parameter was found in extraQueryParameters.
         /// <para>What happens?</para> You have used <see cref="ClientApplicationBase.SliceParameters"/> or the <c>extraQueryParameter</c> of overrides
@@ -71,9 +68,8 @@ namespace Microsoft.Identity.Client
         /// <para>Mitigation [App Development]</para> Remove the duplicate parameter from <see cref="ClientApplicationBase.SliceParameters"/> or the token acquisition override.
         /// </summary>
         /// <seealso cref="P:ClientApplicationBase.SliceParameters"/>
-        /// <seealso cref="ConfidentialClientApplication.GetAuthorizationRequestUrlAsync(System.Collections.Generic.IEnumerable{string}, string, string, string, System.Collections.Generic.IEnumerable{string}, string)"/>
+        /// <seealso cref="M:ConfidentialClientApplication.GetAuthorizationRequestUrlAsync(System.Collections.Generic.IEnumerable{string}, string, string, string, System.Collections.Generic.IEnumerable{string}, string)"/>
         public const string DuplicateQueryParameterError = "duplicate_query_parameter";
-#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
 
         /// <summary>
         /// The request could not be performed because of a failure in the UI flow.
@@ -125,24 +121,6 @@ namespace Microsoft.Identity.Client
         /// /// </summary>
         public const string TenantDiscoveryFailedError = "tenant_discovery_failed";
 
-        /// <summary>
-        /// The library is loaded on a platform which is not supported.
-        /// </summary>
-        public const string PlatformNotSupported = "platform_not_supported";
-
-#if iOS
-        /// <summary>
-        /// Xamarin.iOS specific. This error indicates that keychain access has not be enabled for the application.
-        /// From MSAL 2.x and ADAL 4.x, the keychain for the publisher needs to be accessed in order to provide 
-        /// Single Sign On between applications of the same publisher.
-        /// <para>Mitigation</para> In order to access the keychain on iOS, you will need to ensure the Entitlements.plist
-        /// file is configured and included under &amp;lt;CodesignEntitlements&amp;gt;Entitlements.plist&amp;lt;/CodesignEntitlements&amp;gt;
-        /// in the csproj file of the iOS app.
-        /// <para>For more details</para> See https://aka.ms/msal-net-enable-keychain-access
-        /// </summary>
-        public const string CannotAccessPublisherKeyChain = "cannot_access_publisher_keychain";
-#endif
-
 #if ANDROID
 
         /// <summary>
@@ -162,9 +140,9 @@ namespace Microsoft.Identity.Client
         /// authorize request if applicable or falls back to chrome browser.
         /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end 
         /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. 
-        /// Otherwise you can also use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
+        /// Otherwise you can also use <see cref="M:UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
         /// and require the library to use the embedded web view if it is not by setting the boolean to <c>true</c> in the following
-        /// constructor: <see cref="UIParent.UIParent(Android.App.Activity, bool)"/>
+        /// constructor: <see cref="M:UIParent.UIParent(Android.App.Activity, bool)"/>
         /// <para>For more details</para> See https://aka.ms/msal-net-uses-web-browser
         /// </summary>
         public const string ChromeDisabledError = "chrome_disabled";
