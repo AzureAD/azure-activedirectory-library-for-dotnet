@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Core
             {
                 Service = "",
                 Account = TeamIdKey,
-                Accessible = SecAccessible.Always
+                Accessible = _defaultAccessiblityPolicy
             };
 
             SecRecord match = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
