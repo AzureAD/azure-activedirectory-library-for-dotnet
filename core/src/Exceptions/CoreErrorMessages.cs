@@ -97,5 +97,9 @@ namespace Microsoft.Identity.Core
            "The application cannot access the iOS keychain for the application publisher (the TeamId is null). " +
            "This is needed to enable Single Sign On between applications of the same publisher. " +
            "This is an iOS configuration issue. See https://aka.ms/msal-net-enable-keychain-access for more details on enabling keychain access.";
+
+        public const string MissingEntitlements =
+            "The application is missing the necessary entitlements. As a result, there was a failure to save to the iOS keychain." +
+            " See https://aka.ms/msal-net-enable-keychain-groups for more details on enabling keychain groups and entitlements.";
     }
 }
