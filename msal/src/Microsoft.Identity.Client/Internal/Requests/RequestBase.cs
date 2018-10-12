@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             var apiEvent = new ApiEvent(AuthenticationRequestParameters.RequestContext.Logger)
             {
                 ApiId = ApiId,
-                ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(CultureInfo.InvariantCulture),
+                ValidationStatus = AuthenticationRequestParameters.ValidateAuthority.ToString(),
                 AccountId = accountId ?? "",
                 CorrelationId = AuthenticationRequestParameters.RequestContext.Logger.CorrelationId.ToString(),
                 RequestId = AuthenticationRequestParameters.RequestContext.TelemetryRequestId,

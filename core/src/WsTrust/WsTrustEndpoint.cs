@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Core.WsTrust
                     writer.WriteEndElement(); // Action
 
                     writer.WriteStartElement("messageID", wsaNamespaceValue);
-                    writer.WriteString($"urn:uuid:{_guidFactory.NewGuid().ToString("D", CultureInfo.InvariantCulture)}");
+                    writer.WriteString($"urn:uuid:{_guidFactory.NewGuid().ToString("D")}");
                     writer.WriteEndElement(); // messageID
 
                     writer.WriteStartElement("ReplyTo", wsaNamespaceValue);
@@ -169,7 +169,7 @@ namespace Microsoft.Identity.Core.WsTrust
             string expiryTimeString = BuildTimeString(expiryTime);
 
             string versionString = Version == WsTrustVersion.WsTrust2005 ? "UnPwSecTok2005-" : "UnPwSecTok13-";
-            string trustId = $"{versionString}{_guidFactory.NewGuid().ToString("D", CultureInfo.InvariantCulture)}";
+            string trustId = $"{versionString}{_guidFactory.NewGuid().ToString("D")}";
 
             writer.WriteStartElement("wsse", "Security", wsseNamespaceValue);
             writer.WriteAttributeString("mustUnderstand", envelopeNamespaceValue, "1");

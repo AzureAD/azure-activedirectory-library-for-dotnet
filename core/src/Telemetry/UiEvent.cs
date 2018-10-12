@@ -39,12 +39,12 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public bool UserCancelled
         {
-            set { this[UserCancelledKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
+            set { this[UserCancelledKey] = value.ToString().ToLowerInvariant(); }
         }
 
         public bool AccessDenied
         {
-            set { this[AccessDeniedKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
+            set { this[AccessDeniedKey] = value.ToString().ToLowerInvariant(); }
         }
     }
 }

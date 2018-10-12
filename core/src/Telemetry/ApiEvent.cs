@@ -122,8 +122,8 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public bool WasSuccessful
         {
-            set { this[WasSuccessfulKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
-            get { return this[WasSuccessfulKey] == true.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
+            set { this[WasSuccessfulKey] = value.ToString().ToLowerInvariant(); }
+            get { return this[WasSuccessfulKey] == true.ToString().ToLowerInvariant(); }
         }
 
         public string CorrelationId
@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public bool IsConfidentialClient
         {
-            set { this[IsConfidentialClientKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
+            set { this[IsConfidentialClientKey] = value.ToString().ToLowerInvariant(); }
         }
 
         public string ApiErrorCode {
