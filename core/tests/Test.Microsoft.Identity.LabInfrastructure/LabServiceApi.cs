@@ -70,7 +70,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             if (String.IsNullOrWhiteSpace(result))
             {
-                throw new Exception("No lab user with specified parameters exists");
+                throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
             user = JsonConvert.DeserializeObject<LabResponse>(result).Users;

@@ -20,19 +20,6 @@ namespace Test.ADAL.NET.UIAutomation
         Platform platform;
         ITestController xamarinController;
 
-        UserQueryParameters DefaultUser
-        {
-            get
-            {
-                return new UserQueryParameters
-                {
-                    IsMamUser = false,
-                    IsMfaUser = false,
-                    IsFederatedUser = false
-                };
-            }
-        }
-
         public XamarinDroidADALTests(Platform platform)
         {
             this.platform = platform;
@@ -54,7 +41,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenInteractiveTest()
         {
-            CoreMobileADALTests.AcquireTokenInteractiveTest(xamarinController, DefaultUser);
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -63,7 +50,7 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenSilentTest()
         {
-            CoreMobileADALTests.AcquireTokenSilentTest(xamarinController, DefaultUser);
+            ADALMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -72,11 +59,11 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenADFSv4FederatedInteractiveTest()
         {
-            var user = DefaultUser;
+            var user = LabUserHelper.DefaultUserQuery;
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = true;
 
-            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, true, user);
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -85,11 +72,11 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv4NonFederatedTest()
         {
-            var user = DefaultUser;
+            var user = LabUserHelper.DefaultUserQuery;
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = false;
 
-            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, false, user);
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -98,11 +85,11 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenADFSv3FederatedInteractiveTest()
         {
-            var user = DefaultUser;
+            var user = LabUserHelper.DefaultUserQuery;
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = true;
 
-            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, true, user);
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -111,11 +98,11 @@ namespace Test.ADAL.NET.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
-            var user = DefaultUser;
+            var user = LabUserHelper.DefaultUserQuery;
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = false;
 
-            CoreMobileADALTests.AcquireTokenADFSvXInteractiveTest(xamarinController, false, user);
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
     }
 }

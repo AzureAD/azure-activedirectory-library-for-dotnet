@@ -15,9 +15,9 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";
         public const string AcquireTokenID = "acquireToken";
         public const string AcquireTokenSilentID = "acquireTokenSilent";
-        public const string clientIdEntryID = "clientIdEntry";
-        public const string resourceEntryID = "resourceEntry";
-        public const string secondPageID = "secondPage";
+        public const string ClientIdEntryID = "clientIdEntry";
+        public const string ResourceEntryID = "resourceEntry";
+        public const string SecondPageID = "secondPage";
         public const string ClearCacheID = "clearCache";
         public const string SaveID = "saveButton";
         public const string WebUPNInputID = "i0116";
@@ -35,5 +35,8 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string CachePageID = "Cache";
         public const string SettignsPageID = "Settigns";
         public const string ScopesEntryID = "scopesList";
+
+        public const int ResultCheckPolliInterval = 1000;
+        public const int maximumResultCheckRetryAttempts = 20;
     }
 }

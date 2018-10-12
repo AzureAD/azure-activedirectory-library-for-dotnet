@@ -347,9 +347,11 @@ namespace XFormsApp
                 case Device.Android:
                     AcquireTokenWithBroker();
                     break;
-                default:
+                case Device.UWP:
                     this.result.Text = "UWP does not support broker. Use iOS or Android.";
                     break;
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -363,9 +365,11 @@ namespace XFormsApp
                 case Device.Android:
                     AcquireTokenSilentWithBroker();
                     break;
-                default:
+                case Device.UWP:
                     this.result.Text = "UWP does not support broker. Use iOS or Android.";
                     break;
+                default:
+                    throw new NotImplementedException();
             }
         }
 

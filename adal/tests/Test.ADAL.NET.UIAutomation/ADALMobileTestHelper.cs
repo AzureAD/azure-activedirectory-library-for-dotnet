@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -28,79 +28,75 @@
 using Test.Microsoft.Identity.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
+using Xamarin.UITest;
+using Xamarin.UITest.Queries;
+using System.Threading;
+using System;
+using System.Threading.Tasks;
 
-namespace Test.MSAL.NET.UIAutomation
+namespace Test.ADAL.NET.UIAutomation
 {
     /// <summary>
     /// Contains the core test functionality that will be used by Android and iOS tests
     /// </summary>
-    public static class CoreMobileMSALTests
+	public static class ADALMobileTestHelper
     {
-        /// <summary>
-        /// Runs through the standard acquire token flow
-        /// </summary>
-        /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenTest(ITestController controller, UserQueryParameters userParams)
-        {
-            AcquireTokenInteractivly(controller, userParams);
-            VerifyResult(controller);
-        }
-
-        /// <summary>
-        /// Runs through the standard acquire token flow
-        /// </summary>
-        /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenSilentTest(ITestController controller, UserQueryParameters userParams)
-        {
-            //acquire token for 1st resource
-            AcquireTokenInteractivly(controller, userParams);
-            VerifyResult(controller);
-
-            //acquire token for 2nd resource with refresh token
-            SetInputData(controller, UiTestConstants.UIAutomationAppV2, UiTestConstants.DefaultScope);
-            controller.Tap(UiTestConstants.AcquireTokenSilentID);
-            VerifyResult(controller);
-        }
-
         /// <summary>
         /// Runs through the standard acquire token interactive flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenADFSvXInteractiveMSALTest(ITestController controller, bool isFederated, UserQueryParameters userParams)
+        public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
+		{
+            AcquireTokenInteractivly(controller, userParams);
+            VerifyResult(controller);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token silent flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             AcquireTokenInteractivly(controller, userParams);
+            VerifyResult(controller);
+
+            //Enter 2nd Resource
+            controller.EnterText(UiTestConstants.ResourceEntryID, UiTestConstants.Exchange, false);
+            controller.DismissKeyboard();
+
+            //Acquire token silently
+            controller.Tap(UiTestConstants.AcquireTokenSilentID);
+
             VerifyResult(controller);
         }
 
         private static void AcquireTokenInteractivly(ITestController controller, UserQueryParameters userParams)
         {
             var user = prepareForAuthentication(controller, userParams);
-            SetInputData(controller, UiTestConstants.UIAutomationAppV2, UiTestConstants.DefaultScope);
+            SetInputData(controller, UiTestConstants.UiAutomationTestClientId, UiTestConstants.MSGraph);
             PerformSignInFlow(controller, user);
         }
 
         private static IUser prepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
+            //Navigate to second page
+            controller.Tap(UiTestConstants.SecondPageID);
+
             //Clear Cache
-            controller.Tap(UiTestConstants.CachePageID);
             controller.Tap(UiTestConstants.ClearCacheID);
 
             //Get User from Lab
             return controller.GetUser(userParams);
         }
 
-        private static void SetInputData(ITestController controller, string ClientID, string scopes)
+        private static void SetInputData(ITestController controller, string ClientID, string Resource)
         {
-            controller.Tap(UiTestConstants.SettignsPageID);
-
             //Enter ClientID
-            controller.EnterText(UiTestConstants.clientIdEntryID, ClientID, false);
+            controller.EnterText(UiTestConstants.ClientIdEntryID, ClientID, false);
             controller.DismissKeyboard();
-            controller.Tap(UiTestConstants.SaveID);
 
-            //Enter Scopes
-            controller.Tap(UiTestConstants.AcquireTokenID);
-            controller.EnterText(UiTestConstants.ScopesEntryID, scopes, false);
+            //Enter Resource
+            controller.EnterText(UiTestConstants.ResourceEntryID, Resource, false);
             controller.DismissKeyboard();
         }
 
@@ -134,8 +130,56 @@ namespace Test.MSAL.NET.UIAutomation
 
         private static void VerifyResult(ITestController controller)
         {
-            //Test results are put into a label that is checked for messages
-            Assert.IsTrue(controller.GetText(UiTestConstants.TestResultID).Contains(UiTestConstants.TestResultSuccsesfulMessage));
+            RetryVerificationHelper(() => {
+                //Test results are put into a label that is checked for messages
+                var result = controller.GetText(UiTestConstants.TestResultID);
+                if (result.Contains(UiTestConstants.TestResultSuccsesfulMessage))
+                {
+                    return;
+                }
+                else if (result.Contains(UiTestConstants.TestResultFailureMessage))
+                {
+                    throw new ResultVerificationFailureException(VerificationError.ResultIndicatesFailure);
+                }
+                else
+                {
+                    throw new ResultVerificationFailureException(VerificationError.ResultNotFound);
+                }
+            });
+
+        }
+
+        private static void RetryVerificationHelper(Action verification)
+        {
+            //There may be a delay in the amount of time it takes for an authentication request to complete.
+            //Thus this method will check the result once a second for 20 seconds.
+            var attempts = 0;
+            do
+            {
+                try
+                {
+                    attempts++;
+                    verification();
+                    break;
+                }
+                catch (ResultVerificationFailureException ex)
+                {
+                    if (attempts == UiTestConstants.maximumResultCheckRetryAttempts)
+                        throw new Exception("Could not Verify test result", ex);
+
+                    switch(ex.Error)
+                    {
+                        case VerificationError.ResultIndicatesFailure:
+                            Assert.Fail("Test result indicates failure");
+                            break;
+                        case VerificationError.ResultNotFound:
+                            Task.Delay(UiTestConstants.ResultCheckPolliInterval).Wait();
+                            break;
+                        default:
+                            throw;
+                    }
+                }
+            } while (true);
         }
     }
 }

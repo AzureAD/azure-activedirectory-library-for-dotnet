@@ -30,13 +30,14 @@ using Microsoft.Azure.KeyVault.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public class KeyVaultSecretsProvider
+    public class KeyVaultSecretsProvider : IDisposable
     {
         /// <summary>
         /// Token cache used by the test infrastructure when authenticating against KeyVault
@@ -56,6 +57,8 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         private readonly string keyVaultClientID = "ebe49c8f-61de-4357-9194-7a786f6402b4";
 
         private readonly string keyVaultThumbPrint = "440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269";
+
+        bool disposed = false;
 
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
@@ -103,6 +106,12 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             _config.ClientId = keyVaultClientID;
             _config.CertThumbprint = keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
+            
+        }
+
+        ~KeyVaultSecretsProvider()
+        {
+            Dispose(false);
         }
 
         public SecretBundle GetSecret(string secretUrl)
@@ -137,6 +146,28 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             }
 
             return authResult?.AccessToken;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                //No managed resources to dispose.
+            }
+
+            // Disposing unmanaged resources.
+            _keyVaultClient.Dispose();
+
+            disposed = true;
         }
     }
 }
