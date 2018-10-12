@@ -42,7 +42,7 @@ namespace NetCoreTestApp
         private readonly static string ClientIdForConfidentialApp = "<enter id>";
 
         private readonly static string Username = ""; // used for WIA and U/P, cannot be empty on .net core
-        private readonly static string Authority = "https://login.microsoftonline.com/organizations"; // common will not work for WIA and U/P but it is a good test case
+        private readonly static string Authority = "https://login.microsoftonline.com/organizations/v2.0"; // common will not work for WIA and U/P but it is a good test case
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" }; // used for WIA and U/P, can be empty
 
         private const string GraphAPIEndpoint = "https://graph.microsoft.com/v1.0/me";

@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Globalization;
+
 namespace Microsoft.Identity.Core.Telemetry
 {
     internal class UiEvent : EventBase
@@ -37,12 +39,12 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public bool UserCancelled
         {
-            set { this[UserCancelledKey] = value.ToString().ToLowerInvariant(); }
+            set { this[UserCancelledKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
         }
 
         public bool AccessDenied
         {
-            set { this[AccessDeniedKey] = value.ToString().ToLowerInvariant(); }
+            set { this[AccessDeniedKey] = value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant(); }
         }
     }
 }

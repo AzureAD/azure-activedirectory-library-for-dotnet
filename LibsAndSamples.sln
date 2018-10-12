@@ -44,9 +44,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msal", "msal", "{68B4CCE9-FBC2-4537-9AD8-C4692CD6661B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{1B80E121-55C5-48A5-8285-0AB9719244E6}"
-	ProjectSection(SolutionItems) = preProject
-		core\ConfigureAwait.ruleset = core\ConfigureAwait.ruleset
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{88E00ABD-6C6D-4A96-86E2-FB15CA18F4B9}"
 EndProject
