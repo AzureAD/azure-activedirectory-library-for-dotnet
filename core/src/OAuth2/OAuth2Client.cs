@@ -32,7 +32,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core.Exceptions;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
@@ -172,9 +172,9 @@ namespace Microsoft.Identity.Core.OAuth2
             // So suppress this particular case to an Info so we still see the data but don't 
             // log it as an error since it's expected behavior while waiting for the user.
             bool shouldLogError = true;
-            if (serviceEx is CoreException coreException)
+            if (serviceEx is MsalServiceException msalServiceException)
             {
-                if (string.Compare(coreException.ErrorCode, OAuth2Error.AuthorizationPending,
+                if (string.Compare(msalServiceException.ErrorCode, OAuth2Error.AuthorizationPending,
                         StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     requestContext.Logger.InfoPii(serviceEx);
