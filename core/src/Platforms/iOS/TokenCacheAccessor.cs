@@ -31,6 +31,7 @@ using Security;
 using Foundation;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core
 {
@@ -288,7 +289,10 @@ namespace Microsoft.Identity.Core
             {
                 throw CoreExceptionFactory.Instance.GetClientException(
                 CoreErrorCodes.MissingEntitlements,
-                CoreErrorMessages.MissingEntitlements);
+                CoreErrorMessages.MissingEntitlements +
+                string.Format(CultureInfo.InvariantCulture,
+                " The keychain access group '{0}' is not enabled in the Entitlements.plist.",
+                recordToSave.AccessGroup));
             }
 
             return secStatusCode;
