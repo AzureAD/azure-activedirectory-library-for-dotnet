@@ -32,10 +32,14 @@ namespace Microsoft.Identity.Core.Helpers
 {
     internal class StringWriterWithEncoding : StringWriter
     {
+
+#pragma warning disable CA1305 // Specify IFormatProvider
         public StringWriterWithEncoding(Encoding encoding)
-        {
+        {            
             Encoding = encoding;
         }
+#pragma warning restore CA1305 // Specify IFormatProvider
+
 
         public override Encoding Encoding { get; }
     }
