@@ -37,8 +37,8 @@ namespace Microsoft.Identity.Client
     public class MsalClientException : MsalException
     {
         /// <summary>
-        /// Multiple Tokens were matched.
-        /// <para>What happens?</para>This exception happens in the case of applications managing several identitities,
+        /// Multiple Tokens were matched. 
+        /// <para>What happens?</para>This exception happens in the case of applications managing several identitities, 
         /// when calling <see cref="ClientApplicationBase.AcquireTokenSilentAsync(System.Collections.Generic.IEnumerable{string}, IAccount)"/>
         /// or one of its overrides and the user token cache contains multiple tokens for this client application and the the specified Account, but from different authorities.
         /// <para>Mitigation [App Development]</para>specify the authority to use in the acquire token operation
@@ -47,7 +47,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// Non HTTPS redirects are not supported
-        /// <para>What happens?</para>This error happens when you have registered a non-https redirect URI for the
+        /// <para>What happens?</para>This error happens when you have registered a non-https redirect URI for the 
         /// public client application other than <c>urn:ietf:wg:oauth:2.0:oob</c>
         /// <para>Mitigation [App registration and development]</para>Register in the application a Reply URL starting with "https://"
         /// </summary>
@@ -55,11 +55,14 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// The request could not be preformed because the network is down.
-        /// <para>Mitigation [App development]</para> in the application you could either inform the user that there are network issues
+        /// <para>Mitigation [App development]</para> In the application you could either inform the user that there are network issues
         /// or retry later
         /// </summary>
         public const string NetworkNotAvailableError = "network_not_available";
 
+#if !DESKTOP && !NET_CORE
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
         /// <summary>
         /// Duplicate query parameter was found in extraQueryParameters.
         /// <para>What happens?</para> You have used <see cref="ClientApplicationBase.SliceParameters"/> or the <c>extraQueryParameter</c> of overrides
@@ -68,8 +71,9 @@ namespace Microsoft.Identity.Client
         /// <para>Mitigation [App Development]</para> Remove the duplicate parameter from <see cref="ClientApplicationBase.SliceParameters"/> or the token acquisition override.
         /// </summary>
         /// <seealso cref="P:ClientApplicationBase.SliceParameters"/>
-        /// <seealso cref="M:ConfidentialClientApplication.GetAuthorizationRequestUrlAsync(System.Collections.Generic.IEnumerable{string}, string, string, string, System.Collections.Generic.IEnumerable{string}, string)"/>
+        /// <seealso cref="ConfidentialClientApplication.GetAuthorizationRequestUrlAsync(System.Collections.Generic.IEnumerable{string}, string, string, string, System.Collections.Generic.IEnumerable{string}, string)"/>
         public const string DuplicateQueryParameterError = "duplicate_query_parameter";
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
 
         /// <summary>
         /// The request could not be performed because of a failure in the UI flow.
@@ -87,10 +91,10 @@ namespace Microsoft.Identity.Client
         /// <para>Mitigation</para>None, you cannot get a token to call the protected API. You might want to inform the user
         /// </summary>
         public const string AuthenticationCanceledError = "authentication_canceled";
-
+        
         /// <summary>
         /// JSON parsing failed.
-        /// <para>What happens?</para>A Json blob read from the token cache or received from the STS was not parseable.
+        /// <para>What happens?</para>A Json blob read from the token cache or received from the STS was not parseable. 
         /// This can happen when reading the token cache, or receiving an IDToken from the STS.
         /// <para>Mitigation</para>Make sure that the token cache was not tampered
         /// </summary>
@@ -106,7 +110,7 @@ namespace Microsoft.Identity.Client
 
         /// <summary>
         /// State returned from the STS was different from the one sent by the library
-        /// <para>What happens?</para>The library sends to the STS a state associated to a request, and expects the reply to be consistent.
+        /// <para>What happens?</para>The library sends to the STS a state associated to a request, and expects the reply to be consistent. 
         /// This errors indicates that the reply is not associated with the request. This could indicate an attempt to replay a response
         /// <para>Mitigation</para> None
         /// </summary>
@@ -129,7 +133,7 @@ namespace Microsoft.Identity.Client
 #if iOS
         /// <summary>
         /// Xamarin.iOS specific. This error indicates that keychain access has not be enabled for the application.
-        /// From MSAL 2.x and ADAL 4.x, the keychain for the publisher needs to be accessed in order to provide
+        /// From MSAL 2.x and ADAL 4.x, the keychain for the publisher needs to be accessed in order to provide 
         /// Single Sign On between applications of the same publisher.
         /// <para>Mitigation</para> In order to access the keychain on iOS, you will need to ensure the Entitlements.plist
         /// file is configured and included under &amp;lt;CodesignEntitlements&amp;gt;Entitlements.plist&amp;lt;/CodesignEntitlements&amp;gt;
@@ -139,10 +143,10 @@ namespace Microsoft.Identity.Client
         public const string CannotAccessPublisherKeyChain = "cannot_access_publisher_keychain";
 
         /// <summary>
-        /// Xamarin.iOS specific. This error indicates that saving a token to the keychain failed.
+        /// Xamarin.iOS specific. This error indicates that saving a token to the keychain failed. 
         /// <para>Mitigation</para> In order to access the keychain on iOS, you will need to set the
         /// keychain access groups in the Entitlements.plist for the application.
-        /// <para>For more details</para> See https://aka.ms/msal-net-enable-keychain-groups
+        /// <para>For more details</para> See https://aka.ms/msal-net-enable-keychain-groups 
         /// </summary>
         public const string MissingEntitlements = "missing_entitlements";
 #endif
@@ -150,10 +154,10 @@ namespace Microsoft.Identity.Client
 #if ANDROID
 
         /// <summary>
-        /// Xamarin.Android specific. This error indicates that chrome, or a browser implementing chrome tabs, is not installed on the device.
+        /// Xamarin.Android specific. This error indicates that chrome, or a browser implementing chrome tabs, is not installed on the device. 
         /// The library sdk uses chrome custom tab for authorize request if applicable or falls back to chrome browser.
-        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end
-        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device.
+        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end 
+        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. 
         /// Otherwise you can also use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
         /// and require the library to use the embedded web view if it is not by setting the boolean to <c>true</c> in the following
         /// constructor: <see cref="UIParent.UIParent(Android.App.Activity, bool)"/>
@@ -164,11 +168,11 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Xamarin.Android specific. This error indicates that chrome is installed on the device but disabled. The sdk uses chrome custom tab for
         /// authorize request if applicable or falls back to chrome browser.
-        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end
-        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device.
-        /// Otherwise you can also use <see cref="M:UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
+        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end 
+        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. 
+        /// Otherwise you can also use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
         /// and require the library to use the embedded web view if it is not by setting the boolean to <c>true</c> in the following
-        /// constructor: <see cref="M:UIParent.UIParent(Android.App.Activity, bool)"/>
+        /// constructor: <see cref="UIParent.UIParent(Android.App.Activity, bool)"/>
         /// <para>For more details</para> See https://aka.ms/msal-net-uses-web-browser
         /// </summary>
         public const string ChromeDisabledError = "chrome_disabled";
@@ -179,7 +183,7 @@ namespace Microsoft.Identity.Client
         public const string UnresolvableIntentError = "unresolvable_intent";
 
         /// <summary>
-        /// Failed to create shared preferences on the Android platform.
+        /// Failed to create shared preferences on the Android platform. 
         /// <para>What happens?</para> The library uses Android shared preferences to store the token cache
         /// <para>Mitigation</para> Make sure the application is configured to use this platform feature (See also
         /// the AndroidManifest.xml file, and https://aka.ms/msal-net-android-specificities
@@ -203,7 +207,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Initializes a new instance of the exception class with a specified
         /// error code and error message.
-        /// </summary>
+        /// </summary>        
         /// <param name="errorCode">
         /// The error code returned by the service or generated by client. This is the code you can rely on
         /// for exception handling.
