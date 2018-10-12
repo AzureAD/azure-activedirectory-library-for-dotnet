@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
+﻿
+
 using Test.Microsoft.Identity.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
@@ -18,7 +16,7 @@ namespace Test.ADAL.NET.UIAutomation
     {
         IApp app;
         Platform platform;
-        ITestController xamarinController;
+        ITestController xamarinController = new XamarinUITestController();
 
         public XamarinDroidADALTests(Platform platform)
         {
@@ -29,10 +27,10 @@ namespace Test.ADAL.NET.UIAutomation
         /// Initializes app and test controller before each test
         /// </summary>
         [SetUp]
-        public void InitializeBeforeTest()
+        public void InitializeTest()
         {
             app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.ADAL");
-            xamarinController = new XamarinUITestController(app);
+            xamarinController.Application = app;
         }
 
         /// <summary>

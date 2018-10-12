@@ -36,11 +36,11 @@ namespace Test.MSAL.NET.UIAutomation
     /// Configures environment for core/android tests to run
     /// </summary>
     [TestFixture(Platform.Android)]
-    class XamarinMSALDroidTests
+    public class XamarinMSALDroidTests
     {
         IApp app;
         Platform platform;
-        ITestController xamarinController;
+        ITestController xamarinController = new XamarinUITestController();
 
         public XamarinMSALDroidTests(Platform platform)
         {
@@ -54,7 +54,7 @@ namespace Test.MSAL.NET.UIAutomation
         public void InitializeBeforeTest()
         {
             app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.MSAL");
-            xamarinController = new XamarinUITestController(app);
+            xamarinController.Application = app;
         }
 
         /// <summary>

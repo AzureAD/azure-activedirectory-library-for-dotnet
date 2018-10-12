@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Test.ADAL.NET.UIAutomation</RootNamespace>
     <AssemblyName>Test.ADAL.NET.UIAutomation</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,7 +29,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter">
       <Version>3.10.0</Version>
     </PackageReference>

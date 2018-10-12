@@ -48,7 +48,7 @@ namespace Test.ADAL.NET.UIAutomation
         public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
 		{
             AcquireTokenInteractivly(controller, userParams);
-            VerifyResult(controller);
+            CoreMobileTestHelper.VerifyResult(controller);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Test.ADAL.NET.UIAutomation
         public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             AcquireTokenInteractivly(controller, userParams);
-            VerifyResult(controller);
+            CoreMobileTestHelper.VerifyResult(controller);
 
             //Enter 2nd Resource
             controller.EnterText(UiTestConstants.ResourceEntryID, UiTestConstants.Exchange, false);
@@ -67,14 +67,14 @@ namespace Test.ADAL.NET.UIAutomation
             //Acquire token silently
             controller.Tap(UiTestConstants.AcquireTokenSilentID);
 
-            VerifyResult(controller);
+            CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        private static void AcquireTokenInteractivly(ITestController controller, UserQueryParameters userParams)
+        public static void AcquireTokenInteractivly(ITestController controller, UserQueryParameters userParams)
         {
             var user = prepareForAuthentication(controller, userParams);
             SetInputData(controller, UiTestConstants.UiAutomationTestClientId, UiTestConstants.MSGraph);
-            PerformSignInFlow(controller, user);
+            CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
         private static IUser prepareForAuthentication(ITestController controller, UserQueryParameters userParams)
@@ -98,88 +98,6 @@ namespace Test.ADAL.NET.UIAutomation
             //Enter Resource
             controller.EnterText(UiTestConstants.ResourceEntryID, Resource, false);
             controller.DismissKeyboard();
-        }
-
-        private static void PerformSignInFlow(ITestController controller, IUser user)
-        {
-            string passwordInputID = string.Empty;
-            string signInButtonID = string.Empty;
-
-            switch (user.FederationProvider)
-            {
-                case FederationProvider.AdfsV4:
-                    passwordInputID = UiTestConstants.AdfsV4WebPasswordID;
-                    signInButtonID = UiTestConstants.AdfsV4WebSubmitID;
-                    break;
-                default:
-                    passwordInputID = UiTestConstants.WebPasswordID;
-                    signInButtonID = UiTestConstants.WebSubmitID;
-                    break;
-            }
-
-            //Acquire token flow
-            controller.Tap(UiTestConstants.AcquireTokenID);
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText(UiTestConstants.WebUPNInputID, 20, user.Upn, true);
-            //idSIButton9 = Sign in button
-            controller.Tap(UiTestConstants.WebSubmitID, true);
-            //i0118 = password text field
-            controller.EnterText(passwordInputID, ((LabUser)user).GetPassword(), true);
-            controller.Tap(signInButtonID, true);
-        }
-
-        private static void VerifyResult(ITestController controller)
-        {
-            RetryVerificationHelper(() => {
-                //Test results are put into a label that is checked for messages
-                var result = controller.GetText(UiTestConstants.TestResultID);
-                if (result.Contains(UiTestConstants.TestResultSuccsesfulMessage))
-                {
-                    return;
-                }
-                else if (result.Contains(UiTestConstants.TestResultFailureMessage))
-                {
-                    throw new ResultVerificationFailureException(VerificationError.ResultIndicatesFailure);
-                }
-                else
-                {
-                    throw new ResultVerificationFailureException(VerificationError.ResultNotFound);
-                }
-            });
-
-        }
-
-        private static void RetryVerificationHelper(Action verification)
-        {
-            //There may be a delay in the amount of time it takes for an authentication request to complete.
-            //Thus this method will check the result once a second for 20 seconds.
-            var attempts = 0;
-            do
-            {
-                try
-                {
-                    attempts++;
-                    verification();
-                    break;
-                }
-                catch (ResultVerificationFailureException ex)
-                {
-                    if (attempts == UiTestConstants.maximumResultCheckRetryAttempts)
-                        throw new Exception("Could not Verify test result", ex);
-
-                    switch(ex.Error)
-                    {
-                        case VerificationError.ResultIndicatesFailure:
-                            Assert.Fail("Test result indicates failure");
-                            break;
-                        case VerificationError.ResultNotFound:
-                            Task.Delay(UiTestConstants.ResultCheckPolliInterval).Wait();
-                            break;
-                        default:
-                            throw;
-                    }
-                }
-            } while (true);
         }
     }
 }

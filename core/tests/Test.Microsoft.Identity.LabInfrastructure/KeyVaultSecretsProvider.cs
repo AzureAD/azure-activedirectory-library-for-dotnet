@@ -60,6 +60,10 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         bool disposed = false;
 
+        private readonly string dataFile = "data.txt";
+
+        private AuthenticationResult _authResult;
+
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
         /// <para>
@@ -92,15 +96,23 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             _config = new KeyVaultConfiguration();
 
             //The data.txt is a place holder for the keyvault secret. it will only be written to during build time when testing appcenter
-            var data = File.ReadAllText("data.txt");
-            if (string.IsNullOrWhiteSpace(data))
+            if (File.Exists(dataFile))
             {
-                _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+                var data = File.ReadAllText(dataFile);
+
+                if (string.IsNullOrWhiteSpace(data))
+                {
+                    _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
+                }
+                else
+                {
+                    _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
+                    _config.KeyVaultSecret = data;
+                }
             }
             else
             {
-                _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
-                _config.KeyVaultSecret = data;
+                _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
             }
 
             _config.ClientId = keyVaultClientID;
@@ -121,6 +133,10 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
         {
+            if (_authResult != null)
+            {
+                return _authResult.AccessToken;
+            }
             var authContext = new AuthenticationContext(authority, keyVaultTokenCache);
 
             AuthenticationResult authResult;
@@ -145,6 +161,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     throw new ArgumentOutOfRangeException();
             }
 
+            _authResult = authResult;
             return authResult?.AccessToken;
         }
 

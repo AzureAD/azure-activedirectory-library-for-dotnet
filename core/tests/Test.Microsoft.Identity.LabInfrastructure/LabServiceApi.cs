@@ -38,9 +38,15 @@ namespace Test.Microsoft.Identity.LabInfrastructure
     /// </summary>
     public class LabServiceApi : ILabService
     {
-        private IEnumerable<IUser> GetUsersFromLab(UserQueryParameters query)
+        KeyVaultSecretsProvider keyVault;
+
+        public LabServiceApi(KeyVaultSecretsProvider keyVault)
         {
-            LabUser user = new LabUser();
+            this.keyVault = keyVault;
+        }
+
+        private IUser GetUserFromLab(UserQueryParameters query)
+        {
             WebClient webClient = new WebClient();
 
             //Disabled for now until there are tests that use it.
@@ -73,7 +79,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
-            user = JsonConvert.DeserializeObject<LabResponse>(result).Users;
+            LabUser user = JsonConvert.DeserializeObject<LabResponse>(result).Users;
 
             if (user == null)
                 user = JsonConvert.DeserializeObject<LabUser>(result);
@@ -81,7 +87,8 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             if (!String.IsNullOrEmpty(user.HomeTenantId) && !String.IsNullOrEmpty(user.HomeUPN))
                 user.InitializeHomeUser();
 
-            yield return user;
+            user.KeyVault = keyVault;
+            return user;
         }
 
         /// <summary>
@@ -89,24 +96,21 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         /// </summary>
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>Users that match the given query parameters.</returns>
-        public IEnumerable<IUser> GetUsers(UserQueryParameters query)
+        public IUser GetUsers(UserQueryParameters query)
         {
-            foreach (var user in GetUsersFromLab(query))
+            var user = GetUserFromLab(query) as LabUser;
+
+            if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
             {
-                if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
-                {
-                    Console.WriteLine($"User '{user.Upn}' has invalid Credential URL: '{user.CredentialUrl}'");
-                    continue;
-                }
-
-                if (user.IsExternal && user.HomeUser == null)
-                {
-                    Console.WriteLine($"User '{user.Upn}' has no matching home user.");
-                    continue;
-                }
-
-                yield return user;
+                Console.WriteLine($"User '{user.Upn}' has invalid Credential URL: '{user.CredentialUrl}'");
             }
+
+            if (user.IsExternal && user.HomeUser == null)
+            {
+                Console.WriteLine($"User '{user.Upn}' has no matching home user.");
+            }
+
+            return user;
         }
     }
 }

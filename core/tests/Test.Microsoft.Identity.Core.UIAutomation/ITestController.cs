@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Test.Microsoft.Identity.LabInfrastructure;
+using Xamarin.UITest;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
@@ -97,5 +98,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>A single user that matches the given query parameters.</returns>
         IUser GetUser(UserQueryParameters query);
+
+        IApp Application { get; set; }
     }
 }
