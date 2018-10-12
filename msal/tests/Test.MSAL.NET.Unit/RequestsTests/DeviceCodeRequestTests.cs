@@ -97,7 +97,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(1, out HashSet<string> expectedScopes);
+            const int numberOfAuthorizationPendingRequestsToInject = 1;
+            var parameters = CreateAuthenticationParametersAndSetupMocks(numberOfAuthorizationPendingRequestsToInject, out HashSet<string> expectedScopes);
 
             // Check that cache is empty
             Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
@@ -139,7 +140,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeCancel()
         {
-            var parameters = CreateAuthenticationParametersAndSetupMocks(1, out HashSet<string> expectedScopes);
+            const int numberOfAuthorizationPendingRequestsToInject = 1;
+            var parameters = CreateAuthenticationParametersAndSetupMocks(numberOfAuthorizationPendingRequestsToInject, out HashSet<string> expectedScopes);
 
             CancellationTokenSource cancellationSource = new CancellationTokenSource();
 
@@ -181,7 +183,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             try
             {
-                var parameters = CreateAuthenticationParametersAndSetupMocks(2, out var expectedScopes);
+                const int numberOfAuthorizationPendingRequestsToInject = 2;
+                var parameters = CreateAuthenticationParametersAndSetupMocks(numberOfAuthorizationPendingRequestsToInject, out var expectedScopes);
 
                 DeviceCodeRequest request = new DeviceCodeRequest(parameters, result => Task.FromResult(0));
                 var task = request.RunAsync(CancellationToken.None);

@@ -117,6 +117,7 @@ namespace Microsoft.Identity.Client
         /// and a second time with the <c>containsPii</c> parameter equals to <c>true</c> and the message might contain PII. 
         /// In some cases (when the message does not contain PII), the message will be the same.
         /// <para/>
+        /// For details see https://aka.ms/msal-net-logging
         /// </summary>
         /// <exception cref="ArgumentException">will be thrown if the LogCallback was already set</exception>
         public static LogCallback LogCallback
