@@ -285,14 +285,14 @@ namespace Microsoft.Identity.Core
                 secStatusCode = SecKeyChain.Add(recordToSave);
             }
 
-            if(secStatusCode == SecStatusCode.MissingEntitlement)
+            if (secStatusCode == SecStatusCode.MissingEntitlement)
             {
                 throw CoreExceptionFactory.Instance.GetClientException(
                 CoreErrorCodes.MissingEntitlements,
-                CoreErrorMessages.MissingEntitlements +
-                string.Format(CultureInfo.InvariantCulture,
-                " The keychain access group '{0}' is not enabled in the Entitlements.plist.",
-                recordToSave.AccessGroup));
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    CoreErrorMessages.MissingEntitlements,
+                    recordToSave.AccessGroup));
             }
 
             return secStatusCode;
