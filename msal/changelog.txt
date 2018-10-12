@@ -1,7 +1,7 @@
 2.2.1-preview
 =============
 This release contains bug fixes on top of MSAL 2.2.0-preview:
-- Due to static initialization, there was a race condition which appeared periodically. [MSAL issue #629](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/629)
+- Due to static initialization, there was a race condition which appeared randomly. [MSAL issue #629](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/629)
 - For iOS, TeamId is now accessible when the device is locked. [MSAL issue #626](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/626)
 - For iOS, MSAL returns a useful error message, and an [aka.ms link](https://aka.ms/msal-net-enable-keychain-groups), when keychain access groups have not been set in the Entitlements.plist. [MSAL issue #633](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/633)
 - Cache serialization for [.NetCore](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/637)

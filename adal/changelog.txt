@@ -1,7 +1,7 @@
 Version 4.2.0-preview
 ===============
 This release includes:
-- Due to static initialization, there was a race condition which appeared periodically. [MSAL issue #629](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/629)
+- Due to static initialization, there was a race condition which appeared randomly. [MSAL issue #629](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/629)
 - Improved error messages and inclusion of an [aka.ms link]( https://aka.ms/adal-net-broker-redirect-uri-android) for broker redirect error. [ADAL issue #601](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/601)
 - For iOS, a clear exception message is now returned when the application is not able to access keychain, with instructions. See https://aka.ms/msal-net-enable-keychain-access for details. [MSAL issue #611](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/611)
 - For iOS, TeamId is now accessible when the device is locked. [MSAL issue #626](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/626)
