@@ -374,11 +374,7 @@ namespace Microsoft.Identity.Client
                 //Adfs does not return scopes in resource/scope format
                 if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs && filteredItems.Count()==0)
                 {
-                    SortedSet<string> scopes = new SortedSet<string>();
-                    foreach (string scope in requestParams.Scope)
-                    {
-                        scopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
-                    }
+                    SortedSet<string> scopes = ParseScopesForAdfsToken(requestParams.Scope);
 
                     filteredItems =
                         tokenCacheItems.Where(
@@ -1116,6 +1112,22 @@ namespace Microsoft.Identity.Client
             }
         }
 
+
+        internal SortedSet<string> ParseScopesForAdfsToken(SortedSet<string> scopes)
+        {
+            //Adfs tokens return provided scopes without using the resource/scope fomrat of AAD
+            //For instance, if https://myresource/scope1 provided as the scope in the request, the json token response would contain scope: scope1  as a property
+            //This method strips the resource from the scope so the proper comparison can be made
+
+            SortedSet<string> parsedScopes = new SortedSet<string>();
+            foreach (string scope in scopes)
+            {
+                scopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
+            }
+
+            return parsedScopes;
+        }
+
         /// <summary>
         /// Only used by dev test apps
         /// </summary>
@@ -1186,5 +1198,6 @@ namespace Microsoft.Identity.Client
                 }
             }
         }
+
     }
 }
