@@ -96,7 +96,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         /// </summary>
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>Users that match the given query parameters.</returns>
-        public IUser GetUsers(UserQueryParameters query)
+        public IUser GetUser(UserQueryParameters query)
         {
             var user = GetUserFromLab(query) as LabUser;
 

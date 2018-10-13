@@ -36,7 +36,7 @@ namespace Test.MSAL.NET.Integration.Infrastructure
         public IUser GetUser(UserQueryParameters query)
         {
             ILabService _labService = new LabServiceApi(new KeyVaultSecretsProvider());
-            var user = _labService.GetUsers(query);
+            var user = _labService.GetUser(query);
             Assert.IsTrue(user != null, "Found no users for the given query.");
             return user;
         }

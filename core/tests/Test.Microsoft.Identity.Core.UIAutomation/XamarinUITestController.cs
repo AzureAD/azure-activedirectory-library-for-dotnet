@@ -134,7 +134,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 
         public IUser GetUser(UserQueryParameters query)
         {
-            var user = _labService.GetUsers(query);
+            var user = _labService.GetUser(query);
             Assert.True(user != null, "Found no users for the given query.");
             return user;
         }

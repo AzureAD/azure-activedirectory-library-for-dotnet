@@ -84,7 +84,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 catch (ResultVerificationFailureException ex)
                 {
                     if (attempts == UiTestConstants.maximumResultCheckRetryAttempts)
-                        throw new Exception("Could not Verify test result", ex);
+                        Assert.Fail("Could not Verify test result");
 
                     switch (ex.Error)
                     {

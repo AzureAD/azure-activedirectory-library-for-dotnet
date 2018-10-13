@@ -30,9 +30,6 @@ using Microsoft.Azure.KeyVault.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
@@ -54,13 +51,11 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         private KeyVaultConfiguration _config;
 
-        private readonly string keyVaultClientID = "ebe49c8f-61de-4357-9194-7a786f6402b4";
+        private readonly string _keyVaultClientID = "ebe49c8f-61de-4357-9194-7a786f6402b4";
 
-        private readonly string keyVaultThumbPrint = "440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269";
+        private readonly string _keyVaultThumbPrint = "440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269";
 
-        bool disposed = false;
-
-        private readonly string dataFile = "data.txt";
+        private readonly string _dataFileName = "data.txt";
 
         private AuthenticationResult _authResult;
 
@@ -95,10 +90,12 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         {
             _config = new KeyVaultConfiguration();
 
-            //The data.txt is a place holder for the keyvault secret. it will only be written to during build time when testing appcenter
-            if (File.Exists(dataFile))
+            //The data.txt is a place holder for the keyvault secret. It will only be written to during build time when testing appcenter.
+            //After the tests are finished in appcenter, the file will be deleted from the appcenter servers.
+            //The file will then be deleted locally Via VSTS task.
+            if (File.Exists(_dataFileName))
             {
-                var data = File.ReadAllText(dataFile);
+                var data = File.ReadAllText(_dataFileName);
 
                 if (string.IsNullOrWhiteSpace(data))
                 {
@@ -115,15 +112,15 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
             }
 
-            _config.ClientId = keyVaultClientID;
-            _config.CertThumbprint = keyVaultThumbPrint;
+            _config.ClientId = _keyVaultClientID;
+            _config.CertThumbprint = _keyVaultThumbPrint;
             _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
             
         }
 
         ~KeyVaultSecretsProvider()
         {
-            Dispose(false);
+            Dispose();
         }
 
         public SecretBundle GetSecret(string secretUrl)
@@ -167,24 +164,13 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
+            if (_keyVaultClient != null)
             {
-                //No managed resources to dispose.
+                _keyVaultClient.Dispose();
+                _keyVaultClient = null;
             }
 
-            // Disposing unmanaged resources.
-            _keyVaultClient.Dispose();
-
-            disposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }
