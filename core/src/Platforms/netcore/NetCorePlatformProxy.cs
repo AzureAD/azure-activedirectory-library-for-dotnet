@@ -86,7 +86,8 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            return System.Environment.MachineName;
+            // TODO: Find a good unique Identifier
+            return null;
         }
     }
 }

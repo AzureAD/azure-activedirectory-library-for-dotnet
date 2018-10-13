@@ -27,7 +27,6 @@
 
 using System.Reflection;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 
 namespace Microsoft.Identity.Core
 {
@@ -86,6 +85,7 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
+            // TODO: Find a good unique Identifier
             return null;
         }
     }

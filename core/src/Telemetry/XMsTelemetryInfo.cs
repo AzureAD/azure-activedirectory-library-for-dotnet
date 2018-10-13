@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
-    internal class XMsTelemInfo
+    internal class XMsTelemetryInfo
     {
         public string Version { get; set; }
         public string ServerErrorCode { get; set; }
@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Core.Telemetry
 
     internal static class XMsTelemInfoHelper
     {
-        public static XMsTelemInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
+        public static XMsTelemetryInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
         {
             if (String.IsNullOrEmpty(headerValue))
             {
@@ -30,8 +30,8 @@ namespace Microsoft.Identity.Core.Telemetry
             }
             string headerVersion = headerSegments[0];
 
-            XMsTelemInfo xMsTelemInfo = new XMsTelemInfo();
-            xMsTelemInfo.Version = headerVersion;
+            XMsTelemetryInfo xMsTelemetryInfo = new XMsTelemetryInfo();
+            xMsTelemetryInfo.Version = headerVersion;
 
             if (headerVersion.Equals("1"))
             {
@@ -53,10 +53,10 @@ namespace Microsoft.Identity.Core.Telemetry
                 int TokenAgeIndex = 3;
                 int SpeInfoIndex = 4;
 
-                xMsTelemInfo.ServerErrorCode = headerSegments[ErrorCodeIndex];
-                xMsTelemInfo.ServerSubErrorCode = headerSegments[SubErrorCodeIndex];
-                xMsTelemInfo.TokenAge = headerSegments[TokenAgeIndex];
-                xMsTelemInfo.SpeInfo = headerSegments[SpeInfoIndex];
+                xMsTelemetryInfo.ServerErrorCode = headerSegments[ErrorCodeIndex];
+                xMsTelemetryInfo.ServerSubErrorCode = headerSegments[SubErrorCodeIndex];
+                xMsTelemetryInfo.TokenAge = headerSegments[TokenAgeIndex];
+                xMsTelemetryInfo.SpeInfo = headerSegments[SpeInfoIndex];
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Microsoft.Identity.Core.Telemetry
                     "Header version '{0}' unrecognized", headerVersion));
                 return null;
             }
-            return xMsTelemInfo;
+            return xMsTelemetryInfo;
         }
     }
 }

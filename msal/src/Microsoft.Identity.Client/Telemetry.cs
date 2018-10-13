@@ -81,6 +81,8 @@ namespace Microsoft.Identity.Client
 
         internal ConcurrentDictionary<string, List<EventBase>> CompletedEvents = new ConcurrentDictionary<string, List<EventBase>>();
 
+        internal ConcurrentDictionary<string, ConcurrentDictionary<string, int>> EventCount = new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
+
         internal string GenerateNewRequestId()
         {
             return Guid.NewGuid().ToString();
@@ -117,8 +119,9 @@ namespace Microsoft.Identity.Client
                 return;
             }
 
-            // Set execution time properties on the event
+            // Set execution time properties on the event and increment event count
             eventToStop.Stop();
+            IncrementEventCount(requestId, eventToStop);
 
             if (!CompletedEvents.ContainsKey(requestId))
             {
@@ -164,6 +167,9 @@ namespace Microsoft.Identity.Client
             List<EventBase> eventsToFlush;
             CompletedEvents.TryRemove(requestId, out eventsToFlush);
 
+            ConcurrentDictionary<string, int> eventCountToFlush;
+            EventCount.TryRemove(requestId, out eventCountToFlush);
+
             if (TelemetryOnFailureOnly)
             {
                 // iterate over Events, if the ApiEvent was successful, don't dispatch
@@ -187,7 +193,7 @@ namespace Microsoft.Identity.Client
 
             if (eventsToFlush.Count > 0)
             {
-                eventsToFlush.Insert(0, new DefaultEvent(ClientId));
+                eventsToFlush.Insert(0, new DefaultEvent(ClientId, eventCountToFlush));
                 _receiver(eventsToFlush.Cast<Dictionary<string, string>>().ToList());
             }
         }
@@ -202,10 +208,35 @@ namespace Microsoft.Identity.Client
                     // The orphaned event already contains its own start time, we simply collect it
                     EventBase orphan;
                     EventsInProgress.TryRemove(key, out orphan);
+
+                    IncrementEventCount(requestId, orphan);
                     orphanedEvents.Add(orphan);
                 }
             }
             return orphanedEvents;
+        }
+
+        private void IncrementEventCount(string requestId, EventBase eventToIncrement)
+        {
+            string eventName;
+            if (eventToIncrement[EventBase.EventNameKey].Substring(0,10) == "msal.token")
+            {
+                eventName = "msal.cache_event";
+            }
+            else
+            {
+                eventName = eventToIncrement[EventBase.EventNameKey];
+            }
+            
+            if (!EventCount.ContainsKey(requestId))
+            {
+                EventCount[requestId] = new ConcurrentDictionary<string, int>();
+                EventCount[requestId].TryAdd(eventName, 1);
+            }
+            else
+            {
+                EventCount[requestId].AddOrUpdate(eventName, 1, (key, count) => count + 1);
+            }
         }
 
         void ITelemetry.StartEvent(string requestId, EventBase eventToStart)

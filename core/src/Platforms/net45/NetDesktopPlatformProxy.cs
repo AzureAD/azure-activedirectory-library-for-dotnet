@@ -167,7 +167,7 @@ namespace Microsoft.Identity.Core
 
         public string GetApplicationName()
         {
-            return Assembly.GetEntryAssembly().GetName().ToString();
+            return Assembly.GetEntryAssembly().GetName().Name.ToString();
         }
 
         public string GetApplicationVersion()
@@ -177,7 +177,8 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            return Environment.MachineName;
+            // TODO: Find a good unique Identifier
+            return null;
         }
     }
 }

@@ -156,6 +156,7 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
+            // TODO: Find a good unique Identifier
             return null;
         }
     }

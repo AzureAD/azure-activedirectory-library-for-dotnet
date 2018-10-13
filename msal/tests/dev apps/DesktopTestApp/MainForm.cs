@@ -88,6 +88,7 @@ namespace DesktopTestApp
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)

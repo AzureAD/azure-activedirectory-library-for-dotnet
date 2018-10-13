@@ -25,13 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
     internal class DefaultEvent : EventBase
-    {   
-        public DefaultEvent(string clientId) : base((string) (EventBase.EventNamePrefix + "default_event"))
+    {
+        public DefaultEvent(string clientId, ConcurrentDictionary<string, int> eventCount) : base((string) (EventNamePrefix + "default_event"))
         {
             this[EventNamePrefix + "client_id"] = clientId;
             this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
@@ -39,6 +41,19 @@ namespace Microsoft.Identity.Core.Telemetry
             this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationName()?.ToLowerInvariant();
             this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationVersion()?.ToLowerInvariant();
             this[EventNamePrefix + "device_id"] = PlatformProxyFactory.GetPlatformProxy().GetDeviceId()?.ToLowerInvariant();
+            this[EventNamePrefix + "ui_event_count"] = SetEventCount(EventNamePrefix + "ui_event", eventCount);
+            this[EventNamePrefix + "http_event_count"] = SetEventCount(EventNamePrefix + "http_event", eventCount);
+            this[EventNamePrefix + "cache_event_count"] = SetEventCount(EventNamePrefix + "cache_event", eventCount);
         }
+
+        private string SetEventCount(string eventName, ConcurrentDictionary<string, int> eventCount)
+        {
+            if (!eventCount.ContainsKey(eventName))
+            {
+                return string.Empty;
+            }
+            return eventCount[eventName].ToString(CultureInfo.InvariantCulture);
+        }
+
     }
 }
