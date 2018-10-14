@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Core
         private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
 
         private readonly string DefaultKeychainGroup = "com.microsoft.adalcache";
-        private readonly string TeamIdKey = "teamIDHint";
+        private readonly string TeamIdKey = ".NetTeamIDHint";
 
         private string keychainGroup;
         private RequestContext _requestContext;
@@ -87,7 +87,7 @@ namespace Microsoft.Identity.Core
             {
                 Service = "",
                 Account = TeamIdKey,
-                Accessible = _defaultAccessiblityPolicy
+                Accessible = SecAccessible.Always
             };
 
             SecRecord match = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
