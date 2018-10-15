@@ -58,8 +58,9 @@ namespace Microsoft.Identity.Core
         private const bool _defaultSyncSetting = false;
         private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
 
-        private readonly string DefaultKeychainGroup = "com.microsoft.adalcache";
-        private readonly string TeamIdKey = ".NetTeamIDHint";
+        private const string DefaultKeychainGroup = "com.microsoft.adalcache";
+        // Identifier for the keychain item used to retrieve current team ID
+        private const string TeamIdKey = "DotNetTeamIDHint";
 
         private string keychainGroup;
         private RequestContext _requestContext;
