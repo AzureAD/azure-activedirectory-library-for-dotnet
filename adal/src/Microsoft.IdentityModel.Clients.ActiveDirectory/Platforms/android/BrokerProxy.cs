@@ -415,14 +415,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             brokerOptions.PutInt("json", 1);
             brokerOptions.PutString(BrokerConstants.AccountResource,
                 request.Resource);
-            string computedRedirectUri = GetRedirectUriForBroker();
 
-            //Do not remove the null or empty check from the following if statement. During the silent broker flow, there is an expectation that the
-            //redirect URI will be null. Thus, disabling this check in that scenario.
-            if (!string.IsNullOrEmpty(request.RedirectUri) && !string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri));
-            }
+            ValidateBrokerRedirectURI(request);
 
             brokerOptions.PutString(BrokerConstants.AccountRedirect, request.RedirectUri);
             brokerOptions.PutString(BrokerConstants.AccountClientIdKey,
@@ -454,6 +448,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             brokerOptions.PutString(BrokerConstants.AccountName, username);
 
             return brokerOptions;
+        }
+
+        private void ValidateBrokerRedirectURI(AuthenticationRequest request)
+        {
+            string computedRedirectUri = GetRedirectUriForBroker();
+
+            //During the silent broker flow, the redirect URI will be null.
+            if (string.IsNullOrEmpty(request.RedirectUri))
+            {
+                return;
+            }
+
+            if (!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri));
+            }
         }
 
         private bool CheckAccount(AccountManager am, string username, string uniqueId)
