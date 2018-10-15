@@ -37,6 +37,8 @@ namespace Microsoft.Identity.Core.Instance
 {
     internal abstract class Authority
     {
+        protected CorePlatformInformationBase PlatformInformation { get; }
+
         internal static readonly HashSet<string> TenantlessTenantNames =
             new HashSet<string>(new[] {"common", "organizations", "consumers"});
         private bool _resolved;
@@ -46,13 +48,30 @@ namespace Microsoft.Identity.Core.Instance
 
         protected abstract Task<string> GetOpenIdConfigurationEndpointAsync(string userPrincipalName, RequestContext requestContext);
 
-        public static Authority CreateAuthority(string authority, bool validateAuthority)
+        public static Authority CreateAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
         {
-            return CreateInstance(authority, validateAuthority);
+            authority = CanonicalizeUri(authority);
+            ValidateAsUri(authority);
+
+            switch (GetAuthorityType(authority))
+            {
+                case AuthorityType.Adfs:
+                    return new AdfsAuthority(platformInformation, authority, validateAuthority);
+                case AuthorityType.B2C:
+                    return new B2CAuthority(platformInformation, authority, validateAuthority);
+
+                case AuthorityType.Aad:
+                    return new AadAuthority(platformInformation, authority, validateAuthority);
+
+                default:
+                    throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
+                        "Unsupported authority type");
+            }
         }
 
-        protected Authority(string authority, bool validateAuthority)
+        protected Authority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
         {
+            PlatformInformation = platformInformation;
             UriBuilder authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
 
@@ -141,7 +160,7 @@ namespace Microsoft.Identity.Core.Instance
             }
         }
 
-        private static Authority CreateInstance(string authority, bool validateAuthority)
+        private static Authority CreateInstance(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority)
         {
             authority = CanonicalizeUri(authority);
             ValidateAsUri(authority);
@@ -149,12 +168,12 @@ namespace Microsoft.Identity.Core.Instance
             switch (GetAuthorityType(authority))
             {
                 case AuthorityType.Adfs:
-                    return new AdfsAuthority(authority, validateAuthority);
+                    return new AdfsAuthority(platformInformation, authority, validateAuthority);
                 case AuthorityType.B2C:
-                    return new B2CAuthority(authority, validateAuthority);
+                    return new B2CAuthority(platformInformation, authority, validateAuthority);
 
                 case AuthorityType.Aad:
-                    return new AadAuthority(authority, validateAuthority);
+                    return new AadAuthority(platformInformation, authority, validateAuthority);
 
                 default:
                     throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.InvalidAuthorityType,
@@ -241,10 +260,11 @@ namespace Microsoft.Identity.Core.Instance
 
         internal abstract void UpdateTenantId(string tenantId);
 
-        private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(string openIdConfigurationEndpoint,
+        private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(
+            string openIdConfigurationEndpoint,
             RequestContext requestContext)
         {
-            OAuth2Client client = new OAuth2Client();
+            OAuth2Client client = new OAuth2Client(PlatformInformation);
             return
                 await
                     client.ExecuteRequestAsync<TenantDiscoveryResponse>(new Uri(openIdConfigurationEndpoint),

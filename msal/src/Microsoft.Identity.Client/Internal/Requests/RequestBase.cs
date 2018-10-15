@@ -42,10 +42,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal abstract class RequestBase
     {
-        static RequestBase()
-        {
-            PlatformPlugin.PlatformInformation = new PlatformInformation();
-        }
+        internal CorePlatformInformationBase PlatformInformation => new PlatformInformation();
 
         protected static readonly Task CompletedTask = Task.FromResult(false);
         internal AuthenticationRequestParameters AuthenticationRequestParameters { get; }
@@ -113,14 +110,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
         protected virtual SortedSet<string> GetDecoratedScope(SortedSet<string> inputScope)
         {
             SortedSet<string> set = new SortedSet<string>(inputScope.ToArray());
-            set.UnionWith(OAuth2Value.ReservedScopes.CreateSetFromEnumerable());
+            set.UnionWith(ScopeHelper.CreateSortedSetFromEnumerable(OAuth2Value.ReservedScopes));
             return set;
         }
 
         protected void ValidateScopeInput(SortedSet<string> scopesToValidate)
         {
             //check if scope or additional scope contains client ID.
-            if (scopesToValidate.Intersect(OAuth2Value.ReservedScopes.CreateSetFromEnumerable()).Any())
+            if (scopesToValidate.Intersect(ScopeHelper.CreateSortedSetFromEnumerable(OAuth2Value.ReservedScopes)).Any())
             {
                 throw new ArgumentException("MSAL always sends the scopes 'openid profile offline_access'. " +
                                             "They cannot be suppressed as they are required for the " +
@@ -232,7 +229,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             {
                 AuthenticationRequestParameters.RequestContext.Logger.Info("Saving Token Response to cache..");
 
-                var tuple = TokenCache.SaveAccessAndRefreshToken(AuthenticationRequestParameters, Response);
+                var tuple = TokenCache.SaveAccessAndRefreshToken(PlatformInformation, AuthenticationRequestParameters, Response);
                 MsalAccessTokenItem = tuple.Item1;
                 MsalIdTokenItem = tuple.Item2;
             }
@@ -285,7 +282,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         protected virtual async Task SendTokenRequestAsync(CancellationToken cancellationToken)
         {
-            OAuth2Client client = new OAuth2Client();
+            OAuth2Client client = new OAuth2Client(PlatformInformation);
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.ClientInfo, "1");
             foreach (var entry in AuthenticationRequestParameters.ToParameters())

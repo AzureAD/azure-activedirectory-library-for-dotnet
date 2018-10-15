@@ -41,16 +41,16 @@ namespace Microsoft.Identity.Core.Instance
     {
         private const string DefaultRealm = "http://schemas.microsoft.com/rel/trusted-realm";
         
-
         private readonly HashSet<string> _validForDomainsList = new HashSet<string>();
-        public AdfsAuthority(string authority, bool validateAuthority) : base(authority, validateAuthority)
+        public AdfsAuthority(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority) 
+            : base(platformInformation, authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Adfs;
         }
 
         protected override bool ExistsInValidatedAuthorityCache(string userPrincipalName)
         {
-            if (string.IsNullOrEmpty(userPrincipalName)
+            if (string.IsNullOrEmpty(userPrincipalName))
             {
                 return false;
             }
@@ -117,7 +117,6 @@ namespace Microsoft.Identity.Core.Instance
             }
             ValidatedAuthorities[CanonicalAuthority] = authorityInstance;
         }
-
 
         private string GetDomainFromUpn(string upn)
         {

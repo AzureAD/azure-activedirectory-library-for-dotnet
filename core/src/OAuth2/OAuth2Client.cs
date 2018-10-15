@@ -42,11 +42,13 @@ namespace Microsoft.Identity.Core.OAuth2
     internal class OAuth2Client
     {
         private readonly Dictionary<string, string> _bodyParameters = new Dictionary<string, string>();
-
-        private readonly Dictionary<string, string> _headers =
-            new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters());
-
+        private readonly Dictionary<string, string> _headers;
         private readonly Dictionary<string, string> _queryParameters = new Dictionary<string, string>();
+
+        public OAuth2Client(CorePlatformInformationBase platformInformation)
+        {
+            _headers = new Dictionary<string, string>(MsalIdHelper.GetMsalIdParameters(platformInformation));
+        }
 
         public void AddQueryParameter(string key, string value)
         {
@@ -135,6 +137,8 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public static void CreateErrorResponse(HttpResponse response, RequestContext requestContext)
         {
+            bool shouldLogAsError = true;
+
             Exception serviceEx;
 
             try
@@ -155,6 +159,17 @@ namespace Microsoft.Identity.Core.OAuth2
                     msalTokenResponse.Error,
                     msalTokenResponse.ErrorDescription,
                     response);
+
+                // For device code flow, AuthorizationPending can occur a lot while waiting
+                // for the user to auth via browser and this causes a lot of error noise in the logs.
+                // So suppress this particular case to an Info so we still see the data but don't 
+                // log it as an error since it's expected behavior while waiting for the user.
+                if (string.Compare(msalTokenResponse.Error, OAuth2Error.AuthorizationPending,
+                        StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    shouldLogAsError = false;
+                }
+
             }
             catch (SerializationException ex)
             {
@@ -164,7 +179,15 @@ namespace Microsoft.Identity.Core.OAuth2
                     ex);
             }
 
-            requestContext.Logger.ErrorPii(serviceEx);
+            if (shouldLogAsError)
+            {
+                requestContext.Logger.ErrorPii(serviceEx);
+            }
+            else
+            {
+                requestContext.Logger.InfoPii(serviceEx);
+            }
+
             throw serviceEx;
         }
 
@@ -179,13 +202,13 @@ namespace Microsoft.Identity.Core.OAuth2
 
         private static void VerifyCorrelationIdHeaderInResponse(IDictionary<string, string> headers, RequestContext requestContext)
         {
-            foreach (string reponseHeaderKey in headers.Keys)
+            foreach (string responseHeaderKey in headers.Keys)
             {
-                string trimmedKey = reponseHeaderKey.Trim();
+                string trimmedKey = responseHeaderKey.Trim();
                 if (string.Compare(trimmedKey, OAuth2Header.CorrelationId, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     string correlationIdHeader = headers[trimmedKey].Trim();
-                    if (!string.Equals(correlationIdHeader, requestContext.Logger.CorrelationId))
+                    if (string.Compare(correlationIdHeader, requestContext.Logger.CorrelationId.ToString(), StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         requestContext.Logger.WarningPii(
                             string.Format(CultureInfo.InvariantCulture,

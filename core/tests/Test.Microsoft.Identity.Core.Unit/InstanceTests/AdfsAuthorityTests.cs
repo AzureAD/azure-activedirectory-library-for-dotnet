@@ -92,7 +92,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateSuccessResponseMessage(File.ReadAllText("OpenidConfiguration-OnPremise.json"))
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, true);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
@@ -110,7 +110,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
             Assert.AreEqual(1, Authority.ValidatedAuthorities.Count);
 
             //attempt to do authority validation again. NO network call should be made
-            instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, true);
+            instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
@@ -126,8 +126,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 instance.SelfSignedJwtAudience);
         }
 
-        
-
         [TestMethod]
         [TestCategory("AdfsAuthorityTests")]
         public void ValidationOffSuccessTest()
@@ -140,7 +138,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateSuccessResponseMessage(File.ReadAllText("OpenidConfiguration-OnPremise.json"))
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, false);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, false);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             Task.Run(async () =>
@@ -175,7 +173,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateFailureMessage(HttpStatusCode.NotFound, "not-found")
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, true);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             try
@@ -212,7 +210,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateSuccessWebFingerResponseMessage("https://fs.some-other-sts.com")
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, true);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             try
@@ -247,7 +245,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateSuccessResponseMessage(File.ReadAllText("drs-response-missing-field.json"))
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, true);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             try
@@ -278,7 +276,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 ResponseMessage = MockHelpers.CreateSuccessResponseMessage(File.ReadAllText("OpenidConfiguration-MissingFields-OnPremise.json"))
             });
 
-            Authority instance = Authority.CreateAuthority(TestConstants.OnPremiseAuthority, false);
+            Authority instance = Authority.CreateAuthority(new TestPlatformInformation(), TestConstants.OnPremiseAuthority, false);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
             try

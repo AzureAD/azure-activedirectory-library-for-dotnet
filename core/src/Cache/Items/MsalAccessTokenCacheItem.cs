@@ -42,10 +42,8 @@ namespace Microsoft.Identity.Core.Cache
             CredentialType = MsalCacheCommon.AccessToken;
         }
 
-        internal MsalAccessTokenCacheItem
-            (string environment, string clientId, MsalTokenResponse response, string tenantId, string userId=null) : 
-            
-            this(environment, clientId, response.TokenType, response.Scope.AsLowerCaseSortedSet().AsSingleString(),
+        internal MsalAccessTokenCacheItem(string environment, string clientId, MsalTokenResponse response, string tenantId, string userId=null) : 
+            this(environment, clientId, response.TokenType, ScopeHelper.ConvertStringToLowercaseSortedSet(response.Scope).AsSingleString(),
                  tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo, userId)
         {
         }
@@ -57,7 +55,7 @@ namespace Microsoft.Identity.Core.Cache
             Environment = environment;
             ClientId = clientId;
             TokenType = tokenType;
-            NormalizedScopes = scopes;        
+            NormalizedScopes = scopes;
             TenantId = tenantId;
             Secret = secret;
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
@@ -72,7 +70,7 @@ namespace Microsoft.Identity.Core.Cache
         internal string TenantId { get; set; }
 
         /// <summary>
-        /// String comprised of scopes that have been lowercased and ordered. 
+        /// String comprised of scopes that have been lowercased and ordered.
         /// </summary>
         /// <remarks>Normalization is important when creating unique keys.</remarks>
         [DataMember(Name = "target", IsRequired = true)]
@@ -97,12 +95,12 @@ namespace Microsoft.Identity.Core.Cache
                 return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
             }
         }
-        
+
         internal SortedSet<string> ScopeSet
         {
             get
             {
-                return NormalizedScopes.AsLowerCaseSortedSet();
+                return ScopeHelper.ConvertStringToLowercaseSortedSet(NormalizedScopes);
             }
         }
         internal DateTimeOffset ExpiresOn

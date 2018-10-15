@@ -125,9 +125,9 @@ namespace Microsoft.Identity.Client
         }
 
         internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken
-            (AuthenticationRequestParameters requestParams, MsalTokenResponse response)
+            (CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams, MsalTokenResponse response)
         {
-            var tenantId = Authority.CreateAuthority(requestParams.TenantUpdatedCanonicalAuthority, false)
+            var tenantId = Authority.CreateAuthority(platformInformation, requestParams.TenantUpdatedCanonicalAuthority, false)
                 .GetTenantId();
 
             IdToken idToken = IdToken.Parse(response.IdToken);
@@ -250,7 +250,7 @@ namespace Microsoft.Identity.Client
                     environmentAliases.Contains(msalAccessTokenItem.Environment) &&
                     ((msalAccessTokenItem.TenantId == null && tenantId == null) ||
                     msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase)) &&
-                    msalAccessTokenItem.ScopeSet.ScopeIntersects(scopeSet))
+                    msalAccessTokenItem.ScopeSet.Overlaps(scopeSet))
                 {
                     requestParams.RequestContext.Logger.Verbose("Intersecting scopes found - " + msalAccessTokenItem.NormalizedScopes);
                     accessTokenItemList.Add(msalAccessTokenItem);
@@ -275,7 +275,7 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(AuthenticationRequestParameters requestParams)
+        internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams)
         {
             using (CoreTelemetryService.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.AT }))
@@ -285,7 +285,8 @@ namespace Microsoft.Identity.Client
 
                 if (requestParams.Authority != null)
                 {
-                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(requestParams.Authority.CanonicalAuthority,
+                    var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation,
+                        requestParams.Authority.CanonicalAuthority,
                         requestParams.ValidateAuthority, requestParams.RequestContext).ConfigureAwait(false);
 
                     environmentAliases.UnionWith
@@ -369,7 +370,7 @@ namespace Microsoft.Identity.Client
 
                 IEnumerable<MsalAccessTokenCacheItem> filteredItems =
                    tokenCacheItems.Where(
-                           item => item.ScopeSet.ScopeContains(requestParams.Scope));
+                           item => ScopeHelper.ScopeContains(item.ScopeSet, requestParams.Scope));
 
                 //Adfs does not return scopes in resource/scope format
                 if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs && filteredItems.Count()==0)
@@ -378,8 +379,10 @@ namespace Microsoft.Identity.Client
 
                     filteredItems =
                         tokenCacheItems.Where(
-                            item => item.ScopeSet.ScopeContains(scopes));
+                            item => ScopeHelper.ScopeContains(item.ScopeSet, scopes));
                 }
+
+                requestParams.RequestContext.Logger.Info("Matching entry count after filtering by scopes - " + filteredItems.Count());
 
                 //filter by authority
                 IEnumerable<MsalAccessTokenCacheItem> filteredByPreferredAlias =
@@ -435,23 +438,23 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(AuthenticationRequestParameters requestParams)
+        internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParams)
         {
             using (CoreTelemetryService.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.RT }))
             {
-                return await FindRefreshTokenCommonAsync(requestParams).ConfigureAwait(false);
+                return await FindRefreshTokenCommonAsync(platformInformation, requestParams).ConfigureAwait(false);
             }
         }
 
-        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommonAsync(AuthenticationRequestParameters requestParam)
+        private async Task<MsalRefreshTokenCacheItem> FindRefreshTokenCommonAsync(CorePlatformInformationBase platformInformation, AuthenticationRequestParameters requestParam)
         {
             if (requestParam.Authority == null)
             {
                 return null;
             }
 
-            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(requestParam.Authority.CanonicalAuthority,
+            var instanceDiscoveryMetadataEntry = await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, requestParam.Authority.CanonicalAuthority,
                 requestParam.ValidateAuthority, requestParam.RequestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(requestParam.Authority.CanonicalAuthority,
@@ -662,7 +665,7 @@ namespace Microsoft.Identity.Client
         }
 
         private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaDataAsync
-            (string authority, bool validateAuthority, RequestContext requestContext)
+            (CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
@@ -670,7 +673,7 @@ namespace Microsoft.Identity.Client
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
                 instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync
-                    (new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
+                    (platformInformation, new Uri(authority), validateAuthority, requestContext).ConfigureAwait(false);
             }
             return instanceDiscoveryMetadata;
         }
@@ -718,10 +721,10 @@ namespace Microsoft.Identity.Client
             return preferredEnvironmentHost;
         }
 
-        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(string authority, bool validateAuthority, RequestContext requestContext)
+        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry = 
-                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, authority, validateAuthority, requestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 
@@ -893,10 +896,10 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        internal async Task RemoveAsync(string authority, bool validateAuthority, IAccount account, RequestContext requestContext)
+        internal async Task RemoveAsync(CorePlatformInformationBase platformInformation, string authority, bool validateAuthority, IAccount account, RequestContext requestContext)
         {
             var instanceDiscoveryMetadataEntry =
-                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await GetCachedOrDiscoverAuthorityMetaDataAsync(platformInformation, authority, validateAuthority, requestContext).ConfigureAwait(false);
 
             var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
 
@@ -1122,7 +1125,7 @@ namespace Microsoft.Identity.Client
             SortedSet<string> parsedScopes = new SortedSet<string>();
             foreach (string scope in scopes)
             {
-                scopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
+                parsedScopes.Add(scope.Substring(scope.LastIndexOf("/") + 1));
             }
 
             return parsedScopes;
