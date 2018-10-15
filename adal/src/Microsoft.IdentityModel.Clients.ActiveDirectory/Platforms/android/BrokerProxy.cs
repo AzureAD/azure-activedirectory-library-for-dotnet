@@ -417,7 +417,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 request.Resource);
             string computedRedirectUri = GetRedirectUriForBroker();
 
-            if (!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
+            //Do not remove the null or empty check from the following if statement. During the silent broker flow, there is an expectation that the
+            //redirect URI will be null. Thus, disabling this check in that scenario.
+            if (!string.IsNullOrEmpty(request.RedirectUri) && !string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
                 throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri));
             }
