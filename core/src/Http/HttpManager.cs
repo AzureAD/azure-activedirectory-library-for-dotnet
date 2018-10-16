@@ -220,19 +220,9 @@ namespace Microsoft.Identity.Core.Http
 
         internal /* internal for test only */ static async Task<HttpResponse> CreateResponseAsync(HttpResponseMessage response)
         {
-            // TODO: THIS IS NEVER USED.  DELETE IT!
-            var headers = new Dictionary<string, string>();
-            if (response.Headers != null)
-            {
-                foreach (var kvp in response.Headers)
-                {
-                    headers[kvp.Key] = kvp.Value.First();
-                }
-            }
-
             return new HttpResponse
             {
-                Headers = headers,
+                Headers = response.Headers,
                 Body = await response.Content.ReadAsStringAsync().ConfigureAwait(false),
                 StatusCode = response.StatusCode
             };

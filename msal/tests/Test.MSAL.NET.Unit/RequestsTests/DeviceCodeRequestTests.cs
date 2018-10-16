@@ -27,6 +27,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,7 +54,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
         private const string ExpectedUserCode = "B6SUYU5PL";
         private const int ExpectedExpiresIn = 900;
-        private const int ExpectedInterval = 5;
+        private const int ExpectedInterval = 1;
         private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
         private readonly MyReceiver _myReceiver = new MyReceiver();
         private TokenCache _cache;
@@ -61,16 +63,20 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
 
         private string ExpectedResponseMessage =>
-            $"{{" + $"\"user_code\":\"{ExpectedUserCode}\"," + $"\"device_code\":\"{ExpectedDeviceCode}\"," +
-            $"\"verification_url\":\"{ExpectedVerificationUrl}\"," + $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
-            $"\"interval\":\"{ExpectedInterval}\"," + $"\"message\":\"{ExpectedMessage}\"," + $"}}";
+            $"{{" +
+            $"\"user_code\":\"{ExpectedUserCode}\"," +
+            $"\"device_code\":\"{ExpectedDeviceCode}\"," +
+            $"\"verification_url\":\"{ExpectedVerificationUrl}\"," +
+            $"\"expires_in\":\"{ExpectedExpiresIn}\"," +
+            $"\"interval\":\"{ExpectedInterval}\"," +
+            $"\"message\":\"{ExpectedMessage}\"," +
+            $"}}";
 
         [TestInitialize]
         public void TestInitialize()
         {
             RequestTestsCommon.InitializeRequestTests();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-
             _cache = new TokenCache();
         }
 
@@ -90,11 +96,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
         {
+            const int NumberOfAuthorizationPendingRequestsToInject = 1;
+
             using (var httpManager = new MockHttpManager())
             {
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
-                    true,
+                    NumberOfAuthorizationPendingRequestsToInject,
                     out HashSet<string> expectedScopes);
 
                 // Check that cache is empty
@@ -142,9 +150,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                const int NumberOfAuthorizationPendingRequestsToInject = 0;
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
-                    false,
+                    NumberOfAuthorizationPendingRequestsToInject,
                     out HashSet<string> expectedScopes);
 
                 var cancellationSource = new CancellationTokenSource();
@@ -156,7 +165,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     parameters,
                     async result =>
                     {
-                        await Task.Delay(200);
+                        await Task.Delay(200, CancellationToken.None);
                         actualDeviceCodeResult = result;
                     });
 
@@ -167,9 +176,77 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
         }
 
+        [TestMethod]
+        [TestCategory("DeviceCodeRequestTests")]
+        public void VerifyAuthorizationPendingErrorDoesNotLogError()
+        {
+            // When calling DeviceCodeFlow, we poll for the authorization and if the user hasn't entered the code in yet
+            // then we receive an error for authorization_pending.  This is thrown as an exception and logged as
+            // errors.  This error is noisy and so it should be suppressed for this one case.
+            // This test verifies that the error for authorization_pending is not logged as an error.
+
+            var logCallbacks = new List<_LogData>();
+
+            Logger.LogCallback = (level, message, pii) =>
+            {
+                logCallbacks.Add(
+                    new _LogData
+                    {
+                        Level = level,
+                        Message = message,
+                        IsPii = pii
+                    });
+            };
+
+            using (var httpManager = new MockHttpManager())
+            {
+                try
+                {
+                    const int NumberOfAuthorizationPendingRequestsToInject = 2;
+                    var parameters = CreateAuthenticationParametersAndSetupMocks(
+                        httpManager,
+                        NumberOfAuthorizationPendingRequestsToInject,
+                        out HashSet<string> expectedScopes);
+
+                    var request = new DeviceCodeRequest(
+                        httpManager,
+                        PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                        parameters,
+                        result => Task.FromResult(0));
+
+                    Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+                    task.Wait();
+
+                    // Ensure we got logs so the log callback is working.
+                    Assert.IsTrue(logCallbacks.Count > 0, "There should be data in logCallbacks");
+
+                    // Ensure we have authorization_pending data in the logs
+                    List<_LogData> authPendingLogs =
+                        logCallbacks.Where(x => x.Message.Contains(OAuth2Error.AuthorizationPending)).ToList();
+                    Assert.AreEqual(2, authPendingLogs.Count, "authorization_pending logs should exist");
+
+                    // Ensure the authorization_pending logs are Info level and not Error
+                    Assert.AreEqual(
+                        2,
+                        authPendingLogs.Where(x => x.Level == LogLevel.Info).ToList().Count,
+                        "authorization_pending logs should be INFO");
+
+                    // Ensure we don't have Error level logs in this scenario.
+                    Assert.AreEqual(
+                        0,
+                        logCallbacks.Where(x => x.Level == LogLevel.Error).ToList().Count,
+                        "Error level logs should not exist");
+                }
+                finally
+                {
+                    Logger.LogCallback = null;
+                }
+            }
+        }
+
         private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(
             MockHttpManager httpManager,
-            bool expectTokenExchange,
+            int numAuthorizationPendingResults,
             out HashSet<string> expectedScopes)
         {
             var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
@@ -208,7 +285,26 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ResponseMessage = CreateDeviceCodeResponseSuccessMessage()
                 });
 
-            if (expectTokenExchange)
+            for (int i = 0; i < numAuthorizationPendingResults; i++)
+            {
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Post,
+                        Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
+                        ResponseMessage = MockHelpers.CreateFailureMessage(
+                            HttpStatusCode.Forbidden,
+                            "{\"error\":\"authorization_pending\"," +
+                            "\"error_description\":\"AADSTS70016: Pending end-user authorization." +
+                            "\\r\\nTrace ID: f6c2c73f-a21d-474e-a71f-d8b121a58205\\r\\nCorrelation ID: " +
+                            "36fe3e82-442f-4418-b9f4-9f4b9295831d\\r\\nTimestamp: 2015-09-24 19:51:51Z\"," +
+                            "\"error_codes\":[70016],\"timestamp\":\"2015-09-24 19:51:51Z\",\"trace_id\":" +
+                            "\"f6c2c73f-a21d-474e-a71f-d8b121a58205\",\"correlation_id\":" +
+                            "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
+                    });
+            }
+
+            if (numAuthorizationPendingResults > 0)
             {
                 // Mock Handler for devicecode->token exchange request
                 httpManager.AddMockHandler(
@@ -225,6 +321,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
 
             return parameters;
+        }
+
+        private class _LogData
+        {
+            public LogLevel Level { get; set; }
+            public string Message { get; set; }
+            public bool IsPii { get; set; }
         }
     }
 }

@@ -31,6 +31,7 @@ using Security;
 using Foundation;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core
 {
@@ -85,7 +86,8 @@ namespace Microsoft.Identity.Core
             var queryRecord = new SecRecord(SecKind.GenericPassword)
             {
                 Service = "",
-                Account = TeamIdKey
+                Account = TeamIdKey,
+                Accessible = _defaultAccessiblityPolicy
             };
 
             SecRecord match = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
@@ -281,6 +283,16 @@ namespace Microsoft.Identity.Core
             if (secStatusCode == SecStatusCode.ItemNotFound)
             {
                 secStatusCode = SecKeyChain.Add(recordToSave);
+            }
+
+            if (secStatusCode == SecStatusCode.MissingEntitlement)
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(
+                CoreErrorCodes.MissingEntitlements,
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    CoreErrorMessages.MissingEntitlements,
+                    recordToSave.AccessGroup));
             }
 
             return secStatusCode;
