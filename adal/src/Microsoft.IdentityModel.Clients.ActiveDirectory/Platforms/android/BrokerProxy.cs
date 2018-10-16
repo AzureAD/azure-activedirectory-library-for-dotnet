@@ -452,13 +452,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private void ValidateBrokerRedirectURI(AuthenticationRequest request)
         {
-            string computedRedirectUri = GetRedirectUriForBroker();
-
             //During the silent broker flow, the redirect URI will be null.
             if (string.IsNullOrEmpty(request.RedirectUri))
             {
                 return;
             }
+
+            string computedRedirectUri = GetRedirectUriForBroker();
 
             if (!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
