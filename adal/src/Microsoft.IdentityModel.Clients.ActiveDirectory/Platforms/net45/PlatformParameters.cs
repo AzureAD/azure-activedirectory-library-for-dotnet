@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Threading;
 using Microsoft.Identity.Core.UI;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -34,6 +35,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public class PlatformParameters : IPlatformParameters
     {
+        public static SynchronizationContext _syncContext = null;
+
         /// <summary>
         /// 
         /// </summary>
@@ -49,6 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="ownerWindow"></param>
         public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
         {
+            _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
             this.PromptBehavior = promptBehavior;
             this.OwnerWindow = ownerWindow;
         }

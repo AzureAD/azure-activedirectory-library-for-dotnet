@@ -48,11 +48,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             AuthorizationResult authorizationResult = null;
 
-            var sendAuthorizeRequest = new Action(
-                delegate
-                {
-                    authorizationResult = this.Authenticate(authorizationUri, redirectUri);
-                });
+            var sendAuthorizeRequest = new Action(() =>
+            {
+                var other = PlatformParameters._syncContext;
+                other.Send(state =>
+                    {
+                        var tup = (Tuple<Uri, Uri>) state;
+                        authorizationResult = this.Authenticate(tup.Item1, tup.Item2);
+                    },
+                    Tuple.Create(authorizationUri, redirectUri));
+            });
 
             // If the thread is MTA, it cannot create or communicate with WebBrowser which is a COM control.
             // In this case, we have to create the browser in an STA thread via StaTaskScheduler object.
