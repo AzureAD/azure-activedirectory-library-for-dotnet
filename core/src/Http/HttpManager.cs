@@ -220,6 +220,7 @@ namespace Microsoft.Identity.Core.Http
 
         internal /* internal for test only */ static async Task<HttpResponse> CreateResponseAsync(HttpResponseMessage response)
         {
+            // TODO: THIS IS NEVER USED.  DELETE IT!
             var headers = new Dictionary<string, string>();
             if (response.Headers != null)
             {
@@ -231,7 +232,7 @@ namespace Microsoft.Identity.Core.Http
 
             return new HttpResponse
             {
-                Headers = response.Headers,
+                Headers = headers,
                 Body = await response.Content.ReadAsStringAsync().ConfigureAwait(false),
                 StatusCode = response.StatusCode
             };
