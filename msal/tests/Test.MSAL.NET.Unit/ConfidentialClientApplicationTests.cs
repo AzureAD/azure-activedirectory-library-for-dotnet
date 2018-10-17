@@ -368,7 +368,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 ClientCredential cc = new ClientCredential(new ClientAssertionCertificate(new X509Certificate2("valid.crtfile")));
-                
+
                 // TODO: previous test had the final parameter here as 2 instead of 1.
                 // However, this 2nd one is NOT consumed by this test and the previous
                 // test did not check for all mock requests to be flushed out...
@@ -612,7 +612,7 @@ namespace Test.MSAL.NET.Unit
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
         [ExpectedException(typeof(HttpRequestException), "Cannot write more bytes to the buffer than the configured maximum buffer size: 1048576.")]
-        public async Task HttpRequestExceptionIsNotSuppressed()
+        public async Task HttpRequestExceptionIsNotSuppressedAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -744,7 +744,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("ConfidentialClientApplicationTests")]
-        public async Task AuthorizationCodeRequestTest()
+        public async Task AuthorizationCodeRequestTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {

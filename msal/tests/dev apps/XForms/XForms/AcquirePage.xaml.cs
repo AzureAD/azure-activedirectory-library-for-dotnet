@@ -129,7 +129,7 @@ namespace XForms
 
         private IAccount getUserByDisplayableId(string str)
         {
-            return string.IsNullOrWhiteSpace(str) ? null : 
+            return string.IsNullOrWhiteSpace(str) ? null :
                 App.MsalPublicClient.GetAccountsAsync().Result.FirstOrDefault(user => user.Username.Equals(str, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -152,7 +152,7 @@ namespace XForms
         private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
-            await Task.Delay(700);
+            await Task.Delay(700).ConfigureAwait(true);
 
             try
             {
@@ -166,7 +166,7 @@ namespace XForms
                 var authority = PassAuthoritySwitch.IsToggled ? App.Authority : null;
 
                 var res = await App.MsalPublicClient.AcquireTokenSilentAsync(GetScopes(),
-                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled);
+                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled).ConfigureAwait(true);
 
                 acquireResponseLabel.Text = ToString(res);
             }
@@ -187,13 +187,13 @@ namespace XForms
                     res =
                         await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), loginHint, GetUIBehavior(),
                             GetExtraQueryParams(),
-                            App.UIParent);
+                            App.UIParent).ConfigureAwait(true);
                 }
                 else
                 {
                     var user = getUserByDisplayableId(GetSelectedUserId());
                     res = await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), user, GetUIBehavior(),
-                        GetExtraQueryParams(), App.UIParent);
+                        GetExtraQueryParams(), App.UIParent).ConfigureAwait(true);
                 }
 
                 var resText = ToString(res);
@@ -220,9 +220,12 @@ namespace XForms
 
         private async Task OnClearCacheClickedAsync(object sender, EventArgs e)
         {
-            foreach (var user in await App.MsalPublicClient.GetAccountsAsync())
+            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var users = await tokenCache.GetAccountsAsync
+                (new PlatformInformation(), App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(true);
+            foreach (var user in users)
             {
-                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
+                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(true);
             }
 
             acquireResponseLabel.Text = "";

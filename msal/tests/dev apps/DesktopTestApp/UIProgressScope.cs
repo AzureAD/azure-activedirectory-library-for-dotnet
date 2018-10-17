@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -26,23 +26,37 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Reflection;
+using System.Windows.Forms;
 
-[assembly: AssemblyProduct("Microsoft Authentication Library")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyCompany("Microsoft Corporation")]
-[assembly: AssemblyCopyright("Copyright (c) Microsoft Corporation. All rights reserved.")]
-[assembly: AssemblyTrademark("")]
+namespace DesktopTestApp
+{
+    public partial class MainForm
+    {
+#pragma warning disable CA1034 // Nested types should not be visible
+        public class UIProgressScope : IDisposable
+#pragma warning restore CA1034 // Nested types should not be visible
+        {
+            MainForm mainForm;
 
-// Keep major and minor versions in AssemblyFileVersion in sync with AssemblyVersion.
-// Build and revision numbers are replaced on build machine for official builds.
+            public UIProgressScope(MainForm mainForm)
+            {
+                this.mainForm = mainForm;
+                this.mainForm.Enabled = false;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Marquee;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 30;
+            }
 
-[assembly: AssemblyFileVersion("1.1.0.0")]
+            #region IDisposable Support
 
-// On official build, attribute AssemblyInformationalVersionAttribute is added as well
-// with its value equal to the hash of the last commit to the git branch.
-// e.g.: [assembly: AssemblyInformationalVersionAttribute("4392c9835a38c27516fc0cd7bad7bccdcaeab161")]
 
-[assembly: CLSCompliant(false)]
+            public void Dispose()
+            {
+                this.mainForm.Enabled = true;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Continuous;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 0;
+            }
+
+            #endregion
+        }
+    }
+}

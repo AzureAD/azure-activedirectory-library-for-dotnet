@@ -264,7 +264,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "login.microsoftonline.com";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -284,7 +284,9 @@ namespace Test.ADAL.NET.Unit
                 SubjectType = TokenSubjectType.Client,
                 ExtendedLifeTimeEnabled = false
             }));
-            await (Task)privateObject.Invoke("SendTokenRequestAsync");
+
+            Task sendTokenRequestTask = (Task)privateObject.Invoke("SendTokenRequestAsync");
+            await sendTokenRequestTask.ConfigureAwait(false);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
@@ -340,7 +342,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "login.microsoftonline.com";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -353,14 +355,14 @@ namespace Test.ADAL.NET.Unit
             });
 
             var handler = new AcquireDeviceCodeHandler(authenticator, "resource1", "clientId", null);
-            await handler.RunHandlerAsync();
+            await handler.RunHandlerAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
 
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
-        public async Task TestInstanceDiscovery_WhenAuthorityIsDsts()
+        public async Task TestInstanceDiscovery_WhenAuthorityIsDstsAsync()
         {
             string host = "uswest-dsts.dsts.core.windows.net/dstsv2";
             for (int i = 0; i < 2; i++) // Prepare 2 mock responses
@@ -407,7 +409,7 @@ namespace Test.ADAL.NET.Unit
             string preferredNetwork = "uswest-dsts.dsts.core.windows.net/dstsv2";
             var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
             AddMockInstanceDiscovery(host);
-            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
+            await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
             {
@@ -427,7 +429,8 @@ namespace Test.ADAL.NET.Unit
                 SubjectType = TokenSubjectType.Client,
                 ExtendedLifeTimeEnabled = false
             }));
-            await (Task)privateObject.Invoke("SendTokenRequestAsync");
+            Task sendTokenRequestTask = (Task)privateObject.Invoke("SendTokenRequestAsync");
+            await sendTokenRequestTask.ConfigureAwait(false);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }

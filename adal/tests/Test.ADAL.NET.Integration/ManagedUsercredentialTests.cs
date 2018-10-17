@@ -102,8 +102,8 @@ namespace Test.ADAL.NET.Integration
 
                 var context = new AuthenticationContext(
                     httpManager,
-                    TestConstants.DefaultAuthorityHomeTenant, 
-                    AuthorityValidationType.True, 
+                    TestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.True,
                     cache);
 
                 Assert.AreEqual(0, context.TokenCache.Count);
@@ -145,7 +145,7 @@ namespace Test.ADAL.NET.Integration
             };
 
             var result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                                                         new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword));
+                                                         new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -198,8 +198,8 @@ namespace Test.ADAL.NET.Integration
 
                 var context = new AuthenticationContext(
                     httpManager,
-                    TestConstants.DefaultAuthorityHomeTenant, 
-                    AuthorityValidationType.True, 
+                    TestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.True,
                     new TokenCache());
 
                 AdalTokenCacheKey key = new AdalTokenCacheKey(
@@ -251,8 +251,8 @@ namespace Test.ADAL.NET.Integration
             {
                 var context = new AuthenticationContext(
                     httpManager,
-                    TestConstants.DefaultAuthorityHomeTenant, 
-                    AuthorityValidationType.True, 
+                    TestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.True,
                     new TokenCache());
 
                 await context.TokenCache.StoreToCacheAsync(

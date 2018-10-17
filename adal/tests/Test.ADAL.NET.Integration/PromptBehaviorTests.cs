@@ -59,7 +59,7 @@ namespace Test.ADAL.NET.Integration
             InstanceDiscovery.InstanceCache.Clear();
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
         }
-        
+
         [TestMethod]
         [Description("Test for PromptBehavior.Auto, prompts only if necessary")]
         public async Task AutoPromptBehaviorTestAsync()
@@ -94,7 +94,7 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
-        
+
         [TestMethod]
         [Description("Test for calling promptBehavior.Auto when cache already has an access token")]
         public async Task AutoPromptBehaviorWithTokenInCacheTestAsync()
@@ -151,7 +151,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -204,7 +204,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -230,7 +230,7 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
-        
+
         [TestMethod]
         [Description("Test for Force Prompt with PromptBehavior.SelectAccount")]
         public async Task ForcePromptForSelectAccountPromptBehaviorTestAsync()
@@ -259,7 +259,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -289,7 +289,7 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
-        
+
         [TestMethod]
         [Description("Test for Force Prompt with PromptBehavior.Never")]
         public void ForcePromptForNeverPromptBehaviorTest()
@@ -322,7 +322,7 @@ namespace Test.ADAL.NET.Integration
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
-        
+
         [TestMethod]
         [Description("Test for Force Prompt with PromptBehavior.RefreshSession")]
         public async Task ForcePromptForRefreshSessionPromptBehaviorTestAsync()
@@ -350,7 +350,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))

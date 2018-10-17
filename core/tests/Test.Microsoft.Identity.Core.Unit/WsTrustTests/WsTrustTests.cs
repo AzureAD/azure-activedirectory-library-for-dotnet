@@ -52,7 +52,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
         [TestMethod]
         [Description("WS-Trust Request Test")]
-        public async Task WsTrustRequestTest()
+        public async Task WsTrustRequestTestAsync()
         {
             string wsTrustAddress = "https://some/address/usernamemixed";
             var endpoint = new WsTrustEndpoint(new Uri(wsTrustAddress), WsTrustVersion.WsTrust13);

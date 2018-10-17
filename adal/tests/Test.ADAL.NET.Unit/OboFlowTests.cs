@@ -100,7 +100,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(new AdalLogger(new Guid())));
+               new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -122,7 +122,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -162,7 +162,7 @@ namespace Test.ADAL.NET.Unit
                     },
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(new AdalLogger(new Guid())));
+               new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -185,7 +185,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -253,7 +253,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion(accessToken, OAuthGrantType.JwtBearer,
-                            "non-existant" + TestConstants.DefaultDisplayableId));
+                            "non-existant" + TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -309,7 +309,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -347,7 +347,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(new AdalLogger(new Guid())));
+               new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -370,7 +370,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion("non-existant" + accessToken));
+                        new UserAssertion("non-existant" + accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -421,7 +421,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -462,7 +462,7 @@ namespace Test.ADAL.NET.Unit
                     UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
                 },
                 TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(new AdalLogger(new Guid())));
+               new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
             ResetInstanceDiscovery();
 
@@ -486,7 +486,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer,
-                            TestConstants.DefaultDisplayableId));
+                            TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -519,7 +519,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(new AdalLogger(new Guid())));
+           new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -540,7 +540,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -577,7 +577,7 @@ namespace Test.ADAL.NET.Unit
                 //cache entry has no user assertion hash
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(new AdalLogger(new Guid())));
+           new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             ClientCredential clientCredential = new ClientCredential(TestConstants.DefaultClientId,
@@ -599,7 +599,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -663,7 +663,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
                         new UserAssertion(accessToken, OAuthGrantType.JwtBearer, displayableId2
-                            ));
+                            )).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -716,7 +716,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -754,7 +754,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(new AdalLogger(new Guid())));
+           new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -776,7 +776,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -828,7 +828,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual(tokenInCache, result.AccessToken);
             Assert.AreEqual(TestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -866,7 +866,7 @@ namespace Test.ADAL.NET.Unit
                 UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
             },
             TestConstants.DefaultAuthorityHomeTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(new AdalLogger(new Guid())));
+           new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(TestConstants.GetTokenEndpoint(TestConstants.DefaultAuthorityHomeTenant))
@@ -888,7 +888,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken));
+                        new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -950,7 +950,7 @@ namespace Test.ADAL.NET.Unit
             var result =
                 await
                     context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId));
+                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
             Assert.IsNotNull(result.AccessToken);
             Assert.AreEqual("some-access-token", result.AccessToken);

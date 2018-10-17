@@ -301,7 +301,7 @@ namespace Test.ADAL.NET.Integration
         public async Task AcquireTokenWithValidTokenInCache_ReturnsCachedTokenTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             AdalTokenCacheKey key = new AdalTokenCacheKey(TestConstants.DefaultAuthorityCommonTenant,
                 TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
@@ -325,7 +325,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserCredential(TestConstants.DefaultDisplayableId));
+                new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -340,7 +340,7 @@ namespace Test.ADAL.NET.Integration
         public async Task IntegratedAuthWithExpiredTokenInCache_UsesRefreshTokenTestAsync()
         {
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            await context.Authenticator.UpdateFromTemplateAsync(null);
+            await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
             await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
             {
@@ -358,7 +358,7 @@ namespace Test.ADAL.NET.Integration
                 },
             },
             TestConstants.DefaultAuthorityCommonTenant, TestConstants.DefaultResource, TestConstants.DefaultClientId, TokenSubjectType.User,
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             ResetInstanceDiscovery();
 
             HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
@@ -373,7 +373,7 @@ namespace Test.ADAL.NET.Integration
 
             // Call acquire token
             AuthenticationResult result = await context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                new UserCredential(TestConstants.DefaultDisplayableId));
+                new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -391,7 +391,7 @@ namespace Test.ADAL.NET.Integration
                 UniqueId = TestConstants.DefaultUniqueId,
                 DisplayableId = TestConstants.DefaultDisplayableId
             },
-            new RequestContext(new AdalLogger(new Guid())));
+            new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
             Assert.AreEqual("some-access-token", entry.Result.AccessToken);
 
             Assert.IsNotNull(result.UserInfo);

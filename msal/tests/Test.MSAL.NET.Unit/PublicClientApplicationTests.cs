@@ -147,7 +147,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task NoStateReturnedTest()
+        public async Task NoStateReturnedTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -197,7 +197,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task DifferentStateReturnedTest()
+        public async Task DifferentStateReturnedTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -241,7 +241,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task AcquireTokenNoClientInfoReturnedTest()
+        public async Task AcquireTokenNoClientInfoReturnedTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -724,7 +724,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task AcquireTokenSilentScopeAndEmptyCacheTest()
+        public async Task AcquireTokenSilentScopeAndEmptyCacheTestAsync()
         {
             PublicClientApplication app =
                 new PublicClientApplication(TestConstants.ClientId)
@@ -755,7 +755,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task AcquireTokenSilentScopeAndUserMultipleTokensFoundTest()
+        public async Task AcquireTokenSilentScopeAndUserMultipleTokensFoundTestAsync()
         {
             PublicClientApplication app =
                 new PublicClientApplication(TestConstants.ClientId)
@@ -1074,7 +1074,7 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("PublicClientApplicationTests")]
         [ExpectedException(typeof(HttpRequestException),
             "Cannot write more bytes to the buffer than the configured maximum buffer size: 1048576.")]
-        public async Task HttpRequestExceptionIsNotSuppressed()
+        public async Task HttpRequestExceptionIsNotSuppressedAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -1102,7 +1102,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("PublicClientApplicationTests")]
-        public async Task AuthUiFailedExceptionTest()
+        public async Task AuthUiFailedExceptionTestAsync()
         {
             _cache.ClientId = TestConstants.ClientId;
             using (var httpManager = new MockHttpManager())
@@ -1319,7 +1319,7 @@ namespace Test.MSAL.NET.Unit
         }
 
         [TestCategory("PublicClientApplicationTests")]
-        public async Task AcquireTokenSilentNullAccountErrorTest()
+        public async Task AcquireTokenSilentNullAccountErrorTestAsync()
         {
             PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId)
             {

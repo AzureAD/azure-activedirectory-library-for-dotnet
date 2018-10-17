@@ -180,7 +180,7 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         [DeploymentItem(@"Resources\WsTrustResponse13.xml", "MsalResource")]
-        public async Task AcquireTokenByIntegratedWindowsAuthTest()
+        public async Task AcquireTokenByIntegratedWindowsAuthTestAsync()
         {
             var ui = new MockWebUI()
             {
@@ -271,7 +271,7 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
         [DeploymentItem(@"Resources\TestMex.xml", "MsalResource")]
         [DeploymentItem(@"Resources\WsTrustResponse.xml", "MsalResource")]
-        public async Task FederatedUsernamePasswordWithSecureStringAcquireTokenTest()
+        public async Task FederatedUsernamePasswordWithSecureStringAcquireTokenTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -773,7 +773,7 @@ namespace Test.MSAL.NET.Unit
 
         [TestMethod]
         [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
-        public async Task ManagedUsernameSecureStringPasswordAcquireTokenTest()
+        public async Task ManagedUsernameSecureStringPasswordAcquireTokenTestAsync()
         {
             using (var httpManager = new MockHttpManager())
             {

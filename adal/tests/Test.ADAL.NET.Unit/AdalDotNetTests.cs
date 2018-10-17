@@ -703,7 +703,7 @@ namespace Test.ADAL.NET.Unit
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, _platformParameters,
-                        new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId));
+                        new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
@@ -1391,7 +1391,7 @@ namespace Test.ADAL.NET.Unit
             browser.DocumentText = htmlResponse;
             browser.Document.Write(htmlResponse);
 
-            // Act 
+            // Act
             string url = WindowsFormsWebAuthenticationDialogBase.GetUrlFromDocument(
                 new Uri("https://mocktest.net/callback"),
                 browser.Document);
