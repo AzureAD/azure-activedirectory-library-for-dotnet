@@ -105,8 +105,9 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
                 this[TenantIdKey] = value != null && _logger.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    ? crypto.CreateBase64UrlEncodedSha256Hash(value)
                     : null;
             }
         }
@@ -115,8 +116,9 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
                 this[UserIdKey] = value != null && _logger.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    ? crypto.CreateBase64UrlEncodedSha256Hash(value)
                     : null;
             }
         }

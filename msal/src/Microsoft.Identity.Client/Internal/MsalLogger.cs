@@ -157,7 +157,21 @@ namespace Microsoft.Identity.Client.Internal
 
             if (Logger.DefaultLoggingEnabled)
             {
-                PlatformPlugin.LogMessage(Logger.Level, log);
+                switch (Logger.Level)
+                {
+                    case LogLevel.Error:
+                        PlatformLogger.Error(log);
+                        break;
+                    case LogLevel.Warning:
+                        PlatformLogger.Warning(log);
+                        break;
+                    case LogLevel.Info:
+                        PlatformLogger.Information(log);
+                        break;
+                    case LogLevel.Verbose:
+                        PlatformLogger.Verbose(log);
+                        break;
+                }
             }
 
             ExecuteCallback(msalLogLevel, log, isLoggingPii);

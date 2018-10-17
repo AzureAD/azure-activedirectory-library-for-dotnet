@@ -30,11 +30,14 @@ using Microsoft.Identity.Core.Platforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
+using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System;
+using Microsoft.Identity.Core.Cache;
 using Windows.ApplicationModel;
 
 namespace Microsoft.Identity.Core
@@ -44,6 +47,13 @@ namespace Microsoft.Identity.Core
     /// </summary>
     internal class UapPlatformProxy : IPlatformProxy
     {
+        private readonly bool _isMsal;
+
+        public UapPlatformProxy(bool isMsal)
+        {
+            _isMsal = isMsal;
+        }
+
         /// <summary>
         /// Get the user logged in to Windows or throws
         /// </summary>
@@ -144,6 +154,51 @@ namespace Microsoft.Identity.Core
             var deviceInformation = new Windows.Security.ExchangeActiveSyncProvisioning.EasClientDeviceInformation();
             return deviceInformation.SystemProductName;
         }
+
+        /// <inheritdoc />
+        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        {
+            if (_isMsal)
+            {
+            }
+            else
+            {
+                // FROM ADAL
+                if (redirectUri == null)
+                {
+                    redirectUri = Constants.SsoPlaceHolderUri;
+                    requestContext.Logger.Verbose("ms-app redirect Uri is used");
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
+        {
+            return ReferenceEquals(redirectUri, Constants.SsoPlaceHolderUri)
+                       ? WebAuthenticationBroker.GetCurrentApplicationCallbackUri().OriginalString
+                       : redirectUri.OriginalString;
+        }
+
+        /// <inheritdoc />
+        public string GetDefaultRedirectUri(string correlationId)
+        {
+            return Constants.DefaultRedirectUri;
+        }
+
+        public string GetProductName()
+        {
+            return _isMsal ? "MSAL.UAP" : "PCL.UAP";
+        }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new UapLegacyCachePersistence(new UapCryptographyManager());
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new UapTokenCacheAccessor(new UapCryptographyManager());
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new UapCryptographyManager();
         public string GetApplicationName()
         {
             return Package.Current.DisplayName;

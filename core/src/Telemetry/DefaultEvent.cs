@@ -35,8 +35,9 @@ namespace Microsoft.Identity.Core.Telemetry
     {
         public DefaultEvent(string clientId, ConcurrentDictionary<string, int> eventCount) : base((string) (EventNamePrefix + "default_event"))
         {
+            var platformProxy = PlatformProxyFactory.GetPlatformProxy();
             this[EventNamePrefix + "client_id"] = clientId;
-            this[EventNamePrefix + "sdk_platform"] = CorePlatformInformationBase.Instance.GetProductName()?.ToLowerInvariant();
+            this[EventNamePrefix + "sdk_platform"] = platformProxy.GetProductName()?.ToLowerInvariant();
             this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
             this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationName()?.ToLowerInvariant();
             this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationVersion()?.ToLowerInvariant();

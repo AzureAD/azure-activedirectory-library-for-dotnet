@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Identity.Core.Realm;
@@ -42,13 +43,13 @@ namespace Microsoft.Identity.Core.WsTrust
         public CommonNonInteractiveHandler(
             RequestContext requestContext,
             IUsernameInput usernameInput,
-            IPlatformProxy platformProxy = null,
-            IWsTrustWebRequestManager wsTrustWebRequestManager = null)
+            IWsTrustWebRequestManager wsTrustWebRequestManager,
+            IPlatformProxy platformProxy = null)
         {
             _requestContext = requestContext;
             _usernameInput = usernameInput;
             _platformProxy = platformProxy ?? PlatformProxyFactory.GetPlatformProxy();
-            _wsTrustWebRequestManager = wsTrustWebRequestManager ?? new WsTrustWebRequestManager();
+            _wsTrustWebRequestManager = wsTrustWebRequestManager;
         }
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace Microsoft.Identity.Core.WsTrust
             }
 
             _requestContext.Logger.InfoPii(
-                $"WS-Trust endpoint '{wsTrustEndpoint.Uri}' being used from MEX at '{federationMetadataUrl}'",
+                string.Format(CultureInfo.InvariantCulture, "WS-Trust endpoint '{0}' being used from MEX at '{1}'", wsTrustEndpoint.Uri, federationMetadataUrl),
                 "Fetched and parsed MEX");
 
             WsTrustResponse wsTrustResponse = await GetWsTrustResponseAsync(

@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -32,16 +33,13 @@ namespace Microsoft.Identity.Core.Helpers
 {
     internal class StringWriterWithEncoding : StringWriter
     {
-        private readonly Encoding encoding;
 
         public StringWriterWithEncoding(Encoding encoding)
+            : base(CultureInfo.InvariantCulture)
         {
-            this.encoding = encoding;
+            Encoding = encoding;
         }
 
-        public override Encoding Encoding
-        {
-            get { return encoding; }
-        }
+        public override Encoding Encoding { get; }
     }
 }
