@@ -95,21 +95,8 @@ namespace Test.MSAL.NET.Unit
 
                 MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                                                                            app.RedirectUri + "?code=some-code"));
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityHomeTenant);
+                httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 AuthenticationResult result = app.AcquireTokenAsync(TestConstants.Scope).Result;
                 Assert.IsNotNull(result);

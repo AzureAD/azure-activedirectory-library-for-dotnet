@@ -25,6 +25,13 @@
 // 
 // ------------------------------------------------------------------------------
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 namespace Test.Microsoft.Identity.Core.Unit.Mocks
 {
     internal static class MockHttpManagerExtensions
@@ -37,6 +44,107 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
         public static void AddInstanceDiscoveryMockHandler(this MockHttpManager httpManager, string url)
         {
             httpManager.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(url)));
+        }
+
+        public static void AddSuccessTokenResponseMockHandlerForPost(
+            this MockHttpManager httpManager,
+            IDictionary<string, string> bodyParameters = null,
+            IDictionary<string, string> queryParameters = null)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Method = HttpMethod.Post,
+                    PostData = bodyParameters,
+                    QueryParams = queryParameters,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+        }
+
+        public static void AddSuccessTokenResponseMockHandlerForGet(
+            this MockHttpManager httpManager,
+            IDictionary<string, string> bodyParameters = null,
+            IDictionary<string, string> queryParameters = null)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Method = HttpMethod.Get,
+                    PostData = bodyParameters,
+                    QueryParams = queryParameters,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+        }
+
+        public static void AddResiliencyMessageMockHandler(
+            this MockHttpManager httpManager,
+            HttpMethod httpMethod,
+            HttpStatusCode httpStatusCode)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Method = httpMethod,
+                    ResponseMessage = MockHelpers.CreateResiliencyMessage(httpStatusCode)
+                });
+        }
+
+        public static void AddRequestTimeoutResponseMessageMockHandler(this MockHttpManager httpManager, HttpMethod httpMethod)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Method = httpMethod,
+                    ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
+                    ExceptionToThrow = new TaskCanceledException("request timed out")
+                });
+        }
+
+        public static void AddMockHandlerForTenantEndpointDiscovery(this MockHttpManager httpManager, string authority, string qp = "")
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(authority, qp)
+                });
+        }
+
+        public static void AddMockHandlerContentNotFound(this MockHttpManager httpManager, HttpMethod httpMethod, string url = "")
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Url = url,
+                    Method = httpMethod,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("Not found")
+                    }
+                });
+        }
+
+        public static void AddMockHandlerSuccessfulClientCredentialTokenResponseMessage(this MockHttpManager httpManager)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler()
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
+                });
+        }
+
+        public static void AddMockHandlerTooLargeGetResponse(this MockHttpManager httpManager)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(new string(new char[1048577]))
+                    }
+                });
         }
     }
 }

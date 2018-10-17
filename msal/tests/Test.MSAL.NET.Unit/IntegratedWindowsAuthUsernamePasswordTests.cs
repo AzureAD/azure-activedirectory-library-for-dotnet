@@ -71,23 +71,8 @@ namespace Test.MSAL.NET.Unit
             secureString = str;
         }
 
-        internal void AddMockResponseForFederatedAccounts(MockHttpManager httpManager)
+        private void AddMockHandlerDefaultUserRealmDiscovery(MockHttpManager httpManager)
         {
-            var ui = new MockWebUI()
-            {
-                MockResult = new AuthorizationResult(
-                    AuthorizationStatus.Success,
-                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
-            };
-
-            //add mock response for tenant endpoint discovery
-            httpManager.AddMockHandler(
-                new MockHttpMessageHandler
-                {
-                    Method = HttpMethod.Get,
-                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                });
-
             // user realm discovery
             httpManager.AddMockHandler(
                 new MockHttpMessageHandler
@@ -103,7 +88,10 @@ namespace Test.MSAL.NET.Unit
                             ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                     }
                 });
+        }
 
+        private void AddMockHandlerMex(MockHttpManager httpManager)
+        {
             // MEX
             httpManager.AddMockHandler(
                 new MockHttpMessageHandler
@@ -115,8 +103,10 @@ namespace Test.MSAL.NET.Unit
                         Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
                     }
                 });
+        }
 
-            // WsTrust
+        private void AddMockHandlerWsTrustUserName(MockHttpManager httpManager)
+        {
             httpManager.AddMockHandler(
                 new MockHttpMessageHandler
                 {
@@ -127,12 +117,28 @@ namespace Test.MSAL.NET.Unit
                         Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse.xml"))
                     }
                 });
+        }
 
-            // AAD
+        private void AddMockHandlerWsTrustWindowsTransport(MockHttpManager httpManager)
+        {
             httpManager.AddMockHandler(
                 new MockHttpMessageHandler
                 {
-                    Url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/token",
+                    Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
+                    Method = HttpMethod.Post,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
+                    }
+                });
+        }
+
+        private void AddMockHandlerAadSuccess(MockHttpManager httpManager, string authority)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Url = authority + "oauth2/v2.0/token",
                     Method = HttpMethod.Post,
                     PostData = new Dictionary<string, string>()
                     {
@@ -143,15 +149,25 @@ namespace Test.MSAL.NET.Unit
                 });
         }
 
+        internal void AddMockResponseForFederatedAccounts(MockHttpManager httpManager)
+        {
+            var ui = new MockWebUI()
+            {
+                MockResult = new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    TestConstants.AuthorityOrganizationsTenant + "?code=some-code")
+            };
+
+            httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
+            AddMockHandlerDefaultUserRealmDiscovery(httpManager);
+            AddMockHandlerMex(httpManager);
+            AddMockHandlerWsTrustUserName(httpManager);
+            AddMockHandlerAadSuccess(httpManager, TestConstants.AuthorityOrganizationsTenant);
+        }
+
         private void AddMockResponseforManagedAccounts(MockHttpManager httpManager)
         {
-            //add mock response for tenant endpoint discovery
-            httpManager.AddMockHandler(
-                new MockHttpMessageHandler
-                {
-                    Method = HttpMethod.Get,
-                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                });
+            httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
 
             // user realm discovery
             httpManager.AddMockHandler(
@@ -193,67 +209,11 @@ namespace Test.MSAL.NET.Unit
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
-
-                // MEX
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                        }
-                    });
-
-                // WsTrust
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
-                        Method = HttpMethod.Post,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse13.xml"))
-                        }
-                    });
-
-                // AAD
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://login.microsoftonline.com/home/oauth2/v2.0/token",
-                        Method = HttpMethod.Post,
-                        PostData = new Dictionary<string, string>()
-                        {
-                            {"grant_type", "urn:ietf:params:oauth:grant-type:saml1_1-bearer"},
-                            {"scope", "offline_access openid profile r1/scope1 r1/scope2"}
-                        },
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityHomeTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
+                AddMockHandlerMex(httpManager);
+                AddMockHandlerWsTrustWindowsTransport(httpManager);
+                AddMockHandlerAadSuccess(httpManager, TestConstants.AuthorityHomeTenant);
 
                 var app =
                     new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
@@ -308,31 +268,8 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage =
-                            MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
 
                 // MEX
                 httpManager.AddMockHandler(
@@ -352,7 +289,7 @@ namespace Test.MSAL.NET.Unit
                     UserTokenCache = cache
                 };
 
-                // Call aquire token, Mex parser fails
+                // Call acquire token, Mex parser fails
                 var result = AssertException.TaskThrows<MsalException>(
                     async () => await app.AcquireTokenByUsernamePasswordAsync(
                                     TestConstants.Scope,
@@ -383,55 +320,12 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage =
-                            MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
-
-                // MEX
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                        }
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
+                AddMockHandlerMex(httpManager);
 
                 // Mex does not return integrated auth endpoint (../13/windowstransport)
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
-                        Method = HttpMethod.Post,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
-                        {
-                            Content = new StringContent("Not found")
-                        }
-                    });
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Post, url: "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport");
 
                 cache.ClientId = TestConstants.ClientId;
                 var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
@@ -439,7 +333,7 @@ namespace Test.MSAL.NET.Unit
                     UserTokenCache = cache
                 };
 
-                // Call aquire token, endpoint not found
+                // Call acquire token, endpoint not found
                 var result = AssertException.TaskThrows<MsalException>(
                     async () => await app.AcquireTokenByUsernamePasswordAsync(
                                     TestConstants.Scope,
@@ -468,43 +362,11 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage =
-                            MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
 
                 // MEX
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
-                        {
-                            Content = new StringContent("Not Found")
-                        }
-                    });
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Get, url: "https://msft.sts.microsoft.com/adfs/services/trust/mex");
 
                 cache.ClientId = TestConstants.ClientId;
                 var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
@@ -512,7 +374,7 @@ namespace Test.MSAL.NET.Unit
                     UserTokenCache = cache
                 };
 
-                // Call aquire token
+                // Call acquire token
                 var result = AssertException.TaskThrows<MsalException>(
                     async () => await app.AcquireTokenByUsernamePasswordAsync(
                                     TestConstants.Scope,
@@ -543,55 +405,12 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage =
-                            MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityOrganizationsTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
-
-                // MEX
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                        }
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityOrganizationsTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
+                AddMockHandlerMex(httpManager);
 
                 // Mex does not return integrated auth endpoint (.../13/windowstransport)
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport",
-                        Method = HttpMethod.Post,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                        {
-                            Content = new StringContent("Not found")
-                        }
-                    });
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Post, url: "https://msft.sts.microsoft.com/adfs/services/trust/13/windowstransport");
 
                 cache.ClientId = TestConstants.ClientId;
                 var app = new PublicClientApplication(httpManager, TestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
@@ -632,54 +451,10 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityCommonTenant)
-                    });
-
-                // user realm discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"federated\",\"domain_name\":\"microsoft.com\"," +
-                                "\"federation_protocol\":\"WSTrust\",\"federation_metadata_url\":" +
-                                "\"https://msft.sts.microsoft.com/adfs/services/trust/mex\"," +
-                                "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
-                                ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
-                        }
-                    });
-
-                // MEX
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/mex",
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\TestMex.xml"))
-                        }
-                    });
-
-                // WsTrust
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Url = "https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed",
-                        Method = HttpMethod.Post,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(File.ReadAllText(@"MsalResource\WsTrustResponse.xml"))
-                        }
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityCommonTenant);
+                AddMockHandlerDefaultUserRealmDiscovery(httpManager);
+                AddMockHandlerMex(httpManager);
+                AddMockHandlerWsTrustUserName(httpManager);
 
                 // AAD
                 httpManager.AddMockHandler(
@@ -718,14 +493,7 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
-
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityCommonTenant)
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityCommonTenant);
 
                 // user realm discovery
                 httpManager.AddMockHandler(

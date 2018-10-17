@@ -87,15 +87,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
             // TODO: should we move this into a separate test class for WsTrustWebRequestManager?
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
-                        {
-                            Content = new StringContent("Not found")
-                        }
-                    });
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Get);
 
                 try
                 {

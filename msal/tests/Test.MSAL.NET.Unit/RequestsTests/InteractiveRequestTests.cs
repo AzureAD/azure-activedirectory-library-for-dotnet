@@ -173,12 +173,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             {
                 RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 var parameters = new AuthenticationRequestParameters
                 {

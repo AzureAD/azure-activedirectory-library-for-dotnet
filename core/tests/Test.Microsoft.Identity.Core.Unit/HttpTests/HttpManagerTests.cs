@@ -56,12 +56,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 var response = httpManager.SendPostAsync(
                     new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
@@ -92,14 +87,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        PostData = bodyParameters,
-                        QueryParams = queryParams,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddSuccessTokenResponseMockHandlerForPost(bodyParameters, queryParams);
 
                 var response = httpManager.SendPostAsync(
                     new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
@@ -125,13 +113,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        QueryParams = queryParams,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddSuccessTokenResponseMockHandlerForGet(queryParameters: queryParams);
 
                 var response = httpManager.SendGetAsync(
                     new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token?key1=qp1&key2=qp2"),
@@ -150,19 +132,8 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.InternalServerError),
-                    });
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Get, HttpStatusCode.GatewayTimeout);
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Get, HttpStatusCode.InternalServerError);
 
                 try
                 {
@@ -187,19 +158,8 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.BadGateway)
-                    });
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Post, HttpStatusCode.BadGateway);
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Post, HttpStatusCode.BadGateway);
 
                 var msalHttpResponse = await httpManager.SendPostForceResponseAsync(
                                                             new Uri(TestConstants.AuthorityHomeTenant + "oauth2/token"),
@@ -218,19 +178,8 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.ServiceUnavailable),
-                    });
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Post, HttpStatusCode.GatewayTimeout);
+                httpManager.AddResiliencyMessageMockHandler(HttpMethod.Post, HttpStatusCode.ServiceUnavailable);
 
                 try
                 {
@@ -256,21 +205,8 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                        ExceptionToThrow = new TaskCanceledException("request timed out")
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                        ExceptionToThrow = new TaskCanceledException("request timed out")
-                    });
+                httpManager.AddRequestTimeoutResponseMessageMockHandler(HttpMethod.Get);
+                httpManager.AddRequestTimeoutResponseMessageMockHandler(HttpMethod.Get);
 
                 try
                 {
@@ -296,21 +232,8 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                        ExceptionToThrow = new TaskCanceledException("request timed out")
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateRequestTimeoutResponseMessage(),
-                        ExceptionToThrow = new TaskCanceledException("request timed out")
-                    });
+                httpManager.AddRequestTimeoutResponseMessageMockHandler(HttpMethod.Post);
+                httpManager.AddRequestTimeoutResponseMessageMockHandler(HttpMethod.Post);
 
                 try
                 {

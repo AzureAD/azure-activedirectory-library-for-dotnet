@@ -37,14 +37,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public static void MockInstanceDiscoveryAndOpenIdRequest(MockHttpManager mockHttpManager)
         {
             mockHttpManager.AddInstanceDiscoveryMockHandler();
-
-            //add mock response for tenant endpoint discovery
-            mockHttpManager.AddMockHandler(
-                new MockHttpMessageHandler
-                {
-                    Method = HttpMethod.Get,
-                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-                });
+            mockHttpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityHomeTenant);
         }
 
         public static void InitializeRequestTests()

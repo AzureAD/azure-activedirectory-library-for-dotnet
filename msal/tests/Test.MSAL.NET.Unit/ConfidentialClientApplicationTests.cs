@@ -182,20 +182,8 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
+                httpManager.AddMockHandlerSuccessfulClientCredentialTokenResponseMessage();
 
                 Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
                 AuthenticationResult result = task.Result;
@@ -228,20 +216,8 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
+                httpManager.AddMockHandlerSuccessfulClientCredentialTokenResponseMessage();
 
                 Task<AuthenticationResult> task = app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
                 AuthenticationResult result = task.Result;
@@ -292,20 +268,11 @@ namespace Test.MSAL.NET.Unit
                 ValidateAuthority = false
             };
 
-            //add mock response for tenant endpoint discovery
-            httpManager.AddMockHandler(new MockHttpMessageHandler
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-            });
+            httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
 
             for (int i = 0; i < tokenResponses; i++)
             {
-                httpManager.AddMockHandler(new MockHttpMessageHandler()
-                {
-                    Method = HttpMethod.Post,
-                    ResponseMessage = MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage()
-                });
+                httpManager.AddMockHandlerSuccessfulClientCredentialTokenResponseMessage();
             }
             return app;
         }
@@ -424,13 +391,7 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
 
                 Task<Uri> task = app.GetAuthorizationRequestUrlAsync(TestConstants.Scope, TestConstants.DisplayableId, null);
                 Uri uri = task.Result;
@@ -522,13 +483,7 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
 
                 try
                 {
@@ -571,13 +526,7 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
 
                 const string CustomRedirectUri = "custom://redirect-uri";
                 Task<Uri> task = app.GetAuthorizationRequestUrlAsync(
@@ -631,17 +580,8 @@ namespace Test.MSAL.NET.Unit
                 };
 
                 // add mock response bigger than 1MB for Http Client
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(new string(new char[1048577]))
-                        }
-                    });
-
-                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray()).ConfigureAwait(false);
+                httpManager.AddMockHandlerTooLargeGetResponse();
+                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
             }
         }
 
@@ -707,13 +647,7 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(app.Authority)
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(app.Authority);
 
                 //add mock response for successful token retrival
                 const string tokenRetrievedFromNetCall = "token retrieved from network call";
@@ -769,22 +703,8 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                //add mock response for tenant endpoint discovery
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(
-                            TestConstants.AuthorityHomeTenant,
-                            "p=policy")
-                    });
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityHomeTenant, "p=policy");
+                httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 AuthenticationResult result = await app.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.Scope)
                                                        .ConfigureAwait(false);

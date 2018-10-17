@@ -70,12 +70,8 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+                httpManager.AddSuccessTokenResponseMockHandlerForPost();
+
                 OAuth2Client client = new OAuth2Client(httpManager);
                 Task<MsalTokenResponse> task = client.GetTokenAsync(
                     new Uri(TestConstants.AuthorityCommonTenant),

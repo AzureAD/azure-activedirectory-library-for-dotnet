@@ -89,16 +89,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler()
-                    {
-                        Url = uri,
-                        Method = HttpMethod.Post,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
-                        {
-                            Content = new StringContent("Not found")
-                        }
-                    });
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Post, url: uri);
 
                 var requestContext = new RequestContext(new TestLogger(Guid.NewGuid(), null));
                 try
