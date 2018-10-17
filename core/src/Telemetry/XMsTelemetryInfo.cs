@@ -17,7 +17,7 @@ namespace Microsoft.Identity.Core.Telemetry
     {
         public static XMsTelemetryInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
         {
-            if (String.IsNullOrEmpty(headerValue))
+            if (string.IsNullOrEmpty(headerValue))
             {
                 return null;
             }
@@ -41,10 +41,9 @@ namespace Microsoft.Identity.Core.Telemetry
 
                 if (formatMatcher.Count < 1)
                 {
-                    requestContext.Logger.WarningPii(
+                    requestContext.Logger.Warning(
                             string.Format(CultureInfo.InvariantCulture,
-                            "x-ms-clitelem header '{0}' does not match the expected format", headerValue),
-                            "Malformed x-ms-clitelem header");
+                            "x-ms-clitelem header '{0}' does not match the expected format", headerValue));
                     return null;
                 }
 
@@ -61,7 +60,7 @@ namespace Microsoft.Identity.Core.Telemetry
             else
             {
                 requestContext.Logger.Warning(
-                    String.Format(CultureInfo.InvariantCulture,
+                    string.Format(CultureInfo.InvariantCulture,
                     "Header version '{0}' unrecognized", headerVersion));
                 return null;
             }

@@ -41,7 +41,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Appveyor|AnyCPU'">
     <OutputPath>bin\Appveyor\</OutputPath>
   </PropertyGroup>
+  <!-- Properties group for Determining 32bit vs 64bit Architecture -->
+  <PropertyGroup>
+    <CurrentPlatform>x86</CurrentPlatform>
+    <CurrentPlatform Condition="'$(Platform)' == 'x64'">x64</CurrentPlatform>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Applications.Telemetry.Windows, Version=2.0.0.7, Culture=neutral, PublicKeyToken=ffe01d0f25e9b4f1, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\aria-windows-sdk-win32-cs\debug\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Security" />
@@ -77,7 +86,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicClientHandler.cs" />
-    <Compile Include="TelemetryReceiver.cs" />
     <Compile Include="TokenCacheHelper.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

@@ -33,7 +33,7 @@
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Login hint" HorizontalTextAlignment="Center" Margin="5" Font="Bold,13"/>
                     <Switch x:Name="LoginHintSwitch"/>
-                    <Entry x:Name="LoginHintEntry" Text="user@msdevex.onmicrosoft.com" AutomationId="loginHintEntry"/>
+                    <Entry x:Name="LoginHintEntry" Text="santiago@ddobalianoutlook.onmicrosoft.com" AutomationId="loginHintEntry"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">

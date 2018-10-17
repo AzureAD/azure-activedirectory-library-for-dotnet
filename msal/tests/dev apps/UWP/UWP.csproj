@@ -116,6 +116,12 @@
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
+  <!-- Properties group for Determining 32bit vs 64bit Architecture -->
+  <PropertyGroup>
+    <CurrentPlatform>x86</CurrentPlatform>
+    <CurrentPlatform Condition="'$(Platform)' == 'x64'">x64</CurrentPlatform>
+    <CurrentPlatform Condition="'$(Platform)' == 'ARM'">arm</CurrentPlatform>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -153,10 +159,18 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj">
+      <Project>{60117A9B-4BB8-472E-BFFF-52CBF67CA95A}</Project>
+      <Name>Microsoft.Identity.Client</Name>
+    </ProjectReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.0-preview1-26831-02</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Applications.Telemetry.Windows">
+      <HintPath>..\Lib\aria-windows-sdk-uwp-cs\release\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.winmd</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

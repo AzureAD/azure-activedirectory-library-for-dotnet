@@ -39,7 +39,8 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-using Microsoft.Identity.Core.Helpers;
+using Microsoft.Applications.Telemetry.Windows;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace DesktopTestApp
 {
@@ -71,10 +72,11 @@ namespace DesktopTestApp
         }
 
 
-        private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
+        private const string publicClientId = "d2f8c454-8d7d-40c0-af65-a06996e893e4";
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
         private CancellationTokenSource _cancellationTokenSource;
+        private ILogger logger;
 
         public MainForm()
         {
@@ -87,8 +89,9 @@ namespace DesktopTestApp
             userPasswordTextBox.PasswordChar = '*';
 
             LoadSettings();
-            Logger.LogCallback = LogDelegate;
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
+            Microsoft.Identity.Client.Logger.LogCallback = LogDelegate;
+            Telemetry.GetInstance().RegisterReceiver(TelemetryDelegate);
+            logger = LogManager.Initialize(tenantToken: "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507");
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)
@@ -111,6 +114,23 @@ namespace DesktopTestApp
             }
 
             this.BeginInvoke(new MethodInvoker(action));
+        }
+
+        public void TelemetryDelegate(List<Dictionary<string, string>> events)
+        {
+            Console.WriteLine("{0} event(s) received", events.Count);
+            foreach (var e in events)
+            {
+                Console.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
+                var eventData = new EventProperties(e[EventBase.EventNameKey]);
+                foreach (var entry in e)
+                {
+                    eventData.SetProperty(entry.Key, entry.Value);
+                    Console.WriteLine("  {0}: {1}", entry.Key, entry.Value);
+                }
+                logger.LogEvent(eventData);
+            }
+            LogManager.FlushAndTeardown();
         }
 
         public void RefreshUserList()
@@ -461,8 +481,8 @@ namespace DesktopTestApp
             _publicClientHandler.ExtraQueryParams = extraQueryParams.Text;
             Environment.SetEnvironmentVariable("MsalExtraQueryParameter", environmentQP.Text);
 
-            Logger.Level = (LogLevel)Enum.Parse(typeof(LogLevel), (string)logLevel.SelectedItem);
-            Logger.PiiLoggingEnabled = PiiLoggingEnabled.Checked;
+            Microsoft.Identity.Client.Logger.Level = (LogLevel)Enum.Parse(typeof(LogLevel), (string)logLevel.SelectedItem);
+            Microsoft.Identity.Client.Logger.PiiLoggingEnabled = PiiLoggingEnabled.Checked;
         }
 
         #endregion

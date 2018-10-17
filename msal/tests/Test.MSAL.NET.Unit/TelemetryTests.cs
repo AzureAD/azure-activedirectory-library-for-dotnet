@@ -474,7 +474,5 @@ namespace Test.MSAL.NET.Unit
             Assert.AreEqual(2, defaultEvent["cache_event_count"]);
             Assert.AreEqual(0, defaultEvent["ui_event_count"]);
         }
-
-
     }
 }

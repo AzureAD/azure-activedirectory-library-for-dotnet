@@ -9,11 +9,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -34,8 +30,26 @@ namespace UWP
             this.InitializeComponent();
 
             _pca = new PublicClientApplication(ClientID, Authority);
+            Telemetry.GetInstance().RegisterReceiver(TelemetryDelegate);
+            logger = LogManager.Initialize(tenantToken: "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507");
         }
 
+        public void TelemetryDelegate(List<Dictionary<string, string>> events)
+        {
+            Console.WriteLine("{0} event(s) received", events.Count);
+            foreach (var e in events)
+            {
+                Console.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
+                var eventData = new EventProperties(e[EventBase.EventNameKey]);
+                foreach (var entry in e)
+                {
+                    eventData.SetProperty(entry.Key, entry.Value);
+                    Console.WriteLine("  {0}: {1}", entry.Key, entry.Value);
+                }
+                logger.LogEvent(eventData);
+            }
+            LogManager.FlushAndTeardown();
+        }
 
         private async void AcquireTokenIWA_ClickAsync(object sender, RoutedEventArgs e)
         {
