@@ -94,7 +94,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
             Assert.AreEqual(result.AccessToken, "some-access-token");
@@ -123,7 +123,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
             Assert.AreEqual(result.AccessToken, "some-access-token");
@@ -158,7 +158,7 @@ namespace Test.ADAL.NET.Unit
 
             _context.ExtendedLifeTimeEnabled = true;
             AuthenticationResult result =
-            await _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, _platformParameters);
+            await _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.AccessToken);
 
@@ -197,7 +197,7 @@ namespace Test.ADAL.NET.Unit
             });
             _context.ExtendedLifeTimeEnabled = true;
             AuthenticationResult result =
-                    await _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+                    await _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -233,7 +233,7 @@ namespace Test.ADAL.NET.Unit
 
             _context.ExtendedLifeTimeEnabled = true;
             AuthenticationResult result =
-                 await _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+                 await _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
             Assert.IsNull(result.AccessToken);
 
             // There should be one cached entry.
@@ -275,7 +275,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.ExpiresOn <=
@@ -320,7 +320,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId));
+                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.ExpiresOn <=
@@ -356,11 +356,11 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // cache look up
-            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
 
             // Null resource -> error
@@ -399,11 +399,11 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // cache look up
-            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
 
             // Null resource -> error
@@ -437,7 +437,7 @@ namespace Test.ADAL.NET.Unit
 
             _context.ExtendedLifeTimeEnabled = true;
             // cache look up
-            var result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            var result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // There should be one cached entry.
@@ -652,7 +652,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
 
@@ -666,7 +666,7 @@ namespace Test.ADAL.NET.Unit
             result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser);
+                        TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
 
@@ -799,7 +799,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
             Assert.IsNotNull(result.UserInfo);
@@ -844,7 +844,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                        TestConstants.DefaultRedirectUri, _platformParameters);
+                        TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, _context.Authenticator.Authority);
             Assert.AreEqual(result.AccessToken, "some-access-token");
@@ -876,7 +876,7 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result =
                 await
                     _context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri,
-                        certificate, TestConstants.DefaultResource);
+                        certificate, TestConstants.DefaultResource).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
 
@@ -949,7 +949,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             _context = new AuthenticationContext(TestConstants.DefaultAuthorityGuestTenant, cache);
@@ -983,11 +983,11 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // cache look up
-            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential);
+            var result2 = await _context.AcquireTokenAsync(TestConstants.DefaultResource, credential).ConfigureAwait(false);
             Assert.AreEqual(result.AccessToken, result2.AccessToken);
 
             // Null resource -> error
@@ -1036,7 +1036,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion);
+            AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, clientAssertion).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // Null resource -> error
@@ -1081,10 +1081,10 @@ namespace Test.ADAL.NET.Unit
             });
 
             ClientAssertion assertion = new ClientAssertion(TestConstants.DefaultClientId, "some-assertion");
-            AuthenticationResult result = await _context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, TestConstants.DefaultResource);
+            AuthenticationResult result = await _context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, TestConstants.DefaultResource).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
-            result = await _context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, null);
+            result = await _context.AcquireTokenByAuthorizationCodeAsync("some-code", TestConstants.DefaultRedirectUri, assertion, null).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // Empty authorization code -> error
@@ -1161,7 +1161,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            var result = await _context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
+            var result = await _context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // All mocks are consumed
@@ -1214,7 +1214,7 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            var result = await _context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken));
+            var result = await _context.AcquireTokenAsync(TestConstants.AnotherResource, clientCredential, new UserAssertion(accessToken)).ConfigureAwait(false);
             Assert.IsNotNull(result.AccessToken);
 
             // All mocks are consumed
@@ -1233,16 +1233,16 @@ namespace Test.ADAL.NET.Unit
                 _context.GetAuthorizationRequestUrlAsync(null, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123"));
             Assert.AreEqual(ex.ParamName, "resource");
 
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("login_hint"));
             Assert.IsTrue(uri.AbsoluteUri.Contains("extra=123"));
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, UserIdentifier.AnyUser, null);
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, UserIdentifier.AnyUser, null).ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsFalse(uri.AbsoluteUri.Contains("login_hint"));
             Assert.IsFalse(uri.AbsoluteUri.Contains("client-request-id="));
             _context.CorrelationId = Guid.NewGuid();
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("client-request-id="));
         }
@@ -1258,19 +1258,19 @@ namespace Test.ADAL.NET.Unit
                 _context.GetAuthorizationRequestUrlAsync(null, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123", "some"));
             Assert.AreEqual(ex.ParamName, "resource");
 
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123", "some");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123", "some").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("login_hint"));
             Assert.IsTrue(uri.AbsoluteUri.Contains("extra=123"));
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, UserIdentifier.AnyUser, null, "some");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, UserIdentifier.AnyUser, null, "some").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsFalse(uri.AbsoluteUri.Contains("login_hint"));
             Assert.IsFalse(uri.AbsoluteUri.Contains("client-request-id="));
             _context.CorrelationId = Guid.NewGuid();
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra", "some");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra", "some").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("client-request-id="));
-            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123", "some");
+            uri = await _context.GetAuthorizationRequestUrlAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId, TestConstants.DefaultRedirectUri, new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId), "extra=123", "some").ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("claims"));
         }
@@ -1363,7 +1363,7 @@ namespace Test.ADAL.NET.Unit
             try
             {
                 AuthenticationResult result = await _context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
-                                              TestConstants.DefaultRedirectUri, _platformParameters);
+                                              TestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (Exception ex)

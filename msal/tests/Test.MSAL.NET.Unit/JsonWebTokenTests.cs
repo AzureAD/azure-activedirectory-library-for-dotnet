@@ -135,7 +135,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddMockHandler(X5CMockHandler);
                 AuthenticationResult result =
                     await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(
-                        TestConstants.Scope);
+                        TestConstants.Scope).ConfigureAwait(false);
                 Assert.IsNotNull(result.AccessToken);
 
                 //Check for empty x5c claim
@@ -144,7 +144,7 @@ namespace Test.MSAL.NET.Unit
                 // test was NOT validating that all mock queues were empty before...
                 // httpManager.AddMockHandler(EmptyX5CMockHandler);
 
-                result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
+                result = await app.AcquireTokenForClientAsync(TestConstants.Scope).ConfigureAwait(false);
                 Assert.IsNotNull(result.AccessToken);
             }
         }
@@ -178,7 +178,7 @@ namespace Test.MSAL.NET.Unit
                 AuthenticationResult result =
                     await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenOnBehalfOfWithCertificateAsync(
                         TestConstants.Scope,
-                        userAssertion);
+                        userAssertion).ConfigureAwait(false);
                 Assert.IsNotNull(result.AccessToken);
 
                 //Check for empty x5c claim
@@ -186,7 +186,7 @@ namespace Test.MSAL.NET.Unit
                 // but this mock is not being called.
                 // test was NOT validating that all mock queues were empty before...
                 // httpManager.AddMockHandler(EmptyX5CMockHandler);
-                result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion);
+                result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion).ConfigureAwait(false);
                 Assert.IsNotNull(result.AccessToken);
             }
         }

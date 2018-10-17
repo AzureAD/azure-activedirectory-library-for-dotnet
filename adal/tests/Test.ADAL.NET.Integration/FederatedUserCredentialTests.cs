@@ -80,7 +80,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -139,7 +139,7 @@ namespace Test.ADAL.NET.Integration
                                                   TestConstants.DefaultClientId,
                                                   new UserPasswordCredential(
                                                       TestConstants.DefaultDisplayableId,
-                                                      TestConstants.DefaultPassword));
+                                                      TestConstants.DefaultPassword)).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -164,7 +164,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -221,7 +221,7 @@ namespace Test.ADAL.NET.Integration
                 AuthenticationResult result = await context.AcquireTokenAsync(
                                                   TestConstants.DefaultResource,
                                                   TestConstants.DefaultClientId,
-                                                  new UserCredential(TestConstants.DefaultDisplayableId));
+                                                  new UserCredential(TestConstants.DefaultDisplayableId)).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -247,7 +247,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -412,7 +412,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -474,7 +474,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -547,7 +547,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultAuthorityCommonTenant,
                     AuthorityValidationType.NotProvided,
                     new TokenCache());
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()

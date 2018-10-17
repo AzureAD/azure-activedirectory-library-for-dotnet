@@ -100,7 +100,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
                 try
                 {
                     var wsTrustWebRequestHandler = new WsTrustWebRequestManager(httpManager);
-                    await wsTrustWebRequestHandler.GetMexDocumentAsync("http://somehost", requestContext);
+                    await wsTrustWebRequestHandler.GetMexDocumentAsync("http://somehost", requestContext).ConfigureAwait(false);
                     Assert.Fail("We expect an exception to be thrown here");
                 }
                 catch (TestException ex)

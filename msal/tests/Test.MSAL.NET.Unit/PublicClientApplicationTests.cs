@@ -177,7 +177,7 @@ namespace Test.MSAL.NET.Unit
 
                 try
                 {
-                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
+                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope).ConfigureAwait(false);
                     Assert.Fail("API should have failed here");
                 }
                 catch (MsalClientException exc)
@@ -228,7 +228,7 @@ namespace Test.MSAL.NET.Unit
 
                 try
                 {
-                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
+                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope).ConfigureAwait(false);
                     Assert.Fail("API should have failed here");
                 }
                 catch (MsalClientException exc)
@@ -1096,7 +1096,7 @@ namespace Test.MSAL.NET.Unit
                         }
                     });
 
-                await app.AcquireTokenAsync(TestConstants.Scope.ToArray());
+                await app.AcquireTokenAsync(TestConstants.Scope.ToArray()).ConfigureAwait(false);
             }
         }
 
@@ -1133,12 +1133,12 @@ namespace Test.MSAL.NET.Unit
                         ExceptionToThrow = new MsalClientException(
                             MsalClientException.AuthenticationUiFailedError,
                             "Failed to invoke webview",
-                            new Exception("some-inner-Exception"))
+                            new InvalidOperationException("some-inner-Exception"))
                     });
 
                 try
                 {
-                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope);
+                    AuthenticationResult result = await app.AcquireTokenAsync(TestConstants.Scope).ConfigureAwait(false);
                     Assert.Fail("API should have failed here");
                 }
                 catch (MsalClientException exc)

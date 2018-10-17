@@ -301,7 +301,7 @@ namespace Test.ADAL.NET.Unit
                 string preferredNetwork = "login.microsoftonline.com";
                 var authenticator = new Authenticator($"https://{host}/contoso.com/", false);
                 AddMockInstanceDiscovery(host);
-                await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid())));
+                await authenticator.UpdateFromTemplateAsync(new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
@@ -330,7 +330,7 @@ namespace Test.ADAL.NET.Unit
                         requestData,
                         new UsernamePasswordInput("johndoe@contoso.com", "fakepassword")));
 
-                await (Task)privateObject.Invoke("PreTokenRequestAsync");
+                await ((Task)privateObject.Invoke("PreTokenRequestAsync")).ConfigureAwait(false);
             }
         }
 

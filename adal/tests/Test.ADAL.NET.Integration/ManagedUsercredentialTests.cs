@@ -111,7 +111,7 @@ namespace Test.ADAL.NET.Integration
                 var result = await context.AcquireTokenAsync(
                                  TestConstants.DefaultResource,
                                  TestConstants.DefaultClientId,
-                                 new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword));
+                                 new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword)).ConfigureAwait(false);
                 Assert.IsNotNull(result);
                 Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -223,7 +223,7 @@ namespace Test.ADAL.NET.Integration
                 var result = await context.AcquireTokenAsync(
                                  TestConstants.DefaultResource,
                                  TestConstants.DefaultClientId,
-                                 new UserPasswordCredential("user2@id.com", TestConstants.DefaultPassword));
+                                 new UserPasswordCredential("user2@id.com", TestConstants.DefaultPassword)).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
@@ -276,7 +276,7 @@ namespace Test.ADAL.NET.Integration
                     TestConstants.DefaultResource,
                     TestConstants.DefaultClientId,
                     TokenSubjectType.User,
-                    new RequestContext(new AdalLogger(new Guid())));
+                    new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
                 ResetInstanceDiscovery();
 
                 AdalHttpMessageHandlerFactory.AddMockHandler(
@@ -294,7 +294,7 @@ namespace Test.ADAL.NET.Integration
                 var result = await context.AcquireTokenAsync(
                                  TestConstants.DefaultResource,
                                  TestConstants.DefaultClientId,
-                                 new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword));
+                                 new UserPasswordCredential(TestConstants.DefaultDisplayableId, TestConstants.DefaultPassword)).ConfigureAwait(false);
 
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
@@ -312,7 +312,7 @@ namespace Test.ADAL.NET.Integration
                                     UniqueId = TestConstants.DefaultUniqueId,
                                     DisplayableId = TestConstants.DefaultDisplayableId
                                 },
-                                new RequestContext(new AdalLogger(new Guid())));
+                                new RequestContext(new AdalLogger(new Guid()))).ConfigureAwait(false);
                 Assert.AreEqual("some-access-token", entry.Result.AccessToken);
 
                 // There should be one cached entry.
@@ -375,7 +375,7 @@ namespace Test.ADAL.NET.Integration
                     AuthorityValidationType.NotProvided,
                     TokenCache.DefaultShared);
 
-                await context.Authenticator.UpdateFromTemplateAsync(null);
+                await context.Authenticator.UpdateFromTemplateAsync(null).ConfigureAwait(false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler(

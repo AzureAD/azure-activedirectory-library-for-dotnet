@@ -80,8 +80,10 @@ namespace Test.ADAL.NET.Integration
             var context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.Auto));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
@@ -114,8 +116,10 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.Auto));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual("existing-access-token", result.AccessToken);
@@ -166,9 +170,11 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenSilentAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                     new UserIdentifier(TestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId),
                     new PlatformParameters(PromptBehavior.Auto));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -219,8 +225,10 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.Always));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
@@ -274,8 +282,10 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.SelectAccount));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual(TestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
@@ -365,8 +375,10 @@ namespace Test.ADAL.NET.Integration
 
             AuthenticationResult result =
                 await
+#pragma warning disable UseConfigureAwait // Use ConfigureAwait
                     context.AcquireTokenAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId,
                         TestConstants.DefaultRedirectUri, new PlatformParameters(PromptBehavior.RefreshSession));
+#pragma warning restore UseConfigureAwait // Use ConfigureAwait
 
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);

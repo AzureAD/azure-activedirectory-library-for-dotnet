@@ -165,7 +165,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     parameters,
                     async result =>
                     {
-                        await Task.Delay(200, CancellationToken.None);
+                        await Task.Delay(200, CancellationToken.None).ConfigureAwait(false);
                         actualDeviceCodeResult = result;
                     });
 

@@ -146,7 +146,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
-        public async Task TestSendGetWithHttp500TypeFailure()
+        public async Task TestSendGetWithHttp500TypeFailureAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -183,7 +183,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
-        public async Task TestSendGetWithHttp500TypeFailure2()
+        public async Task TestSendGetWithHttp500TypeFailure2Async()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -214,7 +214,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
-        public async Task TestSendPostWithHttp500TypeFailure()
+        public async Task TestSendPostWithHttp500TypeFailureAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -252,7 +252,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
-        public async Task TestSendGetWithRetryOnTimeoutFailure()
+        public async Task TestSendGetWithRetryOnTimeoutFailureAsync()
         {
             using (var httpManager = new MockHttpManager())
             {
@@ -292,7 +292,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
 
         [TestMethod]
         [TestCategory("HttpManagerTests")]
-        public async Task TestSendPostWithRetryOnTimeoutFailure()
+        public async Task TestSendPostWithRetryOnTimeoutFailureAsync()
         {
             using (var httpManager = new MockHttpManager())
             {

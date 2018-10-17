@@ -100,7 +100,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Task.Run(
                     async () =>
                     {
-                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
@@ -135,7 +135,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Task.Run(
                     async () =>
                     {
-                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
@@ -189,7 +189,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
                                 null,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("validation should have failed here");
                 }
@@ -232,7 +232,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
                                 null,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("validation should have failed here");
                 }
@@ -270,7 +270,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
                                 null,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("validation should have failed here");
                 }

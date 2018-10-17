@@ -641,7 +641,7 @@ namespace Test.MSAL.NET.Unit
                         }
                     });
 
-                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray()).ConfigureAwait(false);
             }
         }
 
@@ -725,7 +725,7 @@ namespace Test.MSAL.NET.Unit
                             MockHelpers.CreateSuccessfulClientCredentialTokenResponseMessage(tokenRetrievedFromNetCall)
                     });
 
-                var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true);
+                var result = await app.AcquireTokenForClientAsync(TestConstants.Scope, true).ConfigureAwait(false);
                 Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
 
                 // make sure token in Cache was updated
