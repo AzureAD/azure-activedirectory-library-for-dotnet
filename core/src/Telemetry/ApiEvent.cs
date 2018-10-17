@@ -151,8 +151,10 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public string LoginHint
         {
-            set { this[LoginHintKey] = value != null && _logger.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+            set {
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+                this[LoginHintKey] = value != null && _logger.PiiLoggingEnabled
+                    ? crypto.CreateBase64UrlEncodedSha256Hash(value)
                     : null;
             }
         }

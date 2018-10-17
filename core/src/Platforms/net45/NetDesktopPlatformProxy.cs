@@ -33,6 +33,7 @@ using System.Text;
 using System.Security.Principal;
 using Microsoft.Identity.Core.Platforms;
 using Microsoft.Identity.Core.Cache;
+using System.Reflection;
 
 namespace Microsoft.Identity.Core
 {
@@ -202,6 +203,22 @@ namespace Microsoft.Identity.Core
         public string GetProductName()
         {
             return _isMsal ? "MSAL.Desktop" : "PCL.Desktop";
+        }
+
+        public string GetApplicationName()
+        {
+            return Assembly.GetEntryAssembly().GetName().Name.ToString();
+        }
+
+        public string GetApplicationVersion()
+        {
+            return Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        public string GetDeviceId()
+        {
+            // TODO: Find a good unique Identifier
+            return null;
         }
 
         /// <inheritdoc />
