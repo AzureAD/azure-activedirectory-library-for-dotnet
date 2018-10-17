@@ -402,17 +402,27 @@ namespace Microsoft.Identity.Client
                         MsalErrorMessage.MultipleTokensMatched);
                 }
 
-                if (msalAccessTokenCacheItem != null && msalAccessTokenCacheItem.ExpiresOn >
-                    DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
-                {
-                    requestParams.RequestContext.Logger.Info("Access token is not expired. Returning the found cache entry..");
-                    return msalAccessTokenCacheItem;
-                }
-
                 if (msalAccessTokenCacheItem != null)
                 {
-                    requestParams.RequestContext.Logger.Info("Access token has expired or about to expire. Current time (" + DateTime.UtcNow +
-                          ") - Expiration Time (" + msalAccessTokenCacheItem.ExpiresOn + ")");
+                    if (msalAccessTokenCacheItem.ExpiresOn >
+                        DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
+                    {
+                        requestParams.RequestContext.Logger.Info(
+                            "Access token is not expired. Returning the found cache entry..");
+                        return msalAccessTokenCacheItem;
+                    }
+
+                    if (requestParams.IsExtendedLifeTimeEnabled && msalAccessTokenCacheItem.ExtendedExpiresOn >
+                        DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
+                    {
+                        requestParams.RequestContext.Logger.Info(
+                            "Access token is expired.  IsExtendedLifeTimeEnabled=TRUE and ExtendedExpiresOn is not exceeded.  Returning the found cache entry.");
+                        return msalAccessTokenCacheItem;
+                    }
+
+                    requestParams.RequestContext.Logger.Info(
+                        "Access token has expired or about to expire. Current time (" + DateTime.UtcNow +
+                        ") - Expiration Time (" + msalAccessTokenCacheItem.ExpiresOn + ")");
                 }
 
                 return null;

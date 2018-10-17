@@ -47,7 +47,6 @@ namespace Microsoft.Identity.Client
         private readonly MsalAccessTokenCacheItem _msalAccessTokenCacheItem;
         private readonly MsalIdTokenCacheItem _msalIdTokenCacheItem;
 
-
         internal AuthenticationResult()
         {
         }
@@ -69,6 +68,11 @@ namespace Microsoft.Identity.Client
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
 
         /// <summary>
+        /// 
+        /// </summary>
+        public bool IsExtendedLifeTimeToken { get; internal set; }
+
+        /// <summary>
         /// Gets the Unique Id of the account. It can be null. When the <see cref="IdToken"/> is not <c>null</c>, this is its ID, that
         /// is its ObjectId claim, or if that claim is <c>null</c>, the Subject claim.
         /// </summary>
@@ -80,6 +84,11 @@ namespace Microsoft.Identity.Client
         /// service.
         /// </summary>
         public virtual DateTimeOffset ExpiresOn => _msalAccessTokenCacheItem.ExpiresOn;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual DateTimeOffset ExtendedExpiresOn => _msalAccessTokenCacheItem.ExtendedExpiresOn;
 
         /// <summary>
         /// Gets an identifier for the Azure AD tenant from which the token was acquired. This property will be null if tenant information is

@@ -570,6 +570,7 @@ namespace Test.MSAL.NET.Unit
                     TestConstants.Utid,
                     null,
                     new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(3600)),
+                    new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(7200)),
                     MockHelpers.CreateClientInfo());
 
                 atItem.Secret = atItem.GetKey().ToString();

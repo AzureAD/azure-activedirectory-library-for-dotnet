@@ -46,13 +46,13 @@ namespace Microsoft.Identity.Core.Cache
             (string environment, string clientId, MsalTokenResponse response, string tenantId) :
 
             this(environment, clientId, response.TokenType, ScopeHelper.ConvertStringToLowercaseSortedSet(response.Scope).AsSingleString(),
-                 tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.ClientInfo)
+                 tenantId, response.AccessToken, response.AccessTokenExpiresOn, response.AccessTokenExtendedExpiresOn, response.ClientInfo)
         {
         }
 
         internal MsalAccessTokenCacheItem
             (string environment, string clientId, string tokenType, string scopes,
-             string tenantId, string secret, DateTimeOffset accessTokenExpiresOn, string rawClientInfo) : this()
+             string tenantId, string secret, DateTimeOffset accessTokenExpiresOn, DateTimeOffset accessTokenExtendedExpiresOn, string rawClientInfo) : this()
         {
             Environment = environment;
             ClientId = clientId;
@@ -61,6 +61,7 @@ namespace Microsoft.Identity.Core.Cache
             TenantId = tenantId;
             Secret = secret;
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
+            ExtendedExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExtendedExpiresOn);
             CachedAt = CoreHelpers.CurrDateTimeInUnixTimestamp();
             RawClientInfo = rawClientInfo;
 
@@ -83,33 +84,33 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "expires_on", IsRequired = true)]
         internal long ExpiresOnUnixTimestamp { get; set; }
 
+        [DataMember(Name = "extended_expires_on")]
+        internal long ExtendedExpiresOnUnixTimestamp { get; set; }
+
         [DataMember(Name = "user_assertion_hash")]
         public string UserAssertionHash { get; set; }
 
         [DataMember(Name = "access_token_type")]
         internal string TokenType { get; set; }
 
-        internal string Authority
-        {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
-            }
-        }
+        internal string Authority => string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
+        internal SortedSet<string> ScopeSet => ScopeHelper.ConvertStringToLowercaseSortedSet(NormalizedScopes);
 
-        internal SortedSet<string> ScopeSet
-        {
-            get
-            {
-                return ScopeHelper.ConvertStringToLowercaseSortedSet(NormalizedScopes);
-            }
-        }
         internal DateTimeOffset ExpiresOn
         {
             get
             {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                 return dtDateTime.AddSeconds(ExpiresOnUnixTimestamp).ToUniversalTime();
+            }
+        }
+
+        internal DateTimeOffset ExtendedExpiresOn
+        {
+            get
+            {
+                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                return dtDateTime.AddSeconds(ExtendedExpiresOnUnixTimestamp).ToUniversalTime();
             }
         }
 
