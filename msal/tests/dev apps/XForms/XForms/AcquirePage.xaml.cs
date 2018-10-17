@@ -222,7 +222,7 @@ namespace XForms
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
             var users = await tokenCache.GetAccountsAsync
-                (new PlatformInformation(), App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(true);
+                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(true);
             foreach (var user in users)
             {
                 await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(true);
