@@ -72,7 +72,7 @@ namespace Test.MSAL.NET.UIAutomation
         }
 
         /// <summary>
-        /// Runs through the standard acquire token flow
+        /// Runs through the standard acquire token silent flow
         /// </summary>
         [Test]
         public void AcquireTokenSilentTest()

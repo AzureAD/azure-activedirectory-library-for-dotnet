@@ -45,7 +45,7 @@ namespace Test.MSAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
         {
-            AcquireTokenInteractivly(controller, userParams);
+            AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
@@ -56,27 +56,27 @@ namespace Test.MSAL.NET.UIAutomation
         public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             //acquire token for 1st resource
-            AcquireTokenInteractivly(controller, userParams);
+            AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
 
             //acquire token for 2nd resource with refresh token
-            SetInputData(controller, UiTestConstants.UIAutomationAppV2, UiTestConstants.DefaultScope);
-            controller.Tap(UiTestConstants.AcquireTokenSilentID);
+            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        private static void AcquireTokenInteractivly(ITestController controller, UserQueryParameters userParams)
+        private static void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = prepareForAuthentication(controller, userParams);
-            SetInputData(controller, UiTestConstants.UIAutomationAppV2, UiTestConstants.DefaultScope);
+            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
         private static IUser prepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
             //Clear Cache
-            controller.Tap(UiTestConstants.CachePageID);
-            controller.Tap(UiTestConstants.ClearCacheID);
+            controller.Tap(CoreUiTestConstants.CachePageID);
+            controller.Tap(CoreUiTestConstants.ClearCacheID);
 
             //Get User from Lab
             return controller.GetUser(userParams);
@@ -84,16 +84,16 @@ namespace Test.MSAL.NET.UIAutomation
 
         private static void SetInputData(ITestController controller, string ClientID, string scopes)
         {
-            controller.Tap(UiTestConstants.SettignsPageID);
+            controller.Tap(CoreUiTestConstants.SettignsPageID);
 
             //Enter ClientID
-            controller.EnterText(UiTestConstants.ClientIdEntryID, ClientID, false);
+            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);
             controller.DismissKeyboard();
-            controller.Tap(UiTestConstants.SaveID);
+            controller.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
-            controller.Tap(UiTestConstants.AcquireTokenID);
-            controller.EnterText(UiTestConstants.ScopesEntryID, scopes, false);
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+            controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
             controller.DismissKeyboard();
         }
     }

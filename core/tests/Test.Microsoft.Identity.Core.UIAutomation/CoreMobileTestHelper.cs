@@ -21,29 +21,31 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 {
                     case FederationProvider.AdfsV3:
                     case FederationProvider.AdfsV4:
-                        passwordInputID = UiTestConstants.AdfsV4WebPasswordID;
-                        signInButtonID = UiTestConstants.AdfsV4WebSubmitID;
+                        passwordInputID = CoreUiTestConstants.AdfsV4WebPasswordID;
+                        signInButtonID = CoreUiTestConstants.AdfsV4WebSubmitID;
                         break;
                     default:
-                        passwordInputID = UiTestConstants.WebPasswordID;
-                        signInButtonID = UiTestConstants.WebSubmitID;
+                        passwordInputID = CoreUiTestConstants.WebPasswordID;
+                        signInButtonID = CoreUiTestConstants.WebSubmitID;
                         break;
                 }
             }
             else
             {
-                passwordInputID = UiTestConstants.WebPasswordID;
-                signInButtonID = UiTestConstants.WebSubmitID;
+                passwordInputID = CoreUiTestConstants.WebPasswordID;
+                signInButtonID = CoreUiTestConstants.WebSubmitID;
             }
 
             //Acquire token flow
-            controller.Tap(UiTestConstants.AcquireTokenID);
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
             //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText(UiTestConstants.WebUPNInputID, 20, user.Upn, true);
+            controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
+            controller.DismissKeyboard();
             //idSIButton9 = Sign in button
-            controller.Tap(UiTestConstants.WebSubmitID, true);
+            controller.Tap(CoreUiTestConstants.WebSubmitID, true);
             //i0118 = password text field
             controller.EnterText(passwordInputID, ((LabUser)user).GetPassword(), true);
+            controller.DismissKeyboard();
             controller.Tap(signInButtonID, true);
         }
 
@@ -51,12 +53,12 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         {
             RetryVerificationHelper(() => {
                 //Test results are put into a label that is checked for messages
-                var result = controller.GetText(UiTestConstants.TestResultID);
-                if (result.Contains(UiTestConstants.TestResultSuccsesfulMessage))
+                var result = controller.GetText(CoreUiTestConstants.TestResultID);
+                if (result.Contains(CoreUiTestConstants.TestResultSuccsesfulMessage))
                 {
                     return;
                 }
-                else if (result.Contains(UiTestConstants.TestResultFailureMessage))
+                else if (result.Contains(CoreUiTestConstants.TestResultFailureMessage))
                 {
                     throw new ResultVerificationFailureException(VerificationError.ResultIndicatesFailure);
                 }
@@ -83,7 +85,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 }
                 catch (ResultVerificationFailureException ex)
                 {
-                    if (attempts == UiTestConstants.maximumResultCheckRetryAttempts)
+                    if (attempts == CoreUiTestConstants.maximumResultCheckRetryAttempts)
                         Assert.Fail("Could not Verify test result");
 
                     switch (ex.Error)
@@ -92,7 +94,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                             Assert.Fail("Test result indicates failure");
                             break;
                         case VerificationError.ResultNotFound:
-                            Task.Delay(UiTestConstants.ResultCheckPolliInterval).Wait();
+                            Task.Delay(CoreUiTestConstants.ResultCheckPolliInterval).Wait();
                             break;
                         default:
                             throw;

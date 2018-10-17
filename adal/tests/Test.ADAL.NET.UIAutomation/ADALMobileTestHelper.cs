@@ -47,7 +47,7 @@ namespace Test.ADAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
 		{
-            AcquireTokenInteractivly(controller, userParams);
+            AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
@@ -57,33 +57,33 @@ namespace Test.ADAL.NET.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
-            AcquireTokenInteractivly(controller, userParams);
+            AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
 
             //Enter 2nd Resource
-            controller.EnterText(UiTestConstants.ResourceEntryID, UiTestConstants.Exchange, false);
+            controller.EnterText(CoreUiTestConstants.ResourceEntryID, CoreUiTestConstants.Exchange, false);
             controller.DismissKeyboard();
 
             //Acquire token silently
-            controller.Tap(UiTestConstants.AcquireTokenSilentID);
+            controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
 
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        public static void AcquireTokenInteractivly(ITestController controller, UserQueryParameters userParams)
+        public static void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
-            var user = prepareForAuthentication(controller, userParams);
-            SetInputData(controller, UiTestConstants.UiAutomationTestClientId, UiTestConstants.MSGraph);
+            var user = PrepareForAuthentication(controller, userParams);
+            SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
-        private static IUser prepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private static IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
             //Navigate to second page
-            controller.Tap(UiTestConstants.SecondPageID);
+            controller.Tap(CoreUiTestConstants.SecondPageID);
 
             //Clear Cache
-            controller.Tap(UiTestConstants.ClearCacheID);
+            controller.Tap(CoreUiTestConstants.ClearCacheID);
 
             //Get User from Lab
             return controller.GetUser(userParams);
@@ -92,11 +92,11 @@ namespace Test.ADAL.NET.UIAutomation
         private static void SetInputData(ITestController controller, string ClientID, string Resource)
         {
             //Enter ClientID
-            controller.EnterText(UiTestConstants.ClientIdEntryID, ClientID, false);
+            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);
             controller.DismissKeyboard();
 
             //Enter Resource
-            controller.EnterText(UiTestConstants.ResourceEntryID, Resource, false);
+            controller.EnterText(CoreUiTestConstants.ResourceEntryID, Resource, false);
             controller.DismissKeyboard();
         }
     }
