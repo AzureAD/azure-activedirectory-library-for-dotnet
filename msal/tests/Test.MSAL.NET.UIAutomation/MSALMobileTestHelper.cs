@@ -32,7 +32,7 @@ using System.Threading;
 using System;
 using System.Threading.Tasks;
 
-namespace Test.MSAL.NET.UIAutomation
+namespace Test.MSAL.UIAutomation
 {
     /// <summary>
     /// Contains the core test functionality that will be used by Android and iOS tests

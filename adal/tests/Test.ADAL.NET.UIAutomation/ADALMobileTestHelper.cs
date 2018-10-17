@@ -34,7 +34,7 @@ using System.Threading;
 using System;
 using System.Threading.Tasks;
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.ADAL.UIAutomation
 {
     /// <summary>
     /// Contains the core test functionality that will be used by Android and iOS tests

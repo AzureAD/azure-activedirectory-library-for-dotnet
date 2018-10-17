@@ -36,7 +36,7 @@ using Xamarin.UITest.Queries;
 //There is an error in visual studio that can prevent the NUnit test framework from loading the test dll properly.
 //Remember to return the version back to 2.6.4 before commiting to prevent appcenter from failing
 
-namespace Test.ADAL.NET.UIAutomation
+namespace Test.ADAL.UIAutomation
 {
     /// <summary>
     /// Configures environment for core/android tests to run
