@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Client
 #endif
     /// <summary>
     /// Token cache storing access and refresh tokens for accounts
-    /// This class is used in the constuctors of <see cref="PublicClientApplication"/> and <see cref="ConfidentialClientApplication"/>.
+    /// This class is used in the constructors of <see cref="PublicClientApplication"/> and <see cref="ConfidentialClientApplication"/>.
     /// In the case of ConfidentialClientApplication, two instances are used, one for the user token cache, and one for the application
     /// token cache (in the case of applications using the client credential flows).
     /// See also <see cref="TokenCacheExtensions"/> which contains extension methods used to customize the cache serialization
@@ -417,6 +417,8 @@ namespace Microsoft.Identity.Client
                     {
                         requestParams.RequestContext.Logger.Info(
                             "Access token is expired.  IsExtendedLifeTimeEnabled=TRUE and ExtendedExpiresOn is not exceeded.  Returning the found cache entry.");
+
+                        msalAccessTokenCacheItem.IsExtendedLifeTimeToken = true;
                         return msalAccessTokenCacheItem;
                     }
 

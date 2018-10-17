@@ -283,6 +283,51 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
+        public void GetExpiredAccessToken_WithExtendedExpireStillValid_Test()
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
+                _cache = new TokenCache()
+                {
+                    ClientId = TestConstants.ClientId,
+                    HttpManager = httpManager
+                };
+
+                var atItem = new MsalAccessTokenCacheItem(
+                    TestConstants.ProductionPrefNetworkEnvironment,
+                    TestConstants.ClientId,
+                    "Bearer",
+                    TestConstants.Scope.AsSingleString(),
+                    TestConstants.Utid,
+                    null,
+                    new DateTimeOffset(DateTime.UtcNow),
+                    new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromHours(2)),
+                    MockHelpers.CreateClientInfo());
+
+                atItem.Secret = atItem.GetKey().ToString();
+                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+
+                var cacheItem = _cache.FindAccessTokenAsync(
+                    new AuthenticationRequestParameters()
+                    {
+                        IsExtendedLifeTimeEnabled = true,
+                        RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+                        ClientId = TestConstants.ClientId,
+                        Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
+                        Scope = TestConstants.Scope,
+                        Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
+                    }).Result;
+
+                Assert.IsNotNull(cacheItem);
+                Assert.AreEqual(atItem.GetKey().ToString(), cacheItem.GetKey().ToString());
+                Assert.IsTrue(cacheItem.IsExtendedLifeTimeToken);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
         public void GetAccessTokenExpiryInRangeTest()
         {
             using (var httpManager = new MockHttpManager())
