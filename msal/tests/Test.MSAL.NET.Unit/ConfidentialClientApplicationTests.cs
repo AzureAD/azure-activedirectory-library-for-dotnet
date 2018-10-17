@@ -581,7 +581,7 @@ namespace Test.MSAL.NET.Unit
 
                 // add mock response bigger than 1MB for Http Client
                 httpManager.AddMockHandlerTooLargeGetResponse();
-                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray());
+                await app.AcquireTokenForClientAsync(TestConstants.Scope.ToArray()).ConfigureAwait(false);
             }
         }
 
