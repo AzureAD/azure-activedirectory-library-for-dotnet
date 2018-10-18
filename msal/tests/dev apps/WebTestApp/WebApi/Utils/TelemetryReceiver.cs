@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Microsoft.Applications.Events;
 using Microsoft.Identity.Core.Telemetry;
 
-namespace NetCoreTestApp
+namespace WebApi.Utils
 {
     public class TelemetryReceiver
     {
         private ILogger logger;
         private readonly static string EventNameKey = "msal.event_name";
         private readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
+
         public TelemetryReceiver()
         {
 
@@ -17,8 +18,6 @@ namespace NetCoreTestApp
             EVTStatus status = 0;
             ILogManager myLogManager = LogManagerProvider.CreateLogManager(AriaTenantId, out status, true, new LogConfiguration());
             LogManager.Start(new LogConfiguration());
-            LogManager.SetNetCost(NetCost.Low);
-            LogManager.SetPowerState(PowerState.Charging);
             logger = LogManager.GetLogger(AriaTenantId, out status);
         }
 

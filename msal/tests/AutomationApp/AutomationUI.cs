@@ -45,6 +45,7 @@ namespace AutomationApp
         {
             InitializeComponent();
             Logger.LogCallback = _appLogger.Log;
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public Dictionary<string, string> CreateDictionaryFromJson(string json)

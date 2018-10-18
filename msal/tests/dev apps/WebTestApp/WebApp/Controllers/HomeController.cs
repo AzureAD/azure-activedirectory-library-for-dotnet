@@ -66,6 +66,8 @@ namespace WebApp.Controllers
             };
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
+
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         private static void ClearLog()

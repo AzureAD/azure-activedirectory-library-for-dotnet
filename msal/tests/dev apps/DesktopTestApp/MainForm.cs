@@ -39,8 +39,6 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-using Microsoft.Applications.Telemetry.Windows;
-using Microsoft.Identity.Core.Telemetry;
 
 namespace DesktopTestApp
 {
@@ -50,7 +48,6 @@ namespace DesktopTestApp
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
         private CancellationTokenSource _cancellationTokenSource;
-        private ILogger logger;
 
         public MainForm()
         {
@@ -64,8 +61,7 @@ namespace DesktopTestApp
 
             LoadSettings();
             Microsoft.Identity.Client.Logger.LogCallback = LogDelegate;
-            Telemetry.GetInstance().RegisterReceiver(TelemetryDelegate);
-            logger = LogManager.Initialize(tenantToken: "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507");
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)
@@ -88,23 +84,6 @@ namespace DesktopTestApp
             }
 
             this.BeginInvoke(new MethodInvoker(action));
-        }
-
-        public void TelemetryDelegate(List<Dictionary<string, string>> events)
-        {
-            Console.WriteLine("{0} event(s) received", events.Count);
-            foreach (var e in events)
-            {
-                Console.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
-                var eventData = new EventProperties(e[EventBase.EventNameKey]);
-                foreach (var entry in e)
-                {
-                    eventData.SetProperty(entry.Key, entry.Value);
-                    Console.WriteLine("  {0}: {1}", entry.Key, entry.Value);
-                }
-                logger.LogEvent(eventData);
-            }
-            LogManager.FlushAndTeardown();
         }
 
         public void RefreshUserList()

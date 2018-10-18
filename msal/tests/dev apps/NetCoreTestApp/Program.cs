@@ -33,6 +33,8 @@ using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Applications.Events;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace NetCoreTestApp
 {
@@ -41,7 +43,7 @@ namespace NetCoreTestApp
         private readonly static string ClientIdForPublicApp = "0615b6ca-88d4-4884-8729-b178178f7c27";
         private readonly static string ClientIdForConfidentialApp = "<enter id>";
 
-        private readonly static string Username = ""; // used for WIA and U/P, cannot be empty on .net core
+        private readonly static string Username = "sagonzal@microsoft.com"; // used for WIA and U/P, cannot be empty on .net core
         private readonly static string Authority = "https://login.microsoftonline.com/organizations/v2.0"; // common will not work for WIA and U/P but it is a good test case
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" }; // used for WIA and U/P, can be empty
 
@@ -58,6 +60,9 @@ namespace NetCoreTestApp
             Logger.LogCallback = Log;
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
+
+            
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
 
             RunConsoleAppLogicAsync(pca).Wait();
         }
@@ -148,6 +153,8 @@ namespace NetCoreTestApp
                 Console.WriteLine("\n\nHit 'ENTER' to continue...");
                 Console.ReadLine();
             }
+
+
         }
 
         private static async Task FetchTokenAndCallGraphAsync(PublicClientApplication pca, Task<AuthenticationResult> authTask)
@@ -208,7 +215,7 @@ namespace NetCoreTestApp
                 Console.WriteLine("PCA account for: " + account.Username + "\n");
             }
         }
-
+ 
         private static void Log(LogLevel level, string message, bool containsPii)
         {
             if (!containsPii)

@@ -27,32 +27,12 @@ namespace UWP
         private readonly static string ClientID = "0615b6ca-88d4-4884-8729-b178178f7c27";
         private readonly static string Authority = "https://login.microsoftonline.com/organizations"; // common will not work for WIA and U/P but it is a good test case
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" };
-        ILogger logger;
 
         public MainPage()
         {
             this.InitializeComponent();
-
             _pca = new PublicClientApplication(ClientID, Authority);
-            Telemetry.GetInstance().RegisterReceiver(TelemetryDelegate);
-            logger = LogManager.Initialize(tenantToken: "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507");
-        }
-
-        public void TelemetryDelegate(List<Dictionary<string, string>> events)
-        {
-            Debug.WriteLine("{0} event(s) received", events.Count);
-            foreach (var e in events)
-            {
-                Debug.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
-                var eventData = new EventProperties(e[EventBase.EventNameKey]);
-                foreach (var entry in e)
-                {
-                    eventData.SetProperty(entry.Key, entry.Value);
-                    Debug.WriteLine("  {0}: {1}", entry.Key, entry.Value);
-                }
-                logger.LogEvent(eventData);
-            }
-            LogManager.FlushAndTeardown();
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         private async void AcquireTokenIWA_ClickAsync(object sender, RoutedEventArgs e)
@@ -60,8 +40,8 @@ namespace UWP
             AuthenticationResult result = null;
             try
             {
-                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes).ConfigureAwait(false);
-                 // result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, "bogavril@microsoft.com"); // can also use this overload
+                //result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes).ConfigureAwait(false);
+                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, "bogavril@microsoft.com").ConfigureAwait(false); // can also use this overload
             }
             catch (Exception ex)
             {

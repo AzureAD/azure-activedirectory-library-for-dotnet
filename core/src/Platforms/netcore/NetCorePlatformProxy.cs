@@ -120,7 +120,7 @@ namespace Microsoft.Identity.Core
 
         public string GetApplicationName()
         {
-            return Assembly.GetEntryAssembly().GetName().ToString();
+            return Assembly.GetEntryAssembly().GetName().Name.ToString();
         }
 
         public string GetApplicationVersion()
