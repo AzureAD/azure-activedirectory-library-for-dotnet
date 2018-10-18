@@ -79,7 +79,10 @@ namespace Microsoft.Identity.Client.Internal
         private static void InitializeModule()
         {
             CoreExceptionFactory.Instance = new MsalExceptionFactory();
-            CoreTelemetryService.InitializeCoreTelemetryService(Telemetry.GetInstance() as ITelemetry);
+            
+            // initialize the telemetry instance so statics get created
+            var telemetry = Telemetry.GetInstance();
+            
             CoreLoggerBase.Default = new MsalLogger(Guid.Empty, null);
             _isInitialized = true;
         }

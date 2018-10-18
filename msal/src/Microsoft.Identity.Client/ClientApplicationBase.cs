@@ -68,6 +68,7 @@ namespace Microsoft.Identity.Client
         internal IHttpManager HttpManager { get; }
         internal ICryptographyManager CryptographyManager { get; }
         internal IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
+        internal ITelemetryManager TelemetryManager { get; }
 
         /// <summary>
         /// Constructor of the base application
@@ -97,6 +98,7 @@ namespace Microsoft.Identity.Client
             HttpManager = httpManager ?? new HttpManager();
             CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
+            TelemetryManager = new TelemetryManager(Telemetry.GetInstance());  // TODO: pass this in?
 
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
@@ -167,7 +169,7 @@ namespace Microsoft.Identity.Client
         /// </Summary>
         internal TokenCache UserTokenCache
         {
-            get { return _userTokenCache; }
+            get => _userTokenCache;
             set
             {
                 _userTokenCache = value;
@@ -175,6 +177,7 @@ namespace Microsoft.Identity.Client
                 {
                     _userTokenCache.ClientId = ClientId;
                     _userTokenCache.HttpManager = HttpManager;
+                    _userTokenCache.TelemetryManager = TelemetryManager;
                 }
             }
         }
@@ -319,6 +322,7 @@ namespace Microsoft.Identity.Client
             var handler = new SilentRequest(
                 HttpManager,
                 CryptographyManager,
+                TelemetryManager,
                 CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 apiId,
                 forceRefresh);

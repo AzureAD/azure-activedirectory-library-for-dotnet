@@ -48,15 +48,18 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private readonly ApiEvent.ApiIds _apiId;
         protected IHttpManager HttpManager { get; }
         protected ICryptographyManager CryptographyManager { get; }
+        protected ITelemetryManager TelemetryManager { get; }
 
         protected RequestBase(
             IHttpManager httpManager, 
             ICryptographyManager cryptographyManager, 
+            ITelemetryManager telemetryManager,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId)
         {
             HttpManager = httpManager;
             CryptographyManager = cryptographyManager;
+            TelemetryManager = telemetryManager;
             TokenCache = authenticationRequestParameters.TokenCache;
             _apiId = apiId;
             
@@ -135,7 +138,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             string accountId = AuthenticationRequestParameters.Account?.HomeAccountId?.Identifier;
             var apiEvent = InitializeApiEvent(accountId);
 
-            using (CoreTelemetryService.CreateTelemetryHelper(
+            using (TelemetryManager.CreateTelemetryHelperEx(
                 AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
                 apiEvent,
                 shouldFlush: true))
@@ -267,10 +270,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task ResolveAuthorityEndpointsAsync()
         {
             await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
-                (HttpManager, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+                (HttpManager, TelemetryManager, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             await AuthenticationRequestParameters.Authority
-                .ResolveEndpointsAsync(HttpManager, AuthenticationRequestParameters.LoginHint,
+                .ResolveEndpointsAsync(HttpManager, TelemetryManager, AuthenticationRequestParameters.LoginHint,
                     AuthenticationRequestParameters.RequestContext)
                 .ConfigureAwait(false);
         }
@@ -279,7 +282,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IDictionary<string, string> additionalBodyParameters, 
             CancellationToken cancellationToken)
         {
-            OAuth2Client client = new OAuth2Client(HttpManager);
+            OAuth2Client client = new OAuth2Client(HttpManager, TelemetryManager);
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.ClientInfo, "1");
             foreach (var entry in AuthenticationRequestParameters.ToParameters())

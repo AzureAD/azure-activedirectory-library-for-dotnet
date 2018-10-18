@@ -54,7 +54,10 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
-            IHttpManager httpManager, string userPrincipalName, RequestContext requestContext)
+            IHttpManager httpManager, 
+            ITelemetryManager telemetryManager, 
+            string userPrincipalName, 
+            RequestContext requestContext)
         {
             if (ValidateAuthority && !IsInTrustedHostList(new Uri(CanonicalAuthority).Host))
             {

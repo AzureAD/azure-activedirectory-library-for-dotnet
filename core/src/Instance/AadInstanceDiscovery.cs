@@ -37,20 +37,31 @@ namespace Microsoft.Identity.Core.Instance
 {
     internal class AadInstanceDiscovery
     {
-        AadInstanceDiscovery(){}
+        private AadInstanceDiscovery()
+        {
+        }
 
         public static AadInstanceDiscovery Instance { get; } = new AadInstanceDiscovery();
 
         internal readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> Cache =
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
-        public async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(IHttpManager httpManager, Uri authority, bool validateAuthority,
+        public async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(
+            IHttpManager httpManager, 
+            ITelemetryManager telemetryManager,
+            Uri authority, 
+            bool validateAuthority,
             RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry entry = null;
             if (!Cache.TryGetValue(authority.Host, out entry))
             {
-                await DoInstanceDiscoveryAndCacheAsync(httpManager, authority, validateAuthority, requestContext).ConfigureAwait(false);
+                await DoInstanceDiscoveryAndCacheAsync(
+                    httpManager, 
+                    telemetryManager,
+                    authority, 
+                    validateAuthority, 
+                    requestContext).ConfigureAwait(false);
                 Cache.TryGetValue(authority.Host, out entry);
             }
 
@@ -73,10 +84,19 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         internal async Task<InstanceDiscoveryResponse>
-            DoInstanceDiscoveryAndCacheAsync(IHttpManager httpManager, Uri authority, bool validateAuthority, RequestContext requestContext)
+            DoInstanceDiscoveryAndCacheAsync(
+                IHttpManager httpManager, 
+                ITelemetryManager telemetryManager,
+                Uri authority, 
+                bool validateAuthority, 
+                RequestContext requestContext)
         {
             InstanceDiscoveryResponse discoveryResponse =
-                await SendInstanceDiscoveryRequestAsync(httpManager, authority, requestContext).ConfigureAwait(false);
+                await SendInstanceDiscoveryRequestAsync(
+                    httpManager, 
+                    telemetryManager,
+                    authority, 
+                    requestContext).ConfigureAwait(false);
 
             if (validateAuthority)
             {
@@ -87,9 +107,14 @@ namespace Microsoft.Identity.Core.Instance
 
             return discoveryResponse;
         }
-        private static async Task<InstanceDiscoveryResponse> SendInstanceDiscoveryRequestAsync(IHttpManager httpManager, Uri authority, RequestContext requestContext)
+
+        private static async Task<InstanceDiscoveryResponse> SendInstanceDiscoveryRequestAsync(
+            IHttpManager httpManager, 
+            ITelemetryManager telemetryManager,
+            Uri authority, 
+            RequestContext requestContext)
         {
-            OAuth2Client client = new OAuth2Client(httpManager);
+            OAuth2Client client = new OAuth2Client(httpManager, telemetryManager);
             client.AddQueryParameter("api-version", "1.1");
             client.AddQueryParameter("authorization_endpoint", BuildAuthorizeEndpoint(authority.Host, GetTenant(authority)));
 

@@ -59,8 +59,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             if (_cache != null)
             {
-                _cache.tokenCacheAccessor.ClearAccessTokens();
-                _cache.tokenCacheAccessor.ClearRefreshTokens();
+                _cache.TokenCacheAccessor.ClearAccessTokens();
+                _cache.TokenCacheAccessor.ClearRefreshTokens();
             }
         }
 
@@ -86,16 +86,17 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+                var telemetryManager = new TelemetryManager();
 
-                var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                var request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                 Assert.IsNotNull(request);
 
                 parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
 
-                request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                 Assert.IsNotNull(request);
 
-                request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                 Assert.IsNotNull(request);
             }
         }
@@ -112,7 +113,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = TestConstants.ClientId,
                     HttpManager = httpManager
                 };
-                TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+                TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
 
                 var parameters = new AuthenticationRequestParameters()
                 {
@@ -134,8 +135,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-
-                var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                var telemetryManager = new TelemetryManager();
+                var request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                 Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                 var result = task.Result;
                 Assert.IsNotNull(result);
@@ -169,10 +170,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-
+                var telemetryManager = new TelemetryManager();
                 try
                 {
-                    var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                    var request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                     Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                     var authenticationResult = task.Result;
                     Assert.Fail("MsalUiRequiredException should be thrown here");
@@ -217,10 +218,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+                var telemetryManager = new TelemetryManager();
 
                 try
                 {
-                    var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                    var request = new SilentRequest(httpManager, crypto, telemetryManager, parameters, ApiEvent.ApiIds.None, false);
                     Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                     var authenticationResult = task.Result;
                     Assert.Fail("MsalUiRequiredException should be thrown here");

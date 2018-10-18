@@ -36,8 +36,8 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// Handler enabling your application to send telemetry to your telemetry service or subscription (for instance Microsoft Application Insights).
     /// To enable telemetry in your application, you get the singleton instance of <c>Telemetry</c> by using <see cref="Telemetry.GetInstance()"/>, you set the delegate that will 
-    /// process the telemetry events by calling <see cref="RegisterReceiver(Telemetry.Receiver)"/>, and you decide if you want to reveive telemetry
-    /// events only in case of failture or all the time, by setting the <see cref="TelemetryOnFailureOnly"/> boolean.
+    /// process the telemetry events by calling <see cref="RegisterReceiver(Telemetry.Receiver)"/>, and you decide if you want to receive telemetry
+    /// events only in case of failure or all the time, by setting the <see cref="TelemetryOnFailureOnly"/> boolean.
     /// </summary>
     public class Telemetry : ITelemetry
     {
@@ -100,7 +100,7 @@ namespace Microsoft.Identity.Client
             {
                 return;
             }
-            Tuple<string, string> eventKey = new Tuple<string, string>(requestId, eventToStop[EventBase.EventNameKey]);
+            var eventKey = new Tuple<string, string>(requestId, eventToStop[EventBase.EventNameKey]);
 
             // Locate the same name event in the EventsInProgress map
             EventBase eventStarted = null;
@@ -125,8 +125,10 @@ namespace Microsoft.Identity.Client
                 // if this is the first event associated to this
                 // RequestId we need to initialize a new List to hold
                 // all of sibling events
-                List<EventBase> events = new List<EventBase>();
-                events.Add(eventToStop);
+                var events = new List<EventBase>
+                {
+                    eventToStop
+                };
                 CompletedEvents[requestId] = events;
             }
             else
@@ -137,10 +139,7 @@ namespace Microsoft.Identity.Client
             }
 
             // Mark this event as no longer in progress
-            EventBase dummy = null; // The TryRemove(...) next line requires an out parameter, even though we don't actually use it
-            EventsInProgress.TryRemove(eventKey, out dummy);
-            // We could use the following one-liner instead, but we believe it is less readable:
-            // ((IDictionary<Tuple<string, string>, EventBase>)EventsInProgress).Remove(eventKey);
+            EventsInProgress.TryRemove(eventKey, out var dummy);
         }
 
         internal void Flush(string requestId)
@@ -161,8 +160,7 @@ namespace Microsoft.Identity.Client
 
             CompletedEvents[requestId].AddRange(orphanedEvents);
 
-            List<EventBase> eventsToFlush;
-            CompletedEvents.TryRemove(requestId, out eventsToFlush);
+            CompletedEvents.TryRemove(requestId, out List<EventBase> eventsToFlush);
 
             if (TelemetryOnFailureOnly)
             {
@@ -171,8 +169,7 @@ namespace Microsoft.Identity.Client
 
                 foreach (var anEvent in eventsToFlush)
                 {
-                    var apiEvent = anEvent as ApiEvent;
-                    if (apiEvent != null)
+                    if (anEvent is ApiEvent apiEvent)
                     {
                         shouldRemoveEvents = apiEvent.WasSuccessful;
                         break;
@@ -200,9 +197,10 @@ namespace Microsoft.Identity.Client
                 if (key.Item1 == requestId)
                 {
                     // The orphaned event already contains its own start time, we simply collect it
-                    EventBase orphan;
-                    EventsInProgress.TryRemove(key, out orphan);
-                    orphanedEvents.Add(orphan);
+                    if (EventsInProgress.TryRemove(key, out var orphan))
+                    {
+                        orphanedEvents.Add(orphan);
+                    }
                 }
             }
             return orphanedEvents;

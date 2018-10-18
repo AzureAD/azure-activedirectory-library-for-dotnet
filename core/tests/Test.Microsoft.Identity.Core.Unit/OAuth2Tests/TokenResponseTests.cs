@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.OAuth2;
@@ -39,12 +38,6 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
     [TestClass]
     public class TokenResponseTests
     {
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            CoreTelemetryService.InitializeCoreTelemetryService(new TestTelemetry());
-        }
-
         [TestMethod]
         [TestCategory("TokenResponseTests")]
         public void ExpirationTimeTest()
@@ -72,7 +65,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
             {
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
-                OAuth2Client client = new OAuth2Client(httpManager);
+                OAuth2Client client = new OAuth2Client(httpManager, new TelemetryManager());
                 Task<MsalTokenResponse> task = client.GetTokenAsync(
                     new Uri(TestConstants.AuthorityCommonTenant),
                     new RequestContext(new TestLogger(Guid.NewGuid(), null)));

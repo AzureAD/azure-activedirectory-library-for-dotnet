@@ -89,7 +89,7 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistence()
+                        LegacyCachePersistence = new TestLegacyCachePersistence()
                     }
                 };
 
@@ -103,7 +103,7 @@ namespace Test.MSAL.NET.Unit
 
                 // make sure Msal stored RT in Adal cache
                 IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCacheDictionary =
-                    AdalCacheOperations.Deserialize(app.UserTokenCache.legacyCachePersistence.LoadCache());
+                    AdalCacheOperations.Deserialize(app.UserTokenCache.LegacyCachePersistence.LoadCache());
 
                 Assert.IsTrue(adalCacheDictionary.Count == 1);
 
@@ -156,31 +156,31 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistence()
+                        LegacyCachePersistence = new TestLegacyCachePersistence()
                     }
                 };
 
                 ISet<string> authorityHostAliases = new HashSet<string>();
                 authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
 
-                CreateAdalCache(app.UserTokenCache.legacyCachePersistence, TestConstants.Scope.ToString());
+                CreateAdalCache(app.UserTokenCache.LegacyCachePersistence, TestConstants.Scope.ToString());
 
                 var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    app.UserTokenCache.legacyCachePersistence,
+                    app.UserTokenCache.LegacyCachePersistence,
                     authorityHostAliases,
                     TestConstants.ClientId);
 
-                CreateAdalCache(app.UserTokenCache.legacyCachePersistence, "user.read");
+                CreateAdalCache(app.UserTokenCache.LegacyCachePersistence, "user.read");
 
                 var tuple2 = CacheFallbackOperations.GetAllAdalUsersForMsal(
-                    app.UserTokenCache.legacyCachePersistence,
+                    app.UserTokenCache.LegacyCachePersistence,
                     authorityHostAliases,
                     TestConstants.ClientId);
 
                 Assert.AreEqual(tuple.Item1.Keys.First(), tuple2.Item1.Keys.First());
 
-                app.UserTokenCache.tokenCacheAccessor.ClearAccessTokens();
-                app.UserTokenCache.tokenCacheAccessor.ClearRefreshTokens();
+                app.UserTokenCache.TokenCacheAccessor.ClearAccessTokens();
+                app.UserTokenCache.TokenCacheAccessor.ClearRefreshTokens();
             }
         }
 

@@ -26,19 +26,14 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.Telemetry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    /// Facilitates the acquisition of telemtry data
+    /// Facilitates the acquisition of telemetry data
     /// </summary>
     /// <remarks>
-    /// This blank class used as a place holder for CoreTelemetryService.Instance to avaoid null reference exceptions in core. No implementation is present at this time.
+    /// This blank class used as a place holder for CoreTelemetryService.Instance to avoid null reference exceptions in core. No implementation is present at this time.
     /// </remarks>
     internal class Telemetry : ITelemetry
     {
@@ -56,7 +51,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="eventToStart"></param>
         public void StartEvent(string requestId, EventBase eventToStart)
         {
-            
         }
 
         /// <summary>
@@ -66,7 +60,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="eventToStop"></param>
         public void StopEvent(string requestId, EventBase eventToStop)
         {
-            
         }
 
         /// <summary>
@@ -75,7 +68,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="requestId"></param>
         public void Flush(string requestId)
         {
-
         }
     }
 }

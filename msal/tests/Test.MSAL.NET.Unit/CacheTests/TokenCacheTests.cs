@@ -124,7 +124,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
                 var item = cache.FindAccessTokenAsync(
                     new AuthenticationRequestParameters()
                     {
@@ -169,7 +169,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()
                 {
                     RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -216,7 +216,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 var param = new AuthenticationRequestParameters()
                 {
@@ -261,7 +261,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     MockHelpers.CreateClientInfo());
 
                 atItem.Secret = atItem.GetKey().ToString();
-                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 Assert.IsNull(
                     _cache.FindAccessTokenAsync(
@@ -301,7 +301,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     MockHelpers.CreateClientInfo());
 
                 atItem.Secret = atItem.GetKey().ToString();
-                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 Assert.IsNull(
                     _cache.FindAccessTokenAsync(
@@ -332,7 +332,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 MockHelpers.CreateClientInfo());
 
             string rtKey = rtItem.GetKey().ToString();
-            cache.tokenCacheAccessor.SaveRefreshToken(rtItem);
+            cache.TokenCacheAccessor.SaveRefreshToken(rtItem);
             var authParams = new AuthenticationRequestParameters()
             {
                 RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -378,7 +378,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     MockHelpers.CreateClientInfo());
 
                 string rtKey = rtItem.GetKey().ToString();
-                cache.tokenCacheAccessor.SaveRefreshToken(rtItem);
+                cache.TokenCacheAccessor.SaveRefreshToken(rtItem);
                 var authParams = new AuthenticationRequestParameters()
                 {
                     RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -419,7 +419,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 var cacheItem = _cache.FindAccessTokenAsync(
                     new AuthenticationRequestParameters()
@@ -469,12 +469,12 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> dictionary =
-                AdalCacheOperations.Deserialize(cache.legacyCachePersistence.LoadCache());
-            cache.legacyCachePersistence.WriteCache(AdalCacheOperations.Serialize(dictionary));
+                AdalCacheOperations.Deserialize(cache.LegacyCachePersistence.LoadCache());
+            cache.LegacyCachePersistence.WriteCache(AdalCacheOperations.Serialize(dictionary));
 
             // ADAL cache is empty because B2C scenario is only for MSAL
             Assert.AreEqual(0, dictionary.Count);
@@ -509,7 +509,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()
                 {
                     RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -559,7 +559,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
                 atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey);
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()
                 {
                     RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -607,7 +607,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 atItem.Secret = atKey;
                 atItem.UserAssertionHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey);
 
-                cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
                 var param = new AuthenticationRequestParameters()
                 {
                     RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
@@ -657,8 +657,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
         }
 
         [TestMethod]
@@ -695,8 +695,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             response = new MsalTokenResponse();
             response.IdToken = MockHelpers.CreateIdToken(TestConstants.UniqueId, TestConstants.DisplayableId);
@@ -710,8 +710,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
             Assert.AreEqual("access-token-2", cache.GetAllAccessTokensForClient(requestContext).First().Secret);
@@ -765,8 +765,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
             Assert.AreEqual("access-token-2", cache.GetAllAccessTokensForClient(requestContext).First().Secret);
         }
@@ -819,8 +819,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
             Assert.AreEqual("access-token-2", cache.GetAllAccessTokensForClient(requestContext).First().Secret);
@@ -885,8 +885,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
             cache.SaveAccessAndRefreshToken(requestParams, response);
             Assert.IsFalse(cache.HasStateChanged);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(2, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(2, cache.TokenCacheAccessor.AccessTokenCount);
 
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
         }
@@ -935,24 +935,24 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SaveAccessAndRefreshToken(requestParams, response);
             byte[] serializedCache = cache.Serialize();
-            cache.tokenCacheAccessor.ClearAccessTokens();
-            cache.tokenCacheAccessor.ClearRefreshTokens();
+            cache.TokenCacheAccessor.ClearAccessTokens();
+            cache.TokenCacheAccessor.ClearRefreshTokens();
 
-            Assert.AreEqual(0, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(0, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(0, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(0, cache.TokenCacheAccessor.AccessTokenCount);
 
             cache.Deserialize(serializedCache);
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             serializedCache = cache.Serialize();
             cache.Deserialize(serializedCache);
             //item count should not change because old cache entries should have
             //been overriden
 
-            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
 
             var atItem = cache.GetAllAccessTokensForClient(requestContext).First();
             Assert.AreEqual(response.AccessToken, atItem.Secret);
@@ -985,7 +985,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     HttpManager = httpManager
                 };
 
-                TokenCacheHelper.PopulateCache(tokenCache.tokenCacheAccessor);
+                TokenCacheHelper.PopulateCache(tokenCache.TokenCacheAccessor);
 
                 var param = new AuthenticationRequestParameters()
                 {
@@ -1042,8 +1042,8 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             B2CCache.SaveAccessAndRefreshToken(requestParams, response);
 
-            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.RefreshTokenCount);
-            Assert.AreEqual(1, B2CCache.tokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(1, B2CCache.TokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(1, B2CCache.TokenCacheAccessor.AccessTokenCount);
         }
 
         /*

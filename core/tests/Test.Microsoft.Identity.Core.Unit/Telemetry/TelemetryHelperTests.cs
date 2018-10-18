@@ -36,15 +36,16 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
     public class TelemetryHelperTests
     {
         private const string requestId = "therequestid";
-        private _TestTelem _telem;
+        private _TestTelem _telemetry;
         private _TestEvent _startEvent;
         private _TestEvent _stopEvent;
+        private ITelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void Setup()
         {
-            _telem = new _TestTelem();
-            CoreTelemetryService.InitializeCoreTelemetryService(_telem);
+            _telemetry = new _TestTelem();
+            _telemetryManager = new TelemetryManager(_telemetry);
 
             _startEvent = new _TestEvent("start event");
             _stopEvent = new _TestEvent("stop event");
@@ -53,8 +54,8 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCleanup]
         public void Cleanup()
         {
-            _telem = null;
-            CoreTelemetryService.InitializeCoreTelemetryService(null);
+            _telemetry = null;
+            _telemetryManager = null;
         }
 
         private class _TestEvent : EventBase
@@ -102,44 +103,44 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelper()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent))
             {
             }
 
-            ValidateResults(_telem, requestId, _startEvent, _startEvent, false);
+            ValidateResults(_telemetry, requestId, _startEvent, _startEvent, false);
         }
 
         [TestMethod]
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithFlush()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, shouldFlush: true))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, shouldFlush: true))
             {
             }
 
-            ValidateResults(_telem, requestId, _startEvent, _startEvent, true);
+            ValidateResults(_telemetry, requestId, _startEvent, _startEvent, true);
         }
 
         [TestMethod]
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithDifferentStopStartEvents()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, eventToEnd: _stopEvent))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, eventToEnd: _stopEvent))
             {
             }
 
-            ValidateResults(_telem, requestId, _startEvent, _stopEvent, false);
+            ValidateResults(_telemetry, requestId, _startEvent, _stopEvent, false);
         }
 
         [TestMethod]
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithDifferentStopStartEventsWithFlush()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, eventToEnd: _stopEvent, shouldFlush: true))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, eventToEnd: _stopEvent, shouldFlush: true))
             {
             }
 
-            ValidateResults(_telem, requestId, _startEvent, _stopEvent, true);
+            ValidateResults(_telemetry, requestId, _startEvent, _stopEvent, true);
         }
 
         private void ValidateResults(

@@ -51,7 +51,6 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
         {
             Authority.ValidatedAuthorities.Clear();
             CoreExceptionFactory.Instance = new TestExceptionFactory();
-            CoreTelemetryService.InitializeCoreTelemetryService(new TestTelemetry());
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
@@ -100,7 +99,11 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Task.Run(
                     async () =>
                     {
-                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                        await instance.ResolveEndpointsAsync(
+                            httpManager, 
+                            new TelemetryManager(), 
+                            null, 
+                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
@@ -135,7 +138,11 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                 Task.Run(
                     async () =>
                     {
-                        await instance.ResolveEndpointsAsync(httpManager, null, new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                        await instance.ResolveEndpointsAsync(
+                            httpManager, 
+                            new TelemetryManager(), 
+                            null, 
+                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
@@ -188,6 +195,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(), 
                                 null,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -231,6 +239,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(), 
                                 null,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -269,6 +278,7 @@ namespace Test.Microsoft.Identity.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(), 
                                 null,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();

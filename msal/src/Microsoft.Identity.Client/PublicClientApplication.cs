@@ -132,8 +132,8 @@ namespace Microsoft.Identity.Client
             set
             {
                 keychainSecurityGroup = value;
-                UserTokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
-                UserTokenCache.legacyCachePersistence.SetKeychainSecurityGroup(value);
+                UserTokenCache.TokenCacheAccessor.SetKeychainSecurityGroup(value);
+                UserTokenCache.LegacyCachePersistence.SetKeychainSecurityGroup(value);
             }
         }
 #endif
@@ -471,6 +471,7 @@ namespace Microsoft.Identity.Client
             var handler = new InteractiveRequest(
                 HttpManager,
                 CryptographyManager,
+                TelemetryManager,
                 requestParams,
                 apiId,
                 extraScopesToConsent,
@@ -500,6 +501,7 @@ namespace Microsoft.Identity.Client
             var handler = new InteractiveRequest(
                 HttpManager,
                 CryptographyManager,
+                TelemetryManager,
                 requestParams,
                 apiId,
                 extraScopesToConsent,
