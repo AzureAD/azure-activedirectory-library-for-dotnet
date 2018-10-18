@@ -1,6 +1,9 @@
 ﻿using Microsoft.Identity.Client;
+using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Applications.Telemetry.Windows;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -24,6 +27,7 @@ namespace UWP
         private readonly static string ClientID = "0615b6ca-88d4-4884-8729-b178178f7c27";
         private readonly static string Authority = "https://login.microsoftonline.com/organizations"; // common will not work for WIA and U/P but it is a good test case
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" };
+        ILogger logger;
 
         public MainPage()
         {
@@ -36,15 +40,15 @@ namespace UWP
 
         public void TelemetryDelegate(List<Dictionary<string, string>> events)
         {
-            Console.WriteLine("{0} event(s) received", events.Count);
+            Debug.WriteLine("{0} event(s) received", events.Count);
             foreach (var e in events)
             {
-                Console.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
+                Debug.WriteLine("Event: {0}", e[EventBase.EventNameKey]);
                 var eventData = new EventProperties(e[EventBase.EventNameKey]);
                 foreach (var entry in e)
                 {
                     eventData.SetProperty(entry.Key, entry.Value);
-                    Console.WriteLine("  {0}: {1}", entry.Key, entry.Value);
+                    Debug.WriteLine("  {0}: {1}", entry.Key, entry.Value);
                 }
                 logger.LogEvent(eventData);
             }
