@@ -174,7 +174,10 @@ namespace Microsoft.Identity.Client
         public const string NonParsableOAuthError = "non_parsable_oauth_error";
 
         /// <summary>
-        /// Device code expired before contacting the server
+        /// In the context of Device code flow (See https://aka.ms/msal-net-device-code-flow),
+        /// this error happens when the device code expired before the user signed-in on another device (this is usually after 15 mins).
+        /// 
+        /// Mitigation: None. Inform the user that they took too long to sign-in at the provided URL and enter the provided code.
         /// </summary>
         public const string CodeExpired = "code_expired";
     }

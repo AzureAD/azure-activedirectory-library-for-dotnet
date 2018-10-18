@@ -302,8 +302,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string CannotAccessUserInformationOrUserNotDomainJoined = "user_information_access_failed";
 
         /// <summary>
-        /// Error code that denotes that this library is still polling to see if the user 
-        /// entered the code as instructed by the device code message. 
+        /// This library is still polling to see if the user entered the code as instructed by the device code message. 
+        /// This is for information only, not an error.
         /// </summary>
         public const string DeviceCodeAuthorizationPendingError = "authorization_pending";
 
