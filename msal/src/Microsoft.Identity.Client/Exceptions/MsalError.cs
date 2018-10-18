@@ -30,7 +30,7 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// Error code returned as a property in MsalException
     /// </summary>
-    internal static class MsalError
+    public static class MsalError
     {
         /// <summary>
         /// Authentication failed.
@@ -172,5 +172,10 @@ namespace Microsoft.Identity.Client
         /// An error response was returned by the OAuth2 server and it could not be parsed
         /// </summary>
         public const string NonParsableOAuthError = "non_parsable_oauth_error";
+
+        /// <summary>
+        /// Device code expired before contacting the server
+        /// </summary>
+        public const string CodeExpired = "code_expired";
     }
 }
