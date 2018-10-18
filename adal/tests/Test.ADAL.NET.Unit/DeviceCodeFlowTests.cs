@@ -155,7 +155,10 @@ namespace Test.ADAL.NET.Unit
             AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
 
             AuthenticationContext context = new AuthenticationContext(TestConstants.DefaultAdfsAuthorityTenant, false);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(TestConstants.DefaultResource, TestConstants.DefaultClientId).ConfigureAwait(false);
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(
+                TestConstants.DefaultResource,
+                TestConstants.DefaultClientId)
+                .ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             Assert.AreEqual(dcr.UserCode, "some-user-code");
