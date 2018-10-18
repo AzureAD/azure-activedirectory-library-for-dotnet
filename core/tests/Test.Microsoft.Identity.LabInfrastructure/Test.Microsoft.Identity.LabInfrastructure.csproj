@@ -1,11 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net451</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.0.6" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -18,4 +26,7 @@
     </None>
   </ItemGroup>
 
+	<PropertyGroup>
+		<CodeAnalysisRuleSet>../../../build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
 </Project>

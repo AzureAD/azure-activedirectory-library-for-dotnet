@@ -35,6 +35,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Test.Microsoft.Identity.Core.Unit;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
 {

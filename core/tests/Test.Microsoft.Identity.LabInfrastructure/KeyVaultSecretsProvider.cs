@@ -145,14 +145,14 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                         var cert = CertificateHelper.FindCertificateByThumbprint(_config.CertThumbprint);
                         _assertionCert = new ClientAssertionCertificate(_config.ClientId, cert);
                     }
-                    authResult = await authContext.AcquireTokenAsync(resource, _assertionCert);
+                    authResult = await authContext.AcquireTokenAsync(resource, _assertionCert).ConfigureAwait(false);
                     break;
                 case KeyVaultAuthenticationType.ClientSecret:
                     ClientCredential cred = new ClientCredential(_config.ClientId, _config.KeyVaultSecret);
                     authResult = await authContext.AcquireTokenAsync(resource, cred);
                     break;
                 case KeyVaultAuthenticationType.UserCredential:
-                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential());
+                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential()).ConfigureAwait(false);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

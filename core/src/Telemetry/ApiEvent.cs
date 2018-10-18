@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.Telemetry
@@ -47,6 +48,8 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public enum ApiIds
         {
+            None = 0,
+
             AcquireTokenSilentWithAuthority = 31,
             AcquireTokenSilentWithoutAuthority = 30,
 
@@ -76,7 +79,7 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public ApiIds ApiId
         {
-            set { this[ApiIdKey] = ((int) value).ToStringInvariant(); }
+            set { this[ApiIdKey] = ((int) value).ToString(CultureInfo.InvariantCulture); }
         }
 
         public Uri Authority
@@ -103,8 +106,9 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
                 this[TenantIdKey] = value != null && _logger.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    ? crypto.CreateBase64UrlEncodedSha256Hash(value)
                     : null;
             }
         }
@@ -113,8 +117,9 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
+                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
                 this[UserIdKey] = value != null && _logger.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                    ? crypto.CreateBase64UrlEncodedSha256Hash(value)
                     : null;
             }
         }

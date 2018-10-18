@@ -26,22 +26,17 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Schema;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.WsTrust;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Test.Microsoft.Identity.Unit.HttpTests;
 
 namespace Test.Microsoft.Identity.Unit.WsTrustTests
 {
@@ -57,75 +52,60 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
         [TestMethod]
         [Description("WS-Trust Request Test")]
-        public async Task WsTrustRequestTest()
+        public async Task WsTrustRequestTestAsync()
         {
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
-
             string wsTrustAddress = "https://some/address/usernamemixed";
-            WsTrustAddress address = new WsTrustAddress()
+            var endpoint = new WsTrustEndpoint(new Uri(wsTrustAddress), WsTrustVersion.WsTrust13);
+
+            using (var httpManager = new MockHttpManager())
             {
-                Uri = new Uri(wsTrustAddress),
-                Version = WsTrustVersion.WsTrust13
-            };
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler()
+                    {
+                        Url = wsTrustAddress,
+                        Method = HttpMethod.Post,
+                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
+                        }
+                    });
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Url = wsTrustAddress,
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(File.ReadAllText("WsTrustResponse13.xml"))
-                }
-            });
+                var requestContext = new RequestContext(new TestLogger(Guid.NewGuid(), null));
+                var wsTrustRequest = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
+                var manager = new WsTrustWebRequestManager(httpManager);
+                var wsTrustResponse = await manager.GetWsTrustResponseAsync(endpoint, wsTrustRequest, requestContext)
+                                                   .ConfigureAwait(false);
 
-            var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
-
-            WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(
-               address, message.ToString(), null);
-
-            Assert.IsNotNull(wstResponse.Token);
-
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
+                Assert.IsNotNull(wsTrustResponse.Token);
+            }
         }
 
         [TestMethod]
         [Description("WsTrustRequest encounters HTTP 404")]
         public async Task WsTrustRequestFailureTestAsync()
         {
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
+            string uri = "https://some/address/usernamemixed";
+            var endpoint = new WsTrustEndpoint(new Uri(uri), WsTrustVersion.WsTrust13);
 
-            string URI = "https://some/address/usernamemixed";
-            WsTrustAddress address = new WsTrustAddress()
+            using (var httpManager = new MockHttpManager())
             {
-                Uri = new Uri(URI),
-                Version = WsTrustVersion.WsTrust13
-            };
+                httpManager.AddMockHandlerContentNotFound(HttpMethod.Post, url: uri);
 
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
-            {
-                Url = URI,
-                Method = HttpMethod.Post,
-                ResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+                var requestContext = new RequestContext(new TestLogger(Guid.NewGuid(), null));
+                try
                 {
-                    Content = new StringContent("Not found")
-                }
-            });
+                    var message = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
+                    var manager = new WsTrustWebRequestManager(httpManager);
 
-            var requestContext = new RequestContext(new TestLogger(Guid.NewGuid(), null));
-            try
-            {
-                var message = WsTrustRequestBuilder.BuildMessage("urn:federation:SomeAudience", address, new IntegratedWindowsAuthInput("username"));
-                WsTrustResponse wstResponse = await WsTrustRequest.SendRequestAsync(
-                    address, message.ToString(), requestContext);
-                Assert.Fail("We expect an exception to be thrown here");
+                    WsTrustResponse wstResponse =
+                        await manager.GetWsTrustResponseAsync(endpoint, message, requestContext).ConfigureAwait(false);
+                    Assert.Fail("We expect an exception to be thrown here");
+                }
+                catch (TestException ex)
+                {
+                    Assert.AreEqual(CoreErrorCodes.FederatedServiceReturnedError, ex.ErrorCode);
+                }
             }
-            catch (TestException ex)
-            {
-                Assert.AreEqual(CoreErrorCodes.FederatedServiceReturnedError, ex.ErrorCode);
-            }
-            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
     }
 }

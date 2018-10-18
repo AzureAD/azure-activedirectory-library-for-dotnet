@@ -86,9 +86,14 @@ namespace XForms
             var selectedUIBehavior = UIBehaviorPicker.SelectedItem as string;
 
             if (UIBehavior.ForceLogin.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
+            {
                 return UIBehavior.ForceLogin;
+            }
+
             if (UIBehavior.Consent.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
+            {
                 return UIBehavior.Consent;
+            }
 
             return UIBehavior.SelectAccount;
         }
@@ -126,7 +131,7 @@ namespace XForms
 
         private IAccount getUserByDisplayableId(string str)
         {
-            return string.IsNullOrWhiteSpace(str) ? null : 
+            return string.IsNullOrWhiteSpace(str) ? null :
                 App.MsalPublicClient.GetAccountsAsync().Result.FirstOrDefault(user => user.Username.Equals(str, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -137,7 +142,10 @@ namespace XForms
 
         private string GetSelectedUserId()
         {
-            if (usersPicker.SelectedIndex == -1) return null;
+            if (usersPicker.SelectedIndex == -1)
+            {
+                return null;
+            }
 
             var selectedUserId = usersPicker.SelectedItem as string;
             return UserNotSelected.Equals(selectedUserId, StringComparison.OrdinalIgnoreCase) ? null : selectedUserId;
@@ -146,8 +154,7 @@ namespace XForms
         private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
-            acquireResponseTitleLabel.Text = EmptyResult;
-            await Task.Delay(700);
+            await Task.Delay(700).ConfigureAwait(true);
 
             try
             {
@@ -161,7 +168,7 @@ namespace XForms
                 var authority = PassAuthoritySwitch.IsToggled ? App.Authority : null;
 
                 var res = await App.MsalPublicClient.AcquireTokenSilentAsync(GetScopes(),
-                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled);
+                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled).ConfigureAwait(true);
 
                 var resText = ToString(res);
 
@@ -190,13 +197,13 @@ namespace XForms
                     res =
                         await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), loginHint, GetUIBehavior(),
                             GetExtraQueryParams(),
-                            App.UIParent);
+                            App.UIParent).ConfigureAwait(true);
                 }
                 else
                 {
                     var user = getUserByDisplayableId(GetSelectedUserId());
                     res = await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), user, GetUIBehavior(),
-                        GetExtraQueryParams(), App.UIParent);
+                        GetExtraQueryParams(), App.UIParent).ConfigureAwait(true);
                 }
 
                 var resText = ToString(res);
@@ -223,10 +230,10 @@ namespace XForms
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
             var users = await tokenCache.GetAccountsAsync
-                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(true);
             foreach (var user in users)
             {
-                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
+                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(true);
             }
 
             acquireResponseLabel.Text = "";

@@ -35,6 +35,7 @@ using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Telemetry;
 using System.Threading;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -43,12 +44,12 @@ namespace Microsoft.Identity.Client
 #endif
     /// <summary>
     /// Class to be used to acquire tokens in desktop or mobile applications (Desktop / UWP / Xamarin.iOS / Xamarin.Android).
-    /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only 
+    /// public client applications are not trusted to safely keep application secrets, and therefore they only access Web APIs in the name of the user only
     /// (they only support public client flows). For details see https://aka.ms/msal-net-client-applications
     /// </summary>
     /// <remarks>
     /// <list type="bullet">
-    /// <item><description>Contrary to <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets, 
+    /// <item><description>Contrary to <see cref="Microsoft.Identity.Client.ConfidentialClientApplication"/>, public clients are unable to hold configuration time secrets,
     /// and as a result have no client secret</description></item>
     /// <item><description>the redirect URL is pre-proposed by the library. It does not need to be passed in the constructor</description></item>
     /// <item><description>.NET Core does not support UI, and therefore this platform does not provide the interactive token acquisition methods</description></item>
@@ -65,7 +66,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Consutructor of the application. It will use https://login.microsoftonline.com/common as the default authority.
         /// </summary>
-        /// <param name="clientId">Client ID (also known as App ID) of the application as registered in the 
+        /// <param name="clientId">Client ID (also known as App ID) of the application as registered in the
         /// application registration portal (https://aka.ms/msal-net-register-app)/. REQUIRED</param>
         public PublicClientApplication(string clientId) : this(clientId, DefaultAuthority)
         {
@@ -74,7 +75,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Consutructor of the application.
         /// </summary>
-        /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the 
+        /// <param name="clientId">Client ID (also named Application ID) of the application as registered in the
         /// application registration portal (https://aka.ms/msal-net-register-app)/. REQUIRED</param>
         /// <param name="authority">Authority of the security token service (STS) from which MSAL.NET will acquire the tokens.
         /// Usual authorities are:
@@ -85,16 +86,31 @@ namespace Microsoft.Identity.Client
         /// <item><description><c>https://login.microsoftonline.com/organizations/</c> to signing users with any work and school accounts</description></item>
         /// <item><description><c>https://login.microsoftonline.com/consumers/</c> to signing users with only personal Microsoft account (live)</description></item>
         /// </list>
-        /// Note that this setting needs to be consistent with what is declared in the application registration portal 
+        /// Note that this setting needs to be consistent with what is declared in the application registration portal
         /// </param>
         public PublicClientApplication(string clientId, string authority)
-            : base(clientId, authority, PlatformPlugin.PlatformInformation.GetDefaultRedirectUri(clientId), true)
+            : this(null, clientId, authority)
         {
             UserTokenCache = new TokenCache()
             {
                 ClientId = clientId
             };
         }
+
+        internal PublicClientApplication(IHttpManager httpManager, string clientId, string authority)
+            : base(
+                clientId,
+                authority,
+                PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId),
+                true,
+                httpManager)
+        {
+            UserTokenCache = new TokenCache()
+            {
+                ClientId = clientId
+            };
+        }
+
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
 #if !NET_CORE
 
@@ -109,15 +125,15 @@ namespace Microsoft.Identity.Client
         /// <remarks>This API may change in future release.</remarks>
         public string KeychainSecurityGroup
         {
-            get 
-            { 
-                return keychainSecurityGroup; 
+            get
+            {
+                return keychainSecurityGroup;
             }
-            set 
-            { 
+            set
+            {
                 keychainSecurityGroup = value;
                 UserTokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
-                UserTokenCache.legacyCachePersistance.SetKeychainSecurityGroup(value);
+                UserTokenCache.legacyCachePersistence.SetKeychainSecurityGroup(value);
             }
         }
 #endif
@@ -187,7 +203,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -207,7 +223,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
@@ -228,7 +244,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
@@ -252,7 +268,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="extraScopesToConsent">Scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
@@ -331,7 +347,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
@@ -352,7 +368,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="parent">Object containing a reference to the parent window/activity. REQUIRED for Xamarin.Android only.</param>
@@ -374,7 +390,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="loginHint">Identifier of the user. Generally in UserPrincipalName (UPN) format, e.g. <c>john.doe@contoso.com</c></param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="extraScopesToConsent">scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
@@ -399,7 +415,7 @@ namespace Microsoft.Identity.Client
         /// <param name="scopes">Scopes requested to access a protected API</param>
         /// <param name="account">Account to use for the interactive token acquisition. See <see cref="IAccount"/> for ways to get an account</param>
         /// <param name="behavior">Designed interactive experience for the user.</param>
-        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. 
+        /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority.
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <param name="extraScopesToConsent">scopes that you can request the end user to consent upfront, in addition to the scopes for the protected Web API
@@ -417,11 +433,11 @@ namespace Microsoft.Identity.Client
                         behavior, extraQueryParameters, parent, ApiEvent.ApiIds.AcquireTokenWithScopeUserBehaviorAuthority).ConfigureAwait(false);
         }
 
-      
-     
+
+
         internal IWebUI CreateWebAuthenticationDialog(UIParent parent, UIBehavior behavior, RequestContext requestContext)
         {
-            //create instance of UIParent and assign useCorporateNetwork to UIParent 
+            //create instance of UIParent and assign useCorporateNetwork to UIParent
             if (parent == null)
             {
                 parent = new UIParent();
@@ -435,7 +451,7 @@ namespace Microsoft.Identity.Client
 #endif
 #endif
 
-            return PlatformPlugin.WebUIFactory.CreateAuthenticationDialog(parent.CoreUIParent, requestContext);
+            return PlatformPlugin.GetWebUiFactory().CreateAuthenticationDialog(parent.CoreUIParent, requestContext);
         }
 
         private async Task<AuthenticationResult> AcquireTokenForLoginHintCommonAsync(Authority authority, IEnumerable<string> scopes,
@@ -448,14 +464,23 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 
-            var handler =
-                new InteractiveRequest(requestParams, extraScopesToConsent, loginHint, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
-                { ApiId = apiId };
+            var handler = new InteractiveRequest(
+                HttpManager,
+                CryptographyManager,
+                requestParams,
+                apiId,
+                extraScopesToConsent,
+                loginHint,
+                behavior,
+                CreateWebAuthenticationDialog(
+                    parent,
+                    behavior,
+                    requestParams.RequestContext));
+
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
@@ -468,14 +493,19 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformPlugin.PlatformInformation.ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 
-            var handler =
-                new InteractiveRequest(requestParams, extraScopesToConsent, behavior,
-                    CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext))
-                { ApiId = apiId };
+            var handler = new InteractiveRequest(
+                HttpManager,
+                CryptographyManager,
+                requestParams,
+                apiId,
+                extraScopesToConsent,
+                behavior,
+                CreateWebAuthenticationDialog(parent, behavior, requestParams.RequestContext));
+
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
 

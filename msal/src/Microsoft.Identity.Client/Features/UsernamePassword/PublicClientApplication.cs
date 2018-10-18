@@ -32,12 +32,12 @@ using Microsoft.Identity.Core.Telemetry;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Client
 {
     public sealed partial class PublicClientApplication : ClientApplicationBase
     {
-
         /// <summary>
         /// Non-interactive request to acquire a security token from the authority, via Username/Password Authentication.
         /// Available only on .net desktop and .net core. See https://aka.ms/msal-net-up for details.
@@ -58,13 +58,15 @@ namespace Microsoft.Identity.Client
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
-            var handler = new UsernamePasswordRequest(requestParams, usernamePasswordInput)
-            {
-                ApiId = ApiEvent.ApiIds.AcquireTokenWithScopeUser
-            };
+            var handler = new UsernamePasswordRequest(
+                HttpManager,
+                CryptographyManager,
+                WsTrustWebRequestManager,
+                requestParams,
+                ApiEvent.ApiIds.AcquireTokenWithScopeUser,
+                usernamePasswordInput);
 
             return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
         }
-
     }
 }
