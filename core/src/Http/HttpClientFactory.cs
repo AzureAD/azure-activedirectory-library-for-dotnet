@@ -37,12 +37,11 @@ namespace Microsoft.Identity.Core.Http
 
     internal class HttpClientFactory : IHttpClientFactory
     {
-        // as per guidelines HttpClient should be a singleton instance in an application.
-        private static HttpClient _client;
-        private static readonly object LockObj = new object();
+        // The HttpClient is a singleton per ClientApplication so that we don't have a process wide singleton.
+        private readonly HttpClient _httpClient;
         public const long MaxResponseContentBufferSizeInBytes = 1024*1024;
 
-        private static HttpClient CreateHttpClient()
+        public HttpClientFactory()
         {
             var httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
             {
@@ -52,28 +51,12 @@ namespace Microsoft.Identity.Core.Http
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return httpClient;
+            _httpClient = httpClient;
         }
 
         public HttpClient GetHttpClient()
         {
-            return GetHttpClientStatic();
-        }
-
-        public static HttpClient GetHttpClientStatic()
-        {
-            if (_client == null)
-            {
-                lock (LockObj)
-                {
-                    if (_client == null)
-                    {
-                        _client = CreateHttpClient();
-                    }
-                }
-            }
-
-            return _client;
+            return _httpClient;
         }
     }
 }
