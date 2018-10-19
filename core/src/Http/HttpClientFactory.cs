@@ -32,13 +32,12 @@ namespace Microsoft.Identity.Core.Http
 {
     internal interface IHttpClientFactory
     {
-        HttpClient GetHttpClient();
+        HttpClient HttpClient { get; }
     }
 
     internal class HttpClientFactory : IHttpClientFactory
     {
         // The HttpClient is a singleton per ClientApplication so that we don't have a process wide singleton.
-        private readonly HttpClient _httpClient;
         public const long MaxResponseContentBufferSizeInBytes = 1024*1024;
 
         public HttpClientFactory()
@@ -51,12 +50,9 @@ namespace Microsoft.Identity.Core.Http
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            _httpClient = httpClient;
+            HttpClient = httpClient;
         }
 
-        public HttpClient GetHttpClient()
-        {
-            return _httpClient;
-        }
+        public HttpClient HttpClient { get; }
     }
 }
