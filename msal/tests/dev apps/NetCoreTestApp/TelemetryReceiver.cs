@@ -12,10 +12,8 @@ namespace NetCoreTestApp
         private readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
         public TelemetryReceiver()
         {
-
             // Aria configuration
             EVTStatus status = 0;
-            //ILogManager myLogManager = LogManagerProvider.CreateLogManager(AriaTenantId, out status, true, new LogConfiguration());
             LogManager.Start(new LogConfiguration());
             LogManager.SetNetCost(NetCost.Low);
             LogManager.LoadTransmitProfiles(REAL_TIME_FOR_ALL);
@@ -43,7 +41,7 @@ namespace NetCoreTestApp
             LogManagerProvider.DestroyLogManager(AriaTenantId);
         }
 
-        List<TransmitPolicy> REAL_TIME_FOR_ALL = new List<TransmitPolicy>
+        private List<TransmitPolicy> REAL_TIME_FOR_ALL = new List<TransmitPolicy>
         {
              new TransmitPolicy
              {

@@ -7,24 +7,19 @@ namespace XForms
 {
     public class TelemetryReceiver
     {
-        private readonly static string AriaTenantId = "9805a6187b0e4f74a4e93b8ac8ecbe35-ec52c907-a4ac-4a49-82e5-d99b9daa2a96-6973";
+        private readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
         private readonly static string EventNameKey = "msal.event_name";
         private ILogger logger;
         public static string DataBasePath { get; set; }
 
         public TelemetryReceiver()
         {
-            var logConfig = new LogConfiguration
-            {
-                Memory = new MemoryConfiguration
-                {
-                    DatabasePath = DataBasePath
-                }
-            };
-            // Aria configuration
+            // Aria Configuration
             EVTStatus status = 0;
-            LogManager.Start(logConfig);
+            LogManager.Start(new LogConfiguration());
             LogManager.SetNetCost(NetCost.Low);
+            LogManager.LoadTransmitProfiles(REAL_TIME_FOR_ALL);
+            LogManager.SetTransmitProfile(REAL_TIME_FOR_ALL[0].ProfileName);
             LogManager.SetPowerState(PowerState.Charging);
             logger = LogManager.GetLogger(AriaTenantId, out status);
         }
@@ -45,11 +40,10 @@ namespace XForms
                 }
                 EVTStatus result = logger.LogEvent(eventData);
             }
-            LogManager.UploadNow();
-            LogManager.Teardown();
+            LogManagerProvider.DestroyLogManager(AriaTenantId);
         }
 
-        public static List<TransmitPolicy> REAL_TIME_FOR_ALL = new List<TransmitPolicy>
+        private List<TransmitPolicy> REAL_TIME_FOR_ALL = new List<TransmitPolicy>
         {
             new TransmitPolicy
             {
