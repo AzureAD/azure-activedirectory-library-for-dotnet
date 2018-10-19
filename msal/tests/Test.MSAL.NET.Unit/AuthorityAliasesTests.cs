@@ -49,22 +49,14 @@ namespace Test.MSAL.NET.Unit
     {
         private MyReceiver _myReceiver = new MyReceiver();
 
-        [TestInitialize]
-        public void TestInitialize()
+        internal void TestInitialize(MockHttpManager httpManager)
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
             Authority.ValidatedAuthorities.Clear();
-            HttpClientFactory.ReturnHttpClientForMocks = true;
-            HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
             AadInstanceDiscovery.Instance.Cache.Clear();
-            AddMockResponseForInstanceDisovery();
-        }
-
-        internal void AddMockResponseForInstanceDisovery()
-        {
-            HttpMessageHandlerFactory.AddMockHandler(
+            httpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
                     TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
@@ -77,90 +69,94 @@ namespace Test.MSAL.NET.Unit
             // (it is taken from metadata in instance discovery response), 
             // except very first network call - instance discovery
 
-            // init public client app
-            PublicClientApplication app = new PublicClientApplication(TestConstants.ClientId,
+            using (var httpManager = new MockHttpManager())
+            {
+                TestInitialize(httpManager);
+
+                PublicClientApplication app = new PublicClientApplication(httpManager, TestConstants.ClientId,
                 string.Format(CultureInfo.InvariantCulture, "https://{0}/common", TestConstants.ProductionNotPrefEnvironmentAlias));
-            app.UserTokenCache.legacyCachePersistance = new TestLegacyCachePersistance();
+                app.UserTokenCache.legacyCachePersistence = new TestLegacyCachePersistance();
 
-            // mock for openId config request
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/v2.0/.well-known/openid-configuration",
-                    TestConstants.ProductionPrefNetworkEnvironment),
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-            });
-
-            // mock webUi authorization
-            MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                app.RedirectUri + "?code=some-code"), null, TestConstants.ProductionPrefNetworkEnvironment);
-
-            // mock token request
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/home/oauth2/v2.0/token",
-                    TestConstants.ProductionPrefNetworkEnvironment),
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
-
-            AuthenticationResult result = app.AcquireTokenAsync(TestConstants.Scope).Result;
-
-            // make sure that all cache entities are stored with "preferred_cache" environment
-            // (it is taken from metadata in instance discovery response)
-            ValidateCacheEntitiesEnvironment(app.UserTokenCache, TestConstants.ProductionPrefCacheEnvironment);
-
-            // silent request targeting at, should return at from cache for any environment alias
-            foreach (var envAlias in TestConstants.ProdEnvAliases)
-            {
-                result = app.AcquireTokenSilentAsync(TestConstants.Scope,
-                    app.GetAccountsAsync().Result.First(),
-                    string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", envAlias, TestConstants.Utid),
-                    false).Result;
-
-                Assert.IsNotNull(result);
-            }
-
-            // mock for openId config request for tenant spesific authority
-            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-            {
-                Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/v2.0/.well-known/openid-configuration",
-                    TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
-                Method = HttpMethod.Get,
-                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityUtidTenant)
-            });
-
-            // silent request targeting rt should find rt in cahce for authority with any environment alias
-            foreach (var envAlias in TestConstants.ProdEnvAliases)
-            {
-                HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+                // mock for openId config request
+                httpManager.AddMockHandler(new MockHttpMessageHandler
                 {
-                    Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/v2.0/token",
-                        TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
-                    Method = HttpMethod.Post,
-                    PostData = new Dictionary<string, string>()
-                    {
-                        {"grant_type", "refresh_token"}
-                    },
-                    // return not retriable status code
-                    ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
+                    Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/common/v2.0/.well-known/openid-configuration",
+                        TestConstants.ProductionPrefNetworkEnvironment),
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
                 });
 
-                try
+                // mock webUi authorization
+                MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                    app.RedirectUri + "?code=some-code"), null, TestConstants.ProductionPrefNetworkEnvironment);
+
+                // mock token request
+                httpManager.AddMockHandler(new MockHttpMessageHandler
                 {
-                    result = null;
-                    result = app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource,
+                    Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/home/oauth2/v2.0/token",
+                        TestConstants.ProductionPrefNetworkEnvironment),
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+
+                AuthenticationResult result = app.AcquireTokenAsync(TestConstants.Scope).Result;
+
+                // make sure that all cache entities are stored with "preferred_cache" environment
+                // (it is taken from metadata in instance discovery response)
+                ValidateCacheEntitiesEnvironment(app.UserTokenCache, TestConstants.ProductionPrefCacheEnvironment);
+
+                // silent request targeting at, should return at from cache for any environment alias
+                foreach (var envAlias in TestConstants.ProdEnvAliases)
+                {
+                    result = app.AcquireTokenSilentAsync(TestConstants.Scope,
                         app.GetAccountsAsync().Result.First(),
                         string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", envAlias, TestConstants.Utid),
                         false).Result;
-                }
-                catch (AggregateException ex)
-                {
-                    Assert.IsNotNull(ex.InnerException);
-                    Assert.IsTrue(ex.InnerException is MsalUiRequiredException);
+
+                    Assert.IsNotNull(result);
                 }
 
-                Assert.IsNull(result);
+                // mock for openId config request for tenant spesific authority
+                httpManager.AddMockHandler(new MockHttpMessageHandler
+                {
+                    Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/v2.0/.well-known/openid-configuration",
+                        TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
+                    Method = HttpMethod.Get,
+                    ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityUtidTenant)
+                });
+
+                // silent request targeting rt should find rt in cahce for authority with any environment alias
+                foreach (var envAlias in TestConstants.ProdEnvAliases)
+                {
+                    httpManager.AddMockHandler(new MockHttpMessageHandler()
+                    {
+                        Url = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/v2.0/token",
+                            TestConstants.ProductionPrefNetworkEnvironment, TestConstants.Utid),
+                        Method = HttpMethod.Post,
+                        PostData = new Dictionary<string, string>()
+                    {
+                        {"grant_type", "refresh_token"}
+                    },
+                        // return not retriable status code
+                        ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
+                    });
+
+                    try
+                    {
+                        result = null;
+                        result = app.AcquireTokenSilentAsync(TestConstants.ScopeForAnotherResource,
+                            app.GetAccountsAsync().Result.First(),
+                            string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", envAlias, TestConstants.Utid),
+                            false).Result;
+                    }
+                    catch (AggregateException ex)
+                    {
+                        Assert.IsNotNull(ex.InnerException);
+                        Assert.IsTrue(ex.InnerException is MsalUiRequiredException);
+                    }
+
+                    Assert.IsNull(result);
+                }
             }
         }
 
@@ -192,7 +188,7 @@ namespace Test.MSAL.NET.Unit
             }
 
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache =
-                AdalCacheOperations.Deserialize(cache.legacyCachePersistance.LoadCache());
+                AdalCacheOperations.Deserialize(cache.legacyCachePersistence.LoadCache());
 
             foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
             {

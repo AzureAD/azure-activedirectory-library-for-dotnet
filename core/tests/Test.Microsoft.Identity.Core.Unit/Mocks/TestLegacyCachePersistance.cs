@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.Core.Unit.Mocks
 {
-    public class TestLegacyCachePersistance : ILegacyCachePersistance
+    public class TestLegacyCachePersistance : ILegacyCachePersistence
     {
         private byte[] data;
         public byte[] LoadCache()

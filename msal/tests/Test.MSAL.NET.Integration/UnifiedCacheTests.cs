@@ -179,9 +179,9 @@ namespace Test.MSAL.NET.Integration
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task AdalRt_CreatedByMsalV2_UsedByAdalV4()
+        public async Task AdalRt_CreatedByMsalV2_UsedByAdalV4Async()
         {
-            await AcquireTokensUsingMsal();
+            await AcquireTokensUsingMsalAsync().ConfigureAwait(false);
 
             ClearMsalCache();
             AssertMsalCacheIsEmpty();
@@ -189,32 +189,32 @@ namespace Test.MSAL.NET.Integration
             // passing empty password to make sure that token returned silenlty - using RT
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId, 
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, ""));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, "")).ConfigureAwait(false);
 
             ValidateAdalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task AdalRt_CreatedByMsalV2_UsedByMsalV2()
+        public async Task AdalRt_CreatedByMsalV2_UsedByMsalV2Async()
         {
-            await AcquireTokensUsingMsal();
+            await AcquireTokensUsingMsalAsync().ConfigureAwait(false);
 
             ClearMsalCache();
             AssertMsalCacheIsEmpty();
 
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
 
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First());
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First()).ConfigureAwait(false);
             ValidateMsalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task MsalRt_CreatedByMsalV2_UsedByAdalV4()
+        public async Task MsalRt_CreatedByMsalV2_UsedByAdalV4Async()
         {
-            await AcquireTokensUsingMsal();
+            await AcquireTokensUsingMsalAsync().ConfigureAwait(false);
 
             ClearAdalCache();
             AssertAdalCacheIsEmpty();
@@ -222,73 +222,73 @@ namespace Test.MSAL.NET.Integration
             // passing empty password to make sure that token returned silenlty - using RT
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, ""));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, "")).ConfigureAwait(false);
      
             ValidateAdalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task MsalRt_CreatedByMsalV2_UsedByMsalV2()
+        public async Task MsalRt_CreatedByMsalV2_UsedByMsalV2Async()
         {
-            await AcquireTokensUsingMsal();
+            await AcquireTokensUsingMsalAsync().ConfigureAwait(false);
 
             ClearAdalCache();
             AssertAdalCacheIsEmpty();
 
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
 
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First());
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First()).ConfigureAwait(false);
             ValidateMsalAuthResult();
         }
 
-        private async Task AcquireTokensUsingAdal()
+        private async Task AcquireTokensUsingAdalAsync()
         {
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
 
             ValidateAdalAuthResult();
 
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource2, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
             ValidateAdalAuthResult();
         }
 
-        private async Task AcquireTokensUsingMsal()
+        private async Task AcquireTokensUsingMsalAsync()
         {
             msalAuthResult =
-                await msalPublicClient.AcquireTokenByUsernamePasswordAsync(MsalScopes, user.Upn, securePassword);
+                await msalPublicClient.AcquireTokenByUsernamePasswordAsync(MsalScopes, user.Upn, securePassword).ConfigureAwait(false);
             ValidateMsalAuthResult();
 
             msalAuthResult =
-                await msalPublicClient.AcquireTokenByUsernamePasswordAsync(MsalScopes1, user.Upn, securePassword);
+                await msalPublicClient.AcquireTokenByUsernamePasswordAsync(MsalScopes1, user.Upn, securePassword).ConfigureAwait(false);
             ValidateMsalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task MsalRt_CreatedByAdalV4_UsedByMsalV2()
+        public async Task MsalRt_CreatedByAdalV4_UsedByMsalV2Async()
         {
-            await AcquireTokensUsingAdal();
+            await AcquireTokensUsingAdalAsync().ConfigureAwait(false);
 
             ClearAdalCache();
             AssertAdalCacheIsEmpty();
 
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
 
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First());
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First()).ConfigureAwait(false);
             ValidateMsalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task MsalRt_CreatedByAdalV4_UsedByAdalV4()
+        public async Task MsalRt_CreatedByAdalV4_UsedByAdalV4Async()
         {
-            await AcquireTokensUsingAdal();
+            await AcquireTokensUsingAdalAsync().ConfigureAwait(false);
 
             ClearAdalCache();
             AssertAdalCacheIsEmpty();
@@ -296,32 +296,32 @@ namespace Test.MSAL.NET.Integration
             // passing empty password to make sure that token returned silenlty - using RT
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, ""));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, "")).ConfigureAwait(false);
 
             ValidateAdalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task AdalRt_CreatedByAdalV4_UsedByMsalV2()
+        public async Task AdalRt_CreatedByAdalV4_UsedByMsalV2Async()
         {
-            await AcquireTokensUsingAdal();
+            await AcquireTokensUsingAdalAsync().ConfigureAwait(false);
 
             ClearMsalCache();
             AssertMsalCacheIsEmpty();
 
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
 
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First());
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, msalAccounts.First()).ConfigureAwait(false);
             ValidateMsalAuthResult();
         }
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task AdalRt_CreatedByAdalV4_UsedByAdalV4()
+        public async Task AdalRt_CreatedByAdalV4_UsedByAdalV4Async()
         {
-            await AcquireTokensUsingAdal();
+            await AcquireTokensUsingAdalAsync().ConfigureAwait(false);
 
             ClearMsalCache();
             AssertMsalCacheIsEmpty();
@@ -329,7 +329,7 @@ namespace Test.MSAL.NET.Integration
             // passing empty password to make sure that token returned silenlty - using RT
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, ""));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, "")).ConfigureAwait(false);
 
             ValidateAdalAuthResult();
         }
@@ -386,17 +386,17 @@ namespace Test.MSAL.NET.Integration
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task UnifiedCache_Adalv3ToMsal2MigrationIntegrationTest()
+        public async Task UnifiedCache_Adalv3ToMsal2MigrationIntegrationTestAsync()
         {
             // acquire adal tokens using adalV4
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
             ValidateAdalAuthResult();
 
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource2, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
             ValidateAdalAuthResult();
             
             // simulate adalV3 token cache state by setting client info in adal cache entities to null 
@@ -406,7 +406,7 @@ namespace Test.MSAL.NET.Integration
             AssertMsalCacheIsEmpty();
 
             // make sure that adal v3 RT is visible for Msal
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
             var account = msalAccounts.First();
             Assert.AreEqual(user.Upn, account.Username);
@@ -414,15 +414,15 @@ namespace Test.MSAL.NET.Integration
             Assert.IsNotNull(account.Environment);
 
             // make sure that adal v3 RT is usable by Msal
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, account);
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, account).ConfigureAwait(false);
             ValidateMsalAuthResult();
 
             // make sure Msal remove account api remove corresponding cache entities in all formats  
-            msalAccounts = await msalPublicClient.GetAccountsAsync();
+            msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
             account = msalAccounts.First();
 
-            await msalPublicClient.RemoveAsync(account);
+            await msalPublicClient.RemoveAsync(account).ConfigureAwait(false);
 
             AssertAdalCacheIsEmpty();
             AssertMsalCacheIsEmpty();
@@ -430,12 +430,12 @@ namespace Test.MSAL.NET.Integration
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task UnifiedCache_Adalv3ToAdalV4ToMsal2MigrationIntegrationTest()
+        public async Task UnifiedCache_Adalv3ToAdalV4ToMsal2MigrationIntegrationTestAsync()
         {
             // acquire adal tokens using adalV4
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
             ValidateAdalAuthResult();
 
             // simulate adalV3 token cache state by setting client info in adal cache entities to null 
@@ -449,19 +449,19 @@ namespace Test.MSAL.NET.Integration
 
             // make sure that AT in AdalV3 format is used by AdalV4
             Assert.AreEqual(1, adalCache.ReadItems().Count());
-            adalAuthResult = await adalContext.AcquireTokenSilentAsync(AdalResource1, ClientId);
+            adalAuthResult = await adalContext.AcquireTokenSilentAsync(AdalResource1, ClientId).ConfigureAwait(false);
             Assert.AreEqual(1, adalCache.ReadItems().Count());
 
             // acquire token to different resource
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource2, ClientId,
-                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+                new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
             ValidateAdalAuthResult();
 
             // At this poing Adal cache contains RTs for the same account in diff format v3 and v4
             Assert.IsTrue(adalCache.ReadItems().Count() == 2);
 
-            var msalAccounts = await msalPublicClient.GetAccountsAsync();
+            var msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
             var account = msalAccounts.First();
             Assert.AreEqual(user.Upn, account.Username);
@@ -476,15 +476,15 @@ namespace Test.MSAL.NET.Integration
             Assert.AreEqual(1, msalCache.tokenCacheAccessor.GetAllAccountsAsString().Count);
 
             // make sure that adal v4 RT is usable by Msal
-            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, account);
+            msalAuthResult = await msalPublicClient.AcquireTokenSilentAsync(MsalScopes, account).ConfigureAwait(false);
             ValidateMsalAuthResult();
 
             // make sure Msal remove account api remove corresponding cache entities in all formats  
-            msalAccounts = await msalPublicClient.GetAccountsAsync();
+            msalAccounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
             Assert.AreEqual(1, msalAccounts.Count());
             account = msalAccounts.First();
 
-            await msalPublicClient.RemoveAsync(account);
+            await msalPublicClient.RemoveAsync(account).ConfigureAwait(false);
 
             AssertAdalCacheIsEmpty();
             AssertMsalCacheIsEmpty();
@@ -492,14 +492,15 @@ namespace Test.MSAL.NET.Integration
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task UnifiedCache_Adal_ClearCache()
+        public async Task UnifiedCache_Adal_ClearCacheAsync()
         {
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-            new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+            new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
 
             Assert.IsTrue(adalCache.ReadItems().Count() > 0);
-            Assert.IsTrue((await msalPublicClient.GetAccountsAsync()).Count() > 0);
+            var accounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
+            Assert.IsTrue(accounts.Count() > 0);
 
             adalCache.Clear();
 
@@ -509,14 +510,15 @@ namespace Test.MSAL.NET.Integration
 
         [TestMethod]
         [TestCategory("UnifiedCache_IntegrationTests")]
-        public async Task UnifiedCache_Msal_ClearCache()
+        public async Task UnifiedCache_Msal_ClearCacheAsync()
         {
             adalAuthResult = await adal::Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions.
                 AcquireTokenAsync(adalContext, AdalResource1, ClientId,
-            new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword));
+            new adal::Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential(user.Upn, securePassword)).ConfigureAwait(false);
 
             Assert.IsTrue(adalCache.ReadItems().Count() > 0);
-            Assert.IsTrue((await msalPublicClient.GetAccountsAsync()).Count() > 0);
+            var accounts = await msalPublicClient.GetAccountsAsync().ConfigureAwait(false);
+            Assert.IsTrue(accounts.Count() > 0);
 
             msalCache.Clear();
 

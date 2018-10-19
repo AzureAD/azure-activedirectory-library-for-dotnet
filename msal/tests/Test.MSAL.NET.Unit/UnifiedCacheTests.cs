@@ -36,12 +36,6 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
@@ -63,13 +57,6 @@ namespace Test.MSAL.NET.Unit
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
-        internal void AddMockResponseForInstanceDisovery()
-        {
-            HttpMessageHandlerFactory.AddMockHandler(
-                MockHelpers.CreateInstanceDiscoveryMockHandler(
-                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
-        }
-
         [TestMethod]
         [Description("Test unified token cache")]
         public void UnifiedCache_MsalStoresToAndReadRtFromAdalCache()
@@ -89,7 +76,7 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistence()
+                        legacyCachePersistence = new TestLegacyCachePersistance()
                     }
                 };
 
@@ -113,7 +100,7 @@ namespace Test.MSAL.NET.Unit
                 foreach (IAccount user in users)
                 {
                     ISet<string> authorityHostAliases = new HashSet<string>();
-                    authorityHostAliases.Add(TestConstants.ProductionPrefNetworkEnvironment);
+                    authorityHostAliases.Add(TestConstants.ProductionPrefCacheEnvironment);
 
                     app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
                 }
@@ -156,7 +143,7 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistence()
+                        legacyCachePersistence = new TestLegacyCachePersistance()
                     }
                 };
 
