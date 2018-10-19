@@ -66,7 +66,7 @@ namespace Test.MSAL.NET.Integration
 
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
 
-            AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword);
+            AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword).ConfigureAwait(false);
             Assert.IsNotNull(authResult);
             Assert.IsNotNull(authResult.AccessToken);
             Assert.IsNotNull(authResult.IdToken);
@@ -95,7 +95,7 @@ namespace Test.MSAL.NET.Integration
             SecureString securePassword = new NetworkCredential("", ((LabUser)user).GetPassword()).SecurePassword;
 
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
-            AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword);
+            AuthenticationResult authResult = await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, securePassword).ConfigureAwait(false);
             Assert.IsNotNull(authResult);
             Assert.IsNotNull(authResult.AccessToken);
             Assert.IsNotNull(authResult.IdToken);
@@ -128,7 +128,7 @@ namespace Test.MSAL.NET.Integration
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
 
             var result = Assert.ThrowsExceptionAsync<MsalException>(async () =>
-                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword));
+                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword).ConfigureAwait(false));
         }
 
         [TestMethod]
@@ -150,7 +150,7 @@ namespace Test.MSAL.NET.Integration
             PublicClientApplication msalPublicClient = new PublicClientApplication(ClientId, Authority);
 
             var result = Assert.ThrowsExceptionAsync<MsalException>(async () =>
-                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword));
+                 await msalPublicClient.AcquireTokenByUsernamePasswordAsync(Scopes, user.Upn, incorrectSecurePassword).ConfigureAwait(false));
         }
     }
 }

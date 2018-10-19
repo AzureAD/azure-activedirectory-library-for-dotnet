@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+using PromptBehavior = Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
@@ -56,7 +57,7 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = new PlatformParameters(Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto);
+            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
 
             InstanceDiscovery.InstanceCache.Clear();
         }
@@ -96,7 +97,7 @@ namespace Test.ADAL.NET.Integration
 
             var authenticationResult = await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true").ConfigureAwait(false);
 
             // make sure that tenant specific sovereign Authority returned to the app in AuthenticationResult
             Assert.AreEqual(_sovereignTenantSpecificAuthority, authenticationResult.Authority);
@@ -166,7 +167,7 @@ namespace Test.ADAL.NET.Integration
 
             await authenticationContext.AcquireTokenAsync(TestConstants.DefaultResource,
                 TestConstants.DefaultClientId,
-                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true");
+                TestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true").ConfigureAwait(false);
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
             Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
