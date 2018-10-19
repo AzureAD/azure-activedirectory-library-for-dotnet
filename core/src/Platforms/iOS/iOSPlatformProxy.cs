@@ -122,15 +122,6 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.iOS" : "PCL.iOS";
         }
-
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new iOSLegacyCachePersistence();
-
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new iOSTokenCacheAccessor();
-
-        /// <inheritdoc />
-        public ICryptographyManager CryptographyManager { get; } = new iOSCryptographyManager();
         public string GetApplicationName()
         {
             return (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleName"].ToString();
@@ -145,5 +136,14 @@ namespace Microsoft.Identity.Core
         {
             return UIDevice.CurrentDevice.IdentifierForVendor.AsString();
         }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new iOSLegacyCachePersistence();
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new iOSTokenCacheAccessor();
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new iOSCryptographyManager();
     }
 }

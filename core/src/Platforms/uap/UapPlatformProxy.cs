@@ -39,6 +39,7 @@ using Windows.Storage;
 using Windows.System;
 using Microsoft.Identity.Core.Cache;
 using Windows.ApplicationModel;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 
 namespace Microsoft.Identity.Core
 {
@@ -191,14 +192,6 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.UAP" : "PCL.UAP";
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new UapLegacyCachePersistence(new UapCryptographyManager());
-
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new UapTokenCacheAccessor(new UapCryptographyManager());
-
-        /// <inheritdoc />
-        public ICryptographyManager CryptographyManager { get; } = new UapCryptographyManager();
         public string GetApplicationName()
         {
             return Package.Current.DisplayName;
@@ -211,8 +204,17 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            // TODO: Find a good unique Identifier
-            return null;
+            var deviceInformation = new EasClientDeviceInformation();
+            return deviceInformation.Id.ToString();
         }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new UapLegacyCachePersistence(new UapCryptographyManager());
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new UapTokenCacheAccessor(new UapCryptographyManager());
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new UapCryptographyManager();
     }
 }

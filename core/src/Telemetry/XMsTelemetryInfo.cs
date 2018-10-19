@@ -15,7 +15,7 @@ namespace Microsoft.Identity.Core.Telemetry
 
     internal static class XMsTelemInfoHelper
     {
-        public static XMsTelemetryInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
+        internal static XMsTelemetryInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
         {
             if (string.IsNullOrEmpty(headerValue))
             {

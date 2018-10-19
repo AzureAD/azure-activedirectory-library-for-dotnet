@@ -15,9 +15,11 @@ namespace NetCoreTestApp
 
             // Aria configuration
             EVTStatus status = 0;
-            ILogManager myLogManager = LogManagerProvider.CreateLogManager(AriaTenantId, out status, true, new LogConfiguration());
+            //ILogManager myLogManager = LogManagerProvider.CreateLogManager(AriaTenantId, out status, true, new LogConfiguration());
             LogManager.Start(new LogConfiguration());
             LogManager.SetNetCost(NetCost.Low);
+            LogManager.LoadTransmitProfiles(REAL_TIME_FOR_ALL);
+            LogManager.SetTransmitProfile(REAL_TIME_FOR_ALL[0].ProfileName);
             LogManager.SetPowerState(PowerState.Charging);
             logger = LogManager.GetLogger(AriaTenantId, out status);
         }
@@ -40,5 +42,36 @@ namespace NetCoreTestApp
             }
             LogManagerProvider.DestroyLogManager(AriaTenantId);
         }
+
+        List<TransmitPolicy> REAL_TIME_FOR_ALL = new List<TransmitPolicy>
+        {
+             new TransmitPolicy
+             {
+                 ProfileName = "RealTimeForALL",
+                 Rules = new List<Rules>
+                 {
+                         new Rules
+                     {
+                         NetCost = NetCost.Unknown, PowerState = PowerState.Unknown,
+                         Timers = new Timers { Normal = -1, RealTime = -1 }
+                     },
+                     new Rules
+                     {
+                         NetCost = NetCost.Low, PowerState = PowerState.Unknown,
+                         Timers = new Timers { Normal = -1, RealTime = 10 }
+                     },
+                     new Rules
+                     {
+                         NetCost = NetCost.Low, PowerState = PowerState.Charging,
+                         Timers = new Timers { Normal = 10, RealTime = 1 }
+                     },
+                     new Rules
+                     {
+                         NetCost = NetCost.Low, PowerState = PowerState.Battery,
+                         Timers = new Timers { Normal = 30, RealTime = 10 }
+                     },
+                 }
+             }
+        };
     }
 }

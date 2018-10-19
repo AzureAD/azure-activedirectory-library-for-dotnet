@@ -134,16 +134,6 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
         }
-
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new AndroidLegacyCachePersistence();
-
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new AndroidTokenCacheAccessor();
-
-        /// <inheritdoc />
-        public ICryptographyManager CryptographyManager { get; } = new AndroidCryptographyManager();
-
         public string GetApplicationName()
         {
             return Android.App.Application.Context.ApplicationInfo.LoadLabel(Android.App.Application.Context.PackageManager);
@@ -158,5 +148,14 @@ namespace Microsoft.Identity.Core
         {
             return Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
         }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new AndroidLegacyCachePersistence();
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new AndroidTokenCacheAccessor();
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new AndroidCryptographyManager();
     }
 }

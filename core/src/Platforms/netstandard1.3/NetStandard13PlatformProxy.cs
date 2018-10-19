@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 
@@ -83,15 +84,6 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.CoreCLR" : "PCL.CoreCLR";
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetStandard13LegacyCachePersistence();
-
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
-
-        /// <inheritdoc />
-        public ICryptographyManager CryptographyManager { get; } = new NetStandard13CryptographyManager();
-
         public bool IsDomainJoined()
         {
             return false;
@@ -129,8 +121,16 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            // TODO: Find a good unique Identifier
             return null;
         }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetStandard13LegacyCachePersistence();
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new NetStandard13CryptographyManager();
     }
 }

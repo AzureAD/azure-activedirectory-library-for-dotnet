@@ -34,6 +34,8 @@ using System.Security.Principal;
 using Microsoft.Identity.Core.Platforms;
 using Microsoft.Identity.Core.Cache;
 using System.Reflection;
+using System.Net.NetworkInformation;
+using System.Linq;
 
 namespace Microsoft.Identity.Core
 {
@@ -217,8 +219,8 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            // TODO: Find a good unique Identifier
-            return null;
+            return NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+                .Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
         }
 
         /// <inheritdoc />

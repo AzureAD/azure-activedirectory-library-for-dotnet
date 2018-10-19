@@ -87,5 +87,12 @@ namespace Microsoft.Identity.Core.Telemetry
             string scrubbedPath = String.Join("/", pieces);
             return uri.Scheme + "://" + uri.Authority + scrubbedPath;
         }
+
+        public static string HashPersonalIdentifier(string valueToHash)
+        {
+            var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+            string hashedValue = crypto.CreateBase64UrlEncodedSha256Hash(valueToHash);
+            return hashedValue;
+        }
     }
 }

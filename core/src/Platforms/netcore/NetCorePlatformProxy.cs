@@ -29,6 +29,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using System.Reflection;
+using System.Net.NetworkInformation;
 
 namespace Microsoft.Identity.Core
 {
@@ -109,15 +110,6 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.NetCore" : null;
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetCoreLegacyCachePersistence();
-
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
-
-        /// <inheritdoc />
-        public ICryptographyManager CryptographyManager { get; } = new NetCoreCryptographyManager();
-
         public string GetApplicationName()
         {
             return Assembly.GetEntryAssembly().GetName().Name.ToString();
@@ -130,8 +122,16 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            // TODO: Find a good unique Identifier
             return null;
         }
+
+        /// <inheritdoc />
+        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetCoreLegacyCachePersistence();
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
+
+        /// <inheritdoc />
+        public ICryptographyManager CryptographyManager { get; } = new NetCoreCryptographyManager();
     }
 }
