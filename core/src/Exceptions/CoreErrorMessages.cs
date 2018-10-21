@@ -103,5 +103,8 @@ namespace Microsoft.Identity.Core
             "As a result, there was a failure to save to the iOS keychain. " +
             "The keychain access group '{0}' is not enabled in the Entitlements.plist. " +
             "See https://aka.ms/msal-net-enable-keychain-groups for more details on enabling keychain access groups and entitlements.";
+
+        public const string AndroidActivityNotFound = "The browsers installed on the device do not support custom tabs. A browser" +
+            "with custom tab support is recommended for authentication. See [] for more details on using system browser on Android.";
     }
 }
