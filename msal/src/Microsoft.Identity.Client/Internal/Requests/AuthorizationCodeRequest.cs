@@ -26,37 +26,59 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
     internal class AuthorizationCodeRequest : RequestBase
     {
-        public AuthorizationCodeRequest(AuthenticationRequestParameters authenticationRequestParameters)
-            : base(authenticationRequestParameters)
+        public AuthorizationCodeRequest(
+            IHttpManager httpManager, 
+            ICryptographyManager cryptographyManager,
+            AuthenticationRequestParameters authenticationRequestParameters,
+            ApiEvent.ApiIds apiId)
+            : base(httpManager, cryptographyManager, authenticationRequestParameters, apiId)
         {
             if (string.IsNullOrWhiteSpace(authenticationRequestParameters.AuthorizationCode))
             {
                 throw new ArgumentNullException(nameof(authenticationRequestParameters.AuthorizationCode));
             }
 
-            PlatformInformation.ValidateRedirectUri(authenticationRequestParameters.RedirectUri,
+            PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(authenticationRequestParameters.RedirectUri,
                 AuthenticationRequestParameters.RequestContext);
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
                 throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
             }
-
-            LoadFromCache = false;
         }
 
-        protected override void SetAdditionalRequestParameters(OAuth2Client client)
+        protected override void EnrichTelemetryApiEvent(ApiEvent apiEvent)
         {
-            client.AddBodyParameter(OAuth2Parameter.GrantType, OAuth2GrantType.AuthorizationCode);
-            client.AddBodyParameter(OAuth2Parameter.Code, AuthenticationRequestParameters.AuthorizationCode);
-            client.AddBodyParameter(OAuth2Parameter.RedirectUri,
-                AuthenticationRequestParameters.RedirectUri.OriginalString);
+            apiEvent.IsConfidentialClient = true;
+        }
+
+        internal override async Task<AuthenticationResult> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
+            var msalTokenResponse = await SendTokenRequestAsync(GetBodyParameters(), cancellationToken).ConfigureAwait(false);
+            return CacheTokenResponseAndCreateAuthenticationResult(msalTokenResponse); 
+        }
+
+        private Dictionary<string, string> GetBodyParameters()
+        {
+            var dict = new Dictionary<string, string>
+            {
+                [OAuth2Parameter.GrantType] = OAuth2GrantType.AuthorizationCode,
+                [OAuth2Parameter.Code] = AuthenticationRequestParameters.AuthorizationCode,
+                [OAuth2Parameter.RedirectUri] = AuthenticationRequestParameters.RedirectUri.OriginalString
+            };
+            return dict;
         }
     }
 }

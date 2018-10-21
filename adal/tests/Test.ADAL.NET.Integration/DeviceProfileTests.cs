@@ -46,6 +46,8 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
+            TokenCache.DefaultShared.Clear();
+
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
             AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(TestConstants.GetDiscoveryEndpoint(TestConstants.DefaultAuthorityCommonTenant)));
@@ -101,7 +103,7 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr);
+            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
 
@@ -114,7 +116,7 @@ namespace Test.ADAL.NET.Integration
 
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
             };
@@ -146,7 +148,7 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client");
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             Assert.AreEqual("some-device-code", dcr.DeviceCode);
@@ -156,7 +158,7 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual("some-message", dcr.Message);
             Assert.AreEqual("some-client", dcr.ClientId);
 
-            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr);
+            AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
             // There should be one cached entry.
@@ -170,7 +172,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateDeviceCodeErrorResponse()
             };
@@ -180,7 +182,7 @@ namespace Test.ADAL.NET.Integration
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
             DeviceCodeResult dcr;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client"));
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => dcr = await context.AcquireDeviceCodeAsync("some-resource", "some-client").ConfigureAwait(false));
             Assert.IsTrue(ex.Message.Contains("some error message"));
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
@@ -191,7 +193,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
                     // do not lower this to 1-2s as test execution may be slow and the flow 
@@ -227,12 +229,12 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority");
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority").ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
-            Assert.AreEqual(AdalErrorEx.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false));
+            Assert.AreEqual(AdalError.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
@@ -242,7 +244,7 @@ namespace Test.ADAL.NET.Integration
         {
             MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler(TestConstants.DefaultAuthorityHomeTenant)
             {
-                Method = HttpMethod.Get,
+                Method = HttpMethod.Post,
                 Url = TestConstants.DefaultAuthorityHomeTenant + "oauth2/devicecode",
                 ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage(
                     expirationTimeInSeconds: 0,
@@ -253,12 +255,12 @@ namespace Test.ADAL.NET.Integration
 
             TokenCache cache = new TokenCache();
             context = new AuthenticationContext(TestConstants.DefaultAuthorityHomeTenant, cache);
-            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority");
+            DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync("some resource", "some authority").ConfigureAwait(false);
 
             Assert.IsNotNull(dcr);
             AuthenticationResult result;
-            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr));
-            Assert.AreEqual(AdalErrorEx.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
+            AdalServiceException ex = AssertException.TaskThrows<AdalServiceException>(async () => result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false));
+            Assert.AreEqual(AdalError.DeviceCodeAuthorizationCodeExpired, ex.ErrorCode);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }

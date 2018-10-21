@@ -29,10 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Http
@@ -47,6 +45,8 @@ namespace Microsoft.Identity.Core.Http
             _coreExceptionFactory = coreExceptionFactory ?? CoreExceptionFactory.Instance;
             _httpClientFactory = httpClientFactory ?? new HttpClientFactory();
         }
+
+        protected virtual HttpClient HttpClient => _httpClientFactory.HttpClient;
 
         public async Task<HttpResponse> SendPostAsync(
             Uri endpoint,
@@ -196,7 +196,7 @@ namespace Microsoft.Identity.Core.Http
             HttpContent body,
             HttpMethod method)
         {
-            HttpClient client = _httpClientFactory.GetTheHttpClient();
+            HttpClient client = HttpClient;
 
             using (HttpRequestMessage requestMessage = CreateRequestMessage(endpoint, headers))
             {
@@ -215,15 +215,6 @@ namespace Microsoft.Identity.Core.Http
 
         internal /* internal for test only */ static async Task<HttpResponse> CreateResponseAsync(HttpResponseMessage response)
         {
-            var headers = new Dictionary<string, string>();
-            if (response.Headers != null)
-            {
-                foreach (var kvp in response.Headers)
-                {
-                    headers[kvp.Key] = kvp.Value.First();
-                }
-            }
-
             return new HttpResponse
             {
                 Headers = response.Headers,
