@@ -49,7 +49,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.Applications.Telemetry.Windows, Version=2.0.0.7, Culture=neutral, PublicKeyToken=ffe01d0f25e9b4f1, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\aria-windows-sdk-win32-cs\debug\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
+      <HintPath>..\Lib\aria-windows-sdk-win32-cs\release\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

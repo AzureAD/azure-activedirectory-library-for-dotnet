@@ -25,7 +25,7 @@
     <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
@@ -118,8 +118,8 @@
   </PropertyGroup>
   <!-- Properties group for Determining 32bit vs 64bit Architecture -->
   <PropertyGroup>
-    <CurrentPlatform>x64</CurrentPlatform>
-    <CurrentPlatform Condition="'$(Platform)' == 'x86'">x86</CurrentPlatform>
+    <CurrentPlatform>x86</CurrentPlatform>
+    <CurrentPlatform Condition="'$(Platform)' == 'x64'">x64</CurrentPlatform>
     <CurrentPlatform Condition="'$(Platform)' == 'AMD64'">x64</CurrentPlatform>
     <CurrentPlatform Condition="'$(Platform)' == 'ARM'">arm</CurrentPlatform>
   </PropertyGroup>
@@ -137,9 +137,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="..\..\..\build\MSAL.snk">
-      <Link>MSAL.snk</Link>
-    </None>
     <None Include="UWP_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -182,25 +179,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Applications.Telemetry.Windows">
-      <HintPath>..\Lib\aria-windows-sdk-uwp-cs\release\x86\Microsoft.Applications.Telemetry.Windows.winmd</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Applications.Telemetry.Windows, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\aria-windows-sdk-uwp-cs\release\x64\Microsoft.Applications.Telemetry.Windows.winmd</HintPath>
+      <HintPath>..\Lib\aria-windows-sdk-uwp-cs\release\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.winmd</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\build\MSAL.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>true</DelaySign>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

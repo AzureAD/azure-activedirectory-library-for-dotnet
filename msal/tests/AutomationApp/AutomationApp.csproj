@@ -40,9 +40,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Appveyor|AnyCPU'">
     <OutputPath>bin\Appveyor\</OutputPath>
   </PropertyGroup>
+  <!-- Properties group for Determining 32bit vs 64bit Architecture -->
+  <PropertyGroup>
+    <CurrentPlatform>x86</CurrentPlatform>
+    <CurrentPlatform Condition="'$(Platform)' == 'x64'">x64</CurrentPlatform>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Applications.Telemetry.Windows">
-      <HintPath>..\dev apps\Lib\aria-windows-sdk-win32-cs\debug\x64\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
+    <Reference Include="Microsoft.Applications.Telemetry.Windows, Version=2.0.0.7, Culture=neutral, PublicKeyToken=ffe01d0f25e9b4f1, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dev apps\Lib\aria-windows-sdk-win32-cs\release\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

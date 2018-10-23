@@ -60,7 +60,7 @@ namespace DesktopTestApp
             userPasswordTextBox.PasswordChar = '*';
 
             LoadSettings();
-            Microsoft.Identity.Client.Logger.LogCallback = LogDelegate;
+            Logger.LogCallback = LogDelegate;
             Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 

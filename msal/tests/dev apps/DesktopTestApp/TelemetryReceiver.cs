@@ -1,5 +1,4 @@
 ﻿using Microsoft.Applications.Telemetry.Windows;
-using Microsoft.Identity.Core.Telemetry;
 using System;
 using System.Collections.Generic;
 
