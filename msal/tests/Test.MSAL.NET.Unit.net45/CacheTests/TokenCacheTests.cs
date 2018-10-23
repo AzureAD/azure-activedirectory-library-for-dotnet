@@ -293,16 +293,16 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
                 _cache = new TokenCache()
                 {
-                    ClientId = TestConstants.ClientId,
+                    ClientId = MsalTestConstants.ClientId,
                     HttpManager = httpManager
                 };
 
                 var atItem = new MsalAccessTokenCacheItem(
-                    TestConstants.ProductionPrefNetworkEnvironment,
-                    TestConstants.ClientId,
+                    MsalTestConstants.ProductionPrefNetworkEnvironment,
+                    MsalTestConstants.ClientId,
                     "Bearer",
-                    TestConstants.Scope.AsSingleString(),
-                    TestConstants.Utid,
+                    MsalTestConstants.Scope.AsSingleString(),
+                    MsalTestConstants.Utid,
                     null,
                     new DateTimeOffset(DateTime.UtcNow),
                     new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromHours(2)),
@@ -316,10 +316,10 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     {
                         IsExtendedLifeTimeEnabled = true,
                         RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
-                        ClientId = TestConstants.ClientId,
-                        Authority = Authority.CreateAuthority(TestConstants.AuthorityTestTenant, false),
-                        Scope = TestConstants.Scope,
-                        Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
+                        ClientId = MsalTestConstants.ClientId,
+                        Authority = Authority.CreateAuthority(MsalTestConstants.AuthorityTestTenant, false),
+                        Scope = MsalTestConstants.Scope,
+                        Account = new Account(MsalTestConstants.UserIdentifier, MsalTestConstants.DisplayableId, null)
                     }).Result;
 
                 Assert.IsNotNull(cacheItem);
