@@ -938,6 +938,11 @@ namespace Microsoft.Identity.Client
 
         internal void RemoveMsalAccount(IAccount account, ISet<string> environmentAliases, RequestContext requestContext)
         {
+            if (account.HomeAccountId == null)
+            {
+                // adalv3 account
+                return;
+            }
             IList<MsalRefreshTokenCacheItem> allRefreshTokens = GetAllRefreshTokensForClient(requestContext)
                 .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
                                environmentAliases.Contains(item.Environment))
@@ -1084,8 +1089,26 @@ namespace Microsoft.Identity.Client
         {
             lock (LockObject)
             {
-                ClearMsalCache();
-                ClearAdalCache();
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
+                {
+                    TokenCache = this,
+                    ClientId = ClientId,
+                    Account = null
+                };
+
+                try
+                {
+                    OnBeforeAccess(args);
+                    OnBeforeWrite(args);
+
+                    ClearMsalCache();
+                    ClearAdalCache();
+                }
+                finally
+                {
+                    OnAfterAccess(args);
+                    HasStateChanged = false;
+                }
             }
         }
 
@@ -1098,26 +1121,7 @@ namespace Microsoft.Identity.Client
 
         internal void ClearMsalCache()
         {
-            try
-            {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
-                {
-                    TokenCache = this,
-                    ClientId = ClientId,
-                    Account = null
-                };
-
-                OnBeforeAccess(args);
-                OnBeforeWrite(args);
-
-                tokenCacheAccessor.Clear();
-
-                OnAfterAccess(args);
-            }
-            finally
-            {
-                HasStateChanged = false;
-            }
+            tokenCacheAccessor.Clear();
         }
 
         /// <summary>

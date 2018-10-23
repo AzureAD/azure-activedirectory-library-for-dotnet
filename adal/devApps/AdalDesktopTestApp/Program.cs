@@ -36,8 +36,8 @@ namespace AdalDesktopTestApp
     {
         private static AppLogger AppLogger { get; } = new AppLogger();
 
-        private const string ClientId = "<CLIENT_ID>";
-        private const string RedirectUri = "https://ClientReplyUrl";
+        private const string ClientId = "1950a258-227b-4e31-a9cf-717495945fc2";
+        private const string RedirectUri = "urn:ietf:wg:oauth:2.0:oob"; //"https://ClientReplyUrl";
         private const string User = ""; // can also be empty string for testing IWA and U/P
         private const string Resource = "https://graph.windows.net";
 
@@ -66,7 +66,6 @@ namespace AdalDesktopTestApp
             while (true)
             {
                 Console.Clear();
-
                 Console.WriteLine(string.Format(CultureInfo.CurrentCulture, "TokenCache contains {0} token(s)", context.TokenCache.Count));
                 foreach (var item in context.TokenCache.ReadItems())
                 {
