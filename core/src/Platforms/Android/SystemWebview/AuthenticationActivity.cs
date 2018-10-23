@@ -146,6 +146,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                     CultureInfo.CurrentCulture,
                     "Browser with custom tabs package available. Using {0}. ",
                     chromePackageWithCustomTabSupport));
+
                 CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().Build();
                 customTabsIntent.Intent.SetPackage(chromePackageWithCustomTabSupport);
                 customTabsIntent.LaunchUrl(this, Uri.Parse(_requestUrl));
