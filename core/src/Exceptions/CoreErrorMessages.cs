@@ -51,7 +51,8 @@ namespace Microsoft.Identity.Core
         public const string UnsupportedAuthorityValidation =
             "Authority validation is not supported for this type of authority";
 
-        public const string AuthenticationCanceled = "User canceled authentication";
+        public const string AuthenticationCanceled = "User canceled authentication. If using an Android device, this could be due to the browser inability " +
+            "to redirect back to the app. Please see https://aka.ms/msal-net-system-browsers for more information.";
 
         public const string Unknown = "Unknown error";
 
@@ -104,7 +105,7 @@ namespace Microsoft.Identity.Core
             "The keychain access group '{0}' is not enabled in the Entitlements.plist. " +
             "See https://aka.ms/msal-net-enable-keychain-groups for more details on enabling keychain access groups and entitlements.";
 
-        public const string AndroidActivityNotFound = "The browsers installed on the device do not support custom tabs. A browser" +
-            "with custom tab support is recommended for authentication. See [] for more details on using system browser on Android.";
+        public const string AndroidActivityNotFound = "The Activity cannot be found to launch the given Intent. To ensure authentication, a browser with custom tab support " +
+            "is recommended. See https://aka.ms/msal-net-system-browsers for more details on using system browser on Android.";
     }
 }

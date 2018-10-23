@@ -126,7 +126,8 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
                 CoreLoggerBase.Default.Info(
                     "Browser with custom tabs package not available. " +
-                    "Launching with alternate browser. ");
+                    "Launching with alternate browser. See https://aka.ms/msal-net-system-browsers for details.");
+
                 try
                 {
                     StartActivity(browserIntent);
