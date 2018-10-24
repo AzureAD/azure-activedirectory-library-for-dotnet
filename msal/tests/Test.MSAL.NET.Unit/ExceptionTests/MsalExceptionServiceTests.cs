@@ -29,15 +29,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.Identity.Core.Http;
-using System.Net;
 
 namespace Test.MSAL.NET.Unit
 {
     [TestClass]
-    public class MsalExceptionFactoryTests
+    public class MsalExceptionServiceTests
     {
         private const string exCode = "exCode";
         private const string exMessage = "exMessage";
@@ -60,10 +56,10 @@ namespace Test.MSAL.NET.Unit
                 () => msalExceptionService.GetClientException("", exMessage));
 
             AssertException.Throws<ArgumentNullException>(
-                () => msalExceptionService.GetServiceException(exCode, "", new ExceptionDetail()));
+                () => msalExceptionService.GetServiceException(exCode, ""));
 
             AssertException.Throws<ArgumentNullException>(
-                () => msalExceptionService.GetServiceException(exCode, null, new ExceptionDetail()));
+                () => msalExceptionService.GetServiceException(exCode, null));
         }
 
         [TestMethod]
@@ -149,7 +145,7 @@ namespace Test.MSAL.NET.Unit
 
             // Act
             Exception msalException =
-                 msalExceptionService.GetUiRequiredException(exCode, exMessage, innerException, null);
+                 msalExceptionService.GetUiRequiredException(exCode, exMessage, innerException);
 
              // Assert
             var msalServiceException = msalException as MsalUiRequiredException;
@@ -174,36 +170,6 @@ namespace Test.MSAL.NET.Unit
             Assert.IsTrue(piiMessage.Contains(exCode));
             Assert.IsFalse(piiMessage.Contains(exMessage));
             Assert.IsFalse(piiMessage.Contains(innerExMsg));
-        }
-
-        [TestMethod]
-        public void MsalServiceException_FromHttpResponse()
-        {
-            // Arrange
-            string reponseBody = "body";
-            var statusCode = HttpStatusCode.BadRequest;
-            var retryAfterSpan = new TimeSpan(3600); 
-
-            HttpResponseMessage httpResponse = new HttpResponseMessage(statusCode);
-            httpResponse.Content = new StringContent(reponseBody);
-            httpResponse.Headers.RetryAfter = new RetryConditionHeaderValue(retryAfterSpan);
-            HttpResponse coreResponse = HttpManager.CreateResponseAsync(httpResponse).Result;
-
-            // Act
-            Exception msalException =
-                msalExceptionService.GetServiceException(
-                    exCode,
-                    exMessage,
-                    coreResponse);
-
-            // Assert
-            var msalServiceException = msalException as MsalServiceException;
-            Assert.AreEqual(exCode, msalServiceException.ErrorCode);
-            Assert.AreEqual(reponseBody, msalServiceException.ResponseBody);
-            Assert.AreEqual(exMessage, msalServiceException.Message);
-            Assert.AreEqual((int)statusCode, msalServiceException.StatusCode);
-
-            Assert.AreEqual(retryAfterSpan, msalServiceException.Headers.RetryAfter.Delta);
         }
     }
 }

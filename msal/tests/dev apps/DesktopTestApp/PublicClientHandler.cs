@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 
@@ -45,94 +44,81 @@ namespace DesktopTestApp
             };
         }
 
+        #region Properties
         public string ApplicationId { get; set; }
+
         public string InteractiveAuthority { get; set; }
+
         public string AuthorityOverride { get; set; }
+
         public string ExtraQueryParams { get; set; }
+
         public string LoginHint { get; set; }
+
         public IAccount CurrentUser { get; set; }
+
         public PublicClientApplication PublicClientApplication { get; set; }
 
-        public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(
-            IEnumerable<string> scopes, 
-            UIBehavior uiBehavior, 
-            string extraQueryParams, 
-            UIParent uiParent)
+        #endregion
+
+        public async Task<AuthenticationResult> AcquireTokenInteractiveAsync(string[] scopes, UIBehavior uiBehavior, string extraQueryParams, UIParent uiParent)
         {
             CreateOrUpdatePublicClientApp(InteractiveAuthority, ApplicationId);
 
             AuthenticationResult result;
             if (CurrentUser != null)
             {
-                result = await PublicClientApplication.AcquireTokenAsync(
-                    scopes,
-                    CurrentUser,
-                    uiBehavior,
+                result = await PublicClientApplication.AcquireTokenAsync(scopes, CurrentUser, uiBehavior,
                     extraQueryParams,
-                    uiParent).ConfigureAwait(false);
+                    uiParent);
             }
             else
             {
-                result =await PublicClientApplication.AcquireTokenAsync(
-                    scopes,
-                    LoginHint,
-                    uiBehavior,
-                    extraQueryParams,
-                    uiParent).ConfigureAwait(false);
+                result =
+                    await PublicClientApplication.AcquireTokenAsync(scopes, LoginHint, uiBehavior,
+                        extraQueryParams,
+                        uiParent);
             }
 
             CurrentUser = result.Account;
             return result;
         }
 
-        public async Task<AuthenticationResult> AcquireTokenInteractiveWithAuthorityAsync(
-            IEnumerable<string> scopes, 
-            UIBehavior uiBehavior, 
-            string extraQueryParams, 
-            UIParent uiParent)
+        public async Task<AuthenticationResult> AcquireTokenInteractiveWithAuthorityAsync(string[] scopes, UIBehavior uiBehavior, string extraQueryParams, UIParent uiParent)
         {
             CreateOrUpdatePublicClientApp(InteractiveAuthority, ApplicationId);
 
             AuthenticationResult result;
             if (CurrentUser != null)
             {
-                result = await PublicClientApplication.AcquireTokenAsync(
-                    scopes,
-                    CurrentUser,
-                    uiBehavior,
-                    extraQueryParams,
-                    null,
-                    AuthorityOverride,
-                    uiParent).ConfigureAwait(false);
+                result = await PublicClientApplication.AcquireTokenAsync(scopes, CurrentUser, uiBehavior,
+                    extraQueryParams, null, AuthorityOverride,
+                    uiParent);
             }
             else
             {
-                result = await PublicClientApplication.AcquireTokenAsync(
-                    scopes,
-                    LoginHint,
-                    uiBehavior,
-                    extraQueryParams,
-                    null,
-                    AuthorityOverride,
-                    uiParent).ConfigureAwait(false);
+                result =
+                    await PublicClientApplication.AcquireTokenAsync(scopes, LoginHint, uiBehavior,
+                        extraQueryParams, null, AuthorityOverride,
+                        uiParent);
             }
 
             CurrentUser = result.Account;
             return result;
         }
 
-        public async Task<AuthenticationResult> AcquireTokenSilentAsync(IEnumerable<string> scopes)
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string[] scopes)
         {
             return await PublicClientApplication.AcquireTokenSilentAsync(
-                scopes,
-                CurrentUser,
+                scopes, 
+                CurrentUser, 
                 AuthorityOverride,
-                false).ConfigureAwait(false);
+                false);
         }
 
         public void CreateOrUpdatePublicClientApp(string interactiveAuthority, string applicationId)
         {
-            if (string.IsNullOrWhiteSpace(interactiveAuthority))
+            if (string.IsNullOrEmpty(interactiveAuthority))
             {
                 // Use default authority
                 PublicClientApplication = new PublicClientApplication(applicationId)

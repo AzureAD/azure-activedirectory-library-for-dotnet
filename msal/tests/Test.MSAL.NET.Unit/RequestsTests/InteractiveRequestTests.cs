@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -23,36 +23,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.MSAL.NET.Unit.Mocks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
-using Microsoft.Identity.Core.Telemetry;
-using Microsoft.Identity.Core.UI;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
-using Test.MSAL.NET.Unit.Mocks;
+using Microsoft.Identity.Core.UI;
+using System.Threading;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
 {
     [TestClass]
     public class InteractiveRequestTests
     {
+        TokenCache cache;
         private readonly MyReceiver _myReceiver = new MyReceiver();
-        private TokenCache _cache;
 
         [TestInitialize]
         public void TestInitialize()
@@ -60,30 +61,29 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             RequestTestsCommon.InitializeRequestTests();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
-            _cache = new TokenCache();
+            cache = new TokenCache();
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.ClearAccessTokens();
-            _cache.tokenCacheAccessor.ClearRefreshTokens();
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
+            cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
         }
 
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
         public void SliceParametersTest()
         {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-            _cache = new TokenCache()
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
             };
 
-            var ui = new MockWebUI()
+            MockWebUI ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(
-                    AuthorizationStatus.Success,
+                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
                     TestConstants.AuthorityHomeTenant + "?code=some-code"),
                 QueryParamsToValidate = new Dictionary<string, string>()
                 {
@@ -92,59 +92,53 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 }
             };
 
-            using (var httpManager = new MockHttpManager())
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+
+            MockHttpMessageHandler mockHandler = new MockHttpMessageHandler();
+            mockHandler.Method = HttpMethod.Post;
+            mockHandler.QueryParams = new Dictionary<string, string>()
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                {"key1", "value1%20with%20encoded%20space"},
+                {"key2", "value2"}
+            };
+            mockHandler.ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage();
+            HttpMessageHandlerFactory.AddMockHandler(mockHandler);
 
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Post,
-                        QueryParams = new Dictionary<string, string>()
-                        {
-                            {"key1", "value1%20with%20encoded%20space"},
-                            {"key2", "value2"}
-                        },
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                    });
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                SliceParameters = "key1=value1%20with%20encoded%20space&key2=value2",
+                ClientId = TestConstants.ClientId,
+                Scope = TestConstants.Scope,
+                TokenCache = cache,
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
 
-                var parameters = new AuthenticationRequestParameters
-                {
-                    Authority = authority,
-                    SliceParameters = "key1=value1%20with%20encoded%20space&key2=value2",
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                    RedirectUri = new Uri("some://uri"),
-                    ExtraQueryParameters = "extra=qp"
-                };
+            parameters.RedirectUri = new Uri("some://uri");
+            parameters.ExtraQueryParameters = "extra=qp";
 
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    TestConstants.DisplayableId,
-                    UIBehavior.SelectAccount,
-                    ui);
-                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
-                task.Wait();
-                var result = task.Result;
-                Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(result.AccessToken, "some-access-token");
-            }
+            InteractiveRequest request = new InteractiveRequest(parameters,
+                TestConstants.ScopeForAnotherResource.ToArray(),
+                TestConstants.DisplayableId,
+                UIBehavior.SelectAccount, ui);
+            Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+            task.Wait();
+            AuthenticationResult result = task.Result;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(1, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(result.AccessToken, "some-access-token");
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
+
 
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
         public void NoCacheLookup()
         {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-            _cache = new TokenCache()
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
             };
@@ -161,98 +155,79 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             string atKey = atItem.GetKey().ToString();
             atItem.Secret = atKey;
-            _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+            cache.tokenCacheAccessor.AccessTokenCacheDictionary[atKey] = JsonHelper.SerializeToJson(atItem);
 
-            var ui = new MockWebUI()
+            MockWebUI ui = new MockWebUI()
             {
-                MockResult = new AuthorizationResult(
-                    AuthorizationStatus.Success,
+                MockResult = new AuthorizationResult(AuthorizationStatus.Success,
                     TestConstants.AuthorityHomeTenant + "?code=some-code")
             };
 
-            using (var httpManager = new MockHttpManager())
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+
+            MockHttpMessageHandler mockHandler = new MockHttpMessageHandler();
+            mockHandler.Method = HttpMethod.Post;
+
+            mockHandler.ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage();
+            HttpMessageHandlerFactory.AddMockHandler(mockHandler);
+
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = TestConstants.Scope,
+                TokenCache = cache,
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
 
-                httpManager.AddSuccessTokenResponseMockHandlerForPost();
+            parameters.RedirectUri = new Uri("some://uri");
+            parameters.ExtraQueryParameters = "extra=qp";
 
-                var parameters = new AuthenticationRequestParameters
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                    RedirectUri = new Uri("some://uri"),
-                    ExtraQueryParameters = "extra=qp"
-                };
+            InteractiveRequest request = new InteractiveRequest(parameters,
+                TestConstants.ScopeForAnotherResource.ToArray(),
+                 TestConstants.DisplayableId,
+                UIBehavior.SelectAccount, ui);
+            Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+            task.Wait();
+            AuthenticationResult result = task.Result;
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Count);
+            Assert.AreEqual(2, cache.tokenCacheAccessor.AccessTokenCacheDictionary.Count);
+            Assert.AreEqual(result.AccessToken, "some-access-token");
 
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    TestConstants.DisplayableId,
-                    UIBehavior.SelectAccount,
-                    ui);
-                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
-                task.Wait();
-                var result = task.Result;
-                Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(result.AccessToken, "some-access-token");
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
 
-                Assert.IsNotNull(
-                    _myReceiver.EventsReceived.Find(
-                        anEvent => // Expect finding such an event
-                            anEvent[EventBase.EventNameKey].EndsWith("ui_event") &&
-                            anEvent[UiEvent.UserCancelledKey] == "false"));
-                Assert.IsNotNull(
-                    _myReceiver.EventsReceived.Find(
-                        anEvent => // Expect finding such an event
-                            anEvent[EventBase.EventNameKey].EndsWith("api_event") &&
-                            anEvent[ApiEvent.UiBehaviorKey] == "select_account"));
-                Assert.IsNotNull(
-                    _myReceiver.EventsReceived.Find(
-                        anEvent => // Expect finding such an event
-                            anEvent[EventBase.EventNameKey].EndsWith("ui_event") &&
-                            anEvent[UiEvent.AccessDeniedKey] == "false"));
-            }
+            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
+                anEvent[EventBase.EventNameKey].EndsWith("ui_event") && anEvent[UiEvent.UserCancelledKey] == "false"));
+            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
+                anEvent[EventBase.EventNameKey].EndsWith("api_event") && anEvent[ApiEvent.UiBehaviorKey] == "select_account"));
+            Assert.IsNotNull(_myReceiver.EventsReceived.Find(anEvent =>  // Expect finding such an event
+                anEvent[EventBase.EventNameKey].EndsWith("ui_event") && anEvent[UiEvent.AccessDeniedKey] == "false"));
         }
 
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
         public void RedirectUriContainsFragmentErrorTest()
         {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
             try
             {
-                using (var httpManager = new MockHttpManager())
+                AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
                 {
-                    var parameters = new AuthenticationRequestParameters
-                    {
-                        Authority = authority,
-                        ClientId = TestConstants.ClientId,
-                        Scope = TestConstants.Scope,
-                        TokenCache = null,
-                        RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                        RedirectUri = new Uri("some://uri#fragment=not-so-good"),
-                        ExtraQueryParameters = "extra=qp"
-                    };
+                    Authority = authority,
+                    ClientId = TestConstants.ClientId,
+                    Scope = TestConstants.Scope,
+                    TokenCache = null,
+                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                };
 
-                    new InteractiveRequest(
-                        httpManager,
-                        PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                        parameters,
-                        ApiEvent.ApiIds.None,
-                        TestConstants.ScopeForAnotherResource.ToArray(),
-                        (string)null,
-                        UIBehavior.ForceLogin,
-                        new MockWebUI());
-                    Assert.Fail("ArgumentException should be thrown here");
-                }
+                parameters.RedirectUri = new Uri("some://uri#fragment=not-so-good");
+                parameters.ExtraQueryParameters = "extra=qp";
+
+                new InteractiveRequest(parameters, TestConstants.ScopeForAnotherResource.ToArray(),
+                    (string)null, UIBehavior.ForceLogin, new MockWebUI()
+                    );
+                Assert.Fail("ArgumentException should be thrown here");
             }
             catch (ArgumentException ae)
             {
@@ -262,238 +237,105 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
-        public void OAuthClient_FailsWithServiceExceptionWhenItCannotParseJsonResponse()
-        {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-
-            using (var httpManager = new MockHttpManager())
-            {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateTooManyRequestsNonJsonResponse() // returns a non json response
-                    });
-
-                var parameters = new AuthenticationRequestParameters
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                    RedirectUri = new Uri("some://uri"),
-                };
-
-                var ui = new MockWebUI();
-
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    TestConstants.DisplayableId,
-                    UIBehavior.SelectAccount,
-                    ui);
-
-                try
-                {
-                    request.ExecuteAsync(CancellationToken.None).Wait();
-
-                    Assert.Fail("MsalException should have been thrown here");
-                }
-                catch (Exception exc)
-                {
-                    var serverEx = exc.InnerException as MsalServiceException;
-                    Assert.IsNotNull(serverEx);
-                    Assert.AreEqual(429, serverEx.StatusCode);
-                    Assert.AreEqual(MockHelpers.TooManyRequestsContent, serverEx.ResponseBody);
-                    Assert.AreEqual(MockHelpers.TestRetryAfterDuration, serverEx.Headers.RetryAfter.Delta);
-                    Assert.AreEqual(CoreErrorCodes.NonParsableOAuthError, serverEx.ErrorCode);
-                }
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("InteractiveRequestTests")]
-        public void OAuthClient_FailsWithServiceExceptionWhenItCanParseJsonResponse()
-        {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-
-            using (var httpManager = new MockHttpManager())
-            {
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateTooManyRequestsJsonResponse() // returns a non json response
-                    });
-
-                var parameters = new AuthenticationRequestParameters
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                    RedirectUri = new Uri("some://uri"),
-                };
-
-                var ui = new MockWebUI();
-
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    TestConstants.DisplayableId,
-                    UIBehavior.SelectAccount,
-                    ui);
-
-                try
-                {
-                    request.ExecuteAsync(CancellationToken.None).Wait();
-
-                    Assert.Fail("MsalException should have been thrown here");
-                }
-                catch (Exception exc)
-                {
-                    var serverEx = exc.InnerException as MsalServiceException;
-                    Assert.IsNotNull(serverEx);
-                    Assert.AreEqual(429, serverEx.StatusCode);
-                    Assert.AreEqual(MockHelpers.TestRetryAfterDuration, serverEx.Headers.RetryAfter.Delta);
-                    Assert.AreEqual("Server overload", serverEx.ErrorCode);
-                }
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("InteractiveRequestTests")]
         public void VerifyAuthorizationResultTest()
         {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
-            using (var httpManager = new MockHttpManager())
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+
+            MockWebUI webUi = new MockWebUI()
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                MockResult = new AuthorizationResult(AuthorizationStatus.ErrorHttp,
+                TestConstants.AuthorityHomeTenant + "?error=" + OAuth2Error.LoginRequired)
+            };
 
-                var webUi = new MockWebUI()
-                {
-                    MockResult = new AuthorizationResult(
-                        AuthorizationStatus.ErrorHttp,
-                        TestConstants.AuthorityHomeTenant + "?error=" + OAuth2Error.LoginRequired)
-                };
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = TestConstants.Scope,
+                TokenCache = null,
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
 
-                var parameters = new AuthenticationRequestParameters
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                    RedirectUri = new Uri("some://uri"),
-                    ExtraQueryParameters = "extra=qp"
-                };
+            parameters.RedirectUri = new Uri("some://uri");
+            parameters.ExtraQueryParameters = "extra=qp";
 
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    (string)null,
-                    UIBehavior.ForceLogin,
-                    webUi);
-                try
-                {
-                    request.ExecuteAsync(CancellationToken.None).Wait();
-                    Assert.Fail("MsalException should have been thrown here");
-                }
-                catch (Exception exc)
-                {
-                    Assert.IsTrue(exc.InnerException is MsalUiRequiredException);
-                    Assert.AreEqual(
-                        MsalUiRequiredException.NoPromptFailedError,
-                        ((MsalUiRequiredException)exc.InnerException).ErrorCode);
-                }
-
-                webUi = new MockWebUI
-                {
-                    MockResult = new AuthorizationResult(
-                        AuthorizationStatus.ErrorHttp,
-                        TestConstants.AuthorityHomeTenant + "?error=invalid_request&error_description=some error description")
-                };
-
-                request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    (string)null,
-                    UIBehavior.ForceLogin,
-                    webUi);
-
-                try
-                {
-                    request.ExecuteAsync(CancellationToken.None).Wait(CancellationToken.None);
-                    Assert.Fail("MsalException should have been thrown here");
-                }
-                catch (Exception exc)
-                {
-                    Assert.IsTrue(exc.InnerException is MsalException);
-                    Assert.AreEqual("invalid_request", ((MsalException)exc.InnerException).ErrorCode);
-                    Assert.AreEqual("some error description", ((MsalException)exc.InnerException).Message);
-                }
+            InteractiveRequest request = new InteractiveRequest(parameters,
+                TestConstants.ScopeForAnotherResource.ToArray(),
+                (string)null, UIBehavior.ForceLogin, webUi);
+            try
+            {
+                request.PreTokenRequestAsync(CancellationToken.None).Wait();
+                Assert.Fail("MsalException should have been thrown here");
             }
+            catch (Exception exc)
+            {
+                Assert.IsTrue(exc.InnerException is MsalUiRequiredException);
+                Assert.AreEqual(MsalUiRequiredException.NoPromptFailedError, ((MsalUiRequiredException)exc.InnerException).ErrorCode);
+            }
+
+
+            webUi = new MockWebUI();
+            webUi.MockResult = new AuthorizationResult(AuthorizationStatus.ErrorHttp,
+                TestConstants.AuthorityHomeTenant +
+                "?error=invalid_request&error_description=some error description");
+
+            request = new InteractiveRequest(parameters,
+                TestConstants.ScopeForAnotherResource.ToArray(),
+                (string)null, UIBehavior.ForceLogin, webUi);
+
+            try
+            {
+                request.PreTokenRequestAsync(CancellationToken.None).Wait(CancellationToken.None);
+                Assert.Fail("MsalException should have been thrown here");
+            }
+            catch (Exception exc)
+            {
+                Assert.IsTrue(exc.InnerException is MsalException);
+                Assert.AreEqual("invalid_request", ((MsalException)exc.InnerException).ErrorCode);
+                Assert.AreEqual("some error description", ((MsalException)exc.InnerException).Message);
+            }
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
 
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
         public void DuplicateQueryParameterErrorTest()
         {
-            var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
 
-            var parameters = new AuthenticationRequestParameters
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
                 Authority = authority,
                 ClientId = TestConstants.ClientId,
                 Scope = TestConstants.Scope,
                 TokenCache = null,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
-                RedirectUri = new Uri("some://uri"),
-                ExtraQueryParameters = "extra=qp&prompt=login"
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
             };
 
-            using (var httpManager = new MockHttpManager())
+            parameters.RedirectUri = new Uri("some://uri");
+            parameters.ExtraQueryParameters = "extra=qp&prompt=login";
+
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+
+            InteractiveRequest request = new InteractiveRequest(parameters,
+                TestConstants.ScopeForAnotherResource.ToArray(),
+                null, UIBehavior.ForceLogin, new MockWebUI());
+
+            try
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
-
-                var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    parameters,
-                    ApiEvent.ApiIds.None,
-                    TestConstants.ScopeForAnotherResource.ToArray(),
-                    null,
-                    UIBehavior.ForceLogin,
-                    new MockWebUI());
-
-                try
-                {
-                    request.ExecuteAsync(CancellationToken.None).Wait();
-                    Assert.Fail("MsalException should be thrown here");
-                }
-                catch (Exception exc)
-                {
-                    Assert.IsTrue(exc.InnerException is MsalException);
-                    Assert.AreEqual(
-                        MsalClientException.DuplicateQueryParameterError,
-                        ((MsalException)exc.InnerException).ErrorCode);
-                }
+                request.PreTokenRequestAsync(CancellationToken.None).Wait();
+                Assert.Fail("MsalException should be thrown here");
             }
+            catch (Exception exc)
+            {
+                Assert.IsTrue(exc.InnerException is MsalException);
+                Assert.AreEqual(MsalClientException.DuplicateQueryParameterError, ((MsalException)exc.InnerException).ErrorCode);
+            }
+
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
     }
 }

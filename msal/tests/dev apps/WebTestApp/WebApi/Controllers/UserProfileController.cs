@@ -66,8 +66,6 @@ namespace WebApi.Controllers
             };
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
-
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         private static void ClearLog()
@@ -121,7 +119,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<string> GetAsync()
         {
-            await Semaphore.WaitAsync().ConfigureAwait(false);
+            await Semaphore.WaitAsync();
             try
             {
                 ClearLog();
@@ -135,10 +133,10 @@ namespace WebApi.Controllers
                 try
                 {
                     var authResult =
-                        await GetConfidentialClient().AcquireTokenOnBehalfOfAsync(new[] { MsGraphUserReadScope },
-                            userAssertion).ConfigureAwait(false);
+                        await GetConfidentialClient().AcquireTokenOnBehalfOfAsync(new[] {MsGraphUserReadScope},
+                            userAssertion);
 
-                    result = await CallApiAsync(MsGraphMeQuery, authResult.AccessToken).ConfigureAwait(false);
+                    result = await CallApiAsync(MsGraphMeQuery, authResult.AccessToken);
                 }
                 catch (MsalException ex)
                 {
@@ -162,12 +160,12 @@ namespace WebApi.Controllers
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await client.SendAsync(request).ConfigureAwait(false);
+            var response = await client.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
-                throw new InvalidOperationException(response.StatusCode.ToString());
+                throw new Exception(response.StatusCode.ToString());
 
-            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

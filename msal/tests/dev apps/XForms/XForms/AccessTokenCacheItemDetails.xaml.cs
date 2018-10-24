@@ -50,7 +50,7 @@ namespace XForms
             userAssertionHashLabel.Text = msalAccessTokenCacheItem.UserAssertionHash;
 
             expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
-            scopesLabel.Text = msalAccessTokenCacheItem.NormalizedScopes;
+            scopesLabel.Text = msalAccessTokenCacheItem.Scopes;
 
             cachedAtLabel.Text = CoreHelpers.UnixTimestampToDateTime(msalAccessTokenCacheItem.CachedAt).ToString();
 

@@ -27,6 +27,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
@@ -91,7 +94,10 @@ namespace XForms
 
         private async Task OnClearClickedAsync(object sender, EventArgs e)
         {
-            foreach (var user in await App.MsalPublicClient.GetAccountsAsync().ConfigureAwait(false))
+            var tokenCache = App.MsalPublicClient.UserTokenCache;
+            var users = await tokenCache.GetAccountsAsync
+                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+            foreach (var user in users)
             {
                 await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
             }
@@ -101,13 +107,13 @@ namespace XForms
 
         private static long GetCurrentTimestamp()
         {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            return (long) (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
 
         public void OnExpire(object sender, EventArgs e)
         {
-            var mi = ((MenuItem)sender);
-            var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
+            var mi = ((MenuItem) sender);
+            var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // set access token as expired
@@ -135,8 +141,8 @@ namespace XForms
 
         public void OnInvalidate(object sender, EventArgs e)
         {
-            var mi = ((MenuItem)sender);
-            var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
+            var mi = ((MenuItem) sender);
+            var refreshTokenCacheItem = (MsalRefreshTokenCacheItem) mi.CommandParameter;
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // invalidate refresh token
@@ -150,11 +156,11 @@ namespace XForms
 
         public async Task ShowAccessTokenDetailsAsync(object sender, EventArgs e)
         {
-            var mi = (MenuItem)sender;
-            var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
+            var mi = (MenuItem) sender;
+            var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null)).ConfigureAwait(false);
+            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null));
         }
 
         public async Task ShowRefreshTokenDetailsAsync(object sender, EventArgs e)
@@ -162,7 +168,7 @@ namespace XForms
             var mi = (MenuItem)sender;
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
-            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem)).ConfigureAwait(false);
+            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem));
         }
 
         public async Task ShowIdTokenDetailsAsync(object sender, EventArgs e)
@@ -171,7 +177,7 @@ namespace XForms
             var idTokenCacheItem = (MsalIdTokenCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem)).ConfigureAwait(false);
+            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem));
         }
 
         public async Task ShowAccountDetailsAsync(object sender, EventArgs e)
@@ -180,7 +186,7 @@ namespace XForms
             var accountCacheItem = (MsalAccountCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem)).ConfigureAwait(false);
+            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem));
         }
     }
 }

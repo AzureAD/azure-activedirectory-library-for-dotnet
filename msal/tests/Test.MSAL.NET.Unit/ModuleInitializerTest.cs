@@ -25,11 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Reflection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Test.MSAL.NET.Unit
 {
@@ -39,8 +44,8 @@ namespace Test.MSAL.NET.Unit
         [TestMethod]
         public void InitializesExceptionsAndLogs()
         {
-            // Ensure Module Initializer Is Cleared
-            var field = typeof(ModuleInitializer).GetField("_isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
+            // EnsureModuleInitilizerIsCleared
+            var field = typeof(ModuleInitializer).GetField("isInitialized", BindingFlags.Static | BindingFlags.NonPublic);
             field.SetValue(null, false);
 
             // Act

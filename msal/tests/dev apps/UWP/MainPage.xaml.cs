@@ -34,7 +34,6 @@ namespace UWP
             this.InitializeComponent();
 
             _pca = new PublicClientApplication(ClientID, Authority);
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
 
@@ -43,26 +42,26 @@ namespace UWP
             AuthenticationResult result = null;
             try
             {
-                //result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes).ConfigureAwait(false);
-                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, "bogavril@microsoft.com").ConfigureAwait(false); // can also use this overload
+                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes);
+                 // result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, "bogavril@microsoft.com"); // can also use this overload
             }
             catch (Exception ex)
             {
-                await DisplayErrorAsync(ex).ConfigureAwait(false);
+                await DisplayError(ex);
                 return;
             }
 
-            await DisplayResultAsync(result).ConfigureAwait(false);
+            await DisplayResult(result);
 
         }
 
         private async void ShowCacheCountAsync(object sender, RoutedEventArgs e)
         {
             var accounts = await _pca.GetAccountsAsync().ConfigureAwait(false);
-            await DisplayMessageAsync(
+            await DisplayMessage(
                 $"There are {accounts.Count()} in the token cache. " +
                 Environment.NewLine +
-                string.Join(", ", accounts.Select(a => a.Username))).ConfigureAwait(false);
+                string.Join(", ", accounts.Select(a => a.Username)));
         }
 
         private async void ClearCacheAsync(object sender, RoutedEventArgs e)
@@ -70,7 +69,7 @@ namespace UWP
             var accounts = await _pca.GetAccountsAsync().ConfigureAwait(false);
             foreach (var account in accounts)
             {
-                await _pca.RemoveAsync(account).ConfigureAwait(false);
+                await _pca.RemoveAsync(account);
             }
         }
 
@@ -81,15 +80,15 @@ namespace UWP
             AuthenticationResult result = null;
             try
             {
-                result = await _pca.AcquireTokenSilentAsync(Scopes, accounts.FirstOrDefault()).ConfigureAwait(false);
+                result = await _pca.AcquireTokenSilentAsync(Scopes, accounts.FirstOrDefault());
             }
             catch (Exception ex)
             {
-                await DisplayErrorAsync(ex).ConfigureAwait(false);
+                await DisplayError(ex);
                 return;
             }
 
-            await DisplayResultAsync(result).ConfigureAwait(false);
+            await DisplayResult(result);
         }
 
         private void AccessTokenButton_ClickAsync(object sender, RoutedEventArgs e)
@@ -97,17 +96,17 @@ namespace UWP
             throw new NotImplementedException();
         }
 
-        private async Task DisplayErrorAsync(Exception ex)
+        private async Task DisplayError(Exception ex)
         {
-            await DisplayMessageAsync(ex.Message).ConfigureAwait(false);
+            await DisplayMessage(ex.Message);
         }
 
-        private async Task DisplayResultAsync(AuthenticationResult result)
+        private async Task DisplayResult(AuthenticationResult result)
         {
-            await DisplayMessageAsync("Signed in User - " + result.Account.Username + "\nAccessToken: \n" + result.AccessToken).ConfigureAwait(false);
+            await DisplayMessage("Signed in User - " + result.Account.Username + "\nAccessToken: \n" + result.AccessToken);
         }
 
-        private async Task DisplayMessageAsync(string message)
+        private async Task DisplayMessage(string message)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
                    () =>

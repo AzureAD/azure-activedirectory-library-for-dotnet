@@ -43,8 +43,6 @@ namespace XForms
     public partial class AcquirePage : ContentPage
     {
         private const string UserNotSelected = "not selected";
-        private const string EmptyResult = "Result:";
-        private const string SuccsessfulResult = "Result: Success";
 
         public AcquirePage()
         {
@@ -86,14 +84,9 @@ namespace XForms
             var selectedUIBehavior = UIBehaviorPicker.SelectedItem as string;
 
             if (UIBehavior.ForceLogin.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
-            {
                 return UIBehavior.ForceLogin;
-            }
-
             if (UIBehavior.Consent.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
-            {
                 return UIBehavior.Consent;
-            }
 
             return UIBehavior.SelectAccount;
         }
@@ -131,7 +124,7 @@ namespace XForms
 
         private IAccount getUserByDisplayableId(string str)
         {
-            return string.IsNullOrWhiteSpace(str) ? null :
+            return string.IsNullOrWhiteSpace(str) ? null : 
                 App.MsalPublicClient.GetAccountsAsync().Result.FirstOrDefault(user => user.Username.Equals(str, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -142,10 +135,7 @@ namespace XForms
 
         private string GetSelectedUserId()
         {
-            if (usersPicker.SelectedIndex == -1)
-            {
-                return null;
-            }
+            if (usersPicker.SelectedIndex == -1) return null;
 
             var selectedUserId = usersPicker.SelectedItem as string;
             return UserNotSelected.Equals(selectedUserId, StringComparison.OrdinalIgnoreCase) ? null : selectedUserId;
@@ -154,7 +144,7 @@ namespace XForms
         private async Task OnAcquireSilentlyClickedAsync(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "Starting silent token acquisition";
-            await Task.Delay(700).ConfigureAwait(true);
+            await Task.Delay(700);
 
             try
             {
@@ -168,16 +158,9 @@ namespace XForms
                 var authority = PassAuthoritySwitch.IsToggled ? App.Authority : null;
 
                 var res = await App.MsalPublicClient.AcquireTokenSilentAsync(GetScopes(),
-                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled).ConfigureAwait(true);
+                    getUserByDisplayableId(selectedUser), authority, ForceRefreshSwitch.IsToggled);
 
-                var resText = ToString(res);
-
-                if (resText.Contains("AccessToken"))
-                {
-                    acquireResponseTitleLabel.Text = SuccsessfulResult;
-                }
-
-                acquireResponseLabel.Text = resText;
+                acquireResponseLabel.Text = ToString(res);
             }
             catch (Exception exception)
             {
@@ -189,7 +172,6 @@ namespace XForms
         {
             try
             {
-                acquireResponseTitleLabel.Text = EmptyResult;
                 AuthenticationResult res;
                 if (LoginHintSwitch.IsToggled)
                 {
@@ -197,19 +179,19 @@ namespace XForms
                     res =
                         await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), loginHint, GetUIBehavior(),
                             GetExtraQueryParams(),
-                            App.UIParent).ConfigureAwait(true);
+                            App.UIParent);
                 }
                 else
                 {
                     var user = getUserByDisplayableId(GetSelectedUserId());
                     res = await App.MsalPublicClient.AcquireTokenAsync(GetScopes(), user, GetUIBehavior(),
-                        GetExtraQueryParams(), App.UIParent).ConfigureAwait(true);
+                        GetExtraQueryParams(), App.UIParent);
                 }
 
                 var resText = ToString(res);
 
                 if (resText.Contains("AccessToken"))
-                    acquireResponseTitleLabel.Text = SuccsessfulResult;
+                    acquireResponseTitleLabel.Text = "Result: Success";
 
                 acquireResponseLabel.Text = resText;
                 RefreshUsers();
@@ -223,21 +205,21 @@ namespace XForms
         private void OnClearClicked(object sender, EventArgs e)
         {
             acquireResponseLabel.Text = "";
-            acquireResponseTitleLabel.Text = EmptyResult;
+            acquireResponseTitleLabel.Text = "Result:";
         }
 
         private async Task OnClearCacheClickedAsync(object sender, EventArgs e)
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
             var users = await tokenCache.GetAccountsAsync
-                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(true);
+                (App.Authority, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
             foreach (var user in users)
             {
-                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(true);
+                await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
             }
 
             acquireResponseLabel.Text = "";
-            acquireResponseTitleLabel.Text = EmptyResult;
+            acquireResponseTitleLabel.Text = "Result:";
         }
 
         private void CreateExceptionMessage(Exception exception)

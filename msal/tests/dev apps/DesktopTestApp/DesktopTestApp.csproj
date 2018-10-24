@@ -41,16 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Appveyor|AnyCPU'">
     <OutputPath>bin\Appveyor\</OutputPath>
   </PropertyGroup>
-  <!-- Properties group for Determining 32bit vs 64bit Architecture -->
-  <PropertyGroup>
-    <CurrentPlatform>x86</CurrentPlatform>
-    <CurrentPlatform Condition="'$(Platform)' == 'x64'">x64</CurrentPlatform>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Applications.Telemetry.Windows, Version=2.0.0.7, Culture=neutral, PublicKeyToken=ffe01d0f25e9b4f1, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\aria-windows-sdk-win32-cs\release\$(CurrentPlatform)\Microsoft.Applications.Telemetry.Windows.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Security" />
@@ -86,11 +77,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicClientHandler.cs" />
-    <Compile Include="TelemetryReceiver.cs" />
     <Compile Include="TokenCacheHelper.cs" />
-    <Compile Include="UIProgressScope.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -120,23 +107,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncUsageAnalyzers">
-      <Version>1.0.0-alpha003</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Legacy2CPSWorkaround" Version="1.0.0">
       <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-      <Version>2.6.2</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -145,8 +120,5 @@
       <Name>Microsoft.Identity.Client</Name>
     </ProjectReference>
   </ItemGroup>
-  <PropertyGroup>
-    <CodeAnalysisRuleSet>../../../../build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

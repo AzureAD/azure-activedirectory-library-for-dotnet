@@ -37,12 +37,23 @@ namespace Test.Microsoft.Identity.Unit.PublicApi
         [TestCategory("MsalExceptionTests")]
         public void ExceptionsArePubliclyCreatable_MsalException()
         {
-            var innerEx = new InvalidOperationException();
+            var innerEx = new Exception();
             var ex = new MsalException("code1", "msg1", innerEx);
 
             Assert.AreEqual("code1", ex.ErrorCode);
             Assert.AreEqual("msg1", ex.Message);
             Assert.AreSame(innerEx, ex.InnerException);
+        }
+   
+        [TestMethod]
+        [TestCategory("MsalExceptionTests")]
+        public void ExceptionsArePubliclyCreatable_ServiceException()
+        {
+            var ex = new MsalServiceException("code1", "msg1");
+
+            Assert.AreEqual("code1", ex.ErrorCode);
+            Assert.AreEqual("msg1", ex.Message);
+            Assert.IsNull(ex.InnerException);
         }
 
         [TestMethod]

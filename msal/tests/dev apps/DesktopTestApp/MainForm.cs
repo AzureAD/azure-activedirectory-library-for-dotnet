@@ -39,11 +39,38 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 
 namespace DesktopTestApp
 {
     public partial class MainForm : Form
     {
+        public class UIProgressScope : IDisposable
+        {
+            MainForm mainForm;
+
+            public UIProgressScope(MainForm mainForm)
+            {
+                this.mainForm = mainForm;
+                this.mainForm.Enabled = false;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Marquee;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 30;
+            }
+
+            #region IDisposable Support
+
+
+            public void Dispose()
+            {
+                this.mainForm.Enabled = true;
+                this.mainForm.progressBar1.Style = ProgressBarStyle.Continuous;
+                this.mainForm.progressBar1.MarqueeAnimationSpeed = 0;
+            }
+
+            #endregion
+        }
+
+
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
@@ -61,7 +88,6 @@ namespace DesktopTestApp
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)
@@ -156,11 +182,7 @@ namespace DesktopTestApp
 
                 try
                 {
-                    AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(
-                        SplitScopeString(scopes.Text),
-                        GetUIBehavior(),
-                        _publicClientHandler.ExtraQueryParams,
-                        new UIParent()).ConfigureAwait(true);
+                    AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                     SetResultPageInfo(authenticationResult);
                     RefreshUserList();
@@ -183,8 +205,8 @@ namespace DesktopTestApp
                 {
                     AuthenticationResult authenticationResult =
                         await _publicClientHandler.PublicClientApplication.AcquireTokenByIntegratedWindowsAuthAsync(
-                            SplitScopeString(scopes.Text),
-                            username).ConfigureAwait(true);
+                            scopes.Text.AsArray(),
+                            username);
 
                     SetResultPageInfo(authenticationResult);
 
@@ -206,7 +228,7 @@ namespace DesktopTestApp
                 string username = loginHintTextBox.Text; //Can be blank for U/P 
                 SecureString securePassword = ConvertToSecureString(userPasswordTextBox);
 
-                await AcquireTokenByUsernamePasswordAsync(username, securePassword).ConfigureAwait(true);
+                await AcquireTokenByUsernamePasswordAsync(username, securePassword);
             }
         }
 
@@ -217,9 +239,9 @@ namespace DesktopTestApp
                 _publicClientHandler.PublicClientApplication = new PublicClientApplication(publicClientId, "https://login.microsoftonline.com/organizations");
 
                 AuthenticationResult authResult = await _publicClientHandler.PublicClientApplication.AcquireTokenByUsernamePasswordAsync(
-                    SplitScopeString(scopes.Text),
+                    scopes.Text.AsArray(),
                     username,
-                    password).ConfigureAwait(true);
+                    password);
 
                 SetResultPageInfo(authResult);
             }
@@ -260,7 +282,7 @@ namespace DesktopTestApp
                 try
                 {
                     AuthenticationResult authenticationResult =
-                        await _publicClientHandler.AcquireTokenSilentAsync(SplitScopeString(scopes.Text)).ConfigureAwait(true);
+                        await _publicClientHandler.AcquireTokenSilentAsync(scopes.Text.AsArray());
 
                     SetResultPageInfo(authenticationResult);
                 }
@@ -289,7 +311,7 @@ namespace DesktopTestApp
 
             try
             {
-                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthorityAsync(SplitScopeString(scopes.Text), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent()).ConfigureAwait(true);
+                AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveWithAuthorityAsync(scopes.Text.AsArray(), GetUIBehavior(), _publicClientHandler.ExtraQueryParams, new UIParent());
 
                 SetResultPageInfo(authenticationResult);
             }
@@ -434,8 +456,8 @@ namespace DesktopTestApp
             _publicClientHandler.ExtraQueryParams = extraQueryParams.Text;
             Environment.SetEnvironmentVariable("MsalExtraQueryParameter", environmentQP.Text);
 
-            Microsoft.Identity.Client.Logger.Level = (LogLevel)Enum.Parse(typeof(LogLevel), (string)logLevel.SelectedItem);
-            Microsoft.Identity.Client.Logger.PiiLoggingEnabled = PiiLoggingEnabled.Checked;
+            Logger.Level = (LogLevel)Enum.Parse(typeof(LogLevel), (string)logLevel.SelectedItem);
+            Logger.PiiLoggingEnabled = PiiLoggingEnabled.Checked;
         }
 
         #endregion
@@ -451,7 +473,7 @@ namespace DesktopTestApp
             _publicClientHandler.CreateOrUpdatePublicClientApp(this.authority.Text, publicClientId);
         }
 
-        private async void acquireTokenDeviceCode_Click(object sender, EventArgs e)
+        private void acquireTokenDeviceCode_Click(object sender, EventArgs e)
         {
             ClearResultPageInfo();
 
@@ -459,17 +481,19 @@ namespace DesktopTestApp
             {
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                AuthenticationResult authenticationResult =
-                    await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
-                        SplitScopeString(scopes.Text),
-                        dcr =>
-                        {
-                            BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
-                            return Task.FromResult(0);
-                        },
-                        _cancellationTokenSource.Token).ConfigureAwait(true);
+                // TODO: re-enable when public API re-enabled.
+                //AuthenticationResult authenticationResult = 
+                //    await _publicClientHandler.PublicClientApplication.AcquireTokenWithDeviceCodeAsync(
+                //        scopes.Text.AsArray(),
+                //        string.Empty,  // extra query parameters
+                //        dcr =>
+                //        {
+                //            BeginInvoke(new MethodInvoker(() => callResult.Text = dcr.Message));
+                //            return Task.FromResult(0);
+                //        },
+                //        _cancellationTokenSource.Token);
 
-                SetResultPageInfo(authenticationResult);
+                //SetResultPageInfo(authenticationResult);
             }
             catch (Exception ex)
             {
@@ -481,16 +505,6 @@ namespace DesktopTestApp
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
-        }
-
-        private IEnumerable<string> SplitScopeString(string scopes)
-        {
-            if (String.IsNullOrWhiteSpace(scopes))
-            {
-                return new string[] { };
-            }
-
-            return scopes.Split(new[] { " " }, StringSplitOptions.None);
         }
     }
 }

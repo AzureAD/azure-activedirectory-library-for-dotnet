@@ -25,15 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
@@ -45,7 +51,8 @@ namespace Test.MSAL.NET.Unit
         //private PlatformParameters platformParameters;
         TokenCache cache;
         private MyReceiver _myReceiver = new MyReceiver();
-        readonly MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
+
+        MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
             ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
@@ -66,7 +73,8 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsTrue(x5c.Key == "x5c", "x5c should be present");
             }
         };
-        readonly MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
+
+        MockHttpMessageHandler EmptyX5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
             ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(TestConstants.Scope.AsSingleString(),
@@ -93,97 +101,68 @@ namespace Test.MSAL.NET.Unit
         {
             cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
+            HttpClientFactory.ReturnHttpClientForMocks = true;
+            HttpMessageHandlerFactory.ClearMockHandlers();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
             AadInstanceDiscovery.Instance.Cache.Clear();
+            AddMockResponseForInstanceDisovery();
+
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
+            {
+                Method = HttpMethod.Get,
+                ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
+            });
         }
 
-        internal void SetupMocks(MockHttpManager httpManager)
+        internal void AddMockResponseForInstanceDisovery()
         {
-            httpManager.AddInstanceDiscoveryMockHandler();
-            httpManager.AddMockHandlerForTenantEndpointDiscovery(TestConstants.AuthorityHomeTenant);
+            HttpMessageHandlerFactory.AddMockHandler(
+                MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    TestConstants.GetDiscoveryEndpoint(TestConstants.AuthorityCommonTenant)));
         }
 
         [TestMethod]
         [Description("Test for client assertion with X509 public certificate using sendCertificate")]
         public async Task JsonWebTokenWithX509PublicCertSendCertificateTestAsync()
         {
-            using (var httpManager = new MockHttpManager())
-            {
-                SetupMocks(httpManager);
-                var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
-                var clientAssertion = new ClientAssertionCertificate(certificate);
-                var clientCredential = new ClientCredential(clientAssertion);
-                var app = new ConfidentialClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority,
-                    TestConstants.RedirectUri,
-                    clientCredential,
-                    cache,
-                    cache)
-                {
-                    ValidateAuthority = false
-                };
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            var clientAssertion = new ClientAssertionCertificate(certificate);
+            var clientCredential = new ClientCredential(clientAssertion);
+            var app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.RedirectUri, clientCredential, cache, cache);
+            app.ValidateAuthority = false;
 
-                //Check for x5c claim
-                httpManager.AddMockHandler(X5CMockHandler);
-                AuthenticationResult result =
-                    await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(
-                        TestConstants.Scope).ConfigureAwait(false);
-                Assert.IsNotNull(result.AccessToken);
+            //Check for x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
+            AuthenticationResult result = await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenForClientWithCertificateAsync(TestConstants.Scope);
+            Assert.IsNotNull(result.AccessToken);
 
-                //Check for empty x5c claim
-                // TODO: this was in the test before,
-                // but this mock is not being called.
-                // test was NOT validating that all mock queues were empty before...
-                // httpManager.AddMockHandler(EmptyX5CMockHandler);
-
-                result = await app.AcquireTokenForClientAsync(TestConstants.Scope).ConfigureAwait(false);
-                Assert.IsNotNull(result.AccessToken);
-            }
+            //Check for empty x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await app.AcquireTokenForClientAsync(TestConstants.Scope);
+            Assert.IsNotNull(result.AccessToken);
         }
 
         [TestMethod]
         [Description("Test for client assertion with X509 public certificate using sendCertificate")]
         public async Task JsonWebTokenWithX509PublicCertSendCertificateOnBehalfOfTestAsync()
         {
-            using (var httpManager = new MockHttpManager())
-            {
-                SetupMocks(httpManager);
+            var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
+            var clientAssertion = new ClientAssertionCertificate(certificate);
+            var clientCredential = new ClientCredential(clientAssertion);
+            var app = new ConfidentialClientApplication(TestConstants.ClientId, TestConstants.RedirectUri, clientCredential, cache, cache);
+            app.ValidateAuthority = false;
+            var userAssertion = new UserAssertion(TestConstants.DefaultAccessToken);
 
-                var certificate = new X509Certificate2("valid_cert.pfx", TestConstants.DefaultPassword);
-                var clientAssertion = new ClientAssertionCertificate(certificate);
-                var clientCredential = new ClientCredential(clientAssertion);
-                var app = new ConfidentialClientApplication(
-                    httpManager,
-                    TestConstants.ClientId,
-                    ClientApplicationBase.DefaultAuthority,
-                    TestConstants.RedirectUri,
-                    clientCredential,
-                    cache,
-                    cache)
-                {
-                    ValidateAuthority = false
-                };
-                var userAssertion = new UserAssertion(TestConstants.DefaultAccessToken);
+            //Check for x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(X5CMockHandler);
+            AuthenticationResult result = await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenOnBehalfOfWithCertificateAsync(TestConstants.Scope, userAssertion);
+            Assert.IsNotNull(result.AccessToken);
 
-                //Check for x5c claim
-                httpManager.AddMockHandler(X5CMockHandler);
-                AuthenticationResult result =
-                    await (app as IConfidentialClientApplicationWithCertificate).AcquireTokenOnBehalfOfWithCertificateAsync(
-                        TestConstants.Scope,
-                        userAssertion).ConfigureAwait(false);
-                Assert.IsNotNull(result.AccessToken);
-
-                //Check for empty x5c claim
-                // TODO: this was in the test before,
-                // but this mock is not being called.
-                // test was NOT validating that all mock queues were empty before...
-                // httpManager.AddMockHandler(EmptyX5CMockHandler);
-                result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion).ConfigureAwait(false);
-                Assert.IsNotNull(result.AccessToken);
-            }
+            //Check for empty x5c claim
+            HttpMessageHandlerFactory.AddMockHandler(EmptyX5CMockHandler);
+            result = await app.AcquireTokenOnBehalfOfAsync(TestConstants.Scope, userAssertion);
+            Assert.IsNotNull(result.AccessToken);
         }
     }
 }

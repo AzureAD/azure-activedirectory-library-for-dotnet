@@ -73,17 +73,17 @@ namespace Test.MSAL.NET.Unit
 
         public static readonly AccountId UserIdentifier = CreateUserIdentifer();
 
-        public static string GetDiscoveryEndpoint(string authority)
+        public static string GetDiscoveryEndpoint(string Authority)
         {
-            return authority + DiscoveryEndPoint;
+            return Authority + DiscoveryEndPoint;
         }
 
         public static AccountId CreateUserIdentifer()
         {
-            return CreateUserIdentifier(Uid, Utid);
+            return CreateUserIdentifer(Uid, Utid);
         }
 
-        public static AccountId CreateUserIdentifier(string uid, string utid)
+        public static AccountId CreateUserIdentifer(string uid, string utid)
         {
             return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
         }

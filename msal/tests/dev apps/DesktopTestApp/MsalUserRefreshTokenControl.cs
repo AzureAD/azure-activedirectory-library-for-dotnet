@@ -48,12 +48,12 @@ namespace DesktopTestApp
 
         private async void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
-            IEnumerable<IAccount> accounts = await publicClient.GetAccountsAsync().ConfigureAwait(false);
+            IEnumerable<IAccount> accounts = await publicClient.GetAccountsAsync();
 
             while (accounts.Any())
             {
-                await publicClient.RemoveAsync(accounts.FirstOrDefault()).ConfigureAwait(false);
-                accounts = await publicClient.GetAccountsAsync().ConfigureAwait(false);
+                await publicClient.RemoveAsync(accounts.FirstOrDefault());
+                accounts = await publicClient.GetAccountsAsync();
             }
 
             RefreshViewDelegate?.Invoke();

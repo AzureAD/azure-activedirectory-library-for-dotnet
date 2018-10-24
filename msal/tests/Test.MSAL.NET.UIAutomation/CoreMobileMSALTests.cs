@@ -28,42 +28,44 @@
 using Test.Microsoft.Identity.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
-using Xamarin.UITest;
 
 namespace Test.MSAL.NET.UIAutomation
 {
     /// <summary>
-    /// Configures environment for core/android tests to run
+    /// Contains the core test functionality that will be used by Android and iOS tests
     /// </summary>
-    [TestFixture(Platform.Android)]
-    class XamarinMSALDroidTests
+    public static class CoreMobileMSALTests
     {
-        IApp app;
-        Platform platform;
-        ITestController xamarinController;
-
-        public XamarinMSALDroidTests(Platform platform)
-        {
-            this.platform = platform;
-        }
-
-        /// <summary>
-        /// Initializes app and test controller before each test
-        /// </summary>
-        [SetUp]
-        public void InitializeBeforeTest()
-        {
-            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.MSAL");
-            xamarinController = new XamarinUITestController(app);
-        }
-
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        [Test]
-        public void AcquireTokenTest()
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public static void AcquireTokenTest(ITestController controller)
         {
-            CoreMobileMSALTests.AcquireTokenTest(xamarinController);
+            //Get User from Lab
+            var user = controller.GetUser(
+                new UserQueryParameters
+                {
+                    IsMamUser = false,
+                    IsMfaUser = false,
+                    IsFederatedUser = false
+                });
+
+            //Clear Cache
+            controller.Tap("clearCache");
+
+            //Acquire token flow
+            controller.Tap("acquireToken");
+            //i0116 = UPN text field on AAD sign in endpoint
+            controller.EnterText("i0116", 20, user.Upn, true);
+            //idSIButton9 = Sign in button
+            controller.Tap("idSIButton9", true);
+            //i0118 = password text field
+            controller.EnterText("i0118", ((LabUser)user).GetPassword(), true);
+            controller.Tap("idSIButton9", true);
+
+            //Verify result. Test results are put into a label
+            Assert.IsTrue(controller.GetText("testResult").Contains("Result: Success"));
         }
     }
 }

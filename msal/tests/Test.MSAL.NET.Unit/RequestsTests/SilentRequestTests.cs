@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -23,7 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 using System;
 using System.Net.Http;
@@ -34,33 +34,35 @@ using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
+using Test.MSAL.NET.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit.RequestsTests
 {
     [TestClass]
     public class SilentRequestTests
     {
-        private TokenCache _cache;
+        TokenCache cache;
 
         [TestInitialize]
         public void TestInitialize()
         {
             RequestTestsCommon.InitializeRequestTests();
-            _cache = new TokenCache();
+            cache = new TokenCache();
         }
+
+   
 
         [TestCleanup]
         public void TestCleanup()
         {
-            if (_cache != null)
+            if (cache != null)
             {
-                _cache.tokenCacheAccessor.ClearAccessTokens();
-                _cache.tokenCacheAccessor.ClearRefreshTokens();
+                cache.tokenCacheAccessor.AccessTokenCacheDictionary.Clear();
+                cache.tokenCacheAccessor.RefreshTokenCacheDictionary.Clear();
             }
         }
 
@@ -68,121 +70,104 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("SilentRequestTests")]
         public void ConstructorTests()
         {
-            using (var httpManager = new MockHttpManager())
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            TokenCache cache = new TokenCache()
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-                var cache = new TokenCache()
-                {
-                    ClientId = TestConstants.ClientId
-                };
-                var parameters = new AuthenticationRequestParameters()
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = TestConstants.Scope,
-                    TokenCache = cache,
-                    Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
-                };
+                ClientId = TestConstants.ClientId
+            };
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = TestConstants.Scope,
+                TokenCache = cache,
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
+            
+            SilentRequest request = new SilentRequest(parameters, false);
+            Assert.IsNotNull(request);
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+            parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
 
-                var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                Assert.IsNotNull(request);
+            request = new SilentRequest(parameters, false);
+            Assert.IsNotNull(request);
 
-                parameters.Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null);
-
-                request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                Assert.IsNotNull(request);
-
-                request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                Assert.IsNotNull(request);
-            }
+            request = new SilentRequest(parameters, false);
+            Assert.IsNotNull(request);
         }
 
         [TestMethod]
         [TestCategory("SilentRequestTests")]
         public void ExpiredTokenRefreshFlowTest()
         {
-            using (var httpManager = new MockHttpManager())
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            TokenCache cache = new TokenCache()
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-                var cache = new TokenCache()
-                {
-                    ClientId = TestConstants.ClientId,
-                    HttpManager = httpManager
-                };
-                TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
+                ClientId = TestConstants.ClientId
+            };
+            TokenCacheHelper.PopulateCache(cache.tokenCacheAccessor);
 
-                var parameters = new AuthenticationRequestParameters()
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = ScopeHelper.CreateSortedSetFromEnumerable(
-                        new[]
-                        {
-                            "some-scope1",
-                            "some-scope2"
-                        }),
-                    TokenCache = cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
-                    Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
-                };
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
+                TokenCache = cache,
+                RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null)
+            };
 
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
-                httpManager.AddSuccessTokenResponseMockHandlerForPost();
+            HttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+            });
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
+            SilentRequest request = new SilentRequest(parameters, false);
+            Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+            AuthenticationResult result = task.Result;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("some-access-token", result.AccessToken);
+            Assert.AreEqual("some-scope1 some-scope2", result.Scopes.AsSingleString());
 
-                var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
-                var result = task.Result;
-                Assert.IsNotNull(result);
-                Assert.AreEqual("some-access-token", result.AccessToken);
-                Assert.AreEqual("some-scope1 some-scope2", result.Scopes.AsSingleString());
-            }
+            Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
         }
+
 
         [TestMethod]
         [TestCategory("SilentRequestTests")]
         public void SilentRefreshFailedNullCacheTest()
         {
-            using (var httpManager = new MockHttpManager())
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            cache = null;
+
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
+
+            AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-                _cache = null;
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
+                TokenCache = cache,
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
 
-                var parameters = new AuthenticationRequestParameters()
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = ScopeHelper.CreateSortedSetFromEnumerable(
-                        new[]
-                        {
-                            "some-scope1",
-                            "some-scope2"
-                        }),
-                    TokenCache = _cache,
-                    Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
-                };
-
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-
-                try
-                {
-                    var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                    Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
-                    var authenticationResult = task.Result;
-                    Assert.Fail("MsalUiRequiredException should be thrown here");
-                }
-                catch (AggregateException ae)
-                {
-                    var exc = ae.InnerException as MsalUiRequiredException;
-                    Assert.IsNotNull(exc);
-                    Assert.AreEqual(MsalUiRequiredException.TokenCacheNullError, exc.ErrorCode);
-                }
+            try
+            {
+                SilentRequest request = new SilentRequest(parameters, false);
+                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+                var authenticationResult = task.Result;
+                Assert.Fail("MsalUiRequiredException should be thrown here");
+            }
+            catch (AggregateException ae)
+            {
+                MsalUiRequiredException exc = ae.InnerException as MsalUiRequiredException;
+                Assert.IsNotNull(exc);
+                Assert.AreEqual(MsalUiRequiredException.TokenCacheNullError, exc.ErrorCode);
             }
         }
 
@@ -190,47 +175,36 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestCategory("SilentRequestTests")]
         public void SilentRefreshFailedNoCacheItemFoundTest()
         {
-            using (var httpManager = new MockHttpManager())
+            Authority authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
+            cache = new TokenCache()
             {
-                var authority = Authority.CreateAuthority(TestConstants.AuthorityHomeTenant, false);
-                _cache = new TokenCache()
-                {
-                    ClientId = TestConstants.ClientId,
-                    HttpManager = httpManager
-                };
+                ClientId = TestConstants.ClientId
+            };
 
-                httpManager.AddInstanceDiscoveryMockHandler();
+            RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest();
 
-                var parameters = new AuthenticationRequestParameters()
-                {
-                    Authority = authority,
-                    ClientId = TestConstants.ClientId,
-                    Scope = ScopeHelper.CreateSortedSetFromEnumerable(
-                        new[]
-                        {
-                            "some-scope1",
-                            "some-scope2"
-                        }),
-                    TokenCache = _cache,
-                    Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
-                };
+              AuthenticationRequestParameters parameters = new AuthenticationRequestParameters()
+            {
+                Authority = authority,
+                ClientId = TestConstants.ClientId,
+                Scope = new[] { "some-scope1", "some-scope2" }.CreateSetFromEnumerable(),
+                TokenCache = cache,
+                Account = new Account(TestConstants.UserIdentifier, TestConstants.DisplayableId, null),
+                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+            };
 
-                var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-
-                try
-                {
-                    var request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
-                    Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
-                    var authenticationResult = task.Result;
-                    Assert.Fail("MsalUiRequiredException should be thrown here");
-                }
-                catch (AggregateException ae)
-                {
-                    var exc = ae.InnerException as MsalUiRequiredException;
-                    Assert.IsNotNull(exc);
-                    Assert.AreEqual(MsalUiRequiredException.NoTokensFoundError, exc.ErrorCode);
-                }
+            try
+            {
+                SilentRequest request = new SilentRequest(parameters, false);
+                Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
+                var authenticationResult = task.Result;
+                Assert.Fail("MsalUiRequiredException should be thrown here");
+            }
+            catch (AggregateException ae)
+            {
+                MsalUiRequiredException exc = ae.InnerException as MsalUiRequiredException;
+                Assert.IsNotNull(exc);
+                Assert.AreEqual(MsalUiRequiredException.NoTokensFoundError, exc.ErrorCode);
             }
         }
     }

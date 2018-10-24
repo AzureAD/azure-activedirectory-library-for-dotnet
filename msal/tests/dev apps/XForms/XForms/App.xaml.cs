@@ -72,8 +72,6 @@ namespace XForms
             };
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
-
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public static void InitPublicClient()

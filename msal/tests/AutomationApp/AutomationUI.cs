@@ -45,7 +45,6 @@ namespace AutomationApp
         {
             InitializeComponent();
             Logger.LogCallback = _appLogger.Log;
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryReceiver().OnEvents);
         }
 
         public Dictionary<string, string> CreateDictionaryFromJson(string json)
@@ -58,13 +57,13 @@ namespace AutomationApp
 
         private void acquireToken_Click(object sender, EventArgs e)
         {
-            _commandToRun = _tokenHandlerApp.AcquireTokenAsync;
+            _commandToRun = _tokenHandlerApp.AcquireToken;
             pageControl1.SelectedTab = dataInputPage;
         }
 
         private void acquireTokenSilent_Click(object sender, EventArgs e)
         {
-            _commandToRun = _tokenHandlerApp.AcquireTokenSilentAsync;
+            _commandToRun = _tokenHandlerApp.AcquireTokenSilent;
             pageControl1.SelectedTab = dataInputPage;
         }
 
@@ -89,7 +88,7 @@ namespace AutomationApp
                 }
                 else
                 {
-                    AuthenticationResult authenticationResult = await _commandToRun(dict).ConfigureAwait(true);
+                    AuthenticationResult authenticationResult = await _commandToRun(dict);
                     SetResultPageInfo(authenticationResult);
                 }
             }
