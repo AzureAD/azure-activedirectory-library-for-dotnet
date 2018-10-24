@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Core.Cache
 
             stringBuilder.Append(environment);
 
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().ToLower();
         }
 
 
@@ -94,7 +94,7 @@ namespace Microsoft.Identity.Core.Cache
 
             stringBuilder.Append(scopes ?? "");
 
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().ToLower();
         }
 
         public static string GetiOSGenericKey(string keyDescriptor, string clientId, string tenantId)
@@ -109,7 +109,7 @@ namespace Microsoft.Identity.Core.Cache
 
             stringBuilder.Append(tenantId ?? "");
 
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().ToLower();
         }
     }
 }
