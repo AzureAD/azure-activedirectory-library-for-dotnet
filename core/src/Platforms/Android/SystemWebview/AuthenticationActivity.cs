@@ -27,6 +27,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -124,7 +125,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 Intent browserIntent = new Intent(Intent.ActionView, Uri.Parse(_requestUrl));
                 browserIntent.AddCategory(Intent.CategoryBrowsable);
 
-                CoreLoggerBase.Default.Info(
+                CoreLoggerBase.Default.Warning(
                     "Browser with custom tabs package not available. " +
                     "Launching with alternate browser. See https://aka.ms/msal-net-system-browsers for details.");
 
@@ -208,11 +209,11 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
             Intent customTabServiceIntent = new Intent(_customTabsServiceAction);
 
-            IList<ResolveInfo> resolveInfoListWithCustomTabs = context.PackageManager.QueryIntentServices(
+            IEnumerable<ResolveInfo> resolveInfoListWithCustomTabs = context.PackageManager.QueryIntentServices(
                     customTabServiceIntent, PackageInfoFlags.MatchAll);
 
             // queryIntentServices could return null or an empty list if no matching service existed.
-            if (resolveInfoListWithCustomTabs == null || resolveInfoListWithCustomTabs.Count == 0)
+            if (resolveInfoListWithCustomTabs == null || !resolveInfoListWithCustomTabs.Any())
             {
                 return null;
             }

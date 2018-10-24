@@ -74,8 +74,10 @@ namespace Microsoft.Identity.Client
 #if ANDROID
         private Activity Activity { get; set; }
 
+        private static readonly string ChromePackage = "com.android.chrome";
+
         private static readonly string[] _customTabPackages =
-        {"com.android.chrome", "com.chrome.beta", "com.chrome.dev", "com.microsoft.emmx", "org.mozilla.firefox",
+        { ChromePackage, "com.chrome.beta", "com.chrome.dev", "com.microsoft.emmx", "org.mozilla.firefox",
         "com.ecosia.android", "com.kiwibrowser.browser", "com.brave.browser"};
 
         /// <summary>
@@ -116,26 +118,23 @@ namespace Microsoft.Identity.Client
         {
             PackageManager packageManager = Application.Context.PackageManager;
 
-            int counter = 0;
-
-            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(_customTabPackages[0], 0);
             List<string> customTabPackages = new List<string>();
             for (int i = 0; i < _customTabPackages.Length; i++)
             {
                 try
                 {
                     customTabPackages.Add(packageManager.GetPackageInfo(_customTabPackages[i], PackageInfoFlags.Activities).ToString());
-                    counter++;
                 }
                 catch (PackageManager.NameNotFoundException)
                 {
                 }
             }
-            if (counter == 1 && !string.IsNullOrEmpty(customTabPackages[0]) && !applicationInfo.Enabled)
+
+            if (customTabPackages.Count == 1 && !IsChromeEnabled())
             {
                 return false;
             }
-            else if (counter > 0)
+            else if (customTabPackages.Count >= 1)
             {
                 return true;
             }
@@ -143,6 +142,19 @@ namespace Microsoft.Identity.Client
             {
                 return false;
             }
+        }
+
+        private static bool IsChromeEnabled()
+        {
+            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(ChromePackage, 0);
+
+            // Chrome is difficult to uninstall on an Android device. Most users will disable it, but the package will still
+            // show up, therefore need to check application.Enabled is false
+            if (!string.IsNullOrEmpty(ChromePackage) && !applicationInfo.Enabled)
+            {
+                return false;
+            }
+            return true;
         }
 #endif
 
