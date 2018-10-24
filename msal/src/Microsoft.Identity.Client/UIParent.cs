@@ -28,7 +28,9 @@
 #if ANDROID
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 #endif
 
@@ -76,10 +78,6 @@ namespace Microsoft.Identity.Client
 
         private static readonly string ChromePackage = "com.android.chrome";
 
-        private static readonly string[] _customTabPackages =
-        { ChromePackage, "com.chrome.beta", "com.chrome.dev", "com.microsoft.emmx", "org.mozilla.firefox",
-        "com.ecosia.android", "com.kiwibrowser.browser", "com.brave.browser"};
-
         /// <summary>
         /// Initializes an instance for a provided activity.
         /// </summary>
@@ -116,25 +114,12 @@ namespace Microsoft.Identity.Client
         /// </example>
         public static bool IsSystemWebviewAvailable()
         {
-            PackageManager packageManager = Application.Context.PackageManager;
-
-            List<string> customTabPackages = new List<string>();
-            for (int i = 0; i < _customTabPackages.Length; i++)
-            {
-                try
-                {
-                    customTabPackages.Add(packageManager.GetPackageInfo(_customTabPackages[i], PackageInfoFlags.Activities).ToString());
-                }
-                catch (PackageManager.NameNotFoundException)
-                {
-                }
-            }
-
-            if (customTabPackages.Count == 1 && !IsChromeEnabled())
+            bool isBrowserWithCustomTabSupportAvailable = IsBrowserWithCustomTabSupportAvailable();
+            if (!isBrowserWithCustomTabSupportAvailable && !IsChromeEnabled())
             {
                 return false;
             }
-            else if (customTabPackages.Count >= 1)
+            else if (isBrowserWithCustomTabSupportAvailable)
             {
                 return true;
             }
@@ -142,6 +127,24 @@ namespace Microsoft.Identity.Client
             {
                 return false;
             }
+        }
+
+        private static bool IsBrowserWithCustomTabSupportAvailable()
+        {
+            string customTabsServiceAction = "android.support.customtabs.action.CustomTabsService";
+
+            Intent customTabServiceIntent = new Intent(customTabsServiceAction);
+
+            IEnumerable<ResolveInfo> resolveInfoListWithCustomTabs = Application.Context.PackageManager.QueryIntentServices(
+                    customTabServiceIntent, PackageInfoFlags.MatchAll);
+
+            // queryIntentServices could return null or an empty list if no matching service existed.
+            if (resolveInfoListWithCustomTabs == null || !resolveInfoListWithCustomTabs.Any())
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static bool IsChromeEnabled()
