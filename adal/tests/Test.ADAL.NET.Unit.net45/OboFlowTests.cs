@@ -380,7 +380,6 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(2, context.TokenCache.Count);
         }
 
-
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
@@ -430,8 +429,9 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(2, context.TokenCache.Count);
 
             //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache.tokenCacheDictionary.Values.First().UserAssertionHash);
+            var expectedHash = _crypto.CreateSha256Hash(accessToken);
+
+            Assert.IsTrue(context.TokenCache.tokenCacheDictionary.Values.Any(v => v.UserAssertionHash == expectedHash));
         }
 
         [TestMethod]
