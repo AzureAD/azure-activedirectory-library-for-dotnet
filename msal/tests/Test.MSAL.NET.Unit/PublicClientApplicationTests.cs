@@ -303,7 +303,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.IsNotNull(result.Account);
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
-                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
 
                 // repeat interactive call and pass in the same user
@@ -316,7 +316,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.IsNotNull(result.Account);
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
-                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
             }
         }
@@ -351,7 +351,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.IsNotNull(result.Account);
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
-                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
                 Assert.AreEqual(TestConstants.Utid, result.TenantId);
 
@@ -378,7 +378,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(TestConstants.UniqueId + "more", result.UniqueId);
                 Assert.AreEqual(
                     TestConstants.CreateUserIdentifier(TestConstants.Uid + "more", TestConstants.Utid + "more"),
-                    result.Account.HomeAccountId);
+                    result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId + "more", result.Account.Username);
                 Assert.AreEqual(TestConstants.Utid + "more", result.TenantId);
             }
@@ -419,7 +419,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.IsNotNull(result.Account);
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
-                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
 
                 // TODO: allow checking in the middle of a using block --> Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
@@ -503,7 +503,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.IsNotNull(result.Account);
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
-                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId);
+                Assert.AreEqual(TestConstants.CreateUserIdentifer(), result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
                 // TODO: Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
 
@@ -527,7 +527,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(TestConstants.UniqueId, result.UniqueId);
                 Assert.AreEqual(
                     TestConstants.CreateUserIdentifier(TestConstants.Uid, TestConstants.Utid + "more"),
-                    result.Account.HomeAccountId);
+                    result.Account.HomeAccountId.Identifier);
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
                 var users = app.GetAccountsAsync().Result;
                 Assert.AreEqual(2, users.Count());
@@ -602,7 +602,9 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateClientInfo("uId1", "uTId1"),
                     null,
                     null,
-                    "uTId1");
+                    "uTId1",
+                    null,
+                    null);
 
                 _cache.tokenCacheAccessor.SaveAccount(accountCacheItem);
 
@@ -762,7 +764,7 @@ namespace Test.MSAL.NET.Unit
                     new MsalAccessTokenCacheKey(
                         TestConstants.ProductionPrefNetworkEnvironment,
                         TestConstants.Utid,
-                        TestConstants.UserIdentifier.Identifier,
+                        TestConstants.UserIdentifier,
                         TestConstants.ClientId,
                         TestConstants.ScopeForAnotherResourceStr));
 
@@ -798,7 +800,7 @@ namespace Test.MSAL.NET.Unit
             _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
-                TestConstants.UserIdentifier.Identifier,
+                TestConstants.UserIdentifier,
                 TestConstants.ClientId,
                 TestConstants.ScopeForAnotherResourceStr));
 
@@ -831,7 +833,7 @@ namespace Test.MSAL.NET.Unit
             _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
-                TestConstants.UserIdentifier.Identifier,
+                TestConstants.UserIdentifier,
                 TestConstants.ClientId,
                 TestConstants.ScopeForAnotherResourceStr));
 
@@ -863,7 +865,7 @@ namespace Test.MSAL.NET.Unit
             _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 TestConstants.ProductionPrefNetworkEnvironment,
                 TestConstants.Utid,
-                TestConstants.UserIdentifier.Identifier,
+                TestConstants.UserIdentifier,
                 TestConstants.ClientId,
                 TestConstants.ScopeForAnotherResourceStr));
 
@@ -1195,7 +1197,7 @@ namespace Test.MSAL.NET.Unit
 
             var authority = app.GetAuthority(
                 new Account(
-                    new AccountId("objectId." + TestConstants.Utid, "objectId", TestConstants.Utid),
+                    "objectId." + TestConstants.Utid,
                     TestConstants.Name,
                     TestConstants.ProductionPrefNetworkEnvironment));
 

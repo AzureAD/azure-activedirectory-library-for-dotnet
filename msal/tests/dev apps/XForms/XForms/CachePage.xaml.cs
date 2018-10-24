@@ -111,7 +111,7 @@ namespace XForms
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // set access token as expired
-            accessTokenCacheItem.ExpiresOnUnixTimestamp = GetCurrentTimestamp();
+            accessTokenCacheItem.ExpiresOnUnixTimestamp = GetCurrentTimestamp().ToString();
 
             // update entry in the cache
             tokenCache.AddAccessTokenCacheItem(accessTokenCacheItem);

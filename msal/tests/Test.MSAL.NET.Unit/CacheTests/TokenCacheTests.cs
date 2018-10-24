@@ -967,7 +967,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             var rtItem = cache.GetAllRefreshTokensForClient(requestContext).First();
             Assert.AreEqual(response.RefreshToken, rtItem.Secret);
             Assert.AreEqual(TestConstants.ClientId, rtItem.ClientId);
-            Assert.AreEqual(TestConstants.UserIdentifier.Identifier, rtItem.HomeAccountId);
+            Assert.AreEqual(TestConstants.UserIdentifier, rtItem.HomeAccountId);
             Assert.AreEqual(TestConstants.ProductionPrefNetworkEnvironment, rtItem.Environment);
         }
 

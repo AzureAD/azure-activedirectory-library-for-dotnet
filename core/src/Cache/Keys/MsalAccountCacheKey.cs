@@ -62,7 +62,7 @@ namespace Microsoft.Identity.Core.Cache
             stringBuilder.Append(_environment + MsalCacheCommon.CacheKeyDelimiter);
             stringBuilder.Append(_tenantId);
 
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().ToLower();
         }
 
         #region iOS
