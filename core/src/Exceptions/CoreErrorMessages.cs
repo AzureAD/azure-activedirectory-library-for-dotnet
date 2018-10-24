@@ -51,8 +51,8 @@ namespace Microsoft.Identity.Core
         public const string UnsupportedAuthorityValidation =
             "Authority validation is not supported for this type of authority";
 
-        public const string AuthenticationCanceled = "User canceled authentication. If using an Android device, this could be due to the browser inability " +
-            "to redirect back to the app. Please see https://aka.ms/msal-net-system-browsers for more information.";
+        public const string AuthenticationCanceled = "User canceled authentication. On an Android device, this could be due to the system browser." +
+            " See https://aka.ms/msal-net-system-browsers for more information.";
 
         public const string Unknown = "Unknown error";
 

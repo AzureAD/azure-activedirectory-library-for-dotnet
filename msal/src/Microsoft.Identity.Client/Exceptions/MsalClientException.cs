@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Client
         /// <para>Mitigation</para>None, you cannot get a token to call the protected API. You might want to inform the user
         /// </summary>
         public const string AuthenticationCanceledError = "authentication_canceled";
-        
+
         /// <summary>
         /// JSON parsing failed.
         /// <para>What happens?</para>A Json blob read from the token cache or received from the STS was not parseable. 
@@ -154,28 +154,17 @@ namespace Microsoft.Identity.Client
 #if ANDROID
 
         /// <summary>
-        /// Xamarin.Android specific. This error indicates that chrome, or a browser implementing chrome tabs, is not installed on the device. 
-        /// The library sdk uses chrome custom tab for authorize request if applicable or falls back to chrome browser.
-        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end 
-        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. 
-        /// Otherwise you can also use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
-        /// and require the library to use the embedded web view if it is not by setting the boolean to <c>true</c> in the following
+        /// Xamarin.Android specific. This error indicates that a system browser was not installed on the user's device, and authentication
+        /// using system browser could not be attempted because there was no available Android activity to handle the intent.
+        /// <para>Mitigation</para>If you want to use the System web browser (for instance to get SSO with the browser), notify the end 
+        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. For a list of supported browsers with 
+        /// custom tab support, please see https://aka.ms/msal-net-system-browsers.
+        /// Otherwise you can use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a browser with custom tabs is available on the device
+        /// and require the library to use the embedded web view if there is no such browser available by setting the boolean to <c>true</c> in the following
         /// constructor: <see cref="UIParent.UIParent(Android.App.Activity, bool)"/>
         /// <para>For more details</para> See https://aka.ms/msal-net-uses-web-browser
         /// </summary>
-        public const string ChromeNotInstalledError = "chrome_not_installed";
-
-        /// <summary>
-        /// Xamarin.Android specific. This error indicates that chrome is installed on the device but disabled. The sdk uses chrome custom tab for
-        /// authorize request if applicable or falls back to chrome browser.
-        /// <para>Mitigation</para>If you really need to use the System web browser (for instance to get SSO with the browser), notify the end 
-        /// user that chrome or a browser implementing chrome custom tabs needs to be installed on the device. 
-        /// Otherwise you can also use <see cref="UIParent.IsSystemWebviewAvailable"/> to check if a required browser is available on the device
-        /// and require the library to use the embedded web view if it is not by setting the boolean to <c>true</c> in the following
-        /// constructor: <see cref="UIParent.UIParent(Android.App.Activity, bool)"/>
-        /// <para>For more details</para> See https://aka.ms/msal-net-uses-web-browser
-        /// </summary>
-        public const string ChromeDisabledError = "chrome_disabled";
+        public const string AndroidActivityNotFound = "android_activity_not_found";
 
         /// <summary>
         /// The intent to launch AuthenticationActivity is not resolvable by the OS or the intent.
@@ -213,7 +202,7 @@ namespace Microsoft.Identity.Client
         /// for exception handling.
         /// </param>
         /// <param name="errorMessage">The error message that explains the reason for the exception.</param>
-        public MsalClientException(string errorCode, string errorMessage):base(errorCode, errorMessage)
+        public MsalClientException(string errorCode, string errorMessage) : base(errorCode, errorMessage)
         {
         }
 
@@ -227,7 +216,7 @@ namespace Microsoft.Identity.Client
         /// </param>
         /// <param name="errorMessage">The error message that explains the reason for the exception.</param>
         /// <param name="innerException"></param>
-        public MsalClientException(string errorCode, string errorMessage, Exception innerException):base(errorCode, errorMessage, innerException)
+        public MsalClientException(string errorCode, string errorMessage, Exception innerException) : base(errorCode, errorMessage, innerException)
         {
         }
     }
