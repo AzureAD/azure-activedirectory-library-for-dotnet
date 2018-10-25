@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Client
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
 
         /// <summary>
-        /// In case when Azure AD has an outage, to be more resilient. it can return tokens with
+        /// In case when Azure AD has an outage, to be more resilient, it can return tokens with
         /// an expiration time, and also with an extended expiration time.
         /// The tokens are then automatically refreshed by MSAL when the time is more than the
         /// expiration time, except when ExtendedLifeTimeEnabled is true and the time is less
