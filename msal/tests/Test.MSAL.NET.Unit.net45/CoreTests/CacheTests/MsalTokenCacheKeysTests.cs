@@ -117,7 +117,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             Assert.AreEqual("uid.utid-login.microsoftonline.com", key.GetiOSAccountKey());
             Assert.AreEqual("contoso.com", key.GetiOSServiceKey());
-            Assert.AreEqual("localId", key.GetiOSGenericKey());
+            Assert.AreEqual("localid", key.GetiOSGenericKey());
         }
     }
 }
