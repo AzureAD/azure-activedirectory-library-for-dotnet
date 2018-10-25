@@ -26,6 +26,9 @@
     "aio": "DWgKnl!EsfVkSU8jFVbxM6PhZaR2EyXsMBymRGSXvREu4i*FmBU1RBl5hHvNvoGSGlqdBJFxndAsA6*Z3qZBr0c9vaIRwUpeICV*SXZjw8!B"
   },
   "at_cache_key": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net-accesstoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad-tasks.read user.read openid profile",
+  "at_cache_key_ios_service": "accesstoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad-tasks.read user.read openid profile",
+  "at_cache_key_ios_account": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net",
+  "at_cache_key_ios_generic": "accesstoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad",
   "at_cache_value": {
     "secret": "<removed_at>",
     "target": "Tasks.Read User.Read openid profile",
@@ -38,6 +41,9 @@
     "home_account_id": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad"
   },
   "id_token_cache_key": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net-idtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad-",
+  "id_token_cache_key_ios_service": "idtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad-",
+  "id_token_cache_key_ios_account": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net",
+  "id_token_cache_key_ios_generic": "idtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-9188040d-6c67-4c5b-b112-36a304b66dad",
   "id_token_cache_value": {
     "secret": "{0}",
     "credential_type": "IdToken",
@@ -47,6 +53,9 @@
     "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215"
   },
   "rt_cache_key": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net-refreshtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215--",
+  "rt_cache_key_ios_service": "refreshtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215--",
+  "rt_cache_key_ios_account": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net",
+  "rt_cache_key_ios_generic": "refreshtoken-b6c69a37-df96-4db0-9088-2ab96e1d8215-",
   "rt_cache_value": {
     "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215",
     "secret": "<removed_rt>",
@@ -55,6 +64,9 @@
     "home_account_id": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad"
   },
   "account_cache_key": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net-9188040d-6c67-4c5b-b112-36a304b66dad",
+  "account_cache_key_ios_service": "9188040d-6c67-4c5b-b112-36a304b66dad",
+  "account_cache_key_ios_account": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad-login.windows.net",
+  "account_cache_key_ios_generic": "msalsdktest@outlook.com",
   "account_cache_value": {
     "local_account_id": "00000000-0000-0000-40c0-3bac188d01d1",
     "home_account_id": "00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad",

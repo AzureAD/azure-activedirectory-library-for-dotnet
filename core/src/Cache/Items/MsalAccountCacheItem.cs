@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Core.Cache
 
         internal MsalAccountCacheKey GetKey()
         {
-            return new MsalAccountCacheKey(Environment, TenantId, HomeAccountId, LocalAccountId);
+            return new MsalAccountCacheKey(Environment, TenantId, HomeAccountId, PreferredUsername);
         }
     }
 }

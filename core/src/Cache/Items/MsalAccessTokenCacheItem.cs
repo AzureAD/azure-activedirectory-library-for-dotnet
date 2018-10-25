@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Core.Cache
             NormalizedScopes = scopes;
             TenantId = tenantId;
             Secret = secret;
-            ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn).ToString();
+            ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
             CachedAt = CoreHelpers.CurrDateTimeInUnixTimestamp().ToString();
             RawClientInfo = rawClientInfo;
 

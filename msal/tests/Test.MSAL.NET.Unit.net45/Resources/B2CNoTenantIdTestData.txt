@@ -32,11 +32,12 @@
       "msalsdktest@outlook.com"
     ],
     "tfp": "B2C_1_Signin",
-    "at_hash": "Q4O3HDClcaLl7y0uU-bJAg",
-    "tid": "ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
-    "preferred_username": "msalsdktest@outlook.com"
+    "at_hash": "Q4O3HDClcaLl7y0uU-bJAg"
   },
   "at_cache_key": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net-accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-https://iosmsalb2c.onmicrosoft.com/webapitest/user.read",
+  "at_cache_key_ios_service": "accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-https://iosmsalb2c.onmicrosoft.com/webapitest/user.read",
+  "at_cache_key_ios_account": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net",
+  "at_cache_key_ios_generic": "accesstoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com",
   "at_cache_value": {
     "secret": "<removed_at>",
     "target": "https://iosmsalb2c.onmicrosoft.com/webapitest/user.read",
@@ -49,6 +50,9 @@
     "home_account_id": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
   },
   "id_token_cache_key": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net-idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-",
+  "id_token_cache_key_ios_service": "idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com-",
+  "id_token_cache_key_ios_account": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net",
+  "id_token_cache_key_ios_generic": "idtoken-0a7f52dd-260e-432f-94de-b47828c3f372-iosmsalb2c.onmicrosoft.com",
   "id_token_cache_value": {
     "secret": "{0}",
     "credential_type": "IdToken",
@@ -58,6 +62,9 @@
     "client_id": "0a7f52dd-260e-432f-94de-b47828c3f372"
   },
   "rt_cache_key": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net-refreshtoken-0a7f52dd-260e-432f-94de-b47828c3f372--",
+  "rt_cache_key_ios_service": "refreshtoken-0a7f52dd-260e-432f-94de-b47828c3f372--",
+  "rt_cache_key_ios_account": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net",
+  "rt_cache_key_ios_generic": "refreshtoken-0a7f52dd-260e-432f-94de-b47828c3f372-",
   "rt_cache_value": {
     "client_id": "0a7f52dd-260e-432f-94de-b47828c3f372",
     "secret": "<removed_rt>",
@@ -66,11 +73,14 @@
     "home_account_id": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
   },
   "account_cache_key": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net-iosmsalb2c.onmicrosoft.com",
+  "account_cache_key_ios_service": "iosmsalb2c.onmicrosoft.com",
+  "account_cache_key_ios_account": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8-login.windows.net",
+  "account_cache_key_ios_generic": "missing from the token response",
   "account_cache_value": {
     "family_name": "SDK Test",
     "local_account_id": "ad020f8e-b1ba-44b2-bd69-c22be86737f5",
     "home_account_id": "ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
-    "username": "msalsdktest@outlook.com",
+    "username": "Missing from the token response",
     "authority_type": "MSSTS",
     "given_name": "MSAL",
     "environment": "login.windows.net",
