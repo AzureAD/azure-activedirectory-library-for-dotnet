@@ -43,6 +43,8 @@ using Test.ADAL.NET.Common.Mocks;
 
 namespace Test.ADAL.NET.Unit
 {
+#if !NET_CORE // Enable when bug https://IdentityDivision.visualstudio.com/_workitems/edit/573878 is fixed
+
     /// <summary>
     /// This test class executes and validates OBO scenarios where token cache may or may not 
     /// contain entries with user assertion hash. It accounts for cases where there is
@@ -966,4 +968,5 @@ namespace Test.ADAL.NET.Unit
             }
         }
     }
+#endif
 }
