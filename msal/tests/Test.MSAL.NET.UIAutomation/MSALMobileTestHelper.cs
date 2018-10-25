@@ -67,12 +67,12 @@ namespace Test.MSAL.UIAutomation
 
         private static void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
-            var user = prepareForAuthentication(controller, userParams);
+            var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
-        private static IUser prepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private static IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
             //Clear Cache
             controller.Tap(CoreUiTestConstants.CachePageID);
@@ -84,7 +84,7 @@ namespace Test.MSAL.UIAutomation
 
         private static void SetInputData(ITestController controller, string ClientID, string scopes)
         {
-            controller.Tap(CoreUiTestConstants.SettignsPageID);
+            controller.Tap(CoreUiTestConstants.SettingsPageID);
 
             //Enter ClientID
             controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);

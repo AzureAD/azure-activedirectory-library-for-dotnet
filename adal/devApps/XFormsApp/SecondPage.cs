@@ -65,6 +65,10 @@ namespace XFormsApp
 
         public IPlatformParameters BrokerParameters { get; set; }
 
+        public IPlatformParameters PromptParameters { get; set; }
+
+        private bool IsPromptBehaviorAlways;
+
         public SecondPage()
         {
             var acquireTokenButton = new Button
@@ -77,6 +81,12 @@ namespace XFormsApp
             {
                 Text = "Acquire Token Silent",
                 AutomationId = "acquireTokenSilent"
+            };
+
+            var acquireTokenWithPromptBehaviorAlways = new Button
+            {
+                Text = "Acquire Token with PromptBehavior.Always",
+                AutomationId = "acquireTokenPromptBehaviorAlways"
             };
 
             var clearAllCacheButton = new Button
@@ -162,6 +172,7 @@ namespace XFormsApp
             acquireTokenButton.Clicked += AcquireTokenButton_Clicked;
             acquireTokenSilentButton.Clicked += AcquireTokenSilentButton_Clicked;
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
+            acquireTokenWithPromptBehaviorAlways.Clicked += AcquireTokenWithPromptBehaviorAlwaysButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
             acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
             clientIdPicker.SelectedIndexChanged += UpdateClientId;
@@ -191,6 +202,7 @@ namespace XFormsApp
                 Children = {
                     acquireTokenButton,
                     acquireTokenSilentButton,
+                    acquireTokenWithPromptBehaviorAlways,
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
@@ -212,18 +224,25 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        private async void AcquireTokenButton_Clicked(object sender, EventArgs e)
+        private void AcquireTokenButton_Clicked(object sender, EventArgs e)
+        {
+            IsPromptBehaviorAlways = false;
+            AcquireTokenAsync();
+        }
+
+        private async void AcquireTokenAsync()
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
-            string accessToken = String.Empty;
+            string accessToken = string.Empty;
             this.testResult.Text = "Result:";
+
             try
             {
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), Parameters).ConfigureAwait(false);
+                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), SetPromptBehavior()).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
                 User = result.UserInfo.DisplayableId;
@@ -249,7 +268,7 @@ namespace XFormsApp
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/" + Tenant);
             string output = string.Empty;
-            string accessToken = String.Empty;
+            string accessToken = string.Empty;
             this.testResult.Text = "Result:";
             try
             {
@@ -273,6 +292,11 @@ namespace XFormsApp
             }
         }
 
+        private void AcquireTokenWithPromptBehaviorAlwaysButton_Clicked(object sender, EventArgs e)
+        {
+            IsPromptBehaviorAlways = true;
+            AcquireTokenAsync();
+        }
 
         private async void AcquireTokenWithBroker()
         {
@@ -387,6 +411,20 @@ namespace XFormsApp
                     throw new NotImplementedException();
             }
             return RedirectURI;
+        }
+
+        private IPlatformParameters SetPromptBehavior()
+        {
+            IPlatformParameters parameters = null;
+            if (IsPromptBehaviorAlways)
+            {
+                parameters = PromptParameters;
+            }
+            else
+            {
+                parameters = Parameters;
+            }
+            return parameters;
         }
 
         void ClearAllCacheButton_Clicked(object sender, EventArgs e)

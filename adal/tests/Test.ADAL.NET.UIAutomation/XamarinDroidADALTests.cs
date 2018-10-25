@@ -82,6 +82,18 @@ namespace Test.ADAL.UIAutomation
         }
 
         /// <summary>
+        /// Runs through the standard acquire token flow with prompt behavior set to always
+        /// The user is always prompted for credentials, 
+        /// even if a token exists in the cache, and if the user has a session. 
+        /// </summary>
+        [Test]
+        public void AcquireTokenInteractiveWithPromptAlwaysTest()
+        {
+            CoreMobileTestHelper.PlatformParameters = true;
+            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+        }
+
+        /// <summary>
         /// Runs through the standard acquire token flow with a ADFS V4 account
         /// </summary>
         [Test]
