@@ -204,8 +204,7 @@ namespace Microsoft.Identity.Core
 
         public string GetDeviceId()
         {
-            var deviceInformation = new EasClientDeviceInformation();
-            return deviceInformation.Id.ToString();
+            return new EasClientDeviceInformation().Id.ToString(); 
         }
 
         /// <inheritdoc />

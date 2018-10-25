@@ -91,8 +91,8 @@ namespace Microsoft.Identity.Core.Telemetry
         public static string HashPersonalIdentifier(string valueToHash)
         {
             var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-            string hashedValue = crypto.CreateBase64UrlEncodedSha256Hash(valueToHash);
-            return hashedValue;
+            return crypto.CreateBase64UrlEncodedSha256Hash(valueToHash);
+           
         }
     }
 }

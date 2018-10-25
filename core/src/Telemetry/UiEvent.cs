@@ -31,7 +31,7 @@ namespace Microsoft.Identity.Core.Telemetry
     {
         public const string UserCancelledKey = EventNamePrefix + "user_cancelled";
 
-        public const string AccessDeniedKey = EventNamePrefix + "access_denied"; 
+        public const string AccessDeniedKey = EventNamePrefix + "access_denied";
  
         public UiEvent(): base(EventNamePrefix + "ui_event") {}
 

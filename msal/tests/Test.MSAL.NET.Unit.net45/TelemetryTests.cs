@@ -34,6 +34,7 @@ using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Http;
 using Test.Microsoft.Identity.Core.Unit;
+using System.Collections.Concurrent;
 
 namespace Test.MSAL.NET.Unit
 {
@@ -288,8 +289,8 @@ namespace Test.MSAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("PiiLoggingEnabled set to true, TenantId & UserId are hashed values")]
-        public void PiiLoggingEnabledTrue_TenantAndUserIdHashedTest()
+        [TestCategory("PiiLoggingEnabled set to true, TenantId , UserId, and Login Hint are hashed values")]
+        public void PiiLoggingEnabledTrue_ApiEventFieldsHashedTest()
         {
             Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
             var myReceiver = new MyReceiver();
@@ -301,7 +302,12 @@ namespace Test.MSAL.NET.Unit
             var reqId = telemetry.GenerateNewRequestId();
             try
             {
-                var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad", TenantId = TenantId, AccountId = UserId };
+                var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"),
+                    AuthorityType = "Aad",
+                    TenantId = TenantId,
+                    AccountId = UserId,
+                    LoginHint = "loginHint" };
+
                 telemetry.StartEvent(reqId, e1);
                 // do some stuff...
                 e1.WasSuccessful = true;
@@ -319,6 +325,12 @@ namespace Test.MSAL.NET.Unit
                     Assert.AreNotEqual(UserId, e1[ApiEvent.UserIdKey]);
                 }
 
+                if (e1.ContainsKey(ApiEvent.LoginHintKey))
+                {
+                    Assert.AreNotEqual(null, e1[ApiEvent.LoginHintKey]);
+                    Assert.AreNotEqual("loginHint", e1[ApiEvent.LoginHintKey]);
+                }
+
                 telemetry.StopEvent(reqId, e1);
             }
             finally
@@ -327,7 +339,7 @@ namespace Test.MSAL.NET.Unit
             }
             Assert.IsTrue(myReceiver.EventsReceived.Count > 0);
         }
-
+            
         [TestMethod]
         [TestCategory("PiiLoggingEnabled set to false, TenantId & UserId set to null values")]
         public void PiiLoggingEnabledFalse_TenantIdUserIdSetToNullValueTest()
@@ -342,7 +354,12 @@ namespace Test.MSAL.NET.Unit
             var reqId = telemetry.GenerateNewRequestId();
             try
             {
-                var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad", TenantId = TenantId, AccountId = UserId };
+                var e1 = new ApiEvent(logger) { Authority = new Uri("https://login.microsoftonline.com"),
+                    AuthorityType = "Aad",
+                    TenantId = TenantId,
+                    AccountId = UserId,
+                    LoginHint = "loginHint" };
+
                 telemetry.StartEvent(reqId, e1);
                 // do some stuff...
                 e1.WasSuccessful = true;
@@ -358,6 +375,10 @@ namespace Test.MSAL.NET.Unit
                     Assert.AreEqual(null, e1[ApiEvent.UserIdKey]);
                 }
 
+                if (e1.ContainsKey(ApiEvent.LoginHintKey))
+                {
+                    Assert.AreEqual(null, e1[ApiEvent.LoginHintKey]);
+                }
                 telemetry.StopEvent(reqId, e1);
             }
             finally
@@ -410,6 +431,54 @@ namespace Test.MSAL.NET.Unit
                 telemetry.Flush(reqId);
             }
             Assert.IsTrue(myReceiver.EventsReceived.Count > 0);
+        }
+
+        [TestMethod]
+        [TestCategory("TelemetryInternalAPI")]
+        public void TelemetryEventCountsAreCorrectTest()
+        {
+            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
+            var myReceiver = new MyReceiver();
+            telemetry.RegisterReceiver(myReceiver.OnEvents);
+
+            telemetry.ClientId = "a1b3c3d4";
+            var reqId = telemetry.GenerateNewRequestId();
+            try
+            {
+                var e1 = new ApiEvent(new TestLogger()) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad" };
+                telemetry.StartEvent(reqId, e1);
+                // do some stuff...
+                e1.WasSuccessful = true;
+                telemetry.StopEvent(reqId, e1);
+
+                var e2 = new HttpEvent() { HttpPath = new Uri("https://contoso.com"), UserAgent = "SomeUserAgent", QueryParams = "?a=1&b=2" };
+                telemetry.StartEvent(reqId, e2);
+                // do some stuff...
+                e2.HttpResponseStatus = 200;
+                telemetry.StopEvent(reqId, e2);
+
+                var e3 = new HttpEvent() { HttpPath = new Uri("https://contoso.com"), UserAgent = "SomeOtherUserAgent", QueryParams = "?a=3&b=4" };
+                telemetry.StartEvent(reqId, e3);
+                // do some stuff...
+                e2.HttpResponseStatus = 200;
+                telemetry.StopEvent(reqId, e3);
+
+                var e4 = new CacheEvent(CacheEvent.TokenCacheWrite) { TokenType = CacheEvent.TokenTypes.AT };
+                telemetry.StartEvent(reqId, e4);
+                telemetry.StopEvent(reqId, e4);
+
+                var e5 = new CacheEvent(CacheEvent.TokenCacheDelete) { TokenType = CacheEvent.TokenTypes.RT };
+                telemetry.StartEvent(reqId, e5);
+                telemetry.StopEvent(reqId, e5);
+            }
+            finally
+            {
+                telemetry.Flush(reqId);
+            }
+            Dictionary<string, string> defaultEvent = myReceiver.EventsReceived[0];
+            Assert.AreEqual(2, defaultEvent["http_event_count"]);
+            Assert.AreEqual(2, defaultEvent["cache_event_count"]);
+            Assert.AreEqual(0, defaultEvent["ui_event_count"]);
         }
     }
 }

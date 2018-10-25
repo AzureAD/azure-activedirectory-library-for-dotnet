@@ -36,19 +36,19 @@ namespace Microsoft.Identity.Core
         Task<bool> IsUserLocalAsync(RequestContext requestContext);
 
         /// <summary>
-        /// Returns the name of the application
+        /// Returns the name of the calling assembly
         /// </summary>
         /// <returns></returns>
         string GetApplicationName();
 
         /// <summary>
-        /// Returns the version of the application
+        /// Returns the version of the calling assembly
         /// </summary>
         /// <returns></returns>
         string GetApplicationVersion();
 
         /// <summary>
-        /// Returns the deviceId
+        /// Returns a device identifier. Varies by platform.
         /// </summary>
         /// <returns></returns>
         string GetDeviceId();

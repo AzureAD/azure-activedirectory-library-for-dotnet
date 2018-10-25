@@ -29,7 +29,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using System.Reflection;
-using System.Net.NetworkInformation;
 
 namespace Microsoft.Identity.Core
 {

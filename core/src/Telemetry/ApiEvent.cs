@@ -27,7 +27,6 @@
 
 using System;
 using System.Globalization;
-using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.Identity.Core.Telemetry
 {

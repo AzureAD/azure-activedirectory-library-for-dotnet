@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace Microsoft.Identity.Core.Telemetry
