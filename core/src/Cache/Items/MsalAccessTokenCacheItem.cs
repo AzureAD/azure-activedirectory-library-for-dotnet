@@ -114,7 +114,6 @@ namespace Microsoft.Identity.Core.Cache
             }
         }
 
-        [DataMember]
         public bool IsExtendedLifeTimeToken { get; set; }
 
         internal MsalAccessTokenCacheKey GetKey()
