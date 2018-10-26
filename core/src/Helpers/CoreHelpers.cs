@@ -66,10 +66,11 @@ namespace Microsoft.Identity.Core.Helpers
             return unixTimestamp.ToString();
         }
 
-        public static long CurrDateTimeInUnixTimestamp()
+        public static string CurrDateTimeInUnixTimestamp()
         {
             var unixEpochDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return (long)DateTime.UtcNow.Subtract(unixEpochDateTime).TotalSeconds;
+            long unixTimestamp = (long)DateTime.UtcNow.Subtract(unixEpochDateTime).TotalSeconds;
+            return unixTimestamp.ToString();
         }
 
         public static long DateTimeToUnixTimestampMilliseconds(DateTimeOffset dateTimeOffset)

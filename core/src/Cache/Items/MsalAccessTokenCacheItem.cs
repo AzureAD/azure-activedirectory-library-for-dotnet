@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Core.Cache
             TenantId = tenantId;
             Secret = secret;
             ExpiresOnUnixTimestamp = CoreHelpers.DateTimeToUnixTimestamp(accessTokenExpiresOn);
-            CachedAt = CoreHelpers.CurrDateTimeInUnixTimestamp().ToString();
+            CachedAt = CoreHelpers.CurrDateTimeInUnixTimestamp();
             RawClientInfo = rawClientInfo;
 
             InitUserIdentifier();
