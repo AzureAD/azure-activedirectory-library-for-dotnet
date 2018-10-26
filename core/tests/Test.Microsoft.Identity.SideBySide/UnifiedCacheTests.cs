@@ -41,9 +41,7 @@ namespace Test.MSAL.NET.Integration
     public class UnifiedCacheTests
     {
         public const string ClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        //public const string AuthorityTemplate = "https://login.microsoftonline.com/d34a1bb7-3481-4d5f-8b94-f3cc27bf8eac/";
         public const string AuthorityTemplate = "https://login.microsoftonline.com/{0}/";
-
 
         public string[] MsalScopes = { "https://graph.microsoft.com/.default" };
         public string[] MsalScopes1 = { "https://graph.windows.net/.default" };
