@@ -99,9 +99,9 @@ namespace XForms
             RefreshCacheView();
         }
 
-        private static long GetCurrentTimestamp()
+        private static string GetCurrentTimestamp()
         {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            return ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds).ToString();
         }
 
         public void OnExpire(object sender, EventArgs e)
@@ -111,7 +111,7 @@ namespace XForms
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // set access token as expired
-            accessTokenCacheItem.ExpiresOnUnixTimestamp = GetCurrentTimestamp().ToString();
+            accessTokenCacheItem.ExpiresOnUnixTimestamp = GetCurrentTimestamp();
 
             // update entry in the cache
             tokenCache.AddAccessTokenCacheItem(accessTokenCacheItem);
