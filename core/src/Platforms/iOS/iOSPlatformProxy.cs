@@ -122,19 +122,22 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.iOS" : "PCL.iOS";
         }
-        public string GetApplicationName()
+        public string GetCallingAssemblyName()
         {
-            return (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleName"].ToString();
+            string name = (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleName"].ToString();
+            return !string.IsNullOrWhiteSpace(name) ? name : null;
         }
 
-        public string GetApplicationVersion()
+        public string GetCallingAssemblyVersion()
         {
-            return (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
+            string version = (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
+            return !string.IsNullOrWhiteSpace(version) ? version : null;
         }
 
         public string GetDeviceId()
         {
-            return UIDevice.CurrentDevice.IdentifierForVendor.AsString();
+            string deviceId = UIDevice.CurrentDevice.IdentifierForVendor.AsString();
+            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
         }
 
         /// <inheritdoc />

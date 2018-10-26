@@ -39,13 +39,13 @@ namespace Microsoft.Identity.Core
         /// Returns the name of the calling assembly
         /// </summary>
         /// <returns></returns>
-        string GetApplicationName();
+        string GetCallingAssemblyName();
 
         /// <summary>
         /// Returns the version of the calling assembly
         /// </summary>
         /// <returns></returns>
-        string GetApplicationVersion();
+        string GetCallingAssemblyVersion();
 
         /// <summary>
         /// Returns a device identifier. Varies by platform.

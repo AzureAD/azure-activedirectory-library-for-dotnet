@@ -192,19 +192,22 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.UAP" : "PCL.UAP";
         }
 
-        public string GetApplicationName()
+        public string GetCallingAssemblyName()
         {
-            return Package.Current.DisplayName;
+            string name = Package.Current.DisplayName;
+            return !string.IsNullOrWhiteSpace(name) ? name : null;
         }
 
-        public string GetApplicationVersion()
+        public string GetCallingAssemblyVersion()
         {
-            return Package.Current.Id.Version.ToString();
+            string version = Package.Current.Id.Version.ToString();
+            return !string.IsNullOrWhiteSpace(version) ? version : null;
         }
 
         public string GetDeviceId()
         {
-            return new EasClientDeviceInformation().Id.ToString(); 
+            string deviceId = new EasClientDeviceInformation().Id.ToString();
+            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
         }
 
         /// <inheritdoc />

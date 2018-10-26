@@ -108,22 +108,23 @@ namespace Microsoft.Identity.Core.OAuth2
                 
                 httpEvent.HttpMethod = method.Method.ToString();
 
-                if(response.HeadersAsDictionary.ContainsKey("x-ms-request-id") &&
-                    response.HeadersAsDictionary["x-ms-request-id"] != null)
+                IDictionary<string, string> headersAsDictionary = response.HeadersAsDictionary;
+                if(headersAsDictionary.ContainsKey("x-ms-request-id") &&
+                    headersAsDictionary["x-ms-request-id"] != null)
                 {
-                    httpEvent.RequestIdHeader = response.HeadersAsDictionary["x-ms-request-id"];
+                    httpEvent.RequestIdHeader = headersAsDictionary["x-ms-request-id"];
                 }
 
-                if(response.HeadersAsDictionary.ContainsKey("x-ms-clitelem") && 
-                    response.HeadersAsDictionary["x-ms-clitelem"] != null)
+                if(headersAsDictionary.ContainsKey("x-ms-clitelem") && 
+                    headersAsDictionary["x-ms-clitelem"] != null)
                 {
-                    XMsTelemetryInfo xMsTeleminfo = XMsTelemInfoHelper.parseXMsTelemHeader(response.HeadersAsDictionary["x-ms-clitelem"], requestContext);
-                    if (xMsTeleminfo != null)
+                    XmsCliTelemInfo xmsCliTeleminfo = XmsCliTelemInfoParser.parseXMsTelemHeader(headersAsDictionary["x-ms-clitelem"], requestContext);
+                    if (xmsCliTeleminfo != null)
                     {
-                        httpEvent.TokenAge = xMsTeleminfo.TokenAge;
-                        httpEvent.SpeInfo = xMsTeleminfo.SpeInfo;
-                        httpEvent.ServerErrorCode = xMsTeleminfo.ServerErrorCode;
-                        httpEvent.ServerErrorCode = xMsTeleminfo.ServerSubErrorCode;
+                        httpEvent.TokenAge = xmsCliTeleminfo.TokenAge;
+                        httpEvent.SpeInfo = xmsCliTeleminfo.SpeInfo;
+                        httpEvent.ServerErrorCode = xmsCliTeleminfo.ServerErrorCode;
+                        httpEvent.ServerSubErrorCode = xmsCliTeleminfo.ServerSubErrorCode;
                     }
                 }
 

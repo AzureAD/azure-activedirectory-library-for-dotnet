@@ -193,7 +193,14 @@ namespace Microsoft.Identity.Client
 
             if (eventsToFlush.Count > 0)
             {
-                eventsToFlush.Insert(0, new DefaultEvent(ClientId, eventCountToFlush));
+                if(eventCountToFlush != null)
+                {
+                    eventsToFlush.Insert(0, new DefaultEvent(ClientId, eventCountToFlush));
+                }
+                else
+                {
+                    eventsToFlush.Insert(0, new DefaultEvent(ClientId, new ConcurrentDictionary<string, int>()));
+                }
                 _receiver(eventsToFlush.Cast<Dictionary<string, string>>().ToList());
             }
         }

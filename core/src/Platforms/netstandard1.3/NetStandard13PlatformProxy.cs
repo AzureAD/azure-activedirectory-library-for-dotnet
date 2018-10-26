@@ -109,12 +109,12 @@ namespace Microsoft.Identity.Core
             return null;
         }
 
-        public string GetApplicationName()
+        public string GetCallingAssemblyName()
         {
             return null;
         }
 
-        public string GetApplicationVersion()
+        public string GetCallingAssemblyVersion()
         {
             return null;
         }

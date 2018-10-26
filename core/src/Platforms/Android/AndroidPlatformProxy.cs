@@ -134,19 +134,24 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
         }
-        public string GetApplicationName()
+        public string GetCallingAssemblyName()
         {
-            return Android.App.Application.Context.ApplicationInfo.LoadLabel(Android.App.Application.Context.PackageManager);
+            string name = Android.App.Application.Context.ApplicationInfo.LoadLabel(Android.App.Application.Context.PackageManager);
+            return !string.IsNullOrWhiteSpace(name) ? name : null;
         }
 
-        public string GetApplicationVersion()
+        public string GetCallingAssemblyVersion()
         {
-            return Android.App.Application.Context.PackageManager.GetPackageInfo(Android.App.Application.Context.PackageName, 0).VersionName;
+            string version = Android.App.Application.Context.PackageManager.GetPackageInfo(Android.App.Application.Context.PackageName, 0).VersionName;
+            return !string.IsNullOrWhiteSpace(version) ? version : null;
         }
 
         public string GetDeviceId()
         {
-            return Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
+            string deviceId  =Android.Provider.Settings.Secure.GetString(
+                Android.App.Application.Context.ContentResolver, 
+                Android.Provider.Settings.Secure.AndroidId);
+            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
         }
 
         /// <inheritdoc />

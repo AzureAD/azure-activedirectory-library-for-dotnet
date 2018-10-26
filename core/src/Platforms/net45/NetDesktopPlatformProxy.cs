@@ -207,20 +207,23 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.Desktop" : "PCL.Desktop";
         }
 
-        public string GetApplicationName()
+        public string GetCallingAssemblyName()
         {
-            return Assembly.GetEntryAssembly().GetName().Name.ToString();
+            string name = Assembly.GetEntryAssembly().GetName().Name.ToString();
+            return !string.IsNullOrWhiteSpace(name) ? name : null;
         }
 
-        public string GetApplicationVersion()
+        public string GetCallingAssemblyVersion()
         {
-            return Assembly.GetEntryAssembly().GetName().Version.ToString();
+            string version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            return !string.IsNullOrWhiteSpace(version) ? version : null;
         }
 
         public string GetDeviceId()
         {
-            return NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+            string deviceId =  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
                 .Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
+            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
         }
 
         /// <inheritdoc />

@@ -25,32 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
     internal class DefaultEvent : EventBase
     {
-        public DefaultEvent(string clientId, ConcurrentDictionary<string, int> eventCount) : base((string) (EventNamePrefix + "default_event"))
+        public DefaultEvent(string clientId, IDictionary<string, int> eventCount) : base((string) (EventNamePrefix + "default_event"))
         {
             var platformProxy = PlatformProxyFactory.GetPlatformProxy();
             this[EventNamePrefix + "client_id"] = clientId;
             this[EventNamePrefix + "sdk_platform"] = platformProxy.GetProductName()?.ToLowerInvariant();
             this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
-            this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationName()?.ToLowerInvariant();
-            this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetApplicationVersion()?.ToLowerInvariant();
+            this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetCallingAssemblyName()?.ToLowerInvariant();
+            this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetCallingAssemblyVersion()?.ToLowerInvariant();
             this[EventNamePrefix + "device_id"] = HashPersonalIdentifier(PlatformProxyFactory.GetPlatformProxy().GetDeviceId()?.ToLowerInvariant());
-            this[EventNamePrefix + "ui_event_count"] = SetEventCount(EventNamePrefix + "ui_event", eventCount);
-            this[EventNamePrefix + "http_event_count"] = SetEventCount(EventNamePrefix + "http_event", eventCount);
-            this[EventNamePrefix + "cache_event_count"] = SetEventCount(EventNamePrefix + "cache_event", eventCount);
+            this[EventNamePrefix + "ui_event_count"] = GetEventCount(EventNamePrefix + "ui_event", eventCount);
+            this[EventNamePrefix + "http_event_count"] = GetEventCount(EventNamePrefix + "http_event", eventCount);
+            this[EventNamePrefix + "cache_event_count"] = GetEventCount(EventNamePrefix + "cache_event", eventCount);
         }
 
-        private string SetEventCount(string eventName, ConcurrentDictionary<string, int> eventCount)
+        private string GetEventCount(string eventName, IDictionary<string, int> eventCount)
         {
             if (!eventCount.ContainsKey(eventName))
             {
-                return string.Empty;
+                return "0";
             }
             return eventCount[eventName].ToString(CultureInfo.InvariantCulture);
         }
