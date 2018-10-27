@@ -69,7 +69,8 @@ namespace Microsoft.Identity.Core.Cache
                 tokenCacheAccessor.SaveRefreshToken(rtItem);
 
                 MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
-                    (new Uri(authority).Host, objectId, resultWrapper.RawClientInfo, null, displayableId, resultWrapper.Result.TenantId);
+                    (new Uri(authority).Host, objectId, resultWrapper.RawClientInfo, null, displayableId, resultWrapper.Result.TenantId,
+                        givenName, familyName);
                 tokenCacheAccessor.SaveAccount(accountCacheItem);
             }
             catch (Exception ex)
@@ -214,10 +215,8 @@ namespace Microsoft.Identity.Core.Cache
                 {
                     RemoveEntriesWithMatchingId(environmentAliases, clientId, accountOrUserId, adalCache);
                 }
-                else
-                {
-                    RemoveEntriesWithMatchingName(environmentAliases, clientId, displayableId, adalCache);
-                }
+
+                RemoveEntriesWithMatchingName(environmentAliases, clientId, displayableId, adalCache);
 
                 legacyCachePersistence.WriteCache(AdalCacheOperations.Serialize(adalCache));
             }
