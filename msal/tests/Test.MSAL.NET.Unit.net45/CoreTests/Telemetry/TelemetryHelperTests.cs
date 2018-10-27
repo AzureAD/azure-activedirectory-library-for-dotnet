@@ -39,12 +39,13 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         private _TestTelem _telem;
         private _TestEvent _startEvent;
         private _TestEvent _stopEvent;
+        private TelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void Setup()
         {
             _telem = new _TestTelem();
-            CoreTelemetryService.InitializeCoreTelemetryService(_telem);
+            _telemetryManager = new TelemetryManager(_telem);
 
             _startEvent = new _TestEvent("start event");
             _stopEvent = new _TestEvent("stop event");
@@ -54,7 +55,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         public void Cleanup()
         {
             _telem = null;
-            CoreTelemetryService.InitializeCoreTelemetryService(null);
+            _telemetryManager = new TelemetryManager(_telem);
         }
 
         private class _TestEvent : EventBase
@@ -102,7 +103,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelper()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent))
             {
             }
 
@@ -113,7 +114,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithFlush()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, shouldFlush: true))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, shouldFlush: true))
             {
             }
 
@@ -124,7 +125,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithDifferentStopStartEvents()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, eventToEnd: _stopEvent))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, eventToEnd: _stopEvent))
             {
             }
 
@@ -135,7 +136,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Telemetry
         [TestCategory("TelemetryHelperTests")]
         public void TestTelemetryHelperWithDifferentStopStartEventsWithFlush()
         {
-            using (CoreTelemetryService.CreateTelemetryHelper(requestId, _startEvent, eventToEnd: _stopEvent, shouldFlush: true))
+            using (_telemetryManager.CreateTelemetryHelperEx(requestId, _startEvent, eventToEnd: _stopEvent, shouldFlush: true))
             {
             }
 

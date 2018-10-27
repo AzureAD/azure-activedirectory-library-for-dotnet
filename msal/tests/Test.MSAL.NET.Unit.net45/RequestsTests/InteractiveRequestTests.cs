@@ -42,7 +42,6 @@ using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -60,7 +59,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             RequestTestsCommon.InitializeRequestTests();
             Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
-            _cache = new TokenCache();
+            _cache = new TokenCache
+            {
+                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
+            };
         }
 
         [TestCleanup]
@@ -77,7 +79,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
-                ClientId = MsalTestConstants.ClientId
+                ClientId = MsalTestConstants.ClientId,
+                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
             };
 
             var ui = new MockWebUI()
@@ -147,7 +150,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
-                ClientId = MsalTestConstants.ClientId
+                ClientId = MsalTestConstants.ClientId,
+                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
             };
 
             var atItem = new MsalAccessTokenCacheItem(
@@ -191,7 +195,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    new TelemetryManager(Telemetry.GetInstance()),
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),

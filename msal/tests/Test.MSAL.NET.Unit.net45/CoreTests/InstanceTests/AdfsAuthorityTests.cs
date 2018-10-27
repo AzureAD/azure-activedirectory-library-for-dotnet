@@ -116,6 +116,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     {
                         await instance.ResolveEndpointsAsync(
                             httpManager,
+                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -134,6 +135,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     {
                         await instance.ResolveEndpointsAsync(
                             httpManager,
+                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -211,6 +213,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     {
                         await instance.ResolveEndpointsAsync(
                             httpManager,
+                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -247,6 +250,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     {
                         await instance.ResolveEndpointsAsync(
                             httpManager,
+                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -302,6 +306,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -359,6 +364,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -402,6 +408,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -440,6 +447,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         {
                             await instance.ResolveEndpointsAsync(
                                 httpManager,
+                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();

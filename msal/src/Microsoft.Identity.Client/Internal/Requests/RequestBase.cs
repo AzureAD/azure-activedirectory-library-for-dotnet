@@ -44,7 +44,23 @@ namespace Microsoft.Identity.Client.Internal.Requests
     internal abstract class RequestBase
     {
         internal AuthenticationRequestParameters AuthenticationRequestParameters { get; }
-        internal TokenCache TokenCache { get; }
+
+        private TokenCache _tokenCache;
+        internal TokenCache TokenCache
+        {
+            get => _tokenCache;
+            set
+            {
+                _tokenCache = value;
+                if (_tokenCache != null)
+                {
+                    _tokenCache.HttpManager = HttpManager;
+                    _tokenCache.TelemetryManager = TelemetryManager;
+                }
+            }
+        }
+
+
         private readonly ApiEvent.ApiIds _apiId;
         protected IHttpManager HttpManager { get; }
         protected ICryptographyManager CryptographyManager { get; }

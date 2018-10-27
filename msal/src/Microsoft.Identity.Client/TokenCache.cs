@@ -1109,7 +1109,7 @@ namespace Microsoft.Identity.Client
 
         internal void ClearMsalCache()
         {
-            tokenCacheAccessor.Clear();
+            TokenCacheAccessor.Clear();
         }
 
         /// <summary>

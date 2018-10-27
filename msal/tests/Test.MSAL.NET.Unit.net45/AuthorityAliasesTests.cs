@@ -76,7 +76,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(httpManager, MsalTestConstants.ClientId,
                 string.Format(CultureInfo.InvariantCulture, "https://{0}/common", MsalTestConstants.ProductionNotPrefEnvironmentAlias));
-                app.UserTokenCache.legacyCachePersistence = new TestLegacyCachePersistance();
+                app.UserTokenCache.LegacyCachePersistence = new TestLegacyCachePersistance();
 
                 // mock for openId config request
                 httpManager.AddMockHandler(new MockHttpMessageHandler
@@ -190,7 +190,7 @@ namespace Test.MSAL.NET.Unit
             }
 
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache =
-                AdalCacheOperations.Deserialize(cache.legacyCachePersistence.LoadCache());
+                AdalCacheOperations.Deserialize(cache.LegacyCachePersistence.LoadCache());
 
             foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> kvp in adalCache)
             {

@@ -78,7 +78,7 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistance()
+                        LegacyCachePersistence = new TestLegacyCachePersistance()
                     }
                 };
 
@@ -146,14 +146,14 @@ namespace Test.MSAL.NET.Unit
                 {
                     UserTokenCache =
                     {
-                        legacyCachePersistence = new TestLegacyCachePersistance()
+                        LegacyCachePersistence = new TestLegacyCachePersistance()
                     }
                 };
 
                 ISet<string> authorityHostAliases = new HashSet<string>();
                 authorityHostAliases.Add(MsalTestConstants.ProductionPrefNetworkEnvironment);
 
-                CreateAdalCache(app.UserTokenCache.legacyCachePersistence, MsalTestConstants.Scope.ToString());
+                CreateAdalCache(app.UserTokenCache.LegacyCachePersistence, MsalTestConstants.Scope.ToString());
 
                 var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
                     app.UserTokenCache.LegacyCachePersistence,

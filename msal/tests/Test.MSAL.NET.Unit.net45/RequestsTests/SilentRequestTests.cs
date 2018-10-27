@@ -146,7 +146,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
 
-                SilentRequest request = new SilentRequest(httpManager, crypto, parameters, ApiEvent.ApiIds.None, false);
+                SilentRequest request = new SilentRequest(
+                    httpManager,
+                    crypto,
+                    new TelemetryManager(),
+                    parameters,
+                    ApiEvent.ApiIds.None,
+                    false);
+
                 Task<AuthenticationResult> task = request.RunAsync(CancellationToken.None);
                 AuthenticationResult result = task.Result;
                 Assert.IsNotNull(result);

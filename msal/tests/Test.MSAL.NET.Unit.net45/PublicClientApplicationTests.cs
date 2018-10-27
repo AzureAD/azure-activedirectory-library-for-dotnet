@@ -779,7 +779,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.AreEqual(MsalTestConstants.DisplayableId, result.Account.Username);
                 Assert.AreEqual(MsalTestConstants.ScopeForAnotherResource.AsSingleString(), result.Scopes.AsSingleString());
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.GetAllAccessTokensAsString().Count());
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.GetAllAccessTokensAsString().Count());
             }
         }
 
@@ -799,8 +799,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -832,8 +832,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -864,8 +864,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -1069,14 +1069,14 @@ namespace Test.MSAL.NET.Unit
             fetchedUser = app.GetAccountAsync("").Result;
             Assert.IsNull(fetchedUser);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid,
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid,
                 MsalTestConstants.Utid, MsalTestConstants.Name);
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid,
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid,
                 MsalTestConstants.Utid);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid + "1",
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid + "1",
                 MsalTestConstants.Utid, MsalTestConstants.Name + "1");
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid + "1",
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid + "1",
                 MsalTestConstants.Utid);
 
             users = app.GetAccountsAsync().Result;
