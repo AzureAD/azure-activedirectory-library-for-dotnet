@@ -64,7 +64,6 @@ namespace Test.MSAL.NET.Unit
         public static readonly string DisplayableId = "displayable@id.com";
         public static readonly string RedirectUri = "urn:ietf:wg:oauth:2.0:oob";
         public static readonly string ClientSecret = "client_secret";
-        public static readonly ClientCredential CredentialWithSecret = new ClientCredential(ClientSecret);
         public static readonly string DefaultPassword = "password";
         public static readonly string AuthorityTestTenant = "https://" + ProductionPrefNetworkEnvironment + "/" + Utid + "/";
         public static readonly string DiscoveryEndPoint = "discovery/instance";
@@ -80,21 +79,22 @@ namespace Test.MSAL.NET.Unit
                                 "login.microsoft.com",
                                 "sts.windows.net"};
 
-        public static readonly AccountId UserIdentifier = CreateUserIdentifer();
+        public static readonly string UserIdentifier = CreateUserIdentifer();
 
         public static string GetDiscoveryEndpoint(string authority)
         {
             return authority + DiscoveryEndPoint;
         }
 
-        public static AccountId CreateUserIdentifer()
+        public static string CreateUserIdentifer()
         {
-            return CreateUserIdentifier(Uid, Utid);
+            //return CreateUserIdentifier(Uid, Utid);
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", Uid, Utid);
         }
 
-        public static AccountId CreateUserIdentifier(string uid, string utid)
+        public static string CreateUserIdentifier(string uid, string utid)
         {
-            return new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid), uid, utid);
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", uid, utid);
         }
 
         public static readonly Account User = new Account(UserIdentifier, DisplayableId, ProductionPrefNetworkEnvironment);
@@ -110,8 +110,13 @@ namespace Test.MSAL.NET.Unit
         public static readonly string OnPremiseClientSecret = "on_premise_client_secret";
         public static readonly string OnPremiseUid = "my-OnPremise-UID";
         public static readonly string OnPremiseUtid = "my-OnPremise-UTID";
-        public static readonly ClientCredential OnPremiseCredentialWithSecret = new ClientCredential(ClientSecret);
+        
         public static readonly Account OnPremiseUser = new Account(
-            new AccountId(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseUid, OnPremiseUtid), OnPremiseDisplayableId, null);
+            string.Format(CultureInfo.InvariantCulture, "{0}.{1}", OnPremiseUid, OnPremiseUtid), OnPremiseDisplayableId, null);
+
+        #if !ANDROID && !iOS && !WINDOWS_APP
+        public static readonly ClientCredential OnPremiseCredentialWithSecret = new ClientCredential(ClientSecret);
+        public static readonly ClientCredential CredentialWithSecret = new ClientCredential(ClientSecret);
+#endif
     }
 }

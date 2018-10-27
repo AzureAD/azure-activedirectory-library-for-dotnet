@@ -86,19 +86,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             _cache.Clear();
         }
 
-        [TestMethod]
-        [TestCategory("TokenCacheTests")]
-        public void CanDeserializeTokenCacheInNet462()
-        {
-            var previousLogLevel = Logger.Level;
-            // Setting LogLevel.Verbose causes certain static dependencies to load
-            Logger.Level = LogLevel.Verbose;
-            var tokenCache = new TokenCache();
-            tokenCache.Deserialize(null);
-            Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
-            Logger.Level = previousLogLevel;
-        }
-
+      
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void GetExactScopesMatchedAccessTokenTest()
@@ -445,6 +433,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             }
         }
 
+#if !WINDOWS_APP && !ANDROID && !iOS // Confidential Client N/A
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void GetAppTokenFromCacheTest()
@@ -490,6 +479,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 Assert.AreEqual(atItem.GetKey().ToString(), cacheItem.GetKey().ToString());
             }
         }
+#endif
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
@@ -883,6 +873,19 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.AreEqual("access-token-2", cache.GetAllAccessTokensForClient(requestContext).First().Secret);
         }
 
+        private void AfterAccessChangedNotification(TokenCacheNotificationArgs args)
+        {
+            Assert.IsTrue(args.TokenCache.HasStateChanged);
+        }
+
+        private void AfterAccessNoChangeNotification(TokenCacheNotificationArgs args)
+        {
+            Assert.IsFalse(args.TokenCache.HasStateChanged);
+        }
+
+
+#if !WINDOWS_APP && !ANDROID && !iOS // Token Cache Serialization N/A
+
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithDifferentAuthoritySameUserTest()
@@ -948,16 +951,19 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
         }
 
-        private void AfterAccessChangedNotification(TokenCacheNotificationArgs args)
+      
+        [TestMethod]
+        [TestCategory("TokenCacheTests")]
+        public void CanDeserializeTokenCacheInNet462()
         {
-            Assert.IsTrue(args.TokenCache.HasStateChanged);
+            var previousLogLevel = Logger.Level;
+            // Setting LogLevel.Verbose causes certain static dependencies to load
+            Logger.Level = LogLevel.Verbose;
+            var tokenCache = new TokenCache();
+            tokenCache.Deserialize(null);
+            Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
+            Logger.Level = previousLogLevel;
         }
-
-        private void AfterAccessNoChangeNotification(TokenCacheNotificationArgs args)
-        {
-            Assert.IsFalse(args.TokenCache.HasStateChanged);
-        }
-
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void SerializeDeserializeCacheTest()
@@ -1024,9 +1030,10 @@ namespace Test.MSAL.NET.Unit.CacheTests
             var rtItem = cache.GetAllRefreshTokensForClient(requestContext).First();
             Assert.AreEqual(response.RefreshToken, rtItem.Secret);
             Assert.AreEqual(MsalTestConstants.ClientId, rtItem.ClientId);
-            Assert.AreEqual(MsalTestConstants.UserIdentifier.Identifier, rtItem.HomeAccountId);
+            Assert.AreEqual(MsalTestConstants.UserIdentifier, rtItem.HomeAccountId);
             Assert.AreEqual(MsalTestConstants.ProductionPrefNetworkEnvironment, rtItem.Environment);
         }
+#endif
 
         [TestMethod]
         [TestCategory("TokenCacheTests")]
