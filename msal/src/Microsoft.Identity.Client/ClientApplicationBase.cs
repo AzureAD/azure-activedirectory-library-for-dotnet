@@ -188,7 +188,8 @@ namespace Microsoft.Identity.Client
         public bool ValidateAuthority { get; set; }
 
         /// <summary>
-        /// 
+        /// ExtendedLifeTimeEnabled is a Boolean that first party applications (read Office) can set to true in case when the STS has an outage,
+        /// to be more resilient.
         /// </summary>
         public bool ExtendedLifeTimeEnabled { get; set; }
 
