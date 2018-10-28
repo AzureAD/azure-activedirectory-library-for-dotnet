@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Client
 
         // TODO: the TokenCache itself shouldn't be doing http access (SRP)
         internal IHttpManager HttpManager { get; set; }
-        private ITelemetryManager _telemetryManager;
+        private ITelemetryManager _telemetryManager = new TelemetryManager();
 
         internal ITelemetryManager TelemetryManager
         {
@@ -287,7 +287,7 @@ namespace Microsoft.Identity.Client
 
         internal async Task<MsalAccessTokenCacheItem> FindAccessTokenAsync(AuthenticationRequestParameters requestParams)
         {
-            using (TelemetryManager.CreateTelemetryHelperEx(requestParams.RequestContext.TelemetryRequestId,
+            using (TelemetryManager.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId, requestParams.RequestContext.ClientId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.AT }))
             {
                 ISet<string> environmentAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -430,7 +430,7 @@ namespace Microsoft.Identity.Client
 
         internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(AuthenticationRequestParameters requestParams)
         {
-            using (TelemetryManager.CreateTelemetryHelperEx(requestParams.RequestContext.TelemetryRequestId,
+            using (TelemetryManager.CreateTelemetryHelper(requestParams.RequestContext.TelemetryRequestId, requestParams.RequestContext.ClientId,
                 new CacheEvent(CacheEvent.TokenCacheLookup) { TokenType = CacheEvent.TokenTypes.RT }))
             {
                 return await FindRefreshTokenCommonAsync(requestParams).ConfigureAwait(false);

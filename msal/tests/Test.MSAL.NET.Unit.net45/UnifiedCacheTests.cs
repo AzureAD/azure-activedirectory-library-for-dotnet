@@ -46,14 +46,11 @@ namespace Test.MSAL.NET.Unit
     [TestClass]
     public class UnifiedCacheTests
     {
-        private readonly MyReceiver _myReceiver = new MyReceiver();
-
         [TestInitialize]
         public void TestInitialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
             Authority.ValidatedAuthorities.Clear();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
 
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
@@ -74,7 +71,7 @@ namespace Test.MSAL.NET.Unit
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
 
-                PublicClientApplication app = new PublicClientApplication(httpManager, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
+                PublicClientApplication app = new PublicClientApplication(httpManager, null, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     UserTokenCache =
                     {
@@ -96,7 +93,7 @@ namespace Test.MSAL.NET.Unit
 
                 Assert.IsTrue(adalCacheDictionary.Count == 1);
 
-                var requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
+                var requestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null));
                 var users =
                     app.UserTokenCache.GetAccountsAsync(MsalTestConstants.AuthorityCommonTenant, false, requestContext).Result;
                 foreach (IAccount user in users)
@@ -141,6 +138,7 @@ namespace Test.MSAL.NET.Unit
             {
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    null,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {

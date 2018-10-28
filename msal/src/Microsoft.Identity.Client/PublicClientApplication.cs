@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Client
         /// Note that this setting needs to be consistent with what is declared in the application registration portal
         /// </param>
         public PublicClientApplication(string clientId, string authority)
-            : this(null, clientId, authority)
+            : this(null, null, clientId, authority)
         {
             UserTokenCache = new TokenCache()
             {
@@ -97,13 +97,14 @@ namespace Microsoft.Identity.Client
             };
         }
 
-        internal PublicClientApplication(IHttpManager httpManager, string clientId, string authority)
+        internal PublicClientApplication(IHttpManager httpManager, ITelemetryManager telemetryManager, string clientId, string authority)
             : base(
                 clientId,
                 authority,
                 PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId),
                 true,
-                httpManager)
+                httpManager,
+                telemetryManager)
         {
             UserTokenCache = new TokenCache()
             {

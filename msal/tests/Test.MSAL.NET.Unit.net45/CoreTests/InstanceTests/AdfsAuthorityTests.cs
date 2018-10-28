@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Guid = System.Guid;
@@ -118,7 +119,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             httpManager,
                             new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/", instance.AuthorizationEndpoint);
@@ -137,7 +138,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             httpManager,
                             new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/", instance.AuthorizationEndpoint);
@@ -215,7 +216,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             httpManager,
                             new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/", instance.AuthorizationEndpoint);
@@ -252,7 +253,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             httpManager,
                             new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/", instance.AuthorizationEndpoint);
@@ -308,7 +309,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 httpManager,
                                 new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                                new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("ResolveEndpointsAsync should have failed here");
                 }
@@ -366,7 +367,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 httpManager,
                                 new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                                new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("ResolveEndpointsAsync should have failed here");
                 }
@@ -410,7 +411,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 httpManager,
                                 new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                                new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("ResolveEndpointsAsync should have failed here");
                 }
@@ -449,7 +450,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 httpManager,
                                 new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
-                                new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                                new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
                     Assert.Fail("validation should have failed here");
                 }

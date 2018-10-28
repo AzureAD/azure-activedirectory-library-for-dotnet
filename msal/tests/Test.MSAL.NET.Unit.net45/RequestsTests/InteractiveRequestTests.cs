@@ -52,16 +52,18 @@ namespace Test.MSAL.NET.Unit.RequestsTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
         private TokenCache _cache;
+        private ITelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void TestInitialize()
         {
             RequestTestsCommon.InitializeRequestTests();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+
+            _telemetryManager = new TelemetryManager(_myReceiver);
 
             _cache = new TokenCache
             {
-                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
+                TelemetryManager = _telemetryManager
             };
         }
 
@@ -80,7 +82,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             _cache = new TokenCache()
             {
                 ClientId = MsalTestConstants.ClientId,
-                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
+                TelemetryManager = _telemetryManager
             };
 
             var ui = new MockWebUI()
@@ -118,7 +120,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -126,7 +128,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -151,7 +153,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             _cache = new TokenCache()
             {
                 ClientId = MsalTestConstants.ClientId,
-                TelemetryManager = new TelemetryManager(Telemetry.GetInstance())
+                TelemetryManager = _telemetryManager
             };
 
             var atItem = new MsalAccessTokenCacheItem(
@@ -187,7 +189,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -195,7 +197,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(Telemetry.GetInstance()),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -243,7 +245,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         ClientId = MsalTestConstants.ClientId,
                         Scope = MsalTestConstants.Scope,
                         TokenCache = null,
-                        RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                        RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                         RedirectUri = new Uri("some://uri#fragment=not-so-good"),
                         ExtraQueryParameters = "extra=qp"
                     };
@@ -251,7 +253,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     new InteractiveRequest(
                         httpManager,
                         PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                        new TelemetryManager(), 
+                        _telemetryManager,
                         parameters,
                         ApiEvent.ApiIds.None,
                         MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -288,7 +290,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                 };
 
@@ -297,7 +299,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -344,7 +346,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                 };
 
@@ -353,7 +355,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -401,7 +403,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -409,7 +411,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -439,7 +441,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -473,7 +475,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = MsalTestConstants.ClientId,
                 Scope = MsalTestConstants.Scope,
                 TokenCache = null,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                 RedirectUri = new Uri("some://uri"),
                 ExtraQueryParameters = "extra=qp&prompt=login"
             };
@@ -485,7 +487,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),

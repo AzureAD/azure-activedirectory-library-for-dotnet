@@ -112,13 +112,13 @@ namespace Microsoft.Identity.Client
         /// enables app developers to create a confidential client application requesting tokens with the default authority.
         public ConfidentialClientApplication(string clientId, string authority, string redirectUri,
             ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
-            : this(null, clientId, authority, redirectUri, clientCredential, userTokenCache, appTokenCache)
+            : this(null, null, clientId, authority, redirectUri, clientCredential, userTokenCache, appTokenCache)
         {
         }
 
-        internal ConfidentialClientApplication(IHttpManager httpManager, string clientId, string authority, string redirectUri,
+        internal ConfidentialClientApplication(IHttpManager httpManager, ITelemetryManager telemetryManager, string clientId, string authority, string redirectUri,
                                                ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
-            : base(clientId, authority, redirectUri, true, httpManager)
+            : base(clientId, authority, redirectUri, true, httpManager, telemetryManager)
         {
             ClientCredential = clientCredential;
             UserTokenCache = userTokenCache;

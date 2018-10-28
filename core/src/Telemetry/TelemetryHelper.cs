@@ -33,18 +33,21 @@ namespace Microsoft.Identity.Core.Telemetry
     {
         private readonly EventBase _eventToEnd;
         private readonly string _requestId;
+        private readonly string _clientId;
         private readonly bool _shouldFlush;
         private readonly ITelemetry _telemetry;
 
         public TelemetryHelper(
             ITelemetry telemetry,
             string requestId,
+            string clientId,
             EventBase eventToStart,
             EventBase eventToEnd,
             bool shouldFlush)
         {
             _telemetry = telemetry;
             _requestId = requestId;
+            _clientId = clientId;
             _eventToEnd = eventToEnd;
             _shouldFlush = shouldFlush;
             _telemetry?.StartEvent(_requestId, eventToStart);
@@ -63,7 +66,7 @@ namespace Microsoft.Identity.Core.Telemetry
                     _telemetry?.StopEvent(_requestId, _eventToEnd);
                     if (_shouldFlush)
                     {
-                        _telemetry?.Flush(_requestId);
+                        _telemetry?.Flush(_requestId, _clientId);
                     }
                 }
 

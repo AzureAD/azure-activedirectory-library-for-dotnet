@@ -83,7 +83,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
             CoreExceptionFactory.Instance = new AdalExceptionFactory();
-            var telemetry = Telemetry.GetInstance();
             isInitialized = true;
         }
     }

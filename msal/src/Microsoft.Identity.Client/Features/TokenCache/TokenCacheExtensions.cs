@@ -95,8 +95,7 @@ namespace Microsoft.Identity.Client
         {
             lock (tokenCache.LockObject)
             {
-                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-
+                RequestContext requestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null));
                 TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCache.TokenCacheAccessor, unifiedState, requestContext);
             }
         }
@@ -110,8 +109,7 @@ namespace Microsoft.Identity.Client
         {
             lock (tokenCache.LockObject)
             {
-                RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
-
+                RequestContext requestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null));
                 Deserialize(tokenCache, cacheData.UnifiedState);
 
                 tokenCache.LegacyCachePersistence.WriteCache(cacheData.AdalV3State);

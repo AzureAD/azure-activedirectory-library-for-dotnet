@@ -88,10 +88,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
             ValidateScopeInput(authenticationRequestParameters.Scope);
 
             AuthenticationRequestParameters.LogState();
-
-            // TODO: FIX THIS SINCE THIS IS PROCESS GLOBAL.  
-            // #HOWDOESTHISEVENWORK?!
-            Telemetry.GetInstance().ClientId = AuthenticationRequestParameters.ClientId;
         }
 
         private void LogRequestStarted(AuthenticationRequestParameters authenticationRequestParameters)
@@ -154,8 +150,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
             string accountId = AuthenticationRequestParameters.Account?.HomeAccountId?.Identifier;
             var apiEvent = InitializeApiEvent(accountId);
 
-            using (TelemetryManager.CreateTelemetryHelperEx(
+            using (TelemetryManager.CreateTelemetryHelper(
                 AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
+                AuthenticationRequestParameters.ClientId,
                 apiEvent,
                 shouldFlush: true))
             {
@@ -192,7 +189,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private ApiEvent InitializeApiEvent(string accountId)
         {
-            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = Telemetry.GetInstance().GenerateNewRequestId();
+            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = TelemetryManager.GenerateNewRequestId();
             var apiEvent = new ApiEvent(AuthenticationRequestParameters.RequestContext.Logger)
             {
                 ApiId = _apiId,

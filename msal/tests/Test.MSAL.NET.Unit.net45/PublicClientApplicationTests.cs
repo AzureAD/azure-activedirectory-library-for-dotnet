@@ -35,6 +35,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Instance;
@@ -53,7 +54,8 @@ namespace Test.MSAL.NET.Unit
     public class PublicClientApplicationTests
     {
         private TokenCache _cache;
-        private readonly MyReceiver _myReceiver = new MyReceiver();
+        private MyReceiver _myReceiver;
+        private ITelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void TestInitialize()
@@ -62,10 +64,10 @@ namespace Test.MSAL.NET.Unit
 
             _cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            _myReceiver = new MyReceiver();
+            _telemetryManager = new TelemetryManager(_myReceiver);
 
             AadInstanceDiscovery.Instance.Cache.Clear();
-            // AddMockResponseForInstanceDisovery();
         }
 
         [TestCleanup]
@@ -157,6 +159,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -201,6 +204,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -238,6 +242,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -286,6 +291,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -334,6 +340,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -399,6 +406,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -427,9 +435,11 @@ namespace Test.MSAL.NET.Unit
 
                 // TODO: allow checking in the middle of a using block --> Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
 
-                var dict = new Dictionary<string, string>();
-                dict[OAuth2Parameter.DomainReq] = MsalTestConstants.Utid;
-                dict[OAuth2Parameter.LoginReq] = MsalTestConstants.Uid;
+                var dict = new Dictionary<string, string>
+                {
+                    [OAuth2Parameter.DomainReq] = MsalTestConstants.Utid,
+                    [OAuth2Parameter.LoginReq] = MsalTestConstants.Uid
+                };
 
                 // repeat interactive call and pass in the same user
                 MsalMockHelpers.ConfigureMockWebUI(
@@ -483,6 +493,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -548,6 +559,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -659,7 +671,7 @@ namespace Test.MSAL.NET.Unit
         public async Task AcquireTokenSilentScopeAndEmptyCacheTestAsync()
         {
             PublicClientApplication app =
-                new PublicClientApplication(MsalTestConstants.ClientId)
+                new PublicClientApplication(null, _telemetryManager, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     ValidateAuthority = false
                 };
@@ -727,6 +739,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -738,28 +751,6 @@ namespace Test.MSAL.NET.Unit
                     ClientId = MsalTestConstants.ClientId,
                     HttpManager = httpManager
                 };
-
-                // add mock response for tenant endpoint discovery
-
-                // TODO: validate with others that this test is still valid.
-                // Previous test was NOT validating that we flushed the mock input queue
-                // and these are NOT being consumed in this case.  ensure that's correct.
-
-                //httpManager.AddMockHandler(
-                //    new MockHttpMessageHandler
-                //    {
-                //        Method = HttpMethod.Get,
-                //        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-                //    });
-                //httpManager.AddMockHandler(
-                //    new MockHttpMessageHandler()
-                //    {
-                //        Method = HttpMethod.Post,
-                //        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
-                //            TestConstants.UniqueId,
-                //            TestConstants.DisplayableId,
-                //            TestConstants.ScopeForAnotherResource.ToArray())
-                //    });
 
                 app.UserTokenCache = _cache;
                 TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
@@ -853,7 +844,7 @@ namespace Test.MSAL.NET.Unit
         public void AcquireTokenSilentCacheOnlyLookupTest()
         {
             PublicClientApplication app =
-                new PublicClientApplication(MsalTestConstants.ClientId, MsalTestConstants.AuthorityTestTenant)
+                new PublicClientApplication(null, _telemetryManager, MsalTestConstants.ClientId, MsalTestConstants.AuthorityTestTenant)
                 {
                     ValidateAuthority = false
                 };
@@ -892,6 +883,7 @@ namespace Test.MSAL.NET.Unit
             {
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -945,6 +937,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -998,6 +991,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -1020,6 +1014,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -1103,6 +1098,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -1148,6 +1144,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 

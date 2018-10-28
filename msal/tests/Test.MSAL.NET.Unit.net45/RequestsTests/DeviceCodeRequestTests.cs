@@ -57,7 +57,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         private const int ExpectedExpiresIn = 900;
         private const int ExpectedInterval = 1;
         private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
-        private readonly MyReceiver _myReceiver = new MyReceiver();
         private TokenCache _cache;
 
         private string ExpectedMessage =>
@@ -77,7 +76,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public void TestInitialize()
         {
             RequestTestsCommon.InitializeRequestTests();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
             _cache = new TokenCache();
             Logger.Level = LogLevel.Info;
         }
@@ -95,7 +93,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         }
 
 
-        // remove when bug is fixed. The token cache is not cleared between tests because it is shared on netcore..        
+        // TODO: remove when bug is fixed. The token cache is not cleared between tests because it is shared on netcore..        
         // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/656
 #if !NET_CORE
         [TestMethod]
@@ -282,7 +280,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = MsalTestConstants.ClientId,
                 Scope = MsalTestConstants.Scope,
                 TokenCache = _cache,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))
             };
 
             RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);

@@ -48,9 +48,9 @@ namespace Test.MSAL.NET.Unit
     [DeploymentItem(@"Resources\valid_cert.pfx")]
     public class JsonWebTokenTests
     {
-        TokenCache cache;
-        private MyReceiver _myReceiver = new MyReceiver();
-        readonly MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
+        private TokenCache _cache;
+        
+        private readonly MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
             ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
@@ -75,10 +75,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
-            cache = new TokenCache();
+            _cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
@@ -103,12 +101,13 @@ namespace Test.MSAL.NET.Unit
                 var clientCredential = new ClientCredential(clientAssertion);
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    null,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
                     clientCredential,
-                    cache,
-                    cache)
+                    _cache,
+                    _cache)
                 {
                     ValidateAuthority = false
                 };
@@ -140,12 +139,13 @@ namespace Test.MSAL.NET.Unit
                 var clientCredential = new ClientCredential(clientAssertion);
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    null,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
                     clientCredential,
-                    cache,
-                    cache)
+                    _cache,
+                    _cache)
                 {
                     ValidateAuthority = false
                 };

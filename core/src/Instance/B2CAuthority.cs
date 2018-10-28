@@ -29,6 +29,7 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Core.Instance
 {

@@ -29,6 +29,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
@@ -68,7 +69,7 @@ namespace Test.Microsoft.Identity.Unit.OAuth2Tests
                 OAuth2Client client = new OAuth2Client(httpManager, new TelemetryManager());
                 Task<MsalTokenResponse> task = client.GetTokenAsync(
                     new Uri(CoreTestConstants.AuthorityCommonTenant),
-                    new RequestContext(new TestLogger(Guid.NewGuid(), null)));
+                    new RequestContext(null, new TestLogger(Guid.NewGuid(), null)));
                 MsalTokenResponse response = task.Result;
                 Assert.IsNotNull(response);
             }

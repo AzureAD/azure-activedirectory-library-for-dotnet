@@ -132,8 +132,9 @@ namespace Microsoft.Identity.Client.Internal.Requests
             var authorizationUri = CreateAuthorizationUri(true, true);
 
             var uiEvent = new UiEvent();
-            using (TelemetryManager.CreateTelemetryHelperEx(
+            using (TelemetryManager.CreateTelemetryHelper(
                 AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
+                AuthenticationRequestParameters.ClientId,
                 uiEvent))
             {
                 _authorizationResult = await _webUi.AcquireAuthorizationAsync(

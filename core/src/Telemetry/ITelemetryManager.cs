@@ -25,14 +25,17 @@
 // 
 // ------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Telemetry;
-
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Core.Telemetry
 {
     internal interface ITelemetryManager
     {
-        TelemetryHelper CreateTelemetryHelperEx(
+        ITelemetryReceiver TelemetryReceiver { get; set; }
+
+        string GenerateNewRequestId();
+
+        TelemetryHelper CreateTelemetryHelper(
             string requestId,
+            string clientId,
             EventBase eventToStart,
             EventBase eventToEnd = null,
             bool shouldFlush = false);

@@ -55,13 +55,14 @@ namespace Test.MSAL.NET.Unit
     public class ConfidentialClientApplicationTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
+        private ITelemetryManager _telemetryManager;
         private byte[] _serializedCache = null;
 
         [TestInitialize]
         public void TestInitialize()
         {
             Authority.ValidatedAuthorities.Clear();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            _telemetryManager = new TelemetryManager(_myReceiver);
             AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
@@ -174,6 +175,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -208,6 +210,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -260,6 +263,7 @@ namespace Test.MSAL.NET.Unit
         {
             ConfidentialClientApplication app = new ConfidentialClientApplication(
                 httpManager,
+                _telemetryManager,
                 MsalTestConstants.ClientId,
                 ClientApplicationBase.DefaultAuthority,
                 MsalTestConstants.RedirectUri,
@@ -386,6 +390,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -428,6 +433,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -479,6 +485,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -522,6 +529,7 @@ namespace Test.MSAL.NET.Unit
 
                 ConfidentialClientApplication app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     MsalTestConstants.AuthorityGuestTenant,
                     MsalTestConstants.RedirectUri,
@@ -574,6 +582,7 @@ namespace Test.MSAL.NET.Unit
 
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -605,6 +614,7 @@ namespace Test.MSAL.NET.Unit
                 var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     authority,
                     MsalTestConstants.RedirectUri,
@@ -615,7 +625,7 @@ namespace Test.MSAL.NET.Unit
                     ValidateAuthority = false
                 };
 
-                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)));
                 var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, MsalTestConstants.Scope))
                                                      .ToList().FirstOrDefault();
 
@@ -644,6 +654,7 @@ namespace Test.MSAL.NET.Unit
                 var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     authority,
                     MsalTestConstants.RedirectUri,
@@ -670,7 +681,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(tokenRetrievedFromNetCall, result.AccessToken);
 
                 // make sure token in Cache was updated
-                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+                var accessTokens = cache.GetAllAccessTokensForClient(new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)));
                 var accessTokenInCache = accessTokens.Where(item => ScopeHelper.ScopeContains(item.ScopeSet, MsalTestConstants.Scope))
                                                      .ToList().FirstOrDefault();
 
@@ -700,6 +711,7 @@ namespace Test.MSAL.NET.Unit
                 ClientCredential cc = new ClientCredential("secret");
                 var app = new ConfidentialClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     "https://" + MsalTestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
                     MsalTestConstants.RedirectUri,

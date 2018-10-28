@@ -25,31 +25,13 @@
 // 
 // ------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Telemetry;
+using System.Collections.Generic;
 
-namespace Microsoft.Identity.Core
+namespace Microsoft.Identity.Core.Telemetry
 {
-    internal class TelemetryManager : ITelemetryManager
+    internal interface ITelemetryReceiver
     {
-        private readonly ITelemetry _telemetry;
-
-        public TelemetryManager(ITelemetry telemetry = null)
-        {
-            _telemetry = telemetry;
-        }
-
-        public TelemetryHelper CreateTelemetryHelperEx(
-            string requestId,
-            EventBase eventToStart,
-            EventBase eventToEnd = null,
-            bool shouldFlush = false)
-        {
-            return new TelemetryHelper(
-                _telemetry,
-                requestId,
-                eventToStart,
-                eventToEnd ?? eventToStart,
-                shouldFlush);
-        }
+        void HandleTelemetryEvents(List<Dictionary<string, string>> events);
+        bool OnlySendFailureTelemetry { get; set; }
     }
 }

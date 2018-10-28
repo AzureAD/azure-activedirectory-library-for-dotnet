@@ -65,7 +65,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             null, 
                             null,
                             null, 
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
                 Assert.Fail("test should have failed");
             }
@@ -92,7 +92,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             null, 
                             null,
                             null, 
-                            new RequestContext(new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
+                            new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
                 Assert.Fail("test should have failed");
             }

@@ -83,7 +83,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     Scope = MsalTestConstants.Scope,
                     TokenCache = cache,
                     Account = new Account(MsalTestConstants.UserIdentifier, MsalTestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
@@ -122,12 +122,12 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null)),
                     Account = new Account(MsalTestConstants.UserIdentifier, MsalTestConstants.DisplayableId, null)
                 };
 
                 // set access tokens as expired
-                foreach (var atCacheItemStr in cache.GetAllAccessTokenCacheItems(new RequestContext(new MsalLogger(Guid.NewGuid(), null))))
+                foreach (var atCacheItemStr in cache.GetAllAccessTokenCacheItems(new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))))
                 {
                     MsalAccessTokenCacheItem accessItem =
                         JsonHelper.DeserializeFromJson<MsalAccessTokenCacheItem>(atCacheItemStr);
@@ -188,7 +188,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         }),
                     TokenCache = _cache,
                     Account = new Account(MsalTestConstants.UserIdentifier, MsalTestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
@@ -237,7 +237,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         }),
                     TokenCache = _cache,
                     Account = new Account(MsalTestConstants.UserIdentifier, MsalTestConstants.DisplayableId, null),
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))
                 };
 
                 var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
