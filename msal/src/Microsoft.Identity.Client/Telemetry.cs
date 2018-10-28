@@ -108,7 +108,7 @@ namespace Microsoft.Identity.Client
             EventBase eventStarted = null;
             if (EventsInProgress.ContainsKey(eventKey))
             {
-                eventStarted = EventsInProgress[eventKey];
+                 EventsInProgress.TryGetValue(eventKey, out eventStarted);
             }
 
             // If we did not get anything back from the dictionary, most likely its a bug that StopEvent
@@ -130,13 +130,15 @@ namespace Microsoft.Identity.Client
                 // all of sibling events
                 List<EventBase> events = new List<EventBase>();
                 events.Add(eventToStop);
-                CompletedEvents[requestId] = events;
+                CompletedEvents.TryAdd(requestId, events);
             }
             else
             {
                 // if this event shares a RequestId with other events
                 // just add it to the List
-                CompletedEvents[requestId].Add(eventToStop);
+                List<EventBase> events;
+                CompletedEvents.TryGetValue(requestId, out events);
+                events.Add(eventToStop);
             }
 
             // Mark this event as no longer in progress

@@ -136,22 +136,22 @@ namespace Microsoft.Identity.Core
         }
         public string GetCallingAssemblyName()
         {
-            string name = Android.App.Application.Context.ApplicationInfo.LoadLabel(Android.App.Application.Context.PackageManager);
-            return !string.IsNullOrWhiteSpace(name) ? name : null;
+            return Android.App.Application.Context.ApplicationInfo?.LoadLabel(Android.App.Application.Context.PackageManager);
+          
         }
 
         public string GetCallingAssemblyVersion()
         {
-            string version = Android.App.Application.Context.PackageManager.GetPackageInfo(Android.App.Application.Context.PackageName, 0).VersionName;
-            return !string.IsNullOrWhiteSpace(version) ? version : null;
+            return Android.App.Application.Context.PackageManager.GetPackageInfo(Android.App.Application.Context.PackageName, 0)?.VersionName;
+            
         }
 
         public string GetDeviceId()
         {
-            string deviceId  =Android.Provider.Settings.Secure.GetString(
+            return Android.Provider.Settings.Secure.GetString(
                 Android.App.Application.Context.ContentResolver, 
                 Android.Provider.Settings.Secure.AndroidId);
-            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
+            
         }
 
         /// <inheritdoc />

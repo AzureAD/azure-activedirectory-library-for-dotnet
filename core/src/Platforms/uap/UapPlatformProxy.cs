@@ -194,20 +194,17 @@ namespace Microsoft.Identity.Core
 
         public string GetCallingAssemblyName()
         {
-            string name = Package.Current.DisplayName;
-            return !string.IsNullOrWhiteSpace(name) ? name : null;
+            return Package.Current?.DisplayName?.ToString();
         }
 
         public string GetCallingAssemblyVersion()
         {
-            string version = Package.Current.Id.Version.ToString();
-            return !string.IsNullOrWhiteSpace(version) ? version : null;
+            return Package.Current?.Id?.Version.ToString();
         }
 
         public string GetDeviceId()
         {
-            string deviceId = new EasClientDeviceInformation().Id.ToString();
-            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
+            return new EasClientDeviceInformation()?.Id.ToString();
         }
 
         /// <inheritdoc />

@@ -50,7 +50,7 @@ namespace Test.MSAL.NET.Unit
 
         public void OnEvents(List<Dictionary<string, string>> events)
         {
-            EventsReceived = events;  // Only for testing purpose
+            EventsReceived.AddRange(events);  // Only for testing purpose
             Console.WriteLine("{0} event(s) received", events.Count);
             foreach (var e in events)
             {
@@ -449,14 +449,15 @@ namespace Test.MSAL.NET.Unit
             telemetry.RegisterReceiver(myReceiver.OnEvents);
 
             telemetry.ClientId = "a1b3c3d4";
-            string reqId = telemetry.GenerateNewRequestId();
             string[] reqIdArray = new string[5];
             try
             {
                 Task[] taskArray = new Task[5]; 
-
+                
                 for(int i=0; i < 5; i++)
                 {
+                    string reqId = telemetry.GenerateNewRequestId();
+                    reqIdArray[i] = reqId;
                     Task task= (new Task(() =>
                     {
                         var e1 = new ApiEvent(new TestLogger()) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad" };
@@ -479,26 +480,36 @@ namespace Test.MSAL.NET.Unit
 
                         var e4 = new CacheEvent(CacheEvent.TokenCacheWrite) { TokenType = CacheEvent.TokenTypes.AT };
                         telemetry.StartEvent(reqId, e4);
+                        // do some stuff...
                         telemetry.StopEvent(reqId, e4);
 
                         var e5 = new CacheEvent(CacheEvent.TokenCacheDelete) { TokenType = CacheEvent.TokenTypes.RT };
                         telemetry.StartEvent(reqId, e5);
+                        // do some stuff...
                         telemetry.StopEvent(reqId, e5);
                     }));
                     taskArray[i] = task;
                     task.Start();
                 }
-                Task.WaitAll(taskArray[0], taskArray[1], taskArray[2], taskArray[3], taskArray[4]);
+                Task.WaitAll(taskArray); 
             }
             finally
             {
-                telemetry.Flush(reqId);
+                foreach (string reqId in reqIdArray)
+                {
+                    telemetry.Flush(reqId);
+                }
             }
-            Dictionary<string, string> defaultEvent = myReceiver.EventsReceived[0];
-            Assert.AreEqual("5", defaultEvent["api_event_count"]);
-            Assert.AreEqual("10", defaultEvent["http_event_count"]);
-            Assert.AreEqual("10", defaultEvent["cache_event_count"]);
-            Assert.AreEqual("0", defaultEvent["ui_event_count"]);
+            //Assert
+            foreach(Dictionary<string, string> telemetryEvent in myReceiver.EventsReceived)
+            {
+                if(telemetryEvent[EventBase.EventNameKey] == "msal.default_event")
+                {
+                    Assert.AreEqual("2", telemetryEvent["msal.http_event_count"]);
+                    Assert.AreEqual("2", telemetryEvent["msal.cache_event_count"]);
+                    Assert.AreEqual("0", telemetryEvent["msal.ui_event_count"]);
+                }
+            }
         }
     }
 }

@@ -30,11 +30,12 @@ using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using System.Collections.Generic;
+using System.Globalization;
 using Test.Microsoft.Identity.Core.Unit;
 
 namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
 {   [TestClass]
-    class XmsCliTelemTests
+    public class XmsCliTelemTests
     {
 
         [TestInitialize]
@@ -85,7 +86,9 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
      
             // Assert
             Assert.IsNull(xmsCliTeleminfo);
-            CoreLoggerBase.Default.Received().Error(Arg.Is(TelemetryError.XmsTelemMalformed));
+            CoreLoggerBase.Default.Received().Warning(Arg.Is(
+                            string.Format(CultureInfo.InvariantCulture,
+                            TelemetryError.XmsTelemMalformed, responseHeaders["x-ms-clitelem"])));
         }
         
         [TestMethod]
@@ -105,7 +108,9 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
 
             // Assert
             Assert.IsNull(xmsCliTeleminfo);
-            CoreLoggerBase.Default.Received().Error(Arg.Is(TelemetryError.XmsUnrecognizedHeaderVersion));
+            CoreLoggerBase.Default.Received().Warning(Arg.Is(
+                            string.Format(CultureInfo.InvariantCulture,
+                            TelemetryError.XmsUnrecognizedHeaderVersion, "3")));
         }
     }
 }

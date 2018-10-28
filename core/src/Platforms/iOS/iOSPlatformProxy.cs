@@ -124,20 +124,17 @@ namespace Microsoft.Identity.Core
         }
         public string GetCallingAssemblyName()
         {
-            string name = (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleName"].ToString();
-            return !string.IsNullOrWhiteSpace(name) ? name : null;
+            return (NSString)NSBundle.MainBundle?.InfoDictionary?["CFBundleName"];
         }
 
         public string GetCallingAssemblyVersion()
         {
-            string version = (NSString)NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
-            return !string.IsNullOrWhiteSpace(version) ? version : null;
+            return (NSString)NSBundle.MainBundle?.InfoDictionary?["CFBundleVersion"];
         }
 
         public string GetDeviceId()
         {
-            string deviceId = UIDevice.CurrentDevice.IdentifierForVendor.AsString();
-            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
+            return UIDevice.CurrentDevice?.IdentifierForVendor?.AsString();
         }
 
         /// <inheritdoc />

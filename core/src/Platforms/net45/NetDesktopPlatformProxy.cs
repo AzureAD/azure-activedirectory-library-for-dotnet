@@ -209,21 +209,19 @@ namespace Microsoft.Identity.Core
 
         public string GetCallingAssemblyName()
         {
-            string name = Assembly.GetEntryAssembly().GetName().Name.ToString();
-            return !string.IsNullOrWhiteSpace(name) ? name : null;
+            return Assembly.GetEntryAssembly()?.GetName()?.Name?.ToString();
         }
 
         public string GetCallingAssemblyVersion()
         {
-            string version = Assembly.GetEntryAssembly().GetName().Version.ToString();
-            return !string.IsNullOrWhiteSpace(version) ? version : null;
+            return Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString();
         }
 
         public string GetDeviceId()
         {
-            string deviceId =  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
-                .Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
-            return !string.IsNullOrWhiteSpace(deviceId) ? deviceId : null;
+            return  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+                .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault();
+            
         }
 
         /// <inheritdoc />
