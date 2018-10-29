@@ -138,7 +138,7 @@ namespace Microsoft.Identity.Client
         public string Authority { get; }
 
         /// <summary>
-        /// Gets the Client ID (also knwon as <i>Application ID</i>) of the application as registered in the application registration portal (https://aka.ms/msal-net-register-app)
+        /// Gets the Client ID (also known as <i>Application ID</i>) of the application as registered in the application registration portal (https://aka.ms/msal-net-register-app)
         /// and as passed in the constructor of the application
         /// </summary>
         public string ClientId { get; }
@@ -195,6 +195,12 @@ namespace Microsoft.Identity.Client
         /// and before an operation acquiring a token or interacting with the STS.
         /// </summary>
         public bool ValidateAuthority { get; set; }
+
+        /// <summary>
+        /// ExtendedLifeTimeEnabled is a Boolean that first party applications (read Office) can set to true in case when the STS has an outage,
+        /// to be more resilient.
+        /// </summary>
+        public bool ExtendedLifeTimeEnabled { get; set; }
 
         /// <summary>
         /// Returns all the available <see cref="IAccount">accounts</see> in the user token cache for the application.
@@ -350,7 +356,8 @@ namespace Microsoft.Identity.Client
                 Scope = ScopeHelper.CreateSortedSetFromEnumerable(scopes),
                 RedirectUri = new Uri(RedirectUri),
                 RequestContext = CreateRequestContext(Guid.Empty),
-                ValidateAuthority = ValidateAuthority
+                ValidateAuthority = ValidateAuthority,
+                IsExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
         }
 
