@@ -93,7 +93,6 @@ namespace Microsoft.Identity.Core.Telemetry
             string requestId,
             string clientId,
             EventBase eventToStart,
-            EventBase eventToEnd = null,
             bool shouldFlush = false)
         {
             return new TelemetryHelper(
@@ -101,7 +100,6 @@ namespace Microsoft.Identity.Core.Telemetry
                 requestId,
                 clientId,
                 eventToStart,
-                eventToEnd ?? eventToStart,
                 shouldFlush);
         }
 

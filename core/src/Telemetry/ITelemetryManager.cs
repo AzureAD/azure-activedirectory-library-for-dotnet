@@ -36,8 +36,7 @@ namespace Microsoft.Identity.Core.Telemetry
         TelemetryHelper CreateTelemetryHelper(
             string requestId,
             string clientId,
-            EventBase eventToStart,
-            EventBase eventToEnd = null,
+            EventBase eventBase,
             bool shouldFlush = false);
     }
 }

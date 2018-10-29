@@ -41,21 +41,20 @@ namespace Microsoft.Identity.Core.Telemetry
             ITelemetry telemetry,
             string requestId,
             string clientId,
-            EventBase eventToStart,
-            EventBase eventToEnd,
+            EventBase eventBase,
             bool shouldFlush)
         {
             _telemetry = telemetry;
             _requestId = requestId;
             _clientId = clientId;
-            _eventToEnd = eventToEnd;
+            _eventToEnd = eventBase;
             _shouldFlush = shouldFlush;
-            _telemetry?.StartEvent(_requestId, eventToStart);
+            _telemetry?.StartEvent(_requestId, eventBase);
         }
 
         #region IDisposable Support
 
-        private bool _disposedValue = false; // To detect redundant calls
+        private bool _disposedValue = false;
 
         protected virtual void Dispose(bool disposing)
         {
