@@ -51,15 +51,15 @@ namespace Test.Microsoft.Identity.Core.Unit
             var factory = PlatformProxyFactory.GetPlatformProxy();
 
             // Act and Assert
-            Assert.AreNotEqual(
+            Assert.AreNotSame(
                 factory.CreateLegacyCachePersistence(),
                 factory.CreateLegacyCachePersistence());
 
-            Assert.AreNotEqual(
+            Assert.AreNotSame(
                 factory.CreateTokenCacheAccessor(),
                 factory.CreateTokenCacheAccessor());
 
-            Assert.AreEqual(
+            Assert.AreSame(
                 factory.CryptographyManager,
                 factory.CryptographyManager);
 

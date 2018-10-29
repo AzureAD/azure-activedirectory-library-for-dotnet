@@ -143,12 +143,10 @@ namespace Microsoft.Identity.Core
             return createLegacyCachePersistence;
         }
 
-        private readonly ITokenCacheAccessor createTokenCacheAccessor = new AndroidTokenCacheAccessor();
-
         /// <inheritdoc />
         public ITokenCacheAccessor CreateTokenCacheAccessor()
         {
-            return createTokenCacheAccessor;
+            return new AndroidTokenCacheAccessor();
         }
 
         /// <inheritdoc />
