@@ -38,6 +38,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Unit;
 using Test.Microsoft.Identity.Core.Unit;
 using UserCredential = Microsoft.IdentityModel.Clients.ActiveDirectory.UserCredential;
 
@@ -171,7 +172,6 @@ namespace Test.ADAL.Common.Unit
             VerifyCacheItemCount(cache, 0);
         }
 
-
         /// <summary>
         /// Check when there are multiple users in the cache with the same
         /// authority, clientId, resource but different unique and displayId's that
@@ -181,7 +181,6 @@ namespace Test.ADAL.Common.Unit
         /// <returns></returns>
         public static async Task TestUniqueIdDisplayableIdLookupAsync()
         {
-
             string authority = "https://www.gotjwt.com/";
             string tenantId = Guid.NewGuid().ToString();
             string uniqueId = Guid.NewGuid().ToString();
@@ -217,7 +216,7 @@ namespace Test.ADAL.Common.Unit
             var userId = new UserIdentifier(uniqueId, UserIdentifierType.UniqueId);
             var userIdUpper = new UserIdentifier(displayableId.ToUpper(CultureInfo.InvariantCulture), UserIdentifierType.RequiredDisplayableId);
 
-            var parameters = new PlatformParameters(PromptBehavior.Auto);
+            var parameters = PlatformParametersFactory.CreateDefault();
             var authenticationResultFromCache = await acWithLocalCache.AcquireTokenAsync(resource, clientId, redirectUri, parameters, userId).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
 
@@ -231,7 +230,8 @@ namespace Test.ADAL.Common.Unit
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
         }
 
-    public static async Task TokenCacheKeyTestAsync(IPlatformParameters parameters)
+
+        public static async Task TokenCacheKeyTestAsync(IPlatformParameters parameters)
         {
             CheckPublicGetSets();
 
@@ -613,7 +613,7 @@ namespace Test.ADAL.Common.Unit
             var result = new AdalResult(null, ValidAccessToken,
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)))
             {
-                UserInfo = new AdalUserInfo {UniqueId = uniqueId, DisplayableId = displayableId}
+                UserInfo = new AdalUserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
             };
 
             return new AdalResultWrapper
@@ -746,20 +746,20 @@ namespace Test.ADAL.Common.Unit
 
         private static void AddToDictionary(TokenCache tokenCache, AdalTokenCacheKey key, AdalResultWrapper value)
         {
-            tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs {TokenCache = tokenCache});
-            tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs {TokenCache = tokenCache});
+            tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
+            tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs { TokenCache = tokenCache });
             tokenCache.tokenCacheDictionary.Add(key, value);
             tokenCache.HasStateChanged = true;
-            tokenCache.OnAfterAccess(new TokenCacheNotificationArgs {TokenCache = tokenCache});
+            tokenCache.OnAfterAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
         }
 
         private static bool RemoveFromDictionary(TokenCache tokenCache, AdalTokenCacheKey key)
         {
-            tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs {TokenCache = tokenCache});
-            tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs {TokenCache = tokenCache});
+            tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
+            tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs { TokenCache = tokenCache });
             bool result = tokenCache.tokenCacheDictionary.Remove(key);
             tokenCache.HasStateChanged = true;
-            tokenCache.OnAfterAccess(new TokenCacheNotificationArgs {TokenCache = tokenCache});
+            tokenCache.OnAfterAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
 
             return result;
         }
@@ -784,7 +784,7 @@ namespace Test.ADAL.Common.Unit
                     GenerateRandomString(maxFieldSize),
                     new DateTimeOffset(DateTime.Now + TimeSpan.FromSeconds(ValidExpiresIn)))
                 {
-                    UserInfo = new AdalUserInfo {UniqueId = uniqueId, DisplayableId = displayableId}
+                    UserInfo = new AdalUserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
                 },
                 RefreshToken = GenerateRandomString(maxFieldSize),
                 UserAssertionHash = Guid.NewGuid().ToString()

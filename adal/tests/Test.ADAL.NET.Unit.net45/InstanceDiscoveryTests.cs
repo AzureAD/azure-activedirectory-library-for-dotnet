@@ -276,17 +276,16 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            var privateObject = new PrivateObject(new AcquireTokenForClientHandler(new RequestData
+            var clientHandler = new AcquireTokenForClientHandler(new RequestData
             {
                 Authenticator = authenticator,
                 Resource = "resource1",
                 ClientKey = new ClientKey(new ClientCredential("client1", "something")),
                 SubjectType = TokenSubjectType.Client,
                 ExtendedLifeTimeEnabled = false
-            }));
+            });
 
-            Task sendTokenRequestTask = (Task)privateObject.Invoke("SendTokenRequestAsync");
-            await sendTokenRequestTask.ConfigureAwait(false);
+            await clientHandler.SendTokenRequestAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
@@ -324,13 +323,12 @@ namespace Test.ADAL.NET.Unit
                     ExtendedLifeTimeEnabled = false
                 };
 
-                var privateObject = new PrivateObject(
-                    new AcquireTokenUsernamePasswordHandler(
+                var handler = new AcquireTokenUsernamePasswordHandler(
                         new WsTrustWebRequestManager(httpManager),
                         requestData,
-                        new UsernamePasswordInput("johndoe@contoso.com", "fakepassword")));
+                        new UsernamePasswordInput("johndoe@contoso.com", "fakepassword"));
 
-                await ((Task)privateObject.Invoke("PreTokenRequestAsync")).ConfigureAwait(false);
+                await handler.PreTokenRequestAsync().ConfigureAwait(false);
             }
         }
 
@@ -401,6 +399,7 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(1, AdalHttpMessageHandlerFactory.MockHandlersCount()); // Still 1 mock response remaining, so no new request was attempted
         }
 
+
         [TestMethod]
         [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenMetadataIsReturned_ShouldUsePreferredNetworkForTokenRequest_WithDstsAsync()
@@ -421,16 +420,16 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            var privateObject = new PrivateObject(new AcquireTokenForClientHandler(new RequestData
+            var privateObject = new AcquireTokenForClientHandler(new RequestData
             {
                 Authenticator = authenticator,
                 Resource = "resource1",
                 ClientKey = new ClientKey(new ClientCredential("client1", "something")),
                 SubjectType = TokenSubjectType.Client,
                 ExtendedLifeTimeEnabled = false
-            }));
-            Task sendTokenRequestTask = (Task)privateObject.Invoke("SendTokenRequestAsync");
-            await sendTokenRequestTask.ConfigureAwait(false);
+            });
+
+            await privateObject.SendTokenRequestAsync().ConfigureAwait(false);
 
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount()); // This validates that all the mock handlers have been consumed
         }
