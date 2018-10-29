@@ -36,6 +36,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
     internal class TokenCacheHelper
     {
         public static long ValidExpiresIn = 28800;
+        public static long ValidExtendedExpiresIn = 57600;
 
         internal static void PopulateCacheForClientCredential(ITokenCacheAccessor accessor)
         {
@@ -47,6 +48,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 CoreTestConstants.Utid,
                 "",
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)),
+                new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExtendedExpiresIn)),
                 MockHelpers.CreateClientInfo());
 
             accessor.SaveAccessToken(atItem);
@@ -62,6 +64,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 CoreTestConstants.Utid,
                 "",
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)),
+                new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExtendedExpiresIn)),
                 MockHelpers.CreateClientInfo());
 
             // add access token
@@ -75,7 +78,8 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
             accessor.SaveIdToken(idTokenCacheItem);
 
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
-                (CoreTestConstants.ProductionPrefNetworkEnvironment, null, MockHelpers.CreateClientInfo(), null, null, CoreTestConstants.Utid);
+                (CoreTestConstants.ProductionPrefNetworkEnvironment, null, MockHelpers.CreateClientInfo(), null, null, CoreTestConstants.Utid,
+                null, null);
 
             accessor.SaveAccount(accountCacheItem);
 
@@ -87,6 +91,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
                 CoreTestConstants.Utid,
                 "",
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)),
+                new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExtendedExpiresIn)),
                 MockHelpers.CreateClientInfo());
 
             // add another access token
@@ -118,7 +123,7 @@ namespace Test.Microsoft.Identity.Core.Unit.Mocks
         public static void AddAccountToCache(ITokenCacheAccessor accessor, string uid, string utid)
         {
             MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem
-                (CoreTestConstants.ProductionPrefCacheEnvironment, null, MockHelpers.CreateClientInfo(uid, utid), null, null, utid);
+                (CoreTestConstants.ProductionPrefCacheEnvironment, null, MockHelpers.CreateClientInfo(uid, utid), null, null, utid, null, null);
 
             accessor.SaveAccount(accountCacheItem);
         }
