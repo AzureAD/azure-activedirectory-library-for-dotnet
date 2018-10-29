@@ -135,11 +135,21 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new AndroidLegacyCachePersistence();
+        private readonly ILegacyCachePersistence createLegacyCachePersistence = new AndroidLegacyCachePersistence();
 
         /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new AndroidTokenCacheAccessor();
+        public ILegacyCachePersistence CreateLegacyCachePersistence()
+        {
+            return createLegacyCachePersistence;
+        }
+
+        private readonly ITokenCacheAccessor createTokenCacheAccessor = new AndroidTokenCacheAccessor();
+
+        /// <inheritdoc />
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return createTokenCacheAccessor;
+        }
 
         /// <inheritdoc />
         public ICryptographyManager CryptographyManager { get; } = new AndroidCryptographyManager();
