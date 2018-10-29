@@ -77,6 +77,10 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public bool TelemetryOnFailureOnly { get; set; }
 
+        private const string MsalCacheEventValuePrefix = "msal.token";
+
+        private const string MsalCacheEventName = "msal.cache_event";
+
         internal ConcurrentDictionary<Tuple<string, string>, EventBase> EventsInProgress = new ConcurrentDictionary<Tuple<string, string>, EventBase>();
 
         internal ConcurrentDictionary<string, List<EventBase>> CompletedEvents = new ConcurrentDictionary<string, List<EventBase>>();
@@ -228,9 +232,9 @@ namespace Microsoft.Identity.Client
         private void IncrementEventCount(string requestId, EventBase eventToIncrement)
         {
             string eventName;
-            if (eventToIncrement[EventBase.EventNameKey].Substring(0,10) == "msal.token")
+            if (eventToIncrement[EventBase.EventNameKey].Substring(0,10) == MsalCacheEventValuePrefix)
             {
-                eventName = "msal.cache_event";
+                eventName = MsalCacheEventName;
             }
             else
             {

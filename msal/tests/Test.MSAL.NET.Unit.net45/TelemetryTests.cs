@@ -450,10 +450,9 @@ namespace Test.MSAL.NET.Unit
 
             telemetry.ClientId = "a1b3c3d4";
             string[] reqIdArray = new string[5];
+            Task[] taskArray = new Task[5];
             try
-            {
-                Task[] taskArray = new Task[5]; 
-                
+            {   
                 for(int i=0; i < 5; i++)
                 {
                     string reqId = telemetry.GenerateNewRequestId();
@@ -500,14 +499,14 @@ namespace Test.MSAL.NET.Unit
                     telemetry.Flush(reqId);
                 }
             }
-            //Assert
+            // Every task should have one default event with these counts 
             foreach(Dictionary<string, string> telemetryEvent in myReceiver.EventsReceived)
             {
-                if(telemetryEvent[EventBase.EventNameKey] == "msal.default_event")
+                if(telemetryEvent[EventBase.EventNameKey] == MsalDefaultEvent)
                 {
-                    Assert.AreEqual("2", telemetryEvent["msal.http_event_count"]);
-                    Assert.AreEqual("2", telemetryEvent["msal.cache_event_count"]);
-                    Assert.AreEqual("0", telemetryEvent["msal.ui_event_count"]);
+                    Assert.AreEqual("2", telemetryEvent[TelemetryEventProperties.MsalHttpEventCount]);
+                    Assert.AreEqual("2", telemetryEvent[TelemetryEventProperties.MsalCacheEventCount]);
+                    Assert.AreEqual("0", telemetryEvent[TelemetryEventProperties.MsalUiEventCount]);
                 }
             }
         }

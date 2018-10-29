@@ -118,7 +118,7 @@ namespace Microsoft.Identity.Core.OAuth2
                 if(headersAsDictionary.ContainsKey("x-ms-clitelem") && 
                     headersAsDictionary["x-ms-clitelem"] != null)
                 {
-                    XmsCliTelemInfo xmsCliTeleminfo = XmsCliTelemInfoParser.parseXMsTelemHeader(headersAsDictionary["x-ms-clitelem"], requestContext);
+                    XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(headersAsDictionary["x-ms-clitelem"], requestContext);
                     if (xmsCliTeleminfo != null)
                     {
                         httpEvent.TokenAge = xmsCliTeleminfo.TokenAge;

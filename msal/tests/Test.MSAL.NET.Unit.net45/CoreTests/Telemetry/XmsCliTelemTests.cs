@@ -58,7 +58,7 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
                 {"x-ms-clitelem", "1,0,0,,"}
             };
 
-            XmsCliTelemInfo xmsCliTeleminfo = XmsCliTelemInfoParser.parseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
+            XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
             
             // Assert
             Assert.AreEqual(xmsCliTeleminfo.Version, "1");
@@ -82,13 +82,13 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
                 {"x-ms-clitelem", "1,2,3,4,5,6"}
             };
 
-            XmsCliTelemInfo xmsCliTeleminfo = XmsCliTelemInfoParser.parseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
+            XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
      
             // Assert
             Assert.IsNull(xmsCliTeleminfo);
             CoreLoggerBase.Default.Received().Warning(Arg.Is(
                             string.Format(CultureInfo.InvariantCulture,
-                            TelemetryError.XmsTelemMalformed, responseHeaders["x-ms-clitelem"])));
+                            TelemetryError.XmsCliTelemMalformed, responseHeaders["x-ms-clitelem"])));
         }
         
         [TestMethod]
@@ -104,7 +104,7 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
                 {"x-ms-clitelem", "3,0,0,,"}
             };
 
-            XmsCliTelemInfo xmsCliTeleminfo = XmsCliTelemInfoParser.parseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
+            XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
 
             // Assert
             Assert.IsNull(xmsCliTeleminfo);

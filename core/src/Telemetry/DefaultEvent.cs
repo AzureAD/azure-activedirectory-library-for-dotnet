@@ -38,9 +38,9 @@ namespace Microsoft.Identity.Core.Telemetry
             this[EventNamePrefix + "client_id"] = clientId;
             this[EventNamePrefix + "sdk_platform"] = platformProxy.GetProductName()?.ToLowerInvariant();
             this[EventNamePrefix + "sdk_version"] = MsalIdHelper.GetMsalVersion();
-            this[EventNamePrefix + "application_name"] = PlatformProxyFactory.GetPlatformProxy().GetCallingAssemblyName()?.ToLowerInvariant();
-            this[EventNamePrefix + "application_version"] = PlatformProxyFactory.GetPlatformProxy().GetCallingAssemblyVersion()?.ToLowerInvariant();
-            this[EventNamePrefix + "device_id"] = HashPersonalIdentifier(PlatformProxyFactory.GetPlatformProxy().GetDeviceId()?.ToLowerInvariant());
+            this[EventNamePrefix + "application_name"] = platformProxy.GetCallingApplicationName()?.ToLowerInvariant();
+            this[EventNamePrefix + "application_version"] = platformProxy.GetCallingApplicationVersion()?.ToLowerInvariant();
+            this[EventNamePrefix + "device_id"] = HashPersonalIdentifier(platformProxy.GetDeviceId()?.ToLowerInvariant());
             this[EventNamePrefix + "ui_event_count"] = GetEventCount(EventNamePrefix + "ui_event", eventCount);
             this[EventNamePrefix + "http_event_count"] = GetEventCount(EventNamePrefix + "http_event", eventCount);
             this[EventNamePrefix + "cache_event_count"] = GetEventCount(EventNamePrefix + "cache_event", eventCount);

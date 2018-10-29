@@ -25,17 +25,19 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Microsoft.Identity.Core.Telemetry
 {
-    internal static class TelemetryError
+    internal class TelemetryError
     {
         public const string XmsTelemMalformed = "Malformed x-ms-clitelem header: '{0}'";
         public const string XmsUnrecognizedHeaderVersion = "Header version '{0}' unrecognized";
+    }
+
+    internal class TelemetryEventProperties
+    {
+        public const string MsalDefaultEvent = "msal.default_event";
+        public const string MsalHttpEventCount = "msal.http_event_count";
+        public const string MsalCacheEventCount = "msal.cache_event_count";
+        public const string MsalUiEventCount = "msal.ui_event_count";
     }
 }

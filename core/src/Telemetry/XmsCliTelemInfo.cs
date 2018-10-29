@@ -25,10 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Globalization;
-using System.Text.RegularExpressions;
-using Microsoft.Identity.Core.Telemetry;
-
 namespace Microsoft.Identity.Core.Telemetry
 {
     internal class XmsCliTelemInfo
@@ -57,67 +53,5 @@ namespace Microsoft.Identity.Core.Telemetry
         /// Bundle id for spe_ring info.
         /// </summary>
         public string SpeInfo { get; set; }
-    }
-
-    internal static class XmsCliTelemInfoParser
-    {
-        internal static XmsCliTelemInfo parseXMsTelemHeader(string headerValue, RequestContext requestContext)
-        {
-            if (string.IsNullOrEmpty(headerValue))
-            {
-                return null;
-            }
-
-            string[] headerSegments = headerValue.Split(',');
-            if (headerSegments.Length == 0)
-            {
-                requestContext.Logger.Warning(
-                    string.Format(CultureInfo.InvariantCulture,
-                    TelemetryError.XmsTelemMalformed, headerValue));
-                return null;
-            }
-            string headerVersion = headerSegments[0];
-
-            XmsCliTelemInfo xMsTelemetryInfo = new XmsCliTelemInfo();
-            xMsTelemetryInfo.Version = headerVersion;
-
-            if (string.Equals(headerVersion, "1"))
-            {
-                MatchCollection formatMatcher = parseHeader(headerValue);
-                if (formatMatcher.Count < 1)
-                {
-                    requestContext.Logger.Warning(
-                            string.Format(CultureInfo.InvariantCulture,
-                            TelemetryError.XmsTelemMalformed, headerValue));
-                    return null;
-                }
-
-                int ErrorCodeIndex = 1;
-                int SubErrorCodeIndex = 2;
-                int TokenAgeIndex = 3;
-                int SpeInfoIndex = 4;
-
-                xMsTelemetryInfo.ServerErrorCode = headerSegments[ErrorCodeIndex];
-                xMsTelemetryInfo.ServerSubErrorCode = headerSegments[SubErrorCodeIndex];
-                xMsTelemetryInfo.TokenAge = headerSegments[TokenAgeIndex];
-                xMsTelemetryInfo.SpeInfo = headerSegments[SpeInfoIndex];
-            }
-            else
-            {
-                requestContext.Logger.Warning(
-                    string.Format(CultureInfo.InvariantCulture,
-                    TelemetryError.XmsUnrecognizedHeaderVersion, headerVersion));
-                return null;
-            }
-            return xMsTelemetryInfo;
-        }
-
-        private static MatchCollection parseHeader(string headerValue)
-        {
-            // Verify the expected format "<version>, <error_code>, <sub_error_code>, <token_age>, <ring>"
-            Regex headerFormat = new Regex(@"^[1-9]+\.?[0-9|\\.]*,[0-9|\\.]*,[0-9|\\.]*,[^,]*[0-9\\.]*,[^,]*$");
-            MatchCollection formatMatcher = headerFormat.Matches(headerValue);
-            return formatMatcher;
-        }
     }
 }

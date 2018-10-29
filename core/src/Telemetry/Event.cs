@@ -88,7 +88,7 @@ namespace Microsoft.Identity.Core.Telemetry
             return uri.Scheme + "://" + uri.Authority + scrubbedPath;
         }
 
-        public static string HashPersonalIdentifier(string valueToHash)
+        public string HashPersonalIdentifier(string valueToHash)
         {
             var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             return crypto.CreateBase64UrlEncodedSha256Hash(valueToHash);
