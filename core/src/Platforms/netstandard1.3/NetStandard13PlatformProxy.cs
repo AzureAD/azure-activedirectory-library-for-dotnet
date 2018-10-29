@@ -83,8 +83,6 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.CoreCLR" : "PCL.CoreCLR";
         }
 
-     
-
         public bool IsDomainJoined()
         {
             return false;
