@@ -207,12 +207,12 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.Desktop" : "PCL.Desktop";
         }
 
-        public string GetCallingAssemblyName()
+        public string GetCallingApplicationName()
         {
             return Assembly.GetEntryAssembly()?.GetName()?.Name?.ToString();
         }
 
-        public string GetCallingAssemblyVersion()
+        public string GetCallingApplicationVersion()
         {
             return Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString();
         }

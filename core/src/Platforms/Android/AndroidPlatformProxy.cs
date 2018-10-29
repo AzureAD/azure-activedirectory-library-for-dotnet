@@ -134,13 +134,13 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.Android" : "PCL.Android";
         }
-        public string GetCallingAssemblyName()
+        public string GetCallingApplicationName()
         {
             return Android.App.Application.Context.ApplicationInfo?.LoadLabel(Android.App.Application.Context.PackageManager);
           
         }
 
-        public string GetCallingAssemblyVersion()
+        public string GetCallingApplicationVersion()
         {
             return Android.App.Application.Context.PackageManager.GetPackageInfo(Android.App.Application.Context.PackageName, 0)?.VersionName;
             

@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Core.Telemetry
 {
     internal class TelemetryError
     {
-        public const string XmsTelemMalformed = "Malformed x-ms-clitelem header: '{0}'";
+        public const string XmsCliTelemMalformed = "Malformed x-ms-clitelem header: '{0}'";
         public const string XmsUnrecognizedHeaderVersion = "Header version '{0}' unrecognized";
     }
 

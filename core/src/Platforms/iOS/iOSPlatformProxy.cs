@@ -122,12 +122,12 @@ namespace Microsoft.Identity.Core
         {
             return _isMsal ? "MSAL.Xamarin.iOS" : "PCL.iOS";
         }
-        public string GetCallingAssemblyName()
+        public string GetCallingApplicationName()
         {
             return (NSString)NSBundle.MainBundle?.InfoDictionary?["CFBundleName"];
         }
 
-        public string GetCallingAssemblyVersion()
+        public string GetCallingApplicationVersion()
         {
             return (NSString)NSBundle.MainBundle?.InfoDictionary?["CFBundleVersion"];
         }

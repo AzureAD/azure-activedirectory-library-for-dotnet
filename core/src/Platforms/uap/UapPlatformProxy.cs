@@ -192,12 +192,12 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.UAP" : "PCL.UAP";
         }
 
-        public string GetCallingAssemblyName()
+        public string GetCallingApplicationName()
         {
             return Package.Current?.DisplayName?.ToString();
         }
 
-        public string GetCallingAssemblyVersion()
+        public string GetCallingApplicationVersion()
         {
             return Package.Current?.Id?.Version.ToString();
         }

@@ -89,12 +89,12 @@ namespace Microsoft.Identity.Core
                 throw new ArgumentNullException(nameof(redirectUri));
             }
         }
-        public string GetCallingAssemblyName()
+        public string GetCallingApplicationName()
         {
             return null;
         }
 
-        public string GetCallingAssemblyVersion()
+        public string GetCallingApplicationVersion()
         {
             return null;
         }
