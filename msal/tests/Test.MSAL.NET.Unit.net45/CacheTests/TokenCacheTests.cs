@@ -297,13 +297,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     MockHelpers.CreateClientInfo());
 
                 atItem.Secret = atItem.GetKey().ToString();
-                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 var cacheItem = _cache.FindAccessTokenAsync(
                     new AuthenticationRequestParameters()
                     {
                         IsExtendedLifeTimeEnabled = true,
-                        RequestContext = new RequestContext(new MsalLogger(Guid.Empty, null)),
+                        RequestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null)),
                         ClientId = MsalTestConstants.ClientId,
                         Authority = Authority.CreateAuthority(MsalTestConstants.AuthorityTestTenant, false),
                         Scope = MsalTestConstants.Scope,

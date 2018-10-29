@@ -32,14 +32,37 @@ using System.Linq;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
-    internal class TelemetryManager : ITelemetryManager, ITelemetry
+    internal class TelemetryManager : ITelemetryManager,
+                                      ITelemetry
     {
         private readonly object _lockObj = new object();
+
+        internal readonly ConcurrentDictionary<string, List<EventBase>> CompletedEvents =
+            new ConcurrentDictionary<string, List<EventBase>>();
+
+        internal readonly ConcurrentDictionary<EventKey, EventBase> EventsInProgress =
+            new ConcurrentDictionary<EventKey, EventBase>();
+
         private ITelemetryReceiver _telemetryReceiver;
 
         public TelemetryManager(ITelemetryReceiver telemetryReceiver = null)
         {
             _telemetryReceiver = telemetryReceiver;
+        }
+
+        void ITelemetry.StartEvent(string requestId, EventBase eventToStart)
+        {
+            StartEvent(requestId, eventToStart);
+        }
+
+        void ITelemetry.StopEvent(string requestId, EventBase eventToStop)
+        {
+            StopEvent(requestId, eventToStop);
+        }
+
+        void ITelemetry.Flush(string requestId, string clientId)
+        {
+            Flush(requestId, clientId);
         }
 
         public ITelemetryReceiver TelemetryReceiver
@@ -57,14 +80,6 @@ namespace Microsoft.Identity.Core.Telemetry
                 {
                     _telemetryReceiver = value;
                 }
-            }
-        }
-
-        private bool HasReceiver()
-        {
-            lock (_lockObj)
-            {
-                return _telemetryReceiver != null;
             }
         }
 
@@ -90,9 +105,13 @@ namespace Microsoft.Identity.Core.Telemetry
                 shouldFlush);
         }
 
-        internal readonly ConcurrentDictionary<Tuple<string, string>, EventBase> EventsInProgress = new ConcurrentDictionary<Tuple<string, string>, EventBase>();
-
-        internal readonly ConcurrentDictionary<string, List<EventBase>> CompletedEvents = new ConcurrentDictionary<string, List<EventBase>>();
+        private bool HasReceiver()
+        {
+            lock (_lockObj)
+            {
+                return _telemetryReceiver != null;
+            }
+        }
 
         internal void StartEvent(string requestId, EventBase eventToStart)
         {
@@ -101,7 +120,7 @@ namespace Microsoft.Identity.Core.Telemetry
                 return;
             }
 
-            EventsInProgress[new Tuple<string, string>(requestId, eventToStart[EventBase.EventNameKey])] = eventToStart;
+            EventsInProgress[new EventKey(requestId, eventToStart)] = eventToStart;
         }
 
         internal void StopEvent(string requestId, EventBase eventToStop)
@@ -111,46 +130,46 @@ namespace Microsoft.Identity.Core.Telemetry
                 return;
             }
 
-                var eventKey = new Tuple<string, string>(requestId, eventToStop[EventBase.EventNameKey]);
+            var eventKey = new EventKey(requestId, eventToStop);
 
-                // Locate the same name event in the EventsInProgress map
-                EventBase eventStarted = null;
-                if (EventsInProgress.ContainsKey(eventKey))
+            // Locate the same name event in the EventsInProgress map
+            EventBase eventStarted = null;
+            if (EventsInProgress.ContainsKey(eventKey))
+            {
+                eventStarted = EventsInProgress[eventKey];
+            }
+
+            // If we did not get anything back from the dictionary, most likely its a bug that StopEvent
+            // was called without a corresponding StartEvent
+            if (null == eventStarted)
+            {
+                // Stop Event called without a corresponding start_event.
+                return;
+            }
+
+            // Set execution time properties on the event
+            eventToStop.Stop();
+
+            if (!CompletedEvents.ContainsKey(requestId))
+            {
+                // if this is the first event associated to this
+                // RequestId we need to initialize a new List to hold
+                // all of sibling events
+                var events = new List<EventBase>
                 {
-                    eventStarted = EventsInProgress[eventKey];
-                }
+                    eventToStop
+                };
+                CompletedEvents[requestId] = events;
+            }
+            else
+            {
+                // if this event shares a RequestId with other events
+                // just add it to the List
+                CompletedEvents[requestId].Add(eventToStop);
+            }
 
-                // If we did not get anything back from the dictionary, most likely its a bug that StopEvent
-                // was called without a corresponding StartEvent
-                if (null == eventStarted)
-                {
-                    // Stop Event called without a corresponding start_event.
-                    return;
-                }
-
-                // Set execution time properties on the event
-                eventToStop.Stop();
-
-                if (!CompletedEvents.ContainsKey(requestId))
-                {
-                    // if this is the first event associated to this
-                    // RequestId we need to initialize a new List to hold
-                    // all of sibling events
-                    var events = new List<EventBase>
-                    {
-                        eventToStop
-                    };
-                    CompletedEvents[requestId] = events;
-                }
-                else
-                {
-                    // if this event shares a RequestId with other events
-                    // just add it to the List
-                    CompletedEvents[requestId].Add(eventToStop);
-                }
-
-                // Mark this event as no longer in progress
-                EventsInProgress.TryRemove(eventKey, out var dummy);
+            // Mark this event as no longer in progress
+            EventsInProgress.TryRemove(eventKey, out var dummy);
         }
 
         internal void Flush(string requestId, string clientId)
@@ -175,24 +194,10 @@ namespace Microsoft.Identity.Core.Telemetry
                 onlySendFailureTelemetry = _telemetryReceiver?.OnlySendFailureTelemetry ?? false;
             }
 
-            if (onlySendFailureTelemetry)
+            // Check all events, and if the ApiEvent was successful, don't dispatch.
+            if (onlySendFailureTelemetry && eventsToFlush.Any(ev => ev is ApiEvent a && a.WasSuccessful))
             {
-                // iterate over Events, if the ApiEvent was successful, don't dispatch
-                bool shouldRemoveEvents = false;
-
-                foreach (var anEvent in eventsToFlush)
-                {
-                    if (anEvent is ApiEvent apiEvent)
-                    {
-                        shouldRemoveEvents = apiEvent.WasSuccessful;
-                        break;
-                    }
-                }
-
-                if (shouldRemoveEvents)
-                {
-                    eventsToFlush.Clear();
-                }
+                eventsToFlush.Clear();
             }
 
             if (eventsToFlush.Count <= 0)
@@ -213,7 +218,7 @@ namespace Microsoft.Identity.Core.Telemetry
             var orphanedEvents = new List<EventBase>();
             foreach (var key in EventsInProgress.Keys)
             {
-                if (key.Item1 == requestId)
+                if (string.Compare(key.RequestId, requestId, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     // The orphaned event already contains its own start time, we simply collect it
                     if (EventsInProgress.TryRemove(key, out var orphan))
@@ -222,22 +227,78 @@ namespace Microsoft.Identity.Core.Telemetry
                     }
                 }
             }
+
             return orphanedEvents;
         }
 
-        void ITelemetry.StartEvent(string requestId, EventBase eventToStart)
+        internal class EventKey : IEquatable<EventKey>
         {
-            StartEvent(requestId, eventToStart);
-        }
+            public EventKey(string requestId, EventBase eventBase)
+            {
+                RequestId = requestId;
+                EventName = eventBase[EventBase.EventNameKey];
+            }
 
-        void ITelemetry.StopEvent(string requestId, EventBase eventToStop)
-        {
-            StopEvent(requestId, eventToStop);
-        }
+            public string RequestId { get; }
+            public string EventName { get; }
 
-        void ITelemetry.Flush(string requestId, string clientId)
-        {
-            Flush(requestId, clientId);
+            /// <inheritdoc />
+            public bool Equals(EventKey other)
+            {
+                if (ReferenceEquals(null, other))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, other))
+                {
+                    return true;
+                }
+
+                return string.Equals(RequestId, other.RequestId, StringComparison.OrdinalIgnoreCase) && 
+                       string.Equals(EventName, other.EventName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            /// <inheritdoc />
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return ((RequestId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(RequestId) : 0) * 397) ^
+                            (EventName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(EventName) : 0);
+                }
+            }
+
+            /// <inheritdoc />
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                if (obj.GetType() != GetType())
+                {
+                    return false;
+                }
+
+                return Equals((EventKey)obj);
+            }
+
+            public static bool operator ==(EventKey left, EventKey right)
+            {
+                return Equals(left, right);
+            }
+
+            public static bool operator !=(EventKey left, EventKey right)
+            {
+                return !Equals(left, right);
+            }
         }
     }
 }

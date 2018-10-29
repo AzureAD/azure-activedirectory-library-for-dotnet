@@ -104,7 +104,7 @@ namespace Microsoft.Identity.Client
             HttpManager = httpManager ?? new HttpManager();
             CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
-            TelemetryManager = telemetryManager ?? new TelemetryManager(Telemetry.GetInstance());  // TODO: pass this in?
+            TelemetryManager = telemetryManager ?? new TelemetryManager(Telemetry.GetInstance());
 
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
