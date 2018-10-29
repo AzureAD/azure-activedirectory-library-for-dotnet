@@ -89,8 +89,7 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveWithPromptAlwaysTest()
         {
-            CoreMobileTestHelper.PlatformParameters = true;
-            ADALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            ADALMobileTestHelper.AcquireTokenWithPromptBehaviorAlwaysHelper(xamarinController, LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>

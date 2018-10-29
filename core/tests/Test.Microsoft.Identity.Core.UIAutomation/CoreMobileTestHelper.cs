@@ -37,74 +37,39 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
     {
-        public static bool PlatformParameters = false;
-
         public static void PerformSignInFlow(ITestController controller, IUser user)
-        {
-            if (PlatformParameters)
-            {
-                PerformSignInFlowWithPromptBehaviorAlways(controller, user);
-            }
-
-            else
-            {
-                string passwordInputID = string.Empty;
-                string signInButtonID = string.Empty;
-
-                if (user.IsFederated)
-                {
-                    switch (user.FederationProvider)
-                    {
-                        case FederationProvider.AdfsV3:
-                        case FederationProvider.AdfsV4:
-                            passwordInputID = CoreUiTestConstants.AdfsV4WebPasswordID;
-                            signInButtonID = CoreUiTestConstants.AdfsV4WebSubmitID;
-                            break;
-                        default:
-                            passwordInputID = CoreUiTestConstants.WebPasswordID;
-                            signInButtonID = CoreUiTestConstants.WebSubmitID;
-                            break;
-                    }
-                }
-                else
-                {
-                    passwordInputID = CoreUiTestConstants.WebPasswordID;
-                    signInButtonID = CoreUiTestConstants.WebSubmitID;
-                }
-
-                //Acquire token flow
-                controller.Tap(CoreUiTestConstants.AcquireTokenID);
-                AcquireToken(controller, user, passwordInputID, signInButtonID);
-            }
-        }
-
-        public static void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
         {
             string passwordInputID = string.Empty;
             string signInButtonID = string.Empty;
 
-            passwordInputID = CoreUiTestConstants.WebPasswordID;
-            signInButtonID = CoreUiTestConstants.WebSubmitID;
+            if (user.IsFederated)
+            {
+                switch (user.FederationProvider)
+                {
+                    case FederationProvider.AdfsV3:
+                    case FederationProvider.AdfsV4:
+                        passwordInputID = CoreUiTestConstants.AdfsV4WebPasswordID;
+                        signInButtonID = CoreUiTestConstants.AdfsV4WebSubmitID;
+                        break;
+                    default:
+                        passwordInputID = CoreUiTestConstants.WebPasswordID;
+                        signInButtonID = CoreUiTestConstants.WebSubmitID;
+                        break;
+                }
+            }
+            else
+            {
+                passwordInputID = CoreUiTestConstants.WebPasswordID;
+                signInButtonID = CoreUiTestConstants.WebSubmitID;
+            }
 
-            // Acquire token flow with prompt behavior always
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, passwordInputID, signInButtonID);
-
-            // Execute normal Acquire token flow
-            // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
-            // There should be a token in the cache from the previous call, so the UI will
-            // not be shown again.
+            //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
-
-            // Execute AT flow w/prompt behavior always
-            // The UI should be shown again.
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
             AcquireToken(controller, user, passwordInputID, signInButtonID);
-            VerifyResult(controller);
         }
 
-        private static void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
-        {            
+        public static void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
+        {
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
             controller.DismissKeyboard();
@@ -135,7 +100,6 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                     throw new ResultVerificationFailureException(VerificationError.ResultNotFound);
                 }
             });
-
         }
 
         private static void RetryVerificationHelper(Action verification)
