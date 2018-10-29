@@ -49,13 +49,13 @@ namespace XForms
             authority.Text = App.Authority;
             clientIdEntry.Text = App.ClientId;
 
-            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString()
+            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccessTokensAsString()
                 .Count.ToString();
-            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString()
+            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllRefreshTokensAsString()
                 .Count.ToString();
-            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllIdTokensAsString()
+            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllIdTokensAsString()
                 .Count.ToString();
-            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccountsAsString()
+            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccountsAsString()
                 .Count.ToString();
 
             validateAuthority.IsToggled = App.ValidateAuthority;
