@@ -49,8 +49,7 @@ namespace Microsoft.Identity.Core.Telemetry
             if (headerSegments.Length == 0)
             {
                 requestContext.Logger.Warning(
-                    string.Format(CultureInfo.InvariantCulture,
-                    TelemetryError.XmsCliTelemMalformed, headerValue));
+                    FormatLogMessage(TelemetryError.XmsCliTelemMalformed, headerValue));
                 return null;
             }
 
@@ -61,8 +60,7 @@ namespace Microsoft.Identity.Core.Telemetry
             if (!string.Equals(headerVersion, ExpectedCliTelemHeaderVersion))
             {
                 requestContext.Logger.Warning(
-                    string.Format(CultureInfo.InvariantCulture,
-                    TelemetryError.XmsUnrecognizedHeaderVersion, headerVersion));
+                    FormatLogMessage(TelemetryError.XmsUnrecognizedHeaderVersion, headerVersion));
                 return xMsTelemetryInfo;
             }
             
@@ -70,8 +68,7 @@ namespace Microsoft.Identity.Core.Telemetry
             if (formatMatcher.Count < 1)
             {
                 requestContext.Logger.Warning(
-                    string.Format(CultureInfo.InvariantCulture,
-                    TelemetryError.XmsCliTelemMalformed, headerValue));
+                    FormatLogMessage(TelemetryError.XmsCliTelemMalformed, headerValue));
                 return xMsTelemetryInfo;
             }
 
@@ -82,13 +79,28 @@ namespace Microsoft.Identity.Core.Telemetry
             return xMsTelemetryInfo;
         }
 
-        private static MatchCollection MatchHeaderToExpectedFormat(string headerValue)
+        private MatchCollection MatchHeaderToExpectedFormat(string headerValue)
         {
             // Verify the expected format "<version>, <error_code>, <sub_error_code>, <token_age>, <ring>"
             Regex headerFormat = new Regex(@"^[1-9]+\.?[0-9|\\.]*,[0-9|\\.]*,[0-9|\\.]*,[^,]*[0-9\\.]*,[^,]*$");
             MatchCollection formatMatcher = headerFormat.Matches(headerValue);
             return formatMatcher;
         }
+
+        private string FormatLogMessage(string telemetryError , string valueToAppend)
+        {
+            if (valueToAppend != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    telemetryError, 
+                    valueToAppend);
+            }
+            else
+            {
+                return string.Format(CultureInfo.InvariantCulture, 
+                    telemetryError, 
+                    "null");
+            }
+        }
     }
 }
-

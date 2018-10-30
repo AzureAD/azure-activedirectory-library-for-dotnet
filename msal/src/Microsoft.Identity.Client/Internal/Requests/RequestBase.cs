@@ -50,8 +50,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
         protected ICryptographyManager CryptographyManager { get; }
 
         protected RequestBase(
-            IHttpManager httpManager, 
-            ICryptographyManager cryptographyManager, 
+            IHttpManager httpManager,
+            ICryptographyManager cryptographyManager,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId)
         {
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             CryptographyManager = cryptographyManager;
             TokenCache = authenticationRequestParameters.TokenCache;
             _apiId = apiId;
-            
+
             AuthenticationRequestParameters = authenticationRequestParameters;
             if (authenticationRequestParameters.Scope == null || authenticationRequestParameters.Scope.Count == 0)
             {
@@ -214,10 +214,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 fromServer = ClientInfo.CreateFromJson(msalTokenResponse.ClientInfo);
             }
 
-            if (fromServer!= null && AuthenticationRequestParameters.ClientInfo != null)
+            if (fromServer != null && AuthenticationRequestParameters?.Account?.HomeAccountId != null)
             {
-                if (!fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier, StringComparison.OrdinalIgnoreCase) ||
-                    !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier, StringComparison.OrdinalIgnoreCase))
+                if (!fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.ObjectId, StringComparison.OrdinalIgnoreCase) ||
+                    !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId, StringComparison.OrdinalIgnoreCase))
                 {
                     AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user identifier");
 
@@ -225,10 +225,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         string.Format(
                             CultureInfo.InvariantCulture,
                             "Returned user identifiers (uid:{0} utid:{1}) does not match the sent user identifier (uid:{2} utid:{3})",
-                            fromServer.UniqueObjectIdentifier, 
+                            fromServer.UniqueObjectIdentifier,
                             fromServer.UniqueTenantIdentifier,
-                            AuthenticationRequestParameters.ClientInfo.UniqueObjectIdentifier,
-                            AuthenticationRequestParameters.ClientInfo.UniqueTenantIdentifier),
+                            AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
+                            AuthenticationRequestParameters.Account.HomeAccountId.TenantId),
                         string.Empty);
 
                     throw new MsalClientException(MsalError.UserMismatch, MsalErrorMessage.UserMismatchSaveToken);
@@ -252,13 +252,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 return new AuthenticationResult(
                     new MsalAccessTokenCacheItem(
                         AuthenticationRequestParameters.Authority.Host,
-                        AuthenticationRequestParameters.ClientId, 
+                        AuthenticationRequestParameters.ClientId,
                         msalTokenResponse,
                         idToken?.TenantId),
                     new MsalIdTokenCacheItem(
                         AuthenticationRequestParameters.Authority.Host,
-                        AuthenticationRequestParameters.ClientId, 
-                        msalTokenResponse, 
+                        AuthenticationRequestParameters.ClientId,
+                        msalTokenResponse,
                         idToken?.TenantId));
             }
         }
@@ -281,7 +281,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         }
 
         protected async Task<MsalTokenResponse> SendTokenRequestAsync(
-            IDictionary<string, string> additionalBodyParameters, 
+            IDictionary<string, string> additionalBodyParameters,
             CancellationToken cancellationToken)
         {
             OAuth2Client client = new OAuth2Client(HttpManager);

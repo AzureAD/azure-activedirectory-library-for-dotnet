@@ -502,7 +502,7 @@ namespace Test.MSAL.NET.Unit
             // Every task should have one default event with these counts 
             foreach(Dictionary<string, string> telemetryEvent in myReceiver.EventsReceived)
             {
-                if(telemetryEvent[EventBase.EventNameKey] == MsalDefaultEvent)
+                if(telemetryEvent[EventBase.EventNameKey] == TelemetryEventProperties.MsalDefaultEvent)
                 {
                     Assert.AreEqual("2", telemetryEvent[TelemetryEventProperties.MsalHttpEventCount]);
                     Assert.AreEqual("2", telemetryEvent[TelemetryEventProperties.MsalCacheEventCount]);

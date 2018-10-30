@@ -92,7 +92,6 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             return crypto.CreateBase64UrlEncodedSha256Hash(valueToHash);
-           
         }
     }
 }

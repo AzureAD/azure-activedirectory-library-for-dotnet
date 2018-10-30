@@ -98,11 +98,7 @@ in ADAL and MSAL and to ease unit testing. No projects should take a dependency 
     <Reference Include="System.Runtime.Serialization" />
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Telemetry\XmsCliTelemInfoParser.cs" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />

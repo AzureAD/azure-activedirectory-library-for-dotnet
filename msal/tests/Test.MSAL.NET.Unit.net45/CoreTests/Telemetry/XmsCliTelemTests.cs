@@ -85,7 +85,6 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
             XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
      
             // Assert
-            Assert.IsNull(xmsCliTeleminfo);
             CoreLoggerBase.Default.Received().Warning(Arg.Is(
                             string.Format(CultureInfo.InvariantCulture,
                             TelemetryError.XmsCliTelemMalformed, responseHeaders["x-ms-clitelem"])));
@@ -107,7 +106,6 @@ namespace Test.MSAL.NET.Unit.net45.CoreTests.Telemetry
             XmsCliTelemInfo xmsCliTeleminfo = new XmsCliTelemInfoParser().ParseXMsTelemHeader(responseHeaders["x-ms-clitelem"], requestContext);
 
             // Assert
-            Assert.IsNull(xmsCliTeleminfo);
             CoreLoggerBase.Default.Received().Warning(Arg.Is(
                             string.Format(CultureInfo.InvariantCulture,
                             TelemetryError.XmsUnrecognizedHeaderVersion, "3")));

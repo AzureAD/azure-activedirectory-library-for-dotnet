@@ -89,25 +89,44 @@ namespace Microsoft.Identity.Core.Telemetry
             set { this[HttpMethodKey] = value;  }
         }
 
+        /// <summary>
+        /// GUID included in request header 
+        /// </summary>
         public string RequestIdHeader
         {
             set { this[RequestIdHeaderKey] = value; }
         }
+
+        /// <summary>
+        /// Floating-point value with a unit of milliseconds indicating the 
+        /// refresh token age
+        /// </summary>
         public string TokenAge
         {
             set { this[TokenAgeKey] = value; }
         }
 
+        /// <summary>
+        ///  Indicates whether the request was executed on a ring serving SPE traffic.
+        ///  An empty string indicates this occurred on an outer ring, and the string "I" 
+        ///  indicates the request occurred on the inner ring
+        /// </summary>
         public string SpeInfo
         {
             set { this[SpeInfoKey] = value; }
         }
 
+        /// <summary>
+        /// Error code sent by ESTS
+        /// </summary>
         public string ServerErrorCode
         {
             set { this[ServerErrorCodeKey] = value; }
         }
 
+        /// <summary>
+        /// Error code which gives more detailed information about server error code
+        /// </summary>
         public string ServerSubErrorCode
         {
             set { this[ServerSubErrorCodeKey] = value; }

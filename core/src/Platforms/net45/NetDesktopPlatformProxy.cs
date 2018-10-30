@@ -141,14 +141,7 @@ namespace Microsoft.Identity.Core
 
         public string GetProcessorArchitecture()
         {
-            if (IsWindows)
-            {
-                return WindowsNativeMethods.GetProcessorArchitecture();
-            }
-            else
-            {
-                return null;
-            }
+            return IsWindows ? WindowsNativeMethods.GetProcessorArchitecture() : null;
         }
 
         public string GetOperatingSystem()
@@ -221,7 +214,6 @@ namespace Microsoft.Identity.Core
         {
             return  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
                 .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault();
-            
         }
 
         /// <inheritdoc />
