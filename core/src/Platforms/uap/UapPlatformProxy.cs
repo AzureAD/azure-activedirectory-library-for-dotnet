@@ -30,7 +30,6 @@ using Microsoft.Identity.Core.Platforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
@@ -192,16 +191,28 @@ namespace Microsoft.Identity.Core
             return _isMsal ? "MSAL.UAP" : "PCL.UAP";
         }
 
+        /// <summary>
+        /// Considered PII, ensure that it is hashed. 
+        /// </summary>
+        /// <returns>Name of the calling application</returns>
         public string GetCallingApplicationName()
         {
             return Package.Current?.DisplayName?.ToString();
         }
 
+        /// <summary>
+        /// Considered PII, ensure that it is hashed. 
+        /// </summary>
+        /// <returns>Version of the calling application</returns>
         public string GetCallingApplicationVersion()
         {
             return Package.Current?.Id?.Version.ToString();
         }
 
+        /// <summary>
+        /// Considered PII. Please ensure that it is hashed. 
+        /// </summary>
+        /// <returns>Device identifier</returns>
         public string GetDeviceId()
         {
             return new EasClientDeviceInformation()?.Id.ToString();
