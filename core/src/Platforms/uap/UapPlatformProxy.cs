@@ -32,9 +32,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
 using Windows.Security.Authentication.Web;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.System;
 
