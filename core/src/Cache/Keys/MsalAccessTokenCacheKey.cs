@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Core.Cache
                 MsalCacheCommon.AccessToken,
                 _clientId,
                 _tenantId,
-                _normalizedScopes);          
+                _normalizedScopes);
         }
 
         #region UWP
@@ -97,13 +97,14 @@ namespace Microsoft.Identity.Core.Cache
         /// </remarks>
         public string GetUWPFixedSizeKey()
         {
+            var crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             return MsalCacheCommon.GetCredentialKey(
               _homeAccountId,
               _environment,
               MsalCacheCommon.AccessToken,
               _clientId,
               _tenantId,
-              CoreCryptographyHelpers.CreateSha256Hash(_normalizedScopes)); // can't use scopes and env because they are of variable length
+              crypto.CreateSha256Hash(_normalizedScopes)); // can't use scopes and env because they are of variable length
         }
         #endregion
 

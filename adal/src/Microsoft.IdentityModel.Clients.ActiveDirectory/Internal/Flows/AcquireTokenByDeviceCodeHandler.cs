@@ -41,11 +41,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             this.LoadFromCache = false; //no cache lookup for token
             this.StoreToCache = (requestData.TokenCache != null);
-            this.SupportADFS = false;
+            this.SupportADFS = true;
             this.deviceCodeResult = deviceCodeResult;
         }
 
-        protected override async Task<AdalResultWrapper> SendTokenRequestAsync()
+        protected internal /* internal for test only */ override async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
             TimeSpan timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
             AdalResultWrapper resultEx = null;
@@ -59,7 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
                 catch (AdalServiceException exc)
                 {
-                    if (!exc.ErrorCode.Equals(AdalErrorEx.DeviceCodeAuthorizationPendingError, StringComparison.OrdinalIgnoreCase))
+                    if (!exc.ErrorCode.Equals(AdalError.DeviceCodeAuthorizationPendingError, StringComparison.OrdinalIgnoreCase))
                     {
                         throw;
                     }
@@ -72,8 +72,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             if (resultEx == null)
             {
                 throw new AdalServiceException(
-                    AdalErrorEx.DeviceCodeAuthorizationCodeExpired, 
-                    AdalErrorMessageEx.DeviceCodeAuthorizationCodeExpired);
+                    AdalError.DeviceCodeAuthorizationCodeExpired, 
+                    AdalErrorMessage.DeviceCodeAuthorizationCodeExpired);
             }
            
             return resultEx;

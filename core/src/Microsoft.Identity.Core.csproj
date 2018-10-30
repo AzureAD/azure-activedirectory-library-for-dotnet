@@ -6,13 +6,18 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
-    <AssemblyOriginatorKeyFile>..\..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\build\MSAL.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
-    <CodeAnalysisRuleSet>../ConfigureAwait.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
 </PropertyGroup>
 
 <!-- Important note: this assembly should not be shipped to customers; it acts only as a placeholder for files that are included
 in ADAL and MSAL and to ease unit testing. No projects should take a dependency on Core.dll either -->
+
+  <!--but because our unit tests do, we need this to default to one or the other of adal/msal and we'll pick msal -->
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);IS_MSAL</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
     <DefineConstants>$(DefineConstants);FACADE</DefineConstants>
@@ -42,7 +47,6 @@ in ADAL and MSAL and to ease unit testing. No projects should take a dependency 
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <None Remove="ConfigureAwait.ruleset" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3' or '$(TargetFramework)' == 'uap10.0' or '$(TargetFramework)' == 'netcoreapp1.0'">
@@ -97,6 +101,7 @@ in ADAL and MSAL and to ease unit testing. No projects should take a dependency 
 
   <ItemGroup>
     <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">

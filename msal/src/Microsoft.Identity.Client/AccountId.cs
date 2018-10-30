@@ -80,6 +80,7 @@ namespace Microsoft.Identity.Client
             ValidateId();
         }
 
+
         /// <summary>
         /// Constructor of an AccountId meant for Adfs scenarios since Adfs instances lack tennt id's.
         /// </summary>
@@ -89,31 +90,23 @@ namespace Microsoft.Identity.Client
         { }
 
       
-
-        #region Adapter to / from ClientInfo
-        internal static AccountId FromClientInfo(ClientInfo clientInfo)
+        internal static AccountId ParseFromString(string str)
         {
-            if (clientInfo == null)
+            if (string.IsNullOrEmpty(str))
             {
-                throw new ArgumentNullException(nameof(clientInfo));
+                return null;
             }
+            string[] elements = str.Split('.');
 
-            return new AccountId(
-                clientInfo.ToAccountIdentifier(),
-                clientInfo.UniqueObjectIdentifier,
-                clientInfo.UniqueTenantIdentifier);
-        }
-
-        internal ClientInfo ToClientInfo()
-        {
-            return new ClientInfo()
+            if(elements.Length == 1)
             {
-                UniqueObjectIdentifier = this.ObjectId,
-                UniqueTenantIdentifier = this.TenantId
-            };
+                return new AccountId(str); //Account id is from Adfs; no . in the string
+            }
+            else
+            {
+                return new AccountId(str, elements[0], elements[1]);
+            }   
         }
-
-        #endregion
 
         /// <summary>
         /// Two accounts are equal when their <see cref="Identifier"/> properties match

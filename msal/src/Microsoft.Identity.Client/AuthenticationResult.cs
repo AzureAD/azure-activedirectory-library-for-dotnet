@@ -47,7 +47,6 @@ namespace Microsoft.Identity.Client
         private readonly MsalAccessTokenCacheItem _msalAccessTokenCacheItem;
         private readonly MsalIdTokenCacheItem _msalIdTokenCacheItem;
 
-
         internal AuthenticationResult()
         {
         }
@@ -60,13 +59,13 @@ namespace Microsoft.Identity.Client
             {
                 if (_msalAccessTokenCacheItem.TenantId == null)
                 {
-                    //Null tenant is indicates Adfs authority
-                    Account = new Account(new AccountId(_msalAccessTokenCacheItem.HomeAccountId), _msalIdTokenCacheItem?.IdToken.Upn, _msalAccessTokenCacheItem.Environment);
+                    //Null tenant indicates Adfs authority
+                    Account = new Account(_msalAccessTokenCacheItem.HomeAccountId, _msalIdTokenCacheItem?.IdToken.Upn, _msalAccessTokenCacheItem.Environment);
                 }
                 else
                 {
-                    Account = new Account(AccountId.FromClientInfo(_msalAccessTokenCacheItem.ClientInfo),
-                        _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
+                    Account = new Account(_msalAccessTokenCacheItem.HomeAccountId,
+                    _msalIdTokenCacheItem?.IdToken?.PreferredUsername, _msalAccessTokenCacheItem.Environment);
                 }
             }
         }
@@ -75,6 +74,18 @@ namespace Microsoft.Identity.Client
         /// Gets the Access Token to use as a bearer token to access the protected web API
         /// </summary>
         public virtual string AccessToken => _msalAccessTokenCacheItem.Secret;
+
+        /// <summary>
+        /// In case when Azure AD has an outage, to be more resilient, it can return tokens with
+        /// an expiration time, and also with an extended expiration time.
+        /// The tokens are then automatically refreshed by MSAL when the time is more than the
+        /// expiration time, except when ExtendedLifeTimeEnabled is true and the time is less
+        /// than the extended expiration time. This goes in pair with Web APIs middleware which,
+        /// when this extended life time is enabled, can accept slightly expired tokens.
+        /// Client applications accept extended life time tokens only if
+        /// the ExtendedLifeTimeEnabled Boolean is set to true on ClientApplicationBase.
+        /// </summary>
+        public bool IsExtendedLifeTimeToken { get; internal set; }
 
         /// <summary>
         /// Gets the Unique Id of the account. It can be null. When the <see cref="IdToken"/> is not <c>null</c>, this is its ID, that
@@ -88,6 +99,12 @@ namespace Microsoft.Identity.Client
         /// service.
         /// </summary>
         public virtual DateTimeOffset ExpiresOn => _msalAccessTokenCacheItem.ExpiresOn;
+
+        /// <summary>
+        /// Gets the point in time in which the Access Token returned in the AccessToken property ceases to be valid in MSAL's extended LifeTime.
+        /// This value is calculated based on current UTC time measured locally and the value ext_expiresIn received from the service.
+        /// </summary>
+        public virtual DateTimeOffset ExtendedExpiresOn => _msalAccessTokenCacheItem.ExtendedExpiresOn;
 
         /// <summary>
         /// Gets an identifier for the Azure AD tenant from which the token was acquired. This property will be null if tenant information is

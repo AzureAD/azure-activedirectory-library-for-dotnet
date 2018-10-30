@@ -55,13 +55,7 @@ namespace Microsoft.Identity.Core.Realm
         [DataMember(Name = "cloud_audience_urn")]
         public string CloudAudienceUrn { get; set; }
 
-        internal static async Task<UserRealmDiscoveryResponse> CreateByDiscoveryAsync(string userRealmUriPrefix, string userName, RequestContext requestContext)
-        {
-            requestContext.Logger.Info("Sending request to userrealm endpoint.");
-
-            var httpResponse = await HttpRequest.SendGetAsync(
-                new UriBuilder(userRealmUriPrefix + userName + "?api-version=1.0").Uri, null, requestContext).ConfigureAwait(false);
-            return httpResponse.StatusCode == System.Net.HttpStatusCode.OK ? JsonHelper.DeserializeFromJson<UserRealmDiscoveryResponse>(httpResponse.Body) : null;
-        }
+        public bool IsFederated => string.Equals(AccountType, "federated", StringComparison.OrdinalIgnoreCase);
+        public bool IsManaged => string.Equals(AccountType, "managed", StringComparison.OrdinalIgnoreCase);
     }
 }

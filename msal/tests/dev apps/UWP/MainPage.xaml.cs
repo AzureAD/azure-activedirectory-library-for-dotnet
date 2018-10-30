@@ -26,7 +26,7 @@ namespace UWP
     {
         private IPublicClientApplication _pca;
         private readonly static string ClientID = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        private readonly static string Authority = "https://login.microsoftonline.com/organizations"; // common will not work for WIA and U/P but it is a good test case
+        private readonly static string Authority = "https://login.microsoftonline.com/organizations/";
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" };
 
         public MainPage()
@@ -42,26 +42,26 @@ namespace UWP
             AuthenticationResult result = null;
             try
             {
-                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes);
+                result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes).ConfigureAwait(false);
                  // result = await _pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, "bogavril@microsoft.com"); // can also use this overload
             }
             catch (Exception ex)
             {
-                await DisplayError(ex);
+                await DisplayErrorAsync(ex).ConfigureAwait(false);
                 return;
             }
 
-            await DisplayResult(result);
+            await DisplayResultAsync(result).ConfigureAwait(false);
 
         }
 
         private async void ShowCacheCountAsync(object sender, RoutedEventArgs e)
         {
             var accounts = await _pca.GetAccountsAsync().ConfigureAwait(false);
-            await DisplayMessage(
+            await DisplayMessageAsync(
                 $"There are {accounts.Count()} in the token cache. " +
                 Environment.NewLine +
-                string.Join(", ", accounts.Select(a => a.Username)));
+                string.Join(", ", accounts.Select(a => a.Username))).ConfigureAwait(false);
         }
 
         private async void ClearCacheAsync(object sender, RoutedEventArgs e)
@@ -69,7 +69,7 @@ namespace UWP
             var accounts = await _pca.GetAccountsAsync().ConfigureAwait(false);
             foreach (var account in accounts)
             {
-                await _pca.RemoveAsync(account);
+                await _pca.RemoveAsync(account).ConfigureAwait(false);
             }
         }
 
@@ -80,33 +80,44 @@ namespace UWP
             AuthenticationResult result = null;
             try
             {
-                result = await _pca.AcquireTokenSilentAsync(Scopes, accounts.FirstOrDefault());
+                result = await _pca.AcquireTokenSilentAsync(Scopes, accounts.FirstOrDefault()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await DisplayError(ex);
+                await DisplayErrorAsync(ex).ConfigureAwait(false);
                 return;
             }
 
-            await DisplayResult(result);
+            await DisplayResultAsync(result).ConfigureAwait(false);
         }
 
-        private void AccessTokenButton_ClickAsync(object sender, RoutedEventArgs e)
+        private async void AccessTokenButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            AuthenticationResult result = null;
+            try
+            {
+                result = await _pca.AcquireTokenAsync(Scopes).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await DisplayErrorAsync(ex).ConfigureAwait(false);
+                return;
+            }
+
+            await DisplayResultAsync(result).ConfigureAwait(false);
         }
 
-        private async Task DisplayError(Exception ex)
+        private async Task DisplayErrorAsync(Exception ex)
         {
-            await DisplayMessage(ex.Message);
+            await DisplayMessageAsync(ex.Message).ConfigureAwait(false);
         }
 
-        private async Task DisplayResult(AuthenticationResult result)
+        private async Task DisplayResultAsync(AuthenticationResult result)
         {
-            await DisplayMessage("Signed in User - " + result.Account.Username + "\nAccessToken: \n" + result.AccessToken);
+            await DisplayMessageAsync("Signed in User - " + result.Account.Username + "\nAccessToken: \n" + result.AccessToken).ConfigureAwait(false);
         }
 
-        private async Task DisplayMessage(string message)
+        private async Task DisplayMessageAsync(string message)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
                    () =>
