@@ -92,10 +92,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             return MockHelpers.CreateSuccessResponseMessage(ExpectedResponseMessage);
         }
 
-
-        // TODO: remove when bug is fixed. The token cache is not cleared between tests because it is shared on netcore..        
-        // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/656
-#if !NET_CORE
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeAuthSuccess()
@@ -149,7 +145,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
             }
         }
-#endif
+
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void TestDeviceCodeCancel()
@@ -184,9 +180,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
         }
 
-        // Remove #if when bug is fixed 
-        // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/656
-#if !NET_CORE
+
         [TestMethod]
         [TestCategory("DeviceCodeRequestTests")]
         public void VerifyAuthorizationPendingErrorDoesNotLogError()
@@ -197,7 +191,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             // This test verifies that the error for authorization_pending is not logged as an error.
 
             var logCallbacks = new List<_LogData>();
-            
+
             Logger.LogCallback = (level, message, pii) =>
             {
                 logCallbacks.Add(
@@ -246,7 +240,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                     // Ensure we don't have Error level logs in this scenario.
                     string errorLogs = string.Join(
-                        "--", 
+                        "--",
                         logCallbacks
                             .Where(x => x.Level == LogLevel.Error)
                             .Select(x => x.Message)
@@ -262,7 +256,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 }
             }
         }
-#endif
+
         private AuthenticationRequestParameters CreateAuthenticationParametersAndSetupMocks(
             MockHttpManager httpManager,
             int numAuthorizationPendingResults,

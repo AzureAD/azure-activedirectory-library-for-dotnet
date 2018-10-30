@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 
-// Test should run on net core. Please re-enable once bug 
+// Test should run on net core. Please re-enable once bug
 // https://identitydivision.visualstudio.com/DevEx/_workitems/edit/574705 is fixed
 #if !ANDROID && !iOS && !WINDOWS_APP && !NET_CORE
 
@@ -36,6 +36,7 @@ using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +50,7 @@ namespace Test.MSAL.NET.Unit
     public class JsonWebTokenTests
     {
         private TokenCache _cache;
-        
+
         private readonly MockHttpMessageHandler X5CMockHandler = new MockHttpMessageHandler()
         {
             Method = HttpMethod.Post,
@@ -71,10 +72,11 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsTrue(jsonToken.Header.Any(header => header.Key == "x5c"), "x5c should be present");
             }
         };
-     
+
         [TestInitialize]
         public void TestInitialize()
         {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
             _cache = new TokenCache();
             Authority.ValidatedAuthorities.Clear();
             AadInstanceDiscovery.Instance.Cache.Clear();

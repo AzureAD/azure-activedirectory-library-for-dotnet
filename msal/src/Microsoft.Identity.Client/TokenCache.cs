@@ -88,8 +88,8 @@ namespace Microsoft.Identity.Client
         public TokenCache()
         {
             var proxy = PlatformProxyFactory.GetPlatformProxy();
-            TokenCacheAccessor = new TelemetryTokenCacheAccessor(proxy.TokenCacheAccessor);
-            LegacyCachePersistence = proxy.LegacyCachePersistence;
+            TokenCacheAccessor = new TelemetryTokenCacheAccessor(proxy.CreateTokenCacheAccessor());
+            LegacyCachePersistence = proxy.CreateLegacyCachePersistence();
         }
 
         /// <summary>
@@ -427,7 +427,7 @@ namespace Microsoft.Identity.Client
                         DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
                     {
                         requestParams.RequestContext.Logger.Info(
-                            "Access token is expired.  IsExtendedLifeTimeEnabled=TRUE and ExtendedExpiresOn is not exceeded.  Returning the found cache entry. " + 
+                            "Access token is expired.  IsExtendedLifeTimeEnabled=TRUE and ExtendedExpiresOn is not exceeded.  Returning the found cache entry. " +
                             GetAccessTokenExpireLogMessageContent(msalAccessTokenCacheItem));
 
                         msalAccessTokenCacheItem.IsExtendedLifeTimeToken = true;
@@ -446,7 +446,7 @@ namespace Microsoft.Identity.Client
         private string GetAccessTokenExpireLogMessageContent(MsalAccessTokenCacheItem msalAccessTokenCacheItem)
         {
             return string.Format(
-                CultureInfo.InvariantCulture, 
+                CultureInfo.InvariantCulture,
                 "[Current time ({0}) - Expiration Time ({1}) - Extended Expiration Time ({2})]",
                 DateTime.UtcNow,
                 msalAccessTokenCacheItem.ExpiresOn,
