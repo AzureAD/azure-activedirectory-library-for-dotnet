@@ -37,11 +37,41 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
     {
+        private static string passwordInputID = string.Empty;
+        private static string signInButtonID = string.Empty;
+
         public static void PerformSignInFlow(ITestController controller, IUser user)
         {
-            string passwordInputID = string.Empty;
-            string signInButtonID = string.Empty;
+            DetermineUser(user);
 
+            //Acquire token flow
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+            AcquireToken(controller, user, passwordInputID, signInButtonID);
+        }
+
+        public static void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
+        {
+            DetermineUser(user);
+
+            // Acquire token flow with prompt behavior always
+            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
+            AcquireToken(controller, user, passwordInputID, signInButtonID);
+
+            // Execute normal Acquire token flow
+            // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
+            // There should be a token in the cache from the previous call, so the UI will
+            // not be shown again.
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+
+            // Execute AT flow w/prompt behavior always
+            // The UI should be shown again.
+            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
+            AcquireToken(controller, user, passwordInputID, signInButtonID);
+            VerifyResult(controller);
+        }
+
+        private static void DetermineUser(IUser user)
+        {
             if (user.IsFederated)
             {
                 switch (user.FederationProvider)
@@ -62,13 +92,9 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 passwordInputID = CoreUiTestConstants.WebPasswordID;
                 signInButtonID = CoreUiTestConstants.WebSubmitID;
             }
-
-            //Acquire token flow
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            AcquireToken(controller, user, passwordInputID, signInButtonID);
         }
 
-        public static void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
+        private static void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
         {
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);

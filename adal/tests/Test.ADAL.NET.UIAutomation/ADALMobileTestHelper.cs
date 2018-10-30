@@ -81,32 +81,7 @@ namespace Test.ADAL.UIAutomation
         {
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
-            PerformSignInFlowWithPromptBehaviorAlways(controller, user);
-        }
-
-        private static void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
-        {
-            string passwordInputID = string.Empty;
-            string signInButtonID = string.Empty;
-
-            passwordInputID = CoreUiTestConstants.WebPasswordID;
-            signInButtonID = CoreUiTestConstants.WebSubmitID;
-
-            // Acquire token flow with prompt behavior always
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            CoreMobileTestHelper.AcquireToken(controller, user, passwordInputID, signInButtonID);
-
-            // Execute normal Acquire token flow
-            // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
-            // There should be a token in the cache from the previous call, so the UI will
-            // not be shown again.
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-
-            // Execute AT flow w/prompt behavior always
-            // The UI should be shown again.
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            CoreMobileTestHelper.AcquireToken(controller, user, passwordInputID, signInButtonID);
-            CoreMobileTestHelper.VerifyResult(controller);
+            CoreMobileTestHelper.PerformSignInFlowWithPromptBehaviorAlways(controller, user);
         }
 
         private static IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
