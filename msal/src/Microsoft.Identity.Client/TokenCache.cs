@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Client
 #endif
     /// <summary>
     /// Token cache storing access and refresh tokens for accounts
-    /// This class is used in the constuctors of <see cref="PublicClientApplication"/> and <see cref="ConfidentialClientApplication"/>.
+    /// This class is used in the constructors of <see cref="PublicClientApplication"/> and <see cref="ConfidentialClientApplication"/>.
     /// In the case of ConfidentialClientApplication, two instances are used, one for the user token cache, and one for the application
     /// token cache (in the case of applications using the client credential flows).
     /// See also <see cref="TokenCacheExtensions"/> which contains extension methods used to customize the cache serialization
@@ -56,7 +56,7 @@ namespace Microsoft.Identity.Client
     public sealed class TokenCache
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
-        internal const string NullPreferredUsernameDisplayLabel = "preferred_username not in id_token";
+        internal const string NullPreferredUsernameDisplayLabel = "Missing from the token response";
 
         // TODO: the TokenCache itself shouldn't be doing http access (SRP)
         internal IHttpManager HttpManager { get; set; }
@@ -182,7 +182,7 @@ namespace Microsoft.Identity.Client
                         TokenCache = this,
                         ClientId = ClientId,
                         Account = msalAccessTokenCacheItem.HomeAccountId != null ?
-                                    new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
+                                    new Account(msalAccessTokenCacheItem.HomeAccountId,
                                     preferredUsername, preferredEnvironmentHost) :
                                     null
                     };
@@ -402,21 +402,45 @@ namespace Microsoft.Identity.Client
                         MsalErrorMessage.MultipleTokensMatched);
                 }
 
-                if (msalAccessTokenCacheItem != null && msalAccessTokenCacheItem.ExpiresOn >
-                    DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
-                {
-                    requestParams.RequestContext.Logger.Info("Access token is not expired. Returning the found cache entry..");
-                    return msalAccessTokenCacheItem;
-                }
-
                 if (msalAccessTokenCacheItem != null)
                 {
-                    requestParams.RequestContext.Logger.Info("Access token has expired or about to expire. Current time (" + DateTime.UtcNow +
-                          ") - Expiration Time (" + msalAccessTokenCacheItem.ExpiresOn + ")");
+                    if (msalAccessTokenCacheItem.ExpiresOn >
+                        DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
+                    {
+                        requestParams.RequestContext.Logger.Info(
+                            "Access token is not expired. Returning the found cache entry. " +
+                            GetAccessTokenExpireLogMessageContent(msalAccessTokenCacheItem));
+                        return msalAccessTokenCacheItem;
+                    }
+
+                    if (requestParams.IsExtendedLifeTimeEnabled && msalAccessTokenCacheItem.ExtendedExpiresOn >
+                        DateTime.UtcNow + TimeSpan.FromMinutes(DefaultExpirationBufferInMinutes))
+                    {
+                        requestParams.RequestContext.Logger.Info(
+                            "Access token is expired.  IsExtendedLifeTimeEnabled=TRUE and ExtendedExpiresOn is not exceeded.  Returning the found cache entry. " + 
+                            GetAccessTokenExpireLogMessageContent(msalAccessTokenCacheItem));
+
+                        msalAccessTokenCacheItem.IsExtendedLifeTimeToken = true;
+                        return msalAccessTokenCacheItem;
+                    }
+
+                    requestParams.RequestContext.Logger.Info(
+                        "Access token has expired or about to expire. " +
+                        GetAccessTokenExpireLogMessageContent(msalAccessTokenCacheItem));
                 }
 
                 return null;
             }
+        }
+
+        private string GetAccessTokenExpireLogMessageContent(MsalAccessTokenCacheItem msalAccessTokenCacheItem)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture, 
+                "[Current time ({0}) - Expiration Time ({1}) - Extended Expiration Time ({2})]",
+                DateTime.UtcNow,
+                msalAccessTokenCacheItem.ExpiresOn,
+                msalAccessTokenCacheItem.ExtendedExpiresOn);
         }
 
         internal async Task<MsalRefreshTokenCacheItem> FindRefreshTokenAsync(AuthenticationRequestParameters requestParams)
@@ -527,7 +551,7 @@ namespace Microsoft.Identity.Client
                         TokenCache = this,
                         ClientId = ClientId,
                         Account = new Account(
-                            AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                            msalIdTokenCacheItem.HomeAccountId,
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalRefreshTokenCacheItem.Environment)
                     };
 
@@ -554,7 +578,7 @@ namespace Microsoft.Identity.Client
                     {
                         TokenCache = this,
                         ClientId = ClientId,
-                        Account = new Account(AccountId.FromClientInfo(msalAccessTokenCacheItem.ClientInfo),
+                        Account = new Account(msalAccessTokenCacheItem.HomeAccountId,
                             msalIdTokenCacheItem?.IdToken?.PreferredUsername, msalAccessTokenCacheItem.Environment)
                     };
 
@@ -737,7 +761,7 @@ namespace Microsoft.Identity.Client
                                 environmentAliases.Contains(account.Environment))
                             {
                                 clientInfoToAccountMap[rtItem.HomeAccountId] = new Account
-                                    (AccountId.FromClientInfo(account.ClientInfo), account.PreferredUsername, environment);
+                                    (account.HomeAccountId, account.PreferredUsername, environment);
                                 break;
                             }
                         }
@@ -755,7 +779,7 @@ namespace Microsoft.Identity.Client
                     if (!clientInfoToAccountMap.ContainsKey(accountIdentifier))
                     {
                         clientInfoToAccountMap[accountIdentifier] = new Account(
-                             AccountId.FromClientInfo(clientInfo), pair.Value.DisplayableId, environment);
+                             accountIdentifier, pair.Value.DisplayableId, environment);
                     }
                 }
 
@@ -1112,7 +1136,7 @@ namespace Microsoft.Identity.Client
                     TokenCache = this,
                     ClientId = ClientId,
                     Account = msalIdTokenCacheItem != null ? new Account(
-                        AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                        msalIdTokenCacheItem.HomeAccountId,
                         msalIdTokenCacheItem.IdToken?.PreferredUsername,
                         msalAccessTokenCacheItem.Environment) : null
                 };
@@ -1150,7 +1174,7 @@ namespace Microsoft.Identity.Client
                     ClientId = ClientId,
                     Account = msalIdTokenCacheItem != null ?
                            new Account(
-                               AccountId.FromClientInfo(msalIdTokenCacheItem.ClientInfo),
+                               msalIdTokenCacheItem.HomeAccountId,
                                msalIdTokenCacheItem.IdToken.PreferredUsername,
                                msalIdTokenCacheItem.IdToken.Name) : null
                 };
