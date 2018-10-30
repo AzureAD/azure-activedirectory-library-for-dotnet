@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 
+using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Platforms;
 using System;
 using System.Collections.Generic;
@@ -36,9 +37,6 @@ using Windows.Networking.Connectivity;
 using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.System;
-using Microsoft.Identity.Core.Cache;
-using Windows.ApplicationModel;
-using Windows.Security.ExchangeActiveSyncProvisioning;
 
 namespace Microsoft.Identity.Core
 {
@@ -218,11 +216,15 @@ namespace Microsoft.Identity.Core
             return new EasClientDeviceInformation()?.Id.ToString();
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new UapLegacyCachePersistence(new UapCryptographyManager());
+        public ILegacyCachePersistence CreateLegacyCachePersistence()
+        {
+            return new UapLegacyCachePersistence(CryptographyManager);
+        }
 
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new UapTokenCacheAccessor(new UapCryptographyManager());
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new UapTokenCacheAccessor(CryptographyManager);
+        }
 
         /// <inheritdoc />
         public ICryptographyManager CryptographyManager { get; } = new UapCryptographyManager();

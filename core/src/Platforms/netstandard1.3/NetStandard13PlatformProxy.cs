@@ -135,11 +135,15 @@ namespace Microsoft.Identity.Core
             return null;
         }
 
-        /// <inheritdoc />
-        public ILegacyCachePersistence LegacyCachePersistence { get; } = new NetStandard13LegacyCachePersistence();
+        public ILegacyCachePersistence CreateLegacyCachePersistence()
+        {
+            return new NetStandard13LegacyCachePersistence();
+        }
 
-        /// <inheritdoc />
-        public ITokenCacheAccessor TokenCacheAccessor { get; } = new TokenCacheAccessor();
+        public ITokenCacheAccessor CreateTokenCacheAccessor()
+        {
+            return new TokenCacheAccessor();
+        }
 
         /// <inheritdoc />
         public ICryptographyManager CryptographyManager { get; } = new NetStandard13CryptographyManager();
