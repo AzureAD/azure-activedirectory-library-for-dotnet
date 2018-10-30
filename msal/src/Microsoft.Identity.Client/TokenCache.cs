@@ -183,14 +183,8 @@ namespace Microsoft.Identity.Client
                     Account account = null;
                     if(msalAccessTokenCacheItem.HomeAccountId != null)
                     {
-                        if(requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
-                        {
-                            account = new Account(msalAccessTokenCacheItem.HomeAccountId, idToken.Upn, msalAccessTokenCacheItem.Environment);
-                        }
-                        else
-                        {
-                            account = new Account(msalAccessTokenCacheItem.HomeAccountId, preferredUsername, preferredEnvironmentHost);
-                        }
+                        account = msalAccessTokenCacheItem.IsAdfs ? new Account(msalAccessTokenCacheItem.HomeAccountId, idToken.Upn, msalAccessTokenCacheItem.Environment):
+                                                                    new Account(msalAccessTokenCacheItem.HomeAccountId, preferredUsername, preferredEnvironmentHost);
                     }
                     var args = new TokenCacheNotificationArgs
                     {
@@ -263,8 +257,7 @@ namespace Microsoft.Identity.Client
 
                 if (msalAccessTokenItem != null && msalAccessTokenItem.ClientId.Equals(ClientId, StringComparison.OrdinalIgnoreCase) &&
                     environmentAliases.Contains(msalAccessTokenItem.Environment) &&
-                    ((msalAccessTokenItem.TenantId == null && tenantId == null) ||
-                    msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase)) &&
+                    (msalAccessTokenItem.IsAdfs || msalAccessTokenItem.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase)) &&
                     msalAccessTokenItem.ScopeSet.Overlaps(scopeSet))
                 {
                     requestParams.RequestContext.Logger.Verbose("Intersecting scopes found - " + msalAccessTokenItem.NormalizedScopes);
@@ -388,7 +381,7 @@ namespace Microsoft.Identity.Client
                            item => ScopeHelper.ScopeContains(item.ScopeSet, requestParams.Scope));
 
                 //Adfs does not return scopes in resource/scope format
-                if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs && filteredItems.Count()==0)
+                if (requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs && !filteredItems.Any())
                 {
                     SortedSet<string> scopes = ParseScopesForAdfsToken(requestParams.Scope);
 
@@ -412,8 +405,7 @@ namespace Microsoft.Identity.Client
                 {
                     filteredItems = filteredItems.Where(
                         item => environmentAliases.Contains(item.Environment) &&
-                        ((item.TenantId==null && requestParams.Authority.GetTenantId()==null) ||
-                        item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase)));
+                        (item.IsAdfs || item.TenantId.Equals(requestParams.Authority.GetTenantId(), StringComparison.OrdinalIgnoreCase)));
                 }
 
                 //no match

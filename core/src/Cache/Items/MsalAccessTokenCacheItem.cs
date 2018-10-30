@@ -116,6 +116,9 @@ namespace Microsoft.Identity.Core.Cache
 
         public bool IsExtendedLifeTimeToken { get; set; }
 
+        //Concept of tenant id does not exist in Adfs; will always be null.
+        internal bool IsAdfs { get { return TenantId == null; } }
+
         internal MsalAccessTokenCacheKey GetKey()
         {
             return new MsalAccessTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId, NormalizedScopes);
