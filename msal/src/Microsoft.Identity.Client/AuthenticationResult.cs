@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Client
             _msalIdTokenCacheItem = msalIdTokenCacheItem;
             if (_msalAccessTokenCacheItem.HomeAccountId != null)
             {
-                if (_msalAccessTokenCacheItem.TenantId == null)
+                if (_msalAccessTokenCacheItem.IsAdfs)
                 {
                     //Null tenant indicates Adfs authority
                     Account = new Account(_msalAccessTokenCacheItem.HomeAccountId, _msalIdTokenCacheItem?.IdToken.Upn, _msalAccessTokenCacheItem.Environment);

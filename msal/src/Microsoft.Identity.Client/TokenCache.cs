@@ -164,7 +164,8 @@ namespace Microsoft.Identity.Client
             var msalAccessTokenCacheItem =
                 new MsalAccessTokenCacheItem(preferredEnvironmentHost, requestParams.ClientId, response, tenantId, subject)
                 {
-                    UserAssertionHash = requestParams.UserAssertion?.AssertionHash
+                    UserAssertionHash = requestParams.UserAssertion?.AssertionHash,
+                    IsAdfs = requestParams.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs
                 };
 
             MsalRefreshTokenCacheItem msalRefreshTokenCacheItem = null;

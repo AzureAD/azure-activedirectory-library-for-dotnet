@@ -64,9 +64,6 @@ namespace Microsoft.Identity.Core.Cache
 
         internal IdToken IdToken => IdToken.Parse(Secret);
 
-        //Concept of tenant id does not exist in Adfs; will always be null.
-        internal bool IsAdfs { get { return TenantId == null; } }
-
         internal MsalIdTokenCacheKey GetKey()
         {
             return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);

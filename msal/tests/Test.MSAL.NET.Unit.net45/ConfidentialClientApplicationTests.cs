@@ -306,7 +306,7 @@ namespace Test.MSAL.NET.Unit
                 task = app.AcquireTokenForClientAsync(MsalTestConstants.Scope.ToArray());
                 result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.IsNotNull("header.payload.signature", result.AccessToken);
+                Assert.AreEqual("header.payload.signature", result.AccessToken);
                 Assert.AreEqual(MsalTestConstants.Scope.AsSingleString(), result.Scopes.AsSingleString());
 
                 //make sure user token cache is empty

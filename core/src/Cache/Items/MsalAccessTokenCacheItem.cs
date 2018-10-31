@@ -93,6 +93,9 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "access_token_type")]
         internal string TokenType { get; set; }
 
+        [DataMember(Name = "is_adfs")]
+        internal bool IsAdfs { get; set; }
+
         internal string Authority => string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
         internal SortedSet<string> ScopeSet => ScopeHelper.ConvertStringToLowercaseSortedSet(NormalizedScopes);
 
@@ -115,9 +118,6 @@ namespace Microsoft.Identity.Core.Cache
         }
 
         public bool IsExtendedLifeTimeToken { get; set; }
-
-        //Concept of tenant id does not exist in Adfs; will always be null.
-        internal bool IsAdfs { get { return TenantId == null; } }
 
         internal MsalAccessTokenCacheKey GetKey()
         {
