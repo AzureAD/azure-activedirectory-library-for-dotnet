@@ -59,8 +59,6 @@ namespace Test.MSAL.NET.Unit.net45.Integration
 
             Assert.IsNull(appCache.legacyCachePersistence.LoadCache());
 
-            // make sure that cache AT is returned
-
             // passing empty password to make sure that AT returned from cache
             confidentialClient = new ConfidentialClientApplication(ClientId, Authority, RedirectUri,
                 new ClientCredential("wrong_password"), userCache, appCache);
