@@ -47,6 +47,7 @@ namespace Test.ADAL.UIAutomation
         IApp app;
         Platform platform;
         ITestController xamarinController = new XamarinUITestController();
+        ADALMobileTestHelper ADALMobileTestHelper = new ADALMobileTestHelper();
 
         public XamarinDroidADALTests(Platform platform)
         {

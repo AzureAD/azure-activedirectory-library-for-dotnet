@@ -46,6 +46,7 @@ namespace Test.MSAL.UIAutomation
         IApp app;
         Platform platform;
         ITestController xamarinController = new XamarinUITestController();
+        MSALMobileTestHelper MSALMobileTestHelper = new MSALMobileTestHelper();
 
         public XamarinMSALDroidTests(Platform platform)
         {

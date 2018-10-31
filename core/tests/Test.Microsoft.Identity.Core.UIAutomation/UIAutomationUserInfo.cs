@@ -25,27 +25,37 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
-    public class ResultVerificationFailureException : Exception
+    public class UIAutomationUserInfo
     {
-        public VerificationError Error { get; private set; }
+        public string PasswordInputId { get; set; }
+        public string SignInButtonId { get;  set; }
 
-        public ResultVerificationFailureException(VerificationError error)
+        public void DetermineUser(IUser user)
         {
-            Error = error;
+            if (user.IsFederated)
+            {
+                switch (user.FederationProvider)
+                {
+                    case FederationProvider.AdfsV3:
+                    case FederationProvider.AdfsV4:
+                        PasswordInputId = CoreUiTestConstants.AdfsV4WebPasswordID;
+                        SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
+                        break;
+                    default:
+                        PasswordInputId = CoreUiTestConstants.WebPasswordID;
+                        SignInButtonId = CoreUiTestConstants.WebSubmitID;
+                        break;
+                }
+            }
+            else
+            {
+                PasswordInputId = CoreUiTestConstants.WebPasswordID;
+                SignInButtonId = CoreUiTestConstants.WebSubmitID;
+            }
         }
-    }
-
-    public enum VerificationError
-    {
-        ResultNotFound,
-        ResultIndicatesFailure
     }
 }

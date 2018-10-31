@@ -27,9 +27,6 @@
 
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Test.Microsoft.Identity.LabInfrastructure;
 
@@ -37,25 +34,24 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
     {
-        private static string passwordInputID = string.Empty;
-        private static string signInButtonID = string.Empty;
-
-        public static void PerformSignInFlow(ITestController controller, IUser user)
+        UIAutomationUserInfo UIAutomationUserInfo = new UIAutomationUserInfo();
+            
+        public void PerformSignInFlow(ITestController controller, IUser user)
         {
-            DetermineUser(user);
+            UIAutomationUserInfo.DetermineUser(user);
 
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            AcquireToken(controller, user, passwordInputID, signInButtonID);
+            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
         }
 
-        public static void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
+        public void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
         {
-            DetermineUser(user);
+            UIAutomationUserInfo.DetermineUser(user);
 
             // Acquire token flow with prompt behavior always
             controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, passwordInputID, signInButtonID);
+            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
 
             // Execute normal Acquire token flow
             // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
@@ -66,35 +62,11 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             // Execute AT flow w/prompt behavior always
             // The UI should be shown again.
             controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, passwordInputID, signInButtonID);
+            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
             VerifyResult(controller);
         }
 
-        private static void DetermineUser(IUser user)
-        {
-            if (user.IsFederated)
-            {
-                switch (user.FederationProvider)
-                {
-                    case FederationProvider.AdfsV3:
-                    case FederationProvider.AdfsV4:
-                        passwordInputID = CoreUiTestConstants.AdfsV4WebPasswordID;
-                        signInButtonID = CoreUiTestConstants.AdfsV4WebSubmitID;
-                        break;
-                    default:
-                        passwordInputID = CoreUiTestConstants.WebPasswordID;
-                        signInButtonID = CoreUiTestConstants.WebSubmitID;
-                        break;
-                }
-            }
-            else
-            {
-                passwordInputID = CoreUiTestConstants.WebPasswordID;
-                signInButtonID = CoreUiTestConstants.WebSubmitID;
-            }
-        }
-
-        private static void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
+        private void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
         {
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
@@ -107,7 +79,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             controller.Tap(signInButtonID, true);
         }
 
-        public static void VerifyResult(ITestController controller)
+        public void VerifyResult(ITestController controller)
         {
             RetryVerificationHelper(() =>
             {
@@ -128,7 +100,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             });
         }
 
-        private static void RetryVerificationHelper(Action verification)
+        private void RetryVerificationHelper(Action verification)
         {
             //There may be a delay in the amount of time it takes for an authentication request to complete.
             //Thus this method will check the result once a second for 20 seconds.

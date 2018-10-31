@@ -37,13 +37,15 @@ namespace Test.MSAL.UIAutomation
     /// <summary>
     /// Contains the core test functionality that will be used by Android and iOS tests
     /// </summary>
-    public static class MSALMobileTestHelper
+    public class MSALMobileTestHelper
     {
+        CoreMobileTestHelper CoreMobileTestHelper = new CoreMobileTestHelper();
+
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
@@ -53,7 +55,7 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             //acquire token for 1st resource
             AcquireTokenInteractiveHelper(controller, userParams);
@@ -65,14 +67,14 @@ namespace Test.MSAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        private static void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        private void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
-        private static IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
             //Clear Cache
             controller.Tap(CoreUiTestConstants.CachePageID);
@@ -82,7 +84,7 @@ namespace Test.MSAL.UIAutomation
             return controller.GetUser(userParams);
         }
 
-        private static void SetInputData(ITestController controller, string ClientID, string scopes)
+        private void SetInputData(ITestController controller, string ClientID, string scopes)
         {
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 

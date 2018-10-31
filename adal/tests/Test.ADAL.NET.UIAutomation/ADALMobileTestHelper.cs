@@ -39,13 +39,15 @@ namespace Test.ADAL.UIAutomation
     /// <summary>
     /// Contains the core test functionality that will be used by Android and iOS tests
     /// </summary>
-	public static class ADALMobileTestHelper
+	public class ADALMobileTestHelper
     {
+        CoreMobileTestHelper CoreMobileTestHelper = new CoreMobileTestHelper();
+
         /// <summary>
         /// Runs through the standard acquire token interactive flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
 		{
             AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
@@ -55,7 +57,7 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public static void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             AcquireTokenInteractiveHelper(controller, userParams);
             CoreMobileTestHelper.VerifyResult(controller);
@@ -70,21 +72,21 @@ namespace Test.ADAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        public static void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
-        public static void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlowWithPromptBehaviorAlways(controller, user);
         }
 
-        private static IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
         {
             //Navigate to second page
             controller.Tap(CoreUiTestConstants.SecondPageID);
@@ -96,7 +98,7 @@ namespace Test.ADAL.UIAutomation
             return controller.GetUser(userParams);
         }
 
-        private static void SetInputData(ITestController controller, string ClientID, string Resource)
+        private void SetInputData(ITestController controller, string ClientID, string Resource)
         {
             //Enter ClientID
             controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);
