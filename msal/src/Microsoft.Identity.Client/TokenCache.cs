@@ -1137,26 +1137,7 @@ namespace Microsoft.Identity.Client
 
         internal void ClearMsalCache()
         {
-            try
-            {
-                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
-                {
-                    TokenCache = this,
-                    ClientId = ClientId,
-                    Account = null
-                };
-
-                OnBeforeAccess(args);
-                OnBeforeWrite(args);
-
-                tokenCacheAccessor.Clear();
-
-                OnAfterAccess(args);
-            }
-            finally
-            {
-                HasStateChanged = false;
-            }
+            tokenCacheAccessor.Clear();
         }
 
 
