@@ -424,7 +424,7 @@ namespace Test.MSAL.NET.Integration
             await msalPublicClient.RemoveAsync(account).ConfigureAwait(false);
 
             AssertAdalCacheIsEmpty();
-            AssertMsalCacheIsEmpty();
+            AssertNoCredentialsInMsalCache();
         }
 
         [TestMethod]
@@ -486,7 +486,7 @@ namespace Test.MSAL.NET.Integration
             await msalPublicClient.RemoveAsync(account).ConfigureAwait(false);
 
             AssertAdalCacheIsEmpty();
-            AssertMsalCacheIsEmpty();
+            AssertNoCredentialsInMsalCache();
         }
 
         [TestMethod]
@@ -531,6 +531,19 @@ namespace Test.MSAL.NET.Integration
         }
 
         private void AssertMsalCacheIsEmpty()
+        {
+            msalCache.BeforeAccess(new msal::Microsoft.Identity.Client.TokenCacheNotificationArgs
+            {
+                TokenCache = msalCache
+            });
+
+            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllAccessTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllRefreshTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllIdTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllAccountsAsString().Count == 0);
+        }
+
+        private void AssertNoCredentialsInMsalCache()
         {
             msalCache.BeforeAccess(new msal::Microsoft.Identity.Client.TokenCacheNotificationArgs
             {
