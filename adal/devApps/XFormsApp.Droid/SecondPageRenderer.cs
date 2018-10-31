@@ -40,6 +40,8 @@ namespace XFormsApp.Droid
     {
         public SecondPageRenderer(Context context) : base(context)
         {
+            DependencyService.Register<DroidPlatformParametersFactory>();
+            DroidPlatformParametersFactory.Activity = this.Context as Activity;
         }
 
         protected override void OnElementChanged(ElementChangedEventArgs<Page> e)

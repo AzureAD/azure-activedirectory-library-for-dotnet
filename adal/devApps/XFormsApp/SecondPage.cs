@@ -240,9 +240,13 @@ namespace XFormsApp
 
             try
             {
+                //   IPlatformParameters platformParameters = GetDeviceSpecificPlatformParams("always");
+                var factory = DependencyService.Get<IPlatformParametersFactory>();
+                IPlatformParameters platformParameters = factory.GetPlatformParameters("always");
+
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), SetPromptBehavior()).ConfigureAwait(false);
+                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), platformParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
                 User = result.UserInfo.DisplayableId;
