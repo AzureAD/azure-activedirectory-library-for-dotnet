@@ -124,6 +124,7 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
+        [Ignore("Failing due to security policies.")]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
             var user = LabUserHelper.DefaultUserQuery;
