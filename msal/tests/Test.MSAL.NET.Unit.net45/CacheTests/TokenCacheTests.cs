@@ -1059,7 +1059,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
                 string scopeInCache = MsalTestConstants.Scope.FirstOrDefault();
 
-                string upperCaseScope = scopeInCache.ToUpper();
+                string upperCaseScope = scopeInCache.ToUpperInvariant();
                 param.Scope.Add(upperCaseScope);
 
                 var item = tokenCache.FindAccessTokenAsync(param).Result;

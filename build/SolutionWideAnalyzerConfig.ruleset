@@ -22,7 +22,7 @@
     <Rule Id="CA5351" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
-    <Rule Id="CA1304" Action="None" />
+    <Rule Id="CA1304" Action="Error" />
     <Rule Id="CA1305" Action="Error" />
     <Rule Id="CA1307" Action="None" />
     <Rule Id="CA1308" Action="None" />
