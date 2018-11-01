@@ -59,7 +59,6 @@ namespace XFormsApp
         private Entry clientIdInput;
         private Entry resourceInput;
         private Entry promptBehaviorInput;
-        private Entry promptBehaviorAlwaysInput;
 
         private string ClientId { get; set; } = AppConstants.UiAutomationTestClientId;
         private string Resource { get; set; } = AppConstants.MSGraph;
@@ -164,12 +163,6 @@ namespace XFormsApp
             {
                 Text = "auto",
                 AutomationId = "promptBehaviorEntry"
-            };
-
-            promptBehaviorAlwaysInput = new Entry
-            {
-                Text = "always",
-                AutomationId = "promptBehaviorAlways"
             };
 
             var scrollView = new ScrollView()
