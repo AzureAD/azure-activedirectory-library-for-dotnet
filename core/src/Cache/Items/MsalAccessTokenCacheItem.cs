@@ -111,7 +111,7 @@ namespace Microsoft.Identity.Core.Cache
             get
             {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                var expiresLong = Convert.ToInt64(ExpiresOnUnixTimestamp, CultureInfo.InvariantCulture);
+                var expiresLong = Convert.ToInt64(ExtendedExpiresOnUnixTimestamp, CultureInfo.InvariantCulture);
 
                 return dtDateTime.AddSeconds(expiresLong).ToUniversalTime();
             }
