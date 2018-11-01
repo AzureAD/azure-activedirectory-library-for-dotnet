@@ -550,9 +550,9 @@ namespace Test.MSAL.NET.Integration
                 TokenCache = msalCache
             });
 
-            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllAccessTokensAsString().Count == 0);
-            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllRefreshTokensAsString().Count == 0);
-            Assert.IsTrue(msalCache.tokenCacheAccessor.GetAllIdTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllAccessTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllRefreshTokensAsString().Count == 0);
+            Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllIdTokensAsString().Count == 0);
         }
 
         private static Microsoft.Identity.LabInfrastructure.IUser GetUser(UserQueryParameters query)
