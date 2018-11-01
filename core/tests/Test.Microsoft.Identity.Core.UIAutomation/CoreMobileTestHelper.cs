@@ -33,25 +33,25 @@ using Test.Microsoft.Identity.LabInfrastructure;
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
-    {
-        UIAutomationUserInfo UIAutomationUserInfo = new UIAutomationUserInfo();
-            
+    {   
         public void PerformSignInFlow(ITestController controller, IUser user)
         {
-            UIAutomationUserInfo.DetermineUser(user);
+            UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
+            userInformationFieldIds.DetermineUser(user);
 
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
+            AcquireToken(controller, user, userInformationFieldIds);
         }
 
         public void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
         {
-            UIAutomationUserInfo.DetermineUser(user);
+            UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
+            userInformationFieldIds.DetermineUser(user);
 
             // Acquire token flow with prompt behavior always
             controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
+            AcquireToken(controller, user, userInformationFieldIds);
 
             // Execute normal Acquire token flow
             // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
@@ -62,11 +62,11 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             // Execute AT flow w/prompt behavior always
             // The UI should be shown again.
             controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, UIAutomationUserInfo.PasswordInputId, UIAutomationUserInfo.SignInButtonId);
+            AcquireToken(controller, user, userInformationFieldIds);
             VerifyResult(controller);
         }
 
-        private void AcquireToken(ITestController controller, IUser user, string passwordInputID, string signInButtonID)
+        private void AcquireToken(ITestController controller, IUser user, UserInformationFieldIds userInformationFieldIds)
         {
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
@@ -74,9 +74,9 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             //idSIButton9 = Sign in button
             controller.Tap(CoreUiTestConstants.WebSubmitID, true);
             //i0118 = password text field
-            controller.EnterText(passwordInputID, ((LabUser)user).GetPassword(), true);
+            controller.EnterText(userInformationFieldIds.PasswordInputId, ((LabUser)user).GetPassword(), true);
             controller.DismissKeyboard();
-            controller.Tap(signInButtonID, true);
+            controller.Tap(userInformationFieldIds.SignInButtonId, true);
         }
 
         public void VerifyResult(ITestController controller)

@@ -39,7 +39,7 @@ namespace Test.MSAL.UIAutomation
     /// </summary>
     public class MSALMobileTestHelper
     {
-        CoreMobileTestHelper CoreMobileTestHelper = new CoreMobileTestHelper();
+        CoreMobileTestHelper _coreMobileTestHelper = new CoreMobileTestHelper();
 
         /// <summary>
         /// Runs through the standard acquire token flow
@@ -48,7 +48,7 @@ namespace Test.MSAL.UIAutomation
         public void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             AcquireTokenInteractiveHelper(controller, userParams);
-            CoreMobileTestHelper.VerifyResult(controller);
+            _coreMobileTestHelper.VerifyResult(controller);
         }
 
         /// <summary>
@@ -59,19 +59,19 @@ namespace Test.MSAL.UIAutomation
         {
             //acquire token for 1st resource
             AcquireTokenInteractiveHelper(controller, userParams);
-            CoreMobileTestHelper.VerifyResult(controller);
+            _coreMobileTestHelper.VerifyResult(controller);
 
             //acquire token for 2nd resource with refresh token
             SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
             controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
-            CoreMobileTestHelper.VerifyResult(controller);
+            _coreMobileTestHelper.VerifyResult(controller);
         }
 
         private void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            _coreMobileTestHelper.PerformSignInFlow(controller, user);
         }
 
         private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)

@@ -51,8 +51,6 @@ namespace XFormsApp.Droid
             SecondPage page = e.NewElement as SecondPage;
 
             var activity = this.Context as Activity;
-            page.Parameters = new PlatformParameters(activity, false, PromptBehavior.Auto);
-            page.PromptParameters = new PlatformParameters(activity, false, PromptBehavior.Always);
             page.BrokerParameters = new PlatformParameters(activity, true);
         }
     }

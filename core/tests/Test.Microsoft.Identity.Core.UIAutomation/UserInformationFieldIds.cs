@@ -29,7 +29,7 @@ using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
-    public class UIAutomationUserInfo
+    public class UserInformationFieldIds
     {
         public string PasswordInputId { get; set; }
         public string SignInButtonId { get;  set; }

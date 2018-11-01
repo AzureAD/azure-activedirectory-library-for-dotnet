@@ -55,19 +55,17 @@ namespace XFormsApp
         private readonly Label testResult;
         private Picker clientIdPicker;
         private Picker resourcePicker;
+        private Picker promptBehaviorPicker;
         private Entry clientIdInput;
         private Entry resourceInput;
+        private Entry promptBehaviorInput;
 
         private string ClientId { get; set; } = AppConstants.UiAutomationTestClientId;
         private string Resource { get; set; } = AppConstants.MSGraph;
-
-        public IPlatformParameters Parameters { get; set; }
-
+        
         public IPlatformParameters BrokerParameters { get; set; }
 
-        public IPlatformParameters PromptParameters { get; set; }
-
-        private bool IsPromptBehaviorAlways;
+        public string PlatformParameters { get; set; }
 
         public SecondPage()
         {
@@ -81,12 +79,6 @@ namespace XFormsApp
             {
                 Text = "Acquire Token Silent",
                 AutomationId = "acquireTokenSilent"
-            };
-
-            var acquireTokenWithPromptBehaviorAlways = new Button
-            {
-                Text = "Acquire Token with PromptBehavior.Always",
-                AutomationId = "acquireTokenPromptBehaviorAlways"
             };
 
             var clearAllCacheButton = new Button
@@ -129,6 +121,11 @@ namespace XFormsApp
                 Text = "Resource:"
             };
 
+            var promptBehaviorLabel = new Label
+            {
+                Text = "Prompt Behavior:"
+            };
+
             clientIdPicker = new Picker
             {
                 Title = "Pick an application",
@@ -143,6 +140,13 @@ namespace XFormsApp
                 AutomationId = "resourcePicker"
             };
 
+            promptBehaviorPicker = new Picker
+            {
+                Title = "Select a prompt behavior",
+                ItemsSource = new List<string>(AppConstants.PromptBehaviorList),
+                AutomationId = "promptBehavior"
+            };
+
             clientIdInput = new Entry
             {
                 Text = AppConstants.UiAutomationTestClientId,
@@ -153,6 +157,12 @@ namespace XFormsApp
             {
                 Text = AppConstants.MSGraph,
                 AutomationId = "resourceEntry"
+            };
+
+            promptBehaviorInput = new Entry
+            {
+                Text = "auto",
+                AutomationId = "promptBehaviorEntry"
             };
 
             var scrollView = new ScrollView()
@@ -172,13 +182,14 @@ namespace XFormsApp
             acquireTokenButton.Clicked += AcquireTokenButton_Clicked;
             acquireTokenSilentButton.Clicked += AcquireTokenSilentButton_Clicked;
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
-            acquireTokenWithPromptBehaviorAlways.Clicked += AcquireTokenWithPromptBehaviorAlwaysButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
             acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
             clientIdPicker.SelectedIndexChanged += UpdateClientId;
             resourcePicker.SelectedIndexChanged += UpdateResourceId;
             clientIdInput.TextChanged += UpdateClientIdFromInput;
             resourceInput.TextChanged += UpdateResourceFromInput;
+            promptBehaviorPicker.SelectedIndexChanged += UpdatePromptBehavior;
+            promptBehaviorInput.TextChanged += UpdatePromptBehaviorFromInput;
 
             Thickness padding;
 
@@ -202,7 +213,6 @@ namespace XFormsApp
                 Children = {
                     acquireTokenButton,
                     acquireTokenSilentButton,
-                    acquireTokenWithPromptBehaviorAlways,
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
@@ -212,6 +222,9 @@ namespace XFormsApp
                     resourceInputLabel,
                     resourcePicker,
                     resourceInput,
+                    promptBehaviorLabel,
+                    promptBehaviorPicker,
+                    promptBehaviorInput,
                     scrollView
                 }
             };
@@ -224,13 +237,7 @@ namespace XFormsApp
             LoggerCallbackHandler.LogCallback = LogCallback;
         }
 
-        private void AcquireTokenButton_Clicked(object sender, EventArgs e)
-        {
-            IsPromptBehaviorAlways = false;
-            AcquireTokenAsync();
-        }
-
-        private async void AcquireTokenAsync()
+        private async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
             this.result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
@@ -240,9 +247,8 @@ namespace XFormsApp
 
             try
             {
-                //   IPlatformParameters platformParameters = GetDeviceSpecificPlatformParams("always");
                 var factory = DependencyService.Get<IPlatformParametersFactory>();
-                IPlatformParameters platformParameters = factory.GetPlatformParameters("always");
+                IPlatformParameters platformParameters = factory.GetPlatformParameters(PlatformParameters);
 
                 AuthenticationResult result =
                     await
@@ -294,12 +300,6 @@ namespace XFormsApp
                     this.result.Text += "Logs : " + DrainLogs();
                 });
             }
-        }
-
-        private void AcquireTokenWithPromptBehaviorAlwaysButton_Clicked(object sender, EventArgs e)
-        {
-            IsPromptBehaviorAlways = true;
-            AcquireTokenAsync();
         }
 
         private async void AcquireTokenWithBroker()
@@ -417,20 +417,6 @@ namespace XFormsApp
             return RedirectURI;
         }
 
-        private IPlatformParameters SetPromptBehavior()
-        {
-            IPlatformParameters parameters = null;
-            if (IsPromptBehaviorAlways)
-            {
-                parameters = PromptParameters;
-            }
-            else
-            {
-                parameters = Parameters;
-            }
-            return parameters;
-        }
-
         void ClearAllCacheButton_Clicked(object sender, EventArgs e)
         {
             Device.BeginInvokeOnMainThread(() =>
@@ -451,6 +437,11 @@ namespace XFormsApp
             Resource = resourceInput.Text = AppConstants.LabelToResourceUriMap.Where(x => x.Key == (string)resourcePicker.SelectedItem).FirstOrDefault().Value;
         }
 
+        void UpdatePromptBehavior(object sender, EventArgs e)
+        {
+            PlatformParameters = promptBehaviorInput.Text = AppConstants.PromptBehaviorList.Where(x => x == (string)promptBehaviorPicker.SelectedItem).FirstOrDefault();
+        }
+
         void UpdateClientIdFromInput(object sender, EventArgs e)
         {
             ClientId = clientIdInput.Text;
@@ -459,6 +450,11 @@ namespace XFormsApp
         private void UpdateResourceFromInput(object sender, TextChangedEventArgs e)
         {
             Resource = resourceInput.Text;
+        }
+
+        private void UpdatePromptBehaviorFromInput(object sender, TextChangedEventArgs e)
+        {
+            PlatformParameters = promptBehaviorInput.Text;
         }
     }
 }

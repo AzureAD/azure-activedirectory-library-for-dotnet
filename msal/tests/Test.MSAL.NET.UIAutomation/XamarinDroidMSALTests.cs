@@ -46,7 +46,7 @@ namespace Test.MSAL.UIAutomation
         IApp app;
         Platform platform;
         ITestController xamarinController = new XamarinUITestController();
-        MSALMobileTestHelper MSALMobileTestHelper = new MSALMobileTestHelper();
+        MSALMobileTestHelper _msalMobileTestHelper = new MSALMobileTestHelper();
 
         public XamarinMSALDroidTests(Platform platform)
         {
@@ -69,7 +69,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenTest()
         {
-            MSALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenSilentTest()
         {
-            MSALMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _msalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = true;
 
-            MSALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = true;
 
-            MSALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = false;
 
-            MSALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = false;
 
-            MSALMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
         }
     }
 }
