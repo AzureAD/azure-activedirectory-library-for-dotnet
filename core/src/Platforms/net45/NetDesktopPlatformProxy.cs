@@ -206,7 +206,7 @@ namespace Microsoft.Identity.Core
         /// <returns>Name of the calling application</returns>
         public string GetCallingApplicationName()
         {
-            return Assembly.GetEntryAssembly()?.GetName()?.Name?.ToString();
+            return Assembly.GetEntryAssembly()?.GetName()?.Name;
         }
 
         /// <summary>

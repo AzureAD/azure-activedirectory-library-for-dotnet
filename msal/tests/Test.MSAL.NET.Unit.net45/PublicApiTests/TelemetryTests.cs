@@ -422,48 +422,43 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("TelemetryInternalAPI")]
         public void TelemetryEventCountsAreCorrectTest()
         {
-            Telemetry telemetry = new Telemetry();  // To isolate the test environment, we do not use a singleton here
-            var myReceiver = new MyReceiver();
-            telemetry.RegisterReceiver(myReceiver.OnEvents);
-
-            telemetry.ClientId = "a1b3c3d4";
             string[] reqIdArray = new string[5];
             Task[] taskArray = new Task[5];
             try
             {
                 for(int i=0; i < 5; i++)
                 {
-                    string reqId = telemetry.GenerateNewRequestId();
+                    string reqId = _telemetryManager.GenerateNewRequestId();
                     reqIdArray[i] = reqId;
                     Task task= (new Task(() =>
                     {
                         var e1 = new ApiEvent(new TestLogger()) { Authority = new Uri("https://login.microsoftonline.com"), AuthorityType = "Aad" };
-                        telemetry.StartEvent(reqId, e1);
+                        _telemetryManager.StartEvent(reqId, e1);
                         // do some stuff...
                         e1.WasSuccessful = true;
-                        telemetry.StopEvent(reqId, e1);
+                        _telemetryManager.StopEvent(reqId, e1);
 
                         var e2 = new HttpEvent() { HttpPath = new Uri("https://contoso.com"), UserAgent = "SomeUserAgent", QueryParams = "?a=1&b=2" };
-                        telemetry.StartEvent(reqId, e2);
+                        _telemetryManager.StartEvent(reqId, e2);
                         // do some stuff...
                         e2.HttpResponseStatus = 200;
-                        telemetry.StopEvent(reqId, e2);
+                        _telemetryManager.StopEvent(reqId, e2);
 
                         var e3 = new HttpEvent() { HttpPath = new Uri("https://contoso.com"), UserAgent = "SomeOtherUserAgent", QueryParams = "?a=3&b=4" };
-                        telemetry.StartEvent(reqId, e3);
+                        _telemetryManager.StartEvent(reqId, e3);
                         // do some stuff...
                         e2.HttpResponseStatus = 200;
-                        telemetry.StopEvent(reqId, e3);
+                        _telemetryManager.StopEvent(reqId, e3);
 
                         var e4 = new CacheEvent(CacheEvent.TokenCacheWrite) { TokenType = CacheEvent.TokenTypes.AT };
-                        telemetry.StartEvent(reqId, e4);
+                        _telemetryManager.StartEvent(reqId, e4);
                         // do some stuff...
-                        telemetry.StopEvent(reqId, e4);
+                        _telemetryManager.StopEvent(reqId, e4);
 
                         var e5 = new CacheEvent(CacheEvent.TokenCacheDelete) { TokenType = CacheEvent.TokenTypes.RT };
-                        telemetry.StartEvent(reqId, e5);
+                        _telemetryManager.StartEvent(reqId, e5);
                         // do some stuff...
-                        telemetry.StopEvent(reqId, e5);
+                        _telemetryManager.StopEvent(reqId, e5);
                     }));
                     taskArray[i] = task;
                     task.Start();
@@ -474,11 +469,11 @@ namespace Test.MSAL.NET.Unit
             {
                 foreach (string reqId in reqIdArray)
                 {
-                    telemetry.Flush(reqId);
+                    _telemetryManager.Flush(reqId, ClientId);
                 }
             }
             // Every task should have one default event with these counts
-            foreach(Dictionary<string, string> telemetryEvent in myReceiver.EventsReceived)
+            foreach(Dictionary<string, string> telemetryEvent in _myReceiver.EventsReceived)
             {
                 if(telemetryEvent[EventBase.EventNameKey] == TelemetryEventProperties.MsalDefaultEvent)
                 {

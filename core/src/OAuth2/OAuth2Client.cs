@@ -106,8 +106,7 @@ namespace Microsoft.Identity.Core.OAuth2
 
                 httpEvent.HttpResponseStatus = (int)response.StatusCode;
                 httpEvent.UserAgent = response.UserAgent;
-                
-                httpEvent.HttpMethod = method.Method.ToString();
+                httpEvent.HttpMethod = method.Method;
 
                 IDictionary<string, string> headersAsDictionary = response.HeadersAsDictionary;
                 if(headersAsDictionary.ContainsKey("x-ms-request-id") &&
