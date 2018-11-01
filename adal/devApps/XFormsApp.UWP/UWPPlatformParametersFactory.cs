@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,25 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-using Xamarin.Forms;
-using XFormsApp;
-using Xamarin.Forms.Platform.UWP;
-using XFormsApp.UWP;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
-[assembly: ExportRenderer(typeof(SecondPage), typeof(SecondPageRenderer))]
 namespace XFormsApp.UWP
 {
-    class SecondPageRenderer : PageRenderer
+    public class UWPPlatformParametersFactory : IPlatformParametersFactory
     {
-        SecondPage page;
-
-        protected override void OnElementChanged(ElementChangedEventArgs<Page> e)
+        public IPlatformParameters GetPlatformParameters(string promptBehavior)
         {
-            base.OnElementChanged(e);
-
-            DependencyService.Register<UWPPlatformParametersFactory>();
-
-            page = e.NewElement as SecondPage;
+            switch(promptBehavior)
+            {
+                case "always":
+                    return new PlatformParameters(PromptBehavior.Always, true);
+                default:
+                    return new PlatformParameters(PromptBehavior.Auto, true);
+            }
         }
     }
 }
