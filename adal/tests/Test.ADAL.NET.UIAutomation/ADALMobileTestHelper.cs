@@ -90,7 +90,7 @@ namespace Test.ADAL.UIAutomation
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAlways);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            CoreMobileTestHelper.PerformSignInFlowWithUsernameOnly(controller, user);
 
             // AcquireToken promptBehavior.Auto. No UI should be shown. 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
