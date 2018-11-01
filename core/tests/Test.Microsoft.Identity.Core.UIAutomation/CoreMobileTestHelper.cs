@@ -41,33 +41,6 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            AcquireToken(controller, user, userInformationFieldIds);
-        }
-
-        public void PerformSignInFlowWithPromptBehaviorAlways(ITestController controller, IUser user)
-        {
-            UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
-            userInformationFieldIds.DetermineUser(user);
-
-            // Acquire token flow with prompt behavior always
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, userInformationFieldIds);
-
-            // Execute normal Acquire token flow
-            // The AT flow has promptBehavior.Auto, so the user is only prompted when needed
-            // There should be a token in the cache from the previous call, so the UI will
-            // not be shown again.
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-
-            // Execute AT flow w/prompt behavior always
-            // The UI should be shown again.
-            controller.Tap(CoreUiTestConstants.AcquireTokenWithPromptBehaviorAlwaysID);
-            AcquireToken(controller, user, userInformationFieldIds);
-            VerifyResult(controller);
-        }
-
-        private void AcquireToken(ITestController controller, IUser user, UserInformationFieldIds userInformationFieldIds)
-        {
             //i0116 = UPN text field on AAD sign in endpoint
             controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
             controller.DismissKeyboard();
