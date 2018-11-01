@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Core.Cache
         [DataMember(Name = "expires_on", IsRequired = true)]
         internal string ExpiresOnUnixTimestamp { get; set; }
 
-        [DataMember(Name = "ext_expires_on", IsRequired = true)]
+        [DataMember(Name = "ext_expires_on")]
         internal string ExtendedExpiresOnUnixTimestamp { get; set; }
 
         [DataMember(Name = "user_assertion_hash", EmitDefaultValue = false)]
@@ -101,7 +101,8 @@ namespace Microsoft.Identity.Core.Cache
             get
             {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                return dtDateTime.AddSeconds(Convert.ToInt64(ExpiresOnUnixTimestamp)).ToUniversalTime();
+                var expiresLong = Convert.ToInt64(ExpiresOnUnixTimestamp, CultureInfo.InvariantCulture);
+                return dtDateTime.AddSeconds(expiresLong).ToUniversalTime();
             }
         }
 
@@ -110,7 +111,9 @@ namespace Microsoft.Identity.Core.Cache
             get
             {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                return dtDateTime.AddSeconds(Convert.ToInt64(ExtendedExpiresOnUnixTimestamp)).ToUniversalTime();
+                var expiresLong = Convert.ToInt64(ExtendedExpiresOnUnixTimestamp, CultureInfo.InvariantCulture);
+
+                return dtDateTime.AddSeconds(expiresLong).ToUniversalTime();
             }
         }
 

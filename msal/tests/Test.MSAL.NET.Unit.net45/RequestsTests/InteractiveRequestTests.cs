@@ -42,7 +42,6 @@ using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.Microsoft.Identity.Core.Unit;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 using Test.MSAL.NET.Unit.Mocks;
 
@@ -53,21 +52,25 @@ namespace Test.MSAL.NET.Unit.RequestsTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
         private TokenCache _cache;
+        private ITelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            RequestTestsCommon.InitializeRequestTests();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
+            TestCommon.ResetStateAndInitMsal();
+            _telemetryManager = new TelemetryManager(_myReceiver);
 
-            _cache = new TokenCache();
+            _cache = new TokenCache
+            {
+                TelemetryManager = _telemetryManager
+            };
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.ClearAccessTokens();
-            _cache.tokenCacheAccessor.ClearRefreshTokens();
+            _cache.TokenCacheAccessor.ClearAccessTokens();
+            _cache.TokenCacheAccessor.ClearRefreshTokens();
         }
 
         [TestMethod]
@@ -77,7 +80,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
-                ClientId = MsalTestConstants.ClientId
+                ClientId = MsalTestConstants.ClientId,
+                TelemetryManager = _telemetryManager
             };
 
             var ui = new MockWebUI()
@@ -94,7 +98,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -115,7 +119,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -123,6 +127,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -133,8 +138,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
             }
         }
@@ -146,7 +151,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
-                ClientId = MsalTestConstants.ClientId
+                ClientId = MsalTestConstants.ClientId,
+                TelemetryManager = _telemetryManager
             };
 
             var atItem = new MsalAccessTokenCacheItem(
@@ -162,7 +168,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             string atKey = atItem.GetKey().ToString();
             atItem.Secret = atKey;
-            _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+            _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
             var ui = new MockWebUI()
             {
@@ -173,7 +179,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
@@ -183,7 +189,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = _cache,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -191,6 +197,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -201,8 +208,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
 
                 Assert.IsNotNull(
@@ -238,7 +245,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         ClientId = MsalTestConstants.ClientId,
                         Scope = MsalTestConstants.Scope,
                         TokenCache = null,
-                        RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                        RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                         RedirectUri = new Uri("some://uri#fragment=not-so-good"),
                         ExtraQueryParameters = "extra=qp"
                     };
@@ -246,6 +253,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     new InteractiveRequest(
                         httpManager,
                         PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                        _telemetryManager,
                         parameters,
                         ApiEvent.ApiIds.None,
                         MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -282,7 +290,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                 };
 
@@ -291,6 +299,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -337,7 +346,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                 };
 
@@ -346,6 +355,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -378,7 +388,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var webUi = new MockWebUI()
                 {
@@ -393,7 +403,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
                     TokenCache = null,
-                    RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                    RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
@@ -401,6 +411,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -430,6 +441,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -463,18 +475,19 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = MsalTestConstants.ClientId,
                 Scope = MsalTestConstants.Scope,
                 TokenCache = null,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null)),
+                RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                 RedirectUri = new Uri("some://uri"),
                 ExtraQueryParameters = "extra=qp&prompt=login"
             };
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var request = new InteractiveRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    _telemetryManager,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
