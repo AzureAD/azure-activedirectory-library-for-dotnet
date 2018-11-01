@@ -73,7 +73,7 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void Initialize()
         {
-            Authority.ValidatedAuthorities.Clear();
+            TestCommon.ResetStateAndInitMsal();
             _myReceiver = new MyReceiver();
             _telemetryManager = new TelemetryManager(_myReceiver);
         }

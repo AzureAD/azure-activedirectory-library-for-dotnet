@@ -57,8 +57,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestInitialize]
         public void TestInitialize()
         {
-            RequestTestsCommon.InitializeRequestTests();
-
+            TestCommon.ResetStateAndInitMsal();
             _telemetryManager = new TelemetryManager(_myReceiver);
 
             _cache = new TokenCache
@@ -99,7 +98,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -180,7 +179,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
@@ -389,7 +388,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var webUi = new MockWebUI()
                 {
@@ -483,7 +482,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                RequestTestsCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
+                TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var request = new InteractiveRequest(
                     httpManager,

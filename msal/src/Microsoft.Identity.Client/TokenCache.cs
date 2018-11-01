@@ -987,17 +987,6 @@ namespace Microsoft.Identity.Client
             }
 
             requestContext.Logger.Info("Deleted Id token count - " + allIdTokens.Count);
-
-            IList<MsalAccountCacheItem> allAccounts = GetAllAccounts(requestContext)
-                .Where(item => item.HomeAccountId.Equals(account.HomeAccountId.Identifier, StringComparison.OrdinalIgnoreCase) &&
-                               environmentAliases.Contains(item.Environment))
-                .ToList();
-            foreach (MsalAccountCacheItem accountCacheItem in allAccounts)
-            {
-                TokenCacheAccessor.DeleteAccount(accountCacheItem.GetKey(), requestContext);
-            }
-
-            requestContext.Logger.Info("Deleted Account count - " + allIdTokens.Count);
         }
 
         internal void RemoveAdalUser(IAccount account, ISet<string> environmentAliases)

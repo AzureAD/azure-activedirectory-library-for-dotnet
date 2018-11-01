@@ -76,10 +76,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
-            ModuleInitializer.ForceModuleInitializationTestOnly();
+            TestCommon.ResetStateAndInitMsal();
             _cache = new TokenCache();
-            Authority.ValidatedAuthorities.Clear();
-            AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
         internal void SetupMocks(MockHttpManager httpManager)

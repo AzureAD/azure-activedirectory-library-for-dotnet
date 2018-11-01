@@ -60,10 +60,8 @@ namespace Test.MSAL.NET.Unit
         [TestInitialize]
         public void TestInitialize()
         {
-            Authority.ValidatedAuthorities.Clear();
-            ModuleInitializer.ForceModuleInitializationTestOnly();
+            TestCommon.ResetStateAndInitMsal();
             _telemetryManager = new TelemetryManager(_myReceiver);
-            AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
         [TestMethod]

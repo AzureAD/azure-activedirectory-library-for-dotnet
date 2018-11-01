@@ -1,20 +1,20 @@
 // ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -54,9 +54,10 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestInitialize]
         public void TestInitialize()
         {
+            TestCommon.ResetStateAndInitMsal();
+
             _cache = new TokenCache();
             new TestLogger(Guid.Empty);
-            AadInstanceDiscovery.Instance.Cache.Clear();
         }
 
         private void AddHostToInstanceCache(string host)
@@ -80,7 +81,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             _cache.Clear();
         }
 
-      
+
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void GetExactScopesMatchedAccessTokenTest()
@@ -379,7 +380,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.IsNotNull(cache.FindRefreshTokenAsync(authParams));
 
             // RT is stored by environment, client id and userIdentifier as index.
-            // any change to authority (within same environment), uniqueid and displyableid will not 
+            // any change to authority (within same environment), uniqueid and displyableid will not
             // change the outcome of cache look up.
             Assert.IsNotNull(
                 cache.FindRefreshTokenAsync(
@@ -945,7 +946,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             Assert.AreEqual("refresh-token-2", cache.GetAllRefreshTokensForClient(requestContext).First().Secret);
         }
 
-      
+
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void CanDeserializeTokenCacheInNet462()
@@ -1121,13 +1122,13 @@ namespace Test.MSAL.NET.Unit.CacheTests
             MsalAccessTokenCacheItem item = items.First();
             Assert.AreEqual(0, item.Version);
         }
-        
+
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void DeserializeCacheItemWithDifferentVersion()
         {
             string differentVersionEntry = "{\"client_id\":\"client_id\",\"client_info\":\"eyJ1aWQiOiJteS1VSUQiLCJ1dGlkIjoibXktVVRJRCJ9\",\"ver\":5,\"access_token\":\"access-token\",\"authority\":\"https:\\\\/\\\\/login.microsoftonline.com\\\\/home\\\\/\",\"expires_on\":1494025355,\"id_token\":\"someheader.eyJhdWQiOiAiZTg1NGE0YTctNmMzNC00NDljLWIyMzctZmM3YTI4MDkzZDg0IiwiaXNzIjogImh0dHBzOi8vbG9naW4ubWljcm9zb2Z0b25saW5lLmNvbS82YzNkNTFkZC1mMGU1LTQ5NTktYjRlYS1hODBjNGUzNmZlNWUvdjIuMC8iLCJpYXQiOiAxNDU1ODMzODI4LCJuYmYiOiAxNDU1ODMzODI4LCJleHAiOiAxNDU1ODM3NzI4LCJpcGFkZHIiOiAiMTMxLjEwNy4xNTkuMTE3IiwibmFtZSI6ICJNYXJycnJyaW8gQm9zc3kiLCJvaWQiOiAidW5pcXVlX2lkIiwicHJlZmVycmVkX3VzZXJuYW1lIjogImRpc3BsYXlhYmxlQGlkLmNvbSIsInN1YiI6ICJLNF9TR0d4S3FXMVN4VUFtaGc2QzFGNlZQaUZ6Y3gtUWQ4MGVoSUVkRnVzIiwidGlkIjogIm15LWlkcCIsInZlciI6ICIyLjAifQ.somesignature\",\"scope\":\"r1\\\\/scope1 r1\\\\/scope2\",\"token_type\":\"Bearer\",\"user_assertion_hash\":null}";
-           
+
             TokenCache cache = new TokenCache()
             {
                 ClientId = TestConstants.ClientId
