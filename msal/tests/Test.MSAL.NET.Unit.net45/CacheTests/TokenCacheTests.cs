@@ -123,7 +123,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     }).Result;
 
                 Assert.IsNotNull(item);
-                Assert.AreEqual(atKey.ToString(), item.Secret);
+                Assert.AreEqual(atKey, item.Secret);
             }
         }
 
@@ -171,7 +171,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 var item = cache.FindAccessTokenAsync(param).Result;
 
                 Assert.IsNotNull(item);
-                Assert.AreEqual(atKey.ToString(), item.Secret);
+                Assert.AreEqual(atKey, item.Secret);
             }
         }
 
@@ -556,7 +556,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     ClientId = MsalTestConstants.ClientId,
                     Authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false),
                     Scope = MsalTestConstants.Scope,
-                    UserAssertion = new UserAssertion(PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey.ToString()))
+                    UserAssertion = new UserAssertion(PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(atKey))
                 };
 
                 var item = cache.FindAccessTokenAsync(param).Result;
@@ -656,14 +656,14 @@ namespace Test.MSAL.NET.Unit.CacheTests
                     ClientId = MsalTestConstants.ClientId,
                     Authority = Authority.CreateAuthority(MsalTestConstants.AuthorityTestTenant, false),
                     Scope = MsalTestConstants.Scope,
-                    UserAssertion = new UserAssertion(atKey.ToString())
+                    UserAssertion = new UserAssertion(atKey)
                 };
 
                 cache.AfterAccess = AfterAccessNoChangeNotification;
                 var item = cache.FindAccessTokenAsync(param).Result;
 
                 Assert.IsNotNull(item);
-                Assert.AreEqual(atKey.ToString(), item.Secret);
+                Assert.AreEqual(atKey, item.Secret);
             }
         }
 
@@ -1057,7 +1057,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
                 string scopeInCache = MsalTestConstants.Scope.FirstOrDefault();
 
-                string upperCaseScope = scopeInCache.ToUpper();
+                string upperCaseScope = scopeInCache.ToUpperInvariant();
                 param.Scope.Add(upperCaseScope);
 
                 var item = tokenCache.FindAccessTokenAsync(param).Result;
