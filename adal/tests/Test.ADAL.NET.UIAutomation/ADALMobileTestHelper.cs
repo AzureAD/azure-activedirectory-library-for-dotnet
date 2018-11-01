@@ -84,7 +84,6 @@ namespace Test.ADAL.UIAutomation
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             // AcquireToken promptBehavior.Auto to get a token in the cache
-            SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown
