@@ -84,6 +84,7 @@ namespace Test.ADAL.UIAutomation
             var user = PrepareForAuthentication(controller, userParams);
             SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
             // AcquireToken promptBehavior.Auto to get a token in the cache
+            SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown
@@ -92,7 +93,7 @@ namespace Test.ADAL.UIAutomation
 
             // AcquireToken promptBehavior.Auto. No UI should be shown.
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            CoreMobileTestHelper.PerformSignInFlowWithoutUI(controller);
 
             CoreMobileTestHelper.VerifyResult(controller);
         }

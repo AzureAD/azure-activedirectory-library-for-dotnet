@@ -52,6 +52,12 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             controller.Tap(userInformationFieldIds.SignInButtonId, true);
         }
 
+        public void PerformSignInFlowWithoutUI(ITestController controller)
+        {
+            //Acquire token flow
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+        }
+
         public void VerifyResult(ITestController controller)
         {
             RetryVerificationHelper(() =>
