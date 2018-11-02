@@ -46,6 +46,7 @@ namespace Test.ADAL.NET.Unit
                 string uriWithoutVars = "http://contoso.com";
 
                 RequestContext requestContext = new RequestContext(
+                    "id",
                     new TestLogger(Guid.NewGuid(), null));
 
                 const string extraQueryParams = "n1=v1&n2=v2";
@@ -78,6 +79,7 @@ namespace Test.ADAL.NET.Unit
             string initialUri = "http://contoso.com?existingVar=var&foo=bar";
 
             RequestContext requestContext = new RequestContext(
+                "id",
                 new TestLogger(Guid.NewGuid(), null));
 
             // Act
