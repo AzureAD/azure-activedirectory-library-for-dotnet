@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Telemetry;
 
 namespace Microsoft.Identity.Core.Instance
 {
@@ -62,6 +63,7 @@ namespace Microsoft.Identity.Core.Instance
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
             IHttpManager httpManager,
+            ITelemetryManager telemetryManager,
             string userPrincipalName,
             RequestContext requestContext)
         {

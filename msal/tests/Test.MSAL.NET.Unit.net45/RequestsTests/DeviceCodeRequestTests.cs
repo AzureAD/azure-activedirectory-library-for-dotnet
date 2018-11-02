@@ -90,15 +90,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public void TestInitialize()
         {
             TestCommon.ResetStateAndInitMsal();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
             _cache = new TokenCache();
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.ClearAccessTokens();
-            _cache.tokenCacheAccessor.ClearRefreshTokens();
+            _cache.TokenCacheAccessor.ClearAccessTokens();
+            _cache.TokenCacheAccessor.ClearRefreshTokens();
         }
 
         private HttpResponseMessage CreateDeviceCodeResponseSuccessMessage()
@@ -129,15 +128,16 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     out HashSet<string> expectedScopes);
 
                 // Check that cache is empty
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.AccountCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.RefreshTokenCount);
 
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    new TelemetryManager(),
                     parameters,
                     ApiEvent.ApiIds.None,
                     result =>
@@ -161,10 +161,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
 
                 // Validate that entries were added to cache
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccountCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
             }
         }
 #endif
@@ -181,14 +181,15 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             {
                 var parameters = CreateAuthenticationParametersAndSetupMocks(httpManager, NumberOfAuthorizationPendingRequestsToInject , out HashSet<string> expectedScopes, true);
                 // Check that cache is empty
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.AccountCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.IdTokenCount);
-                Assert.AreEqual(0, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.AccountCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(0, _cache.TokenCacheAccessor.RefreshTokenCount);
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    new TelemetryManager(),
                     parameters,
                     ApiEvent.ApiIds.None,
                     result =>
@@ -209,10 +210,10 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 Assert.AreEqual(ExpectedAdfsVerificationUrl, actualDeviceCodeResult.VerificationUrl);
                 CoreAssert.AreScopesEqual(expectedScopes.AsSingleString(), actualDeviceCodeResult.Scopes.AsSingleString());
                 // Validate that entries were added to cache
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccountCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.IdTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccountCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.IdTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
             }
         }
 #endif
@@ -235,6 +236,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var request = new DeviceCodeRequest(
                     httpManager,
                     PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                    new TelemetryManager(),
                     parameters,
                     ApiEvent.ApiIds.None,
                     async result =>
@@ -261,14 +263,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             // This test verifies that the error for authorization_pending is not logged as an error.
 
             var logCallbacks = new List<_LogData>();
-            
+
             Logger.LogCallback = (level, message, pii) =>
             {
                 if (level == LogLevel.Error)
                 {
                     Assert.Fail(
-                        "Received an error message {0} and the stack trace is {1}", 
-                        message, 
+                        "Received an error message {0} and the stack trace is {1}",
+                        message,
                         new StackTrace(true));
                 }
 
@@ -294,6 +296,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     var request = new DeviceCodeRequest(
                         httpManager,
                         PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
+                        new TelemetryManager(),
                         parameters,
                         ApiEvent.ApiIds.None,
                         result => Task.FromResult(0));
@@ -317,13 +320,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                     // Ensure we don't have Error level logs in this scenario.
                     string errorLogs = string.Join(
-                        "--", 
+                        "--",
                         logCallbacks
                             .Where(x => x.Level == LogLevel.Error)
                             .Select(x => x.Message)
                             .ToArray());
 
-                    
+
 
                     Assert.IsFalse(
                         logCallbacks.Any(x => x.Level == LogLevel.Error),
@@ -354,7 +357,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 ClientId = MsalTestConstants.ClientId,
                 Scope = MsalTestConstants.Scope,
                 TokenCache = _cache,
-                RequestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null))
+                RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null))
             };
 
             if (isAdfs)

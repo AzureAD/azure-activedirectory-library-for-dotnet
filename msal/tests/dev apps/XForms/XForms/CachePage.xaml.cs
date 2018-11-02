@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
@@ -49,7 +50,7 @@ namespace XForms
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
-            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            var requestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null));
 
             IDictionary<string, MsalAccessTokenCacheItem> accessTokens = new Dictionary<string, MsalAccessTokenCacheItem>();
             foreach (var accessItemStr in tokenCache.GetAllAccessTokenCacheItems(requestContext))
@@ -101,7 +102,8 @@ namespace XForms
 
         private static string GetCurrentTimestamp()
         {
-            return ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds).ToString();
+            return ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+                .ToString(CultureInfo.InvariantCulture);
         }
 
         public void OnExpire(object sender, EventArgs e)
@@ -126,7 +128,7 @@ namespace XForms
 
             var tokenCache = App.MsalPublicClient.UserTokenCache;
             // todo pass idToken instead of null
-            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            var requestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null));
 
             tokenCache.DeleteAccessToken(accessTokenCacheItem, null, requestContext);
 

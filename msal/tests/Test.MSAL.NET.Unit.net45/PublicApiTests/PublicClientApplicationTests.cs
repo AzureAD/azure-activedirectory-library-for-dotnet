@@ -35,6 +35,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Instance;
@@ -53,7 +54,8 @@ namespace Test.MSAL.NET.Unit
     public class PublicClientApplicationTests
     {
         private TokenCache _cache;
-        private readonly MyReceiver _myReceiver = new MyReceiver();
+        private MyReceiver _myReceiver;
+        private ITelemetryManager _telemetryManager;
 
         [TestInitialize]
         public void TestInitialize()
@@ -61,16 +63,15 @@ namespace Test.MSAL.NET.Unit
             TestCommon.ResetStateAndInitMsal();
 
             _cache = new TokenCache();
-            Telemetry.GetInstance().RegisterReceiver(_myReceiver.OnEvents);
-
-            // AddMockResponseForInstanceDisovery();
+            _myReceiver = new MyReceiver();
+            _telemetryManager = new TelemetryManager(_myReceiver);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.tokenCacheAccessor.ClearAccessTokens();
-            _cache.tokenCacheAccessor.ClearRefreshTokens();
+            _cache.TokenCacheAccessor.ClearAccessTokens();
+            _cache.TokenCacheAccessor.ClearRefreshTokens();
         }
 
         [TestMethod]
@@ -162,6 +163,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -206,6 +208,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -243,6 +246,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -291,6 +295,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -339,6 +344,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -404,6 +410,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -432,9 +439,11 @@ namespace Test.MSAL.NET.Unit
 
                 // TODO: allow checking in the middle of a using block --> Assert.IsTrue(HttpMessageHandlerFactory.IsMocksQueueEmpty, "All mocks should have been consumed");
 
-                var dict = new Dictionary<string, string>();
-                dict[OAuth2Parameter.DomainReq] = MsalTestConstants.Utid;
-                dict[OAuth2Parameter.LoginReq] = MsalTestConstants.Uid;
+                var dict = new Dictionary<string, string>
+                {
+                    [OAuth2Parameter.DomainReq] = MsalTestConstants.Utid,
+                    [OAuth2Parameter.LoginReq] = MsalTestConstants.Uid
+                };
 
                 // repeat interactive call and pass in the same user
                 MsalMockHelpers.ConfigureMockWebUI(
@@ -472,7 +481,7 @@ namespace Test.MSAL.NET.Unit
 
                 var users = app.GetAccountsAsync().Result;
                 Assert.AreEqual(1, users.Count());
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -488,6 +497,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -539,7 +549,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(MsalTestConstants.DisplayableId, result.Account.Username);
                 var users = app.GetAccountsAsync().Result;
                 Assert.AreEqual(2, users.Count());
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.AccessTokenCount);
             }
         }
 
@@ -553,6 +563,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -565,7 +576,7 @@ namespace Test.MSAL.NET.Unit
                 };
 
                 app.UserTokenCache = _cache;
-                TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
+                TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
                 users = app.GetAccountsAsync().Result;
                 Assert.IsNotNull(users);
                 Assert.AreEqual(1, users.Count());
@@ -582,7 +593,7 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateClientInfo());
 
                 atItem.Secret = atItem.GetKey().ToString();
-                _cache.tokenCacheAccessor.SaveAccessToken(atItem);
+                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
 
                 // another cache entry for different uid. user count should be 2.
@@ -593,7 +604,7 @@ namespace Test.MSAL.NET.Unit
                     "someRT",
                     MockHelpers.CreateClientInfo("uId1", "uTId1"));
 
-                _cache.tokenCacheAccessor.SaveRefreshToken(rtItem);
+                _cache.TokenCacheAccessor.SaveRefreshToken(rtItem);
 
                 MsalIdTokenCacheItem idTokenCacheItem = new MsalIdTokenCacheItem(
                     MsalTestConstants.ProductionPrefNetworkEnvironment,
@@ -602,7 +613,7 @@ namespace Test.MSAL.NET.Unit
                     MockHelpers.CreateClientInfo("uId1", "uTId1"),
                     "uTId1");
 
-                _cache.tokenCacheAccessor.SaveIdToken(idTokenCacheItem);
+                _cache.TokenCacheAccessor.SaveIdToken(idTokenCacheItem);
 
 
                 MsalAccountCacheItem accountCacheItem = new MsalAccountCacheItem(
@@ -615,10 +626,10 @@ namespace Test.MSAL.NET.Unit
                     null,
                     null);
 
-                _cache.tokenCacheAccessor.SaveAccount(accountCacheItem);
+                _cache.TokenCacheAccessor.SaveAccount(accountCacheItem);
 
 
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.RefreshTokenCount);
                 users = app.GetAccountsAsync().Result;
                 Assert.IsNotNull(users);
                 Assert.AreEqual(2, users.Count());
@@ -630,8 +641,8 @@ namespace Test.MSAL.NET.Unit
                     "someRT",
                     MockHelpers.CreateClientInfo(MsalTestConstants.Uid + "more1", MsalTestConstants.Utid));
 
-                _cache.tokenCacheAccessor.SaveRefreshToken(rtItem);
-                Assert.AreEqual(3, _cache.tokenCacheAccessor.RefreshTokenCount);
+                _cache.TokenCacheAccessor.SaveRefreshToken(rtItem);
+                Assert.AreEqual(3, _cache.TokenCacheAccessor.RefreshTokenCount);
                 users = app.GetAccountsAsync().Result;
                 Assert.IsNotNull(users);
                 Assert.AreEqual(2, users.Count());
@@ -649,15 +660,15 @@ namespace Test.MSAL.NET.Unit
                     ClientId = MsalTestConstants.ClientId
                 }
             };
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
 
             foreach (var user in app.GetAccountsAsync().Result)
             {
                 app.RemoveAsync(user).Wait();
             }
 
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.AccessTokenCount);
-            Assert.AreEqual(0, app.UserTokenCache.tokenCacheAccessor.RefreshTokenCount);
+            Assert.AreEqual(0, app.UserTokenCache.TokenCacheAccessor.AccessTokenCount);
+            Assert.AreEqual(0, app.UserTokenCache.TokenCacheAccessor.RefreshTokenCount);
         }
 
         [TestMethod]
@@ -665,7 +676,7 @@ namespace Test.MSAL.NET.Unit
         public async Task AcquireTokenSilentScopeAndEmptyCacheTestAsync()
         {
             PublicClientApplication app =
-                new PublicClientApplication(MsalTestConstants.ClientId)
+                new PublicClientApplication(null, _telemetryManager, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
                     ValidateAuthority = false
                 };
@@ -707,7 +718,7 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
             try
             {
                 AuthenticationResult result = await app.AcquireTokenSilentAsync(MsalTestConstants.Scope.ToArray(),
@@ -733,6 +744,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -745,31 +757,9 @@ namespace Test.MSAL.NET.Unit
                     HttpManager = httpManager
                 };
 
-                // add mock response for tenant endpoint discovery
-
-                // TODO: validate with others that this test is still valid.
-                // Previous test was NOT validating that we flushed the mock input queue
-                // and these are NOT being consumed in this case.  ensure that's correct.
-
-                //httpManager.AddMockHandler(
-                //    new MockHttpMessageHandler
-                //    {
-                //        Method = HttpMethod.Get,
-                //        ResponseMessage = MockHelpers.CreateOpenIdConfigurationResponse(TestConstants.AuthorityHomeTenant)
-                //    });
-                //httpManager.AddMockHandler(
-                //    new MockHttpMessageHandler()
-                //    {
-                //        Method = HttpMethod.Post,
-                //        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
-                //            TestConstants.UniqueId,
-                //            TestConstants.DisplayableId,
-                //            TestConstants.ScopeForAnotherResource.ToArray())
-                //    });
-
                 app.UserTokenCache = _cache;
-                TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-                _cache.tokenCacheAccessor.DeleteAccessToken(
+                TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+                _cache.TokenCacheAccessor.DeleteAccessToken(
                     new MsalAccessTokenCacheKey(
                         MsalTestConstants.ProductionPrefNetworkEnvironment,
                         MsalTestConstants.Utid,
@@ -785,7 +775,7 @@ namespace Test.MSAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.AreEqual(MsalTestConstants.DisplayableId, result.Account.Username);
                 Assert.AreEqual(MsalTestConstants.ScopeForAnotherResource.AsSingleString(), result.Scopes.AsSingleString());
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.GetAllAccessTokensAsString().Count());
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.GetAllAccessTokensAsString().Count());
             }
         }
 
@@ -805,8 +795,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -838,8 +828,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -859,7 +849,7 @@ namespace Test.MSAL.NET.Unit
         public void AcquireTokenSilentCacheOnlyLookupTest()
         {
             PublicClientApplication app =
-                new PublicClientApplication(MsalTestConstants.ClientId, MsalTestConstants.AuthorityTestTenant)
+                new PublicClientApplication(null, _telemetryManager, MsalTestConstants.ClientId, MsalTestConstants.AuthorityTestTenant)
                 {
                     ValidateAuthority = false
                 };
@@ -870,8 +860,8 @@ namespace Test.MSAL.NET.Unit
             };
 
             app.UserTokenCache = _cache;
-            TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
-            _cache.tokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
+            TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
+            _cache.TokenCacheAccessor.DeleteAccessToken(new MsalAccessTokenCacheKey(
                 MsalTestConstants.ProductionPrefNetworkEnvironment,
                 MsalTestConstants.Utid,
                 MsalTestConstants.UserIdentifier,
@@ -898,6 +888,7 @@ namespace Test.MSAL.NET.Unit
             {
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -910,7 +901,7 @@ namespace Test.MSAL.NET.Unit
                 };
 
                 app.UserTokenCache = _cache;
-                TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
+                TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
 
                 httpManager.AddInstanceDiscoveryMockHandler();
                 httpManager.AddMockHandlerForTenantEndpointDiscovery(MsalTestConstants.AuthorityHomeTenant);
@@ -936,8 +927,8 @@ namespace Test.MSAL.NET.Unit
                 Assert.AreEqual(MsalTestConstants.DisplayableId, result.Account.Username);
                 Assert.AreEqual(MsalTestConstants.Scope.ToArray().AsSingleString(), result.Scopes.AsSingleString());
 
-                Assert.AreEqual(2, _cache.tokenCacheAccessor.AccessTokenCount);
-                Assert.AreEqual(1, _cache.tokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(2, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
             }
         }
 
@@ -951,6 +942,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -966,7 +958,7 @@ namespace Test.MSAL.NET.Unit
                 };
 
                 app.UserTokenCache = _cache;
-                TokenCacheHelper.PopulateCache(_cache.tokenCacheAccessor);
+                TokenCacheHelper.PopulateCache(_cache.TokenCacheAccessor);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -1004,6 +996,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -1026,6 +1019,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority)
                 {
@@ -1075,14 +1069,14 @@ namespace Test.MSAL.NET.Unit
             fetchedUser = app.GetAccountAsync("").Result;
             Assert.IsNull(fetchedUser);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid,
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid,
                 MsalTestConstants.Utid, MsalTestConstants.Name);
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid,
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid,
                 MsalTestConstants.Utid);
 
-            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid + "1",
+            TokenCacheHelper.AddRefreshTokenToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid + "1",
                 MsalTestConstants.Utid, MsalTestConstants.Name + "1");
-            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.tokenCacheAccessor, MsalTestConstants.Uid + "1",
+            TokenCacheHelper.AddAccountToCache(app.UserTokenCache.TokenCacheAccessor, MsalTestConstants.Uid + "1",
                 MsalTestConstants.Utid);
 
             users = app.GetAccountsAsync().Result;
@@ -1109,6 +1103,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -1154,6 +1149,7 @@ namespace Test.MSAL.NET.Unit
 
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
+                    _telemetryManager,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority);
 
@@ -1244,7 +1240,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                PublicClientApplication app = new PublicClientApplication(httpManager, MsalTestConstants.ClientId, MsalTestConstants.OnPremiseAuthority);
+                PublicClientApplication app = new PublicClientApplication(httpManager, _telemetryManager, MsalTestConstants.ClientId, MsalTestConstants.OnPremiseAuthority);
                 app.ValidateAuthority = false;
 
 
