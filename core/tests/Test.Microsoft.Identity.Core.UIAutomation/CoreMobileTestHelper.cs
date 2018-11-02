@@ -52,20 +52,6 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             controller.Tap(userInformationFieldIds.SignInButtonId, true);
         }
 
-        public void PerformSignInFlowWithUsernameOnly(ITestController controller, IUser user)
-        {
-            UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
-            userInformationFieldIds.DetermineUser(user);
-
-            //Acquire token flow
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
-            controller.DismissKeyboard();
-            //idSIButton9 = Sign in button
-            controller.Tap(CoreUiTestConstants.WebSubmitID, true);
-        }
-
         public void PerformSignInFlowWithoutUI(ITestController controller)
         {
             //Acquire token flow

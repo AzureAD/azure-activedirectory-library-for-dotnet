@@ -82,7 +82,7 @@ namespace Test.ADAL.UIAutomation
         public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.UiAutomationTestClientId, CoreUiTestConstants.MSGraph);
+            SetInputData(controller, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
 
             // AcquireToken promptBehavior.Auto to get a token in the cache 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
@@ -90,7 +90,7 @@ namespace Test.ADAL.UIAutomation
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAlways);
-            CoreMobileTestHelper.PerformSignInFlowWithUsernameOnly(controller, user);
+            CoreMobileTestHelper.PerformSignInFlow(controller, user);
 
             // AcquireToken promptBehavior.Auto. No UI should be shown. 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
@@ -125,7 +125,6 @@ namespace Test.ADAL.UIAutomation
         {
             //Select PromptBehavior 
             controller.EnterText(CoreUiTestConstants.PromptBehaviorEntryID, promptBehavior, false);
-            controller.DismissKeyboard();
             controller.DismissKeyboard();
         }
     }
