@@ -46,8 +46,8 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string ClientIdEntryID = "clientIdEntry";
         public const string ResourceEntryID = "resourceEntry";
         public const string PromptBehaviorEntryID = "promptBehaviorEntry";
-        public const string PromptBehaviorAuto = "promptBehaviorAuto";
-        public const string PromptBehaviorAlways = "promptBehaviorAlways";
+        public const string PromptBehaviorAuto = "auto";
+        public const string PromptBehaviorAlways = "always";
         public const string SecondPageID = "secondPage";
         public const string ClearCacheID = "clearCache";
         public const string SaveID = "saveButton";
