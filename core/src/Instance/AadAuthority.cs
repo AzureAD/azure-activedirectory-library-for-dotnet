@@ -52,6 +52,8 @@ namespace Microsoft.Identity.Core.Instance
             "login.cloudgovapi.us" // Microsoft Azure US Government
         };
 
+        internal static string B2CTrustedHost = "b2clogin.com";
+
         internal AadAuthority(string authority, bool validateAuthority)
             : base(authority, validateAuthority)
         {
@@ -63,6 +65,11 @@ namespace Microsoft.Identity.Core.Instance
             ITelemetryManager telemetryManager,
             RequestContext requestContext)
         {
+            if (!ValidateAuthority)
+            {
+                return;
+            }
+
             var metadata = await AadInstanceDiscovery
                                  .Instance.GetMetadataEntryAsync(
                                      httpManager, 
@@ -118,8 +125,11 @@ namespace Microsoft.Identity.Core.Instance
 
         internal static bool IsInTrustedHostList(string host)
         {
-            return !string.IsNullOrEmpty(
-                       TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
+            bool isInList = 
+                !string.IsNullOrEmpty(
+                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
+            isInList |= host.EndsWith(B2CTrustedHost);
+            return isInList;
         }
 
         internal override string GetTenantId()

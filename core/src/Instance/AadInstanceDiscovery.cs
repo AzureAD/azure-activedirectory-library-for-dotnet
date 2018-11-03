@@ -92,17 +92,20 @@ namespace Microsoft.Identity.Core.Instance
                 bool validateAuthority, 
                 RequestContext requestContext)
         {
-            InstanceDiscoveryResponse discoveryResponse =
-                await SendInstanceDiscoveryRequestAsync(
-                    httpManager, 
-                    telemetryManager,
-                    authority, 
-                    requestContext).ConfigureAwait(false);
-
-            if (validateAuthority)
+            if (!validateAuthority)
             {
-                Validate(discoveryResponse);
+                return null;
             }
+
+            InstanceDiscoveryResponse discoveryResponse =
+            await SendInstanceDiscoveryRequestAsync(
+                httpManager, 
+                telemetryManager,
+                authority, 
+                requestContext).ConfigureAwait(false);
+
+            
+            Validate(discoveryResponse);
 
             CacheInstanceDiscoveryMetadata(authority.Host, discoveryResponse);
 

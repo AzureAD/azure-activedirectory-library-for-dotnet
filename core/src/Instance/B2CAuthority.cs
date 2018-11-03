@@ -37,10 +37,15 @@ namespace Microsoft.Identity.Core.Instance
     {
         public const string Prefix = "tfp"; // The http path of B2C authority looks like "/tfp/<your_tenant_name>/..."
         public const string B2CCanonicalAuthorityTemplate = "https://{0}/{1}/{2}/{3}/";
+        public const string MicrosoftOnline = "https://login.microsoftonline.com";
+        public const string OpenIdConfigurationEndpoint = "v2.0/.well-known/openid-configuration";
 
         internal B2CAuthority(string authority, bool validateAuthority) 
             : base(authority, validateAuthority)
         {
+            AuthorityType = AuthorityType.B2C;
+            ValidateAuthority = validateAuthority;
+
             Uri authorityUri = new Uri(authority);
             string[] pathSegments = authorityUri.AbsolutePath.Substring(1).Split(new [] { '/'}, StringSplitOptions.RemoveEmptyEntries);
             if (pathSegments.Length < 3)
@@ -50,8 +55,15 @@ namespace Microsoft.Identity.Core.Instance
 
             CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, B2CCanonicalAuthorityTemplate, authorityUri.Authority,
                 pathSegments[0], pathSegments[1], pathSegments[2]);
+        }
 
-            AuthorityType = AuthorityType.B2C;
+        protected override string GetDefaultOpenIdConfigurationEndpoint()
+        {
+            Uri b2cAuthority = new Uri(CanonicalAuthority);
+
+            // Ignoring sovereign clouds
+            string fish = string.Format(CultureInfo.InvariantCulture, MicrosoftOnline + b2cAuthority.AbsolutePath + OpenIdConfigurationEndpoint);
+            return fish;
         }
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
