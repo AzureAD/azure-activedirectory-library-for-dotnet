@@ -62,9 +62,9 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            null, 
                             null,
-                            null, 
+                            null,
+                            null,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
                 Assert.Fail("test should have failed");
@@ -89,9 +89,9 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            null, 
                             null,
-                            null, 
+                            null,
+                            null,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
                 Assert.Fail("test should have failed");
@@ -114,6 +114,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
 
             const string uriCustomPort = "https://login.microsoftonline.in:444/tfp/tenant/policy";
             const string uriCustomPortTailSlash = "https://login.microsoftonline.in:444/tfp/tenant/policy/";
+            const string uriVanityPort = CoreTestConstants.B2CLoginAuthority;
 
             var authority = new B2CAuthority(uriNoPort, false);
             Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
@@ -123,6 +124,9 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
 
             authority = new B2CAuthority(uriCustomPort, false);
             Assert.AreEqual(uriCustomPortTailSlash, authority.CanonicalAuthority);
+
+            authority = new B2CAuthority(uriVanityPort, false);
+            Assert.AreEqual(uriVanityPort, authority.CanonicalAuthority);
         }
     }
 }

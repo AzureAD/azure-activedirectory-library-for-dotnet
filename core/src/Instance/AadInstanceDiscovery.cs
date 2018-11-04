@@ -48,9 +48,9 @@ namespace Microsoft.Identity.Core.Instance
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
         public async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(
-            IHttpManager httpManager, 
+            IHttpManager httpManager,
             ITelemetryManager telemetryManager,
-            Uri authority, 
+            Uri authority,
             bool validateAuthority,
             RequestContext requestContext)
         {
@@ -58,10 +58,10 @@ namespace Microsoft.Identity.Core.Instance
             if (!Cache.TryGetValue(authority.Host, out entry))
             {
                 await DoInstanceDiscoveryAndCacheAsync(
-                    httpManager, 
+                    httpManager,
                     telemetryManager,
-                    authority, 
-                    validateAuthority, 
+                    authority,
+                    validateAuthority,
                     requestContext).ConfigureAwait(false);
                 Cache.TryGetValue(authority.Host, out entry);
             }
@@ -86,26 +86,23 @@ namespace Microsoft.Identity.Core.Instance
 
         internal async Task<InstanceDiscoveryResponse>
             DoInstanceDiscoveryAndCacheAsync(
-                IHttpManager httpManager, 
+                IHttpManager httpManager,
                 ITelemetryManager telemetryManager,
-                Uri authority, 
-                bool validateAuthority, 
+                Uri authority,
+                bool validateAuthority,
                 RequestContext requestContext)
         {
+            InstanceDiscoveryResponse discoveryResponse =
+                await SendInstanceDiscoveryRequestAsync(
+                    httpManager,
+                    telemetryManager,
+                    authority,
+                    requestContext).ConfigureAwait(false);
+
             if (!validateAuthority)
             {
-                return null;
+                Validate(discoveryResponse);
             }
-
-            InstanceDiscoveryResponse discoveryResponse =
-            await SendInstanceDiscoveryRequestAsync(
-                httpManager, 
-                telemetryManager,
-                authority, 
-                requestContext).ConfigureAwait(false);
-
-            
-            Validate(discoveryResponse);
 
             CacheInstanceDiscoveryMetadata(authority.Host, discoveryResponse);
 
@@ -113,9 +110,9 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         private static async Task<InstanceDiscoveryResponse> SendInstanceDiscoveryRequestAsync(
-            IHttpManager httpManager, 
+            IHttpManager httpManager,
             ITelemetryManager telemetryManager,
-            Uri authority, 
+            Uri authority,
             RequestContext requestContext)
         {
             OAuth2Client client = new OAuth2Client(httpManager, telemetryManager);
@@ -156,11 +153,11 @@ namespace Microsoft.Identity.Core.Instance
             }
 
             Cache.TryAdd(host, new InstanceDiscoveryMetadataEntry
-                {
-                    PreferredNetwork = host,
-                    PreferredCache = host,
-                    Aliases = null
-                });
+            {
+                PreferredNetwork = host,
+                PreferredCache = host,
+                Aliases = null
+            });
         }
     }
 }

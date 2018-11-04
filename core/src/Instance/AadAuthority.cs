@@ -52,8 +52,6 @@ namespace Microsoft.Identity.Core.Instance
             "login.cloudgovapi.us" // Microsoft Azure US Government
         };
 
-        internal static string B2CTrustedHost = "b2clogin.com";
-
         internal AadAuthority(string authority, bool validateAuthority)
             : base(authority, validateAuthority)
         {
@@ -61,21 +59,16 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         internal override async Task UpdateCanonicalAuthorityAsync(
-            IHttpManager httpManager, 
+            IHttpManager httpManager,
             ITelemetryManager telemetryManager,
             RequestContext requestContext)
         {
-            if (!ValidateAuthority)
-            {
-                return;
-            }
-
             var metadata = await AadInstanceDiscovery
                                  .Instance.GetMetadataEntryAsync(
-                                     httpManager, 
-                                     telemetryManager, 
-                                     new Uri(CanonicalAuthority), 
-                                     ValidateAuthority, 
+                                     httpManager,
+                                     telemetryManager,
+                                     new Uri(CanonicalAuthority),
+                                     ValidateAuthority,
                                      requestContext)
                                  .ConfigureAwait(false);
 
@@ -94,10 +87,10 @@ namespace Microsoft.Identity.Core.Instance
             {
                 var discoveryResponse = await AadInstanceDiscovery
                                               .Instance.DoInstanceDiscoveryAndCacheAsync(
-                                                  httpManager, 
+                                                  httpManager,
                                                   telemetryManager,
-                                                  authorityUri, 
-                                                  true, 
+                                                  authorityUri,
+                                                  true,
                                                   requestContext)
                                               .ConfigureAwait(false);
 
@@ -125,11 +118,8 @@ namespace Microsoft.Identity.Core.Instance
 
         internal static bool IsInTrustedHostList(string host)
         {
-            bool isInList = 
-                !string.IsNullOrEmpty(
-                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
-            isInList |= host.EndsWith(B2CTrustedHost);
-            return isInList;
+            return !string.IsNullOrEmpty(
+                TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
         }
 
         internal override string GetTenantId()

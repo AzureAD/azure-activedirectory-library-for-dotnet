@@ -27,6 +27,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Telemetry;
@@ -39,15 +40,16 @@ namespace Microsoft.Identity.Core.Instance
         public const string B2CCanonicalAuthorityTemplate = "https://{0}/{1}/{2}/{3}/";
         public const string MicrosoftOnline = "https://login.microsoftonline.com";
         public const string OpenIdConfigurationEndpoint = "v2.0/.well-known/openid-configuration";
+        internal const string B2CTrustedHost = "b2clogin.com";
 
-        internal B2CAuthority(string authority, bool validateAuthority) 
+        internal B2CAuthority(string authority, bool validateAuthority)
             : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.B2C;
-            ValidateAuthority = validateAuthority;
+            ValidateAuthority = false;
 
             Uri authorityUri = new Uri(authority);
-            string[] pathSegments = authorityUri.AbsolutePath.Substring(1).Split(new [] { '/'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] pathSegments = authorityUri.AbsolutePath.Substring(1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (pathSegments.Length < 3)
             {
                 throw new ArgumentException(CoreErrorMessages.B2cAuthorityUriInvalidPath);
@@ -57,29 +59,66 @@ namespace Microsoft.Identity.Core.Instance
                 pathSegments[0], pathSegments[1], pathSegments[2]);
         }
 
-        protected override string GetDefaultOpenIdConfigurationEndpoint()
+        internal new static bool IsInTrustedHostList(string host)
         {
-            Uri b2cAuthority = new Uri(CanonicalAuthority);
-
-            // Ignoring sovereign clouds
-            string fish = string.Format(CultureInfo.InvariantCulture, MicrosoftOnline + b2cAuthority.AbsolutePath + OpenIdConfigurationEndpoint);
-            return fish;
+            bool isInList =
+                !string.IsNullOrEmpty(
+                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
+            isInList |= host.EndsWith(B2CTrustedHost);
+            return isInList;
         }
 
-        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
-            IHttpManager httpManager, 
-            ITelemetryManager telemetryManager, 
-            string userPrincipalName, 
+        internal override async Task UpdateCanonicalAuthorityAsync(
+            IHttpManager httpManager,
+            ITelemetryManager telemetryManager,
             RequestContext requestContext)
         {
-            if (ValidateAuthority && !IsInTrustedHostList(new Uri(CanonicalAuthority).Host))
+            var authorityUri = new Uri(CanonicalAuthority);
+
+            if (!IsInTrustedHostList(authorityUri.Host))
             {
                 throw new ArgumentException(CoreErrorMessages.UnsupportedAuthorityValidation);
             }
 
+            var metadata = await AadInstanceDiscovery
+                             .Instance.GetMetadataEntryAsync(
+                                 httpManager,
+                                 telemetryManager,
+                                 new Uri(UpdateCanonicalAuthorityB2C()),
+                                 ValidateAuthority,
+                                 requestContext)
+                             .ConfigureAwait(false);
+
+            CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
+        }
+
+        private string UpdateCanonicalAuthorityB2C()
+        {
+            Uri b2cAuthority = new Uri(CanonicalAuthority);
+
+            string canonicalAuthorityUri = string.Format(CultureInfo.InvariantCulture, MicrosoftOnline + b2cAuthority.AbsolutePath);
+            return canonicalAuthorityUri;
+        }
+
+        protected override string GetDefaultOpenIdConfigurationEndpoint()
+        {
+            Uri b2cAuthority = new Uri(CanonicalAuthority);
+
+            // To support host we would need to make the call to the tenant discovery end point, 
+            // which is not supported for b2clogin.com
+            string authorityUri = string.Format(CultureInfo.InvariantCulture, MicrosoftOnline + b2cAuthority.AbsolutePath + OpenIdConfigurationEndpoint);
+            return authorityUri;
+        }
+
+        protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
+            IHttpManager httpManager,
+            ITelemetryManager telemetryManager,
+            string userPrincipalName,
+            RequestContext requestContext)
+        {
             return await Task.Run(() => GetDefaultOpenIdConfigurationEndpoint()).ConfigureAwait(false);
         }
-        
+
         internal override string GetTenantId()
         {
             return new Uri(CanonicalAuthority).Segments[2].TrimEnd('/');
@@ -93,7 +132,7 @@ namespace Microsoft.Identity.Core.Instance
             var b2cPrefix = segments[1].TrimEnd('/');
             var b2cPolicy = segments[3].TrimEnd('/');
 
-            CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, B2CCanonicalAuthorityTemplate, 
+            CanonicalAuthority = string.Format(CultureInfo.InvariantCulture, B2CCanonicalAuthorityTemplate,
                 authorityUri.Authority, b2cPrefix, tenantId, b2cPolicy);
         }
     }
