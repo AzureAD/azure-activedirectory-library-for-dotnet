@@ -45,7 +45,7 @@ namespace Test.Microsoft.Identity.Core.Unit
         public static readonly string AuthorityCommonTenant = "https://" + ProductionPrefNetworkEnvironment + "/common/";
         public static readonly string PrefCacheAuthorityCommonTenant = "https://" + ProductionPrefCacheEnvironment + "/common/";
         public static readonly string AuthorityOrganizationsTenant = "https://" + ProductionPrefNetworkEnvironment + "/organizations/";
-        public const string B2CAuthority = "https://login.microsoftonline.com/tfp/tenant/policy/";
+        public const string B2CAuthority = "https://login.microsoftonline.in/tfp/tenant/policy/";
         public const string B2CLoginAuthority = "https://sometenantid.b2clogin.com/tfp/sometenantid/policy/";
         public const string B2CInvalidAuthority = "https://sometenantid.b2blogin.com/tfp/sometenantid/policy/";
         public static readonly string ClientId = "client_id";

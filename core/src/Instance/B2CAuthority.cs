@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Core.Instance
             : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.B2C;
-            ValidateAuthority = false;
+            ValidateAuthority = validateAuthority;
 
             Uri authorityUri = new Uri(authority);
             string[] pathSegments = authorityUri.AbsolutePath.Substring(1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -59,27 +59,16 @@ namespace Microsoft.Identity.Core.Instance
                 pathSegments[0], pathSegments[1], pathSegments[2]);
         }
 
-        internal new static bool IsInTrustedHostList(string host)
-        {
-            bool isInList =
-                !string.IsNullOrEmpty(
-                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
-            isInList |= host.EndsWith(B2CTrustedHost);
-            return isInList;
-        }
-
         internal override async Task UpdateCanonicalAuthorityAsync(
             IHttpManager httpManager,
             ITelemetryManager telemetryManager,
             RequestContext requestContext)
         {
-            var authorityUri = new Uri(CanonicalAuthority);
-
-            if (!IsInTrustedHostList(authorityUri.Host))
+            if (ValidateAuthority && !IsInTrustedHostList(new Uri(CanonicalAuthority).Host))
             {
                 throw new ArgumentException(CoreErrorMessages.UnsupportedAuthorityValidation);
             }
-
+            
             var metadata = await AadInstanceDiscovery
                              .Instance.GetMetadataEntryAsync(
                                  httpManager,
@@ -98,6 +87,15 @@ namespace Microsoft.Identity.Core.Instance
 
             string canonicalAuthorityUri = string.Format(CultureInfo.InvariantCulture, MicrosoftOnline + b2cAuthority.AbsolutePath);
             return canonicalAuthorityUri;
+        }
+
+        internal new static bool IsInTrustedHostList(string host)
+        {
+            bool isInList =
+                !string.IsNullOrEmpty(
+                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
+            isInList |= host.EndsWith(B2CTrustedHost);
+            return isInList;
         }
 
         protected override string GetDefaultOpenIdConfigurationEndpoint()
