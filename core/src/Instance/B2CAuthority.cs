@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Core.Instance
         public const string B2CCanonicalAuthorityTemplate = "https://{0}/{1}/{2}/{3}/";
         public const string MicrosoftOnline = "https://login.microsoftonline.com";
         public const string OpenIdConfigurationEndpoint = "v2.0/.well-known/openid-configuration";
-        internal const string B2CTrustedHost = "b2clogin.com";
+        public const string B2CTrustedHost = "b2clogin.com";
 
         internal B2CAuthority(string authority, bool validateAuthority)
             : base(authority, validateAuthority)
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Core.Instance
             {
                 throw new ArgumentException(CoreErrorMessages.UnsupportedAuthorityValidation);
             }
-            
+
             var metadata = await AadInstanceDiscovery
                              .Instance.GetMetadataEntryAsync(
                                  httpManager,

@@ -25,16 +25,12 @@
 //
 // ------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Threading.Tasks;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
@@ -92,14 +88,12 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 try
                 {
-                    Task.Run(
-                        async () =>
-                        {
-                            await instance.UpdateCanonicalAuthorityAsync(
-                                httpManager,
-                                new TelemetryManager(),
-                                new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-                        }).GetAwaiter().GetResult();
+                    instance.UpdateCanonicalAuthorityAsync(
+                                    httpManager,
+                                    new TelemetryManager(),
+                                    new RequestContext(null, new TestLogger(Guid.NewGuid(), null))
+                                    ).GetAwaiter().GetResult();
+
                     Assert.Fail("test should have failed");
                 }
                 catch (ArgumentException exc)
