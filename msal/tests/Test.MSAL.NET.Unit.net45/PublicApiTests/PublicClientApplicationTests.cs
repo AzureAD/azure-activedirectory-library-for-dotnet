@@ -1304,14 +1304,14 @@ namespace Test.MSAL.NET.Unit
                     httpManager,
                     new TelemetryManager(),
                     CoreTestConstants.ClientId,
-                    CoreTestConstants.B2CInvalidAuthority);
+                    CoreTestConstants.B2CAuthorityNotTrustedHost);
                 app.ValidateAuthority = true;
 
                 MockWebUI ui = new MockWebUI()
                 {
                     MockResult = new AuthorizationResult(
                        AuthorizationStatus.Success,
-                       CoreTestConstants.B2CInvalidAuthority + "?code=some-code")
+                       CoreTestConstants.B2CAuthorityNotTrustedHost + "?code=some-code")
                 };
 
                 try

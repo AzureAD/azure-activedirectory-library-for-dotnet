@@ -87,17 +87,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                //add mock response for instance validation
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler
-                    {
-                        Method = HttpMethod.Get,
-                        Url = "https://login.microsoftonline.com/tfp/tenant/policy/v2.0/.well-known/openid-configuration",
-                        ResponseMessage =
-                            MockHelpers.CreateSuccessResponseMessage(
-                                File.ReadAllText(ResourceHelper.GetTestResourceRelativePath("OpenidConfiguration-B2C.json")))
-                    });
-
                 var instance = Authority.CreateAuthority(CoreTestConstants.B2CAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
@@ -106,19 +95,21 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     Task.Run(
                         async () =>
                         {
-                            await instance.ResolveEndpointsAsync(
+                            await instance.UpdateCanonicalAuthorityAsync(
                                 httpManager,
                                 new TelemetryManager(),
-                                null,
                                 new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
+                    Assert.Fail("test should have failed");
                 }
-                catch (Exception exc)
+                catch (ArgumentException exc)
                 {
+                    Assert.IsInstanceOfType(exc, typeof(ArgumentException));
                     Assert.AreEqual(CoreErrorMessages.UnsupportedAuthorityValidation, exc.Message);
                 }
             }
         }
+
         [TestMethod]
         [TestCategory("B2CAuthorityTests")]
         public void CanonicalAuthorityInitTest()
