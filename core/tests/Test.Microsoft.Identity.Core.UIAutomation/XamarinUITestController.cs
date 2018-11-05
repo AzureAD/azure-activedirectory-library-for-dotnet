@@ -121,6 +121,8 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 Application.ClearText(); 
                 Application.EnterText(x => x.Marked(elementID), text);
             }
+
+            DismissKeyboard();
         }
 
         public void DismissKeyboard()

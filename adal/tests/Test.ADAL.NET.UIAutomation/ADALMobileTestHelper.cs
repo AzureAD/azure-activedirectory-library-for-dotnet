@@ -64,7 +64,6 @@ namespace Test.ADAL.UIAutomation
 
             //Enter 2nd Resource
             controller.EnterText(CoreUiTestConstants.ResourceEntryID, CoreUiTestConstants.Exchange, false);
-            controller.DismissKeyboard();
 
             //Acquire token silently
             controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
@@ -72,17 +71,18 @@ namespace Test.ADAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        public void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        public IUser AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            SetInputData(controller, user.AppId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            return user;
         }
 
         public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            SetInputData(controller, user.AppId, CoreUiTestConstants.MSGraph);
 
             // AcquireToken promptBehavior.Auto to get a token in the cache 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
@@ -114,18 +114,15 @@ namespace Test.ADAL.UIAutomation
         {
             //Enter ClientID
             controller.EnterText(CoreUiTestConstants.ClientIdEntryID, clientID, false);
-            controller.DismissKeyboard();
 
             //Enter Resource
             controller.EnterText(CoreUiTestConstants.ResourceEntryID, resource, false);
-            controller.DismissKeyboard();
         }
 
         private void SetPromptBehavior(ITestController controller, string promptBehavior)
         {
             //Select PromptBehavior 
             controller.EnterText(CoreUiTestConstants.PromptBehaviorEntryID, promptBehavior, false);
-            controller.DismissKeyboard();
         }
     }
 }

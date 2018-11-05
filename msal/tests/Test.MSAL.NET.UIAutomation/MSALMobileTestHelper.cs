@@ -58,20 +58,21 @@ namespace Test.MSAL.UIAutomation
         public void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
         {
             //acquire token for 1st resource
-            AcquireTokenInteractiveHelper(controller, userParams);
+            var user = AcquireTokenInteractiveHelper(controller, userParams);
             _coreMobileTestHelper.VerifyResult(controller);
 
             //acquire token for 2nd resource with refresh token
-            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            SetInputData(controller, user.AppId, CoreUiTestConstants.DefaultScope);
             controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
             _coreMobileTestHelper.VerifyResult(controller);
         }
 
-        private void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        private IUser AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
         {
             var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            SetInputData(controller, user.AppId, CoreUiTestConstants.DefaultScope);
             _coreMobileTestHelper.PerformSignInFlow(controller, user);
+            return user;
         }
 
         private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
@@ -90,13 +91,11 @@ namespace Test.MSAL.UIAutomation
 
             //Enter ClientID
             controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);
-            controller.DismissKeyboard();
             controller.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
             controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
-            controller.DismissKeyboard();
         }
     }
 }

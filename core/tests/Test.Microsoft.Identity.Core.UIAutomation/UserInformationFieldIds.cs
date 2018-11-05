@@ -34,7 +34,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public string PasswordInputId { get; set; }
         public string SignInButtonId { get;  set; }
 
-        public void DetermineUser(IUser user)
+        public void DetermineFieldIds(IUser user)
         {
             if (user.IsFederated)
             {

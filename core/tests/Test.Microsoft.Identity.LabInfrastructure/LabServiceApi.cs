@@ -82,7 +82,10 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
-            LabUser user = JsonConvert.DeserializeObject<LabResponse>(result).Users;
+            LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
+
+            LabUser user =  response.Users;
+            user.AppId = response.AppId;
 
             if (user == null)
                 user = JsonConvert.DeserializeObject<LabUser>(result);
