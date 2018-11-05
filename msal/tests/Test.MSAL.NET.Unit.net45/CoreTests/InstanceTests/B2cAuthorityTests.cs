@@ -115,12 +115,10 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 }
                 catch (Exception exc)
                 {
-                    Assert.IsInstanceOfType(exc, typeof(ArgumentException));
                     Assert.AreEqual(CoreErrorMessages.UnsupportedAuthorityValidation, exc.Message);
                 }
             }
         }
-
         [TestMethod]
         [TestCategory("B2CAuthorityTests")]
         public void CanonicalAuthorityInitTest()
