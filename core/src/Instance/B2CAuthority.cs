@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Core.Instance
             ITelemetryManager telemetryManager,
             RequestContext requestContext)
         {
-            if (ValidateAuthority && !IsInTrustedHostList(new Uri(CanonicalAuthority).Host))
+            if (ValidateAuthority && !InTrustedHostList(new Uri(CanonicalAuthority).Host))
             {
                 throw new ArgumentException(CoreErrorMessages.UnsupportedAuthorityValidation);
             }
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Core.Instance
             return canonicalAuthorityUri;
         }
 
-        internal new static bool IsInTrustedHostList(string host)
+        private bool InTrustedHostList(string host)
         {
             bool isInList =
                 !string.IsNullOrEmpty(
