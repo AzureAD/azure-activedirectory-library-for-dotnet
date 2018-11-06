@@ -38,7 +38,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 
         public CoreMobileTestHelper(ITestController testController)
         {
-            this._controller = testController;
+            _controller = testController;
         }
 
         public void PerformSignInFlow(IUser user)

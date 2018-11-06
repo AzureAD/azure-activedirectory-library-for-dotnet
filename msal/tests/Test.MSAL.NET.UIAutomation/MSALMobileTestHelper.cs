@@ -27,6 +27,8 @@
 
 using Test.Microsoft.Identity.LabInfrastructure;
 using Test.Microsoft.Identity.Core.UIAutomation;
+using System.Linq;
+using System;
 
 namespace Test.MSAL.UIAutomation
 {
@@ -49,7 +51,7 @@ namespace Test.MSAL.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public void AcquireTokenInteractiveTestHelper(
             UserQueryParameters userParams,
-            string uiBehavior = "login")
+            string uiBehavior = CoreUiTestConstants.UIBehviorLogin)
         {
             AcquireTokenInteractiveHelper(userParams, uiBehavior);
             _coreMobileTestHelper.VerifyResult();
@@ -62,11 +64,15 @@ namespace Test.MSAL.UIAutomation
         public void AcquireTokenSilentTestHelper(UserQueryParameters userParams)
         {
             //acquire token for 1st resource
-            AcquireTokenInteractiveHelper(userParams, "login");
+            AcquireTokenInteractiveHelper(userParams, CoreUiTestConstants.UIBehviorLogin);
             _coreMobileTestHelper.VerifyResult();
 
             //acquire token for 2nd resource with refresh token
-            SetInputData(CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            SetInputData(
+                CoreUiTestConstants.UIAutomationAppV2, 
+                CoreUiTestConstants.DefaultScope, 
+                CoreUiTestConstants.UIBehviorLogin);
+
             _testController.Tap(CoreUiTestConstants.AcquireTokenSilentID);
             _coreMobileTestHelper.VerifyResult();
         }
@@ -76,7 +82,10 @@ namespace Test.MSAL.UIAutomation
             string uiBehavior)
         {
             var user = PrepareForAuthentication(userParams);
-            SetInputData(CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            SetInputData(
+                CoreUiTestConstants.UIAutomationAppV2, 
+                CoreUiTestConstants.DefaultScope, 
+                uiBehavior);
             _coreMobileTestHelper.PerformSignInFlow(user);
         }
 
@@ -90,8 +99,10 @@ namespace Test.MSAL.UIAutomation
             return _testController.GetUser(userParams);
         }
 
-        private void SetInputData(string clientId, string scopes)
+        private void SetInputData(string clientId, string scopes, string uiBehavior)
         {
+            ValidateUiBehaviorString(uiBehavior);
+
             _testController.Tap(CoreUiTestConstants.SettingsPageID);
 
             //Enter ClientID
@@ -103,6 +114,25 @@ namespace Test.MSAL.UIAutomation
             _testController.Tap(CoreUiTestConstants.AcquireTokenID);
             _testController.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
             _testController.DismissKeyboard();
+
+            // Set UIBehavior
+            _testController.Tap(CoreUiTestConstants.UiBehaviorID);
+            _testController.Tap(uiBehavior);
+        }
+
+        private void ValidateUiBehaviorString(string uiBehavior)
+        {
+            var okList = new[] {
+                CoreUiTestConstants.UIBehviorConsent,
+                CoreUiTestConstants.UIBehviorLogin,
+                CoreUiTestConstants.UIBehviorSelectAccount };
+
+            bool isInList = okList.Any(item => item.CaseInsensitiveOrdinalEquals(uiBehavior));
+
+            if (!isInList)
+            {
+                throw new InvalidOperationException("Test Setup Error: invalid uiBehavior " + uiBehavior);
+            }
         }
     }
 }

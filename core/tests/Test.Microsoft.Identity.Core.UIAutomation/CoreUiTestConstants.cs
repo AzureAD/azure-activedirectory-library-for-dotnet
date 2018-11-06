@@ -66,9 +66,15 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string CachePageID = "Cache";
         public const string SettingsPageID = "Settings";
         public const string ScopesEntryID = "scopesList";
+        public const string UiBehaviorID = "uiBehavior";
 
         //Test Constants
         public const int ResultCheckPolliInterval = 1000;
         public const int MaximumResultCheckRetryAttempts = 20;
+
+        // UIBehavior - these should match the public MSAL constants
+        public const string UIBehviorLogin = "login";
+        public const string UIBehviorConsent = "consent";
+        public const string UIBehviorSelectAccount = "select_account";
     }
 }
