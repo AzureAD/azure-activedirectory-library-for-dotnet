@@ -75,58 +75,58 @@ namespace Test.ADAL.UIAutomation
 
         public void AcquireTokenInteractiveHelper(UserQueryParameters userParams)
         {
-            var user = PrepareForAuthentication(_testController, userParams);
-            SetInputData(_testController, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            var user = PrepareForAuthentication(userParams);
+            SetInputData(CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
             _coreMobileTestHelper.PerformSignInFlow(user);
         }
 
         public void AcquireTokenWithPromptBehaviorAlwaysHelper(UserQueryParameters userParams)
         {
-            var user = PrepareForAuthentication(_testController, userParams);
-            SetInputData(_testController, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            var user = PrepareForAuthentication(userParams);
+            SetInputData(CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
 
             // AcquireToken promptBehavior.Auto to get a token in the cache 
-            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAuto);
+            SetPromptBehavior(CoreUiTestConstants.PromptBehaviorAuto);
             _coreMobileTestHelper.PerformSignInFlow(user);
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown 
-            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAlways);
+            SetPromptBehavior(CoreUiTestConstants.PromptBehaviorAlways);
             _coreMobileTestHelper.PerformSignInFlow(user);
 
             // AcquireToken promptBehavior.Auto. No UI should be shown. 
-            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAuto);
+            SetPromptBehavior(CoreUiTestConstants.PromptBehaviorAuto);
             _coreMobileTestHelper.PerformSignInFlowWithoutUI();
             _coreMobileTestHelper.VerifyResult();
         }
 
-        private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private IUser PrepareForAuthentication(UserQueryParameters userParams)
         {
             //Navigate to second page
-            controller.Tap(CoreUiTestConstants.SecondPageID);
+            _testController.Tap(CoreUiTestConstants.SecondPageID);
 
             //Clear Cache
-            controller.Tap(CoreUiTestConstants.ClearCacheID);
+            _testController.Tap(CoreUiTestConstants.ClearCacheID);
 
             //Get User from Lab
-            return controller.GetUser(userParams);
+            return _testController.GetUser(userParams);
         }
 
-        private void SetInputData(ITestController controller, string clientID, string resource)
+        private void SetInputData(string clientID, string resource)
         {
             //Enter ClientID
-            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, clientID, false);
-            controller.DismissKeyboard();
+            _testController.EnterText(CoreUiTestConstants.ClientIdEntryID, clientID, false);
+            _testController.DismissKeyboard();
 
             //Enter Resource
-            controller.EnterText(CoreUiTestConstants.ResourceEntryID, resource, false);
-            controller.DismissKeyboard();
+            _testController.EnterText(CoreUiTestConstants.ResourceEntryID, resource, false);
+            _testController.DismissKeyboard();
         }
 
-        private void SetPromptBehavior(ITestController controller, string promptBehavior)
+        private void SetPromptBehavior(string promptBehavior)
         {
             //Select PromptBehavior 
-            controller.EnterText(CoreUiTestConstants.PromptBehaviorEntryID, promptBehavior, false);
-            controller.DismissKeyboard();
+            _testController.EnterText(CoreUiTestConstants.PromptBehaviorEntryID, promptBehavior, false);
+            _testController.DismissKeyboard();
         }
     }
 }
