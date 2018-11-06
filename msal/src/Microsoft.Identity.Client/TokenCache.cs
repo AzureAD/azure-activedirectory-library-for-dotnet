@@ -58,8 +58,6 @@ namespace Microsoft.Identity.Client
     {
         internal const string NullPreferredUsernameDisplayLabel = "Missing from the token response";
 
-        // TODO: the TokenCache itself shouldn't be doing http access (SRP)
-        internal IHttpManager HttpManager { get; set; }
         private ITelemetryManager _telemetryManager = new TelemetryManager();
 
         internal ITelemetryManager TelemetryManager
@@ -71,6 +69,8 @@ namespace Microsoft.Identity.Client
                 TokenCacheAccessor.TelemetryManager = value;
             }
         }
+
+        internal IAadInstanceDiscovery AadInstanceDiscovery { get; set; }
 
         static TokenCache()
         {
@@ -128,8 +128,8 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public bool HasStateChanged
         {
-            get { return _hasStateChanged; }
-            set { _hasStateChanged = value; }
+            get => _hasStateChanged;
+            set => _hasStateChanged = value;
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)
@@ -148,10 +148,14 @@ namespace Microsoft.Identity.Client
             BeforeWrite?.Invoke(args);
         }
 
-        internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken
-            (AuthenticationRequestParameters requestParams, MsalTokenResponse response)
+        internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken(
+            IValidatedAuthoritiesCache validatedAuthoritiesCache, 
+            IAadInstanceDiscovery aadInstanceDiscovery,
+            AuthenticationRequestParameters requestParams, 
+            MsalTokenResponse response)
         {
-            var tenantId = Authority.CreateAuthority(requestParams.TenantUpdatedCanonicalAuthority, false)
+            // todo: could we look into modifying this to take tenantId to reduce the dependency on IValidatedAuthoritiesCache?
+            var tenantId = Authority.CreateAuthority(validatedAuthoritiesCache, aadInstanceDiscovery, requestParams.TenantUpdatedCanonicalAuthority, false)
                 .GetTenantId();
 
             IdToken idToken = IdToken.Parse(response.IdToken);
@@ -679,17 +683,17 @@ namespace Microsoft.Identity.Client
             }
         }
 
-        private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaDataAsync
-            (string authority, bool validateAuthority, RequestContext requestContext)
+        private async Task<InstanceDiscoveryMetadataEntry> GetCachedOrDiscoverAuthorityMetaDataAsync(
+            string authority,
+            bool validateAuthority,
+            RequestContext requestContext)
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
             var authorityType = Authority.GetAuthorityType(authority);
-            if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
+            if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C && AadInstanceDiscovery != null)
             {
-                instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync(
-                    HttpManager,
-                    TelemetryManager,
+                instanceDiscoveryMetadata = await AadInstanceDiscovery.GetMetadataEntryAsync(
                     new Uri(authority),
                     validateAuthority,
                     requestContext).ConfigureAwait(false);
@@ -699,12 +703,16 @@ namespace Microsoft.Identity.Client
 
         private InstanceDiscoveryMetadataEntry GetCachedAuthorityMetaData(string authority)
         {
-            InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
+            if (AadInstanceDiscovery == null)
+            {
+                return null;
+            }
 
+            InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
             var authorityType = Authority.GetAuthorityType(authority);
             if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
             {
-                AadInstanceDiscovery.Instance.Cache.TryGetValue(new Uri(authority).Host, out instanceDiscoveryMetadata);
+                AadInstanceDiscovery.TryGetValue(new Uri(authority).Host, out instanceDiscoveryMetadata);
             }
             return instanceDiscoveryMetadata;
         }

@@ -28,7 +28,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
@@ -38,10 +40,14 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
     [DeploymentItem("Resources\\OpenidConfiguration-MissingFields-B2C.json")]
     public class B2CAuthorityTests
     {
+        private IValidatedAuthoritiesCache _validatedAuthoritiesCache;
+        private IAadInstanceDiscovery _aadInstanceDiscovery;
+        
         [TestInitialize]
         public void TestInitialize()
         {
-            Authority.ValidatedAuthorities.Clear();
+            _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
+            _aadInstanceDiscovery = new AadInstanceDiscovery(new HttpManager(), new TelemetryManager());
         }
 
         [TestCleanup]
@@ -55,7 +61,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             try
             {
-                var instance = Authority.CreateAuthority("https://login.microsoftonline.in/tfp/", false);
+                var instance = Authority.CreateAuthority(_validatedAuthoritiesCache, _aadInstanceDiscovery, "https://login.microsoftonline.in/tfp/", false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task.Run(
@@ -80,7 +86,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("B2CAuthorityTests")]
         public void ValidationEnabledNotSupportedTest()
         {
-            var instance = Authority.CreateAuthority(CoreTestConstants.B2CAuthority, true);
+            var instance = Authority.CreateAuthority(_validatedAuthoritiesCache, _aadInstanceDiscovery, CoreTestConstants.B2CAuthority, true);
             Assert.IsNotNull(instance);
             Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
             try
@@ -107,22 +113,22 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("B2CAuthorityTests")]
         public void CanonicalAuthorityInitTest()
         {
-            const string uriNoPort = CoreTestConstants.B2CAuthority;
-            const string uriNoPortTailSlash = CoreTestConstants.B2CAuthority;
+            const string UriNoPort = CoreTestConstants.B2CAuthority;
+            const string UriNoPortTailSlash = CoreTestConstants.B2CAuthority;
 
-            const string uriDefaultPort = "https://login.microsoftonline.in:443/tfp/tenant/policy";
+            const string UriDefaultPort = "https://login.microsoftonline.in:443/tfp/tenant/policy";
 
-            const string uriCustomPort = "https://login.microsoftonline.in:444/tfp/tenant/policy";
-            const string uriCustomPortTailSlash = "https://login.microsoftonline.in:444/tfp/tenant/policy/";
+            const string UriCustomPort = "https://login.microsoftonline.in:444/tfp/tenant/policy";
+            const string UriCustomPortTailSlash = "https://login.microsoftonline.in:444/tfp/tenant/policy/";
 
-            var authority = new B2CAuthority(uriNoPort, false);
-            Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
+            var authority = new B2CAuthority(_validatedAuthoritiesCache, UriNoPort, false, _aadInstanceDiscovery);
+            Assert.AreEqual(UriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(uriDefaultPort, false);
-            Assert.AreEqual(uriNoPortTailSlash, authority.CanonicalAuthority);
+            authority = new B2CAuthority(_validatedAuthoritiesCache, UriDefaultPort, false, _aadInstanceDiscovery);
+            Assert.AreEqual(UriNoPortTailSlash, authority.CanonicalAuthority);
 
-            authority = new B2CAuthority(uriCustomPort, false);
-            Assert.AreEqual(uriCustomPortTailSlash, authority.CanonicalAuthority);
+            authority = new B2CAuthority(_validatedAuthoritiesCache, UriCustomPort, false, _aadInstanceDiscovery);
+            Assert.AreEqual(UriCustomPortTailSlash, authority.CanonicalAuthority);
         }
     }
 }

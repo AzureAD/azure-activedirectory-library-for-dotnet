@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
@@ -53,6 +54,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IHttpManager httpManager,
             ICryptographyManager cryptographyManager,
             ITelemetryManager telemetryManager,
+            IValidatedAuthoritiesCache validatedAuthoritiesCache,
+            IAadInstanceDiscovery aadInstanceDiscovery,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IEnumerable<string> extraScopesToConsent,
@@ -62,6 +65,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 httpManager,
                 cryptographyManager,
                 telemetryManager,
+                validatedAuthoritiesCache,
+                aadInstanceDiscovery,
                 authenticationRequestParameters,
                 apiId,
                 extraScopesToConsent,
@@ -75,13 +80,15 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IHttpManager httpManager,
             ICryptographyManager cryptographyManager,
             ITelemetryManager telemetryManager,
+            IValidatedAuthoritiesCache validatedAuthoritiesCache,
+            IAadInstanceDiscovery aadInstanceDiscovery,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IEnumerable<string> extraScopesToConsent,
             string loginHint,
             UIBehavior uiBehavior,
             IWebUI webUi)
-            : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
+            : base(httpManager, cryptographyManager, telemetryManager, validatedAuthoritiesCache, aadInstanceDiscovery, authenticationRequestParameters, apiId)
         {
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
@@ -149,7 +156,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
             await AuthenticationRequestParameters
-                  .Authority.UpdateCanonicalAuthorityAsync(HttpManager, TelemetryManager, AuthenticationRequestParameters.RequestContext)
+                  .Authority.UpdateCanonicalAuthorityAsync(AuthenticationRequestParameters.RequestContext)
                   .ConfigureAwait(false);
 
             //this method is used in confidential clients to create authorization URLs.

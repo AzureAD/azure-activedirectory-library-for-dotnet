@@ -59,8 +59,6 @@ namespace Test.MSAL.NET.Unit
         private void TestInitialize(MockHttpManager httpManager)
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            Authority.ValidatedAuthorities.Clear();
-            AadInstanceDiscovery.Instance.Cache.Clear();
 
             httpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
