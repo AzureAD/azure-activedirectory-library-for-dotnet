@@ -73,7 +73,7 @@ namespace Microsoft.Identity.Core.Instance
                              .Instance.GetMetadataEntryAsync(
                                  httpManager,
                                  telemetryManager,
-                                 new Uri(UpdateCanonicalAuthorityB2C()),
+                                 new Uri(GetCanonicalAuthorityB2C()),
                                  ValidateAuthority,
                                  requestContext)
                              .ConfigureAwait(false);
@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.Instance
             CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
         }
 
-        private string UpdateCanonicalAuthorityB2C()
+        private string GetCanonicalAuthorityB2C()
         {
             Uri b2cAuthority = new Uri(CanonicalAuthority);
 
@@ -91,11 +91,11 @@ namespace Microsoft.Identity.Core.Instance
 
         private bool InTrustedHostList(string host)
         {
-            bool isInList =
-                !string.IsNullOrEmpty(
-                    TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
-            isInList |= host.EndsWith(B2CTrustedHost);
-            return isInList;
+            if(IsInTrustedHostList(host) || host.EndsWith(B2CTrustedHost))
+            {
+                return true;
+            }
+            return false;
         }
 
         protected override string GetDefaultOpenIdConfigurationEndpoint()
