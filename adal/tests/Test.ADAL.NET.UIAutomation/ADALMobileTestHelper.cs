@@ -26,13 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Test.Microsoft.Identity.LabInfrastructure;
-using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
-using Xamarin.UITest;
-using Xamarin.UITest.Queries;
-using System.Threading;
-using System;
-using System.Threading.Tasks;
 
 namespace Test.ADAL.UIAutomation
 {
@@ -41,61 +35,68 @@ namespace Test.ADAL.UIAutomation
     /// </summary>
 	public class ADALMobileTestHelper
     {
-        CoreMobileTestHelper CoreMobileTestHelper = new CoreMobileTestHelper();
+        private ITestController _testController;
+        private CoreMobileTestHelper _coreMobileTestHelper;
+
+        public ADALMobileTestHelper(ITestController testController)
+        {
+            _testController = testController;
+            _coreMobileTestHelper = new CoreMobileTestHelper(testController);
+        }
 
         /// <summary>
         /// Runs through the standard acquire token interactive flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveTestHelper(UserQueryParameters userParams)
         {
-            AcquireTokenInteractiveHelper(controller, userParams);
-            CoreMobileTestHelper.VerifyResult(controller);
+            AcquireTokenInteractiveHelper(userParams);
+            _coreMobileTestHelper.VerifyResult();
         }
 
         /// <summary>
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenSilentTestHelper(UserQueryParameters userParams)
         {
-            AcquireTokenInteractiveHelper(controller, userParams);
-            CoreMobileTestHelper.VerifyResult(controller);
+            AcquireTokenInteractiveHelper(userParams);
+            _coreMobileTestHelper.VerifyResult();
 
             //Enter 2nd Resource
-            controller.EnterText(CoreUiTestConstants.ResourceEntryID, CoreUiTestConstants.Exchange, false);
-            controller.DismissKeyboard();
+            _testController.EnterText(CoreUiTestConstants.ResourceEntryID, CoreUiTestConstants.Exchange, false);
+            _testController.DismissKeyboard();
 
             //Acquire token silently
-            controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
+            _testController.Tap(CoreUiTestConstants.AcquireTokenSilentID);
 
-            CoreMobileTestHelper.VerifyResult(controller);
+            _coreMobileTestHelper.VerifyResult();
         }
 
-        public void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveHelper(UserQueryParameters userParams)
         {
-            var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            var user = PrepareForAuthentication(_testController, userParams);
+            SetInputData(_testController, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            _coreMobileTestHelper.PerformSignInFlow(user);
         }
 
-        public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenWithPromptBehaviorAlwaysHelper(UserQueryParameters userParams)
         {
-            var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
+            var user = PrepareForAuthentication(_testController, userParams);
+            SetInputData(_testController, CoreUiTestConstants.MSIDLAB4ClientId, CoreUiTestConstants.MSGraph);
 
             // AcquireToken promptBehavior.Auto to get a token in the cache 
-            SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAuto);
+            _coreMobileTestHelper.PerformSignInFlow(user);
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown 
-            SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAlways);
-            CoreMobileTestHelper.PerformSignInFlow(controller, user);
+            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAlways);
+            _coreMobileTestHelper.PerformSignInFlow(user);
 
             // AcquireToken promptBehavior.Auto. No UI should be shown. 
-            SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
-            CoreMobileTestHelper.PerformSignInFlowWithoutUI(controller);
-            CoreMobileTestHelper.VerifyResult(controller);
+            SetPromptBehavior(_testController, CoreUiTestConstants.PromptBehaviorAuto);
+            _coreMobileTestHelper.PerformSignInFlowWithoutUI();
+            _coreMobileTestHelper.VerifyResult();
         }
 
         private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)

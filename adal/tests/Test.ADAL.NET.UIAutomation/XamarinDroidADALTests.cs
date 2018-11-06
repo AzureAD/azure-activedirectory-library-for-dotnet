@@ -44,14 +44,14 @@ namespace Test.ADAL.UIAutomation
     [TestFixture(Platform.Android)]
     public class XamarinDroidADALTests
     {
-        IApp app;
-        Platform platform;
-        ITestController xamarinController = new XamarinUITestController();
-        ADALMobileTestHelper _adalMobileTestHelper = new ADALMobileTestHelper();
+        IApp _app;
+        Platform _platform;
+        ITestController _testController;
+        ADALMobileTestHelper _adalMobileTestHelper;
 
         public XamarinDroidADALTests(Platform platform)
         {
-            this.platform = platform;
+            this._platform = platform;
         }
 
         /// <summary>
@@ -60,8 +60,10 @@ namespace Test.ADAL.UIAutomation
         [SetUp]
         public void InitializeTest()
         {
-            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.ADAL");
-            xamarinController.Application = app;
+            _app = AppFactory.StartApp(_platform, "com.Microsoft.XFormsDroid.ADAL");
+            _testController = new XamarinUITestController();
+            _testController.Application = _app;
+            _adalMobileTestHelper = new ADALMobileTestHelper(_testController);
         }
 
         /// <summary>
@@ -70,7 +72,7 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenSilentTest()
         {
-            _adalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _adalMobileTestHelper.AcquireTokenSilentTestHelper(LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveWithPromptAlwaysTest()
         {
-            _adalMobileTestHelper.AcquireTokenWithPromptBehaviorAlwaysHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _adalMobileTestHelper.AcquireTokenWithPromptBehaviorAlwaysHelper(LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace Test.ADAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = true;
 
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -116,7 +118,7 @@ namespace Test.ADAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = false;
 
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -129,7 +131,7 @@ namespace Test.ADAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = true;
 
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -142,7 +144,9 @@ namespace Test.ADAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = false;
 
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
+
+
     }
 }

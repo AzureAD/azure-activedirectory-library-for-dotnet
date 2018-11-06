@@ -43,14 +43,14 @@ namespace Test.MSAL.UIAutomation
     [TestFixture(Platform.Android)]
     public class XamarinMSALDroidTests
     {
-        IApp app;
-        Platform platform;
-        ITestController xamarinController = new XamarinUITestController();
-        MSALMobileTestHelper _msalMobileTestHelper = new MSALMobileTestHelper();
+        IApp _app;
+        Platform _platform;
+        ITestController _xamarinController;
+        MSALMobileTestHelper _msalMobileTestHelper;
 
         public XamarinMSALDroidTests(Platform platform)
         {
-            this.platform = platform;
+            this._platform = platform;
         }
 
         /// <summary>
@@ -59,8 +59,11 @@ namespace Test.MSAL.UIAutomation
         [SetUp]
         public void InitializeBeforeTest()
         {
-            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.MSAL");
-            xamarinController.Application = app;
+            _app = AppFactory.StartApp(_platform, "com.Microsoft.XFormsDroid.MSAL");
+            _xamarinController = new XamarinUITestController();
+            _msalMobileTestHelper = new MSALMobileTestHelper(_xamarinController);
+
+            _xamarinController.Application = _app;
         }
 
         /// <summary>
@@ -69,16 +72,16 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(LabUserHelper.DefaultUserQuery);
         }
-
+    
         /// <summary>
         /// Runs through the standard acquire token silent flow
         /// </summary>
         [Test]
         public void AcquireTokenSilentTest()
         {
-            _msalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.DefaultUserQuery);
+            _msalMobileTestHelper.AcquireTokenSilentTestHelper(LabUserHelper.DefaultUserQuery);
         }
 
         /// <summary>
@@ -91,7 +94,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = true;
 
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = true;
 
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -117,7 +120,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV4;
             user.IsFederatedUser = false;
 
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
 
         /// <summary>
@@ -130,7 +133,7 @@ namespace Test.MSAL.UIAutomation
             user.FederationProvider = FederationProvider.AdfsV3;
             user.IsFederatedUser = false;
 
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, user);
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(user);
         }
     }
 }

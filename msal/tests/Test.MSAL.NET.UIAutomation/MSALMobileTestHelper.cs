@@ -26,11 +26,7 @@
 //------------------------------------------------------------------------------
 
 using Test.Microsoft.Identity.LabInfrastructure;
-using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
-using System.Threading;
-using System;
-using System.Threading.Tasks;
 
 namespace Test.MSAL.UIAutomation
 {
@@ -39,64 +35,74 @@ namespace Test.MSAL.UIAutomation
     /// </summary>
     public class MSALMobileTestHelper
     {
-        CoreMobileTestHelper _coreMobileTestHelper = new CoreMobileTestHelper();
+        CoreMobileTestHelper _coreMobileTestHelper;
+        ITestController _testController;
 
+        public MSALMobileTestHelper(ITestController testController)
+        {
+            _testController = testController;
+            _coreMobileTestHelper = new CoreMobileTestHelper(testController);
+        }
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenInteractiveTestHelper(
+            UserQueryParameters userParams,
+            string uiBehavior = "login")
         {
-            AcquireTokenInteractiveHelper(controller, userParams);
-            _coreMobileTestHelper.VerifyResult(controller);
+            AcquireTokenInteractiveHelper(userParams, uiBehavior);
+            _coreMobileTestHelper.VerifyResult();
         }
 
         /// <summary>
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenSilentTestHelper(ITestController controller, UserQueryParameters userParams)
+        public void AcquireTokenSilentTestHelper(UserQueryParameters userParams)
         {
             //acquire token for 1st resource
-            AcquireTokenInteractiveHelper(controller, userParams);
-            _coreMobileTestHelper.VerifyResult(controller);
+            AcquireTokenInteractiveHelper(userParams, "login");
+            _coreMobileTestHelper.VerifyResult();
 
             //acquire token for 2nd resource with refresh token
-            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
-            controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
-            _coreMobileTestHelper.VerifyResult(controller);
+            SetInputData(CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            _testController.Tap(CoreUiTestConstants.AcquireTokenSilentID);
+            _coreMobileTestHelper.VerifyResult();
         }
 
-        private void AcquireTokenInteractiveHelper(ITestController controller, UserQueryParameters userParams)
+        private void AcquireTokenInteractiveHelper(
+            UserQueryParameters userParams,
+            string uiBehavior)
         {
-            var user = PrepareForAuthentication(controller, userParams);
-            SetInputData(controller, CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
-            _coreMobileTestHelper.PerformSignInFlow(controller, user);
+            var user = PrepareForAuthentication(userParams);
+            SetInputData(CoreUiTestConstants.UIAutomationAppV2, CoreUiTestConstants.DefaultScope);
+            _coreMobileTestHelper.PerformSignInFlow(user);
         }
 
-        private IUser PrepareForAuthentication(ITestController controller, UserQueryParameters userParams)
+        private IUser PrepareForAuthentication(UserQueryParameters userParams)
         {
             //Clear Cache
-            controller.Tap(CoreUiTestConstants.CachePageID);
-            controller.Tap(CoreUiTestConstants.ClearCacheID);
+            _testController.Tap(CoreUiTestConstants.CachePageID);
+            _testController.Tap(CoreUiTestConstants.ClearCacheID);
 
             //Get User from Lab
-            return controller.GetUser(userParams);
+            return _testController.GetUser(userParams);
         }
 
-        private void SetInputData(ITestController controller, string ClientID, string scopes)
+        private void SetInputData(string clientId, string scopes)
         {
-            controller.Tap(CoreUiTestConstants.SettingsPageID);
+            _testController.Tap(CoreUiTestConstants.SettingsPageID);
 
             //Enter ClientID
-            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, false);
-            controller.DismissKeyboard();
-            controller.Tap(CoreUiTestConstants.SaveID);
+            _testController.EnterText(CoreUiTestConstants.ClientIdEntryID, clientId, false);
+            _testController.DismissKeyboard();
+            _testController.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-            controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
-            controller.DismissKeyboard();
+            _testController.Tap(CoreUiTestConstants.AcquireTokenID);
+            _testController.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
+            _testController.DismissKeyboard();
         }
     }
 }

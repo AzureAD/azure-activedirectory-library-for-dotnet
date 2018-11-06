@@ -33,37 +33,44 @@ using Test.Microsoft.Identity.LabInfrastructure;
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
-    {   
-        public void PerformSignInFlow(ITestController controller, IUser user)
+    {
+        ITestController _controller;
+
+        public CoreMobileTestHelper(ITestController testController)
+        {
+            this._controller = testController;
+        }
+
+        public void PerformSignInFlow(IUser user)
         {
             UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
             userInformationFieldIds.DetermineUser(user);
 
             //Acquire token flow
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+            _controller.Tap(CoreUiTestConstants.AcquireTokenID);
             //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
-            controller.DismissKeyboard();
+            _controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
+            _controller.DismissKeyboard();
             //idSIButton9 = Sign in button
-            controller.Tap(CoreUiTestConstants.WebSubmitID, true);
+            _controller.Tap(CoreUiTestConstants.WebSubmitID, true);
             //i0118 = password text field
-            controller.EnterText(userInformationFieldIds.PasswordInputId, ((LabUser)user).GetPassword(), true);
-            controller.DismissKeyboard();
-            controller.Tap(userInformationFieldIds.SignInButtonId, true);
+            _controller.EnterText(userInformationFieldIds.PasswordInputId, ((LabUser)user).GetPassword(), true);
+            _controller.DismissKeyboard();
+            _controller.Tap(userInformationFieldIds.SignInButtonId, true);
         }
 
-        public void PerformSignInFlowWithoutUI(ITestController controller)
+        public void PerformSignInFlowWithoutUI()
         {
             //Acquire token flow
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+            _controller.Tap(CoreUiTestConstants.AcquireTokenID);
         }
 
-        public void VerifyResult(ITestController controller)
+        public void VerifyResult()
         {
             RetryVerificationHelper(() =>
             {
                 //Test results are put into a label that is checked for messages
-                var result = controller.GetText(CoreUiTestConstants.TestResultID);
+                var result = _controller.GetText(CoreUiTestConstants.TestResultID);
                 if (result.Contains(CoreUiTestConstants.TestResultSuccsesfulMessage))
                 {
                     return;
