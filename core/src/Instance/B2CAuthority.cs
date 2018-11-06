@@ -46,7 +46,6 @@ namespace Microsoft.Identity.Core.Instance
             : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.B2C;
-            ValidateAuthority = validateAuthority;
 
             Uri authorityUri = new Uri(authority);
             string[] pathSegments = authorityUri.AbsolutePath.Substring(1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
