@@ -1,3 +1,16 @@
+Version 4.4.0
+===============
+Cache fixes 
+   - Not remove account cache entities [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1365)
+   - Fix issue with sharing in memory cahce for different instances of the TokenCache [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1360)
+   - Clear in memory version of cache [MSAL issue #654](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/654)
+   - Fix NullPointException when adalv3 account is used because there is no client info in adalv3 [MSAL Issue #653](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/654)
+   - RemoveAdalUser api now removes users by accountID and by displayableID to cover migration scenario from adalv3 to adalv4 to msalv2. [MSAL Issue #652](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/652)
+   - Fix for internal TokenCache.Clear api so ADAL persistent cache is also cleared [MSAL Issue #651](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/651)
+   - Optimize cache lookups with native iOS by modifying field for persistence on iOS. [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1350)
+   - Fix for reading ExtraQueryParameter environment variable on netcore in ADAL [ADAL issue #1362](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1362)
+- Make a ConfidentialClient entry point obsolete on platforms which only support confidential clients [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1375)
+
 Version 4.3.0
 ===============
 This release includes:
