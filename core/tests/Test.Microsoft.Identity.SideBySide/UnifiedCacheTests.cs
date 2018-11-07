@@ -63,13 +63,7 @@ namespace Test.MSAL.NET.Integration
         {
             if (user == null)
             {
-                user = GetUser(
-                  new UserQueryParameters
-                  {
-                      IsMamUser = false,
-                      IsMfaUser = false,
-                      IsFederatedUser = false
-                  });
+                user = LabUserHelper.GetUser(LabUserHelper.DefaultUserQuery).User;
 
                 string stringPassword = ((LabUser)user).GetPassword();
                 securePassword = new NetworkCredential("", stringPassword).SecurePassword;
@@ -557,14 +551,6 @@ namespace Test.MSAL.NET.Integration
             Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllAccessTokensAsString().Count == 0);
             Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllRefreshTokensAsString().Count == 0);
             Assert.IsTrue(msalCache.TokenCacheAccessor.GetAllIdTokensAsString().Count == 0);
-        }
-
-        private static Microsoft.Identity.LabInfrastructure.IUser GetUser(UserQueryParameters query)
-        {
-            ILabService _labService = new LabServiceApi(new KeyVaultSecretsProvider());
-            var user = _labService.GetUser(query);
-            Assert.IsTrue(user != null, "Found no users for the given query.");
-            return user;
         }
     }
 }
