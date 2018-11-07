@@ -45,7 +45,7 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenInteractiveTestHelper(ITestController controller, LabResponse userData)
         {
             AcquireTokenInteractiveHelper(controller, userData);
             _coreMobileTestHelper.VerifyResult(controller);
@@ -55,7 +55,7 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenSilentTestHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenSilentTestHelper(ITestController controller, LabResponse userData)
         {
             //acquire token for 1st resource
             AcquireTokenInteractiveHelper(controller, userData);
@@ -67,7 +67,7 @@ namespace Test.MSAL.UIAutomation
             _coreMobileTestHelper.VerifyResult(controller);
         }
 
-        private void AcquireTokenInteractiveHelper(ITestController controller, ILabResponse userData)
+        private void AcquireTokenInteractiveHelper(ITestController controller, LabResponse userData)
         {
             PrepareForAuthentication(controller);
             SetInputData(controller, userData.AppId, CoreUiTestConstants.DefaultScope);
@@ -90,7 +90,7 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+            controller.Tap(CoreUiTestConstants.AcquirePageID);
             controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, false);
         }
     }

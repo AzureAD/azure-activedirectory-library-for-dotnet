@@ -34,7 +34,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
     {   
-        public void PerformSignInFlow(ITestController controller, IUser user)
+        public void PerformSignInFlow(ITestController controller, LabUser user)
         {
             UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
             userInformationFieldIds.DetermineFieldIds(user);
@@ -46,7 +46,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             //idSIButton9 = Sign in button
             controller.Tap(CoreUiTestConstants.WebSubmitID, true);
             //i0118 = password text field
-            controller.EnterText(userInformationFieldIds.PasswordInputId, ((LabUser)user).GetPassword(), true);
+            controller.EnterText(userInformationFieldIds.PasswordInputId, user.GetPassword(), true);
             controller.Tap(userInformationFieldIds.SignInButtonId, true);
         }
 

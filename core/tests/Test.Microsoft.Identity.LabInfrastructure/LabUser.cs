@@ -31,7 +31,7 @@ using Newtonsoft.Json;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public class LabUser : IUser
+    public class LabUser
     {
         public LabUser() { }
 
@@ -54,7 +54,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         [JsonProperty("credentialVaultKeyName")]
         public string CredentialUrl { get; set; }
 
-        public IUser HomeUser { get; set; }
+        public LabUser HomeUser { get; set; }
 
         [JsonProperty("external")]
         public bool IsExternal { get; set; }

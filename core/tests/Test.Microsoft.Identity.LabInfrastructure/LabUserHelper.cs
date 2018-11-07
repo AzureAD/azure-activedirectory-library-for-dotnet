@@ -56,7 +56,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             }
         }
 
-        public static ILabResponse GetUser(UserQueryParameters query)
+        public static LabResponse GetLabUserAndApp(UserQueryParameters query)
         {
             var user = _labService.GetUser(query);
             if (user == null)

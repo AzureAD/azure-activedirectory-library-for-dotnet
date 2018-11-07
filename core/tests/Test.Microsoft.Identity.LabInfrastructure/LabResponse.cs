@@ -32,19 +32,12 @@ using System.Text;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public class LabResponse : ILabResponse
+    public class LabResponse
     {
         [JsonProperty("AppId")]
         public string AppId { get; set; }
 
         [JsonProperty("Users")]
-        public LabUser Users { get; set; }
-
-        public IUser User {
-            get
-            {
-                return Users;
-            }
-        }
+        public LabUser User { get; set; }
     }
 }

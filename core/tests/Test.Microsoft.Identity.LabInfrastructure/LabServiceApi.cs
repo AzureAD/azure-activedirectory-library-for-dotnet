@@ -45,7 +45,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             this._keyVault = keyVault;
         }
 
-        private ILabResponse GetUserFromLab(UserQueryParameters query)
+        private LabResponse GetUserFromLab(UserQueryParameters query)
         {                        
             HttpClient webClient = new HttpClient();
             IDictionary<string, string> queryDict = new Dictionary<string, string>();
@@ -84,7 +84,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
 
-            LabUser user =  response.Users;
+            LabUser user =  response.User;
 
             if (user == null)
                 user = JsonConvert.DeserializeObject<LabUser>(result);
@@ -101,7 +101,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         /// </summary>
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>Users that match the given query parameters.</returns>
-        public ILabResponse GetUser(UserQueryParameters query)
+        public LabResponse GetUser(UserQueryParameters query)
         {
             var response = GetUserFromLab(query);
             var user = response.User as LabUser;
