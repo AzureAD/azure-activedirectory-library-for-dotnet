@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,12 +25,26 @@
 //
 //------------------------------------------------------------------------------
 
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public interface ILabService
+    public class LabResponse : ILabResponse
     {
-        ILabResponse GetUser(UserQueryParameters query);
+        [JsonProperty("AppId")]
+        public string AppId { get; set; }
+
+        [JsonProperty("Users")]
+        public LabUser Users { get; set; }
+
+        public IUser User {
+            get
+            {
+                return Users;
+            }
+        }
     }
 }

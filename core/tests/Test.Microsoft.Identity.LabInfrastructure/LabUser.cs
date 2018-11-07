@@ -42,8 +42,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         public KeyVaultSecretsProvider KeyVault { get; set; }
 
-        public string AppId { get; set; }
-
         [JsonProperty("objectId")]
         public Guid ObjectId { get; set; }
 
@@ -132,14 +130,5 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 throw new InvalidOperationException("Test setup: cannot get the user password. See inner exception.", e);
             }
         }
-    }
-
-    public class LabResponse
-    {
-        [JsonProperty("AppId")]
-        public string AppId { get; set; }
-
-        [JsonProperty("Users")]
-        public LabUser Users { get; set; }
     }
 }

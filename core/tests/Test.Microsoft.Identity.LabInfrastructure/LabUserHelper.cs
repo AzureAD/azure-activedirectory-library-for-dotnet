@@ -35,6 +35,14 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 {
     public static class LabUserHelper
     {
+        static LabServiceApi _labService;
+
+        static LabUserHelper()
+        {
+            var keyVaultSecretsProvider = new KeyVaultSecretsProvider();
+            _labService = new LabServiceApi(keyVaultSecretsProvider);
+        }
+
         public static UserQueryParameters DefaultUserQuery
         {
             get
@@ -46,6 +54,16 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     IsFederatedUser = false
                 };
             }
+        }
+
+        public static ILabResponse GetUser(UserQueryParameters query)
+        {
+            var user = _labService.GetUser(query);
+            if (user == null)
+            {
+                throw new LabUserNotFoundException(query, "Found no users for the given query.");
+            }
+            return user;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             this._keyVault = keyVault;
         }
 
-        private IUser GetUserFromLab(UserQueryParameters query)
+        private ILabResponse GetUserFromLab(UserQueryParameters query)
         {                        
             HttpClient webClient = new HttpClient();
             IDictionary<string, string> queryDict = new Dictionary<string, string>();
@@ -85,7 +85,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
 
             LabUser user =  response.Users;
-            user.AppId = response.AppId;
 
             if (user == null)
                 user = JsonConvert.DeserializeObject<LabUser>(result);
@@ -94,7 +93,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 user.InitializeHomeUser();
 
             user.KeyVault = _keyVault;
-            return user;
+            return response;
         }
 
         /// <summary>
@@ -102,9 +101,10 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         /// </summary>
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>Users that match the given query parameters.</returns>
-        public IUser GetUser(UserQueryParameters query)
+        public ILabResponse GetUser(UserQueryParameters query)
         {
-            var user = GetUserFromLab(query) as LabUser;
+            var response = GetUserFromLab(query);
+            var user = response.User as LabUser;
 
             if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
             {
@@ -116,7 +116,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 Console.WriteLine($"User '{user.Upn}' has no matching home user.");
             }
 
-            return user;
+            return response;
         }
     }
 }

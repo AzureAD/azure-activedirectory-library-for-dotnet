@@ -46,6 +46,5 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         string CurrentTenantId { get; }
         string HomeTenantId { get; }
         KeyVaultSecretsProvider KeyVault { get; set; }
-        string AppId { get; }
     }
 }

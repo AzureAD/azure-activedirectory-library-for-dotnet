@@ -1,4 +1,4 @@
-﻿//----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -25,12 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public interface ILabService
+    public interface ILabResponse
     {
-        ILabResponse GetUser(UserQueryParameters query);
+        string AppId { get; }
+
+        IUser User { get; }
     }
 }
