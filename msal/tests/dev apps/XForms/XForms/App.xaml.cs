@@ -42,6 +42,7 @@ namespace XForms
         public const string B2cClientId = "750a8822-a6d4-4127-bc0b-efbfacccbc28";
 
         public const string RedirectUriOnIos = "adaliosxformsapp://com.yourcompany.xformsapp";
+        public const string RedirectUriOnAndroid = "urn:ietf:wg:oauth:2.0:oob";
 
         public const string DefaultAuthority = "https://login.microsoftonline.com/common";
         public const string B2cAuthority = "https://login.microsoftonline.com/tfp/panwariusb2c.onmicrosoft.com/B2C_1_signup_signin/";
@@ -86,15 +87,6 @@ namespace XForms
             }
             
             MsalPublicClient.ValidateAuthority = ValidateAuthority;
-        }
-
-
-        public static string RedirectUriOnAndroid
-        {
-            get
-            {
-                return $"msauth-{ClientId}://com.microsoft.identity.client.sample";
-            }
         }
 
         protected override void OnStart()
