@@ -1,6 +1,6 @@
 Version 4.4.0
 ===============
-Cache fixes 
+- Cache fixes 
    - Not remove account cache entities [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1365)
    - Fix issue with sharing in memory cahce for different instances of the TokenCache [PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1360)
    - Clear in memory version of cache [MSAL issue #654](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/654)
