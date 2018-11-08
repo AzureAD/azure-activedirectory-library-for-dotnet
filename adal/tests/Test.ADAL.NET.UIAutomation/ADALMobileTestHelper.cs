@@ -47,9 +47,9 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token interactive flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
         {
-            AcquireTokenInteractiveHelper(controller, userData);
+            AcquireTokenInteractiveHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
@@ -57,9 +57,9 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenSilentTestHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
         {
-            AcquireTokenInteractiveHelper(controller, userData);
+            AcquireTokenInteractiveHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
 
             //Enter 2nd Resource
@@ -71,27 +71,26 @@ namespace Test.ADAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        public IUser AcquireTokenInteractiveHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenInteractiveHelper(ITestController controller, LabResponse labResponse)
         {
             PrepareForAuthentication(controller);
-            var user = userData.User;
-            SetInputData(controller, userData.AppId, CoreUiTestConstants.MSGraph);
+            var user = labResponse.User;
+            SetInputData(controller, labResponse.AppId, CoreUiTestConstants.MSGraph);
             CoreMobileTestHelper.PerformSignInFlow(controller, user);
-            return user;
         }
 
-        public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, ILabResponse userData)
+        public void AcquireTokenWithPromptBehaviorAlwaysHelper(ITestController controller, LabResponse labResponse)
         {
             PrepareForAuthentication(controller);
-            SetInputData(controller, userData.AppId, CoreUiTestConstants.MSGraph);
+            SetInputData(controller, labResponse.AppId, CoreUiTestConstants.MSGraph);
 
             // AcquireToken promptBehavior.Auto to get a token in the cache 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);
-            CoreMobileTestHelper.PerformSignInFlow(controller, userData.User);
+            CoreMobileTestHelper.PerformSignInFlow(controller, labResponse.User);
 
             // AcquireToken promptBehavior.Always. Even with a token, the UI should be shown 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAlways);
-            CoreMobileTestHelper.PerformSignInFlow(controller, userData.User);
+            CoreMobileTestHelper.PerformSignInFlow(controller, labResponse.User);
 
             // AcquireToken promptBehavior.Auto. No UI should be shown. 
             SetPromptBehavior(controller, CoreUiTestConstants.PromptBehaviorAuto);

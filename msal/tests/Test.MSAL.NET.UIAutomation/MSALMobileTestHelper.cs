@@ -45,9 +45,9 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(ITestController controller, LabResponse userData)
+        public void AcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
         {
-            AcquireTokenInteractiveHelper(controller, userData);
+            AcquireTokenInteractiveHelper(controller, labResponse);
             _coreMobileTestHelper.VerifyResult(controller);
         }
 
@@ -55,23 +55,23 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenSilentTestHelper(ITestController controller, LabResponse userData)
+        public void AcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
         {
             //acquire token for 1st resource
-            AcquireTokenInteractiveHelper(controller, userData);
+            AcquireTokenInteractiveHelper(controller, labResponse);
             _coreMobileTestHelper.VerifyResult(controller);
 
             //acquire token for 2nd resource with refresh token
-            SetInputData(controller, userData.AppId, CoreUiTestConstants.DefaultScope);
+            SetInputData(controller, labResponse.AppId, CoreUiTestConstants.DefaultScope);
             controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
             _coreMobileTestHelper.VerifyResult(controller);
         }
 
-        private void AcquireTokenInteractiveHelper(ITestController controller, LabResponse userData)
+        private void AcquireTokenInteractiveHelper(ITestController controller, LabResponse labResponse)
         {
             PrepareForAuthentication(controller);
-            SetInputData(controller, userData.AppId, CoreUiTestConstants.DefaultScope);
-            _coreMobileTestHelper.PerformSignInFlow(controller, userData.User);
+            SetInputData(controller, labResponse.AppId, CoreUiTestConstants.DefaultScope);
+            _coreMobileTestHelper.PerformSignInFlow(controller, labResponse.User);
         }
 
         private void PrepareForAuthentication(ITestController controller)

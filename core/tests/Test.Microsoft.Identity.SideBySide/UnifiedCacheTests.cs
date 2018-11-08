@@ -51,7 +51,7 @@ namespace Test.MSAL.NET.Integration
         private const string AdalResource1 = "https://graph.windows.net";
         private const string AdalResource2 = "https://graph.microsoft.com";
 
-        private IUser user;
+        private LabUser user;
         private SecureString securePassword;
         private string authority;
 
@@ -63,9 +63,9 @@ namespace Test.MSAL.NET.Integration
         {
             if (user == null)
             {
-                user = LabUserHelper.GetUser(LabUserHelper.DefaultUserQuery).User;
+                user = LabUserHelper.GetLabResponseWithDefaultUser().User;
 
-                string stringPassword = ((LabUser)user).GetPassword();
+                string stringPassword = LabUserHelper.GetUserPassword(user);
                 securePassword = new NetworkCredential("", stringPassword).SecurePassword;
                 authority = string.Format(
                     CultureInfo.InvariantCulture, 
