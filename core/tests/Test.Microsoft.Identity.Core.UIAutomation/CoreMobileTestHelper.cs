@@ -27,27 +27,40 @@
 
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Test.Microsoft.Identity.LabInfrastructure;
+using Xamarin.UITest.Queries;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
-    {   
-        public void PerformSignInFlow(ITestController controller, LabUser user)
+    {
+        public void PerformSignInFlow(ITestController controller, LabUser user, string uiBehavior)
         {
             UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
             userInformationFieldIds.DetermineFieldIds(user);
 
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
+
             //i0116 = UPN text field on AAD sign in endpoint
-            controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, true);
+            controller.EnterText(CoreUiTestConstants.WebUPNInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
             //idSIButton9 = Sign in button
-            controller.Tap(CoreUiTestConstants.WebSubmitID, true);
+            controller.Tap(CoreUiTestConstants.WebSubmitID, XamarinSelector.ByHtmlIdAttribute);
             //i0118 = password text field
-            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), true);
-            controller.Tap(userInformationFieldIds.SignInButtonId, true);
+            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
+            controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
+
+            // on consent, also hit the accept button
+            if (uiBehavior == CoreUiTestConstants.UIBehaviorConsent)
+            {
+                AppWebResult consentHeader = controller.WaitForWebElementByCssId("consentHeader").FirstOrDefault();
+                Assert.IsNotNull(consentHeader);
+                Assert.IsTrue(consentHeader.TextContent.Contains("Permissions requested"));
+
+                controller.Tap(CoreUiTestConstants.WebSubmitID, XamarinSelector.ByHtmlIdAttribute);
+            }
         }
 
         public void PerformSignInFlowWithoutUI(ITestController controller)
