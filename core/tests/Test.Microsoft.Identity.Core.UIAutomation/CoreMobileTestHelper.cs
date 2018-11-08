@@ -36,7 +36,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 {
     public class CoreMobileTestHelper
     {
-        public void PerformSignInFlow(ITestController controller, LabUser user, string uiBehavior)
+        public void PerformSignInFlow(ITestController controller, LabUser user)
         {
             UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
             userInformationFieldIds.DetermineFieldIds(user);
@@ -52,15 +52,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
             controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
 
-            // on consent, also hit the accept button
-            if (uiBehavior == CoreUiTestConstants.UIBehaviorConsent)
-            {
-                AppWebResult consentHeader = controller.WaitForWebElementByCssId("consentHeader").FirstOrDefault();
-                Assert.IsNotNull(consentHeader);
-                Assert.IsTrue(consentHeader.TextContent.Contains("Permissions requested"));
-
-                controller.Tap(CoreUiTestConstants.WebSubmitID, XamarinSelector.ByHtmlIdAttribute);
-            }
+          
         }
 
         public void PerformSignInFlowWithoutUI(ITestController controller)

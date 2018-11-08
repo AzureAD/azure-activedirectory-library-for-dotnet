@@ -32,6 +32,7 @@ using System.Threading;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using Xamarin.UITest.Queries;
 
 namespace Test.MSAL.UIAutomation
 {
@@ -40,7 +41,6 @@ namespace Test.MSAL.UIAutomation
     /// </summary>
     public class MSALMobileTestHelper
     {
-
         public CoreMobileTestHelper CoreMobileTestHelper { get; set; } = new CoreMobileTestHelper();
 
         /// <summary>
@@ -79,7 +79,18 @@ namespace Test.MSAL.UIAutomation
         {
             PrepareForAuthentication(controller);
             SetInputData(controller, labResponse.AppId, CoreUiTestConstants.DefaultScope, promptBehavior);
-            CoreMobileTestHelper.PerformSignInFlow(controller, labResponse.User, promptBehavior);
+            CoreMobileTestHelper.PerformSignInFlow(controller, labResponse.User);
+
+
+            // on consent, also hit the accept button
+            if (promptBehavior == CoreUiTestConstants.UIBehaviorConsent)
+            {
+                AppWebResult consentHeader = controller.WaitForWebElementByCssId("consentHeader").FirstOrDefault();
+                Assert.IsNotNull(consentHeader);
+                Assert.IsTrue(consentHeader.TextContent.Contains("Permissions requested"));
+
+                controller.Tap(CoreUiTestConstants.WebSubmitID, XamarinSelector.ByHtmlIdAttribute);
+            }
         }
 
         private void PrepareForAuthentication(ITestController controller)
@@ -98,12 +109,12 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 
             //Enter ClientID
-            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, XamarinSelector.ByHtmlIdAttribute);
+            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, XamarinSelector.ByAutomationId);
             controller.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
             controller.Tap(CoreUiTestConstants.AcquirePageID);
-            controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, XamarinSelector.ByHtmlIdAttribute);
+            controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, XamarinSelector.ByAutomationId);
 
             SetUiBehavior(controller, uiBehavior);
         }

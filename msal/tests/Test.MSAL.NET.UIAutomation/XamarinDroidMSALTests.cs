@@ -67,7 +67,7 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// Runs through the standard acquire token flow
+        /// Runs through the standard acquire token flow, using the default app configured UiBehavior = Login
         /// </summary>
         [Test]
         public void AcquireTokenTest()
@@ -83,27 +83,23 @@ namespace Test.MSAL.UIAutomation
         {
             var labData = LabUserHelper.GetLabResponseWithDefaultUser();
 
-            _msalMobileTestHelper.SetUiBehavior(xamarinController, CoreUiTestConstants.UIBehaviorConsent);
-
-            _msalMobileTestHelper.CoreMobileTestHelper.PerformSignInFlow(xamarinController, labData.User, CoreUiTestConstants.UIBehaviorConsent);
-
-            // 1. Acquire token with consent 
-            //_msalMobileTestHelper.AcquireTokenInteractiveTestHelper(
-            //    xamarinController,
-            //    labData,
-            //    CoreUiTestConstants.UIBehaviorConsent);                        
+            // 1. Acquire token with uiBehavior set to consent 
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController,
+                labData,
+                CoreUiTestConstants.UIBehaviorConsent);                        
 
             // 2. Switch ui behavior to "select account"
             _msalMobileTestHelper.SetUiBehavior(xamarinController, CoreUiTestConstants.UIBehaviorSelectAccount);
 
-            // 3. Acquire Token again
+            // 3. Hit Acquire Token directly since we are not changing any other setting
             xamarinController.Tap(CoreUiTestConstants.AcquireTokenID);
 
             // 4. The web UI should display all users, so click on the current user
             xamarinController.Tap(labData.User.Upn, XamarinSelector.ByHtmlValue);
 
-            // 4. Click on the image. This is hacky but there aren't any other hooks in the HTML I can use
-            //xamarinController.Application.Tap(el => el.Css("img"));
+            // 5. Validate token again
+            _msalMobileTestHelper.CoreMobileTestHelper.VerifyResult(xamarinController);
 
         }
 

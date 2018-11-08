@@ -25,8 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Test.Microsoft.Identity.LabInfrastructure;
-using NUnit.Framework;
 using System;
 using System.Linq;
 using Xamarin.UITest;
@@ -51,7 +49,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         const int defaultRetryFrequencySec = 1;
         const int defaultPostTimeoutSec = 1;
         const string CSSIDSelector = "[id|={0}]";
-
+        const string XpathSelector = "//*[text()=\"{0}\"]";
 
         public IApp Application { get; set; }
 
@@ -219,7 +217,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 
         private static Func<AppQuery, AppWebQuery> QueryByHtmlElementValue(string text)
         {
-            string xpath = "//*[text()={\"" + text + "\"}]";
+            string xpath = String.Format(CultureInfo.InvariantCulture, XpathSelector, text);
             return c => c.XPath(xpath);
         }
 
