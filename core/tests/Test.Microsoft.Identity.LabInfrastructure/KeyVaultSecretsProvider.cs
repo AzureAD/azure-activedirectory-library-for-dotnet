@@ -148,7 +148,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     ClientCredential cred = new ClientCredential(_config.ClientId, _config.KeyVaultSecret);
                     authResult = await authContext.AcquireTokenAsync(resource, cred).ConfigureAwait(false);
                     break;
-                case KeyVaultAuthenticationType.UserCredential:                    
+                case KeyVaultAuthenticationType.UserCredential:
                     authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential()).ConfigureAwait(false);
                     break;
                 default:
