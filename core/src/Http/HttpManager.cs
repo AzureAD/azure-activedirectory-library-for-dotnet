@@ -46,6 +46,17 @@ namespace Microsoft.Identity.Core.Http
             _httpClientFactory = httpClientFactory ?? new HttpClientFactory();
         }
 
+        public HttpManager(HttpMessageHandler customMessageHandler)
+        {
+            if (customMessageHandler == null)
+            {
+                throw new ArgumentNullException(nameof(customMessageHandler));
+            }
+
+            _httpClientFactory = new HttpClientFactory(customMessageHandler);
+            _coreExceptionFactory = CoreExceptionFactory.Instance;
+        }
+
         protected virtual HttpClient GetHttpClient()
         {
             return _httpClientFactory.HttpClient;

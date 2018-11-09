@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -52,8 +53,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public sealed class AuthenticationContext
     {
-        private readonly IHttpManager _httpManager;
-        private readonly IWsTrustWebRequestManager _wsTrustWebRequestManager;
+        private IHttpManager _httpManager;
+        private IWsTrustWebRequestManager _wsTrustWebRequestManager;
 
         static AuthenticationContext()
         {
@@ -116,6 +117,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.TokenCache = tokenCache;
 
             _httpManager = httpManager ?? new HttpManager();
+            _wsTrustWebRequestManager = new WsTrustWebRequestManager(_httpManager);
+        }
+
+        /// <summary>
+        /// Provides a mechanism for adding custom message handlers in the HttpClient used by this library.
+        /// </summary>
+        public void UseCustomHttpMessageHandler(HttpMessageHandler httpMessageHandler)
+        {
+            _httpManager = new HttpManager(httpMessageHandler);
             _wsTrustWebRequestManager = new WsTrustWebRequestManager(_httpManager);
         }
 
