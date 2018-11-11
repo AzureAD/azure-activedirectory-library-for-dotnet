@@ -99,7 +99,7 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        public Uri ValidateAndNormalizeRedirectUri(Uri redirectUri, RequestContext requestContext)
         {
             if (redirectUri == null)
             {
@@ -110,12 +110,17 @@ namespace Microsoft.Identity.Core
             {
                 if (Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
                 {
-                    // TODO: Need to use CoreExceptionFactory here...?
-                    //throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + Constants.DefaultRedirectUri +
-                    //                                                               " cannot be used on iOS platform");
-                    throw new InvalidOperationException($"Default redirect URI - {Constants.DefaultRedirectUri} cannot be used on Android platform");
+                    throw CoreExceptionFactory.Instance.GetClientException(
+                        CoreErrorCodes.DefaultRedirectUriIsInvalid,
+                        String.Format(
+                            CultureInfo.InvariantCulture,
+                            CoreErrorMessages.DefaultRedirectUriIsInvalid,
+                            Constants.DefaultRedirectUri,
+                            "Android"));
                 }
             }
+
+            return redirectUri;
         }
 
         /// <inheritdoc />
@@ -160,7 +165,7 @@ namespace Microsoft.Identity.Core
         public string GetDeviceId()
         {
             return Android.Provider.Settings.Secure.GetString(
-                Android.App.Application.Context.ContentResolver, 
+                Android.App.Application.Context.ContentResolver,
                 Android.Provider.Settings.Secure.AndroidId);
         }
 

@@ -51,8 +51,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 throw new ArgumentNullException(nameof(authenticationRequestParameters.AuthorizationCode));
             }
 
-            PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(authenticationRequestParameters.RedirectUri,
+            authenticationRequestParameters.RedirectUri = PlatformProxyFactory.GetPlatformProxy().ValidateAndNormalizeRedirectUri(
+                authenticationRequestParameters.RedirectUri,
                 AuthenticationRequestParameters.RequestContext);
+
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
                 throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));

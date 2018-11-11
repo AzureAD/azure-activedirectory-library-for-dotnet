@@ -455,9 +455,15 @@ namespace Microsoft.Identity.Client
             return PlatformPlugin.GetWebUiFactory().CreateAuthenticationDialog(parent.CoreUIParent, requestContext);
         }
 
-        private async Task<AuthenticationResult> AcquireTokenForLoginHintCommonAsync(Authority authority, IEnumerable<string> scopes,
-            IEnumerable<string> extraScopesToConsent, string loginHint, UIBehavior behavior,
-            string extraQueryParameters, UIParent parent, ApiEvent.ApiIds apiId)
+        private async Task<AuthenticationResult> AcquireTokenForLoginHintCommonAsync(
+            Authority authority, 
+            IEnumerable<string> scopes,
+            IEnumerable<string> extraScopesToConsent, 
+            string loginHint, 
+            UIBehavior behavior,
+            string extraQueryParameters, 
+            UIParent parent, 
+            ApiEvent.ApiIds apiId)
         {
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
@@ -465,7 +471,9 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                requestParams.RedirectUri = PlatformProxyFactory.GetPlatformProxy().ValidateAndNormalizeRedirectUri(
+                    requestParams.RedirectUri, 
+                    requestParams.RequestContext);
             }
 #endif
 
@@ -495,7 +503,7 @@ namespace Microsoft.Identity.Client
 #if iOS || ANDROID
             if (!parent.CoreUIParent.UseEmbeddedWebview)
             {
-                PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
+                PlatformProxyFactory.GetPlatformProxy().ValidateAndNormalizeRedirectUri(requestParams.RedirectUri, requestParams.RequestContext);
             }
 #endif
 

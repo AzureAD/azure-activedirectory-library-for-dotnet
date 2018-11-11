@@ -86,7 +86,7 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        public Uri ValidateAndNormalizeRedirectUri(Uri redirectUri, RequestContext requestContext)
         {
             if (redirectUri == null)
             {
@@ -97,13 +97,17 @@ namespace Microsoft.Identity.Core
             {
                 if (Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
                 {
-                    // TODO: Need to use CoreExceptionFactory here...?
-                    //throw new MsalException(MsalError.RedirectUriValidationFailed, "Default redirect URI - " + Constants.DefaultRedirectUri +
-                    //                                                               " cannot be used on iOS platform");
-                    throw new InvalidOperationException(
-                        $"Default redirect URI - {Constants.DefaultRedirectUri} cannot be used on iOS platform");
+                    throw CoreExceptionFactory.Instance.GetClientException(
+                        CoreErrorCodes.DefaultRedirectUriIsInvalid,
+                        String.Format(
+                            CultureInfo.InvariantCulture,
+                            CoreErrorMessages.DefaultRedirectUriIsInvalid,
+                            Constants.DefaultRedirectUri,
+                            "iOS"));
                 }
             }
+
+            return redirectUri;
         }
 
         /// <inheritdoc />

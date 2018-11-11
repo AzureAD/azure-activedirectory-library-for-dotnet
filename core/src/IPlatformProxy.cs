@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Core
         /// <returns></returns>
         string GetDeviceId();
 
-        void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext);
+        Uri ValidateAndNormalizeRedirectUri(Uri redirectUri, RequestContext requestContext);
         string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext);
         string GetDefaultRedirectUri(string correlationId);
 

@@ -99,5 +99,32 @@ namespace Test.Microsoft.Identity.Core.Unit
                 () =>
                 PlatformProxyFactory.GetPlatformProxy().GetEnvironmentVariable(""));
         }
+
+        [TestMethod]
+        public void ValidateRedirectUri_Throws()
+        {
+            // Arrange
+            var proxy = PlatformProxyFactory.GetPlatformProxy();
+
+
+            // Act Assert
+            Assert.ThrowsException<ArgumentNullException>(
+                () => proxy.ValidateAndNormalizeRedirectUri(null, new RequestContext(null, new TestLogger())));
+        }
+
+        [TestMethod]
+        public void ValidateRedirectUri_ReturnsRedirectUri()
+        {
+            // Arrange
+            var proxy = PlatformProxyFactory.GetPlatformProxy();
+            Uri inputUri = new Uri("http://redirectUri");
+
+
+            // Act 
+            var returnedUri = proxy.ValidateAndNormalizeRedirectUri(inputUri, new RequestContext(null, new TestLogger()));
+
+            // Assert
+            Assert.AreSame(inputUri, returnedUri);
+        }
     }
 }

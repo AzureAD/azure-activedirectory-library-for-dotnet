@@ -60,8 +60,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
-            PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(redirectUri, RequestContext);
-            this.redirectUri = redirectUri;
+            this.redirectUri = PlatformProxyFactory.GetPlatformProxy().
+                ValidateAndNormalizeRedirectUri(redirectUri, RequestContext);
 
             if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
             {

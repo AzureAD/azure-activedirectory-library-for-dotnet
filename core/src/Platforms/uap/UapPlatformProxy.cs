@@ -156,20 +156,22 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri, RequestContext requestContext)
+        public Uri ValidateAndNormalizeRedirectUri(Uri redirectUri, RequestContext requestContext)
         {
-            if (_isMsal)
+            if (redirectUri == null)
             {
-            }
-            else
-            {
-                // FROM ADAL
-                if (redirectUri == null)
+                if (_isMsal)
+                {
+                    throw new ArgumentNullException(nameof(redirectUri));
+                }
+                else
                 {
                     redirectUri = Constants.SsoPlaceHolderUri;
-                    requestContext.Logger.Verbose("ms-app redirect Uri is used");
+                    requestContext.Logger.Info("ms-app redirect Uri is used");
                 }
             }
+
+            return redirectUri;
         }
 
         /// <inheritdoc />
