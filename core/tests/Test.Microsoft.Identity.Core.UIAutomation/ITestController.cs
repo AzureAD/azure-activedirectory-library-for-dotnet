@@ -79,7 +79,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         void DismissKeyboard();
 
         /// <summary>
-        /// Returns the text of an element wisible on the UI
+        /// Returns the text of an element visible on the UI
         /// </summary>
         /// <param name="textOrId">ID of the element to get text from</param>
         /// <returns>The text value of the element</returns>
