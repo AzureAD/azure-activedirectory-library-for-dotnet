@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Core
 {
@@ -99,12 +100,9 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public Uri ValidateAndNormalizeRedirectUri(Uri redirectUri, RequestContext requestContext)
+        public void ValidateRedirectUri(Uri redirectUri)
         {
-            if (redirectUri == null)
-            {
-                throw new ArgumentNullException(nameof(redirectUri));
-            }
+            RedirectUriCommon.Validate(redirectUri);
 
             if (_isMsal)
             {
@@ -119,20 +117,18 @@ namespace Microsoft.Identity.Core
                             "Android"));
                 }
             }
-
-            return redirectUri;
         }
 
         /// <inheritdoc />
-        public string GetRedirectUriAsString(Uri redirectUri, RequestContext requestContext)
+        public string GetBrokerOrRedirectUri(Uri redirectUri)
         {
             return redirectUri.OriginalString;
         }
 
         /// <inheritdoc />
-        public string GetDefaultRedirectUri(string correlationId)
+        public string GetDefaultRedirectUri(string clientId)
         {
-            return string.Format(CultureInfo.InvariantCulture, AndroidDefaultRedirectUriTemplate, correlationId);
+            return string.Format(CultureInfo.InvariantCulture, AndroidDefaultRedirectUriTemplate, clientId);
         }
 
         public string GetProductName()

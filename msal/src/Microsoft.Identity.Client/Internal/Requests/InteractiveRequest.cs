@@ -83,6 +83,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IWebUI webUi)
             : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
         {
+            if (authenticationRequestParameters.RedirectUri == null)
+            {
+                throw new ArgumentNullException(nameof(authenticationRequestParameters.RedirectUri));
+            }
+
             if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
             {
                 throw new ArgumentException(

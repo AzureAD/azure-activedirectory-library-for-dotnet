@@ -109,7 +109,12 @@ namespace Test.Microsoft.Identity.Core.Unit
 
             // Act Assert
             Assert.ThrowsException<ArgumentNullException>(
-                () => proxy.ValidateAndNormalizeRedirectUri(null, new RequestContext(null, new TestLogger())));
+                () => proxy.ValidateRedirectUri(null));
+
+            // Act Assert
+            Assert.ThrowsException<ArgumentException>(
+               () => proxy.ValidateRedirectUri(new Uri("https://redirectUri/uri#fragment")), 
+               "Validatation should fail if uri has a fragment, i.e. #foo");
         }
 
         [TestMethod]
@@ -119,12 +124,11 @@ namespace Test.Microsoft.Identity.Core.Unit
             var proxy = PlatformProxyFactory.GetPlatformProxy();
             Uri inputUri = new Uri("http://redirectUri");
 
-
-            // Act 
-            var returnedUri = proxy.ValidateAndNormalizeRedirectUri(inputUri, new RequestContext(null, new TestLogger()));
+            // Act
+            proxy.ValidateRedirectUri(inputUri);
 
             // Assert
-            Assert.AreSame(inputUri, returnedUri);
+            // no exception is thrown
         }
     }
 }

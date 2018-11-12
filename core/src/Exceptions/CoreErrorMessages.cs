@@ -110,5 +110,8 @@ namespace Microsoft.Identity.Core
             "is recommended. See https://aka.ms/msal-net-system-browsers for more details on using system browser on Android.";
 
         public const string DefaultRedirectUriIsInvalid = "Default redirect Uri {0} cannot be used on {1} platform";
+
+        public const string RedirectUriContainsFragment = "'redirectUri' must NOT include a fragment component";
+
     }
 }
