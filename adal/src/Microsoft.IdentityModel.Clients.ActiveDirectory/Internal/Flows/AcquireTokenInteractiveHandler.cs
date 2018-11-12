@@ -61,6 +61,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             : base(requestData)
         {
             PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(redirectUri);
+            this.redirectUri = redirectUri;
 
             this.authorizationParameters = parameters;
             this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
