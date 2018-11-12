@@ -51,15 +51,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 throw new ArgumentNullException(nameof(authenticationRequestParameters.AuthorizationCode));
             }
 
-            if (authenticationRequestParameters.RedirectUri == null)
-            {
-                throw new ArgumentNullException(nameof(authenticationRequestParameters.RedirectUri));
-            }
-
-            if (!string.IsNullOrWhiteSpace(authenticationRequestParameters.RedirectUri.Fragment))
-            {
-                throw new ArgumentException(MsalErrorMessage.RedirectUriContainsFragment, nameof(authenticationRequestParameters.RedirectUri));
-            }
+            RedirectUriCommon.Validate(authenticationRequestParameters.RedirectUri);
         }
 
         protected override void EnrichTelemetryApiEvent(ApiEvent apiEvent)
