@@ -80,12 +80,12 @@ namespace Test.MSAL.UIAutomation
             PrepareForAuthentication(controller);
             SetB2CInputData(controller);
 
-            CoreMobileTestHelper.PerformB2CLocalAccountSignInFlow(controller, labResponse.User);
+            PerformB2CLocalAccountSignInFlow(controller, labResponse.User);
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
         /// <summary>
-        /// Runs through the standard acquire token silent flow
+        /// Runs through the B2C acquire token silent flow
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public void B2CLocalAccountAcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
@@ -178,6 +178,25 @@ namespace Test.MSAL.UIAutomation
             {
                 throw new InvalidOperationException("Test Setup Error: invalid uiBehavior " + uiBehavior);
             }
+        }
+
+        public void PerformB2CLocalAccountSignInFlow(ITestController controller, LabUser user)
+        {
+            UserInformationFieldIds userInformationFieldIds = CoreMobileTestHelper.DetermineUserInformationFieldIds(user);
+
+            controller.Tap(CoreUiTestConstants.AcquirePageID);
+
+            //Acquire token flow
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+
+            //id="logonIdentifier" for local b2c accounts
+            controller.EnterText(CoreUiTestConstants.WebUPNB2CLocalInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
+
+            //id="password"
+            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
+
+            //id="next" Sign in button
+            controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
         }
     }
 }

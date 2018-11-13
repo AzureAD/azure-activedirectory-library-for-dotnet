@@ -58,26 +58,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
         }
 
-        public void PerformB2CLocalAccountSignInFlow(ITestController controller, LabUser user)
-        {
-            UserInformationFieldIds userInformationFieldIds = DetermineUserInformationFieldIds(user);
-
-            controller.Tap(CoreUiTestConstants.AcquirePageID);
-
-            //Acquire token flow
-            controller.Tap(CoreUiTestConstants.AcquireTokenID);
-
-            //id="logonIdentifier" for local b2c accounts
-            controller.EnterText(CoreUiTestConstants.WebUPNB2CLocalInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
-            
-            //id="password"
-            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
-
-            //id="next" Sign in button
-            controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
-        }
-
-        private UserInformationFieldIds DetermineUserInformationFieldIds(LabUser user)
+        public UserInformationFieldIds DetermineUserInformationFieldIds(LabUser user)
         {
             UserInformationFieldIds userInformationFieldIds = new UserInformationFieldIds();
             userInformationFieldIds.DetermineFieldIds(user);

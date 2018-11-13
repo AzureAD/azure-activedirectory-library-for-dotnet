@@ -109,8 +109,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CLocalAccountAcquireTokenTest()
         {
-            var labData = LabUserHelper.GetLabResponseWithB2CUser();
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, labData, CoreUiTestConstants.UIBehaviorLogin);
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser(), CoreUiTestConstants.UIBehaviorLogin);
         }
 
         /// <summary>
