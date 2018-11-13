@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Client.Internal.UI
     {
         public IWebUI CreateAuthenticationDialog(CoreUIParent parent, RequestContext requestContext)
         {
-            throw new NotImplementedException();
+            return new NetCoreWebUI(requestContext);
         }
     }
 }

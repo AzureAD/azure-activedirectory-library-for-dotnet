@@ -72,14 +72,17 @@ namespace NetCoreTestApp
 
                 // display menu
                 Console.WriteLine(@"
+                       
                         1. Acquire Token by Windows Integrated Auth
                         2. Acquire Token with Username and Password
                         3. Acquire Token with Device Code
                         4. Acquire Token Silently
                         5. Confidential Client with Certificate (needs extra config)
                         6. Clear PCA cache
+                        7. [Experiment] Acquire Token Interactive
                         0. Exit App
                     Enter your Selection: ");
+
                 int.TryParse(Console.ReadLine(), out var selection);
 
                 Task<AuthenticationResult> authTask = null;
@@ -88,6 +91,11 @@ namespace NetCoreTestApp
                 {
                     switch (selection)
                     {
+                        case 7:
+                            authTask = pca.AcquireTokenAsync(Scopes);
+                            await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
+
+                            break;
                         case 1: // acquire token
                             authTask = pca.AcquireTokenByIntegratedWindowsAuthAsync(Scopes, Username);
                             await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
@@ -143,6 +151,8 @@ namespace NetCoreTestApp
                 {
                     Log(LogLevel.Error, ex.Message, false);
                     Log(LogLevel.Error, ex.StackTrace, false);
+
+                    throw;
                 }
 
                 Console.WriteLine("\n\nHit 'ENTER' to continue...");

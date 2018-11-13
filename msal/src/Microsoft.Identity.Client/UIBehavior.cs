@@ -35,11 +35,11 @@ namespace Microsoft.Identity.Client
 
     //TODO: This should be completely removed for platforms that do not support UI, however 
     // at present it used for ConfidentialClientApplication.GetAuthorizationRequestUrlAsync
-#if !NET_CORE
+//#if !NET_CORE
     public
-#else
-    internal 
-#endif    
+//#else
+//    internal 
+//#endif    
         struct UIBehavior
     {
         /// <summary>

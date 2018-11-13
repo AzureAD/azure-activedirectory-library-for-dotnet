@@ -113,7 +113,7 @@ namespace Microsoft.Identity.Client
         }
 
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;
-#if !NET_CORE
+//#if !NET_CORE
 
 #if iOS
         private string keychainSecurityGroup;
@@ -208,8 +208,11 @@ namespace Microsoft.Identity.Client
         /// This is expected to be a string of segments of the form <c>key=value</c> separated by an ampersand character.
         /// The parameter can be null.</param>
         /// <returns>Authentication result containing a token for the requested scopes and account</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(IEnumerable<string> scopes, string loginHint,
-            UIBehavior behavior, string extraQueryParameters)
+        public async Task<AuthenticationResult> AcquireTokenAsync(
+            IEnumerable<string> scopes, 
+            string loginHint,
+            UIBehavior behavior, 
+            string extraQueryParameters)
         {
             Authority authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
             return
@@ -519,7 +522,7 @@ namespace Microsoft.Identity.Client
         }
 
         // endif for !NET_CORE
-#endif
+//#endif
 
 
     }

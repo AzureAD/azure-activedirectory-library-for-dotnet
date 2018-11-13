@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../build/MSAL.snk</AssemblyOriginatorKeyFile>
@@ -97,7 +97,8 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <!-- Remove UI specific logic as it is not supported yet -->
-    <Compile Remove="UIParent.cs" />
+    <!--<Compile Remove="UIParent.cs" />-->
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.3" /> <!-- TODO: experiment only -->
     <Compile Include="Platforms\netcore\**\*.cs" />
     <Compile Include="..\..\..\core\src\Platforms\netcore\**\*.cs" LinkBase="Core\Platforms\netcore" />
     <Compile Include="..\..\..\core\src\Features\Cache\**\*.cs" LinkBase="Core\Features\Cache" />
