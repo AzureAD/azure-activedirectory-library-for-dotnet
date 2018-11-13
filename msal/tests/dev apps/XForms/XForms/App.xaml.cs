@@ -42,7 +42,8 @@ namespace XForms
         public const string B2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
 
         public const string RedirectUriOnIos = "adaliosxformsapp://com.yourcompany.xformsapp";
-        public const string RedirectUriOnAndroid = "msale3b9ad76-9763-4827-b088-80c7a7888f79://auth";
+        public static string RedirectUriOnAndroid = "urn:ietf:wg:oauth:2.0:oob";
+        public const string RedirectUriB2C = "msale3b9ad76-9763-4827-b088-80c7a7888f79://auth";
 
         public const string DefaultAuthority = "https://login.microsoftonline.com/common";
         public const string B2cAuthority = "https://login.microsoftonline.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";

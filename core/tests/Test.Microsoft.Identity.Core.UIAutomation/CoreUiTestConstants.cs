@@ -75,6 +75,8 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string SelectUser = "userList";
         public const string UserNotSelected = "not selected";
         public const string UserMissingFromResponse = "Missing from the token response";
+        public const string RedirectUriOnAndroid = "urn:ietf:wg:oauth:2.0:oob";
+        public const string RedirectUriEntryID = "redirectUriEntry";
 
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";

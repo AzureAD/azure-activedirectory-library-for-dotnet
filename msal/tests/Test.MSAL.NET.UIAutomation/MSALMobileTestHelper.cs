@@ -79,7 +79,7 @@ namespace Test.MSAL.UIAutomation
         {
             PrepareForAuthentication(controller);
             SetB2CInputData(controller);
-            
+
             CoreMobileTestHelper.PerformB2CLocalAccountSignInFlow(controller, labResponse.User);
             CoreMobileTestHelper.VerifyResult(controller);
         }
@@ -155,7 +155,7 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 
             // Toggle B2C
-            controller.Tap(CoreUiTestConstants.B2CEntryID);
+            controller.SetSwitchState(CoreUiTestConstants.B2CEntryID);
         }
 
         public void SetUiBehavior(ITestController controller, string promptBehavior)
