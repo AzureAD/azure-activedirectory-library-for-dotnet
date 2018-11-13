@@ -104,12 +104,31 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
+        /// B2C aquire token flow with local account
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenTest()
+        {
+            var labData = LabUserHelper.GetLabResponseWithB2CUser();
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, labData, CoreUiTestConstants.UIBehaviorLogin);
+        }
+
+        /// <summary>
         /// Runs through the standard acquire token silent flow
         /// </summary>
         [Test]
         public void AcquireTokenSilentTest()
         {
             _msalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetLabResponseWithDefaultUser());
+        }
+
+        /// <summary>
+        /// B2C acquire token flow with local account and silent call
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenSilentTest()
+        {
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
         }
 
         /// <summary>

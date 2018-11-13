@@ -33,6 +33,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
         public const string MSIDLAB4ClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0"; // clientId is multi-tenant
         public const string UIAutomationAppV2 = "1e245a30-49aa-43eb-b9c1-c11b072cc92b";
+        public const string B2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
 
         //Resources
         public const string MSGraph = "https://graph.microsoft.com";
@@ -52,21 +53,29 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string ClearCacheID = "clearCache";
         public const string SaveID = "saveButton";
         public const string WebUPNInputID = "i0116";
+        public const string WebUPNB2CLocalInputID = "logonIdentifier";
         public const string AdfsV4WebPasswordID = "passwordInput";
+        public const string B2CWebPasswordID = "password";
         public const string AdfsV4WebSubmitID = "submitButton";
         public const string WebPasswordID = "i0118";
         public const string WebSubmitID = "idSIButton9";
+        public const string B2CWebSubmitID = "next";
         public const string TestResultID = "testResult";
         public const string TestResultSuccsesfulMessage = "Result: Success";
         public const string TestResultFailureMessage = "Result: Failure";
 
         //MSAL test app
         public const string DefaultScope = "User.Read";
+        public static string B2cScopes = "https://sometenant.onmicrosoft.com/some/scope";
         public const string AcquirePageID = "Acquire";
         public const string CachePageID = "Cache";
         public const string SettingsPageID = "Settings";
         public const string ScopesEntryID = "scopesList";
         public const string UiBehaviorPickerID = "uiBehavior";
+        public const string B2CEntryID = "b2cSwitch";
+        public const string SelectUser = "userList";
+        public const string UserNotSelected = "not selected";
+        public const string UserMissingFromResponse = "Missing from the token response";
 
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";

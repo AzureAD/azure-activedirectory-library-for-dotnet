@@ -72,6 +72,37 @@ namespace Test.MSAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
+        /// <summary>
+        /// Runs through the B2C acquire token flow
+        /// </summary>
+        public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse, string promptBehavior)
+        {
+            PrepareForAuthentication(controller);
+            SetB2CInputData(controller);
+            
+            CoreMobileTestHelper.PerformB2CLocalAccountSignInFlow(controller, labResponse.User);
+            CoreMobileTestHelper.VerifyResult(controller);
+        }
+
+        /// <summary>
+        /// Runs through the standard acquire token silent flow
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public void B2CLocalAccountAcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
+        {
+            //acquire token for 1st resource
+            B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse, CoreUiTestConstants.UIBehaviorLogin);
+            CoreMobileTestHelper.VerifyResult(controller);
+
+            //select user
+            controller.Tap(CoreUiTestConstants.SelectUser);
+            //b2c does not return userinfo in token response
+            controller.Tap(CoreUiTestConstants.UserMissingFromResponse);
+            //acquire token for 2nd resource with refresh token
+            controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
+            CoreMobileTestHelper.VerifyResult(controller);
+        }
+
         private void AcquireTokenInteractiveHelper(
             ITestController controller,
             LabResponse labResponse,
@@ -117,6 +148,14 @@ namespace Test.MSAL.UIAutomation
             controller.EnterText(CoreUiTestConstants.ScopesEntryID, scopes, XamarinSelector.ByAutomationId);
 
             SetUiBehavior(controller, uiBehavior);
+        }
+
+        private void SetB2CInputData(ITestController controller)
+        {
+            controller.Tap(CoreUiTestConstants.SettingsPageID);
+
+            // Toggle B2C
+            controller.Tap(CoreUiTestConstants.B2CEntryID);
         }
 
         public void SetUiBehavior(ITestController controller, string promptBehavior)

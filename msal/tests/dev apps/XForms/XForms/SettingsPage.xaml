@@ -32,7 +32,7 @@
 
             <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                 <Label Text="B2C" HorizontalTextAlignment="Center"  Margin="5" Font="Bold,13"/>
-                <Switch x:Name="b2cSwitch" Toggled="OnB2cSwitchToggled"/>
+                <Switch x:Name="b2cSwitch" Toggled="OnB2cSwitchToggled" AutomationId="b2cSwitch"/>
             </StackLayout>
 
             <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
