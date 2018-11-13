@@ -98,7 +98,7 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.SelectUser);
             //b2c does not return userinfo in token response
             controller.Tap(CoreUiTestConstants.UserMissingFromResponse);
-            //acquire token for 2nd resource with refresh token
+            //acquire token silent with selected user
             controller.Tap(CoreUiTestConstants.AcquireTokenSilentID);
             CoreMobileTestHelper.VerifyResult(controller);
         }
