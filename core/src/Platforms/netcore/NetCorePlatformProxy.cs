@@ -90,12 +90,6 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri)
-        {
-            RedirectUriCommon.Validate(redirectUri);
-        }
-
-        /// <inheritdoc />
         public string GetBrokerOrRedirectUri(Uri redirectUri)
         {
             return redirectUri.OriginalString;

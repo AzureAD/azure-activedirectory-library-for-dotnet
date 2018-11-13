@@ -82,12 +82,6 @@ namespace Microsoft.Identity.Core
             return null;
         }
 
-        /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri)
-        {
-            RedirectUriCommon.Validate(redirectUri);
-        }
-
         /// <summary>
         /// Considered PII, ensure that it is hashed. 
         /// </summary>

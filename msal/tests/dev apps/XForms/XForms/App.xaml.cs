@@ -67,7 +67,7 @@ namespace XForms
 
             InitPublicClient();
 
-            Logger.LogCallback = delegate(LogLevel level, string message, bool containsPii)
+            Logger.LogCallback = delegate (LogLevel level, string message, bool containsPii)
             {
                 Device.BeginInvokeOnMainThread(() => { LogPage.AddToLog("[" + level + "]" + " - " + message, containsPii); });
             };
@@ -78,16 +78,13 @@ namespace XForms
         public static void InitPublicClient()
         {
             MsalPublicClient = new PublicClientApplication(ClientId, Authority);
-            switch (Device.RuntimePlatform)
+
+            // Let Android set its own redirect uri
+            if (Device.RuntimePlatform == "iOS")
             {
-                case "iOS":
-                    MsalPublicClient.RedirectUri = RedirectUriOnIos;
-                    break;
-                case "Android":
-                    MsalPublicClient.RedirectUri = RedirectUriOnAndroid;
-                    break;
+                MsalPublicClient.RedirectUri = RedirectUriOnIos;
             }
-            
+
             MsalPublicClient.ValidateAuthority = ValidateAuthority;
         }
 

@@ -100,26 +100,6 @@ namespace Microsoft.Identity.Core
         }
 
         /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri)
-        {
-            RedirectUriCommon.Validate(redirectUri);
-
-            if (_isMsal)
-            {
-                if (Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw CoreExceptionFactory.Instance.GetClientException(
-                        CoreErrorCodes.DefaultRedirectUriIsInvalid,
-                        String.Format(
-                            CultureInfo.InvariantCulture,
-                            CoreErrorMessages.DefaultRedirectUriIsInvalid,
-                            Constants.DefaultRedirectUri,
-                            "Android"));
-                }
-            }
-        }
-
-        /// <inheritdoc />
         public string GetBrokerOrRedirectUri(Uri redirectUri)
         {
             return redirectUri.OriginalString;
