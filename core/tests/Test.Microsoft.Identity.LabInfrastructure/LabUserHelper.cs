@@ -66,7 +66,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             {
                 return new UserQueryParameters
                 {
-                    IsUserType = UserType.B2C
+                    UserType = UserType.B2C
                 };
             }
         }

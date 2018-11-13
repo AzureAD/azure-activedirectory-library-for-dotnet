@@ -66,12 +66,12 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             queryDict.Add("isFederated", query.IsFederatedUser != null && (bool)(query.IsFederatedUser) ? "true" : "false");
 
-            if (query.IsUserType != null)
-                queryDict.Add("usertype", query.IsUserType.ToString());
+            if (query.UserType != null)
+                queryDict.Add("usertype", query.UserType.ToString());
 
             queryDict.Add("external", query.IsExternalUser != null && (bool)(query.IsExternalUser) ? "true" : "false");
 
-            if (query.IsUserType == UserType.B2C)
+            if (query.UserType == UserType.B2C)
             {
                 queryDict.Add("b2cProvider", "local");
             }
@@ -86,6 +86,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             {
                 throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
+
             LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
 
             LabUser user = response.User;
