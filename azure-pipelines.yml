@@ -1,3 +1,16 @@
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
-pool:
-  vmImage: 'macOS-10.13'
+- job: iOS
+  pool:
+    vmImage: 'macOS-10.13'
+  variables:
+    buildConfiguration: 'Release'
+  steps:
+  - task: NuGetToolInstaller@0
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '**/*.sln'
+  - task: XamariniOS@2
+    inputs:
+      solutionFile: '**/*.sln'
+      configuration: '$(buildConfiguration)'
+      buildForSimulator: true
+      packageApp: false
