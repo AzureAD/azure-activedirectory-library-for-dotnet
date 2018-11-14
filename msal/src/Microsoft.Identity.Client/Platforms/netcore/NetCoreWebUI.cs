@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Microsoft.Identity.Client.Internal.UI
 
@@ -26,23 +27,22 @@ namespace Microsoft.Identity.Client.Internal.UI
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
-            // todo implement
-            SystemBrowser systemBrowser = new SystemBrowser();
-            string result = await systemBrowser.InvokeAsync(authorizationUri.OriginalString).ConfigureAwait(true);
+            SystemBrowser systemBrowser = new SystemBrowser(9001); //TODO: hardcoded port
+            AuthorizationResult result = await systemBrowser.InvokeAsync(authorizationUri.OriginalString).ConfigureAwait(true);
 
-            return null;
+            return result;
         }
     }
 
+
+    //TODO: figure out a way to let the user configure the messages on this
+    //TODO: we can let the user chose his own port - maybe as a separate story?
     internal class SystemBrowser
     {
         public int Port { get; }
-        private readonly string _path;
 
-        public SystemBrowser(int? port = null, string path = null)
+        public SystemBrowser(int? port = null)
         {
-            _path = path;
-
             if (!port.HasValue)
             {
                 Port = GetRandomUnusedPort();
@@ -89,26 +89,21 @@ namespace Microsoft.Identity.Client.Internal.UI
         //    }
         //}
 
-        public async Task<string> InvokeAsync(string uri)
+        public async Task<AuthorizationResult> InvokeAsync(string uri)
         {
-            using (var listener = new KestrelBasedListener(Port, _path))
+            using (var listener = new KestrelBasedListener(Port))
             {
                 OpenBrowser(uri);
 
-                return await listener.WaitForCallbackAsync().ConfigureAwait(true);
-
-                //try
-                //{
-                 
-                //}
-                //catch (TaskCanceledException ex)
-                //{
-                //    return new BrowserResult { ResultType = BrowserResultType.Timeout, Error = ex.Message };
-                //}
-                //catch (Exception ex)
-                //{
-                //    return new BrowserResult { ResultType = BrowserResultType.UnknownError, Error = ex.Message };
-                //}
+                try
+                {
+                    return await listener.WaitForCallbackAsync().ConfigureAwait(true);
+                }
+                catch (TaskCanceledException ex)
+                {
+                    // TODO: log ex
+                    return await Task.FromResult(new AuthorizationResult(AuthorizationStatus.UserCancel)).ConfigureAwait(false);
+                }
             }
         }
 
@@ -150,20 +145,17 @@ namespace Microsoft.Identity.Client.Internal.UI
     //TODO: check that all configureawait(true) can be switched to false
     internal class KestrelBasedListener : IDisposable
     {
-        const int DefaultTimeout = 60 * 5; // 5 mins (in seconds)
+        const int DefaultTimeout = 60 * 5; //TODO: configurable?
 
         IWebHost _host;
-        TaskCompletionSource<string> _source = new TaskCompletionSource<string>();
+        TaskCompletionSource<AuthorizationResult> _source = new TaskCompletionSource<AuthorizationResult>();
         string _url;
 
         public string Url => _url;
 
-        public KestrelBasedListener(int port, string path = null)
+        public KestrelBasedListener(int port)
         {
-            path = path ?? String.Empty;
-            if (path.StartsWith("/")) path = path.Substring(1);
-
-            _url = $"http://127.0.0.1:{port}/{path}";
+            _url = $"http://127.0.0.1:{port}";
 
             _host = new WebHostBuilder()
                 .UseKestrel()
@@ -188,51 +180,50 @@ namespace Microsoft.Identity.Client.Internal.UI
             {
                 if (ctx.Request.Method == "GET")
                 {
-                    SetResult(ctx.Request.QueryString.Value, ctx);
-                }
-                else if (ctx.Request.Method == "POST")
-                {
-                    if (!ctx.Request.ContentType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase))
-                    {
-                        ctx.Response.StatusCode = 415;
-                    }
-                    else
-                    {
-                        using (var sr = new StreamReader(ctx.Request.Body, Encoding.UTF8))
-                        {
-                            var body = await sr.ReadToEndAsync().ConfigureAwait(true);
-                            SetResult(body, ctx);
-                        }
-                    }
+                    string fullUri = ctx.Request.GetEncodedUrl();
+                    SetResult(fullUri, ctx);
                 }
                 else
                 {
                     ctx.Response.StatusCode = 405;
+                    ctx.Response.ContentType = "text/html";
+                    await ctx.Response.WriteAsync("<h1>Invalid request. Expecting a GET method.</h1>").ConfigureAwait(false);
+                    ctx.Response.Body.Flush();
+
+                    _source.TrySetResult(new AuthorizationResult(AuthorizationStatus.ErrorHttp));
                 }
+                
             });
         }
 
-        private void SetResult(string value, HttpContext ctx)
+        private void SetResult(string uri, HttpContext ctx)
         {
+            AuthorizationResult authorizationResult;
             try
             {
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.Success, uri);
+
                 ctx.Response.StatusCode = 200;
                 ctx.Response.ContentType = "text/html";
-                ctx.Response.WriteAsync("<h1>You can now return to the application.</h1>");
+                ctx.Response.WriteAsync("<h1>Authentication complete. Please close this tab or the browser and return to the application.</h1>");
                 ctx.Response.Body.Flush();
 
-                _source.TrySetResult(value);
             }
-            catch
+            catch (Exception e)
             {
                 ctx.Response.StatusCode = 400;
                 ctx.Response.ContentType = "text/html";
                 ctx.Response.WriteAsync("<h1>Invalid request.</h1>");
                 ctx.Response.Body.Flush();
+
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.UnknownError);
             }
+
+            _source.TrySetResult(authorizationResult);
+
         }
 
-        public Task<string> WaitForCallbackAsync(int timeoutInSeconds = DefaultTimeout)
+        public Task<AuthorizationResult> WaitForCallbackAsync(int timeoutInSeconds = DefaultTimeout)
         {
             Task.Run(async () =>
             {
