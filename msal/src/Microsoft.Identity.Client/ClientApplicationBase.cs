@@ -107,8 +107,8 @@ namespace Microsoft.Identity.Client
             CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
             WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
             TelemetryManager = telemetryManager ?? new TelemetryManager(Telemetry.GetInstance());
-            ValidatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            AadInstanceDiscovery = new AadInstanceDiscovery(HttpManager, TelemetryManager);
+            ValidatedAuthoritiesCache = new ValidatedAuthoritiesCache(false);
+            AadInstanceDiscovery = new AadInstanceDiscovery(HttpManager, TelemetryManager, false);
 
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(ValidatedAuthoritiesCache, AadInstanceDiscovery, authority, validateAuthority);

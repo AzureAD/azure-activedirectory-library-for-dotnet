@@ -40,6 +40,14 @@ namespace Microsoft.Identity.Core.Instance
         private static readonly ConcurrentDictionary<string, Authority> _validatedAuthorities =
             new ConcurrentDictionary<string, Authority>();
 
+        public ValidatedAuthoritiesCache(bool shouldClearCache = true)
+        {
+            if (shouldClearCache)
+            {
+                _validatedAuthorities.Clear();
+            }
+        }
+
         public int Count => _validatedAuthorities.Count;
 
         public bool ContainsKey(string key)
@@ -55,11 +63,6 @@ namespace Microsoft.Identity.Core.Instance
         public bool TryGetValue(string key, out Authority authority)
         {
             return _validatedAuthorities.TryGetValue(key, out authority);
-        }
-
-        public void Clear()
-        {
-            _validatedAuthorities.Clear();
         }
     }
 }

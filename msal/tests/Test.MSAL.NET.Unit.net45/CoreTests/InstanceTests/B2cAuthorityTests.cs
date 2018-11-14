@@ -47,8 +47,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         public void TestInitialize()
         {
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _validatedAuthoritiesCache.Clear();
-
             _aadInstanceDiscovery = new AadInstanceDiscovery(new HttpManager(), new TelemetryManager());
         }
 

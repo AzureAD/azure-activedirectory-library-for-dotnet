@@ -49,10 +49,14 @@ namespace Microsoft.Identity.Core.Instance
         private readonly IHttpManager _httpManager;
         private readonly ITelemetryManager _telemetryManager;
 
-        public AadInstanceDiscovery(IHttpManager httpManager, ITelemetryManager telemetryManager)
+        public AadInstanceDiscovery(IHttpManager httpManager, ITelemetryManager telemetryManager, bool shouldClearCache = true)
         {
             _httpManager = httpManager;
             _telemetryManager = telemetryManager;
+            if (shouldClearCache)
+            {
+                _cache.Clear();
+            }
         }
 
         public bool TryGetValue(string host, out InstanceDiscoveryMetadataEntry instanceDiscoveryMetadataEntry)

@@ -49,8 +49,6 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public void TestInitialize()
         {
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _validatedAuthoritiesCache.Clear();
-
             _aadInstanceDiscovery = new AadInstanceDiscovery(new HttpManager(), new TelemetryManager());
         }
 

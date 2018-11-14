@@ -59,8 +59,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             TestCommon.ResetStateAndInitMsal();
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _validatedAuthoritiesCache.Clear();
-
             _cache = new TokenCache();
             new TestLogger(Guid.Empty);
         }
@@ -141,6 +139,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
+
                 var cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,

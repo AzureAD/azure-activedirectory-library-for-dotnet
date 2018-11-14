@@ -35,8 +35,5 @@ namespace Microsoft.Identity.Core.Instance
         bool ContainsKey(string key);
 
         int Count { get; }
-
-        // Used for tests until we can clear the static usage.
-        void Clear();
     }
 }

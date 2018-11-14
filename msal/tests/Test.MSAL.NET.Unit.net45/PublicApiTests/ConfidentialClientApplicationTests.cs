@@ -64,8 +64,6 @@ namespace Test.MSAL.NET.Unit
         {
             TestCommon.ResetStateAndInitMsal();
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _validatedAuthoritiesCache.Clear();
-
             _telemetryManager = new TelemetryManager(_myReceiver);
             _aadInstanceDiscovery = new AadInstanceDiscovery(new HttpManager(), _telemetryManager);
         }

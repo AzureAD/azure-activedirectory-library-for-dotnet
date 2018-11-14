@@ -51,7 +51,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         public void TestInitialize()
         {
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _validatedAuthoritiesCache.Clear();
             CoreExceptionFactory.Instance = new TestExceptionFactory();
         }
 
