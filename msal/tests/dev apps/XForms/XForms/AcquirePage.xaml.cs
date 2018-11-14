@@ -60,12 +60,12 @@ namespace XForms
 
         private void RefreshUsers()
         {
-            //var userIds = App.MsalPublicClient.GetAccountsAsync().Result.
-            //    Select(x => x.Username).ToList();
+            var userIds = App.MsalPublicClient.GetAccountsAsync().Result.
+                Select(x => x.Username).ToList();
 
-            //userIds.Add(UserNotSelected);
-            //usersPicker.ItemsSource = userIds;
-            //usersPicker.SelectedIndex = userIds.Count - 1; // go to UserNotSelected
+            userIds.Add(UserNotSelected);
+            usersPicker.ItemsSource = userIds;
+            usersPicker.SelectedIndex = userIds.Count - 1; // go to UserNotSelected
         }
 
         private void InitUIBehaviorPicker()
