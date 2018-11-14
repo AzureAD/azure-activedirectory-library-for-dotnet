@@ -117,6 +117,7 @@ namespace Test.MSAL.UIAutomation
         /// B2C aquire token flow with local account and b2clogin.com authority
         /// </summary>
         [Test]
+        [Ignore("Related to this MSAL issue: https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/686")]
         public void B2CLocalAccountB2CLoginAuthorityAcquireTokenTest()
         {
             _msalMobileTestHelper.isB2CloginAuthority = true;
