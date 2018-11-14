@@ -1,0 +1,3 @@
+# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
+pool:
+  vmImage: 'macOS-10.13'
