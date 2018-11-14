@@ -60,6 +60,9 @@ namespace Test.MSAL.NET.Unit
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
 
+            new AadInstanceDiscovery(null, null, true);
+            new ValidatedAuthoritiesCache(true);
+
             httpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
                     MsalTestConstants.GetDiscoveryEndpoint(MsalTestConstants.AuthorityCommonTenant)));
