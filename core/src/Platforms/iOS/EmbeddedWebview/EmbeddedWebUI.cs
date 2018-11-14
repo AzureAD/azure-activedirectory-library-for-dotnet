@@ -91,7 +91,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             SetAuthorizationResult(result);
         }
 
-        public void ValidateRedirectUri(Uri redirectUri)
+        public override void ValidateRedirectUri(Uri redirectUri)
         {
             RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
         }
