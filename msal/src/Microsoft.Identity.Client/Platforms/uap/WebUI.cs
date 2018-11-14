@@ -52,7 +52,7 @@ namespace Microsoft.Identity.Client.Internal.UI
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
-            bool ssoMode = ReferenceEquals(redirectUri, Constants.UapWEBRedirectUri);
+            bool ssoMode = string.Equals(redirectUri.OriginalString, Constants.UapWEBRedirectUri, StringComparison.OrdinalIgnoreCase);
 
             WebAuthenticationResult webAuthenticationResult;
             WebAuthenticationOptions options = (useCorporateNetwork &&

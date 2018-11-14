@@ -61,6 +61,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
             : base(requestData)
         {
+
+#if WINDOWS_APP
+            // On UWP, if the user passes in NULL, use the broker (WEB) special uri
+            // Otherwise, ADAL does not provide defaults for the redirect uri
+            if (redirectUri == null)
+            {
+                redirectUri = new Uri(Constants.UapWEBRedirectUri);
+            }
+#endif
             RedirectUriHelper.Validate(redirectUri);
             this.redirectUri = redirectUri;
 

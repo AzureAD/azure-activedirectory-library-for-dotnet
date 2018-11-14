@@ -43,7 +43,8 @@ namespace UAPTestApp
     {
         private const string ClientId = "cd01dc27-9d3c-4812-beda-8229d5d4a8d5";
 
-        private const string ReturnUri = "https://MyDirectorySearcherApp";
+        private readonly Uri ReturnUri = new Uri("https://MyDirectorySearcherApp"); 
+            //"https://MyDirectorySearcherApp";
 
         public MainPage()
         {
@@ -58,7 +59,7 @@ namespace UAPTestApp
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenAsync("https://graph.windows.net",
-                    ClientId, new Uri(ReturnUri),
+                    ClientId, ReturnUri,
                     new PlatformParameters(PromptBehavior.Auto, false)).ConfigureAwait(false);
 
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,
