@@ -38,7 +38,12 @@ namespace Microsoft.Identity.Core.Instance
 {
     internal class AadInstanceDiscovery : IAadInstanceDiscovery
     {
-        private readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> _cache =
+        // TODO: The goal of creating this class was to remove statics, but for the time being
+        // we don't have a good separation to cache these across ClientApplication instances
+        // in the case where a ConfidentialClientApplication is created per-request, for example.
+        // So moving this back to static to keep the existing behavior but the rest of the code
+        // won't know this is static.
+        private static readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> _cache =
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
         private readonly IHttpManager _httpManager;

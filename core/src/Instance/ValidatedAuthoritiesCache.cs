@@ -32,7 +32,12 @@ namespace Microsoft.Identity.Core.Instance
 {
     internal class ValidatedAuthoritiesCache : IValidatedAuthoritiesCache
     {
-        private readonly ConcurrentDictionary<string, Authority> _validatedAuthorities =
+        // TODO: The goal of creating this class was to remove statics, but for the time being
+        // we don't have a good separation to cache these across ClientApplication instances
+        // in the case where a ConfidentialClientApplication is created per-request, for example.
+        // So moving this back to static to keep the existing behavior but the rest of the code
+        // won't know this is static.
+        private static readonly ConcurrentDictionary<string, Authority> _validatedAuthorities =
             new ConcurrentDictionary<string, Authority>();
 
         public int Count => _validatedAuthorities.Count;
