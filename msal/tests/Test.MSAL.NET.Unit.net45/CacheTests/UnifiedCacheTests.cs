@@ -188,10 +188,6 @@ namespace Test.MSAL.NET.Unit
                 MsalMockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                                                                            app.RedirectUri + "?code=some-code"));
                 
-                // The PCA objects don't share the AadInstanceDiscovery or ValidatedAuthorityCache so we will need to hit these again.
-                httpManager.AddInstanceDiscoveryMockHandler();
-                httpManager.AddMockHandlerForTenantEndpointDiscovery(MsalTestConstants.AuthorityHomeTenant);
-
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 result = app1.AcquireTokenAsync(MsalTestConstants.Scope).Result;
