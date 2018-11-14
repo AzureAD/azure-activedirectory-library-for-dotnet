@@ -59,6 +59,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             TestCommon.ResetStateAndInitMsal();
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
+            _validatedAuthoritiesCache.Clear();
 
             _cache = new TokenCache();
             new TestLogger(Guid.Empty);

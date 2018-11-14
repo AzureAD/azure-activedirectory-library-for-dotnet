@@ -56,5 +56,10 @@ namespace Microsoft.Identity.Core.Instance
         {
             return _validatedAuthorities.TryGetValue(key, out authority);
         }
+
+        public void Clear()
+        {
+            _validatedAuthorities.Clear();
+        }
     }
 }

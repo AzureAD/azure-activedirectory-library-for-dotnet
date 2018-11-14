@@ -56,6 +56,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             TestCommon.ResetStateAndInitMsal();
             _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
+            _validatedAuthoritiesCache.Clear();
+
             _cache = new TokenCache();
         }
 
