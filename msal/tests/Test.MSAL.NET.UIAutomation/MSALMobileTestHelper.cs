@@ -98,7 +98,8 @@ namespace Test.MSAL.UIAutomation
         /// <param name="controller">The test framework that will execute the test interaction</param>
         public void B2CLocalAccountAcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
         {
-            //acquire token for 1st resource
+            //acquire token for 1st resource   
+            isB2CloginAuthority = false;
             B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
 
