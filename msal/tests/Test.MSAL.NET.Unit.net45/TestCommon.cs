@@ -27,6 +27,7 @@
 
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
+using Microsoft.Identity.Core.Instance;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 
 namespace Test.MSAL.NET.Unit
@@ -37,6 +38,9 @@ namespace Test.MSAL.NET.Unit
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
             ResetState();
+            new AadInstanceDiscovery(null, null, true);
+            new ValidatedAuthoritiesCache(true);
+
         }
 
         public static void ResetState()
