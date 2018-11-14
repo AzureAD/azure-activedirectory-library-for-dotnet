@@ -101,7 +101,7 @@ namespace Microsoft.Identity.Core
                     CultureInfo.InvariantCulture,
                     IosDefaultRedirectUriTemplate,
                     clientId)
-                : Constants.DefaultRedirectUri;
+                : null; // ADAL does not provide a default
         }
 
         public string GetProductName()

@@ -108,7 +108,9 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public string GetDefaultRedirectUri(string clientId)
         {
-            return string.Format(CultureInfo.InvariantCulture, AndroidDefaultRedirectUriTemplate, clientId);
+            return _isMsal ?
+                string.Format(CultureInfo.InvariantCulture, AndroidDefaultRedirectUriTemplate, clientId) :
+                null; // Adal does not specify a default
         }
 
         public string GetProductName()

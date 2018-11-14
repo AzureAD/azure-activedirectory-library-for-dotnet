@@ -98,7 +98,9 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public string GetDefaultRedirectUri(string clientId)
         {
-            return Constants.DefaultRedirectUri;
+            return _isMsal ?
+             Constants.DefaultRedirectUri :
+             null; // Adal does not specify a default
         }
 
         public string GetProductName()

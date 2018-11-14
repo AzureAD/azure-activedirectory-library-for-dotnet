@@ -43,8 +43,8 @@ namespace UAPTestApp
     {
         private const string ClientId = "cd01dc27-9d3c-4812-beda-8229d5d4a8d5";
 
-        private readonly Uri ReturnUri = new Uri("https://MyDirectorySearcherApp"); 
-            //"https://MyDirectorySearcherApp";
+        private readonly Uri ReturnUri = null; // will use the broker (WEB)
+        //private readonly Uri ReturnUri = new Uri("https://MyDirectorySearcherApp"); 
 
         public MainPage()
         {

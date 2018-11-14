@@ -57,24 +57,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private readonly string claims;
 
-        public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters,
-            UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
+
+        public AcquireTokenInteractiveHandler(
+            RequestData requestData, 
+            Uri redirectUri, 
+            IPlatformParameters parameters,
+            UserIdentifier userId, 
+            string extraQueryParameters, 
+            IWebUI webUI, 
+            string claims)
             : base(requestData)
         {
-
-#if WINDOWS_APP
-            // On UWP, if the user passes in NULL, use the broker (WEB) special uri
-            // Otherwise, ADAL does not provide defaults for the redirect uri
-            if (redirectUri == null)
-            {
-                redirectUri = new Uri(Constants.UapWEBRedirectUri);
-            }
-#endif
-            RedirectUriHelper.Validate(redirectUri);
-            this.redirectUri = redirectUri;
+            this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, this.ClientKey?.ClientId);
+            this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
 
             this.authorizationParameters = parameters;
-            this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
             this.userId = userId ?? throw new ArgumentNullException(nameof(userId), AdalErrorMessage.SpecifyAnyUser);
 
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
@@ -116,6 +113,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
             this.brokerParameters[BrokerParameter.Claims] = claims;
             brokerHelper.PlatformParameters = authorizationParameters;
+        }
+
+        private static Uri ComputeAndValidateRedirectUri(Uri redirectUri, string clientId)
+        {
+            // ADAL mostly does not provide defaults for the redirect URI, currently only for UWP for broker support
+            if (redirectUri == null)
+            {
+                string defaultUriAsString = PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId);
+
+                if (!String.IsNullOrWhiteSpace(defaultUriAsString))
+                {
+                    return new Uri(defaultUriAsString);
+                }
+            }
+
+            RedirectUriHelper.Validate(redirectUri);
+
+            return redirectUri;
         }
 
         private static string ReplaceHost(string original, string newHost)
