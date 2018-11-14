@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IWebUI webUi)
             : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
         {
-             RedirectUriHelper.Validate(authenticationRequestParameters.RedirectUri);
+            webUi.ValidateRedirectUri(authenticationRequestParameters.RedirectUri);
 
             _extraScopesToConsent = new SortedSet<string>();
             if (!extraScopesToConsent.IsNullOrEmpty())

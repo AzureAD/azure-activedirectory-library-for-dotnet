@@ -468,13 +468,6 @@ namespace Microsoft.Identity.Client
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
 
-#if iOS || ANDROID
-            if (!parent.CoreUIParent.UseEmbeddedWebview)
-            {
-                RedirectUriHelper.Validate(requestParams.RedirectUri, true);
-            }
-#endif
-
             var handler = new InteractiveRequest(
                 HttpManager,
                 CryptographyManager,
@@ -497,13 +490,6 @@ namespace Microsoft.Identity.Client
         {
             var requestParams = CreateRequestParameters(authority, scopes, user, UserTokenCache);
             requestParams.ExtraQueryParameters = extraQueryParameters;
-
-#if iOS || ANDROID
-            if (!parent.CoreUIParent.UseEmbeddedWebview)
-            {
-                RedirectUriHelper.Validate(requestParams.RedirectUri, true);
-            }
-#endif
 
             var handler = new InteractiveRequest(
                 HttpManager,

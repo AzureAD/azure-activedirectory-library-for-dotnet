@@ -41,7 +41,10 @@ namespace Microsoft.Identity.Core.Http
         {
             if (redirectUri == null)
             {
-                throw new ArgumentNullException(nameof(redirectUri));
+                throw CoreExceptionFactory.Instance.GetClientException(
+                    CoreErrorCodes.NoRedirectUri,
+                    CoreErrorMessages.NoRedirectUri);
+
             }
 
             if (!string.IsNullOrWhiteSpace(redirectUri.Fragment))
@@ -63,6 +66,6 @@ namespace Microsoft.Identity.Core.Http
                         Constants.DefaultRedirectUri));
             }
         }
-      
+
     }
 }

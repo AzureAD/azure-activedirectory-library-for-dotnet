@@ -33,6 +33,7 @@ using Windows.Networking.Connectivity;
 using Windows.ApplicationModel.Core;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client.Internal.UI
 {
@@ -135,6 +136,12 @@ namespace Microsoft.Identity.Client.Internal.UI
             }
 
             return result;
+        }
+
+
+        public void ValidateRedirectUri(Uri redirectUri)
+        {
+            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
         }
     }
 }

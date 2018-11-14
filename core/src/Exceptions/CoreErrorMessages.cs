@@ -113,5 +113,7 @@ namespace Microsoft.Identity.Core
 
         public const string RedirectUriContainsFragment = "'redirectUri' must NOT include a fragment component";
 
+        public const string NoRedirectUri = "No redirectUri was configured. ADAL does not provide any defaults.";
+
     }
 }
