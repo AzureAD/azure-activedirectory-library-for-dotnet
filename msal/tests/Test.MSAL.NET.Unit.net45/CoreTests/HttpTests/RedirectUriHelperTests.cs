@@ -53,7 +53,7 @@ namespace Test.Microsoft.Identity.Unit.HttpTests
         public void ValidateRedirectUri_Throws()
         {
           
-            Assert.ThrowsException<ArgumentNullException>(
+            Assert.ThrowsException<TestClientException>(
                 () => RedirectUriHelper.Validate(null));
 
             Assert.ThrowsException<ArgumentException>(
