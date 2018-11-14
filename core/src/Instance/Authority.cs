@@ -52,6 +52,7 @@ namespace Microsoft.Identity.Core.Instance
         protected Authority(IValidatedAuthoritiesCache validatedAuthoritiesCache, string authority, bool validateAuthority)
         {
             ValidatedAuthoritiesCache = validatedAuthoritiesCache;
+            ValidateAuthority = validateAuthority;
             var authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
 
@@ -60,8 +61,6 @@ namespace Microsoft.Identity.Core.Instance
                 "https://{0}/{1}/",
                 authorityUri.Uri.Authority,
                 GetFirstPathSegment(authority));
-
-            ValidateAuthority = validateAuthority;
         }
 
         public AuthorityType AuthorityType { get; protected set; }
@@ -169,9 +168,9 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         public async Task ResolveEndpointsAsync(
-            IHttpManager httpManager, 
+            IHttpManager httpManager,
             ITelemetryManager telemetryManager,
-            string userPrincipalName, 
+            string userPrincipalName,
             RequestContext requestContext)
         {
             requestContext.Logger.Info("Resolving authority endpoints... Already resolved? - " + _resolved);
@@ -205,17 +204,17 @@ namespace Microsoft.Identity.Core.Instance
                 }
 
                 string openIdConfigurationEndpoint = await GetOpenIdConfigurationEndpointAsync(
-                                                             httpManager, 
+                                                             httpManager,
                                                              telemetryManager,
-                                                             userPrincipalName, 
+                                                             userPrincipalName,
                                                              requestContext)
                                                          .ConfigureAwait(false);
 
                 //discover endpoints via openid-configuration
                 var edr = await DiscoverEndpointsAsync(
-                              httpManager, 
-                              telemetryManager, 
-                              openIdConfigurationEndpoint, 
+                              httpManager,
+                              telemetryManager,
+                              openIdConfigurationEndpoint,
                               requestContext).ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(edr.AuthorizationEndpoint))

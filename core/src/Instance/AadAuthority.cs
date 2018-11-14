@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.Core.Instance
             "login.cloudgovapi.us" // Microsoft Azure US Government
         };
 
-        private readonly IAadInstanceDiscovery _aadInstanceDiscovery;
+        protected IAadInstanceDiscovery AadInstanceDiscovery { get; }
 
         internal AadAuthority(
             IValidatedAuthoritiesCache validatedAuthoritiesCache,
@@ -61,15 +61,18 @@ namespace Microsoft.Identity.Core.Instance
             : base(validatedAuthoritiesCache, authority, validateAuthority)
         {
             AuthorityType = AuthorityType.Aad;
-            _aadInstanceDiscovery = aadInstanceDiscovery;
+            AadInstanceDiscovery = aadInstanceDiscovery;
         }
 
-        internal override async Task UpdateCanonicalAuthorityAsync(RequestContext requestContext)
+        internal override async Task UpdateCanonicalAuthorityAsync(
+            RequestContext requestContext)
         {
-            var metadata = await _aadInstanceDiscovery.GetMetadataEntryAsync(
-                               new Uri(CanonicalAuthority),
-                               ValidateAuthority,
-                               requestContext).ConfigureAwait(false);
+            var metadata = await AadInstanceDiscovery
+                                 .GetMetadataEntryAsync(
+                                     new Uri(CanonicalAuthority),
+                                     ValidateAuthority,
+                                     requestContext)
+                                 .ConfigureAwait(false);
 
             CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
         }
@@ -84,7 +87,7 @@ namespace Microsoft.Identity.Core.Instance
 
             if (ValidateAuthority && !IsInTrustedHostList(authorityUri.Host))
             {
-                var discoveryResponse = await _aadInstanceDiscovery.DoInstanceDiscoveryAndCacheAsync(
+                var discoveryResponse = await AadInstanceDiscovery.DoInstanceDiscoveryAndCacheAsync(
                                             authorityUri,
                                             true,
                                             requestContext).ConfigureAwait(false);
@@ -114,7 +117,7 @@ namespace Microsoft.Identity.Core.Instance
         internal static bool IsInTrustedHostList(string host)
         {
             return !string.IsNullOrEmpty(
-                       TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
+                TrustedHostList.FirstOrDefault(a => string.Compare(host, a, StringComparison.OrdinalIgnoreCase) == 0));
         }
 
         internal override string GetTenantId()

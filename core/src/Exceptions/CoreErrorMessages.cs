@@ -49,7 +49,7 @@ namespace Microsoft.Identity.Core
           "B2C 'authority' Uri should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)";
 
         public const string UnsupportedAuthorityValidation =
-            "Authority validation is not supported for this type of authority";
+            "Authority validation is not supported for this type of authority. See http://aka.ms/valid-authorities for details";
 
         public const string AuthenticationCanceled = "User canceled authentication. On an Android device, this could be " +
             "due to the lack of capabilities, such as custom tabs, for the system browser." +
@@ -108,5 +108,10 @@ namespace Microsoft.Identity.Core
 
         public const string AndroidActivityNotFound = "The Activity cannot be found to launch the given Intent. To ensure authentication, a browser with custom tab support " +
             "is recommended. See https://aka.ms/msal-net-system-browsers for more details on using system browser on Android.";
+
+        public const string DefaultRedirectUriIsInvalid = "Default redirect Uri {0} cannot be used on {1} platform";
+
+        public const string RedirectUriContainsFragment = "'redirectUri' must NOT include a fragment component";
+
     }
 }

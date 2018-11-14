@@ -281,7 +281,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             }
             catch (ArgumentException ae)
             {
-                Assert.IsTrue(ae.Message.Contains(MsalErrorMessage.RedirectUriContainsFragment));
+                Assert.IsTrue(ae.Message.Contains(CoreErrorMessages.RedirectUriContainsFragment));
             }
         }
 
