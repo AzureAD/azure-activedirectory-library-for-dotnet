@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
-    <TargetFrameworks>Xamarin.iOS10</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
