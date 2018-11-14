@@ -104,12 +104,23 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// B2C aquire token flow with local account
+        /// B2C aquire token flow with local account and login.microsoftonline.com
         /// </summary>
         [Test]
         public void B2CLocalAccountAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser(), CoreUiTestConstants.UIBehaviorLogin);
+            _msalMobileTestHelper.isB2CloginAuthority = false;
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
+        }
+
+        /// <summary>
+        /// B2C aquire token flow with local account and b2clogin.com authority
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountB2CLoginAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = true;
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
         }
 
         /// <summary>

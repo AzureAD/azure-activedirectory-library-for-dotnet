@@ -47,6 +47,7 @@ namespace XForms
 
         public const string DefaultAuthority = "https://login.microsoftonline.com/common";
         public const string B2cAuthority = "https://login.microsoftonline.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
+        public const string B2CLoginAuthority = "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
 
         public static string[] DefaultScopes = {"User.Read"};
         public static string[] B2cScopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };

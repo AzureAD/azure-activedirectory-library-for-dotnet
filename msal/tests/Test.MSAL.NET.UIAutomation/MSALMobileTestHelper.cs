@@ -42,6 +42,7 @@ namespace Test.MSAL.UIAutomation
     public class MSALMobileTestHelper
     {
         public CoreMobileTestHelper CoreMobileTestHelper { get; set; } = new CoreMobileTestHelper();
+        public bool isB2CloginAuthority;
 
         /// <summary>
         /// Runs through the standard acquire token flow, using the login prompt behavior
@@ -75,10 +76,17 @@ namespace Test.MSAL.UIAutomation
         /// <summary>
         /// Runs through the B2C acquire token flow
         /// </summary>
-        public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse, string promptBehavior)
+        public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
         {
             PrepareForAuthentication(controller);
-            SetB2CInputData(controller);
+            if (isB2CloginAuthority)
+            {
+                SetB2CInputDataForB2CloginAuthority(controller);
+            }
+            else
+            {
+                SetB2CInputData(controller);
+            }
 
             PerformB2CLocalAccountSignInFlow(controller, labResponse.User);
             CoreMobileTestHelper.VerifyResult(controller);
@@ -91,7 +99,7 @@ namespace Test.MSAL.UIAutomation
         public void B2CLocalAccountAcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
         {
             //acquire token for 1st resource
-            B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse, CoreUiTestConstants.UIBehaviorLogin);
+            B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
 
             //select user
@@ -154,8 +162,16 @@ namespace Test.MSAL.UIAutomation
         {
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 
-            // Toggle B2C
-            controller.SetSwitchState(CoreUiTestConstants.B2CEntryID);
+            // Select login.microsoftonline.com for authority
+            SetAuthority(controller, CoreUiTestConstants.MicrosoftOnlineAuthority);
+        }
+
+        private void SetB2CInputDataForB2CloginAuthority(ITestController controller)
+        {
+            controller.Tap(CoreUiTestConstants.SettingsPageID);
+
+            // Select b2clogin.com for authority
+            SetAuthority(controller, CoreUiTestConstants.B2CLoginAuthority);
         }
 
         public void SetUiBehavior(ITestController controller, string promptBehavior)
@@ -180,6 +196,13 @@ namespace Test.MSAL.UIAutomation
             }
         }
 
+        public void SetAuthority(ITestController controller, string authority)
+        {
+            // Select authority
+            controller.Tap(CoreUiTestConstants.AuthorityPickerID);
+            controller.Tap(authority);
+        }
+
         public void PerformB2CLocalAccountSignInFlow(ITestController controller, LabUser user)
         {
             UserInformationFieldIds userInformationFieldIds = CoreMobileTestHelper.DetermineUserInformationFieldIds(user);
@@ -189,13 +212,10 @@ namespace Test.MSAL.UIAutomation
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
 
-            //id="logonIdentifier" for local b2c accounts
             controller.EnterText(CoreUiTestConstants.WebUPNB2CLocalInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
 
-            //id="password"
             controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
 
-            //id="next" Sign in button
             controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
         }
     }

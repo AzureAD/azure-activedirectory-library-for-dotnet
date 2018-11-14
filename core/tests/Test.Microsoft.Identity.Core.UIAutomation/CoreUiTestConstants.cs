@@ -54,29 +54,34 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string WebUPNInputID = "i0116";
         public const string WebUPNB2CLocalInputID = "logonIdentifier";
         public const string AdfsV4WebPasswordID = "passwordInput";
-        public const string B2CWebPasswordID = "password";
         public const string AdfsV4WebSubmitID = "submitButton";
         public const string WebPasswordID = "i0118";
         public const string WebSubmitID = "idSIButton9";
-        public const string B2CWebSubmitID = "next";
         public const string TestResultID = "testResult";
         public const string TestResultSuccsesfulMessage = "Result: Success";
         public const string TestResultFailureMessage = "Result: Failure";
 
         //MSAL test app
         public const string DefaultScope = "User.Read";
-        public static string B2cScopes = "https://sometenant.onmicrosoft.com/some/scope";
         public const string AcquirePageID = "Acquire";
         public const string CachePageID = "Cache";
         public const string SettingsPageID = "Settings";
         public const string ScopesEntryID = "scopesList";
         public const string UiBehaviorPickerID = "uiBehavior";
-        public const string B2CEntryID = "b2cSwitch";
         public const string SelectUser = "userList";
         public const string UserNotSelected = "not selected";
         public const string UserMissingFromResponse = "Missing from the token response";
         public const string RedirectUriOnAndroid = "urn:ietf:wg:oauth:2.0:oob";
         public const string RedirectUriEntryID = "redirectUriEntry";
+
+        //MSAL B2C
+        public static string B2cScopes = "https://sometenant.onmicrosoft.com/some/scope";
+        public const string AuthorityPickerID = "b2cAuthorityPicker";
+        public const string B2CWebSubmitID = "next";
+        public const string B2CWebPasswordID = "password";
+        public const string B2CLoginAuthority = "b2clogin.com";
+        public const string MicrosoftOnlineAuthority = "login.microsoftonline.com";
+        public const string NonB2CAuthority = "non-b2c authority";
 
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";
