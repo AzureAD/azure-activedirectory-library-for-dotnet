@@ -104,27 +104,6 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// B2C aquire token flow with local account and login.microsoftonline.com
-        /// </summary>
-        [Test]
-        public void B2CLocalAccountAcquireTokenTest()
-        {
-            _msalMobileTestHelper.isB2CloginAuthority = false;
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
-        }
-
-        /// <summary>
-        /// B2C aquire token flow with local account and b2clogin.com authority
-        /// </summary>
-        [Test]
-        [Ignore("Related to this MSAL issue: https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/686")]
-        public void B2CLocalAccountB2CLoginAuthorityAcquireTokenTest()
-        {
-            _msalMobileTestHelper.isB2CloginAuthority = true;
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
-        }
-
-        /// <summary>
         /// Runs through the standard acquire token silent flow
         /// </summary>
         [Test]
@@ -134,12 +113,51 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// B2C acquire token flow with local account and silent call
+        /// B2C acquire token with Facebook provider
+        /// b2clogin.com authority
+        /// with subsequent silent call
         /// </summary>
         [Test]
-        public void B2CLocalAccountAcquireTokenSilentTest()
+        public void B2CFacebookProviderWithB2CLoginAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
+            _msalMobileTestHelper.isB2CloginAuthority = true;
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider());
+        }
+
+        /// <summary>
+        /// B2C acquire token with Facebook provider 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CFacebookProviderWithMicrosoftAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = false;
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider());
+        }
+
+        /// <summary>
+        /// B2C acquire token with local account 
+        /// b2clogin.com authority
+        /// and subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = true;
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider());
+        }
+
+        /// <summary>
+        /// B2C acquire token with local account 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenWithMicrosoftAuthorityTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = false;
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider());
         }
 
         /// <summary>

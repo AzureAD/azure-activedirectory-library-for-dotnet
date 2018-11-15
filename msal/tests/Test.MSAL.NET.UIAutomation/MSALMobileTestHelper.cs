@@ -74,7 +74,7 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// Runs through the B2C acquire token flow
+        /// Runs through the B2C acquire token flow with local account
         /// </summary>
         public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
         {
@@ -93,16 +93,52 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
-        /// Runs through the B2C acquire token silent flow
+        /// Runs through the B2C acquire token flow with Facebook Provider
+        /// </summary>
+        public void B2CFacebookProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
+        {
+            PrepareForAuthentication(controller);
+            if (isB2CloginAuthority)
+            {
+                SetB2CInputDataForB2CloginAuthority(controller);
+            }
+            else
+            {
+                SetB2CInputData(controller);
+            }
+
+            PerformB2CFacebookProviderSignInFlow(controller, labResponse.User);
+            CoreMobileTestHelper.VerifyResult(controller);
+        }
+
+        /// <summary>
+        /// Runs through the B2C acquire token silent flow with local account
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void B2CLocalAccountAcquireTokenSilentTestHelper(ITestController controller, LabResponse labResponse)
+        public void B2CLocalAccountAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
         {
             //acquire token for 1st resource   
-            isB2CloginAuthority = false;
             B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
 
+            B2CSilentFlowHelper(controller, labResponse);
+        }
+
+        /// <summary>
+        /// Runs through the B2C acquire token silent flow with Facebook identity provider
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public void B2CFacebookProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
+        {
+            //acquire token for 1st resource   
+            B2CFacebookProviderAcquireTokenInteractiveTestHelper(controller, labResponse);
+            CoreMobileTestHelper.VerifyResult(controller);
+
+            B2CSilentFlowHelper(controller, labResponse);
+        }
+
+        private void B2CSilentFlowHelper(ITestController controller, LabResponse labResponse)
+        {
             //select user
             controller.Tap(CoreUiTestConstants.SelectUser);
             //b2c does not return userinfo in token response
@@ -214,6 +250,24 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
 
             controller.EnterText(CoreUiTestConstants.WebUPNB2CLocalInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
+
+            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
+
+            controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
+        }
+
+        public void PerformB2CFacebookProviderSignInFlow(ITestController controller, LabUser user)
+        {
+            UserInformationFieldIds userInformationFieldIds = CoreMobileTestHelper.DetermineUserInformationFieldIds(user);
+
+            controller.Tap(CoreUiTestConstants.AcquirePageID);
+
+            //Acquire token flow
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+
+            controller.Tap(CoreUiTestConstants.FacebookAccountID, XamarinSelector.ByHtmlIdAttribute);
+            
+            controller.EnterText(CoreUiTestConstants.WebUPNB2CFacebookInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
 
             controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
 

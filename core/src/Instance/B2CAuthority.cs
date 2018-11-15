@@ -68,7 +68,20 @@ namespace Microsoft.Identity.Core.Instance
                 throw new ArgumentException(CoreErrorMessages.UnsupportedAuthorityValidation);
             }
 
-            var metadata = await AadInstanceDiscovery
+            InstanceDiscoveryMetadataEntry metadata = await GetB2CInstanceDiscoveryMetadataEntryAsync(
+                httpManager,
+                telemetryManager,
+                requestContext).ConfigureAwait(false);
+
+            CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
+        }
+
+        internal async Task<InstanceDiscoveryMetadataEntry> GetB2CInstanceDiscoveryMetadataEntryAsync(
+            IHttpManager httpManager,
+            ITelemetryManager telemetryManager,
+            RequestContext requestContext)
+        {
+             InstanceDiscoveryMetadataEntry metadata = await AadInstanceDiscovery
                              .Instance.GetMetadataEntryAsync(
                                  httpManager,
                                  telemetryManager,
@@ -76,8 +89,7 @@ namespace Microsoft.Identity.Core.Instance
                                  ValidateAuthority,
                                  requestContext)
                              .ConfigureAwait(false);
-
-            CanonicalAuthority = UpdateHost(CanonicalAuthority, metadata.PreferredNetwork);
+            return metadata;
         }
 
         private string GetCanonicalAuthorityB2C()

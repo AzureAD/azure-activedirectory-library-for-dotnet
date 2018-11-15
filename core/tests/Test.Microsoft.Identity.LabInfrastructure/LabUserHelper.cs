@@ -60,13 +60,26 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             }
         }
 
-        public static UserQueryParameters B2CUserQuery
+        public static UserQueryParameters B2CLocalAccountUserQuery
         {
             get
             {
                 return new UserQueryParameters
                 {
-                    UserType = UserType.B2C
+                    UserType = UserType.B2C,
+                    IdentityProvider = IdentityProvider.Local
+                };
+            }
+        }
+
+        public static UserQueryParameters B2CFacebookUserQuery
+        {
+            get
+            {
+                return new UserQueryParameters
+                {
+                    UserType = UserType.B2C,
+                    IdentityProvider = IdentityProvider.Facebook
                 };
             }
         }
@@ -91,9 +104,15 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             return _defaultLabResponse;
         }
 
-        public static LabResponse GetLabResponseWithB2CUser()
+        public static LabResponse GetLabResponseWithB2CLocalAccountProvider()
         {
-            var user = B2CUserQuery;
+            var user = B2CLocalAccountUserQuery;
+            return GetLabUserData(user);
+        }
+
+        public static LabResponse GetLabResponseWithB2CFacebookProvider()
+        {
+            var user = B2CFacebookUserQuery;
             return GetLabUserData(user);
         }
 

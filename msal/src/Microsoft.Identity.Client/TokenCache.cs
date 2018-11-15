@@ -158,7 +158,7 @@ namespace Microsoft.Identity.Client
 
             // The preferred_username value cannot be null or empty in order to comply with the ADAL/MSAL Unified cache schema.
             // It will be set to "preferred_username not in idtoken"
-            var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
+            var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername) ? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
 
             var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
 
@@ -685,13 +685,21 @@ namespace Microsoft.Identity.Client
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
             var authorityType = Authority.GetAuthorityType(authority);
-            if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C)
+            if (authorityType == Core.Instance.AuthorityType.Aad)
             {
                 instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync(
                     HttpManager,
                     TelemetryManager,
                     new Uri(authority),
                     validateAuthority,
+                    requestContext).ConfigureAwait(false);
+            }
+            else if (authorityType == Core.Instance.AuthorityType.B2C)
+            {
+                B2CAuthority b2cAuthority = new B2CAuthority(authority, validateAuthority);
+                instanceDiscoveryMetadata = await b2cAuthority.GetB2CInstanceDiscoveryMetadataEntryAsync(
+                    HttpManager,
+                    TelemetryManager,
                     requestContext).ConfigureAwait(false);
             }
             return instanceDiscoveryMetadata;
@@ -781,7 +789,7 @@ namespace Microsoft.Identity.Client
                     }
                 }
 
-                Dictionary<String, AdalUserInfo> clientInfoToAdalUserMap = tuple.Item1;
+                Dictionary<string, AdalUserInfo> clientInfoToAdalUserMap = tuple.Item1;
                 List<AdalUserInfo> adalUsersWithoutClientInfo = tuple.Item2;
 
                 foreach (KeyValuePair<string, AdalUserInfo> pair in clientInfoToAdalUserMap)

@@ -25,19 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
-
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public class UserQueryParameters
+    public enum IdentityProvider
     {
-        public FederationProvider? FederationProvider { get; set; }
-        public bool? IsMamUser { get; set; }
-        public bool? IsMfaUser { get; set; }
-        public ISet<string> Licenses { get; set; }
-        public bool? IsFederatedUser { get; set; }
-        public UserType? UserType { get; set; }
-        public bool? IsExternalUser { get; set; }
-        public IdentityProvider IdentityProvider { get; set; }
+        Local = 0,
+        Facebook = 1
     }
 }
