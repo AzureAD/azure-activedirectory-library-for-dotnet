@@ -38,7 +38,7 @@ namespace NetCoreTestApp
 {
     public class Program
     {
-        private readonly static string ClientIdForPublicApp = "1d18b3b0-251b-4714-a02a-9956cec86c2d";
+        private readonly static string ClientIdForPublicApp = "288baa73-d551-4b57-a581-7d9adecba1a2";
         private readonly static string ClientIdForConfidentialApp = "<enter id>";
 
         private readonly static string Username = ""; // used for WIA and U/P, cannot be empty on .net core
@@ -92,7 +92,9 @@ namespace NetCoreTestApp
                     switch (selection)
                     {
                         case 7:
-                            pca.RedirectUri = "http://localhost";
+                            //pca.RedirectUri = "http://localhost";
+                            pca.RedirectUri = "http://localhost:9001";
+
                             authTask = pca.AcquireTokenAsync(Scopes);
                             //var authTask2 = pca.AcquireTokenAsync(Scopes);
 
