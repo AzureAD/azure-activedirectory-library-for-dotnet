@@ -137,6 +137,30 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
+        /// B2C acquire token with Google provider
+        /// b2clogin.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CGoogleProviderWithB2CLoginAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = true;
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider());
+        }
+
+        /// <summary>
+        /// B2C acquire token with Google provider 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CGoogleProviderWithMicrosoftAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.isB2CloginAuthority = false;
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider());
+        }
+
+        /// <summary>
         /// B2C acquire token with local account 
         /// b2clogin.com authority
         /// and subsequent silent call

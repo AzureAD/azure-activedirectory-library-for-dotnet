@@ -112,6 +112,25 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
+        /// Runs through the B2C acquire token flow with Google Provider
+        /// </summary>
+        public void B2CGoogleProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
+        {
+            PrepareForAuthentication(controller);
+            if (isB2CloginAuthority)
+            {
+                SetB2CInputDataForB2CloginAuthority(controller);
+            }
+            else
+            {
+                SetB2CInputData(controller);
+            }
+
+            PerformB2CGoogleProviderSignInFlow(controller, labResponse.User);
+            CoreMobileTestHelper.VerifyResult(controller);
+        }
+
+        /// <summary>
         /// Runs through the B2C acquire token silent flow with local account
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
@@ -132,6 +151,19 @@ namespace Test.MSAL.UIAutomation
         {
             //acquire token for 1st resource   
             B2CFacebookProviderAcquireTokenInteractiveTestHelper(controller, labResponse);
+            CoreMobileTestHelper.VerifyResult(controller);
+
+            B2CSilentFlowHelper(controller, labResponse);
+        }
+
+        /// <summary>
+        /// Runs through the B2C acquire token silent flow with Google identity provider
+        /// </summary>
+        /// <param name="controller">The test framework that will execute the test interaction</param>
+        public void B2CGoogleProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
+        {
+            //acquire token for 1st resource   
+            B2CGoogleProviderAcquireTokenInteractiveTestHelper(controller, labResponse);
             CoreMobileTestHelper.VerifyResult(controller);
 
             B2CSilentFlowHelper(controller, labResponse);
@@ -268,6 +300,26 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(CoreUiTestConstants.FacebookAccountID, XamarinSelector.ByHtmlIdAttribute);
             
             controller.EnterText(CoreUiTestConstants.WebUPNB2CFacebookInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
+
+            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
+
+            controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
+        }
+
+        public void PerformB2CGoogleProviderSignInFlow(ITestController controller, LabUser user)
+        {
+            UserInformationFieldIds userInformationFieldIds = CoreMobileTestHelper.DetermineUserInformationFieldIds(user);
+
+            controller.Tap(CoreUiTestConstants.AcquirePageID);
+
+            //Acquire token flow
+            controller.Tap(CoreUiTestConstants.AcquireTokenID);
+
+            controller.Tap(CoreUiTestConstants.GoogleAccountID, XamarinSelector.ByHtmlIdAttribute);
+
+            controller.EnterText(CoreUiTestConstants.WebUPNB2CGoogleInputID, 20, user.Upn, XamarinSelector.ByHtmlIdAttribute);
+
+            controller.Tap(CoreUiTestConstants.B2CGoogleNextID, XamarinSelector.ByHtmlIdAttribute);
 
             controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
 

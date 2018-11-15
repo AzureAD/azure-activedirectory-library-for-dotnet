@@ -86,6 +86,11 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string WebUPNB2CFacebookInputID = "m_login_email";
         public const string B2CWebPasswordFacebookID = "m_login_password";
         public const string B2CFacebookSubmitID = "u_0_5";
+        public const string GoogleAccountID = "GoogleExchange";
+        public const string WebUPNB2CGoogleInputID = "Email";
+        public const string B2CWebPasswordGoogleID = "Passwd";
+        public const string B2CGoogleNextID = "next";
+        public const string B2CGoogleSignInID = "signIn";
 
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";

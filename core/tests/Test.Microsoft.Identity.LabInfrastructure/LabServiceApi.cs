@@ -81,6 +81,11 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 queryDict.Add("b2cProvider", "facebook");
             }
 
+            if(query.B2CProvider == B2CProvider.Google)
+            {
+                queryDict.Add("b2cProvider", "google");
+            }
+
             UriBuilder uriBuilder = new UriBuilder("http://api.msidlab.com/api/user");
             uriBuilder.Query = string.Join("&", queryDict.Select(x => x.Key + "=" + x.Value.ToString()));
 
