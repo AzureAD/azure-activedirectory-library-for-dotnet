@@ -43,7 +43,6 @@ namespace XForms
 
         public const string RedirectUriOnAndroid = Microsoft.Identity.Core.Constants.DefaultRedirectUri; // will not work with embedded browser
         public const string RedirectUriOnIos = "adaliosxformsapp://com.yourcompany.xformsapp";
-        public static string RedirectUriOnAndroid = "urn:ietf:wg:oauth:2.0:oob";
         public const string RedirectUriB2C = "msale3b9ad76-9763-4827-b088-80c7a7888f79://auth";
 
         public const string DefaultAuthority = "https://login.microsoftonline.com/common";
