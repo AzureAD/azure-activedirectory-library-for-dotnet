@@ -38,6 +38,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         public bool? IsFederatedUser { get; set; }
         public UserType? UserType { get; set; }
         public bool? IsExternalUser { get; set; }
-        public IdentityProvider? IdentityProvider { get; set; }
+        public B2CProvider? B2CProvider { get; set; }
     }
 }

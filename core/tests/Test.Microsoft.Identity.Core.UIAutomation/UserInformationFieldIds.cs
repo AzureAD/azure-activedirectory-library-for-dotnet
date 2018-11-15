@@ -51,12 +51,12 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                         break;
                 }
             }
-            else if (user.IdentityProvider == IdentityProvider.Local)
+            else if (user.B2CProvider == B2CProvider.Local)
             {
                 PasswordInputId = CoreUiTestConstants.B2CWebPasswordID;
                 SignInButtonId = CoreUiTestConstants.B2CWebSubmitID;
             }
-            else if (user.IdentityProvider == IdentityProvider.Facebook)
+            else if (user.B2CProvider == B2CProvider.Facebook)
             {
                 PasswordInputId = CoreUiTestConstants.B2CWebPasswordFacebookID;
                 SignInButtonId = CoreUiTestConstants.B2CFacebookSubmitID;

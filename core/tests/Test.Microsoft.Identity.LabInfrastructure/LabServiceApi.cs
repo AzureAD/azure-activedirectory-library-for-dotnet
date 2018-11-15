@@ -71,12 +71,12 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             queryDict.Add("external", query.IsExternalUser != null && (bool)(query.IsExternalUser) ? "true" : "false");
 
-            if (query.IdentityProvider == IdentityProvider.Local)
+            if (query.B2CProvider == B2CProvider.Local)
             {
                 queryDict.Add("b2cProvider", "local");
             }
 
-            if (query.IdentityProvider == IdentityProvider.Facebook)
+            if (query.B2CProvider == B2CProvider.Facebook)
             {
                 queryDict.Add("b2cProvider", "facebook");
             }

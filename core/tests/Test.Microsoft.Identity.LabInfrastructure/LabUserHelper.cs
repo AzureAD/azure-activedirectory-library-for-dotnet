@@ -67,7 +67,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 return new UserQueryParameters
                 {
                     UserType = UserType.B2C,
-                    IdentityProvider = IdentityProvider.Local
+                    B2CProvider = B2CProvider.Local
                 };
             }
         }
@@ -79,7 +79,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 return new UserQueryParameters
                 {
                     UserType = UserType.B2C,
-                    IdentityProvider = IdentityProvider.Facebook
+                    B2CProvider = B2CProvider.Facebook
                 };
             }
         }
