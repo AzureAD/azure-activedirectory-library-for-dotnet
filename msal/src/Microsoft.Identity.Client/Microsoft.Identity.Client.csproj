@@ -181,6 +181,9 @@
     <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="27.0.2" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Platforms\netcore\IKestrelBasedListener.cs" />
+  </ItemGroup>
 
   <!-- This is here to workaround designer issues so VS sees them appropriately -->
   <ItemGroup>

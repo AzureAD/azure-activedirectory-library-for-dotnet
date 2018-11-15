@@ -42,7 +42,7 @@ namespace NetCoreTestApp
         private readonly static string ClientIdForConfidentialApp = "<enter id>";
 
         private readonly static string Username = ""; // used for WIA and U/P, cannot be empty on .net core
-        private readonly static string Authority = "https://login.microsoftonline.com/organizations/v2.0"; // common will not work for WIA and U/P but it is a good test case
+        private readonly static string Authority = "https://login.microsoftonline.com/common/v2.0"; // common will not work for WIA and U/P but it is a good test case
         private readonly static IEnumerable<string> Scopes = new[] { "user.read" }; // used for WIA and U/P, can be empty
 
         private const string GraphAPIEndpoint = "https://graph.microsoft.com/v1.0/me";
@@ -92,8 +92,13 @@ namespace NetCoreTestApp
                     switch (selection)
                     {
                         case 7:
-                            pca.RedirectUri = "http://localhost:9001";
+                            pca.RedirectUri = "http://localhost";
                             authTask = pca.AcquireTokenAsync(Scopes);
+                            //var authTask2 = pca.AcquireTokenAsync(Scopes);
+
+                            //AuthenticationResult r2 = await authTask2.ConfigureAwait(false);
+                            //AuthenticationResult r1 = await authTask1.ConfigureAwait(false);
+
                             await FetchTokenAndCallGraphAsync(pca, authTask).ConfigureAwait(false);
 
                             break;

@@ -102,6 +102,10 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
 
             _webUi = webUi;
+
+            //TODO: move this method to the interface
+            authenticationRequestParameters.RedirectUri = (webUi as UI.NetCoreWebUI).UpdateRedirectUri(authenticationRequestParameters.RedirectUri);
+
             _uiBehavior = uiBehavior;
             AuthenticationRequestParameters.RequestContext.Logger.Info(
                 "Additional scopes - " + _extraScopesToConsent.AsSingleString() + ";" +
@@ -308,10 +312,19 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 throw new MsalClientException(_authorizationResult.Error, _authorizationResult.ErrorDescription);
             }
 
+            if (_authorizationResult.Status == AuthorizationStatus.Timeout)
+            {
+                throw new MsalClientException(
+                    "timeout",
+                    "Timeout waiting for response. Possible reasons: 1. user did not complete auth in time 2. a server error occured which cannot be retrieved because a system browser is used");
+            }
+
             if (_authorizationResult.Status != AuthorizationStatus.Success)
             {
                 throw new MsalServiceException(_authorizationResult.Error, _authorizationResult.ErrorDescription, null);
             }
+
+
         }
     }
 }

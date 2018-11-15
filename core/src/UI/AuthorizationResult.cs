@@ -39,7 +39,8 @@ namespace Microsoft.Identity.Core.UI
         ErrorHttp,
         ProtocolError,
         UserCancel,
-        UnknownError
+        UnknownError,
+        Timeout
     }
     
     [DataContract]

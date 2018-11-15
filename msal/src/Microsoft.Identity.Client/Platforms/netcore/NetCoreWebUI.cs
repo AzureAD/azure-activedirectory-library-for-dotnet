@@ -14,46 +14,47 @@ using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Microsoft.Identity.Client.Internal.UI
-
 {
     internal class NetCoreWebUI : IWebUI
     {
+        // TODO: review all errors, make sure to add AuthroizationResult
         private RequestContext _requestContext;
+        private SystemBrowser _systemBrowser; 
 
         public NetCoreWebUI(RequestContext requestContext)
         {
             _requestContext = requestContext;
+            _systemBrowser = new SystemBrowser();
         }
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
-            SystemBrowser systemBrowser = new SystemBrowser(9001); //TODO: hardcoded port
-            AuthorizationResult result = await systemBrowser.InvokeAsync(authorizationUri.OriginalString).ConfigureAwait(true);
+            //if (redirectUri.IsDefaultPort)
+            //{
+            //    throw new InvalidOperationException("Cannot listen to localhost (no port), please call UpdateRedirectUri to get a free localhost:port address");
+            //}
+            AuthorizationResult result = await _systemBrowser.InvokeAsync(authorizationUri, redirectUri).ConfigureAwait(true);
 
             return result;
         }
-    }
 
-
-    //TODO: figure out a way to let the user configure the messages on this
-    //TODO: we can let the user chose his own port - maybe as a separate story?
-    internal class SystemBrowser
-    {
-        public int Port { get; }
-
-        public SystemBrowser(int? port = null)
+        //TODO: add a validation against non-loopback uri (in PlatformProxy)
+        //TODO: make this part of the IWebUI interface 
+        //TODO: test with 127.0.0.1 and localhost, or decide if we want to support only "localhost"
+        public Uri UpdateRedirectUri(Uri uri)
         {
-            if (!port.HasValue)
-            {
-                Port = GetRandomUnusedPort();
-            }
-            else
-            {
-                Port = port.Value;
-            }
+            //if (uri.IsLoopback)
+            //{
+            //    UriBuilder uriBuilder = new UriBuilder(uri);
+            //    uriBuilder.Port = GetRandomUnusedPort();
+            //    return uriBuilder.Uri;
+            //}
+
+            return uri;
         }
 
-        private int GetRandomUnusedPort()
+
+        private int GetRandomUnusedPort() // TODO: test with port being already in use
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();
@@ -62,38 +63,28 @@ namespace Microsoft.Identity.Client.Internal.UI
             return port;
         }
 
-        //public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
-        //{
-        //    using (var listener = new KestrelBasedListener(Port, _path))
-        //    {
-        //        OpenBrowser(options.StartUrl);
+    }
 
-        //        try
-        //        {
-        //            var result = await listener.WaitForCallbackAsync().ConfigureAwait(true);
-        //            if (String.IsNullOrWhiteSpace(result))
-        //            {
-        //                return new BrowserResult { ResultType = BrowserResultType.UnknownError, Error = "Empty response." };
-        //            }
 
-        //            return new BrowserResult { Response = result, ResultType = BrowserResultType.Success };
-        //        }
-        //        catch (TaskCanceledException ex)
-        //        {
-        //            return new BrowserResult { ResultType = BrowserResultType.Timeout, Error = ex.Message };
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return new BrowserResult { ResultType = BrowserResultType.UnknownError, Error = ex.Message };
-        //        }
-        //    }
-        //}
-
-        public async Task<AuthorizationResult> InvokeAsync(string uri)
+    //TODO: figure out a way to let the user configure the messages on this
+    //TODO: we can let the user chose his own port - maybe as a separate story?
+    internal class SystemBrowser
+    {
+        public async Task<AuthorizationResult> InvokeAsync(Uri authorizationUri, Uri redirectUri)
         {
-            using (var listener = new KestrelBasedListener(Port))
+            if (!redirectUri.IsLoopback)
             {
-                OpenBrowser(uri);
+                throw new ArgumentException("Only loopback redirect uri");
+            }
+
+            //if (redirectUri.IsDefaultPort)
+            //{
+            //    throw new ArgumentException("Port required");
+            //}
+
+            using (var listener = new KestrelBasedListener(redirectUri.Port))
+            {
+                OpenBrowser(authorizationUri.OriginalString);
 
                 try
                 {
@@ -104,6 +95,17 @@ namespace Microsoft.Identity.Client.Internal.UI
                     // TODO: log ex
                     return await Task.FromResult(new AuthorizationResult(AuthorizationStatus.UserCancel)).ConfigureAwait(false);
                 }
+                catch (Exception ex)
+                {
+                    var result = new AuthorizationResult(AuthorizationStatus.UnknownError)
+                    {
+                        ErrorDescription = ex.Message,
+                        Error = "system_browser_waiting_exception"
+                    };
+
+                    return await Task.FromResult(result).ConfigureAwait(false);
+                }
+
             }
         }
 
@@ -142,16 +144,21 @@ namespace Microsoft.Identity.Client.Internal.UI
         }
     }
 
-    //TODO: check that all configureawait(true) can be switched to false
-    internal class KestrelBasedListener : IDisposable
+    //TODO: add cancelability and see how it propagates up, probably need overloads 
+    internal class KestrelBasedListener : IDisposable, IHttpListener  
     {
-        const int DefaultTimeout = 60 * 5; //TODO: configurable?
+        private const string CloseWindowSuccessHtml = @"<html>
+  <head><title>Authentication Complete</title></head>
+  <body>
+    Authentication complete. You can return to the application. Feel free to close this browser tab.
+  </body>
+</html>";
+
+        const int DefaultTimeout = 2 * 5; //TODO: configurable?
 
         IWebHost _host;
         TaskCompletionSource<AuthorizationResult> _source = new TaskCompletionSource<AuthorizationResult>();
         string _url;
-
-        public string Url => _url;
 
         public KestrelBasedListener(int port)
         {
@@ -169,7 +176,7 @@ namespace Microsoft.Identity.Client.Internal.UI
         {
             Task.Run(async () =>
             {
-                await Task.Delay(500).ConfigureAwait(true);
+                await Task.Delay(500).ConfigureAwait(false);
                 _host.Dispose();
             });
         }
@@ -187,12 +194,12 @@ namespace Microsoft.Identity.Client.Internal.UI
                 {
                     ctx.Response.StatusCode = 405;
                     ctx.Response.ContentType = "text/html";
-                    await ctx.Response.WriteAsync("<h1>Invalid request. Expecting a GET method.</h1>").ConfigureAwait(false);
+                    await ctx.Response.WriteAsync("Internal authenticaiton error, unsupported method").ConfigureAwait(false);
                     ctx.Response.Body.Flush();
 
                     _source.TrySetResult(new AuthorizationResult(AuthorizationStatus.ErrorHttp));
                 }
-                
+
             });
         }
 
@@ -205,7 +212,7 @@ namespace Microsoft.Identity.Client.Internal.UI
 
                 ctx.Response.StatusCode = 200;
                 ctx.Response.ContentType = "text/html";
-                ctx.Response.WriteAsync("<h1>Authentication complete. Please close this tab or the browser and return to the application.</h1>");
+                ctx.Response.WriteAsync(CloseWindowSuccessHtml);
                 ctx.Response.Body.Flush();
 
             }
@@ -216,62 +223,36 @@ namespace Microsoft.Identity.Client.Internal.UI
                 ctx.Response.WriteAsync("<h1>Invalid request.</h1>");
                 ctx.Response.Body.Flush();
 
-                authorizationResult = new AuthorizationResult(AuthorizationStatus.UnknownError);
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.UnknownError) { ErrorDescription = e.Message };
             }
 
             _source.TrySetResult(authorizationResult);
 
         }
 
+
+
         public Task<AuthorizationResult> WaitForCallbackAsync(int timeoutInSeconds = DefaultTimeout)
         {
             Task.Run(async () =>
             {
-                await Task.Delay(timeoutInSeconds * 1000).ConfigureAwait(true);
-                _source.TrySetCanceled();
+                await Task.Delay(timeoutInSeconds * 1000).ConfigureAwait(false);                
+                _source.TrySetResult(new AuthorizationResult(AuthorizationStatus.Timeout)
+                {
+                    Error = "timeout",
+                    ErrorDescription = " timeout after " + timeoutInSeconds
+                });                
             });
 
             return _source.Task;
         }
     }
 
-    ////TODO: add cancelation support
-    //internal class RawTcpListener : IDisposable
-    //{
-    //    // RFC7230 recommends supporting a request-line length of at least 8,000 octets
-    //    // https://tools.ietf.org/html/rfc7230#section-3.1.1
-    //    private const int MaxRequestLineLength = 16 * 1024;
-    //    private const int MaxHeadersLength = 64 * 1024;
-    //    private const int NetworkReadBufferSize = 1024;
-
-
-    //    private readonly ICoreLogger _logger;
-    //    private readonly TcpListener _tcpListener;
-    //    private readonly int _port;
-
-    //    internal RawTcpListern(ICoreLogger logger, Uri uri)
-    //    {
-    //        _logger = logger;
-
-    //        // TODO: ctor does too much, move to a factory method
-    //        if (!uri.IsLoopback)
-    //        {
-    //            throw new InvalidOperationException("only loopback!");
-    //        }
-
-    //        _tcpListener = new TcpListener(IPAddress.Loopback, uri.Port);
-    //        _tcpListener.Start();
-    //        _port = uri.Port;
-    //    }
-
-         
-
-    //    public void Dispose()
-    //    {
-    //        if (_tcpListener != null)
-    //        {
-    //            _tcpListener.Stop();
-    //        }
-    //    }
-    //}
+    internal class TcpBasedListener : IHttpListener
+    {
+        public Task<AuthorizationResult> WaitForCallbackAsync(int timeoutInSeconds = 300)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
