@@ -76,9 +76,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         [JsonProperty("homeUPN")]
         public string HomeUPN { get; set; }
 
-        [JsonProperty("b2cProvider")]
-        public IdentityProvider IdentityProvider { get; set; }
-
         public void InitializeHomeUser()
         {
             HomeUser = new LabUser();
