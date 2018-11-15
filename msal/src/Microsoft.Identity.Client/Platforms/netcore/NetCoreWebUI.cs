@@ -252,6 +252,13 @@ namespace Microsoft.Identity.Client.Internal.UI
 
     internal class TcpBasedListener : IHttpListener, IDisposable
     {
+        private const string CloseWindowSuccessHtml = @"<html>
+  <head><title>Authentication Complete</title></head>
+  <body>
+    Authentication complete. You can return to the application. Feel free to close this browser tab.
+  </body>
+</html>";
+
         TaskCompletionSource<AuthenticationResult> _taskCompletionSource;
         const int DefaultTimeout = 2 * 5; //TODO: configurable?
         int _port;
@@ -264,7 +271,6 @@ namespace Microsoft.Identity.Client.Internal.UI
                 throw new ArgumentOutOfRangeException("Expected a valid port number, > 0, not 80");
             }
 
-            _taskCompletionSource = new TaskCompletionSource<AuthenticationResult>();
             _port = port;
             _listener = new TcpListener(IPAddress.Loopback, _port);
         }
@@ -278,7 +284,18 @@ namespace Microsoft.Identity.Client.Internal.UI
                 string httpRequest = await GetTcpResponseAsync(client).ConfigureAwait(false);
                 string uri = ExtractUriFromHttpRequest(httpRequest);
 
-                AuthorizationResult authenticationResult = new AuthorizationResult(AuthorizationStatus.Success, uri);
+                AuthorizationResult authenticationResult;
+                try
+                {
+                    authenticationResult = new AuthorizationResult(AuthorizationStatus.Success, uri);
+                }
+                catch
+                {
+                    throw; //TODO: errors
+                }
+
+                await WriteResponseAsync(client.GetStream()).ConfigureAwait(false);
+
 
                 return authenticationResult;
 
@@ -341,6 +358,14 @@ namespace Microsoft.Identity.Client.Internal.UI
             while (networkStream.DataAvailable);
 
             return stringBuilder.ToString();
+        }
+
+        private async Task WriteResponseAsync(NetworkStream stream)
+        {
+            string fullResponse = $"HTTP/1.1 200 OK\r\n\r\n{CloseWindowSuccessHtml}";
+            var response = Encoding.ASCII.GetBytes(fullResponse);
+            await stream.WriteAsync(response, 0, response.Length).ConfigureAwait(false);
+            await stream.FlushAsync().ConfigureAwait(false);
         }
 
         public void Dispose()
