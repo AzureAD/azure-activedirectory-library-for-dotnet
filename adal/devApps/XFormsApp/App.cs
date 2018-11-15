@@ -52,7 +52,7 @@ namespace XFormsApp
             // Handle when your app starts
             AppCenter.Start("android=3ea693de-dcb4-4b65-a1b5-04ad2f71ada0;" +
                   "uwp={Your UWP App secret here};" +
-                  "ios={Your iOS App secret here}",
+                  "ios={4be201cc-2027-4045-b535-d57de5ff36c7}",
                   typeof(Analytics), typeof(Crashes));
         }
 
