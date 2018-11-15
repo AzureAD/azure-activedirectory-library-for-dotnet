@@ -27,10 +27,11 @@
 
 namespace Test.Microsoft.Identity.LabInfrastructure
 {
-    public enum B2CProvider
+    public enum B2CIdentityProvider
     {
-        Local = 0,
-        Facebook = 1,
-        Google = 2
+        None = 0,
+        Local = 1,
+        Facebook = 2,
+        Google = 3
     }
 }

@@ -71,17 +71,17 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             queryDict.Add("external", query.IsExternalUser != null && (bool)(query.IsExternalUser) ? "true" : "false");
 
-            if (query.B2CProvider == B2CProvider.Local)
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Local)
             {
                 queryDict.Add("b2cProvider", "local");
             }
 
-            if (query.B2CProvider == B2CProvider.Facebook)
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Facebook)
             {
                 queryDict.Add("b2cProvider", "facebook");
             }
 
-            if(query.B2CProvider == B2CProvider.Google)
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Google)
             {
                 queryDict.Add("b2cProvider", "google");
             }
@@ -97,7 +97,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                 throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
-            LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
+LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
 
             LabUser user = response.User;
 
