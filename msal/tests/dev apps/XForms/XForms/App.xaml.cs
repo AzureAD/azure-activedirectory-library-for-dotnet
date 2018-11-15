@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using TelemetryReceivers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,8 @@ namespace XForms
             };
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
+
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryClientReceiver().OnEvents);
         }
 
         public static void InitPublicClient()
