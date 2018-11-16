@@ -46,8 +46,8 @@ namespace Microsoft.Identity.Client
         private const string Oauth2AuthorizationHeader = "Bearer ";
 
         /// <summary>
-        /// Constructor meant for test purposes, to allow mocking of authentication flows. Developers should 
-        /// never new up <see cref="AuthenticationResult"/> in product code.
+        /// Constructor meant to help application developers test their apps. Allows mocking of authentication flows. 
+        /// App developers should never new-up <see cref="AuthenticationResult"/> in product code.
         /// </summary>
         public AuthenticationResult(
             string accessToken, 
