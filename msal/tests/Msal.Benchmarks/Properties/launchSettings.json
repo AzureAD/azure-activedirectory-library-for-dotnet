@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Msal.Benchmarks": {
+      "commandName": "Project",
+      "commandLineArgs": "-f *"
+    }
+  }
+}
