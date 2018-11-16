@@ -1,9 +1,5 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
-
   <PropertyGroup>
-    <Target Name="MacOSBuild" BeforeTargets="Build">
-      <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
-    </Target>
     <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
       <TargetFrameworks>netstandard1.3;Xamarin.iOS10</TargetFrameworks>
     </propertygroup>

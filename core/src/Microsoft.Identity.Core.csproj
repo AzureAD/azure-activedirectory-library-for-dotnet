@@ -1,7 +1,4 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
-  <Target Name="MacOSBuild" BeforeTargets="Build">
-    <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
-  </Target>
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
     <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
