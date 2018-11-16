@@ -37,28 +37,35 @@ using System.Threading.Tasks;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// An identifier for an account in a specific tenant
+    /// An identifier for an account in a specific tenant. Returned by <see cref="P:IAccount.HomeAccountId"/>
     /// </summary>
     public class AccountId
     {
         /// <summary>
-        /// An identifier for an account in a specific tenant
+        /// Unique identifier for the account
         /// </summary>
+        /// <remarks>
+        /// For Azure AD, the identifier is the concatenation of <see cref="ObjectId"/> and <see cref="TenantId"/> separated by a dot. 
+        /// Contrary to what was happening in ADAL.NET, these two segments are no longer base64 encoded.
+        /// </remarks>
         public string Identifier { get; }
 
         /// <summary>
-        /// The object id associated with the user that owns the account
+        /// For Azure AD, a string representation for a Guid which is the Object ID of the user owning the account in the tenant
         /// </summary>
         public string ObjectId { get;  }
 
         /// <summary>
-        /// The tenant id where the account resides
+        /// For Azure AD, a string representation for a Guid, which is the ID of the tenant where the account resides.
         /// </summary>
         public string TenantId { get;  }
 
         /// <summary>
-        /// Constructor
+        /// Constructor of an AccountId
         /// </summary>
+        /// <param name="identifier">Unique identifier for the account.</param>
+        /// <param name="objectId">A string representation for a GUID which is the ID of the user owning the account in the tenant</param>
+        /// <param name="tenantId">A string representation for a GUID, which is the ID of the tenant where the account resides</param>
         public AccountId(string identifier, string objectId, string tenantId)
         {
             if (identifier == null)
@@ -73,32 +80,16 @@ namespace Microsoft.Identity.Client
             ValidateId();
         }
 
-      
-
-        #region Adapter to / from ClientInfo
-        internal static AccountId FromClientInfo(ClientInfo clientInfo)
+        internal static AccountId ParseFromString(string str)
         {
-            if (clientInfo == null)
+            if (string.IsNullOrEmpty(str))
             {
-                throw new ArgumentNullException(nameof(clientInfo));
+                return null;
             }
+            string[] elements = str.Split('.');
 
-            return new AccountId(
-                clientInfo.ToAccountIdentifier(),
-                clientInfo.UniqueObjectIdentifier,
-                clientInfo.UniqueTenantIdentifier);
+            return new AccountId(str, elements[0], elements[1]);
         }
-
-        internal ClientInfo ToClientInfo()
-        {
-            return new ClientInfo()
-            {
-                UniqueObjectIdentifier = this.ObjectId,
-                UniqueTenantIdentifier = this.TenantId
-            };
-        }
-
-        #endregion
 
         /// <summary>
         /// Two accounts are equal when their <see cref="Identifier"/> properties match

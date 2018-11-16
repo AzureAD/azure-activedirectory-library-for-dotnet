@@ -25,22 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-#if ANDROID || iOS || WINDOWS_APP
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-#endif
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     /// <summary>
     /// This class marked with ifdefs because only iOS/Android/WinRT provide platform default storage. 
     /// Delegates have no implementation for netstandard1.1, netstandard1.3 and net45.
-    /// Platform specific persistance logic is implemented in core.
+    /// Platform specific persistence logic is implemented in core.
     /// </summary>
 
 #if ANDROID
@@ -48,29 +41,29 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 #endif
     internal static class StorageDelegates
     {
+        internal static readonly ILegacyCachePersistence LegacyCachePersistence;
+
+        static StorageDelegates()
+        {
+            LegacyCachePersistence = PlatformProxyFactory.GetPlatformProxy().CreateLegacyCachePersistence();
+        }
+
         public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null)
-            {
-                ILegacyCachePersistance legacyCachePersistance = new LegacyCachePersistance();
-                args.TokenCache.Deserialize(legacyCachePersistance.LoadCache());
-            }
-
+            args?.TokenCache?.Deserialize(LegacyCachePersistence.LoadCache());
 #endif
         }
 
         public static void AfterAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            if (args != null && args.TokenCache != null && args.TokenCache.HasStateChanged)
+            if (args?.TokenCache != null && args.TokenCache.HasStateChanged)
             {
-                ILegacyCachePersistance legacyCachePersistance = new LegacyCachePersistance();
-                legacyCachePersistance.WriteCache(args.TokenCache.Serialize());
+                LegacyCachePersistence.WriteCache(args.TokenCache.Serialize());
                 args.TokenCache.HasStateChanged = false;
             }
 #endif
         }
-
     }
 }

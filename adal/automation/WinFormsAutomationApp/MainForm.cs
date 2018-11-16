@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,13 +14,15 @@ namespace WinFormsAutomationApp
 
         private readonly StringBuilder _logCollector = new StringBuilder();
 
-
         public string GetAdalLogs()
         {
             return _logCollector.ToString();
         }
 
         private Command _commandToRun = null;
+
+        //This is the location of the automation app during UI Testing on the test agents
+        private const string AuthResultFile = "C:\\UITest\\AuthResult.txt";
 
         public MainForm()
         {
@@ -42,7 +45,10 @@ namespace WinFormsAutomationApp
         
         private async void RequestGo_Click(object sender, EventArgs e)
         {
-             string output = await _commandToRun((AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text)));
+            string output = await
+                _commandToRun(AuthenticationHelper.CreateDictionaryFromJson(requestInfo.Text))
+                .ConfigureAwait(true); // get back to the ui thread
+
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -75,7 +81,7 @@ namespace WinFormsAutomationApp
 
         private async void readCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ReadCacheAsync(); ;
+            string output = await AuthenticationHelper.ReadCacheAsync().ConfigureAwait(true); 
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -83,7 +89,7 @@ namespace WinFormsAutomationApp
 
         private async void clearCache_Click(object sender, EventArgs e)
         {
-            string output = await AuthenticationHelper.ClearCacheAsync(null);
+            string output = await AuthenticationHelper.ClearCacheAsync(null).ConfigureAwait(true);
             pageControl1.SelectedTab = resultPage;
             resultInfo.Text = output;
             resultLogs.Text = GetAdalLogs();
@@ -99,6 +105,14 @@ namespace WinFormsAutomationApp
         {
             _commandToRun = AuthenticationHelper.AcquireDeviceCodeAsync;
             pageControl1.SelectedTab = dataInputPage;
-        }        
+        }
+
+        private void writeToFile_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(AuthResultFile))
+                File.Delete(AuthResultFile);
+
+            File.WriteAllText(AuthResultFile, resultInfo.Text);
+        }
     }
 }

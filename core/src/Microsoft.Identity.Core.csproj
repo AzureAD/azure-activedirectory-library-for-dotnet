@@ -1,32 +1,22 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
 
-  <!-- Exclude the analysis of this framework type: workaround for https://jira.sonarsource.com/browse/SONARMSBRU-317 -->
-  <!-- NB this property has no effect on the assemblies that are built - it is only to tell the VSTS SonarQube analysis tasks
-       which assembly to analyse. -->
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net45' ">
-    <SonarQubeExclude>true</SonarQubeExclude>
-    <Configurations>Debug;Release</Configurations>
-  </PropertyGroup>
-
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
     <TargetFrameworks>net45;netstandard1.1;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>build\Core.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\build\MSAL.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
-    <CodeAnalysisRuleSet>../ConfigureAwait.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
 </PropertyGroup>
 
-  <PropertyGroup Label="GenerateAssemblyInfo inputs">
-    <!-- This should be passed from the VSTS build -->
-    <CoreSemVer Condition="'$(CoreSemVer)' == '1.0.0-privatebuild'"></CoreSemVer>
+<!-- Important note: this assembly should not be shipped to customers; it acts only as a placeholder for files that are included
+in ADAL and MSAL and to ease unit testing. No projects should take a dependency on Core.dll either -->
 
-    <!-- This will generate AssemblyVersion, AssemblyFileVersion and AssemblyInformationVersion -->
-    <Version>$(CoreSemVer)</Version>
-
-    <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
-    <Company>Microsoft Corporation</Company>
+  <!--but because our unit tests do, we need this to default to one or the other of adal/msal and we'll pick msal -->
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);IS_MSAL</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1' ">
@@ -51,17 +41,15 @@
     <DefineConstants>$(DefineConstants);iOS</DefineConstants>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
     <None Include="**\*.cs;**\*.xml;**\*.axml" Exclude="obj\**\*.*;bin\**\*.*" />
     <Compile Remove="Platforms\**\*.*" />
     <Compile Remove="Features\**\*.*" />
-    <None Remove="ConfigureAwait.ruleset" />
-    <EmbeddedResource Include="Properties\Microsoft.Identity.Core.rd.xml" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1' or '$(TargetFramework)' == 'netstandard1.3' or '$(TargetFramework)' == 'uap10.0' or '$(TargetFramework)' == 'netcoreapp1.0'">
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
@@ -82,14 +70,13 @@
     <Compile Include="Platforms\net45\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Security.SecureString" Version="4.3.0" />
     <Compile Include="Platforms\netcore\**\*.cs" />
     <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'uap10.0' ">
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <Compile Include="Platforms\uap\**\*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
@@ -100,12 +87,7 @@
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
     <Compile Include="Features\Cache\**\*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
-    <PackageReference Include="System.Runtime.Serialization.Json" Version="4.0.3" />
-    <PackageReference Include="System.Xml.XDocument" Version="4.0.11" />
-  </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -116,10 +98,12 @@
     <Reference Include="System.Runtime.Serialization" />
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid8.1' ">
     <Reference Include="System" />
     <Reference Include="System.IdentityModel" />

@@ -68,25 +68,30 @@ namespace Microsoft.Identity.Core
     {
         public static IDictionary<string, string> GetMsalIdParameters()
         {
+            var platformProxy = PlatformProxyFactory.GetPlatformProxy();
+            if (platformProxy == null)
+            {
+                throw CoreExceptionFactory.Instance.GetClientException(CoreErrorCodes.PlatformNotSupported, CoreErrorMessages.PlatformNotSupported);
+            }
             var parameters = new Dictionary<string, string>
             {
-                [MsalIdParameter.Product] = CorePlatformInformationBase.Instance.GetProductName(),
+                [MsalIdParameter.Product] = platformProxy.GetProductName(),
                 [MsalIdParameter.Version] = GetMsalVersion()
             };
 
-            var processorInofrmation = CorePlatformInformationBase.Instance.GetProcessorArchitecture();
-            if (processorInofrmation != null)
+            var processorInformation = platformProxy.GetProcessorArchitecture();
+            if (processorInformation != null)
             {
-                parameters[MsalIdParameter.CpuPlatform] = processorInofrmation;
+                parameters[MsalIdParameter.CpuPlatform] = processorInformation;
             }
 
-            var osInformation = CorePlatformInformationBase.Instance.GetOperatingSystem();
+            var osInformation = platformProxy.GetOperatingSystem();
             if (osInformation != null)
             {
                 parameters[MsalIdParameter.OS] = osInformation;
             }
 
-            var deviceInformation = CorePlatformInformationBase.Instance.GetDeviceModel();
+            var deviceInformation = platformProxy.GetDeviceModel();
             if (deviceInformation != null)
             {
                 parameters[MsalIdParameter.DeviceModel] = deviceInformation;
@@ -107,18 +112,6 @@ namespace Microsoft.Identity.Core
             }
 
             return null;
-        }
-
-        public static string GetAssemblyFileVersion()
-        {
-            return CorePlatformInformationBase.Instance.GetAssemblyFileVersionAttribute();
-        }
-
-        public static string GetAssemblyInformationalVersion()
-        {
-            AssemblyInformationalVersionAttribute attribute =
-                typeof (MsalIdHelper).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            return (attribute != null) ? attribute.InformationalVersion : string.Empty;
         }
     }
 }

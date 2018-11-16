@@ -25,42 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Threading.Tasks;
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class PlatformInformation : PlatformInformationBase
     {
-        public override string GetProductName()
-        {
-            return null;
-        }
-
-        public override async Task<string> GetUserPrincipalNameAsync()
-        {
-            return await Task.Factory.StartNew(() => string.Empty).ConfigureAwait(false);
-        }
-
-        public override string GetEnvironmentVariable(string variable)
-        {
-            return null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return null;
-        }
-
-        public override string GetDeviceModel()
-        {
-            // Since ADAL .NET may be used on servers, for security reasons, we do not emit device type.
-            return null;
-        }
     }
 }

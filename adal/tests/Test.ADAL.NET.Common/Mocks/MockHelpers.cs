@@ -36,6 +36,7 @@ using Microsoft.Identity.Core.UI;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using NSubstitute;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Test.ADAL.NET.Common.Mocks
 {
@@ -139,15 +140,15 @@ namespace Test.ADAL.NET.Common.Mocks
 
             var clientInfo = new ClientInfo
             {
-                UniqueObjectIdentifier = TestConstants.DefaultUniqueIdentifier,
-                UniqueTenantIdentifier = TestConstants.DefaultUniqueTenantIdentifier
+                UniqueObjectIdentifier = AdalTestConstants.DefaultUniqueIdentifier,
+                UniqueTenantIdentifier = AdalTestConstants.DefaultUniqueTenantIdentifier
             };
-            var base64EncodedSerializedClientInfo = Base64UrlEncoder.Encode(Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers.JsonHelper.EncodeToJson<ClientInfo>(clientInfo));
+            var base64EncodedSerializedClientInfo = Base64UrlHelpers.Encode(JsonHelper.SerializeToJson<ClientInfo>(clientInfo));
 
 
             HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\"," +
-                                                    "\"refresh_token\":\"" + TestConstants.DefaultRefreshTokenValue + "\",\"id_token\":\"" +
-                                  CreateIdToken(TestConstants.DefaultUniqueId, TestConstants.DefaultDisplayableId) + "\"," +
+                                                    "\"refresh_token\":\"" + AdalTestConstants.DefaultRefreshTokenValue + "\",\"id_token\":\"" +
+                                  CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId) + "\"," +
                                   "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
 
             responseMessage.Content = content;
@@ -160,8 +161,8 @@ namespace Test.ADAL.NET.Common.Mocks
 
             HttpContent content = new StringContent(
                 "{\"user_code\":\"some-user-code\",\"device_code\":\"some-device-code\",\"verification_url\":\"some-URL\"," +
-                "\"expires_in\":\"" + expirationTimeInSeconds.ToString() + "\"," +
-                "\"interval\":\"" + retryInternvalInSeconds.ToString() + "\"," +
+                "\"expires_in\":\"" + expirationTimeInSeconds.ToString(CultureInfo.InvariantCulture) + "\"," +
+                "\"interval\":\"" + retryInternvalInSeconds.ToString(CultureInfo.InvariantCulture) + "\"," +
                 "\"message\":\"some-message\"}");
             responseMessage.Content = content;
             return responseMessage;
@@ -274,10 +275,10 @@ namespace Test.ADAL.NET.Common.Mocks
                         "\"oid\": \"" + uniqueId + "\"," +
                         "\"upn\": \"" + displayableId + "\"," +
                         "\"sub\": \"werwerewrewrew-Qd80ehIEdFus\"," +
-                        "\"tid\": \"" + TestConstants.SomeTenantId + "\"," +
+                        "\"tid\": \"" + AdalTestConstants.SomeTenantId + "\"," +
                         "\"ver\": \"2.0\"}";
 
-            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.signature", Base64UrlEncoder.Encode(header), Base64UrlEncoder.Encode(payload));
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.signature", Base64UrlHelpers.Encode(header), Base64UrlHelpers.Encode(payload));
         }
     }
 }

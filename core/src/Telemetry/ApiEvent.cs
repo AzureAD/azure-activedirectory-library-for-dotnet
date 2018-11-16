@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Microsoft.Identity.Core.Helpers;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core.Telemetry
 {
@@ -44,9 +44,12 @@ namespace Microsoft.Identity.Core.Telemetry
         public const string RequestIdKey = EventNamePrefix + "request_id";
         public const string IsConfidentialClientKey = EventNamePrefix + "is_confidential_client";
         public const string ApiErrorCodeKey = EventNamePrefix + "api_error_code";
+        public const string LoginHintKey = EventNamePrefix + "login_hint";
 
         public enum ApiIds
         {
+            None = 0,
+
             AcquireTokenSilentWithAuthority = 31,
             AcquireTokenSilentWithoutAuthority = 30,
 
@@ -67,11 +70,16 @@ namespace Microsoft.Identity.Core.Telemetry
             AcquireTokenByAuthorizationCodeWithCodeScope = 830,
         }
 
-        public ApiEvent() : base(EventNamePrefix + "api_event") {}
+        private readonly ICoreLogger _logger;
+
+        public ApiEvent(ICoreLogger logger) : base(EventNamePrefix + "api_event")
+        {
+            _logger = logger;
+        }
 
         public ApiIds ApiId
         {
-            set { this[ApiIdKey] = ((int) value).ToStringInvariant(); }
+            set { this[ApiIdKey] = ((int) value).ToString(CultureInfo.InvariantCulture); }
         }
 
         public Uri Authority
@@ -98,8 +106,8 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
-                this[TenantIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                this[TenantIdKey] = value != null && _logger.PiiLoggingEnabled
+                    ? HashPersonalIdentifier(value)
                     : null;
             }
         }
@@ -108,16 +116,19 @@ namespace Microsoft.Identity.Core.Telemetry
         {
             set
             {
-                this[UserIdKey] = value != null && CoreLoggerBase.PiiLoggingEnabled
-                    ? CoreCryptographyHelpers.CreateBase64UrlEncodedSha256Hash(value)
+                this[UserIdKey] = value != null && _logger.PiiLoggingEnabled
+                    ? HashPersonalIdentifier(value)
                     : null;
             }
         }
 
         public bool WasSuccessful
         {
+#pragma warning disable CA1305 // .net standard does not have an overload for ToString() with Culture
             set { this[WasSuccessfulKey] = value.ToString().ToLowerInvariant(); }
             get { return this[WasSuccessfulKey] == true.ToString().ToLowerInvariant(); }
+#pragma warning restore CA1305 // Specify IFormatProvider
+
         }
 
         public string CorrelationId
@@ -132,11 +143,23 @@ namespace Microsoft.Identity.Core.Telemetry
 
         public bool IsConfidentialClient
         {
+#pragma warning disable CA1305 // Specify IFormatProvider
             set { this[IsConfidentialClientKey] = value.ToString().ToLowerInvariant(); }
+#pragma warning restore CA1305 // Specify IFormatProvider
         }
 
-        public string ApiErrorCode {
+        public string ApiErrorCode
+        {
             set { this[ApiErrorCodeKey] = value; }
+        }
+
+        public string LoginHint
+        {
+            set {
+                this[LoginHintKey] = value != null && _logger.PiiLoggingEnabled
+                    ? HashPersonalIdentifier(value)
+                    : null;
+            }
         }
     }
 }

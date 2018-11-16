@@ -33,6 +33,7 @@ using Windows.Networking.Connectivity;
 using Windows.ApplicationModel.Core;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client.Internal.UI
 {
@@ -52,7 +53,7 @@ namespace Microsoft.Identity.Client.Internal.UI
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
-            bool ssoMode = ReferenceEquals(redirectUri, Constants.SsoPlaceHolderUri);
+            bool ssoMode = string.Equals(redirectUri.OriginalString, Constants.UapWEBRedirectUri, StringComparison.OrdinalIgnoreCase);
 
             WebAuthenticationResult webAuthenticationResult;
             WebAuthenticationOptions options = (useCorporateNetwork &&
@@ -91,8 +92,6 @@ namespace Microsoft.Identity.Client.Internal.UI
 
             catch (Exception ex)
             {
-                string noPiiMsg = MsalExceptionFactory.GetPiiScrubbedExceptionDetails(ex);
-                requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(ex);
                 throw new MsalException(MsalClientException.AuthenticationUiFailedError, "WAB authentication failed",
                     ex);
@@ -137,6 +136,12 @@ namespace Microsoft.Identity.Client.Internal.UI
             }
 
             return result;
+        }
+
+
+        public void ValidateRedirectUri(Uri redirectUri)
+        {
+            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
         }
     }
 }

@@ -27,9 +27,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
@@ -52,7 +50,7 @@ namespace XForms
         {
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
-            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            var requestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null));
 
             IDictionary<string, MsalAccessTokenCacheItem> accessTokens = new Dictionary<string, MsalAccessTokenCacheItem>();
             foreach (var accessItemStr in tokenCache.GetAllAccessTokenCacheItems(requestContext))
@@ -94,10 +92,7 @@ namespace XForms
 
         private async Task OnClearClickedAsync(object sender, EventArgs e)
         {
-            var tokenCache = App.MsalPublicClient.UserTokenCache;
-            var users = await tokenCache.GetAccountsAsync
-                (new Uri(App.Authority).Host, true, new RequestContext(new MsalLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
-            foreach (var user in users)
+            foreach (var user in await App.MsalPublicClient.GetAccountsAsync().ConfigureAwait(false))
             {
                 await App.MsalPublicClient.RemoveAsync(user).ConfigureAwait(false);
             }
@@ -105,15 +100,16 @@ namespace XForms
             RefreshCacheView();
         }
 
-        private static long GetCurrentTimestamp()
+        private static string GetCurrentTimestamp()
         {
-            return (long) (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            return ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+                .ToString(CultureInfo.InvariantCulture);
         }
 
         public void OnExpire(object sender, EventArgs e)
         {
-            var mi = ((MenuItem) sender);
-            var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
+            var mi = ((MenuItem)sender);
+            var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // set access token as expired
@@ -132,7 +128,7 @@ namespace XForms
 
             var tokenCache = App.MsalPublicClient.UserTokenCache;
             // todo pass idToken instead of null
-            var requestContext = new RequestContext(new MsalLogger(Guid.NewGuid(), null));
+            var requestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null));
 
             tokenCache.DeleteAccessToken(accessTokenCacheItem, null, requestContext);
 
@@ -141,8 +137,8 @@ namespace XForms
 
         public void OnInvalidate(object sender, EventArgs e)
         {
-            var mi = ((MenuItem) sender);
-            var refreshTokenCacheItem = (MsalRefreshTokenCacheItem) mi.CommandParameter;
+            var mi = ((MenuItem)sender);
+            var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
             var tokenCache = App.MsalPublicClient.UserTokenCache;
 
             // invalidate refresh token
@@ -156,11 +152,11 @@ namespace XForms
 
         public async Task ShowAccessTokenDetailsAsync(object sender, EventArgs e)
         {
-            var mi = (MenuItem) sender;
-            var accessTokenCacheItem = (MsalAccessTokenCacheItem) mi.CommandParameter;
+            var mi = (MenuItem)sender;
+            var accessTokenCacheItem = (MsalAccessTokenCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null));
+            await Navigation.PushAsync(new AccessTokenCacheItemDetails(accessTokenCacheItem, null)).ConfigureAwait(false);
         }
 
         public async Task ShowRefreshTokenDetailsAsync(object sender, EventArgs e)
@@ -168,7 +164,7 @@ namespace XForms
             var mi = (MenuItem)sender;
             var refreshTokenCacheItem = (MsalRefreshTokenCacheItem)mi.CommandParameter;
 
-            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem));
+            await Navigation.PushAsync(new RefreshTokenCacheItemDetails(refreshTokenCacheItem)).ConfigureAwait(false);
         }
 
         public async Task ShowIdTokenDetailsAsync(object sender, EventArgs e)
@@ -177,7 +173,7 @@ namespace XForms
             var idTokenCacheItem = (MsalIdTokenCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem));
+            await Navigation.PushAsync(new IdTokenCacheItemDetails(idTokenCacheItem)).ConfigureAwait(false);
         }
 
         public async Task ShowAccountDetailsAsync(object sender, EventArgs e)
@@ -186,7 +182,7 @@ namespace XForms
             var accountCacheItem = (MsalAccountCacheItem)mi.CommandParameter;
 
             // pass idtoken instead of null
-            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem));
+            await Navigation.PushAsync(new AccountCacheItemDetails(accountCacheItem)).ConfigureAwait(false);
         }
     }
 }

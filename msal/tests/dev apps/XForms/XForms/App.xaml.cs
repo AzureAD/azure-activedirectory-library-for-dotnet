@@ -38,18 +38,19 @@ namespace XForms
     {
         public static PublicClientApplication MsalPublicClient;
         public static UIParent UIParent { get; set; }
-        public const string DefaultClientId = "5a434691-ccb2-4fd1-b97b-b64bcfbc03fc";
-        public const string B2cClientId = "750a8822-a6d4-4127-bc0b-efbfacccbc28";
+        public const string DefaultClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0";
+        public const string B2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
 
-        public const string RedirectUriOnAndroid =
-            "msauth-5a434691-ccb2-4fd1-b97b-b64bcfbc03fc://com.microsoft.identity.client.sample";
+        public static string RedirectUriOnAndroid = Microsoft.Identity.Core.Constants.DefaultRedirectUri; // will not work with embedded browser
         public const string RedirectUriOnIos = "adaliosxformsapp://com.yourcompany.xformsapp";
+        public const string RedirectUriB2C = "msale3b9ad76-9763-4827-b088-80c7a7888f79://auth";
 
         public const string DefaultAuthority = "https://login.microsoftonline.com/common";
-        public const string B2cAuthority = "https://login.microsoftonline.com/tfp/panwariusb2c.onmicrosoft.com/B2C_1_signup_signin/";
+        public const string B2cAuthority = "https://login.microsoftonline.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
+        public const string B2CLoginAuthority = "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
 
         public static string[] DefaultScopes = {"User.Read"};
-        public static string[] B2cScopes = { "https://sometenant.onmicrosoft.com/some/scope" };
+        public static string[] B2cScopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
 
         public const bool DefaultValidateAuthority = true;
 
@@ -66,17 +67,19 @@ namespace XForms
 
             InitPublicClient();
 
-            MsalLoggerSettings.LogCallback = delegate(MsalLogLevel level, string message, bool containsPii)
+            Logger.LogCallback = delegate (LogLevel level, string message, bool containsPii)
             {
                 Device.BeginInvokeOnMainThread(() => { LogPage.AddToLog("[" + level + "]" + " - " + message, containsPii); });
             };
-            MsalLoggerSettings.Level = MsalLogLevel.Verbose;
-            MsalLoggerSettings.PiiLoggingEnabled = true;
+            Logger.Level = LogLevel.Verbose;
+            Logger.PiiLoggingEnabled = true;
         }
 
         public static void InitPublicClient()
         {
             MsalPublicClient = new PublicClientApplication(ClientId, Authority);
+
+            // Let Android set its own redirect uri
             switch (Device.RuntimePlatform)
             {
                 case "iOS":
@@ -86,7 +89,7 @@ namespace XForms
                     MsalPublicClient.RedirectUri = RedirectUriOnAndroid;
                     break;
             }
-            
+
             MsalPublicClient.ValidateAuthority = ValidateAuthority;
         }
 

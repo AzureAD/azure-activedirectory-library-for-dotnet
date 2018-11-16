@@ -34,38 +34,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class PlatformInformation : PlatformInformationBase
     {
-        public override string GetProductName()
-        {
-            return "PCL.Android";
-        }
-
-        public override string GetEnvironmentVariable(string variable)
-        {
-            // TODO: Update
-            return null;
-        }
-
-        public override Task<string> GetUserPrincipalNameAsync()
-        {
-            // TODO: Update
-            return null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return null;
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return null;
-        }
-
-        public override string GetDeviceModel()
-        {
-            return null;
-        }
-
         public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
         {
             PlatformParameters authorizationParameters = (parameters as PlatformParameters);

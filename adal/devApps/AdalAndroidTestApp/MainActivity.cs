@@ -41,6 +41,12 @@ namespace AdalAndroidTestApp
         private const int acquireTokenRequestCode = 4001;
         private const int brokerRequestCode = 5001;
 
+        private const string clientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
+        private const string redirectUri = "urn:ietf:wg:oauth:2.0:oob";
+        private const string resource1 = "https://graph.windows.net";
+        private const string resource2 = "https://graph.microsoft.com";
+        readonly string user = "<USER>";
+
         private UITextView accessTokenTextView;
 
         protected override void OnCreate(Bundle bundle)
@@ -59,13 +65,10 @@ namespace AdalAndroidTestApp
             Button clearCacheButton = FindViewById<Button>(Resource.Id.clearCacheButton);
             clearCacheButton.Click += clearCacheButton_Click;
 
-            Button conditionalAccessButton = FindViewById<Button>(Resource.Id.conditionalAccessButton);
-            conditionalAccessButton.Click += conditionalAccessButton_Click;
-
             this.accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
 
             EditText email = FindViewById<EditText>(Resource.Id.email);
-            email.Text = "<USERNAME>";
+            email.Text = user;
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -87,13 +90,13 @@ namespace AdalAndroidTestApp
             {
                 AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
                 AuthenticationResult result = await ctx
-                    .AcquireTokenSilentAsync("https://graph.windows.net", "<CLIENT_ID>", UserIdentifier.AnyUser,
+                    .AcquireTokenSilentAsync(resource1, clientId, UserIdentifier.AnyUser,
                         new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
             {
-                throw new Exception(ex.Message + "\n" + ex.StackTrace);
+                throw new InvalidOperationException(ex.Message + "\n" + ex.StackTrace);
             }
             catch (Exception exc)
             {
@@ -111,18 +114,14 @@ namespace AdalAndroidTestApp
             string value = null;
             try
             {
-                string clientId = "b7ef0cbd-fee5-420a-9ec0-6d29549f950b";
-                Uri redirectUri = new Uri("https://todolistclient");
-                string resource = "https://graph.microsoft.com"; // "https://graph.windows.net"
-
                 AuthenticationResult result = await ctx
-                    .AcquireTokenAsync(resource, clientId, redirectUri,
+                    .AcquireTokenAsync(resource2, clientId, new Uri(redirectUri),
                         new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode)).ConfigureAwait(false);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
             {
-                throw new Exception(ex.Message + "\n" + ex.StackTrace);
+                throw new InvalidOperationException(ex.Message + "\n" + ex.StackTrace);
             }
             catch (Exception exc)
             {
@@ -139,35 +138,6 @@ namespace AdalAndroidTestApp
                 TokenCache.DefaultShared.Clear();
                 this.accessTokenTextView.Text = "Cache cleared";
             });
-        }
-
-        private async void conditionalAccessButton_Click(object sender, EventArgs e)
-        {
-            this.accessTokenTextView.Text = string.Empty;
-            EditText email = FindViewById<EditText>(Resource.Id.email);
-            string value = null;
-            try
-            {
-                string claim =
-                    "{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}";
-                AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-                AuthenticationResult result = await ctx
-                    .AcquireTokenAsync("https://graph.windows.net", "<CLIENT_ID>", new Uri("<REDIRECT_URI>"),
-                        new PlatformParameters(this, false, PromptBehavior.Auto, acquireTokenRequestCode, brokerRequestCode),
-                        new UserIdentifier(email.Text, UserIdentifierType.OptionalDisplayableId), null, claim)
-                    .ConfigureAwait(false);
-                value = result.AccessToken;
-            }
-            catch (Java.Lang.Exception ex)
-            {
-                throw new Exception(ex.Message + "\n" + ex.StackTrace);
-            }
-            catch (Exception exc)
-            {
-                value = exc.Message;
-            }
-
-            this.accessTokenTextView.Text = value;
         }
     }
 }

@@ -29,17 +29,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Core.Helpers
 {
     internal static class CoreHelpers
     {
-        internal static bool IsNullOrEmpty(IEnumerable<string> input)
-        {
-            return input == null || !input.Any();
-        }
-
         internal static string ByteArrayToString(byte[] input)
         {
             if (input == null || input.Length == 0)
@@ -57,17 +54,23 @@ namespace Microsoft.Identity.Core.Helpers
             return dateTime;
         }
 
-        public static long DateTimeToUnixTimestamp(DateTimeOffset dateTimeOffset)
+        public static DateTime UnixTimestampStringToDateTime(string str)
+        {
+            return UnixTimestampToDateTime(Convert.ToInt64(str, CultureInfo.InvariantCulture));
+        }
+
+        public static string DateTimeToUnixTimestamp(DateTimeOffset dateTimeOffset)
         {
             DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             long unixTimestamp = (long)dateTimeOffset.Subtract(dateTime).TotalSeconds;
-            return unixTimestamp;
+            return unixTimestamp.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static long CurrDateTimeInUnixTimestamp()
+        public static string CurrDateTimeInUnixTimestamp()
         {
             var unixEpochDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return (long)DateTime.UtcNow.Subtract(unixEpochDateTime).TotalSeconds;
+            long unixTimestamp = (long)DateTime.UtcNow.Subtract(unixEpochDateTime).TotalSeconds;
+            return unixTimestamp.ToString(CultureInfo.InvariantCulture);
         }
 
         public static long DateTimeToUnixTimestampMilliseconds(DateTimeOffset dateTimeOffset)
@@ -166,10 +169,8 @@ namespace Microsoft.Identity.Core.Helpers
 
                     if (response.ContainsKey(key))
                     {
-                        var msg = string.Format(CultureInfo.InvariantCulture,
-                            "Key/value pair list contains redundant key '{0}'.", key);
-                        requestContext?.Logger.Warning(msg);
-                        requestContext?.Logger.WarningPii(msg);
+                        requestContext?.Logger.Warning(string.Format(CultureInfo.InvariantCulture,
+                            "Key/value pair list contains redundant key '{0}'.", key));
                     }
 
                     response[key] = value;
@@ -230,5 +231,6 @@ namespace Microsoft.Identity.Core.Helpers
             messageBuilder.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}=", delimiter, key);
             messageBuilder.Append(value);
         }
+
     }
 }

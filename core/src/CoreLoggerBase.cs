@@ -29,28 +29,65 @@ using System;
 
 namespace Microsoft.Identity.Core
 {
-    internal abstract class CoreLoggerBase
+    internal interface ICoreLogger
+    {
+        Guid CorrelationId { get; set; }
+
+        bool PiiLoggingEnabled { get; }
+
+        void Error(string messageScrubbed);
+        void ErrorPii(string messageWithPii, string messageScrubbed);
+        void ErrorPii(Exception exWithPii);
+        void ErrorPiiWithPrefix(Exception exWithPii, string prefix);
+
+        void Warning(string messageScrubbed);
+        void WarningPii(string messageWithPii, string messageScrubbed);
+        void WarningPii(Exception exWithPii);
+        void WarningPiiWithPrefix(Exception exWithPii, string prefix);
+
+        void Info(string messageScrubbed);
+        void InfoPii(string messageWithPii, string messageScrubbed);
+        void InfoPii(Exception exWithPii);
+        void InfoPiiWithPrefix(Exception exWithPii, string prefix);
+
+        void Verbose(string messageScrubbed);
+        void VerbosePii(string messageWithPii, string messageScrubbed);
+    }
+
+    internal abstract class CoreLoggerBase : ICoreLogger
     {
         public static CoreLoggerBase Default { get; set; }
 
         public Guid CorrelationId { get; set; }
+
+        protected CoreLoggerBase()
+        {
+            CorrelationId = Guid.Empty;
+        }
 
         protected CoreLoggerBase(Guid correlationId)
         {
             CorrelationId = correlationId;
         }
 
-        public static bool PiiLoggingEnabled { get; set; }
+        public abstract bool PiiLoggingEnabled { get; }
 
-        public abstract void Error(string message);
-        public abstract void ErrorPii(string message);
-        public abstract void Warning(string message);
-        public abstract void WarningPii(string message);
-        public abstract void Info(string message);
-        public abstract void InfoPii(string message);
-        public abstract void Verbose(string message);
-        public abstract void VerbosePii(string message);
-        public abstract void Error(Exception ex);
-        public abstract void ErrorPii(Exception ex);
+        public abstract void Error(string messageScrubbed);
+        public abstract void ErrorPii(string messageWithPii, string messageScrubbed);
+        public abstract void ErrorPii(Exception exWithPii);
+        public abstract void ErrorPiiWithPrefix(Exception exWithPii, string prefix);
+
+        public abstract void Warning(string messageScrubbed);
+        public abstract void WarningPii(string messageWithPii, string messageScrubbed);
+        public abstract void WarningPii(Exception exWithPii);
+        public abstract void WarningPiiWithPrefix(Exception exWithPii, string prefix);
+
+        public abstract void Info(string messageScrubbed);
+        public abstract void InfoPii(string messageWithPii, string messageScrubbed);
+        public abstract void InfoPii(Exception exWithPii);
+        public abstract void InfoPiiWithPrefix(Exception exWithPii, string prefix);
+
+        public abstract void Verbose(string messageScrubbed);
+        public abstract void VerbosePii(string messageWithPii, string messageScrubbed);
     }
 }

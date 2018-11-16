@@ -29,6 +29,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Microsoft.Identity.Core.Http;
 using Uri = System.Uri;
 
 namespace Microsoft.Identity.Core.UI.SystemWebview
@@ -59,8 +60,6 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             }
             catch (Exception ex)
             {
-                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
-                requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(ex);
                 throw CoreExceptionFactory.Instance.GetClientException(
                     CoreErrorCodes.AuthenticationUiFailedError, 
@@ -70,6 +69,11 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
             return authorizationResult;
+        }
+
+        public override void ValidateRedirectUri(Uri redirectUri)
+        {
+            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: true);
         }
     }
 }

@@ -55,13 +55,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
-        protected override Task<AdalResultWrapper> SendTokenRequestAsync()
+        protected internal /* internal for test only */ override Task<AdalResultWrapper> SendTokenRequestAsync()
         {
             if (ResultEx == null)
             {
-                var msg = "No token matching arguments found in the cache";
-                RequestContext.Logger.Verbose(msg);
-                RequestContext.Logger.VerbosePii(msg);
+                RequestContext.Logger.Verbose("No token matching arguments found in the cache");
 
                 throw new AdalSilentTokenAcquisitionException();
             }

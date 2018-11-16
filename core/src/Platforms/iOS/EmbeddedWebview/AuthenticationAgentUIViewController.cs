@@ -96,19 +96,16 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             if (err != null)
             {
                 CoreLoggerBase.Default.Info(err.LocalizedDescription);
-                CoreLoggerBase.Default.InfoPii(err.LocalizedDescription);
             }
             if (result != null)
             {
                 CoreLoggerBase.Default.Info(result.ToString());
-                CoreLoggerBase.Default.InfoPii(result.ToString());
             }
             return;
         }
 
         public void CancelAuthentication(object sender, EventArgs e)
         {
-            this.callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null));
             this.DismissViewController(true, () =>
                     callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null)));
         }

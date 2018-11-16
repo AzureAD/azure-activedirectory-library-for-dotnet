@@ -29,10 +29,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -54,27 +57,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private readonly string claims;
 
-        public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters,
-            UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
+
+        public AcquireTokenInteractiveHandler(
+            RequestData requestData, 
+            Uri redirectUri, 
+            IPlatformParameters parameters,
+            UserIdentifier userId, 
+            string extraQueryParameters, 
+            IWebUI webUI, 
+            string claims)
             : base(requestData)
         {
-            this.redirectUri = platformInformation.ValidateRedirectUri(redirectUri, RequestContext);
-
-            if (!string.IsNullOrWhiteSpace(this.redirectUri.Fragment))
-            {
-                throw new ArgumentException(AdalErrorMessage.RedirectUriContainsFragment, "redirectUri");
-            }
+            this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, this.ClientKey?.ClientId);
+            this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
 
             this.authorizationParameters = parameters;
-
-            this.redirectUriRequestParameter = platformInformation.GetRedirectUriAsString(this.redirectUri, RequestContext);
-
-            if (userId == null)
-            {
-                throw new ArgumentNullException("userId", AdalErrorMessage.SpecifyAnyUser);
-            }
-
-            this.userId = userId;
+            this.userId = userId ?? throw new ArgumentNullException(nameof(userId), AdalErrorMessage.SpecifyAnyUser);
 
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
             {
@@ -91,15 +89,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             if (!String.IsNullOrEmpty(claims))
             {
                 this.LoadFromCache = false;
-
-                var msg = "Claims present. Skip cache lookup.";
-                RequestContext.Logger.Verbose(msg);
-                RequestContext.Logger.VerbosePii(msg);
-
+                RequestContext.Logger.Verbose("Claims present. Skip cache lookup.");
                 this.claims = claims;
             }
             else
             {
+                var platformInformation = new PlatformInformation();
                 this.LoadFromCache = (requestData.TokenCache != null && parameters != null && platformInformation.GetCacheLoadPolicy(parameters));
             }
 
@@ -120,12 +115,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             brokerHelper.PlatformParameters = authorizationParameters;
         }
 
+        private static Uri ComputeAndValidateRedirectUri(Uri redirectUri, string clientId)
+        {
+            // ADAL mostly does not provide defaults for the redirect URI, currently only for UWP for broker support
+            if (redirectUri == null)
+            {
+                string defaultUriAsString = PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId);
+
+                if (!String.IsNullOrWhiteSpace(defaultUriAsString))
+                {
+                    return new Uri(defaultUriAsString);
+                }
+            }
+
+            RedirectUriHelper.Validate(redirectUri);
+
+            return redirectUri;
+        }
+
         private static string ReplaceHost(string original, string newHost)
         {
             return new UriBuilder(original) { Host = newHost }.Uri.ToString();
         }
 
-        protected override async Task PreTokenRequestAsync()
+        protected internal /* internal for test only */ override async Task PreTokenRequestAsync()
         {
             await base.PreTokenRequestAsync().ConfigureAwait(false);
 
@@ -227,6 +240,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             if (this.authorizationParameters != null)
             {
+                var platformInformation = new PlatformInformation();
                 platformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
             }
             

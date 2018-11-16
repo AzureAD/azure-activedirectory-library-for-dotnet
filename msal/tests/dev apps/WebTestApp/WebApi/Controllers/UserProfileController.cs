@@ -56,7 +56,7 @@ namespace WebApi.Controllers
 
         static UserProfileController()
         {
-            MsalLoggerSettings.LogCallback = delegate(MsalLogLevel level, string message, bool containsPii)
+            Logger.LogCallback = delegate(LogLevel level, string message, bool containsPii)
             {
                 lock (LogStringBuilder)
                 {
@@ -64,8 +64,8 @@ namespace WebApi.Controllers
                                                 message);
                 }
             };
-            MsalLoggerSettings.Level = MsalLogLevel.Verbose;
-            MsalLoggerSettings.PiiLoggingEnabled = true;
+            Logger.Level = LogLevel.Verbose;
+            Logger.PiiLoggingEnabled = true;
         }
 
         private static void ClearLog()
@@ -119,7 +119,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<string> GetAsync()
         {
-            await Semaphore.WaitAsync();
+            await Semaphore.WaitAsync().ConfigureAwait(false);
             try
             {
                 ClearLog();
@@ -133,10 +133,10 @@ namespace WebApi.Controllers
                 try
                 {
                     var authResult =
-                        await GetConfidentialClient().AcquireTokenOnBehalfOfAsync(new[] {MsGraphUserReadScope},
-                            userAssertion);
+                        await GetConfidentialClient().AcquireTokenOnBehalfOfAsync(new[] { MsGraphUserReadScope },
+                            userAssertion).ConfigureAwait(false);
 
-                    result = await CallApiAsync(MsGraphMeQuery, authResult.AccessToken);
+                    result = await CallApiAsync(MsGraphMeQuery, authResult.AccessToken).ConfigureAwait(false);
                 }
                 catch (MsalException ex)
                 {
@@ -160,12 +160,12 @@ namespace WebApi.Controllers
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
-                throw new Exception(response.StatusCode.ToString());
+                throw new InvalidOperationException(response.StatusCode.ToString());
 
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
     }
 }

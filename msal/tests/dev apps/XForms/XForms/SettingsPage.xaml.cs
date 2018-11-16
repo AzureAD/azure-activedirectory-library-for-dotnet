@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -49,14 +50,14 @@ namespace XForms
             authority.Text = App.Authority;
             clientIdEntry.Text = App.ClientId;
 
-            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString()
-                .Count.ToString();
-            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString()
-                .Count.ToString();
-            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllIdTokensAsString()
-                .Count.ToString();
-            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.tokenCacheAccessor.GetAllAccountsAsString()
-                .Count.ToString();
+            numOfAtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccessTokensAsString()
+                .Count.ToString(CultureInfo.InvariantCulture);
+            numOfRtItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllRefreshTokensAsString()
+                .Count.ToString(CultureInfo.InvariantCulture);
+            numOfIdItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllIdTokensAsString()
+                .Count.ToString(CultureInfo.InvariantCulture);
+            numOfAccountItems.Text = App.MsalPublicClient.UserTokenCache.TokenCacheAccessor.GetAllAccountsAsString()
+                .Count.ToString(CultureInfo.InvariantCulture);
 
             validateAuthority.IsToggled = App.ValidateAuthority;
             RedirectUriLabel.Text = App.MsalPublicClient.RedirectUri;
@@ -93,13 +94,26 @@ namespace XForms
             App.ValidateAuthority = args.Value;
         }
 
-        private void OnB2cSwitchToggled(object sender, ToggledEventArgs args)
+        private void InitPublicClientAndRefreshView()
         {
-            if (b2cSwitch.IsToggled)
+            App.InitPublicClient();
+            RefreshView();
+        }
+        
+        private void OnPickerSelectedIndexChanged(object sender, EventArgs args)
+        {            
+            var selectedB2CAuthority = (Picker)sender;
+            int selectedIndex = selectedB2CAuthority.SelectedIndex;
+
+            if (selectedIndex == 0)
             {
                 App.Authority = App.B2cAuthority;
-                App.Scopes = App.B2cScopes;
-                App.ClientId = App.B2cClientId;
+                CreateB2CAppSettings();
+            }
+            else if (selectedIndex == 1)
+            {
+                App.Authority = App.B2CLoginAuthority;
+                CreateB2CAppSettings();
             }
             else
             {
@@ -107,8 +121,15 @@ namespace XForms
                 App.Scopes = App.DefaultScopes;
                 App.ClientId = App.DefaultClientId;
             }
-            App.InitPublicClient();
-            RefreshView();
+
+            InitPublicClientAndRefreshView();
+        }
+
+        private void CreateB2CAppSettings()
+        {
+            App.Scopes = App.B2cScopes;
+            App.ClientId = App.B2cClientId;
+            App.RedirectUriOnAndroid = App.RedirectUriB2C;
         }
     }
 }

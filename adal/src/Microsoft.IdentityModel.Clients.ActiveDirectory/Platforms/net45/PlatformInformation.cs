@@ -25,108 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Platforms;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class PlatformInformation : PlatformInformationBase
     {
-        public override string GetProductName()
-        {
-            return "PCL.Desktop";
-        }
-
-        public override async Task<string> GetUserPrincipalNameAsync()
-        {
-            return await Task.Factory.StartNew(() =>
-            {
-                const int NameUserPrincipal = 8;
-                uint userNameSize = 0;
-                WindowsNativeMethods.GetUserNameEx(NameUserPrincipal, null, ref userNameSize);
-                if (userNameSize == 0)
-                {
-                    throw new AdalException(AdalError.GetUserNameFailed, new Win32Exception(Marshal.GetLastWin32Error()));
-                }
-
-                StringBuilder sb = new StringBuilder((int) userNameSize);
-                if (!WindowsNativeMethods.GetUserNameEx(NameUserPrincipal, sb, ref userNameSize))
-                {
-                    throw new AdalException(AdalError.GetUserNameFailed, new Win32Exception(Marshal.GetLastWin32Error()));
-                }
-
-                return sb.ToString();
-            }).ConfigureAwait(false);
-        }
-
-        public override string GetEnvironmentVariable(string variable)
-        {
-            string value = Environment.GetEnvironmentVariable(variable);
-            return !string.IsNullOrWhiteSpace(value) ? value : null;
-        }
-
-        public override string GetProcessorArchitecture()
-        {
-            return WindowsNativeMethods.GetProcessorArchitecture();
-        }
-
-        public override string GetOperatingSystem()
-        {
-            return Environment.OSVersion.ToString();
-        }
-
-        public override string GetDeviceModel()
-        {
-            // Since ADAL .NET may be used on servers, for security reasons, we do not emit device type.
-            return null;
-        }
-
-        public override async Task<bool> IsUserLocalAsync(RequestContext requestContext)
-        {
-            return await Task.Factory.StartNew(() =>
-            {
-                WindowsIdentity current = WindowsIdentity.GetCurrent();
-                if (current != null)
-                {
-                    string prefix = WindowsIdentity.GetCurrent().Name.Split('\\')[0].ToUpperInvariant();
-                    return prefix.Equals(Environment.MachineName.ToUpperInvariant(), StringComparison.OrdinalIgnoreCase);
-                }
-
-                return false;
-            }).ConfigureAwait(false);
-        }
-
-        public override bool IsDomainJoined()
-        {
-            bool returnValue = false;
-            try
-            {
-                WindowsNativeMethods.NetJoinStatus status;
-                IntPtr pDomain;
-                int result = WindowsNativeMethods.NetGetJoinInformation(null, out pDomain, out status);
-                if (pDomain != IntPtr.Zero)
-                {
-                    WindowsNativeMethods.NetApiBufferFree(pDomain);
-                }
-
-                returnValue = result == WindowsNativeMethods.ErrorSuccess &&
-                              status == WindowsNativeMethods.NetJoinStatus.NetSetupDomainName;
-            }
-            catch (Exception)
-            {
-                // ignore the exception as the result is already set to false
-            }
-
-            return returnValue;
-        }
-
         public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
         {
             PlatformParameters authorizationParameters = (parameters as PlatformParameters);
@@ -140,19 +45,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             // ADFS currently ignores the parameter for now.
             switch (promptBehavior)
             {
-                case PromptBehavior.Always:
-                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.Login;
-                    break;
-                case PromptBehavior.SelectAccount:
-                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.SelectAccount;
-                    break;
-                case PromptBehavior.RefreshSession:
-                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.RefreshSession;
-                    break;
-                case PromptBehavior.Never:
-                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.AttemptNone;
-                    break;
-            }            
+            case PromptBehavior.Always:
+                authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.Login;
+                break;
+            case PromptBehavior.SelectAccount:
+                authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.SelectAccount;
+                break;
+            case PromptBehavior.RefreshSession:
+                authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.RefreshSession;
+                break;
+            case PromptBehavior.Never:
+                authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.AttemptNone;
+                break;
+            }
         }
 
         public override bool GetCacheLoadPolicy(IPlatformParameters parameters)

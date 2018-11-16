@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -44,7 +44,7 @@ namespace AutomationApp
         public AutomationUI()
         {
             InitializeComponent();
-            MsalLoggerSettings.LogCallback = _appLogger.Log;
+            Logger.LogCallback = _appLogger.Log;
         }
 
         public Dictionary<string, string> CreateDictionaryFromJson(string json)
@@ -57,13 +57,13 @@ namespace AutomationApp
 
         private void acquireToken_Click(object sender, EventArgs e)
         {
-            _commandToRun = _tokenHandlerApp.AcquireToken;
+            _commandToRun = _tokenHandlerApp.AcquireTokenAsync;
             pageControl1.SelectedTab = dataInputPage;
         }
 
         private void acquireTokenSilent_Click(object sender, EventArgs e)
         {
-            _commandToRun = _tokenHandlerApp.AcquireTokenSilent;
+            _commandToRun = _tokenHandlerApp.AcquireTokenSilentAsync;
             pageControl1.SelectedTab = dataInputPage;
         }
 
@@ -88,7 +88,7 @@ namespace AutomationApp
                 }
                 else
                 {
-                    AuthenticationResult authenticationResult = await _commandToRun(dict);
+                    AuthenticationResult authenticationResult = await _commandToRun(dict).ConfigureAwait(true);
                     SetResultPageInfo(authenticationResult);
                 }
             }
@@ -108,6 +108,11 @@ namespace AutomationApp
 
         private void SetResultPageInfo(AuthenticationResult authenticationResult)
         {
+            if (!String.IsNullOrWhiteSpace(authenticationResult.AccessToken))
+                testResultBox.Text = "Result: Success";
+            else
+                testResultBox.Text = "Result: Failure";
+
             accessTokenResult.Text = authenticationResult.AccessToken;
             expiresOnResult.Text = authenticationResult.ExpiresOn.ToString();
             tenantIdResult.Text = authenticationResult.TenantId;

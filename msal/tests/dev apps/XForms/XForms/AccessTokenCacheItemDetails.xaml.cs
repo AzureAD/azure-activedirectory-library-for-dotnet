@@ -27,6 +27,8 @@
 
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using System;
+using System.Globalization;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -49,10 +51,12 @@ namespace XForms
             userIdentifierLabel.Text = msalAccessTokenCacheItem.HomeAccountId;
             userAssertionHashLabel.Text = msalAccessTokenCacheItem.UserAssertionHash;
 
-            expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString();
-            scopesLabel.Text = msalAccessTokenCacheItem.Scopes;
+            expiresOnLabel.Text = msalAccessTokenCacheItem.ExpiresOn.ToString(CultureInfo.InvariantCulture);
+            scopesLabel.Text = msalAccessTokenCacheItem.NormalizedScopes;
 
-            cachedAtLabel.Text = CoreHelpers.UnixTimestampToDateTime(msalAccessTokenCacheItem.CachedAt).ToString();
+            cachedAtLabel.Text = CoreHelpers
+                .UnixTimestampStringToDateTime(msalAccessTokenCacheItem.CachedAt)
+                .ToString(CultureInfo.InvariantCulture);
 
             rawClientInfoLabel.Text = msalAccessTokenCacheItem.RawClientInfo;
             clientInfoUniqueIdentifierLabel.Text = msalAccessTokenCacheItem.ClientInfo.UniqueObjectIdentifier;

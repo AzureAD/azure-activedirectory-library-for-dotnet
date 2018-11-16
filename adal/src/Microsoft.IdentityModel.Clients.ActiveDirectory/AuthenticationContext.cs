@@ -27,8 +27,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.WsTrust;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
@@ -49,6 +52,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public sealed class AuthenticationContext
     {
+        private readonly IHttpManager _httpManager;
+        private readonly IWsTrustWebRequestManager _wsTrustWebRequestManager;
+
         static AuthenticationContext()
         {
             ModuleInitializer.EnsureModuleInitialized();
@@ -62,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
         public AuthenticationContext(string authority)
-            : this(authority, AuthorityValidationType.NotProvided, TokenCache.DefaultShared)
+            : this(null, authority, AuthorityValidationType.NotProvided, TokenCache.DefaultShared)
         {
         }
 
@@ -73,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
         public AuthenticationContext(string authority, bool validateAuthority)
-            : this(authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
+            : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                 TokenCache.DefaultShared)
         {
         }
@@ -85,7 +91,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
         public AuthenticationContext(string authority, TokenCache tokenCache)
-            : this(authority, AuthorityValidationType.NotProvided, tokenCache)
+            : this(null, authority, AuthorityValidationType.NotProvided, tokenCache)
         {
         }
 
@@ -97,18 +103,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
         /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache)
-            : this(authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
+            : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                 tokenCache)
         {
         }
 
-        private AuthenticationContext(string authority, AuthorityValidationType validateAuthority,
+        internal AuthenticationContext(IHttpManager httpManager, string authority, AuthorityValidationType validateAuthority,
             TokenCache tokenCache)
         {
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
             this.Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
-
             this.TokenCache = tokenCache;
+
+            _httpManager = httpManager ?? new HttpManager();
+            _wsTrustWebRequestManager = new WsTrustWebRequestManager(_httpManager);
         }
 
         /// <summary>
@@ -154,6 +162,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
 #if iOS
+
+        private string keychainSecurityGroup;
+
         /// <summary>
         /// Xamarin iOS specific property enables the application to share the token cache with other applications sharing the same keychain security group.
         /// If you provide this key, you MUST add the capability to your Application Entitlement.
@@ -162,8 +173,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <remarks>This API may change in future release.</remarks>
         public string KeychainSecurityGroup
         {
-            get { return this.KeychainSecurityGroup; }
-            set => TokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
+            get
+            {
+                return keychainSecurityGroup;
+            }
+            set
+            {
+                keychainSecurityGroup = value;
+                StorageDelegates.LegacyCachePersistence.SetKeychainSecurityGroup(value);
+                TokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
+            }
         }
 #endif
 
@@ -431,8 +450,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(parameters.GetCoreUIParent(), null);
         }
 
-        internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
-            UserCredential userCredential)
+        internal async Task<AuthenticationResult> AcquireTokenCommonAsync(
+           string resource,
+           string clientId,
+           UsernamePasswordInput upInput)
         {
             RequestData requestData = new RequestData
             {
@@ -442,11 +463,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
             };
-            var handler = new AcquireTokenNonInteractiveHandler(requestData, userCredential);
+
+            var handler = new AcquireTokenUsernamePasswordHandler(_wsTrustWebRequestManager, requestData, upInput);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
-        internal async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
+        internal async Task<AuthenticationResult> AcquireTokenCommonAsync(
+            string resource,
+            string clientId,
+            IntegratedWindowsAuthInput iwaInput)
+        {
+            RequestData requestData = new RequestData
+            {
+                Authenticator = this.Authenticator,
+                TokenCache = this.TokenCache,
+                Resource = resource,
+                ClientKey = new ClientKey(clientId),
+                ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled
+            };
+
+            var handler = new AcquireTokenIWAHandler(_wsTrustWebRequestManager, requestData, iwaInput);
+            return await handler.RunAsync().ConfigureAwait(false);
+        }
+
+        internal async Task<AuthenticationResult> AcquireTokenCommonAsync(
+            string resource,
+            string clientId,
             UserAssertion userAssertion)
         {
             RequestData requestData = new RequestData
@@ -457,7 +499,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = this.ExtendedLifeTimeEnabled,
             };
-            var handler = new AcquireTokenNonInteractiveHandler(requestData, userAssertion);
+            var handler = new AcquireTokenUserAssertionHandler(requestData, userAssertion);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -628,7 +670,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// Acquires security token from the authority using an authorization code previously received.
-        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
+        /// This method does not lookup the token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
@@ -666,7 +708,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
 #if !(ANDROID || iOS || WINDOWS_APP)
         /// <summary>
-        /// In a Web App, attemps to acquire a security token from the authority using an authorization code previously received
+        /// In a Web App, attempts to acquire a security token from the authority using an authorization code previously received
         /// (after a call to one of the overrides of <see cref="M:AcquireTokenByAuthorizationCodeAsync">AcquireTokenByAuthorizationCodeAsync</see>). 
         /// For more details see https://aka.ms/adal-net-authorization-code. This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
         /// </summary>
@@ -690,7 +732,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// Acquires security token from the authority using an authorization code previously received.
-        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
+        /// This method does not lookup the token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
@@ -708,7 +750,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// Acquires security token from the authority using an authorization code previously received.
-        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
+        /// This method does not lookup the token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
         /// </summary>
         /// <param name="authorizationCode">The authorization code received from service authorization endpoint.</param>
         /// <param name="redirectUri">The redirect address used for obtaining authorization code.</param>
@@ -876,6 +918,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientCredential">The client credential to use for token acquisition.</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
+#if ANDROID || iOS || WINDOWS_APP
+        [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")]
+#endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientCredential clientCredential)
         {
             return await AcquireTokenForClientCommonAsync(resource, new ClientKey(clientCredential))

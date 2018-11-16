@@ -47,13 +47,12 @@ namespace Microsoft.Identity.Client
         /// <param name="requestCode">Request response code</param>
         /// <param name="resultCode">Result code from authentication</param>
         /// <param name="data">Response data from authentication</param>
+        [CLSCompliant(false)]
         public static void SetAuthenticationContinuationEventArgs(int requestCode, Result resultCode, Intent data)
         {
-            RequestContext requestContext = new RequestContext(new MsalLogger(Guid.Empty, null));
+            RequestContext requestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null));
 
-            var msg = string.Format(CultureInfo.InvariantCulture, "Received Activity Result({0})", (int) resultCode);
-            requestContext.Logger.Info(msg);
-            requestContext.Logger.InfoPii(msg);
+            requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture, "Received Activity Result({0})", (int)resultCode));
             AuthorizationResult authorizationResult = null;
 
             int code = (int)resultCode;

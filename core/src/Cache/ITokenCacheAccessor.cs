@@ -31,6 +31,13 @@ namespace Microsoft.Identity.Core.Cache
 {
     internal interface ITokenCacheAccessor
     {
+        int RefreshTokenCount { get; }
+        int AccessTokenCount { get; }
+        int AccountCount { get; }
+        int IdTokenCount { get; }
+        void ClearRefreshTokens();
+        void ClearAccessTokens();
+
         void SaveAccessToken(MsalAccessTokenCacheItem item);
 
         void SaveRefreshToken(MsalRefreshTokenCacheItem item);
@@ -63,15 +70,6 @@ namespace Microsoft.Identity.Core.Cache
 
         ICollection<string> GetAllAccountsAsString();
 
-        /*
-        ICollection<string> GetAllAccessTokenKeys();
-
-        ICollection<string> GetAllRefreshTokenKeys();
-
-        ICollection<string> GetAllIdTokenKeys();
-
-        ICollection<string> GetAllAccountKeys();
-        */
 #if iOS
         void SetKeychainSecurityGroup(string keychainSecurityGroup);
 #endif

@@ -71,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
         }
 
-        internal TokenCacheAccessor tokenCacheAccessor = new TokenCacheAccessor();
+        internal ITokenCacheAccessor tokenCacheAccessor;
 
         /// <summary>
         /// Default constructor.
@@ -79,9 +79,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public TokenCache()
         {
             if (CoreLoggerBase.Default == null)
+            {
                 CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
+            }
 
             this.tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
+
+            tokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
         }
 
         /// <summary>
@@ -139,7 +143,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Gets the nunmber of items in the cache.
+        /// Gets the number of items in the cache.
         /// </summary>
         public int Count
         {
@@ -163,7 +167,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Serializes current state of the cache as a blob. Caller application can persist the blob and update the state of the cache later by 
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
-        /// <returns>Current state of the cache as a blob</returns>
+        /// <returns>Current state of the Adal V3+ cache as a blob</returns>
         public byte[] Serialize()
         {
             lock (cacheLock)
@@ -173,18 +177,53 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
+        /// Serializes current state of the cache as a blob. Caller application can persist the blob and update the state of the cache later by 
+        /// passing that blob back in constructor or by calling method Deserialize.
+        /// </summary>
+        /// <returns>Serialized token cache <see cref="CacheData"/></returns>
+        public CacheData SerializeAdalAndUnifiedCache()
+        {
+            lock (cacheLock)
+            {
+                var serializedAdalCache = AdalCacheOperations.Serialize(tokenCacheDictionary);
+                var serializedUnifiedCache = TokenCacheSerializeHelper.SerializeUnifiedCache(tokenCacheAccessor);
+
+                return new CacheData()
+                {
+                    AdalV3State = serializedAdalCache,
+                    UnifiedState = serializedUnifiedCache
+                };
+            }
+        }
+
+        /// <summary>
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
-        /// <param name="state">State of the cache as a blob</param>
-        public void Deserialize(byte[] state)
+        /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
+        public void Deserialize(byte[] adalState)
         {
             lock (cacheLock)
             {
                 tokenCacheDictionary.Clear();
-                foreach (var entry in AdalCacheOperations.Deserialize(state))
+                foreach (var entry in AdalCacheOperations.Deserialize(adalState))
                 {
                     tokenCacheDictionary.Add(entry.Key, entry.Value);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
+        /// </summary>
+        /// <param name="cacheData">Serialized token cache <see cref="CacheData"></see></param>
+        public void DeserializeAdalAndUnifiedCache(CacheData cacheData)
+        {
+            lock (cacheLock)
+            {
+                Deserialize(cacheData.AdalV3State);
+
+                RequestContext requestContext = new RequestContext(null, new AdalLogger(Guid.Empty));
+                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCacheAccessor, cacheData.UnifiedState, requestContext);
             }
         }
 
@@ -237,15 +276,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (toRemoveKey != null)
                 {
                     this.tokenCacheDictionary.Remove(toRemoveKey);
-                    string msg = "One item removed successfully";
-                    CoreLoggerBase.Default.Info(msg);
-                    CoreLoggerBase.Default.InfoPii(msg);
+                    CoreLoggerBase.Default.Info("One item removed successfully");
                 }
                 else
                 {
-                    string msg = "Item not Present in the Cache";
-                    CoreLoggerBase.Default.Info(msg);
-                    CoreLoggerBase.Default.InfoPii(msg);
+                    CoreLoggerBase.Default.Info("Item not Present in the Cache");
                 }
 
                 this.HasStateChanged = true;
@@ -261,26 +296,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
+                TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
+                this.OnBeforeAccess(args);
+                this.OnBeforeWrite(args);
+                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
+                    this.tokenCacheDictionary.Count));
+
                 ClearAdalCache();
                 ClearMsalCache();
+
+                CoreLoggerBase.Default.Info("Successfully Cleared Cache");
+                this.HasStateChanged = true;
+                this.OnAfterAccess(args);
             }
         }
 
         internal void ClearAdalCache()
         {
-            TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
-            this.OnBeforeAccess(args);
-            this.OnBeforeWrite(args);
-            string msg = String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
-                this.tokenCacheDictionary.Count);
-            CoreLoggerBase.Default.Info(msg);
-            CoreLoggerBase.Default.InfoPii(msg);
             this.tokenCacheDictionary.Clear();
-            msg = "Successfully Cleared Cache";
-            CoreLoggerBase.Default.Info(msg);
-            CoreLoggerBase.Default.InfoPii(msg);
-            this.HasStateChanged = true;
-            this.OnAfterAccess(args);
         }
 
         internal void ClearMsalCache()
@@ -341,7 +374,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private static string GetHost(string uri)
         {
             // The following line serves as a validation for uri. Relevant exceptions will be thrown.
-            new Uri(uri); //NOSONAR
+            new Uri(uri);
 
             // Note: host is supposed to be case insensitive, and would be normalized to lowercase by: new Uri(uri).Host
             // but we would like to preserve its case to match a previously cached token
@@ -370,9 +403,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                var msg = "Looking up cache for a token...";
-                requestContext.Logger.Verbose(msg);
-                requestContext.Logger.VerbosePii(msg);
+                requestContext.Logger.Verbose("Looking up cache for a token...");
 
                 AdalResultWrapper resultEx = null;
                 KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>? kvp =
@@ -394,23 +425,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         // this is a cross-tenant result. use RT only
                         resultEx.Result.AccessToken = null;
 
-                        msg = "Cross Tenant refresh token was found in the cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("Cross Tenant refresh token was found in the cache");
                     }
                     else if (tokenNearExpiry && !cacheQueryData.ExtendedLifeTimeEnabled)
                     {
                         resultEx.Result.AccessToken = null;
 
-                        msg = "An expired or near expiry token was found in the cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("An expired or near expiry token was found in the cache");
                     }
                     else if (!cacheKey.ResourceEquals(cacheQueryData.Resource))
                     {
-                        requestContext.Logger.InfoPii(string.Format(CultureInfo.CurrentCulture,
+                        requestContext.Logger.InfoPii(
+                            string.Format(CultureInfo.CurrentCulture,
                                 "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'",
-                                cacheKey.Resource, cacheQueryData.Resource));
+                                cacheKey.Resource, cacheQueryData.Resource),
+                            string.Empty);
                         var newResultEx = new AdalResultWrapper
                         {
                             Result = new AdalResult(null, null, DateTimeOffset.MinValue),
@@ -427,35 +456,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         resultEx.Result.ExtendedLifeTimeToken = true;
                         resultEx.Result.ExpiresOn = resultEx.Result.ExtendedExpiresOn;
 
-                        msg =
-                            "The extendedLifeTime is enabled and a stale AT with extendedLifeTimeEnabled is returned.";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("The extendedLifeTime is enabled and a stale AT with extendedLifeTimeEnabled is returned.");
                     }
                     else if (tokenExtendedLifeTimeExpired)
                     {
                         resultEx.Result.AccessToken = null;
 
-                        msg = "The AT has expired its ExtendedLifeTime";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("The AT has expired its ExtendedLifeTime");
                     }
                     else
                     {
-                        msg = string.Format(CultureInfo.CurrentCulture, "{0} minutes left until token in cache expires",
-                            (resultEx.Result.ExpiresOn - DateTime.UtcNow).TotalMinutes);
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture, "{0} minutes left until token in cache expires",
+                            (resultEx.Result.ExpiresOn - DateTime.UtcNow).TotalMinutes));
                     }
 
                     if (resultEx.Result.AccessToken == null && resultEx.RefreshToken == null)
                     {
                         this.tokenCacheDictionary.Remove(cacheKey);
-
-                        msg = "An old item was removed from the cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
-
+                        requestContext.Logger.Info("An old item was removed from the cache");
                         this.HasStateChanged = true;
                         resultEx = null;
                     }
@@ -463,22 +481,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (resultEx != null)
                     {
                         resultEx.Result.Authority = cacheKey.Authority;
-
-                        msg = "A matching item (access token or refresh token or both) was found in the cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("A matching item (access token or refresh token or both) was found in the cache");
                     }
                 }
                 else
                 {
-                    msg = "No matching token was found in the cache";
-                    requestContext.Logger.Info(msg);
-                    requestContext.Logger.InfoPii(msg);
+                    requestContext.Logger.Info("No matching token was found in the cache");
                     if (cacheQueryData.SubjectType == TokenSubjectType.User)
                     {
-                        msg = "Checking MSAL cache for user token cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("Checking MSAL cache for user token cache");
                         resultEx = CacheFallbackOperations.FindMsalEntryForAdal(tokenCacheAccessor,
                             cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
                     }
@@ -500,9 +511,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                var msg = "Storing token in the cache...";
-                requestContext.Logger.Verbose(msg);
-                requestContext.Logger.VerbosePii(msg);
+                requestContext.Logger.Verbose("Storing token in the cache...");
 
                 string uniqueId = (result.Result.UserInfo != null) ? result.Result.UserInfo.UniqueId : null;
                 string displayableId = (result.Result.UserInfo != null) ? result.Result.UserInfo.DisplayableId : null;
@@ -519,9 +528,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     result.Result.UserInfo);
                 this.tokenCacheDictionary[AdalTokenCacheKey] = result;
 
-                msg = "An item was stored in the cache";
-                requestContext.Logger.Verbose(msg);
-                requestContext.Logger.VerbosePii(msg);
+                requestContext.Logger.Verbose("An item was stored in the cache");
 
                 this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
@@ -579,9 +586,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 switch (resourceValuesCount)
                 {
                     case 1:
-                        var msg = "An item matching the requested resource was found in the cache";
-                        requestContext.Logger.Info(msg);
-                        requestContext.Logger.InfoPii(msg);
+                        requestContext.Logger.Info("An item matching the requested resource was found in the cache");
 
                         returnValue = resourceSpecificItems.First();
                         break;
@@ -594,10 +599,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                             if (mrrtItems.Any())
                             {
                                 returnValue = mrrtItems.First();
-                                msg =
-                                    "A Multi Resource Refresh Token for a different resource was found which can be used";
-                                requestContext.Logger.Info(msg);
-                                requestContext.Logger.InfoPii(msg);
+                                requestContext.Logger.Info("A Multi Resource Refresh Token for a different resource was found which can be used");
                             }
                         }
                         break;

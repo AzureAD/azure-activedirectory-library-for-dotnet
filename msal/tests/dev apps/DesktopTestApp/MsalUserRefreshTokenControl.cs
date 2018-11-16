@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
@@ -26,7 +28,7 @@ namespace DesktopTestApp
             cache = publicClient.UserTokenCache;
             rtItem = rtIitem;
 
-            accountItem = cache.GetAccount(rtIitem, new RequestContext(new MsalLogger(Guid.NewGuid(), null)));
+            accountItem = cache.GetAccount(rtIitem, new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)));
             upnLabel.Text = accountItem.PreferredUsername;
 
             invalidateRefreshTokenBtn.Enabled = !rtItem.Secret.Equals(GarbageRtValue, StringComparison.OrdinalIgnoreCase);
@@ -46,11 +48,13 @@ namespace DesktopTestApp
 
         private async void signOutUserOneBtn_Click(object sender, System.EventArgs e)
         {
-            await publicClient.RemoveAsync(
-                new Account(
-                    AccountId.FromClientInfo(rtItem.ClientInfo), 
-                    accountItem.PreferredUsername, 
-                    accountItem.Environment)).ConfigureAwait(false);
+            IEnumerable<IAccount> accounts = await publicClient.GetAccountsAsync().ConfigureAwait(false);
+
+            while (accounts.Any())
+            {
+                await publicClient.RemoveAsync(accounts.FirstOrDefault()).ConfigureAwait(false);
+                accounts = await publicClient.GetAccountsAsync().ConfigureAwait(false);
+            }
 
             RefreshViewDelegate?.Invoke();
         }

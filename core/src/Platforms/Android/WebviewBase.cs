@@ -23,6 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using Microsoft.Identity.Core.Http;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,9 +44,7 @@ namespace Microsoft.Identity.Core.UI
             }
             else
             {
-                const string msg = "No pending request for response from web ui.";
-                requestContext.Logger.Info(msg);
-                requestContext.Logger.InfoPii(msg);
+                requestContext.Logger.Info("No pending request for response from web ui.");
             }
         }
 
@@ -56,5 +55,7 @@ namespace Microsoft.Identity.Core.UI
         }
 
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
+
+        public abstract void ValidateRedirectUri(Uri redirectUri);
     }
 }

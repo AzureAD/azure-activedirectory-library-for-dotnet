@@ -32,6 +32,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -39,6 +40,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Xamarin.Forms;
 
 namespace XForms.UWP
 {
@@ -48,7 +50,10 @@ namespace XForms.UWP
         {
             InitializeComponent();
 
-            LoadApplication(new XForms.App());
+            ApplicationView.PreferredLaunchViewSize = new Windows.Foundation.Size(400, 1200);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+
+            LoadApplication(new XForms.App());            
         }
     }
 }

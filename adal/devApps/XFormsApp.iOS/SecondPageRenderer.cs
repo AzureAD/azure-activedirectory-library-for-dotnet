@@ -41,7 +41,7 @@ namespace XFormsApp.iOS
         protected override void OnElementChanged(VisualElementChangedEventArgs e)
         {
             base.OnElementChanged(e);
-            
+
             page = e.NewElement as SecondPage;
         }
 
@@ -49,7 +49,8 @@ namespace XFormsApp.iOS
         {
             base.ViewDidLoad();
 
-            page.Parameters = new PlatformParameters(this);
+            DependencyService.Register<iOSPlatformParametersFactory>();
+            iOSPlatformParametersFactory.UIViewController = this;
 
             page.BrokerParameters = new PlatformParameters(this, true, PromptBehavior.SelectAccount);
         }

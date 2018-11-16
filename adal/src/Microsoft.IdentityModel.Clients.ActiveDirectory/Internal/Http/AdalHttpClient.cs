@@ -31,6 +31,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
@@ -44,6 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
         private const string WwwAuthenticateHeader = "WWW-Authenticate";
         private const string PKeyAuthName = "PKeyAuth";
         private const int DelayTimePeriodMilliSeconds = 1000;
+        internal /* internal for test only */ const string ExtraQueryParamEnvVariable = "ExtraQueryParameter";
         private readonly RequestContext _requestContext;
         internal bool Resiliency = false;
         internal bool RetryOnce = true;
@@ -69,7 +71,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
         private async Task<T> GetResponseAsync<T>(bool respondToDeviceAuthChallenge)
         {
             T typedResponse = default(T);
-            IHttpWebResponse response;
 
             try
             {
@@ -78,12 +79,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 {
                     this.Client.Headers[kvp.Key] = kvp.Value;
                 }
+
                 //add pkeyauth header
                 this.Client.Headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
-                using (response = await this.Client.GetResponseAsync().ConfigureAwait(false))
-                {
-                    typedResponse = EncodingHelper.DeserializeResponse<T>(response.ResponseString);
-                }
+                IHttpWebResponse response = await this.Client.GetResponseAsync().ConfigureAwait(false);
+                typedResponse = EncodingHelper.DeserializeResponse<T>(response.Body);
             }
             catch (HttpRequestWrapperException ex)
             {
@@ -91,13 +91,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 {
                     Resiliency = true;
 
-                    _requestContext.Logger.Info("Network timeout, Exception type: " + ex.InnerException.GetType());
-                    _requestContext.Logger.InfoPii("Network timeout, Exception message: " + ex.InnerException.Message);
+                    _requestContext.Logger.InfoPii(
+                        "Network timeout, Exception message: " + ex.InnerException.Message, 
+                        "Network timeout, Exception type: " + ex.InnerException.GetType());
                 }
 
                 if (!Resiliency && ex.WebResponse == null)
                 {
-                    _requestContext.Logger.Error(ex);
                     _requestContext.Logger.ErrorPii(ex);
                     throw new AdalServiceException(AdalError.Unknown, ex);
                 }
@@ -105,10 +105,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 //check for resiliency
                 if (!Resiliency && (int)ex.WebResponse.StatusCode >= 500 && (int)ex.WebResponse.StatusCode < 600)
                 {
-                    _requestContext.Logger.Info("HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
+                    _requestContext.Logger.InfoPii(
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception message: " + ex.InnerException?.Message,
+                        "HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception type: " + ex.InnerException?.GetType());
 
-                    _requestContext.Logger.InfoPii("HttpStatus code: " + ex.WebResponse.StatusCode + ", Exception message: " + ex.InnerException?.Message);
-                    
                     Resiliency = true;
                 }
 
@@ -118,22 +118,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                     {
                         await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
                         RetryOnce = false;
-
-                        var msg = "Retrying one more time..";
-                        _requestContext.Logger.Info(msg);
-                        _requestContext.Logger.InfoPii(msg);
-
+                        _requestContext.Logger.Info("Retrying one more time..");
                         return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    _requestContext.Logger.Info("Retry Failed, Exception type: " + ex.InnerException?.GetType());
-                    _requestContext.Logger.InfoPii("Retry Failed, Exception message: " + ex.InnerException?.Message);
+                    _requestContext.Logger.InfoPii(
+                        "Retry Failed, Exception message: " + ex.InnerException?.Message,
+                        "Retry Failed, Exception type: " + ex.InnerException?.GetType());
                 }
-                
+
                 if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
                 {
                     TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex.WebResponse);
-                    string[] errorCodes = tokenResponse.ErrorCodes ?? new[] {ex.WebResponse.StatusCode.ToString()};
+                    string[] errorCodes = tokenResponse.ErrorCodes ?? new[] { ex.WebResponse.StatusCode.ToString() };
                     AdalServiceException serviceEx = new AdalServiceException(tokenResponse.Error,
                         tokenResponse.ErrorDescription,
                         errorCodes, ex);
@@ -150,7 +147,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 //attempt device auth
                 return await HandleDeviceAuthChallengeAsync<T>(ex.WebResponse).ConfigureAwait(false);
             }
-            
+
             return typedResponse;
         }
 
@@ -201,7 +198,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         private static string CheckForExtraQueryParameter(string url)
         {
-            string extraQueryParameter = new PlatformInformation().GetEnvironmentVariable("ExtraQueryParameter");
+            string extraQueryParameter = PlatformProxyFactory.GetPlatformProxy().GetEnvironmentVariable(ExtraQueryParamEnvVariable);
             string delimiter = (url.IndexOf('?') > 0) ? "&" : "?";
             if (!string.IsNullOrWhiteSpace(extraQueryParameter))
             {

@@ -28,6 +28,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using SafariServices;
 using Foundation;
+using AuthenticationServices;
+using UIKit;
 
 namespace Microsoft.Identity.Core.UI
 {
@@ -35,7 +37,20 @@ namespace Microsoft.Identity.Core.UI
     {
         protected static SemaphoreSlim returnedUriReady;
         protected static AuthorizationResult authorizationResult;
+        protected static UIViewController viewController;
         protected SFSafariViewController safariViewController;
+        protected SFAuthenticationSession sfAuthenticationSession;
+        protected ASWebAuthenticationSession asWebAuthenticationSession;
+
+        protected nint taskId = UIApplication.BackgroundTaskInvalid;
+        protected NSObject didEnterBackgroundNotification;
+        protected NSObject willEnterForegroundNotification;
+
+        public WebviewBase()
+        {
+            didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
+            willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
+        }
 
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext);
@@ -47,9 +62,56 @@ namespace Microsoft.Identity.Core.UI
                 return false;
             }
 
-            authorizationResult = new AuthorizationResult(AuthorizationStatus.Success, url);
-            returnedUriReady.Release();
+            viewController.InvokeOnMainThread(() =>
+            {
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.Success, url);
+                returnedUriReady.Release();
+            });
+
             return true;
         }
+
+        protected void OnMoveToBackground(NSNotification notification)
+        {
+            // After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background 
+            // in order to prevent the system from reclaiming network resources from the app. 
+            // This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
+            taskId = UIApplication.SharedApplication.BeginBackgroundTask(() =>
+            {
+                if (taskId != UIApplication.BackgroundTaskInvalid)
+                {
+                    UIApplication.SharedApplication.EndBackgroundTask(taskId);
+                    taskId = UIApplication.BackgroundTaskInvalid;
+                }
+            });
+        }
+
+        protected void OnMoveToForeground(NSNotification notification)
+        {
+            if (taskId != UIApplication.BackgroundTaskInvalid)
+            {
+                UIApplication.SharedApplication.EndBackgroundTask(taskId);
+                taskId = UIApplication.BackgroundTaskInvalid;
+            }
+        }
+        
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (didEnterBackgroundNotification != null)
+                {
+                    didEnterBackgroundNotification.Dispose();
+                    didEnterBackgroundNotification = null;
+                }
+                if (willEnterForegroundNotification != null)
+                {
+                    willEnterForegroundNotification.Dispose();
+                    willEnterForegroundNotification = null;
+                }
+            }
+        }
+
+        public abstract void ValidateRedirectUri(Uri redirectUri);
     }
 }

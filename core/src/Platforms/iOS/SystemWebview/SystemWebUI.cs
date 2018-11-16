@@ -31,26 +31,18 @@ using System.Threading.Tasks;
 using SafariServices;
 using UIKit;
 using System.Threading;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Core.UI.SystemWebview
 {
     internal class SystemWebUI : WebviewBase, IDisposable
     {
-        private nint taskId = UIApplication.BackgroundTaskInvalid;
-        private NSObject didEnterBackgroundNotification, willEnterForegroundNotification;
-
         public RequestContext RequestContext { get; set; }
-
-        public SystemWebUI()
-        {
-            this.didEnterBackgroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.DidEnterBackgroundNotification, OnMoveToBackground);
-            this.willEnterForegroundNotification = NSNotificationCenter.DefaultCenter.AddObserver(UIApplication.WillEnterForegroundNotification, OnMoveToForeground);
-        }
 
         public async override Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri,
             RequestContext requestContext)
         {
-            UIViewController viewController = null;
+            viewController = null;
             InvokeOnMainThread(() =>
             {
                 UIWindow window = UIApplication.SharedApplication.KeyWindow;
@@ -58,37 +50,87 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             });
 
             returnedUriReady = new SemaphoreSlim(0);
-            Authenticate(authorizationUri, redirectUri, viewController, requestContext);
+            Authenticate(authorizationUri, redirectUri, requestContext);
             await returnedUriReady.WaitAsync().ConfigureAwait(false);
+
             //dismiss safariviewcontroller
             viewController.InvokeOnMainThread(() =>
             {
-                safariViewController.DismissViewController(false, null);
+                safariViewController?.DismissViewController(false, null);
             });
 
             return authorizationResult;
         }
 
-        public void Authenticate(Uri authorizationUri, Uri redirectUri, UIViewController vc, RequestContext requestContext)
+        public void Authenticate(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
             try
             {
-                safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
-                safariViewController.Delegate = this;
-                vc.InvokeOnMainThread(() =>
+                if (UIDevice.CurrentDevice.CheckSystemVersion(12, 0))
                 {
-                    vc.PresentViewController(safariViewController, false, null);
-                });
+                    asWebAuthenticationSession = new AuthenticationServices.ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                ProcessCompletionHandlerError(error);
+                            }
+                            else
+                            {
+                                ContinueAuthentication(callbackUrl.ToString());
+                            }
+                        });
+
+                    asWebAuthenticationSession.Start();
+                }
+
+                else if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+                {
+                    sfAuthenticationSession = new SFAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                ProcessCompletionHandlerError(error);
+                            }
+                            else
+                            {
+                                ContinueAuthentication(callbackUrl.ToString());
+                            }
+                        });
+
+                    sfAuthenticationSession.Start();
+                }
+
+                else
+                {
+                    safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
+                    safariViewController.Delegate = this;
+                    viewController.InvokeOnMainThread(() =>
+                    {
+                        viewController.PresentViewController(safariViewController, false, null);
+                    });
+                }
             }
             catch (Exception ex)
             {
-                string noPiiMsg = CoreExceptionFactory.Instance.GetPiiScrubbedDetails(ex);
-                requestContext.Logger.Error(noPiiMsg);
                 requestContext.Logger.ErrorPii(ex);
                 throw CoreExceptionFactory.Instance.GetClientException(
-                    CoreErrorCodes.AuthenticationUiFailedError, 
-                    "Failed to invoke SFSafariViewController", 
+                    CoreErrorCodes.AuthenticationUiFailedError,
+                    "Failed to invoke SFSafariViewController",
                     ex);
+            }
+        }
+
+        public void ProcessCompletionHandlerError(NSError error)
+        {
+            if (returnedUriReady != null)
+            {
+                // The authorizationResult is set on the class and sent back to the InteractiveRequest
+                // There it's processed in VerifyAuthorizationResult() and an MsalClientException
+                // will be thrown.
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
+                returnedUriReady.Release();
             }
         }
 
@@ -104,33 +146,9 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             }
         }
 
-        void OnMoveToBackground(NSNotification notification)
+        public override void ValidateRedirectUri(Uri redirectUri)
         {
-            //After iOS 11.3, it is neccesary to keep a background task running while moving an app to the background in order to prevent the system from reclaiming network resources from the app. 
-            //This will prevent authentication from failing while the application is moved to the background while waiting for MFA to finish.
-            this.taskId = UIApplication.SharedApplication.BeginBackgroundTask(() => {
-                if (this.taskId != UIApplication.BackgroundTaskInvalid)
-                {
-                    UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
-                    this.taskId = UIApplication.BackgroundTaskInvalid;
-                }
-            });
-        }
-
-        void OnMoveToForeground(NSNotification notification)
-        {
-            if (this.taskId != UIApplication.BackgroundTaskInvalid)
-            {
-                UIApplication.SharedApplication.EndBackgroundTask(this.taskId);
-                this.taskId = UIApplication.BackgroundTaskInvalid;
-            }
-        }
-
-        //Hiding NSObject.Dispose() with new to implement IDisposable interface
-        public new void Dispose()
-        {
-            this.didEnterBackgroundNotification.Dispose();
-            this.willEnterForegroundNotification.Dispose();
+            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: true);
         }
     }
 }

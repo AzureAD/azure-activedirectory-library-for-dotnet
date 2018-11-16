@@ -33,11 +33,14 @@ using Windows.Security.Authentication.Web;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.UI;
 using Windows.ApplicationModel.Core;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class WebUI : IWebUI
     {
+        private const string MsAppScheme = "ms-app";
+
         protected RequestContext context;
         protected CoreUIParent uiParent;
 
@@ -49,18 +52,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
-            bool ssoMode = ReferenceEquals(redirectUri, Constant.SsoPlaceHolderUri);
+            bool ssoMode = ReferenceEquals(redirectUri, Constants.UapWEBRedirectUri);
             if (uiParent.UseHiddenBrowser && !ssoMode && redirectUri.Scheme != Constant.MsAppScheme)
             {
-                throw new ArgumentException(AdalErrorMessageEx.RedirectUriUnsupportedWithPromptBehaviorNever, "redirectUri");
+                throw new AdalException(AdalError.UapRedirectUriUnsupported);
             }
-            
+
             WebAuthenticationResult webAuthenticationResult;
             WebAuthenticationOptions options = (uiParent.UseCorporateNetwork &&
                                                 (ssoMode || redirectUri.Scheme == Constant.MsAppScheme))
                 ? WebAuthenticationOptions.UseCorporateNetwork
                 : WebAuthenticationOptions.None;
-            
+
             if (uiParent.UseHiddenBrowser)
             {
                 options |= WebAuthenticationOptions.SilentMode;
@@ -69,7 +72,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             try
             {
                 webAuthenticationResult = await CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(
-                    async() =>
+                    async () =>
                     {
                         if (ssoMode)
                         {
@@ -131,5 +134,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             return result;
         }
+
+        public void ValidateRedirectUri(Uri redirectUri)
+        {
+            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
+        }
+
     }
 }

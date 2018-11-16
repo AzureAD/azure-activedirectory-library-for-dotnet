@@ -39,6 +39,7 @@ namespace Microsoft.Identity.Core.OAuth2
         public const string RedirectUri = "redirect_uri";
         public const string Resource = "resource";
         public const string Code = "code";
+        public const string DeviceCode = "device_code";
         public const string Scope = "scope";
         public const string Assertion = "assertion";
         public const string RequestedTokenUse = "requested_token_use";
@@ -92,15 +93,23 @@ namespace Microsoft.Identity.Core.OAuth2
         public const string RequestCorrelationIdInResponse = "return-client-request-id";
     }
 
+    /// <summary>
+    /// OAuth2 errors that are only used internally. All error codes used when propagating exceptions should 
+    /// be made public.
+    /// </summary>
     internal class OAuth2Error
     {
         public const string LoginRequired = "login_required";
+        public const string AuthorizationPending = "authorization_pending";
     }
 
     internal class OAuth2Value
     {
-        public static readonly string[] ReservedScopes = {"openid", "profile", "offline_access"};
+        public static readonly string[] ReservedScopes = { ScopeOpenId, ScopeProfile, ScopeOfflineAccess };
         public const string CodeChallengeMethodValue = "S256";
+        public const string ScopeOpenId = "openid";
+        public const string ScopeOfflineAccess = "offline_access";
+        public const string ScopeProfile = "profile";
     }
 
     internal class PromptValue

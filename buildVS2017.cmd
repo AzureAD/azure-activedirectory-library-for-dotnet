@@ -1,7 +1,6 @@
 @echo off
 echo Info:
 echo To Build Non WinRT, you will need the Developer Prompt/MSBuild for VS2017!
-echo To Build WinRT, you will need the Developer Prompt/MSBuild for VS2015 (and point to the vs2015 build script)!
 echo .
 echo Usage:
 echo   %%1  (configuration options): debug(d), release(r) .. default is debug
@@ -26,8 +25,8 @@ if '%3' NEQ '' (set bsampleapps=1)
 echo Building using: target: %btarget%, configuration: %bconfig%, sample: %bsampleapps%
 
 if %bsampleapps% EQU  1 (
-    msbuild Combined.NoWinRT.sln /m /t:%btarget% /p:configuration=%bconfig% 
+    msbuild LibsAndSamples.sln /m /t:%btarget% /p:configuration=%bconfig% 
  ) else (
-    msbuild CoreAndUTests.sln /m /t:%btarget% /p:configuration=%bconfig%
+    msbuild LibsNoSamples.sln /m /t:%btarget% /p:configuration=%bconfig%
   )
 )

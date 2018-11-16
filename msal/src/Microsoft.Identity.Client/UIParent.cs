@@ -26,7 +26,11 @@
 //------------------------------------------------------------------------------
 
 #if ANDROID
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 #endif
 
@@ -36,7 +40,8 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains UI properties for interactive flows
+    /// Contains UI properties for interactive flows, such as the parent window (on Windows), or the parent activity (on Xamarin.Android), and 
+    /// which browser to use (on Xamarin.Android and Xamarin.iOS)
     /// </summary> 
     public sealed class UIParent
     {
@@ -57,25 +62,27 @@ namespace Microsoft.Identity.Client
 
 #if iOS
         /// <summary>
-        /// Constructor for iOS for implementing embedded webview
+        /// Constructor for iOS for directing the application to use the embedded webview instead of the
+        /// system browser. See https://aka.ms/msal-net-uses-web-browser
         /// </summary>
-        /// <remarks>This method is likely to be removed before final release</remarks>
+        /// <remarks>This method is likely to be removed (replaced) before final release</remarks>
         public UIParent(bool useEmbeddedWebview) : this()
         {
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
+
 #endif
 
 #if ANDROID
         private Activity Activity { get; set; }
 
-        private static readonly string[] _chromePackages =
-        {"com.android.chrome", "com.chrome.beta", "com.chrome.dev"};
+        private static readonly string ChromePackage = "com.android.chrome";
 
         /// <summary>
         /// Initializes an instance for a provided activity.
         /// </summary>
         /// <param name="activity">parent activity for the call. REQUIRED.</param>
+        [CLSCompliant(false)]
         public UIParent(Activity activity)
         {
             Activity = activity;
@@ -83,9 +90,10 @@ namespace Microsoft.Identity.Client
         }
 
         /// <summary>
-        /// Initializes an instance for a provided activity with flag for enabling 
-        /// embedded webview.
+        /// Initializes an instance for a provided activity with flag directing the application
+        /// to use the embedded webview instead of the system browser. See https://aka.ms/msal-net-uses-web-browser
         /// </summary>
+        [CLSCompliant(false)]
         public UIParent(Activity activity, bool useEmbeddedWebview) : this(activity)
         {
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
@@ -96,31 +104,60 @@ namespace Microsoft.Identity.Client
         /// Returns true if chrome package for launching system webview is enabled on device.
         /// Returns false if chrome package is not found.
         /// </summary>
+        /// <example>
+        /// The following code decides, in a Xamarin.Forms app, which browser to use based on the presence of the
+        /// required packages.
+        /// <code>
+        /// bool useSystemBrowser = UIParent.IsSystemWebviewAvailable();
+        /// App.UIParent = new UIParent(Xamarin.Forms.Forms.Context as Activity, !useSystemBrowser);
+        /// </code>
+        /// </example>
         public static bool IsSystemWebviewAvailable()
         {
-            PackageManager packageManager = Application.Context.PackageManager;
-
-            int counter = 0;
-
-            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(_chromePackages[0], 0);
-
-            for (int i = 0; i < _chromePackages.Length; i++)
+            bool isBrowserWithCustomTabSupportAvailable = IsBrowserWithCustomTabSupportAvailable();
+            if (!isBrowserWithCustomTabSupportAvailable && !IsChromeEnabled())
             {
-                try
-                {
-                    packageManager.GetPackageInfo(_chromePackages[i], PackageInfoFlags.Activities);
-                    counter++;
-                }
-                catch (PackageManager.NameNotFoundException)
-                {
-                }
+                return false;
             }
-            if (counter > 0 && applicationInfo.Enabled == true)
+            else if (isBrowserWithCustomTabSupportAvailable)
             {
                 return true;
             }
             else
+            {
                 return false;
+            }
+        }
+
+        private static bool IsBrowserWithCustomTabSupportAvailable()
+        {
+            string customTabsServiceAction = "android.support.customtabs.action.CustomTabsService";
+
+            Intent customTabServiceIntent = new Intent(customTabsServiceAction);
+
+            IEnumerable<ResolveInfo> resolveInfoListWithCustomTabs = Application.Context.PackageManager.QueryIntentServices(
+                    customTabServiceIntent, PackageInfoFlags.MatchAll);
+
+            // queryIntentServices could return null or an empty list if no matching service existed.
+            if (resolveInfoListWithCustomTabs == null || !resolveInfoListWithCustomTabs.Any())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsChromeEnabled()
+        {
+            ApplicationInfo applicationInfo = Application.Context.PackageManager.GetApplicationInfo(ChromePackage, 0);
+
+            // Chrome is difficult to uninstall on an Android device. Most users will disable it, but the package will still
+            // show up, therefore need to check application.Enabled is false
+            if (!string.IsNullOrEmpty(ChromePackage) && !applicationInfo.Enabled)
+            {
+                return false;
+            }
+            return true;
         }
 #endif
 
@@ -139,7 +176,8 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Initializes an instance for a provided parent window.
         /// </summary>
-        /// <param name="ownerWindow">Parent window object reference. OPTIONAL.</param>
+        /// <param name="ownerWindow">Parent window object reference. OPTIONAL. The expected parent window
+        /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
         public UIParent(object ownerWindow)
         {
             CoreUIParent = new CoreUIParent(ownerWindow);

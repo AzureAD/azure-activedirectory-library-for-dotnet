@@ -30,17 +30,19 @@ using System.Net.Http.Headers;
 
 namespace Microsoft.Identity.Core.Http
 {
-    internal class HttpClientFactory
+    internal interface IHttpClientFactory
     {
-        // as per guidelines HttpClient should be a singeton instance in an application.
-        private static HttpClient _client;
-        private static readonly object LockObj = new object();
-        public static bool ReturnHttpClientForMocks { set; get; }
+        HttpClient HttpClient { get; }
+    }
+
+    internal class HttpClientFactory : IHttpClientFactory
+    {
+        // The HttpClient is a singleton per ClientApplication so that we don't have a process wide singleton.
         public const long MaxResponseContentBufferSizeInBytes = 1024*1024;
 
-        private static HttpClient CreateHttpClient()
+        public HttpClientFactory()
         {
-            var httpClient = new HttpClient(HttpMessageHandlerFactory.GetMessageHandler(ReturnHttpClientForMocks))
+            var httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
             {
                 MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
             };
@@ -48,33 +50,9 @@ namespace Microsoft.Identity.Core.Http
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return httpClient;
+            HttpClient = httpClient;
         }
 
-        public static HttpClient GetHttpClient()
-        {
-            // we return a new instanceof httpclient beacause there
-            // is no way to provide new http request message handler
-            // for each request made and it makes mocking of network calls 
-            // impossible. So to circumvent, we simply return new instance for
-            // for mocking purposes.
-            if (ReturnHttpClientForMocks)
-            {
-                return CreateHttpClient();
-            }
-
-            if (_client == null)
-            {
-                lock (LockObj)
-                {
-                    if (_client == null)
-                    {
-                        _client = CreateHttpClient();
-                    }
-                }
-            }
-
-            return _client;
-        }
+        public HttpClient HttpClient { get; }
     }
 }
