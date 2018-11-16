@@ -1,12 +1,15 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
-
-  <Target Name="MacOSBuild" BeforeTargets="Build">
-    <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
-  </Target>
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
-    <TargetFrameworks Condition="'$(MAC_OS_BUILD)' == ''">net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(MAC_OS_BUILD)' != ''">netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
+    <Target Name="MacOSBuild" BeforeTargets="Build">
+      <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
+    </Target>
+    <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
+      <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+    </propertygroup>
+    <propertygroup Condition="'$(MAC_OS_BUILD)' != ''">
+      <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
+    </propertygroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
@@ -16,7 +19,7 @@
 </PropertyGroup>
 
 <!-- Important note: this assembly should not be shipped to customers; it acts only as a placeholder for files that are included
-in ADAL and MSAL and to ease unit testing. No projects should take a dependency on Core.dll either -->
+     in ADAL and MSAL and to ease unit testing. No projects should take a dependency on Core.dll either -->
 
   <!--but because our unit tests do, we need this to default to one or the other of adal/msal and we'll pick msal -->
   <PropertyGroup>

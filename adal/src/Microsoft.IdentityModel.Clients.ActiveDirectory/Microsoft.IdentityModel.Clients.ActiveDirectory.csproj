@@ -1,11 +1,14 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
-
-  <Target Name="MacOSBuild" BeforeTargets="Build">
-    <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
-  </Target>
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(MAC_OS_BUILD)' == ''">net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(MAC_OS_BUILD)' != ''">netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
+    <Target Name="MacOSBuild" BeforeTargets="Build">
+      <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
+    </Target>
+    <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
+      <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+    </propertygroup>
+    <propertygroup Condition="'$(MAC_OS_BUILD)' != ''">
+      <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
+    </propertygroup>
     <Product>Microsoft.IdentityModel.Clients.ActiveDirectory ($(TargetFramework))</Product>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
