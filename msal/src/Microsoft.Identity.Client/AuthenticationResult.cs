@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Client
         /// Client applications accept extended life time tokens only if
         /// the ExtendedLifeTimeEnabled Boolean is set to true on ClientApplicationBase.
         /// </summary>
-        public bool IsExtendedLifeTimeToken { get; internal set; }
+        public bool IsExtendedLifeTimeToken { get; }
 
         /// <summary>
         /// Gets the Unique Id of the account. It can be null. When the <see cref="IdToken"/> is not <c>null</c>, this is its ID, that
