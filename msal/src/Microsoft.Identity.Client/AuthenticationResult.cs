@@ -91,7 +91,8 @@ namespace Microsoft.Identity.Client
             this.ExtendedExpiresOn = msalAccessTokenCacheItem.ExtendedExpiresOn;
             this.TenantId = msalIdTokenCacheItem?.IdToken?.TenantId;
             this.IdToken = msalIdTokenCacheItem?.Secret;
-            this.Scopes = msalAccessTokenCacheItem.ScopeSet;            
+            this.Scopes = msalAccessTokenCacheItem.ScopeSet;
+            this.IsExtendedLifeTimeToken = msalAccessTokenCacheItem.IsExtendedLifeTimeToken;
         }
 
         /// <summary>
