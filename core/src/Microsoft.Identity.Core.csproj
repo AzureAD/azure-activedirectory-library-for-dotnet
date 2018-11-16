@@ -1,9 +1,9 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
+  <Target Name="MacOSBuild" BeforeTargets="Build">
+    <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
+  </Target>
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
-    <Target Name="MacOSBuild" BeforeTargets="Build">
-      <Message Text="MAC_OS_BUILD = $(MAC_OS_BUILD)" Importance="High" />
-    </Target>
     <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
       <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
     </propertygroup>
