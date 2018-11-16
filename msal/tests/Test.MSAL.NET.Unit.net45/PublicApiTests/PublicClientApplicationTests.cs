@@ -90,7 +90,7 @@ namespace Test.MSAL.NET.Unit
                tenantId: "",
                account: null,
                idToken: "id token",
-               scopes: new[] { "scope1", "scope2" });
+               scopes: new[] { "scope1"});
 
             var mockApp = Substitute.For<IPublicClientApplication>();
             mockApp.AcquireTokenAsync(new string[] { "scope1", "scope2" }).ReturnsForAnyArgs(mockResult);
