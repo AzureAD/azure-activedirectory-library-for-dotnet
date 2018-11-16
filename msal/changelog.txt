@@ -1,3 +1,7 @@
+2.4.1-preview
+=============
+Fix performance issue [1406] for degredation in .NET Framework compared to .NET Core
+
 2.4.0-preview
 =============
 Improvements and fixes to the token cache
