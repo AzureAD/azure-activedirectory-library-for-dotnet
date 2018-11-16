@@ -57,8 +57,8 @@ namespace Microsoft.Identity.Core
         /// <returns>Upn or throws</returns>
         public async Task<string> GetUserPrincipalNameAsync()
         {
-            // TODO: there is discrepancy between the implementation of this method on net45 - throws if upn not found - and uap and 
-            // the rest of the platforms - returns "" 
+            // TODO: there is discrepancy between the implementation of this method on net45 - throws if upn not found - and uap and
+            // the rest of the platforms - returns ""
 
             return await Task.Factory.StartNew(() =>
             {
@@ -205,7 +205,7 @@ namespace Microsoft.Identity.Core
         }
 
         /// <summary>
-        /// Considered PII, ensure that it is hashed. 
+        /// Considered PII, ensure that it is hashed.
         /// </summary>
         /// <returns>Name of the calling application</returns>
         public string GetCallingApplicationName()
@@ -214,7 +214,7 @@ namespace Microsoft.Identity.Core
         }
 
         /// <summary>
-        /// Considered PII, ensure that it is hashed. 
+        /// Considered PII, ensure that it is hashed.
         /// </summary>
         /// <returns>Device identifier</returns>
         public string GetCallingApplicationVersion()
@@ -222,14 +222,17 @@ namespace Microsoft.Identity.Core
             return Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString();
         }
 
+        private static readonly Lazy<string> DeviceId = new Lazy<string>(
+            () => NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+                                  .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault());
+
         /// <summary>
-        /// Considered PII, ensure that it is hashed. 
+        /// Considered PII, ensure that it is hashed.
         /// </summary>
         /// <returns>Device identifier</returns>
         public string GetDeviceId()
         {
-            return  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
-                .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault();
+            return DeviceId.Value;
         }
 
         /// <inheritdoc />
