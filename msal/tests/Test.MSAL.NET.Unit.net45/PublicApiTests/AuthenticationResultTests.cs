@@ -39,7 +39,7 @@ namespace Test.MSAL.NET.Unit
     public class AuthenticationResultTests
     {
         [TestMethod]
-        public void Foo()
+        public void PublicTestConstructorCoversAllProperties()
         {
             var ctorParameters = typeof(AuthenticationResult)
                 .GetConstructors()
