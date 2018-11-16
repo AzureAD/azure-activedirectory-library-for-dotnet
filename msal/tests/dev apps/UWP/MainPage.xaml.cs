@@ -35,7 +35,7 @@ namespace UWP
             this.InitializeComponent();
 
             _pca = new PublicClientApplication(ClientID, Authority);
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryClientReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
         }
 
 

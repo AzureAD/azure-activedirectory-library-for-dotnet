@@ -1,6 +1,8 @@
-﻿using System;
+﻿extern alias Client;
+
+using System;
 using System.Collections.Generic;
-using Microsoft.Applications.Events;
+using Client::Microsoft.Applications.Events;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
@@ -8,7 +10,7 @@ namespace TelemetryReceivers
 {
     public class TelemetryClientReceiver
     {
-        private Microsoft.Applications.Events.ILogger logger;
+        private Client::Microsoft.Applications.Events.ILogger logger;
         private readonly static string EventNameKey = "msal.event_name";
         private readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
         public TelemetryClientReceiver()
@@ -32,7 +34,6 @@ namespace TelemetryReceivers
 
         public void OnEvents(List<Dictionary<string, string>> events)
         {
-
             Console.WriteLine("{0} event(s) received", events.Count);
             foreach (var e in events)
             {
@@ -46,6 +47,7 @@ namespace TelemetryReceivers
                 }
                 EVTStatus result = logger.LogEvent(eventData);
             }
+            LogManager.UploadNow(); 
             LogManagerProvider.DestroyLogManager(AriaTenantId);
         }
 
