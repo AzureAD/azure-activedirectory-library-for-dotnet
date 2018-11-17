@@ -1,12 +1,12 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
+  <PropertyGroup Condition="'$(MAC_OS_BUILD)' == ''">
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MAC_OS_BUILD)' != ''">
+    <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
+  </PropertyGroup>
   <PropertyGroup>
     <AssemblyName>Microsoft.Identity.Core</AssemblyName>
-    <propertygroup Condition="'$(MAC_OS_BUILD)' == ''">
-      <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
-    </propertygroup>
-    <propertygroup Condition="'$(MAC_OS_BUILD)' != ''">
-      <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10</TargetFrameworks>
-    </propertygroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
