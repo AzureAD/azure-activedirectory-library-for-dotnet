@@ -29,8 +29,8 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 {
     public enum B2CIdentityProvider
     {
-        None = 0,
-        Local = 1,
+        None = 0, // Non-B2C user
+        Local = 1, // Local B2C account
         Facebook = 2,
         Google = 3
     }
