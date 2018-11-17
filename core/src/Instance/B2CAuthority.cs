@@ -103,8 +103,7 @@ namespace Microsoft.Identity.Core.Instance
 
         protected override string GetDefaultOpenIdConfigurationEndpoint()
         {
-            string authorityUri = string.Format(CultureInfo.InvariantCulture, new Uri(CanonicalAuthority) + OpenIdConfigurationEndpoint);
-            return authorityUri;
+            return string.Format(CultureInfo.InvariantCulture, new Uri(CanonicalAuthority).AbsoluteUri + OpenIdConfigurationEndpoint);
         }
 
         protected override async Task<string> GetOpenIdConfigurationEndpointAsync(
