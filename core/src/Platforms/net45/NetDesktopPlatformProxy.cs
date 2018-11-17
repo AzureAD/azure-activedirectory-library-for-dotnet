@@ -177,13 +177,6 @@ namespace Microsoft.Identity.Core
             }
         }
 
-
-        /// <inheritdoc />
-        public void ValidateRedirectUri(Uri redirectUri)
-        {
-            RedirectUriCommon.Validate(redirectUri);
-        }
-
         /// <inheritdoc />
         public string GetBrokerOrRedirectUri(Uri redirectUri)
         {
@@ -193,7 +186,9 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public string GetDefaultRedirectUri(string clientId)
         {
-            return Constants.DefaultRedirectUri;
+            return _isMsal ?
+              Constants.DefaultRedirectUri :
+              null; // Adal does not specify a default
         }
 
         /// <inheritdoc />
@@ -220,14 +215,17 @@ namespace Microsoft.Identity.Core
             return Assembly.GetEntryAssembly()?.GetName()?.Version?.ToString();
         }
 
+        private static readonly Lazy<string> DeviceId = new Lazy<string>(
+            () => NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+                                  .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault());
+
         /// <summary>
-        /// Considered PII, ensure that it is hashed. 
+        /// Considered PII, ensure that it is hashed.
         /// </summary>
         /// <returns>Device identifier</returns>
         public string GetDeviceId()
         {
-            return  NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up)
-                .Select(nic => nic.GetPhysicalAddress()?.ToString()).FirstOrDefault();
+            return DeviceId.Value;
         }
 
         /// <inheritdoc />

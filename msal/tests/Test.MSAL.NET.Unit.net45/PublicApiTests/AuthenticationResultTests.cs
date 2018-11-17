@@ -22,40 +22,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-using Microsoft.Identity.Core.Http;
+
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Reflection;
 
-namespace Microsoft.Identity.Core.UI
+namespace Test.MSAL.NET.Unit
 {
-    internal abstract class WebviewBase : IWebUI
+    [TestClass]
+    public class AuthenticationResultTests
     {
-        protected static SemaphoreSlim returnedUriReady;
-        protected static AuthorizationResult authorizationResult;
-
-        public static void SetAuthorizationResult(AuthorizationResult authorizationResultInput, RequestContext requestContext)
+        [TestMethod]
+        public void PublicTestConstructorCoversAllProperties()
         {
-            if (returnedUriReady != null)
-            {
-                authorizationResult = authorizationResultInput;
-                returnedUriReady.Release();
-            }
-            else
-            {
-                requestContext.Logger.Info("No pending request for response from web ui.");
-            }
+            var ctorParameters = typeof(AuthenticationResult)
+                .GetConstructors()
+                .First(ctor => ctor.GetParameters().Length > 3)
+                .GetParameters();
+
+            var classProperties = typeof(AuthenticationResult)
+                .GetProperties()
+                .Where(p => p.GetCustomAttribute(typeof(ObsoleteAttribute)) == null);
+
+            Assert.AreEqual(ctorParameters.Length, classProperties.Count(), "The <for test> constructor should include all properties of AuthenticationObject"); ;
         }
-
-        public static void SetAuthorizationResult(AuthorizationResult authorizationResultInput)
-        {
-            authorizationResult = authorizationResultInput;
-            returnedUriReady.Release();
-        }
-
-        public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
-
-        public abstract void ValidateRedirectUri(Uri redirectUri);
     }
 }
