@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Lab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.SideBySide", "core\tests\Test.Microsoft.Identity.SideBySide\Test.Microsoft.Identity.SideBySide.csproj", "{D3033A40-F2C2-4495-BC9F-C3C6D497D1CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msal.Benchmarks", "msal\tests\Msal.Benchmarks\Msal.Benchmarks.csproj", "{D41FB9CF-9474-461D-A6EA-8A27C383446E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msal.Benchmarks", "msal\tests\Msal.Benchmarks\Msal.Benchmarks.csproj", "{232B5361-18AE-4EA0-9EED-696F3564909C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,10 +88,10 @@ Global
 		{D3033A40-F2C2-4495-BC9F-C3C6D497D1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3033A40-F2C2-4495-BC9F-C3C6D497D1CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3033A40-F2C2-4495-BC9F-C3C6D497D1CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D41FB9CF-9474-461D-A6EA-8A27C383446E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D41FB9CF-9474-461D-A6EA-8A27C383446E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D41FB9CF-9474-461D-A6EA-8A27C383446E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D41FB9CF-9474-461D-A6EA-8A27C383446E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{232B5361-18AE-4EA0-9EED-696F3564909C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{232B5361-18AE-4EA0-9EED-696F3564909C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{232B5361-18AE-4EA0-9EED-696F3564909C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{232B5361-18AE-4EA0-9EED-696F3564909C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,7 +107,7 @@ Global
 		{FCDDA8D3-F299-426B-9CAD-0824D941ED53} = {DC4A6EAD-07D8-480A-A111-F2F8C359735B}
 		{E22918A8-8FE6-47D2-B65E-34436918C5D7} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
 		{D3033A40-F2C2-4495-BC9F-C3C6D497D1CC} = {5D231979-0A13-456D-B9F9-CED41F935FD9}
-		{D41FB9CF-9474-461D-A6EA-8A27C383446E} = {459B71BF-176E-4E1D-B77A-D21862DB115E}
+		{232B5361-18AE-4EA0-9EED-696F3564909C} = {459B71BF-176E-4E1D-B77A-D21862DB115E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C88EF77-AF03-4F82-B666-1831DABAA119}
