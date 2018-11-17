@@ -25,11 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Foundation;
+using Microsoft.Identity.Client;
+using TelemetryReceivers;
 using UIKit;
 
 namespace XForms.iOS
@@ -42,6 +39,8 @@ namespace XForms.iOS
             // if you want to use a different Application Delegate class from "AppDelegate"
             // you can specify it here.
             UIApplication.Main(args, null, "AppDelegate");
+
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryClientReceiver().OnEvents);
         }
     }
 }

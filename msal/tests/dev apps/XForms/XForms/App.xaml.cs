@@ -25,11 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using TelemetryReceivers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Identity.Client;
 using Xamarin.Forms;
 
@@ -74,8 +69,6 @@ namespace XForms
             };
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
-
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryClientReceiver().OnEvents);
         }
 
         public static void InitPublicClient()
