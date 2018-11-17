@@ -701,10 +701,6 @@ namespace Microsoft.Identity.Client
                     requestContext).ConfigureAwait(false);
                 return instanceDiscoveryMetadata;
             }
-            if (authorityType == Core.Instance.AuthorityType.B2C)
-            {
-                return instanceDiscoveryMetadata;
-            }
             return instanceDiscoveryMetadata;
         }
 
