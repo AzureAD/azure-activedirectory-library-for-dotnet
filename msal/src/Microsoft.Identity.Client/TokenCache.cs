@@ -57,6 +57,7 @@ namespace Microsoft.Identity.Client
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         internal const string NullPreferredUsernameDisplayLabel = "Missing from the token response";
+        private const string MicrosoftLogin = "login.microsoftonline.com";
 
         // TODO: the TokenCache itself shouldn't be doing http access (SRP)
         internal IHttpManager HttpManager { get; set; }
@@ -303,7 +304,10 @@ namespace Microsoft.Identity.Client
                     environmentAliases.UnionWith
                         (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
-                    preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    if (requestParams.Authority.AuthorityType != Core.Instance.AuthorityType.B2C)
+                    {
+                        preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    }                   
                 }
 
                 return FindAccessTokenCommon
@@ -684,8 +688,10 @@ namespace Microsoft.Identity.Client
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
+            Uri authorityHost = new Uri(authority);
             var authorityType = Authority.GetAuthorityType(authority);
-            if (authorityType == Core.Instance.AuthorityType.Aad)
+            if (authorityType == Core.Instance.AuthorityType.Aad || 
+                authorityHost.Host.Equals(MicrosoftLogin, StringComparison.OrdinalIgnoreCase))
             {
                 instanceDiscoveryMetadata = await AadInstanceDiscovery.Instance.GetMetadataEntryAsync(
                     HttpManager,
@@ -693,14 +699,11 @@ namespace Microsoft.Identity.Client
                     new Uri(authority),
                     validateAuthority,
                     requestContext).ConfigureAwait(false);
+                return instanceDiscoveryMetadata;
             }
-            else if (authorityType == Core.Instance.AuthorityType.B2C)
+            if (authorityType == Core.Instance.AuthorityType.B2C)
             {
-                B2CAuthority b2cAuthority = new B2CAuthority(authority, validateAuthority);
-                instanceDiscoveryMetadata = await b2cAuthority.GetB2CInstanceDiscoveryMetadataEntryAsync(
-                    HttpManager,
-                    TelemetryManager,
-                    requestContext).ConfigureAwait(false);
+                return instanceDiscoveryMetadata;
             }
             return instanceDiscoveryMetadata;
         }
@@ -789,7 +792,7 @@ namespace Microsoft.Identity.Client
                     }
                 }
 
-                Dictionary<string, AdalUserInfo> clientInfoToAdalUserMap = tuple.Item1;
+                Dictionary<String, AdalUserInfo> clientInfoToAdalUserMap = tuple.Item1;
                 List<AdalUserInfo> adalUsersWithoutClientInfo = tuple.Item2;
 
                 foreach (KeyValuePair<string, AdalUserInfo> pair in clientInfoToAdalUserMap)

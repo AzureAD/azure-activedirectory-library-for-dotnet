@@ -142,6 +142,9 @@ namespace Test.MSAL.UIAutomation
         /// with subsequent silent call
         /// </summary>
         [Test]
+        [Ignore("Google Auth does not support embedded webview from b2clogin.com authority. " +
+            "App Center cannot run system browser tests yet, so this test can only be run in " +
+            "system browser locally.")]
         public void B2CGoogleProviderWithB2CLoginAuthorityAcquireTokenTest()
         {
             _msalMobileTestHelper.isB2CloginAuthority = true;
@@ -154,6 +157,7 @@ namespace Test.MSAL.UIAutomation
         /// with subsequent silent call
         /// </summary>
         [Test]
+        [Ignore("UI is different in AppCenter compared w/local.")]
         public void B2CGoogleProviderWithMicrosoftAuthorityAcquireTokenTest()
         {
             _msalMobileTestHelper.isB2CloginAuthority = false;

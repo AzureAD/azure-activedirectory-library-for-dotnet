@@ -76,34 +76,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 Assert.AreEqual(CoreErrorMessages.B2cAuthorityUriInvalidPath, exc.Message);
             }
         }
-
-        [TestMethod]
-        [TestCategory("B2CAuthorityTests")]
-        public void ValidationEnabledNotSupportedTest()
-        {
-            using (var httpManager = new MockHttpManager())
-            {
-                var instance = Authority.CreateAuthority(CoreTestConstants.B2CAuthority, true);
-                Assert.IsNotNull(instance);
-                Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
-                try
-                {
-                    instance.UpdateCanonicalAuthorityAsync(
-                                    httpManager,
-                                    new TelemetryManager(),
-                                    new RequestContext(null, new TestLogger(Guid.NewGuid(), null))
-                                    ).GetAwaiter().GetResult();
-
-                    Assert.Fail("test should have failed");
-                }
-                catch (ArgumentException exc)
-                {
-                    Assert.IsInstanceOfType(exc, typeof(ArgumentException));
-                    Assert.AreEqual(CoreErrorMessages.UnsupportedAuthorityValidation, exc.Message);
-                }
-            }
-        }
-
+        
         [TestMethod]
         [TestCategory("B2CAuthorityTests")]
         public void CanonicalAuthorityInitTest()

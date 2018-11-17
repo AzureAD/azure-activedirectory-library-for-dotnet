@@ -1233,8 +1233,6 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                httpManager.AddInstanceDiscoveryMockHandler();
-
                 PublicClientApplication app = new PublicClientApplication(
                     httpManager,
                     new TelemetryManager(),
@@ -1272,8 +1270,7 @@ namespace Test.MSAL.NET.Unit
                     httpManager,
                     new TelemetryManager(),
                     CoreTestConstants.ClientId,
-                     CoreTestConstants.B2CAuthority);
-                app.ValidateAuthority = false;
+                    CoreTestConstants.B2CAuthority);
 
                 MockWebUI ui = new MockWebUI()
                 {
@@ -1286,71 +1283,6 @@ namespace Test.MSAL.NET.Unit
                     new AuthorizationResult(AuthorizationStatus.Success, app.RedirectUri + "?code=some-code"));
 
                 httpManager.AddMockHandlerForTenantEndpointDiscovery(CoreTestConstants.B2CAuthority);
-                httpManager.AddSuccessTokenResponseMockHandlerForPost();
-
-                AuthenticationResult result = app.AcquireTokenAsync(CoreTestConstants.Scope).Result;
-                Assert.IsNotNull(result);
-                Assert.IsNotNull(result.Account);
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        public void B2CAcquireTokenWithValidateAuthorityTrueTest()
-        {
-            using (var httpManager = new MockHttpManager())
-            {
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    new TelemetryManager(),
-                    CoreTestConstants.ClientId,
-                    CoreTestConstants.B2CAuthorityNotTrustedHost);
-                app.ValidateAuthority = true;
-
-                MockWebUI ui = new MockWebUI()
-                {
-                    MockResult = new AuthorizationResult(
-                       AuthorizationStatus.Success,
-                       CoreTestConstants.B2CAuthorityNotTrustedHost + "?code=some-code")
-                };
-
-                try
-                {
-                    AuthenticationResult result = app.AcquireTokenAsync(CoreTestConstants.Scope).Result;
-                }
-                catch (Exception exc)
-                {
-                    Assert.AreEqual(exc.InnerException.Message, CoreErrorMessages.UnsupportedAuthorityValidation);
-                }
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("PublicClientApplicationTests")]
-        public void B2CAcquireTokenWithValidateAuthorityFalseTest()
-        {
-            using (var httpManager = new MockHttpManager())
-            {
-                httpManager.AddInstanceDiscoveryMockHandler();
-
-                PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    new TelemetryManager(),
-                    CoreTestConstants.ClientId,
-                     CoreTestConstants.B2CLoginAuthority);
-                app.ValidateAuthority = false;
-
-                MockWebUI ui = new MockWebUI()
-                {
-                    MockResult = new AuthorizationResult(
-                        AuthorizationStatus.Success,
-                        CoreTestConstants.B2CLoginAuthority + "?code=some-code")
-                };
-
-                MsalMockHelpers.ConfigureMockWebUI(
-                    new AuthorizationResult(AuthorizationStatus.Success, app.RedirectUri + "?code=some-code"));
-
-                httpManager.AddMockHandlerForTenantEndpointDiscovery(CoreTestConstants.B2CLoginAuthority);
                 httpManager.AddSuccessTokenResponseMockHandlerForPost();
 
                 AuthenticationResult result = app.AcquireTokenAsync(CoreTestConstants.Scope).Result;
