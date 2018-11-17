@@ -35,6 +35,7 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -56,15 +57,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private readonly string claims;
 
-        public AcquireTokenInteractiveHandler(RequestData requestData, Uri redirectUri, IPlatformParameters parameters,
-            UserIdentifier userId, string extraQueryParameters, IWebUI webUI, string claims)
+
+        public AcquireTokenInteractiveHandler(
+            RequestData requestData, 
+            Uri redirectUri, 
+            IPlatformParameters platformParameters,
+            UserIdentifier userId, 
+            string extraQueryParameters, 
+            //IWebUI webUI, 
+            string claims)
             : base(requestData)
         {
-            PlatformProxyFactory.GetPlatformProxy().ValidateRedirectUri(redirectUri);
-            this.redirectUri = redirectUri;
-
-            this.authorizationParameters = parameters;
+            this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, this.ClientKey?.ClientId);
             this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
+
+            this.authorizationParameters = platformParameters;
             this.userId = userId ?? throw new ArgumentNullException(nameof(userId), AdalErrorMessage.SpecifyAnyUser);
 
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
@@ -73,7 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
 
             this.extraQueryParameters = extraQueryParameters;
-            this.webUi = webUI;
+            this.webUi = CreateWebUIOrNull(platformParameters);
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
@@ -88,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             else
             {
                 var platformInformation = new PlatformInformation();
-                this.LoadFromCache = (requestData.TokenCache != null && parameters != null && platformInformation.GetCacheLoadPolicy(parameters));
+                this.LoadFromCache = (requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters));
             }
 
             this.brokerParameters[BrokerParameter.Force] = "NO";
@@ -106,6 +113,42 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
             this.brokerParameters[BrokerParameter.Claims] = claims;
             brokerHelper.PlatformParameters = authorizationParameters;
+        }
+
+        private IWebUI CreateWebUIOrNull(IPlatformParameters parameters)
+        {
+            if (parameters == null)
+            {
+                return null;
+            }
+
+            PlatformParameters parametersObj = parameters as PlatformParameters;
+            if (parametersObj == null)
+            {
+                throw new ArgumentException("Objects implementing IPlatformParameters should be of type PlatformParameters");
+            }
+
+            return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(
+                parametersObj.GetCoreUIParent(), 
+                base.RequestContext);
+        }
+
+        private static Uri ComputeAndValidateRedirectUri(Uri redirectUri, string clientId)
+        {
+            // ADAL mostly does not provide defaults for the redirect URI, currently only for UWP for broker support
+            if (redirectUri == null)
+            {
+                string defaultUriAsString = PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId);
+
+                if (!String.IsNullOrWhiteSpace(defaultUriAsString))
+                {
+                    return new Uri(defaultUriAsString);
+                }
+            }
+
+            RedirectUriHelper.Validate(redirectUri);
+
+            return redirectUri;
         }
 
         private static string ReplaceHost(string original, string newHost)
