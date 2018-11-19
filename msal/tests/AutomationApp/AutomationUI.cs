@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
+using TelemetryReceivers;
 
 namespace AutomationApp
 {
@@ -45,6 +46,7 @@ namespace AutomationApp
         {
             InitializeComponent();
             Logger.LogCallback = _appLogger.Log;
+            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
         }
 
         public Dictionary<string, string> CreateDictionaryFromJson(string json)

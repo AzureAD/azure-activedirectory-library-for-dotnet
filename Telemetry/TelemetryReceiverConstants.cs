@@ -25,18 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-using UIKit;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace XForms.iOS
+namespace TelemetryReceivers
 {
-    public class Application
+    internal class TelemetryReceiverConstants
     {
-        // This is the main entry point of the application.
-        static void Main(string[] args)
-        {
-            // if you want to use a different Application Delegate class from "AppDelegate"
-            // you can specify it here.
-            UIApplication.Main(args, null, "AppDelegate");
-        }
+        internal readonly static string MsalEventNameKey = "msal.event_name";
+        internal readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
     }
 }

@@ -1,42 +1,68 @@
-﻿extern alias Server;
+﻿//----------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
+extern alias Server;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Server::Microsoft.Applications.Events;
 
 namespace TelemetryReceivers
 {
     public class TelemetryServerReceiver
     {
-        private Server::Microsoft.Applications.Events.ILogger logger;
-        private readonly static string EventNameKey = "msal.event_name";
-        private readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";
+        private ILogger logger;
+        private string msalEventNameKey;
+        private string ariaTenantId;
+
         public TelemetryServerReceiver()
         {
-            EVTStatus status = 0;
+            EVTStatus status;
             LogManager.Start(new LogConfiguration());
-            logger = LogManager.GetLogger(AriaTenantId, out status);
+            logger = LogManager.GetLogger(ariaTenantId, out status);
         }
 
         public void OnEvents(List<Dictionary<string, string>> events)
         {
-
             Console.WriteLine("{0} event(s) received", events.Count);
             foreach (var e in events)
             {
-                Console.WriteLine("Event: {0}", e[EventNameKey]);
-                var eventData = new EventProperties();
-                eventData.Name = e[EventNameKey];
+                Console.WriteLine("Event: {0}", e[msalEventNameKey]);
+                EventProperties eventData = new EventProperties();
+                eventData.Name = e[msalEventNameKey];
                 foreach (var entry in e)
                 {
                     eventData.SetProperty(entry.Key, entry.Value);
                     Console.WriteLine("  {0}: {1}", entry.Key, entry.Value);
                 }
-                EVTStatus result = logger.LogEvent(eventData);
+                logger.LogEvent(eventData);
             }
             LogManager.UploadNow(); 
-            LogManagerProvider.DestroyLogManager(AriaTenantId);
+            LogManagerProvider.DestroyLogManager(ariaTenantId);
         }
     }
 }
