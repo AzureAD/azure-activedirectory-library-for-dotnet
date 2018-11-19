@@ -112,7 +112,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit.netcore"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.SideBySide", "core\tests\Test.Microsoft.Identity.SideBySide\Test.Microsoft.Identity.SideBySide.csproj", "{6E5B8BA5-182C-4A8D-A262-8BAAC7349E60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelemetryReceivers", "Telemetry\TelemetryReceivers.csproj", "{10DEA987-5E3B-4F57-9D59-A924AB01C062}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telemetry", "Telemetry\Telemetry.csproj", "{10DEA987-5E3B-4F57-9D59-A924AB01C062}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

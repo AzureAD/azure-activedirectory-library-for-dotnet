@@ -150,9 +150,9 @@
     <PackageReference Include="StrongNamer">
       <Version>0.0.6</Version>
     </PackageReference>
-    <ProjectReference Include="..\..\..\..\..\Telemetry\TelemetryReceivers.csproj">
+    <ProjectReference Include="..\..\..\..\..\Telemetry\Telemetry.csproj">
       <Project>{10dea987-5e3b-4f57-9d59-a924ab01c062}</Project>
-      <Name>TelemetryReceivers</Name>
+      <Name>Telemetry</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj">
       <Project>{3433eb33-114a-4db7-bc57-14f17f55da3c}</Project>

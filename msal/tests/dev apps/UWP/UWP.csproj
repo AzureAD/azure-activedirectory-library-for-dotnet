@@ -152,9 +152,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Telemetry\TelemetryReceivers.csproj">
+    <ProjectReference Include="..\..\..\..\Telemetry\Telemetry.csproj">
       <Project>{10dea987-5e3b-4f57-9d59-a924ab01c062}</Project>
-      <Name>TelemetryReceivers</Name>
+      <Name>Telemetry</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\Microsoft.Identity.Client\Microsoft.Identity.Client.csproj">
       <Project>{60117A9B-4BB8-472E-BFFF-52CBF67CA95A}</Project>

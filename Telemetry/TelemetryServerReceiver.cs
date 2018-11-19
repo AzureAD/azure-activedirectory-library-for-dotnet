@@ -43,7 +43,11 @@ namespace TelemetryReceivers
         {
             EVTStatus status;
             LogManager.Start(new LogConfiguration());
+
+            ariaTenantId = TelemetryReceiverConstants.AriaTenantId;
             logger = LogManager.GetLogger(ariaTenantId, out status);
+
+            msalEventNameKey = TelemetryReceiverConstants.MsalEventNameKey;
         }
 
         public void OnEvents(List<Dictionary<string, string>> events)
