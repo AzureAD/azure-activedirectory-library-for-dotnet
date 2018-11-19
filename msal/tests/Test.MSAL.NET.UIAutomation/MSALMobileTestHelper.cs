@@ -42,7 +42,6 @@ namespace Test.MSAL.UIAutomation
     public class MSALMobileTestHelper
     {
         public CoreMobileTestHelper CoreMobileTestHelper { get; set; } = new CoreMobileTestHelper();
-        public bool isB2CloginAuthority;
 
         /// <summary>
         /// Runs through the standard acquire token flow, using the login prompt behavior
@@ -141,37 +140,36 @@ namespace Test.MSAL.UIAutomation
             }
         }
 
-        #region B2C UI Automation
         /// <summary>
         /// Runs through the B2C acquire token flow with local account
         /// </summary>
-        public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
+        public void B2CLocalAccountAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
-            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Local);
+            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Local, isB2CLoginAuthority);
         }
 
         /// <summary>
         /// Runs through the B2C acquire token flow with Facebook Provider
         /// </summary>
-        public void B2CFacebookProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
+        public void B2CFacebookProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
-            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Facebook);
+            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Facebook, isB2CLoginAuthority);
         }
 
         /// <summary>
         /// Runs through the B2C acquire token flow with Google Provider
         /// </summary>
-        public void B2CGoogleProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse)
+        public void B2CGoogleProviderAcquireTokenInteractiveTestHelper(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
-            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Google);
+            PerformB2CSignInFlow(controller, labResponse.User, B2CIdentityProvider.Google, isB2CLoginAuthority);
         }
 
-        private void SetB2CAuthority(ITestController controller)
+        private void SetB2CAuthority(ITestController controller, bool isB2CLoginAuthority)
         {
             PrepareForAuthentication(controller);
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 
-            if (isB2CloginAuthority)
+            if (isB2CLoginAuthority)
             {
                 SetB2CInputDataForB2CloginAuthority(controller);
             }
@@ -185,10 +183,10 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the B2C acquire token silent flow with local account
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void B2CLocalAccountAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
+        public void B2CLocalAccountAcquireTokenSilentTest(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
             //acquire token for 1st resource   
-            B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse);
+            B2CLocalAccountAcquireTokenInteractiveTestHelper(controller, labResponse, isB2CLoginAuthority);
 
             B2CSilentFlowHelper(controller, labResponse);
         }
@@ -197,10 +195,10 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the B2C acquire token silent flow with Facebook identity provider
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void B2CFacebookProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
+        public void B2CFacebookProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
             //acquire token for 1st resource   
-            B2CFacebookProviderAcquireTokenInteractiveTestHelper(controller, labResponse);
+            B2CFacebookProviderAcquireTokenInteractiveTestHelper(controller, labResponse, isB2CLoginAuthority);
 
             B2CSilentFlowHelper(controller, labResponse);
         }
@@ -209,10 +207,10 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the B2C acquire token silent flow with Google identity provider
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void B2CGoogleProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse)
+        public void B2CGoogleProviderAcquireTokenSilentTest(ITestController controller, LabResponse labResponse, bool isB2CLoginAuthority)
         {
             //acquire token for 1st resource   
-            B2CGoogleProviderAcquireTokenInteractiveTestHelper(controller, labResponse);
+            B2CGoogleProviderAcquireTokenInteractiveTestHelper(controller, labResponse, isB2CLoginAuthority);
 
             B2CSilentFlowHelper(controller, labResponse);
         }
@@ -283,9 +281,9 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
         }
 
-        public void PerformB2CSignInFlow(ITestController controller, LabUser user, B2CIdentityProvider b2CIdentityProvider)
+        public void PerformB2CSignInFlow(ITestController controller, LabUser user, B2CIdentityProvider b2CIdentityProvider, bool isB2CLoginAuthorit)
         {
-            SetB2CAuthority(controller);
+            SetB2CAuthority(controller, true);
 
             UserInformationFieldIds userInformationFieldIds = CoreMobileTestHelper.DetermineUserInformationFieldIds(user);
 
@@ -312,5 +310,4 @@ namespace Test.MSAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
     }
-    #endregion
 }

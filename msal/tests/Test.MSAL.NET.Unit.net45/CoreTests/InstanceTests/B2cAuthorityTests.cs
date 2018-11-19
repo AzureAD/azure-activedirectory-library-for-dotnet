@@ -91,12 +91,12 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     new MockHttpMessageHandler
                     {
                         Method = HttpMethod.Get,
-                        Url = "https://mytenant.com.b2clogin.com/tfp/mytenant.com/policy/v2.0/.well-known/openid-configuration",
+                        Url = "https://mytenant.com.b2clogin.com/tfp/mytenant.com/my-policy/v2.0/.well-known/openid-configuration",
                         ResponseMessage = MockHelpers.CreateSuccessResponseMessage(
                            File.ReadAllText(ResourceHelper.GetTestResourceRelativePath("OpenidConfiguration-B2CLogin.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority("https://mytenant.com.b2clogin.com/tfp/mytenant.com/policy/", true);
+                Authority instance = Authority.CreateAuthority("https://mytenant.com.b2clogin.com/tfp/mytenant.com/my-policy/", true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task.Run(
@@ -110,15 +110,14 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
-                    "https://mytenant.com.b2clogin.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/oauth2/v2.0/authorize?p=my-policy",
+                    "https://mytenant.com.b2clogin.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/my-policy/oauth2/v2.0/authorize",
                     instance.AuthorizationEndpoint);
                 Assert.AreEqual(
-                    "https://mytenant.com.b2clogin.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/oauth2/v2.0/token?p=my-policy",
+                    "https://mytenant.com.b2clogin.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/my-policy/oauth2/v2.0/token",
                     instance.TokenEndpoint);
                 Assert.AreEqual("https://mytenant.com.b2clogin.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/v2.0/", instance.SelfSignedJwtAudience);
             }
         }
-
 
         [TestMethod]
         [TestCategory("B2CAuthorityTests")]
@@ -131,12 +130,12 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     new MockHttpMessageHandler
                     {
                         Method = HttpMethod.Get,
-                        Url = "https://login.microsoftonline.com/tfp/mytenant.com/policy/v2.0/.well-known/openid-configuration",
+                        Url = "https://login.microsoftonline.com/tfp/mytenant.com/my-policy/v2.0/.well-known/openid-configuration",
                         ResponseMessage = MockHelpers.CreateSuccessResponseMessage(
                            File.ReadAllText(ResourceHelper.GetTestResourceRelativePath("OpenidConfiguration-B2C.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority("https://login.microsoftonline.com/tfp/mytenant.com/policy/", true);
+                Authority instance = Authority.CreateAuthority("https://login.microsoftonline.com/tfp/mytenant.com/my-policy/", true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
                 Task.Run(
@@ -150,10 +149,10 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                     }).GetAwaiter().GetResult();
 
                 Assert.AreEqual(
-                    "https://login.microsoftonline.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/oauth2/v2.0/authorize?p=my-policy",
+                    "https://login.microsoftonline.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/my-policy/oauth2/v2.0/authorize",
                     instance.AuthorizationEndpoint);
                 Assert.AreEqual(
-                    "https://login.microsoftonline.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/oauth2/v2.0/token?p=my-policy",
+                    "https://login.microsoftonline.com/6babcaad-604b-40ac-a9d7-9fd97c0b779f/my-policy/oauth2/v2.0/token",
                     instance.TokenEndpoint);
                 Assert.AreEqual("https://sts.windows.net/6babcaad-604b-40ac-a9d7-9fd97c0b779f/", instance.SelfSignedJwtAudience);
             }
