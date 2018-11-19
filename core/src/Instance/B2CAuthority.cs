@@ -46,6 +46,7 @@ namespace Microsoft.Identity.Core.Instance
             : base(authority, validateAuthority)
         {
             AuthorityType = AuthorityType.B2C;
+            // Setting this to false as B2C authorities are customer specific
             validateAuthority = false;
 
             Uri authorityUri = new Uri(authority);
