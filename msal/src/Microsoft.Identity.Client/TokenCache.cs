@@ -57,6 +57,7 @@ namespace Microsoft.Identity.Client
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
     {
         internal const string NullPreferredUsernameDisplayLabel = "Missing from the token response";
+        private const string MicrosoftLogin = "login.microsoftonline.com";
 
         private ITelemetryManager _telemetryManager = new TelemetryManager();
 
@@ -149,9 +150,9 @@ namespace Microsoft.Identity.Client
         }
 
         internal Tuple<MsalAccessTokenCacheItem, MsalIdTokenCacheItem> SaveAccessAndRefreshToken(
-            IValidatedAuthoritiesCache validatedAuthoritiesCache, 
+            IValidatedAuthoritiesCache validatedAuthoritiesCache,
             IAadInstanceDiscovery aadInstanceDiscovery,
-            AuthenticationRequestParameters requestParams, 
+            AuthenticationRequestParameters requestParams,
             MsalTokenResponse response)
         {
             // todo: could we look into modifying this to take tenantId to reduce the dependency on IValidatedAuthoritiesCache?
@@ -162,7 +163,7 @@ namespace Microsoft.Identity.Client
 
             // The preferred_username value cannot be null or empty in order to comply with the ADAL/MSAL Unified cache schema.
             // It will be set to "preferred_username not in idtoken"
-            var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername)? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
+            var preferredUsername = !string.IsNullOrWhiteSpace(idToken?.PreferredUsername) ? idToken.PreferredUsername : NullPreferredUsernameDisplayLabel;
 
             var instanceDiscoveryMetadataEntry = GetCachedAuthorityMetaData(requestParams.TenantUpdatedCanonicalAuthority);
 
@@ -307,7 +308,10 @@ namespace Microsoft.Identity.Client
                     environmentAliases.UnionWith
                         (GetEnvironmentAliases(requestParams.Authority.CanonicalAuthority, instanceDiscoveryMetadataEntry));
 
-                    preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    if (requestParams.Authority.AuthorityType != Core.Instance.AuthorityType.B2C)
+                    {
+                        preferredEnvironmentAlias = instanceDiscoveryMetadataEntry.PreferredCache;
+                    }
                 }
 
                 return FindAccessTokenCommon
@@ -690,13 +694,16 @@ namespace Microsoft.Identity.Client
         {
             InstanceDiscoveryMetadataEntry instanceDiscoveryMetadata = null;
 
+            Uri authorityHost = new Uri(authority);
             var authorityType = Authority.GetAuthorityType(authority);
-            if (authorityType == Core.Instance.AuthorityType.Aad || authorityType == Core.Instance.AuthorityType.B2C && AadInstanceDiscovery != null)
+            if (authorityType == Core.Instance.AuthorityType.Aad ||
+                authorityHost.Host.Equals(MicrosoftLogin, StringComparison.OrdinalIgnoreCase))
             {
                 instanceDiscoveryMetadata = await AadInstanceDiscovery.GetMetadataEntryAsync(
                     new Uri(authority),
                     validateAuthority,
                     requestContext).ConfigureAwait(false);
+                return instanceDiscoveryMetadata;
             }
             return instanceDiscoveryMetadata;
         }

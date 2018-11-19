@@ -25,19 +25,32 @@
 //
 //------------------------------------------------------------------------------
 
-using System.Collections.Generic;
 
-namespace Test.Microsoft.Identity.LabInfrastructure
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Linq;
+using System.Reflection;
+
+namespace Test.MSAL.NET.Unit
 {
-    public class UserQueryParameters
+    [TestClass]
+    public class AuthenticationResultTests
     {
-        public FederationProvider? FederationProvider { get; set; }
-        public bool? IsMamUser { get; set; }
-        public bool? IsMfaUser { get; set; }
-        public ISet<string> Licenses { get; set; }
-        public bool? IsFederatedUser { get; set; }
-        public UserType? UserType { get; set; }
-        public bool? IsExternalUser { get; set; }
-        public B2CIdentityProvider? B2CIdentityProvider { get; set; }
+        [TestMethod]
+        public void PublicTestConstructorCoversAllProperties()
+        {
+            var ctorParameters = typeof(AuthenticationResult)
+                .GetConstructors()
+                .First(ctor => ctor.GetParameters().Length > 3)
+                .GetParameters();
+
+            var classProperties = typeof(AuthenticationResult)
+                .GetProperties()
+                .Where(p => p.GetCustomAttribute(typeof(ObsoleteAttribute)) == null);
+
+            Assert.AreEqual(ctorParameters.Length, classProperties.Count(), "The <for test> constructor should include all properties of AuthenticationObject"); ;
+        }
     }
 }

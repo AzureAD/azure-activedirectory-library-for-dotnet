@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -50,7 +50,7 @@ namespace Test.MSAL.NET.Unit
 {
     [TestClass]
     [DeploymentItem(@"Resources\valid.crtfile")]
-    [DeploymentItem("Resources\\OpenidConfiguration-B2C.json")]
+    [DeploymentItem("Resources\\OpenidConfiguration-QueryParams-B2C.json")]
     public class ConfidentialClientApplicationTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
@@ -74,14 +74,16 @@ namespace Test.MSAL.NET.Unit
         public void MockConfidentialClientApplication_AcquireToken()
         {
             // Setup up a confidential client application that returns a dummy result
-            var mockResult = Substitute.For<AuthenticationResult>();
-            mockResult.IdToken.Returns("id token");
-            mockResult.Scopes.Returns(
-                new string[]
-                {
-                    "scope1",
-                    "scope2"
-                });
+            var mockResult = new AuthenticationResult(
+                accessToken: "",
+                isExtendedLifeTimeToken: false,
+                uniqueId: "",
+                expiresOn: DateTimeOffset.Now,
+                extendedExpiresOn: DateTimeOffset.Now,
+                tenantId: "",
+                account: null,
+                idToken: "id token",
+                scopes: new[] { "scope1", "scope2" });
 
             var mockApp = Substitute.For<IConfidentialClientApplication>();
             mockApp.AcquireTokenByAuthorizationCodeAsync("123", null).Returns(mockResult);
@@ -456,8 +458,11 @@ namespace Test.MSAL.NET.Unit
                     new MockHttpMessageHandler
                     {
                         Method = HttpMethod.Get,
-                        ResponseMessage = MockHelpers.CreateSuccessResponseMessage(
-                            File.ReadAllText(ResourceHelper.GetTestResourceRelativePath(@"OpenidConfiguration-B2C.json")))
+                        ResponseMessage =
+                            MockHelpers.CreateSuccessResponseMessage(
+                                File.ReadAllText(
+                                    ResourceHelper.GetTestResourceRelativePath(
+                                        @"OpenidConfiguration-QueryParams-B2C.json")))
                     });
 
                 Task<Uri> task = app.GetAuthorizationRequestUrlAsync(
