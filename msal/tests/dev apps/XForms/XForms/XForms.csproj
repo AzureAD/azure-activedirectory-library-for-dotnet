@@ -20,7 +20,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="sqlite-net-pcl" Version="1.5.231" />
     <PackageReference Include="StrongNamer">
         <Version>0.0.6</Version>
     </PackageReference>
