@@ -754,13 +754,8 @@ namespace Microsoft.Identity.Client
             return preferredEnvironmentHost;
         }
 
-        internal async Task<IEnumerable<IAccount>> GetAccountsAsync(string authority, bool validateAuthority, RequestContext requestContext)
+        internal Task<IEnumerable<IAccount>> GetAccountsAsync(string authority, bool validateAuthority, RequestContext requestContext)
         {
-            var instanceDiscoveryMetadataEntry =
-                await GetCachedOrDiscoverAuthorityMetaDataAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
-
-            var environmentAliases = GetEnvironmentAliases(authority, instanceDiscoveryMetadataEntry);
-
             var environment = new Uri(authority).Host;
             lock (LockObject)
             {
@@ -775,23 +770,19 @@ namespace Microsoft.Identity.Client
                 ICollection<MsalRefreshTokenCacheItem> tokenCacheItems = GetAllRefreshTokensForClient(requestContext);
                 ICollection<MsalAccountCacheItem> accountCacheItems = GetAllAccounts(requestContext);
 
-                var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(LegacyCachePersistence, environmentAliases, ClientId);
+                var tuple = CacheFallbackOperations.GetAllAdalUsersForMsal(LegacyCachePersistence, ClientId);
                 OnAfterAccess(args);
 
                 IDictionary<string, Account> clientInfoToAccountMap = new Dictionary<string, Account>();
                 foreach (MsalRefreshTokenCacheItem rtItem in tokenCacheItems)
                 {
-                    if (environmentAliases.Contains(rtItem.Environment))
+                    foreach (MsalAccountCacheItem account in accountCacheItems)
                     {
-                        foreach (MsalAccountCacheItem account in accountCacheItems)
+                        if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (rtItem.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
-                                environmentAliases.Contains(account.Environment))
-                            {
-                                clientInfoToAccountMap[rtItem.HomeAccountId] = new Account
-                                    (account.HomeAccountId, account.PreferredUsername, environment);
-                                break;
-                            }
+                            clientInfoToAccountMap[rtItem.HomeAccountId] = new Account
+                                (account.HomeAccountId, account.PreferredUsername, environment);
+                            break;
                         }
                     }
                 }
@@ -811,7 +802,7 @@ namespace Microsoft.Identity.Client
                     }
                 }
 
-                ICollection<Account> accounts = new List<Account>(clientInfoToAccountMap.Values);
+                var accounts = new List<IAccount>(clientInfoToAccountMap.Values);
                 List<string> uniqueUserNames = clientInfoToAccountMap.Values.Select(o => o.Username).Distinct().ToList();
 
                 foreach (AdalUserInfo user in adalUsersWithoutClientInfo)
@@ -822,7 +813,7 @@ namespace Microsoft.Identity.Client
                         uniqueUserNames.Add(user.DisplayableId);
                     }
                 }
-                return accounts;
+                return Task.FromResult(accounts.AsEnumerable());
             }
         }
 

@@ -147,7 +147,7 @@ namespace Microsoft.Identity.Core.Cache
         /// Item2 is a list of AdalUserInfo for those users that do not have ClientInfo
         /// </summary>
         public static Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> GetAllAdalUsersForMsal
-            (ILegacyCachePersistence legacyCachePersistence, ISet<string> environments, string clientId)
+            (ILegacyCachePersistence legacyCachePersistence, string clientId)
         {
             Dictionary<string, AdalUserInfo> clientInfoToAdalUserMap = new Dictionary<string, AdalUserInfo>();
             List<AdalUserInfo> adalUsersWithoutClientInfo = new List<AdalUserInfo>();
@@ -159,8 +159,7 @@ namespace Microsoft.Identity.Core.Cache
                 //TODO - authority check needs to be updated for alias check
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> listToProcess =
                     dictionary.Where(p =>
-                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase)
-                        && environments.Contains(new Uri(p.Key.Authority).Host)).ToList();
+                        p.Key.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase)).ToList();
 
                 foreach (KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> pair in listToProcess)
                 {

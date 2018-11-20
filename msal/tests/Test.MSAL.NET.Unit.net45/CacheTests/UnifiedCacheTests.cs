@@ -231,15 +231,11 @@ namespace Test.MSAL.NET.Unit
                     }
                 };
 
-                ISet<string> authorityHostAliases = new HashSet<string>();
-                authorityHostAliases.Add(MsalTestConstants.ProductionPrefNetworkEnvironment);
-
                 CreateAdalCache(app.UserTokenCache.LegacyCachePersistence, MsalTestConstants.Scope.ToString());
 
                 Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> tuple =
                     CacheFallbackOperations.GetAllAdalUsersForMsal(
                         app.UserTokenCache.LegacyCachePersistence,
-                        authorityHostAliases,
                         MsalTestConstants.ClientId);
 
                 CreateAdalCache(app.UserTokenCache.LegacyCachePersistence, "user.read");
@@ -247,7 +243,6 @@ namespace Test.MSAL.NET.Unit
                 Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> tuple2 =
                     CacheFallbackOperations.GetAllAdalUsersForMsal(
                         app.UserTokenCache.LegacyCachePersistence,
-                        authorityHostAliases,
                         MsalTestConstants.ClientId);
 
                 Assert.AreEqual(tuple.Item1.Keys.First(), tuple2.Item1.Keys.First());

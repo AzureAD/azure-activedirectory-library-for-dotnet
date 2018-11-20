@@ -64,11 +64,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
                     _legacyCachePersistence,
-                    new HashSet<string>
-                    {
-                        CoreTestConstants.ProductionPrefNetworkEnvironment,
-                        "bogus"
-                    },
                     CoreTestConstants.ClientId);
 
             AssertByUsername(
@@ -87,10 +82,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Act - query users for different clientId and env
             userTuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.SovereignEnvironment
-                },
                 "other_client_id");
 
             // Assert
@@ -140,11 +131,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
                     _legacyCachePersistence,
-                    new HashSet<string>
-                    {
-                        CoreTestConstants.ProductionPrefNetworkEnvironment,
-                        "other_env"
-                    },
                     CoreTestConstants.ClientId);
 
             AssertByUsername(
@@ -188,11 +174,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             Tuple<Dictionary<string, AdalUserInfo>, List<AdalUserInfo>> userTuple =
                 CacheFallbackOperations.GetAllAdalUsersForMsal(
                     _legacyCachePersistence,
-                    new HashSet<string>
-                    {
-                        CoreTestConstants.ProductionPrefNetworkEnvironment,
-                        "other_env"
-                    },
                     CoreTestConstants.ClientId);
 
             AssertByUsername(
@@ -225,11 +206,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Assert 
             userTuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.ProductionPrefNetworkEnvironment,
-                    "other_env"
-                },
                 CoreTestConstants.ClientId);
 
             AssertByUsername(
