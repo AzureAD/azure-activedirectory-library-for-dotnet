@@ -87,15 +87,10 @@ namespace Test.MSAL.NET.Unit
 
                 var requestContext = new RequestContext(null, new MsalLogger(Guid.Empty, null));
                 var users =
-                    app.UserTokenCache.GetAccountsAsync(MsalTestConstants.AuthorityCommonTenant, false, requestContext).Result;
+                    app.UserTokenCache.GetAccounts(MsalTestConstants.AuthorityCommonTenant, false, requestContext);
                 foreach (IAccount user in users)
                 {
-                    ISet<string> authorityHostAliases = new HashSet<string>
-                    {
-                        MsalTestConstants.ProductionPrefCacheEnvironment
-                    };
-
-                    app.UserTokenCache.RemoveMsalAccount(user, authorityHostAliases, requestContext);
+                    app.UserTokenCache.RemoveMsalAccount(user, requestContext);
                 }
 
                 httpManager.AddMockHandler(

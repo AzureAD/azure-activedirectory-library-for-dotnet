@@ -71,7 +71,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user1",
-                    "user2"
+                    "user2",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -100,7 +101,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Arrange
             PopulateLegacyCache(_legacyCachePersistence);
 
-            PopulateLegacyWithRtAndId( //different clientId -> should not be deleted
+            PopulateLegacyWithRtAndId( // different clientId -> should not be deleted
                 _legacyCachePersistence,
                 "other_client_id",
                 CoreTestConstants.ProductionPrefNetworkEnvironment,
@@ -108,7 +109,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 "tenantId1",
                 "user1_other_client_id");
 
-            PopulateLegacyWithRtAndId( //different env -> should not be deleted
+            PopulateLegacyWithRtAndId( // different env -> should be deleted
                 _legacyCachePersistence,
                 CoreTestConstants.ClientId,
                 "other_env",
@@ -119,10 +120,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Act - delete with id and displayname
             CacheFallbackOperations.RemoveAdalUser(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.ProductionPrefNetworkEnvironment
-                },
                 CoreTestConstants.ClientId,
                 "username_does_not_matter",
                 "uid1.tenantId1");
@@ -138,7 +135,7 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1_other_env"
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -181,7 +178,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1"
+                    "user1",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -193,15 +191,11 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Act - delete with no client info -> displayable id is used
             CacheFallbackOperations.RemoveAdalUser(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.ProductionPrefNetworkEnvironment
-                },
                 CoreTestConstants.ClientId,
                 "no_client_info_user3",
                 "");
 
-            AssertCacheEntryCount(7);
+            AssertCacheEntryCount(6);
 
             // Assert 
             userTuple = CacheFallbackOperations.GetAllAdalUsersForMsal(
@@ -213,11 +207,11 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1"
+                    "user1",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
-                    "no_client_info_user3",
                     "no_client_info_user4"
                 });
         }
@@ -241,10 +235,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
             // Act - nothing happens and a message is logged
             CacheFallbackOperations.RemoveAdalUser(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.ProductionPrefNetworkEnvironment
-                },
                 CoreTestConstants.ClientId,
                 "",
                 "");
@@ -286,10 +276,6 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
 
             CacheFallbackOperations.RemoveAdalUser(
                 _legacyCachePersistence,
-                new HashSet<string>
-                {
-                    CoreTestConstants.ProductionPrefNetworkEnvironment
-                },
                 CoreTestConstants.ClientId,
                 CoreTestConstants.DisplayableId,
                 CoreTestConstants.Uid + "." + CoreTestConstants.Utid);
