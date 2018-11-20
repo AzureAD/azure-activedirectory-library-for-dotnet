@@ -60,7 +60,7 @@ namespace Test.ADAL.UIAutomation
         [SetUp]
         public void InitializeTest()
         {
-            app = AppFactory.StartApp(platform, "XForms.iOS");
+            app = AppFactory.StartApp(platform, "XFormsAppiOS");
             xamarinController.Application = app;
         }
 
