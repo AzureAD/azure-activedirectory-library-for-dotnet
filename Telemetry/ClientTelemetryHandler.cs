@@ -31,15 +31,15 @@ using System;
 using System.Collections.Generic;
 using Client::Microsoft.Applications.Events;
 
-namespace TelemetryReceivers
+namespace Microsoft.Identity.Client.DevAppsTelemetry
 {
-    public class TelemetryClientReceiver
+    public class ClientTelemetryHandler
     {
         private ILogger logger;
         private string msalEventNameKey;
         private string ariaTenantId;
 
-        public TelemetryClientReceiver()
+        public ClientTelemetryHandler()
         {
             // Aria configuration
             EVTStatus status;
@@ -49,10 +49,10 @@ namespace TelemetryReceivers
             LogManager.SetTransmitProfile(REAL_TIME_FOR_ALL[0].ProfileName);
             LogManager.SetPowerState(PowerState.Charging);
 
-            ariaTenantId = TelemetryReceiverConstants.AriaTenantId;
+            ariaTenantId = TelemetryHandlerConstants.AriaTenantId;
             logger = LogManager.GetLogger(ariaTenantId, out status);
 
-            msalEventNameKey = TelemetryReceiverConstants.MsalEventNameKey;
+            msalEventNameKey = TelemetryHandlerConstants.MsalEventNameKey;
         }
 
         public void OnEvents(List<Dictionary<string, string>> events)

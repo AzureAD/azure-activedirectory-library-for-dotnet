@@ -31,23 +31,23 @@ using System;
 using System.Collections.Generic;
 using Server::Microsoft.Applications.Events;
 
-namespace TelemetryReceivers
+namespace Microsoft.Identity.Client.DevAppsTelemetry
 {
-    public class TelemetryServerReceiver
+    public class ServerTelemetryHandler
     {
         private ILogger logger;
         private string msalEventNameKey;
         private string ariaTenantId;
 
-        public TelemetryServerReceiver()
+        public ServerTelemetryHandler()
         {
             EVTStatus status;
             LogManager.Start(new LogConfiguration());
 
-            ariaTenantId = TelemetryReceiverConstants.AriaTenantId;
+            ariaTenantId = TelemetryHandlerConstants.AriaTenantId;
             logger = LogManager.GetLogger(ariaTenantId, out status);
 
-            msalEventNameKey = TelemetryReceiverConstants.MsalEventNameKey;
+            msalEventNameKey = TelemetryHandlerConstants.MsalEventNameKey;
         }
 
         public void OnEvents(List<Dictionary<string, string>> events)

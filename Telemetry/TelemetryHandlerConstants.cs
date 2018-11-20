@@ -29,9 +29,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TelemetryReceivers
+namespace Microsoft.Identity.Client.DevAppsTelemetry
 {
-    internal class TelemetryReceiverConstants
+    internal class TelemetryHandlerConstants
     {
         internal readonly static string MsalEventNameKey = "msal.event_name";
         internal readonly static string AriaTenantId = "356c5f7286974ece8d52964f7ad35643-6c8c6db0-888b-446e-a80c-e15e35b8cbcf-7507";

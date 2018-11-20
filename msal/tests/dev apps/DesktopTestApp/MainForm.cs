@@ -37,10 +37,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.DevAppsTelemetry;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-using TelemetryReceivers;
 
 namespace DesktopTestApp
 {
@@ -63,7 +63,7 @@ namespace DesktopTestApp
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new ServerTelemetryHandler().OnEvents);
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)

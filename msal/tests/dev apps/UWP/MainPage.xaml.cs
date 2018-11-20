@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using TelemetryReceivers;
+using Microsoft.Identity.Client.DevAppsTelemetry;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -36,7 +36,7 @@ namespace UWP
 
             _pca = new PublicClientApplication(ClientID, Authority);
 
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new ServerTelemetryHandler().OnEvents);
         }
 
 

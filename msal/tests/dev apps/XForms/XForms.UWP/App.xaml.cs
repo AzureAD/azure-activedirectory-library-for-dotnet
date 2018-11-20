@@ -41,8 +41,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using TelemetryReceivers;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.DevAppsTelemetry;
 
 namespace XForms.UWP
 {
@@ -60,7 +60,7 @@ namespace XForms.UWP
             InitializeComponent();
             Suspending += OnSuspending;
 
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new ServerTelemetryHandler().OnEvents);
         }
 
         /// <summary>

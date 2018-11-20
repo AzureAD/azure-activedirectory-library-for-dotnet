@@ -33,7 +33,7 @@ using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
-using TelemetryReceivers;
+using Microsoft.Identity.Client.DevAppsTelemetry;
 
 namespace NetCoreTestApp
 {
@@ -60,7 +60,7 @@ namespace NetCoreTestApp
             Logger.Level = LogLevel.Verbose;
             Logger.PiiLoggingEnabled = true;
 
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryClientReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new ClientTelemetryHandler().OnEvents);
             RunConsoleAppLogicAsync(pca).Wait();
         }
 

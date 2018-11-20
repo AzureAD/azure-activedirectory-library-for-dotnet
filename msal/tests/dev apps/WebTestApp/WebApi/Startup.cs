@@ -32,7 +32,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
-using TelemetryReceivers;
+using Microsoft.Identity.Client.DevAppsTelemetry;
 
 namespace WebApi
 {
@@ -66,7 +66,7 @@ namespace WebApi
             loggerFactory.AddConsole(Microsoft.Extensions.Logging.LogLevel.Debug);
 
             // Register Telemetry Receiver
-            Telemetry.GetInstance().RegisterReceiver(new TelemetryServerReceiver().OnEvents);
+            Telemetry.GetInstance().RegisterReceiver(new ServerTelemetryHandler().OnEvents);
 
             // Configure the app to use Jwt Bearer Authentication
             app.UseJwtBearerAuthentication(new JwtBearerOptions
