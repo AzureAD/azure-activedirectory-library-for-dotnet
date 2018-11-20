@@ -71,7 +71,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user1",
-                    "user2"
+                    "user2",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -138,7 +139,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1_other_env"
+                    "user1_other_env",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -181,7 +183,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1"
+                    "user1",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
@@ -213,7 +216,8 @@ namespace Test.Microsoft.Identity.Core.Unit.CacheTests
                 new[]
                 {
                     "user2",
-                    "user1"
+                    "user1",
+                    "sovereign_user5"  // this user has different environment but same client id
                 },
                 new[]
                 {
