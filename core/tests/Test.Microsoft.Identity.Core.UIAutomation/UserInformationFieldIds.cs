@@ -43,15 +43,15 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
                 return;
             }
+
             if (user.UserType == UserType.B2C)
             {
                 DetermineB2CFieldIds(user);
+                return;
             }
-            else
-            {
-                PasswordInputId = CoreUiTestConstants.WebPasswordID;
-                SignInButtonId = CoreUiTestConstants.WebSubmitID;
-            }
+
+            PasswordInputId = CoreUiTestConstants.WebPasswordID;
+            SignInButtonId = CoreUiTestConstants.WebSubmitID;
         }
 
         private void DetermineB2CFieldIds(LabUser user)
