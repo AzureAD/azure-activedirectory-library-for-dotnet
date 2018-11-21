@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SafariServices;
 using Foundation;
-//using AuthenticationServices;
+using AuthenticationServices;
 using UIKit;
 
 namespace Microsoft.Identity.Core.UI
@@ -40,7 +40,7 @@ namespace Microsoft.Identity.Core.UI
         protected static UIViewController viewController;
         protected SFSafariViewController safariViewController;
         protected SFAuthenticationSession sfAuthenticationSession;
-        //protected ASWebAuthenticationSession asWebAuthenticationSession;
+        protected ASWebAuthenticationSession asWebAuthenticationSession;
 
         protected nint taskId = UIApplication.BackgroundTaskInvalid;
         protected NSObject didEnterBackgroundNotification;

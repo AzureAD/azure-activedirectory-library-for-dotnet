@@ -45,10 +45,10 @@ namespace Test.MSAL.UIAutomation
         public bool isB2CloginAuthority;
 
         /// <summary>
-        /// Runs through the standard acquire token flow, using the login prompt behavior
+        /// Runs through the standard acquire token flow, using the login prompt behavior. The ui behavior of "login" is used by default.
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelper(
+        public void AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(
             ITestController controller,
             LabResponse labResponse,
             string promptBehavior = CoreUiTestConstants.UIBehaviorLogin)
@@ -220,13 +220,13 @@ namespace Test.MSAL.UIAutomation
             controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
         }
 
-        public void PromptBehaviorTestHelper(ITestController controller, LabResponse labResponse)
+        public void PromptBehaviorTestHelper(ITestController controller, LabResponse labResponse, string behavior)
         {
             // 1. Acquire token with uiBehavior set to consent 
-            AcquireTokenInteractiveTestHelper(
+            AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(
                 controller,
                 labResponse,
-                CoreUiTestConstants.UIBehaviorConsent);
+                behavior);
 
             // 2. Switch ui behavior to "select account"
             SetUiBehavior(controller, CoreUiTestConstants.UIBehaviorSelectAccount);

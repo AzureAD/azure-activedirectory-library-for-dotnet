@@ -66,51 +66,51 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
         {
             try
             {
-                //if (UIDevice.CurrentDevice.CheckSystemVersion(12, 0))
-                //{
-                //    asWebAuthenticationSession = new AuthenticationServices.ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
-                //        redirectUri.Scheme, (callbackUrl, error) =>
-                //        {
-                //            if (error != null)
-                //            {
-                //                ProcessCompletionHandlerError(error);
-                //            }
-                //            else
-                //            {
-                //                ContinueAuthentication(callbackUrl.ToString());
-                //            }
-                //        });
+                if (UIDevice.CurrentDevice.CheckSystemVersion(12, 0))
+                {
+                    asWebAuthenticationSession = new AuthenticationServices.ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                ProcessCompletionHandlerError(error);
+                            }
+                            else
+                            {
+                                ContinueAuthentication(callbackUrl.ToString());
+                            }
+                        });
 
-                //    asWebAuthenticationSession.Start();
-                //}
+                    asWebAuthenticationSession.Start();
+                }
 
-                //else if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
-                //{
-                //    sfAuthenticationSession = new SFAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
-                //        redirectUri.Scheme, (callbackUrl, error) =>
-                //        {
-                //            if (error != null)
-                //            {
-                //                ProcessCompletionHandlerError(error);
-                //            }
-                //            else
-                //            {
-                //                ContinueAuthentication(callbackUrl.ToString());
-                //            }
-                //        });
+                else if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+                {
+                    sfAuthenticationSession = new SFAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri),
+                        redirectUri.Scheme, (callbackUrl, error) =>
+                        {
+                            if (error != null)
+                            {
+                                ProcessCompletionHandlerError(error);
+                            }
+                            else
+                            {
+                                ContinueAuthentication(callbackUrl.ToString());
+                            }
+                        });
 
-                //    sfAuthenticationSession.Start();
-                //}
+                    sfAuthenticationSession.Start();
+                }
 
-                //else
-                //{
+                else
+                {
                     safariViewController = new SFSafariViewController(new NSUrl(authorizationUri.AbsoluteUri), false);
                     safariViewController.Delegate = this;
                     viewController.InvokeOnMainThread(() =>
                     {
                         viewController.PresentViewController(safariViewController, false, null);
                     });
-                //}
+                }
             }
             catch (Exception ex)
             {

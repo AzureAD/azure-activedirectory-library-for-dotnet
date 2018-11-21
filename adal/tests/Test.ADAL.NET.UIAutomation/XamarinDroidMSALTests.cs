@@ -72,7 +72,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithDefaultUser());
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(xamarinController, LabUserHelper.GetLabResponseWithDefaultUser());
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Test.MSAL.UIAutomation
         {
             var labResponse = LabUserHelper.GetLabResponseWithDefaultUser();
 
-            _msalMobileTestHelper.PromptBehaviorTestHelper(xamarinController, labResponse);
+            _msalMobileTestHelper.PromptBehaviorTestHelper(xamarinController, labResponse, CoreUiTestConstants.UIBehaviorConsent);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV4InteractiveFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(
                 xamarinController,
                 LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4));
         }
@@ -142,7 +142,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV3InteractiveFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV3));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV3));
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV4InteractiveNonFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV3InteractiveNonFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
         }
     }
 }
