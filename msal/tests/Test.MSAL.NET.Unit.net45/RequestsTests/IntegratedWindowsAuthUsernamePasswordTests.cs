@@ -94,6 +94,25 @@ namespace Test.MSAL.NET.Unit
                 });
         }
 
+        private void AddMockHandlerDefaultUserRealmDiscovery_ManagedUser(MockHttpManager httpManager)
+        {
+            // user realm discovery
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            "{\"ver\":\"1.0\"," +
+                            "\"account_type\":\"Managed\"," +
+                            "\"domain_name\":\"some_domain.onmicrosoft.com\"," +
+                            "\"cloud_audience_urn\":\"urn:federation:MicrosoftOnline\"," +
+                            "\"cloud_instance_name\":\"login.microsoftonline.com\"}")
+                    }
+                });
+        }
+
         private void AddMockHandlerMex(MockHttpManager httpManager)
         {
             // MEX
@@ -198,6 +217,76 @@ namespace Test.MSAL.NET.Unit
             _cache.TokenCacheAccessor.ClearAccessTokens();
             _cache.TokenCacheAccessor.ClearRefreshTokens();
         }
+
+        [TestMethod]
+        [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
+        public void AcquireTokenByIntegratedWindowsAuthTest_ManagedUser()
+        {
+            // Arrange
+            using (var httpManager = new MockHttpManager())
+            {
+                httpManager.AddInstanceDiscoveryMockHandler();
+
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(MsalTestConstants.AuthorityHomeTenant);
+                AddMockHandlerDefaultUserRealmDiscovery_ManagedUser(httpManager);
+
+                var app =
+                    new PublicClientApplication(httpManager, _telemetryManager, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority);
+
+                // Act
+                var exception = AssertException.TaskThrows<MsalClientException>(
+                    async () => await app.AcquireTokenByIntegratedWindowsAuthAsync(
+                            MsalTestConstants.Scope,
+                            MsalTestConstants.User.Username)
+                     .ConfigureAwait(false));
+
+                // Assert
+                Assert.AreEqual(MsalError.IwaNotSupportedForManagedUser, exception.ErrorCode);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
+        public void AcquireTokenByIntegratedWindowsAuthTest_UnknownUser()
+        {
+            // Arrange
+            using (var httpManager = new MockHttpManager())
+            {
+                httpManager.AddInstanceDiscoveryMockHandler();
+                httpManager.AddMockHandlerForTenantEndpointDiscovery(MsalTestConstants.AuthorityHomeTenant);
+
+                // user realm discovery - unknown user type
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler
+                    {
+                        Method = HttpMethod.Get,
+                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                "{\"ver\":\"1.0\"," +
+                                "\"account_type\":\"Bogus\"}")
+                        }
+                    });
+
+                var app =
+                    new PublicClientApplication(httpManager, _telemetryManager, MsalTestConstants.ClientId,
+                        ClientApplicationBase.DefaultAuthority);
+
+                // Act
+                var exception = AssertException.TaskThrows<MsalClientException>(
+                    async () => await app.AcquireTokenByIntegratedWindowsAuthAsync(
+                            MsalTestConstants.Scope,
+                            MsalTestConstants.User.Username)
+                        .ConfigureAwait(false));
+
+                // Assert
+                Assert.AreEqual(MsalError.UnknownUserType, exception.ErrorCode);
+            }
+        }
+
+
+
+
 
         [TestMethod]
         [TestCategory("IntegratedWindowsAuthAndUsernamePasswordTests")]
