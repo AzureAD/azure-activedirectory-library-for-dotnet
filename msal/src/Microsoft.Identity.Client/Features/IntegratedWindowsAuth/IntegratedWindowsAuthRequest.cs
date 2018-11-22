@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             if (userRealmResponse.IsManaged)
             {
                 throw new MsalClientException(
-                    MsalError.IwaNotSupportedForManagedUser, 
+                    MsalError.IntegratedWindowsAuthNotSupportedForManagedUser, 
                     MsalErrorMessage.IwaNotSupportedForManagedUser);
             }
 

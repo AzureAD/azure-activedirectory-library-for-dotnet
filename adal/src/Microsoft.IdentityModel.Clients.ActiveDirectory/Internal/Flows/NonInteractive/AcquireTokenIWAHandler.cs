@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 else if (userRealmResponse.IsManaged)
                 {
                     throw new AdalException(
-                        AdalError.IwaNotSupportedForManagedUser, 
+                        AdalError.IntegratedWindowsAuthNotSupportedForManagedUser, 
                         AdalErrorMessage.IwaNotSupportedForManagedUser);
                 }
                 else

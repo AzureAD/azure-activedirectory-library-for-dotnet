@@ -63,8 +63,7 @@ namespace Test.ADAL.NET.Integration
         }
 
         [TestMethod]
-        [Description("Test for AcquireToken with an empty cache")]
-        public void IWA_ThrowsExceptionForManagedUser()
+        public void IntegratedWindowsAuth_ThrowsExceptionForManagedUser()
         {
             // Arrange
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
@@ -104,14 +103,13 @@ namespace Test.ADAL.NET.Integration
                     .ConfigureAwait(false));
 
 
-                Assert.AreEqual(AdalError.IwaNotSupportedForManagedUser, exception.ErrorCode);
+                Assert.AreEqual(AdalError.IntegratedWindowsAuthNotSupportedForManagedUser, exception.ErrorCode);
                 Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             }
         }
 
-         [TestMethod]
-        [Description("Test for AcquireToken with an empty cache")]
-        public void IWA_ThrowsExceptionForUnkownUser()
+        [TestMethod]
+        public void IntegratedWindowsAuth_ThrowsExceptionForUnknownUser()
         {
             // Arrange
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())

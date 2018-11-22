@@ -186,6 +186,6 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Integrated Windows Auth is only supported for "federated" users
         /// </summary>
-        public const string IwaNotSupportedForManagedUser = "integrated_windows_auth_not_supported_managed_user";
+        public const string IntegratedWindowsAuthNotSupportedForManagedUser = "integrated_windows_auth_not_supported_managed_user";
     }
 }
