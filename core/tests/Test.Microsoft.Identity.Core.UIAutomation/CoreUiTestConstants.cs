@@ -82,6 +82,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string B2CLoginAuthority = "b2clogin.com";
         public const string MicrosoftOnlineAuthority = "login.microsoftonline.com";
         public const string NonB2CAuthority = "non-b2c authority";
+        public const string B2CEditProfileAuthority = "Edit profile policy authority";
         public const string FacebookAccountID = "FacebookExchange";
         public const string WebUPNB2CFacebookInputID = "m_login_email";
         public const string B2CWebPasswordFacebookID = "m_login_password";
@@ -91,11 +92,13 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string B2CWebPasswordGoogleID = "Passwd";
         public const string B2CGoogleNextID = "next";
         public const string B2CGoogleSignInID = "signIn";
+        public const string B2CEditProfileContinueID = "continue";
 
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";
         public const string UIBehaviorSelectAccount = "select_account";
         public const string UIBehaviorLogin = "login";
+        public const string UIBehaviorNone = "none";
 
         //Test Constants
         public const int ResultCheckPolliInterval = 1000;

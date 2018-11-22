@@ -61,6 +61,12 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public static readonly UIBehavior Consent = new UIBehavior("consent");
 
+        /// <summary>
+        /// For B2C scenarios where each policy is a different authority, to prevent UI from being shown
+        /// to a user who has previously acquired a token for a different policy. It is achieved
+        /// by sending <c>prompt=none</c> to the Azure AD service.
+        /// </summary>
+        public static readonly UIBehavior None = new UIBehavior("none");
 
 #if DESKTOP || WINDOWS_APP
         /// <summary>

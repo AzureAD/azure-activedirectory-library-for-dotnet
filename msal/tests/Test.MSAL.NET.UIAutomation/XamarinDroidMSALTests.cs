@@ -135,6 +135,19 @@ namespace Test.MSAL.UIAutomation
         }
 
         /// <summary>
+        /// B2C acquire token with Facebook provider
+        /// b2clogin.com authority
+        /// call to edit profile authority with
+        ///  UIBehavior none
+        /// </summary>
+        [Test]
+        public void B2CFacebookProviderEditPolicyAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), isB2CLoginAuthority:true);
+            _msalMobileTestHelper.B2CFacebookProviderEditPolicyAcquireTokenInteractiveTestHelper(xamarinController);
+        }
+
+        /// <summary>
         /// B2C acquire token with Google provider
         /// b2clogin.com authority
         /// with subsequent silent call

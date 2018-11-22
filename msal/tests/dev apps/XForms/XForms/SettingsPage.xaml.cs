@@ -115,6 +115,11 @@ namespace XForms
                 App.Authority = App.B2CLoginAuthority;
                 CreateB2CAppSettings();
             }
+            else if (selectedIndex == 2)
+            {
+                App.Authority = App.B2CEditProfilePolicyAuthority;
+                CreateB2CAppSettings();
+            }
             else
             {
                 App.Authority = App.DefaultAuthority;

@@ -349,6 +349,11 @@ namespace DesktopTestApp
                 behavior = UIBehavior.Consent;
             }
 
+            if (noPrompt.Checked)
+            {
+                behavior = UIBehavior.None; ;
+            }
+
             return behavior;
         }
 
@@ -498,5 +503,95 @@ namespace DesktopTestApp
 
             return scopes.Split(new[] { " " }, StringSplitOptions.None);
         }
+
+        private async void b2cLogin_Click(object sender, EventArgs e)
+        {
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
+                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
+                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
+                string b2cAuthority =
+                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
+
+                _publicClientHandler.InteractiveAuthority = b2cAuthority;
+                _publicClientHandler.ApplicationId = b2cClientId;
+
+                try
+                {
+                    AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(
+                        scopes,
+                        GetUIBehavior(),
+                        _publicClientHandler.ExtraQueryParams,
+                        new UIParent()).ConfigureAwait(true);
+
+                    SetResultPageInfo(authenticationResult);
+                    RefreshUserList();
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
+            }
+        }
+
+        private async void b2cEditProfile_Click(object sender, EventArgs e)
+        {
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
+                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
+                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
+                string b2cEditProfileAuthority =
+                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_ProfileEditPolicy/";
+
+                _publicClientHandler.InteractiveAuthority = b2cEditProfileAuthority;
+                _publicClientHandler.ApplicationId = b2cClientId;
+
+                try
+                {
+                    AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(
+                        scopes,
+                        GetUIBehavior(),
+                        _publicClientHandler.ExtraQueryParams,
+                        new UIParent()).ConfigureAwait(true);
+
+                    SetResultPageInfo(authenticationResult);
+                    RefreshUserList();
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
+            }
+        }
+
+        private async void b2cSilentFlow_Click(object sender, EventArgs e)
+        {
+            using (new UIProgressScope(this))
+            {
+                ClearResultPageInfo();
+
+                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
+                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
+                string b2cAuthority =
+                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
+
+                _publicClientHandler.InteractiveAuthority = b2cAuthority;
+
+                try
+                {
+                    AuthenticationResult authenticationResult =
+                        await _publicClientHandler.AcquireTokenSilentAsync(scopes).ConfigureAwait(true);
+
+                    SetResultPageInfo(authenticationResult);
+                }
+                catch (Exception exc)
+                {
+                    CreateException(exc);
+                }
+            }
+        }
+
     }
 }

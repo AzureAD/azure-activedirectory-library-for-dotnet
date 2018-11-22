@@ -38,6 +38,7 @@ using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
+using AuthorityType = Microsoft.Identity.Core.Instance.AuthorityType;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
@@ -238,7 +239,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 fromServer = ClientInfo.CreateFromJson(msalTokenResponse.ClientInfo);
             }
 
-            if (fromServer!= null && AuthenticationRequestParameters?.Account?.HomeAccountId != null)
+            if (fromServer!= null && AuthenticationRequestParameters?.Account?.HomeAccountId != null && AuthenticationRequestParameters.Authority.AuthorityType != AuthorityType.B2C)
             {
                 if (!fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.ObjectId, StringComparison.OrdinalIgnoreCase) ||
                     !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId, StringComparison.OrdinalIgnoreCase))
