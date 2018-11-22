@@ -66,7 +66,7 @@ namespace Microsoft.Identity.Client
         /// to a user who has previously acquired a token for a different policy. It is achieved
         /// by sending <c>prompt=none</c> to the Azure AD service.
         /// </summary>
-        public static readonly UIBehavior None = new UIBehavior("none");
+        public static readonly UIBehavior NoPrompt = new UIBehavior("none");
 
 #if DESKTOP || WINDOWS_APP
         /// <summary>
