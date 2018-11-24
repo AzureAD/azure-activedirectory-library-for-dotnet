@@ -97,7 +97,6 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <!-- Remove UI specific logic as it is not supported yet -->
-    <Compile Remove="UIParent.cs" />
     <Compile Include="Platforms\netcore\**\*.cs" />
     <Compile Include="..\..\..\core\src\Platforms\netcore\**\*.cs" LinkBase="Core\Platforms\netcore" />
     <Compile Include="..\..\..\core\src\Features\Cache\**\*.cs" LinkBase="Core\Features\Cache" />
@@ -180,7 +179,7 @@
     <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="27.0.2" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2" />
   </ItemGroup>
-
+ 
   <!-- This is here to workaround designer issues so VS sees them appropriately -->
   <ItemGroup>
     <None Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />

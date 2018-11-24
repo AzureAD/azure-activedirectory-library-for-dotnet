@@ -25,14 +25,14 @@
 //
 //------------------------------------------------------------------------------
 
-#if ANDROID
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-#endif
+
 
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core.UI;
@@ -40,17 +40,18 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains UI properties for interactive flows, such as the parent window (on Windows), or the parent activity (on Xamarin.Android), and 
-    /// which browser to use (on Xamarin.Android and Xamarin.iOS)
+    /// Android specific UI properties for interactive flows, such as the parent activity and 
+    /// which browser to use 
     /// </summary> 
     public sealed class UIParent
     {
+        private const string ChromePackage = "com.android.chrome";
+        private const string CustomTabService = "android.support.customtabs.action.CustomTabsService";
+
         static UIParent()
         {
             ModuleInitializer.EnsureModuleInitialized();
         }
-
-        internal CoreUIParent CoreUIParent { get; private set; }
 
         /// <summary>
         /// Default constructor.
@@ -60,24 +61,6 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent();
         }
 
-#if iOS
-        /// <summary>
-        /// Constructor for iOS for directing the application to use the embedded webview instead of the
-        /// system browser. See https://aka.ms/msal-net-uses-web-browser
-        /// </summary>
-        /// <remarks>This method is likely to be removed (replaced) before final release</remarks>
-        public UIParent(bool useEmbeddedWebview) : this()
-        {
-            CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
-        }
-
-#endif
-
-#if ANDROID
-        private Activity Activity { get; set; }
-
-        private static readonly string ChromePackage = "com.android.chrome";
-
         /// <summary>
         /// Initializes an instance for a provided activity.
         /// </summary>
@@ -85,8 +68,7 @@ namespace Microsoft.Identity.Client
         [CLSCompliant(false)]
         public UIParent(Activity activity)
         {
-            Activity = activity;
-            CoreUIParent = new CoreUIParent(Activity);
+            CoreUIParent = new CoreUIParent(activity);
         }
 
         /// <summary>
@@ -98,6 +80,8 @@ namespace Microsoft.Identity.Client
         {
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
+
+        internal CoreUIParent CoreUIParent { get; }
 
         /// <summary>
         /// Checks Android device for chrome packages.
@@ -115,27 +99,16 @@ namespace Microsoft.Identity.Client
         public static bool IsSystemWebviewAvailable()
         {
             bool isBrowserWithCustomTabSupportAvailable = IsBrowserWithCustomTabSupportAvailable();
-            if (!isBrowserWithCustomTabSupportAvailable && !IsChromeEnabled())
-            {
-                return false;
-            }
-            else if (isBrowserWithCustomTabSupportAvailable)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (isBrowserWithCustomTabSupportAvailable || IsChromeEnabled()) &&
+                   isBrowserWithCustomTabSupportAvailable;
         }
 
         private static bool IsBrowserWithCustomTabSupportAvailable()
         {
-            string customTabsServiceAction = "android.support.customtabs.action.CustomTabsService";
+            Intent customTabServiceIntent = new Intent(CustomTabService);
 
-            Intent customTabServiceIntent = new Intent(customTabsServiceAction);
-
-            IEnumerable<ResolveInfo> resolveInfoListWithCustomTabs = Application.Context.PackageManager.QueryIntentServices(
+            IEnumerable<ResolveInfo> resolveInfoListWithCustomTabs =
+                Application.Context.PackageManager.QueryIntentServices(
                     customTabServiceIntent, PackageInfoFlags.MatchAll);
 
             // queryIntentServices could return null or an empty list if no matching service existed.
@@ -153,36 +126,7 @@ namespace Microsoft.Identity.Client
 
             // Chrome is difficult to uninstall on an Android device. Most users will disable it, but the package will still
             // show up, therefore need to check application.Enabled is false
-            if (!string.IsNullOrEmpty(ChromePackage) && !applicationInfo.Enabled)
-            {
-                return false;
-            }
-            return true;
+            return string.IsNullOrEmpty(ChromePackage) || applicationInfo.Enabled;
         }
-#endif
-
-#if DESKTOP || WINDOWS_APP
-        //hidden webview can be used in both WinRT and desktop applications.
-        internal bool UseHiddenBrowser { get { return CoreUIParent.UseHiddenBrowser; } set { CoreUIParent.UseHiddenBrowser = value; } }
-
-#if WINDOWS_APP
-        internal bool UseCorporateNetwork { get { return CoreUIParent.UseCorporateNetwork; } set { CoreUIParent.UseCorporateNetwork = value; } }
-
-#endif
-
-#if DESKTOP
-        internal object OwnerWindow { get; set; }
-
-        /// <summary>
-        /// Initializes an instance for a provided parent window.
-        /// </summary>
-        /// <param name="ownerWindow">Parent window object reference. OPTIONAL. The expected parent window
-        /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
-        public UIParent(object ownerWindow)
-        {
-            CoreUIParent = new CoreUIParent(ownerWindow);
-        }
-#endif
-#endif
     }
 }
