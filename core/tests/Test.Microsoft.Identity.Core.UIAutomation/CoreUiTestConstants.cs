@@ -57,7 +57,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string WebPasswordID = "i0118";
         public const string WebSubmitID = "idSIButton9";
         public const string TestResultID = "testResult";
-        public const string TestResultSuccsesfulMessage = "Result: Success";
+        public const string TestResultSuccessfulMessage = "Result: Success";
         public const string TestResultFailureMessage = "Result: Failure";
 
         //MSAL test app

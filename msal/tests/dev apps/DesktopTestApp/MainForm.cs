@@ -47,9 +47,14 @@ namespace DesktopTestApp
     public partial class MainForm : Form
     {
         private const string publicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
+        private const string B2CClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(publicClientId);
         private CancellationTokenSource _cancellationTokenSource;
+        private readonly string[] _b2CScopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
+        private const string B2CAuthority = "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
+        private const string B2CEditProfileAuthority = "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_ProfileEditPolicy/";
+
 
         public MainForm()
         {
@@ -496,7 +501,7 @@ namespace DesktopTestApp
 
         private IEnumerable<string> SplitScopeString(string scopes)
         {
-            if (String.IsNullOrWhiteSpace(scopes))
+            if (string.IsNullOrWhiteSpace(scopes))
             {
                 return new string[] { };
             }
@@ -509,18 +514,14 @@ namespace DesktopTestApp
             using (new UIProgressScope(this))
             {
                 ClearResultPageInfo();
-                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
-                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
-                string b2cAuthority =
-                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
-
-                _publicClientHandler.InteractiveAuthority = b2cAuthority;
-                _publicClientHandler.ApplicationId = b2cClientId;
+                
+                _publicClientHandler.InteractiveAuthority = B2CAuthority;
+                _publicClientHandler.ApplicationId = B2CClientId;
 
                 try
                 {
                     AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(
-                        scopes,
+                        _b2CScopes,
                         GetUIBehavior(),
                         _publicClientHandler.ExtraQueryParams,
                         new UIParent()).ConfigureAwait(true);
@@ -540,18 +541,14 @@ namespace DesktopTestApp
             using (new UIProgressScope(this))
             {
                 ClearResultPageInfo();
-                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
-                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
-                string b2cEditProfileAuthority =
-                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_ProfileEditPolicy/";
 
-                _publicClientHandler.InteractiveAuthority = b2cEditProfileAuthority;
-                _publicClientHandler.ApplicationId = b2cClientId;
+                _publicClientHandler.InteractiveAuthority = B2CEditProfileAuthority;
+                _publicClientHandler.ApplicationId = B2CClientId;
 
                 try
                 {
                     AuthenticationResult authenticationResult = await _publicClientHandler.AcquireTokenInteractiveAsync(
-                        scopes,
+                        _b2CScopes,
                         GetUIBehavior(),
                         _publicClientHandler.ExtraQueryParams,
                         new UIParent()).ConfigureAwait(true);
@@ -572,17 +569,12 @@ namespace DesktopTestApp
             {
                 ClearResultPageInfo();
 
-                string[] scopes = { "https://msidlabb2c.onmicrosoft.com/msidlabb2capi/read" };
-                string b2cClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
-                string b2cAuthority =
-                    "https://msidlabb2c.b2clogin.com/tfp/msidlabb2c.onmicrosoft.com/B2C_1_SISOPolicy/";
-
-                _publicClientHandler.InteractiveAuthority = b2cAuthority;
+                _publicClientHandler.InteractiveAuthority = B2CAuthority;
 
                 try
                 {
                     AuthenticationResult authenticationResult =
-                        await _publicClientHandler.AcquireTokenSilentAsync(scopes).ConfigureAwait(true);
+                        await _publicClientHandler.AcquireTokenSilentAsync(_b2CScopes).ConfigureAwait(true);
 
                     SetResultPageInfo(authenticationResult);
                 }
