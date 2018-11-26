@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Client
     /// Android specific UI properties for interactive flows, such as the parent activity and 
     /// which browser to use 
     /// </summary> 
-    public sealed class UIParent
+    public sealed partial class UIParent
     {
         private const string ChromePackage = "com.android.chrome";
         private const string CustomTabService = "android.support.customtabs.action.CustomTabsService";
@@ -53,9 +53,11 @@ namespace Microsoft.Identity.Client
             ModuleInitializer.EnsureModuleInitialized();
         }
 
-        /// <summary>
+
+        /// <summary>  
         /// Default constructor.
         /// </summary>
+        [Obsolete("This constructor should not be used because this object requires a parameters of type Activity. ")]
         public UIParent()
         {
             CoreUIParent = new CoreUIParent();
@@ -79,6 +81,37 @@ namespace Microsoft.Identity.Client
         public UIParent(Activity activity, bool useEmbeddedWebview) : this(activity)
         {
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
+        }
+
+        /// <summary>
+        /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
+        /// On Android, the parent is expected to be an Activity.
+        /// </summary>
+        /// <param name="parent">Android Activity on which to parent the web UI. Cannot be null.</param>
+        /// <param name="useEmbeddedWebview">Flag to determine between embedded vs system browser. See https://aka.ms/msal-net-uses-web-browser </param>
+        public UIParent(object parent, bool useEmbeddedWebview)
+        : this(ValidateParentObject(parent), useEmbeddedWebview)
+        {
+        }
+
+        private static Activity ValidateParentObject(object parent)
+        {
+            if (parent == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(parent) +
+                    " cannot be null on Android platforms. Please pass in an Activity to which to attach a web UI.");
+            }
+
+            Activity parentActivity = parent as Activity;
+            if (parentActivity == null)
+            {
+                throw new ArgumentException(nameof(parent) +
+                                            " is expected to be of type Android.App.Activity but is of type " +
+                                            parent.GetType());
+            }
+
+            return parentActivity;
         }
 
         internal CoreUIParent CoreUIParent { get; }

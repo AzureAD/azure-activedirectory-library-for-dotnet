@@ -25,44 +25,26 @@
 //
 //------------------------------------------------------------------------------
 
-
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core.UI;
+using System;
 
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Contains UI properties for interactive flows, such as the parent window (on Windows), or the parent activity (on Xamarin.Android), and 
-    /// which browser to use (on Xamarin.Android and Xamarin.iOS)
+    /// 
     /// </summary> 
     public sealed partial class UIParent
     {
-        static UIParent()
-        {
-            ModuleInitializer.EnsureModuleInitialized();
-        }
-
-        internal CoreUIParent CoreUIParent { get; }
-
         /// <summary>
-        /// Default constructor.
+        /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
         /// </summary>
-        public UIParent()
+        /// <param name="ownerWindow">Parent window object reference. OPTIONAL. The expected parent window
+        /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
+        /// <param name="useEmbeddedWebview">Ignored, on .net desktop an embedded webview is always used</param>
+        public UIParent(object parent, bool useEmbeddedWebview)
         {
-            CoreUIParent = new CoreUIParent();
+            throw new PlatformNotSupportedException("Interactive Authentication flows are not supported on .net core. " +
+                                                    "Consider using Device Code Flow https://aka.ms/msal-device-code-flow or " +
+                                                    "Integrated Windows Auth https://aka.ms/msal-net-iwa");
         }
-
-
-        //hidden webview can be used in both WinRT and desktop applications.
-        internal bool UseHiddenBrowser
-        {
-            get => CoreUIParent.UseHiddenBrowser; 
-            set => CoreUIParent.UseHiddenBrowser = value;
-        }
-
-        internal bool UseCorporateNetwork { 
-            get => CoreUIParent.UseCorporateNetwork; 
-            set => CoreUIParent.UseCorporateNetwork = value; }
-
     }
 }

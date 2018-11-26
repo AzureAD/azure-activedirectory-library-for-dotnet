@@ -35,7 +35,7 @@ namespace Microsoft.Identity.Client
     /// Contains UI properties for interactive flows, such as the parent window (on Windows), or the parent activity (on Xamarin.Android), and 
     /// which browser to use (on Xamarin.Android and Xamarin.iOS)
     /// </summary> 
-    public sealed class UIParent
+    public sealed partial class UIParent
     {
         static UIParent()
         {
@@ -62,5 +62,15 @@ namespace Microsoft.Identity.Client
             CoreUIParent.UseEmbeddedWebview = useEmbeddedWebview;
         }
 
+        /// <summary>
+        /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
+        /// On iOS, the parent is ignored, you can pass null.
+        /// </summary>
+        /// <param name="parent">Ignored on iOS</param>
+        /// <param name="useEmbeddedWebview">Flag to determine between embedded vs system browser. See https://aka.ms/msal-net-uses-web-browser </param>
+        public UIParent(object parent, bool useEmbeddedWebview)         :
+            this(useEmbeddedWebview)
+        {           
+        }
     }
 }

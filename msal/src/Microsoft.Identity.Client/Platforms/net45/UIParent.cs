@@ -34,7 +34,7 @@ namespace Microsoft.Identity.Client
     /// Contains UI properties for interactive flows, such as the parent window (on Windows), or the parent activity (on Xamarin.Android), and 
     /// which browser to use (on Xamarin.Android and Xamarin.iOS)
     /// </summary> 
-    public sealed class UIParent
+    public sealed partial class UIParent
     {
         static UIParent()
         {
@@ -61,12 +61,23 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent(ownerWindow);
         }
 
+        /// <summary>
+        /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
+        /// </summary>
+        /// <param name="ownerWindow">Parent window object reference. OPTIONAL. The expected parent window
+        /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
+        /// <param name="useEmbeddedWebview">Ignored, on .net desktop an embedded webview is always used</param>
+        public UIParent(object ownerWindow, bool useEmbeddedWebview) :
+            this(ownerWindow)
+        {
+        }
+
         //hidden webview can be used in both WinRT and desktop applications.
         internal bool UseHiddenBrowser
         {
-            get => CoreUIParent.UseHiddenBrowser; 
+            get => CoreUIParent.UseHiddenBrowser;
             set => CoreUIParent.UseHiddenBrowser = value;
         }
-       
+
     }
 }
