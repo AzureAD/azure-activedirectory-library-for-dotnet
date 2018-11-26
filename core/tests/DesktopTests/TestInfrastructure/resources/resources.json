@@ -1,0 +1,26 @@
+﻿{
+  "Graph": {
+    "requestUrl": "https://graph.windows.net",
+    "protectedUrl": "https://graph.windows.net/{0}/me?api-version=1.6"
+  },
+  "ApiOffice": {
+    "requestUrl": "https://api.office.com/discovery/",
+    "protectedUrl": "https://api.office.com/discovery/v1.0/me/services('RootSite@O365_SHAREPOINT')"
+  },
+  "OneDrive": {
+    "requestUrl": "",
+    "protectedUrl": ""
+  },
+  "Exchange": {
+    "requestUrl": "https://outlook.office365.com",
+    "protectedUrl": ""
+  },
+  "SkypeForBusiness": {
+    "requestUrl": "https://webdir.online.lync.com",
+    "protectedUrl": ""
+  },
+  "Sharepoint": {
+    "requestUrl": "",
+    "protectedUrl": ""
+  }
+}

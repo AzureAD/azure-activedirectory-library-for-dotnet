@@ -1,0 +1,37 @@
+﻿{
+  "android": {
+    "serverUrl": "http://10.249.161.50/wd/hub",
+    "deviceCapabilities": {
+      "platform": "WINDOWS",
+      "olympusTeam": "DevEX_ADAL",
+      "olympusDevicePlatform": "android",
+      "olympusDeviceCategory": "Physical",
+      "olympusDeviceOS": "Android, version 6.0.1"
+    }
+  },
+
+  "ios": {
+    "serverUrl": "http://10.249.161.50/wd/hub",
+    "deviceCapabilities": {
+      "platform": "MAC",
+      "olympusTeam": "DevEX_ADAL",
+      "olympusDevicePlatform": "ios",
+      "olympusDeviceOS": "IOS10.3.2"
+    }
+  },
+  "desktop": {
+    //    "serverUrl": "http://iddp-olympgrid:4477/wd/hub",
+    "serverUrl": "http://127.0.0.1:4723/",
+    "deviceCapabilities": {
+      "platform": "windows",
+      "app": "C:\\UITest\\WinFormsAutomationApp.exe"
+    },
+    "commandTimeout": "12000"
+  },
+
+  "keyVault": {
+    "authType": "ClientCertificate",
+    "certThumbprint": "440A5BE6C4BE2FF02A0ADBED1AAA43D6CF12E269",
+    "clientId": "ebe49c8f-61de-4357-9194-7a786f6402b4"
+  }
+}

@@ -1,0 +1,46 @@
+﻿{
+  "android": {
+    "deviceCapabilities": {
+      "platformName": "android",
+      "deviceName": "android",
+      "appPackage": "com.microsoft.aad.automation.testapp",
+      "appActivity": "com.microsoft.aad.automation.testapp.MainActivity",
+      "recreateChromeDriverSessions": true,
+      "autoGrantPermissions": true,
+      "automationName":  "uiautomator2" 
+    },
+    // all timeouts are in seconds
+    "commandTimeout": "120",
+    "findElementsTimeout": "30",
+    "findElementPollInterval": "1",
+    "webViewContextSearchTimeout": "30",
+    "canHideKeyboard": true
+  },
+
+  "ios": {
+    "deviceCapabilities": {
+      "platformName": "ios",
+      "platformVersion": "10.3",
+      "deviceName": "iPhone 7",
+      "automationName": "XCUITest",
+      "bundleId": "com.microsoft.adal.automationapp"
+    },
+    "commandTimeout": "300",
+    "findElementsTimeout": "30",
+    "findElementPollInterval": "1",
+    "webViewContextSearchTimeout": "30",
+    "canHideKeyboard": true
+  },
+
+  "desktop": {
+    "deviceCapabilities": {
+      "platformName": "Windows",
+      "deviceName": "WindowsPC"
+    },
+    "commandTimeout": "120",
+    "findElementsTimeout": "30",
+    "findElementPollInterval": "1",
+    "webViewContextSearchTimeout": "30",
+    "canHideKeyboard": false
+  }
+}

@@ -1,0 +1,4 @@
+﻿// Blacklist matches against UPNs or OIDs.
+[
+  //"AltIDUser1AltID@msidlab11.com",
+]

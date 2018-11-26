@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <!-- Import common settings -->
+  <Import Project="..\build\TestAutomation.settings.targets" />
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <ProjectGuid>{98F450A2-765C-47E6-A363-BC6833EB419C}</ProjectGuid>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Identity.AutomationTests.Adal.Headless</RootNamespace>
+    <AssemblyName>Test.ADAL.NET.Unit</AssemblyName>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App\AuthenticationHelper.cs" />
+    <Compile Include="App\DeleteCookies.cs" />
+    <Compile Include="App\HeadlessAutomationTestAppController.cs" />
+    <Compile Include="WebUI\HeadlessWebUIFactory.cs" />
+    <Compile Include="App\LoggerCallbackImpl.cs" />
+    <Compile Include="WebUI\MockedInteractiveWebUI.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <ReferenceTestFramework>true</ReferenceTestFramework>
+    <ReferenceAdal>true</ReferenceAdal>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AdalTests.Interfaces\AdalTests.Interfaces.csproj">
+      <Project>{a15b9118-902e-4bd8-b239-be3e6ed702f1}</Project>
+      <Name>AdalTests.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestInfrastructure\TestInfrastructure.csproj">
+      <Project>{8a193a74-31a5-4539-af24-3d84dcf722b0}</Project>
+      <Name>TestInfrastructure</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Labs" Version="2.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.8" />
+  </ItemGroup>
+</Project>

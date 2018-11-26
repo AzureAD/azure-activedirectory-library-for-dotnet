@@ -1,0 +1,40 @@
+﻿{
+  "Office": {
+    "ClientId": "d3590ed6-52b3-4102-aeff-aad2292ab01c",
+    "RedirectUris": {
+      "Default": "urn:ietf:wg:oauth:2.0:oob",
+      "AndroidBroker": "",
+      "IosBroker": ""
+    }
+  },
+  "OneDrive": {
+    "ClientId": "af124e86-4e96-495a-b70a-90f90ab96707",
+    "RedirectUris": {
+      "Default": "ms-onedrive://com.microsoft.skydrive"
+    }
+  },
+  "OnPremTest": {
+    "ClientId": "some_client_id",
+    "RedirectUris": {
+      "Default": "some default redirect"
+    }
+  },
+  "Outlook": {
+    "ClientId": "some_client_id",
+    "RedirectUris": {
+      "Default": ""
+    }
+  },
+  "Ntlm": {
+    "ClientId": "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+    "RedirectUris": {
+      "Default": "urn:ietf:wg:oauth:2.0:oob"
+    }
+  },
+  "TestApp": {
+    "ClientId": "b92e0ba5-f86e-4411-8e18-6b5f928d968a",
+    "RedirectUris": {
+      "Default": "msauth://com.microsoft.aad.automation.testapp/s4iQZ9jJfK9NLk3%2FpBK65dCLk0E%3D"
+    }
+  }
+}

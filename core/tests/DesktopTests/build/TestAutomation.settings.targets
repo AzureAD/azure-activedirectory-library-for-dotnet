@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <SignAssembly Condition="$(SignAssembly)==''">true</SignAssembly>
+    <DelaySign Condition="$(DelaySign)==''">false</DelaySign>
+    <AssemblyOriginatorKeyFile Condition="$(AssemblyOriginatorKeyFile)==''">$(MSBuildThisFileDirectory)\dummyDevkey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(ReferenceTestFramework)=='true'">
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+      <!-- Note: VsInstallRoot is set in the VS command prompt, in VS and in the VSTS VS Build task -->
+      <HintPath>$(VsInstallRoot)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Select the version of ADAL.Net to reference.
+       The default behaviour is to a use a NuGet package. However, if we are running in a
+       CI build, we might want to reference ADAL binaries that have just been built.
+       To do this, set the property $(AdalDesktopBinPath)
+       to a folder containing the desktop assemblies for ADAL.Net.
+
+       Switching references dynamically between NuGet packages and References works,
+       but you need to force a clean build and restore so the changes are picked up
+       i.e. msbuild TestAutomation.sln /t:clean;restore;build [/p:AdalDesktopBinPath="..."]
+
+       "clean" : without this, MSBuild will think nothing has changed and won't build unchanged files
+       "restore" : needed to force a re-evaluation of the list of required packages
+
+       UPDATE 2017/08/23: NuGet package is now set to the nightly build.
+  -->
+  <ItemGroup Condition=" $(ReferenceAdal)=='true' AND $(AdalDesktopBinPath) == ''">
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.6" />
+  </ItemGroup>
+  <ItemGroup Condition=" $(ReferenceAdal)=='true' AND $(AdalDesktopBinPath) != ''">
+    <Reference Include="$(AdalDesktopBinPath)\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
+  </ItemGroup>
+  
+</Project>

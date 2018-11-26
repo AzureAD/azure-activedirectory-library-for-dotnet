@@ -1,0 +1,36 @@
+﻿{
+  "android": {
+    "serverUrl": "http://127.0.0.1:4723/wd/hub",
+    "deviceCapabilities": {
+      /* When running on the emulator, make sure you use a local path and not an UNC path */
+      "app": "path/to/app"
+    },
+    "canHideKeyboard": false,
+    "brokerAppPaths": {
+        "AzureAuthenticator": "path/to/msAuth/app",
+        "CompanyPortal": "path/to/companyPortal/app"
+    },
+    "commandTimeout": "12000"
+  },
+
+  "ios": {
+    "serverUrl": "http://127.0.0.1:4723/wd/hub",
+    "deviceCapabilities": {
+      "app": "path/to/app"
+    },
+    "commandTimeout": "12000"
+  },
+
+  "desktop": {
+    "serverUrl": "http://127.0.0.1:4723/",
+    "deviceCapabilities": {
+      "app": "C:\\UITest\\WinFormsAutomationApp.exe"
+    },
+    "commandTimeout": "12000"
+  },
+
+  "keyVault": {
+    "authType": "UserCredential",
+    "clientId": "1950a258-227b-4e31-a9cf-717495945fc2"
+  }
+}
