@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Client
         internal CoreUIParent CoreUIParent { get; }
 
         /// <summary>
-        /// Default constructor.
+        /// Platform agnostic default constructor.
         /// </summary>
         public UIParent()
         {
@@ -64,11 +64,19 @@ namespace Microsoft.Identity.Client
         /// <param name="useEmbeddedWebview">Flag to determine between embedded vs system browser. Currently affects only iOS and Android. See https://aka.ms/msal-net-uses-web-browser </param>
         public UIParent(object parent, bool useEmbeddedWebview)
         {
-            // for the rare case when an application actually uses the netstandard implementation
-            // i.e. other frameworks - e.g. Xamarin.MAC - or MSAL.netstandard loaded via reflection
+            ThrowPlatformNotSupported();
+        }
+
+        /// <summary>
+        /// For the rare case when an application actually uses the netstandard implementation
+        /// i.e. other frameworks - e.g. Xamarin.MAC - or MSAL.netstandard loaded via reflection
+        /// </summary>
+        private void ThrowPlatformNotSupported()
+        {
             throw new PlatformNotSupportedException("Interactive Authentication flows are not supported when the NetStandard assembly is at runtime. " +
                                                     "Consider using Device Code Flow https://aka.ms/msal-device-code-flow or " +
                                                     "Integrated Windows Auth https://aka.ms/msal-net-iwa");
         }
+
     }
 }

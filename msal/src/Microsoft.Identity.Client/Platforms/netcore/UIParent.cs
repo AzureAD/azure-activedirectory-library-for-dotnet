@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Client.Internal;
 using System;
 
 namespace Microsoft.Identity.Client
@@ -34,13 +35,32 @@ namespace Microsoft.Identity.Client
     /// </summary> 
     public sealed class UIParent
     {
+        
+        static UIParent()
+        {
+            ModuleInitializer.EnsureModuleInitialized();
+        }
+        
+        /// <summary>
+        /// Default constructor. Will throw a PlatformNotSupported exception on .netcore because .netcore does not support Interactive Flows. 
+        /// </summary>
+        /// <remarks>Consider using Device Code Flow https://aka.ms/msal-device-code-flow or Integrated Windows Auth https://aka.ms/msal-net-iwa </remarks>
+        public UIParent()
+        {
+            ThrowPlatformNotSupportedException();
+        }
+
         /// <summary>
         /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
+        /// Will throw a PlatformNotSupported exception on .netcore because .netcore does not support Interactive Flows. 
         /// </summary>
-        /// <param name="parent">Parent window object reference. OPTIONAL. The expected parent window
-        /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
-        /// <param name="useEmbeddedWebview">Ignored, on .net desktop an embedded webview is always used</param>
+        /// <remarks>Consider using Device Code Flow https://aka.ms/msal-device-code-flow or Integrated Windows Auth https://aka.ms/msal-net-iwa </remarks>
         public UIParent(object parent, bool useEmbeddedWebview)
+        {
+            ThrowPlatformNotSupportedException();
+        }
+
+        private void ThrowPlatformNotSupportedException()
         {
             throw new PlatformNotSupportedException("Interactive Authentication flows are not supported on .net core. " +
                                                     "Consider using Device Code Flow https://aka.ms/msal-device-code-flow or " +
