@@ -34,10 +34,10 @@ namespace Microsoft.Identity.Json
     /// Note that references cannot be preserved when a value is set via a non-default constructor such as types that implement <see cref="T:System.Runtime.Serialization.ISerializable"/>.
     /// </summary>
     /// <example>
-    ///   <code lang="cs" source="..\Src\Microsoft.Identity.Json.Tests\Documentation\SerializationTests.cs" region="PreservingObjectReferencesOn" title="Preserve Object References" />       
+    ///   <code lang="cs" source="..\Src\Microsoft.Identity.Json.Tests\Documentation\SerializationTests.cs" region="PreservingObjectReferencesOn" title="Preserve Object References" />
     /// </example>
     [Flags]
-    public enum PreserveReferencesHandling
+    internal enum PreserveReferencesHandling
     {
         /// <summary>
         /// Do not preserve references when serializing types.

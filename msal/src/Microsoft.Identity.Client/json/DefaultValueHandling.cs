@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Json
     ///   <code lang="cs" source="..\Src\Microsoft.Identity.Json.Tests\Documentation\SerializationTests.cs" region="ReducingSerializedJsonSizeDefaultValueHandlingExample" title="DefaultValueHandling Ignore Example" />
     /// </example>
     [Flags]
-    public enum DefaultValueHandling
+    internal enum DefaultValueHandling
     {
 #pragma warning disable CA1008 // Enums should have zero value
                               /// <summary>
