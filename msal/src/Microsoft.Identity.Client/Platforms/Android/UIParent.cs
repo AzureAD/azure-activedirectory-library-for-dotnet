@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Client
     /// Android specific UI properties for interactive flows, such as the parent activity and 
     /// which browser to use 
     /// </summary> 
-    public sealed partial class UIParent
+    public sealed class UIParent
     {
         private const string ChromePackage = "com.android.chrome";
         private const string CustomTabService = "android.support.customtabs.action.CustomTabsService";

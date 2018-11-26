@@ -52,17 +52,29 @@ namespace Microsoft.Identity.Client
             CoreUIParent = new CoreUIParent();
         }
 
+        /// <summary>
+        /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
+        /// On UWP, both arguments are currently ignored.
+        /// </summary>
+        /// <param name="parent">Ignored on UWP</param>
+        /// <param name="useEmbeddedWebview">UWP supports only embeddedWebview</param>
+        public UIParent(object parent, bool useEmbeddedWebview) 
+            : this()
+        {
+        }
 
-        //hidden webview can be used in both WinRT and desktop applications.
+        // hidden webview can be used in both WinRT and desktop applications.
         internal bool UseHiddenBrowser
         {
-            get => CoreUIParent.UseHiddenBrowser; 
+            get => CoreUIParent.UseHiddenBrowser;
             set => CoreUIParent.UseHiddenBrowser = value;
         }
 
-        internal bool UseCorporateNetwork { 
-            get => CoreUIParent.UseCorporateNetwork; 
-            set => CoreUIParent.UseCorporateNetwork = value; }
-
+        internal bool UseCorporateNetwork
+        {
+            get => CoreUIParent.UseCorporateNetwork;
+            set => CoreUIParent.UseCorporateNetwork = value;
+        }
+      
     }
 }

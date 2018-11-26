@@ -32,12 +32,12 @@ namespace Microsoft.Identity.Client
     /// <summary>
     /// 
     /// </summary> 
-    public sealed partial class UIParent
+    public sealed class UIParent
     {
         /// <summary>
         /// Platform agnostic constructor that allows building an UIParent from a NetStandard assembly.
         /// </summary>
-        /// <param name="ownerWindow">Parent window object reference. OPTIONAL. The expected parent window
+        /// <param name="parent">Parent window object reference. OPTIONAL. The expected parent window
         /// are either of type <see cref="System.Windows.Forms.IWin32Window"/> or <see cref="System.IntPtr"/> (for window handle)</param>
         /// <param name="useEmbeddedWebview">Ignored, on .net desktop an embedded webview is always used</param>
         public UIParent(object parent, bool useEmbeddedWebview)
