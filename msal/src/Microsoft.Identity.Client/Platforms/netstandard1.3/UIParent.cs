@@ -47,6 +47,7 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Platform agnostic default constructor.
         /// </summary>
+        [Obsolete("This constructor should not be used because the UIParent it creates is unusable on Android")]
         public UIParent()
         {
             CoreUIParent = new CoreUIParent();

@@ -441,7 +441,11 @@ namespace Microsoft.Identity.Client
             //create instance of UIParent and assign useCorporateNetwork to UIParent
             if (parent == null)
             {
+                //TODO: Android and NetStandard constructors should never create an empty UIParent because it will lead to Null Ref exceptions
+                // (on Android, passing the Activity to the UIParent is mandatory)
+#pragma warning disable CS0618 // Type or member is obsolete
                 parent = new UIParent();
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
 #if WINDOWS_APP || DESKTOP

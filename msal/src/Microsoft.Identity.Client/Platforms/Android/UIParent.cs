@@ -40,9 +40,9 @@ using Microsoft.Identity.Core.UI;
 namespace Microsoft.Identity.Client
 {
     /// <summary>
-    /// Android specific UI properties for interactive flows, such as the parent activity and 
-    /// which browser to use 
-    /// </summary> 
+    /// Android specific UI properties for interactive flows, such as the parent activity and
+    /// which browser to use
+    /// </summary>
     public sealed class UIParent
     {
         private const string ChromePackage = "com.android.chrome";
@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Client
         }
 
 
-        /// <summary>  
+        /// <summary>
         /// Default constructor.
         /// </summary>
         [Obsolete("This constructor should not be used because this object requires a parameters of type Activity. ")]
