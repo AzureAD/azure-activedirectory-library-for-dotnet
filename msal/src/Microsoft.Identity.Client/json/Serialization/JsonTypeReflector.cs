@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Json.Serialization
 
         public const string ConcurrentDictionaryTypeName = "System.Collections.Concurrent.ConcurrentDictionary`2";
 
-        private static readonly ThreadSafeStore<Type, Func<object[], object>> CreatorCache = 
+        private static readonly ThreadSafeStore<Type, Func<object[], object>> CreatorCache =
             new ThreadSafeStore<Type, Func<object[], object>>(GetCreator);
 
 #if !(NET20 || DOTNET)
@@ -515,7 +515,7 @@ namespace Microsoft.Identity.Json.Serialization
         {
             get
             {
-#if !(PORTABLE40 || PORTABLE || DOTNET || NETSTANDARD2_0 || iOS)
+#if !(PORTABLE40 || PORTABLE || DOTNET || ANDROID || iOS)
                 if (DynamicCodeGeneration)
                 {
                     return DynamicReflectionDelegateFactory.Instance;
