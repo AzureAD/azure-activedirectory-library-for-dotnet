@@ -44,7 +44,7 @@ namespace XForms
     {
         private const string UserNotSelected = "not selected";
         private const string EmptyResult = "Result:";
-        private const string SuccsessfulResult = "Result: Success";
+        private const string SuccessfulResult = "Result: Success";
 
         public AcquirePage()
         {
@@ -180,7 +180,7 @@ namespace XForms
 
                 if (resText.Contains("AccessToken"))
                 {
-                    acquireResponseTitleLabel.Text = SuccsessfulResult;
+                    acquireResponseTitleLabel.Text = SuccessfulResult;
                 }
 
                 acquireResponseLabel.Text = resText;
@@ -223,7 +223,7 @@ namespace XForms
 
                 if (resText.Contains("AccessToken"))
                 {
-                    acquireResponseTitleLabel.Text = SuccsessfulResult;
+                    acquireResponseTitleLabel.Text = SuccessfulResult;
                 }
 
                 acquireResponseLabel.Text = resText;
@@ -257,7 +257,7 @@ namespace XForms
 
                 if (resText.Contains("AccessToken"))
                 {
-                    acquireResponseTitleLabel.Text = SuccsessfulResult;
+                    acquireResponseTitleLabel.Text = SuccessfulResult;
                 }
 
                 acquireResponseLabel.Text = resText;

@@ -92,7 +92,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string UIBehaviorConsent = "consent";
         public const string UIBehaviorSelectAccount = "select_account";
         public const string UIBehaviorLogin = "login";
-        public const string UIBehaviorNone = "none";
+        public const string UIBehaviorNoPrompt = "no_prompt";
 
         //Test Constants
         public const int ResultCheckPolliInterval = 1000;
