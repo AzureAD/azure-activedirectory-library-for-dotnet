@@ -1,5 +1,4 @@
 ﻿using Microsoft.Identity.AutomationTests;
-using Microsoft.Identity.Labs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -7,19 +6,20 @@ using OpenQA.Selenium.Support.PageObjects;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace DesktopTests
 {
     internal static class DeviceCodeSignin
     {
-        public static void SignIn(IUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
+        public static void SignIn(LabUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
         {
             ChromeSignIn.SignIn(user, deviceCodeResponse, logger);
         }
 
         private static class ChromeSignIn
         {
-            public static void SignIn(IUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
+            public static void SignIn(LabUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
             {
                 var federationProvider = FederationProvider.None;
                 if (user.IsFederated)
@@ -67,7 +67,7 @@ namespace DesktopTests
                         chromeDriver.FindElement(controls[0], 15).SendKeys(upn);
                     }
 
-                    string pwd = user.GetPassword();
+                    string pwd = LabUserHelper.GetUserPassword(user);
                     chromeDriver.FindElement(controls[1], 15).SendKeys(pwd);
                     Thread.Sleep(3000);
                     currentUrl = chromeDriver.Url;
@@ -152,7 +152,7 @@ namespace DesktopTests
 
         private static class UilessSignIn
         {
-            public static void SignIn(IUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
+            public static void SignIn(LabUser user, DeviceCodeResponse deviceCodeResponse, Logger logger)
             {
 
             }

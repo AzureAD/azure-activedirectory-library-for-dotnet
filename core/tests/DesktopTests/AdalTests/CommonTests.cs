@@ -1,11 +1,11 @@
 ﻿using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             var authRequest = new AuthenticationRequest
             {
@@ -69,7 +69,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // First call with prompt auto should be interactive - no cache hit
             var authRequest = new AuthenticationRequest
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token
             var response1 = SeedCache(resourceType, application, user);
@@ -122,7 +122,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
         
             // Add PROMPT_ALWAYS and a login hint
             var request1 = new AuthenticationRequest
@@ -154,7 +154,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token
             var response1 = SeedCache(resourceType, application, user);
@@ -182,7 +182,7 @@ namespace Microsoft.Identity.AutomationTests
             UserQueryParameters userAttributes)
         {
             userAttributes.IsExternalUser = true;
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
             // Seed the cache with a valid token from the home tenant user
              var response1 = SeedCache(resourceType, application, user.HomeUser); 
 
@@ -208,7 +208,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token, but expire the access token
             var response1 = SeedCache(resourceType, application, user,
@@ -238,7 +238,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token
             SeedCache(resourceType, application, user,
@@ -269,7 +269,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType app2,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token
 
@@ -306,7 +306,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token
 
@@ -338,65 +338,12 @@ namespace Microsoft.Identity.AutomationTests
             _responseValidator.AssertIsValid(request2, response2);
         }
 
-        //Test Case 6696 : Switch accounts
-        public void AcquireTokenSilentWithMultipleUsersInCacheTest(
-            ResourceType resourceType,
-            ApplicationType application,
-            UserQueryParameters userAttributes)
-        {
-            var userList = ConfigurationProvider.Instance.GetUsers(userAttributes).Take(2).ToArray();
-            var user1 = userList[0];
-            var user2 = userList[1];
-
-            // Seed the cache with a valid token
-
-            // Get a token for both users to populate the cache 
-            var initResponseUser1 = SeedCache(resourceType, application, user1);
-
-            SeedCache(resourceType, application, user2);
-
-            // Get a token silently from cache for the first user
-            var silentRequestUser1 = new AuthenticationRequest
-            {
-                ApplicationType = application,
-                ResourceType = resourceType,
-                BrokerType = BrokerType.None,
-                User = user1,
-                AdditionalInfo = new Dictionary<string, string>
-                    {{"user_identifier", user1.Upn}}
-            };
-            var silentResponse1User1 = _testAppController.ExecuteAcquireTokenSilentFlow(silentRequestUser1);
-            _responseValidator.AssertIsValid(silentRequestUser1, silentResponse1User1);
-
-            // Check we used User1's AT from the cache
-            _responseValidator.AssertUniqueIdsAreEqual(initResponseUser1.GetResponseAsDictionary(), silentResponse1User1.GetResponseAsDictionary());
-            _responseValidator.AssertAccessTokensAreEqual(initResponseUser1.GetResponseAsDictionary(), silentResponse1User1.GetResponseAsDictionary());
-
-            // Expire the AT and get a new token silently for the first user
-            _testAppController.ExpireUserTokens(silentRequestUser1, TokenType.AccessToken);
-            var silentResponse2User1 = _testAppController.ExecuteAcquireTokenSilentFlow(silentRequestUser1);
-            _responseValidator.AssertIsValid(silentRequestUser1, silentResponse2User1);
-
-            // Get a token silent from cache for the second user
-            var silentRequestUser2 = new AuthenticationRequest
-            {
-                ApplicationType = application,
-                ResourceType = resourceType,
-                BrokerType = BrokerType.None,
-                User = user2,
-                AdditionalInfo = new Dictionary<string, string>
-                    {{"user_identifier", user2.Upn}}
-            };
-            var silentResponseUser2 = _testAppController.ExecuteAcquireTokenSilentFlow(silentRequestUser2);
-            _responseValidator.AssertIsValid(silentRequestUser2, silentResponseUser2);
-        }
-
         public void AcquireTokenSilentWithExpiredRefreshTokenInCache(
             ResourceType resourceType,
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Seed the cache with a valid token but expire both tokens
             SeedCache(resourceType, application, user,
@@ -431,7 +378,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             var response1 = SeedCache(resourceType, application, user);
 
@@ -455,7 +402,7 @@ namespace Microsoft.Identity.AutomationTests
 
         private AuthenticationResponse SeedCache(ResourceType resourceType,
             ApplicationType application,
-            IUser user,
+            LabUser user,
             bool expireAccessToken = false,
             bool expireRefreshToken = false)
         {
@@ -484,7 +431,7 @@ namespace Microsoft.Identity.AutomationTests
                 request.AdditionalInfo = new Dictionary<string, string>
                 {
                     {"user_identifier", user.Upn},
-                    {"password", user.GetPassword()}
+                    {"password", LabUserHelper.GetUserPassword(user)}
                 };
                 authResponse = _testAppController.ExecuteAcquireTokenNonInteractiveFlow(request);
             }

@@ -29,11 +29,4 @@
 
        UPDATE 2017/08/23: NuGet package is now set to the nightly build.
   -->
-  <ItemGroup Condition=" $(ReferenceAdal)=='true' AND $(AdalDesktopBinPath) == ''">
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.6" />
-  </ItemGroup>
-  <ItemGroup Condition=" $(ReferenceAdal)=='true' AND $(AdalDesktopBinPath) != ''">
-    <Reference Include="$(AdalDesktopBinPath)\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
-  </ItemGroup>
-  
 </Project>

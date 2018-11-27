@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.SignIn
 {
@@ -29,7 +29,7 @@ namespace Microsoft.Identity.AutomationTests.SignIn
             _brokerType = brokerType;
         }
 
-        public void SignIn(IUser user)
+        public void SignIn(LabUser user)
         {
             // TODO: ensure context switching is done correctly.
             throw new NotImplementedException();

@@ -14,13 +14,10 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="LabServiceApi.cs" />
-    <Compile Include="LabUser.cs" />
     <Compile Include="LabUserComparer.cs" />
     <Compile Include="Model\IAuthenticationRequest.cs" />
     <Compile Include="ResponseBase.cs" />
     <Compile Include="Model\BrokerTypeExtensions.cs" />
-    <Compile Include="UserExtensions.cs" />
     <Compile Include="Model\Application.cs" />
     <Compile Include="Model\ApplicationType.cs" />
     <Compile Include="Configuration\KeyVaultAuthenticationType.cs" />
@@ -66,13 +63,12 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Identity.Labs" Version="2.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\..\Test.Microsoft.Identity.LabInfrastructure\Test.Microsoft.Identity.LabInfrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.6" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 </Project>

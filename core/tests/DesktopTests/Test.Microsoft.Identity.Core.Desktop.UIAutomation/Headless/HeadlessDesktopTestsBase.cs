@@ -1,5 +1,5 @@
 ﻿using Microsoft.Identity.AutomationTests;
-using Microsoft.Identity.AutomationTests.Adal.Headless;
+//using Microsoft.Identity.AutomationTests.Adal.Headless;
 using Microsoft.Identity.AutomationTests.Model;
 
 namespace DesktopTests
@@ -16,16 +16,17 @@ namespace DesktopTests
         protected DesktopSpecificTests GetNonAppiumDesktopSpecificTests()
         {
             Logger logger = new Logger(this.TestContext);
-            DesktopSpecificTests tests = new DesktopSpecificTests(logger, new HeadlessAutomationTestAppController(logger));
-            return tests;
+            //DesktopSpecificTests tests = new DesktopSpecificTests(logger, new HeadlessAutomationTestAppController(logger));
+            return null;
         }
 
         protected CommonTests GetNonAppiumCommonTests()
         {
-            Logger logger = new Logger(this.TestContext);
-            CommonTests tests = new CommonTests(logger, new HeadlessAutomationTestAppController(logger),
-                seedCacheInteractively: false /* the headless test app supports signing in non-interactively with user name and password */);
-            return tests;
+            //Logger logger = new Logger(this.TestContext);
+            //CommonTests tests = new CommonTests(logger, new HeadlessAutomationTestAppController(logger),
+            //    seedCacheInteractively: false /* the headless test app supports signing in non-interactively with user name and password */);
+            //return tests;
+            return null;
         }
 
     }

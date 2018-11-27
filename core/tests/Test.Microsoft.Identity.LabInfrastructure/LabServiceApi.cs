@@ -87,7 +87,9 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             }
 
             UriBuilder uriBuilder = new UriBuilder("http://api.msidlab.com/api/userbeta");
+#pragma warning disable CA1305 // Specify IFormatProvider
             uriBuilder.Query = string.Join("&", queryDict.Select(x => x.Key + "=" + x.Value.ToString()));
+#pragma warning restore CA1305 // Specify IFormatProvider
 
             //Fetch user
             string result = webClient.GetStringAsync(uriBuilder.ToString()).GetAwaiter().GetResult();

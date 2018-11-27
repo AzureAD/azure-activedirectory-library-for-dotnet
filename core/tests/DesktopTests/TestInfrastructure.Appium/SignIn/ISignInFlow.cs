@@ -1,4 +1,4 @@
-﻿using Microsoft.Identity.Labs;
+﻿using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.SignIn
 {
@@ -13,6 +13,6 @@ namespace Microsoft.Identity.AutomationTests.SignIn
         /// Execute the authentication flow for the given user.
         /// </summary>
         /// <param name="user">The user to sign-in with</param>
-        void SignIn(IUser user);
+        void SignIn(LabUser user);
     }
 }

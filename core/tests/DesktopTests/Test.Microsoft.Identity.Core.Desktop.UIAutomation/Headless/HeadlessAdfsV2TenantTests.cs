@@ -1,8 +1,7 @@
 ﻿using Microsoft.Identity.AutomationTests;
-using Microsoft.Identity.AutomationTests.Adal.Headless;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.LabInfrastructure;
 using static Microsoft.Identity.AutomationTests.TestCategories;
 
 namespace DesktopTests

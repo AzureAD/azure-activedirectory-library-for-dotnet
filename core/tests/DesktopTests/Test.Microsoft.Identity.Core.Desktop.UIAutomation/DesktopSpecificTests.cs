@@ -1,10 +1,10 @@
 ﻿using Microsoft.Identity.AutomationTests;
 using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace DesktopTests
 {
@@ -39,7 +39,7 @@ namespace DesktopTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // Get device code
             var request = new AuthenticationRequest
@@ -64,7 +64,7 @@ namespace DesktopTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             // There should not be any prompt and it should work as silent
             var requestWithPassword = new AuthenticationRequest
@@ -76,7 +76,7 @@ namespace DesktopTests
                 AdditionalInfo = new Dictionary<string, string>
                 {
                     {"user_identifier", user.Upn},
-                    {"password", user.GetPassword()}
+                    {"password", LabUserHelper.GetUserPassword(user)}
                 }
             };
             var authResponse = _testAppController.ExecuteAcquireTokenNonInteractiveFlow(requestWithPassword);
@@ -105,7 +105,7 @@ namespace DesktopTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             //There should not be any prompt and it should work as silent
             var requestWithPassword = new AuthenticationRequest
@@ -117,7 +117,7 @@ namespace DesktopTests
                 AdditionalInfo = new Dictionary<string, string>
                 {
                     {"user_identifier", user.Upn},
-                    {"password", user.GetPassword()}
+                    {"password", LabUserHelper.GetUserPassword(user)}
                 }
             };
             var authResponse = _testAppController.ExecuteAcquireTokenNonInteractiveFlow(requestWithPassword);
@@ -138,7 +138,7 @@ namespace DesktopTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             var request = new AuthenticationRequest
             {
@@ -156,7 +156,7 @@ namespace DesktopTests
             ApplicationType application,
             UserQueryParameters userAttributes)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userAttributes);
+            var user = LabUserHelper.GetLabUserData(userAttributes).User;
 
             var request = new AuthenticationRequest
             {

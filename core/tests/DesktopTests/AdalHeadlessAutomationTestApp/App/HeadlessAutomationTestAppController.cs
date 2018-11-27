@@ -1,6 +1,5 @@
 ﻿using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using WinFormsAutomationApp;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.Adal.Headless
 {
@@ -16,7 +16,7 @@ namespace Microsoft.Identity.AutomationTests.Adal.Headless
         private readonly Logger _logger;
         private readonly LoggerCallbackImpl loggerCallback = new LoggerCallbackImpl();
 
-        private readonly ISet<IUser> _usersWithCachedTokens = new HashSet<IUser>(new LabUserComparer());
+        private readonly ISet<LabUser> _usersWithCachedTokens = new HashSet<LabUser>(new LabUserComparer());
 
 
         public HeadlessAutomationTestAppController(Logger logger)

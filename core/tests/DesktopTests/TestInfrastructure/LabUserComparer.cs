@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
-    public class LabUserComparer : IEqualityComparer<IUser>
+    public class LabUserComparer : IEqualityComparer<LabUser>
     {
-        public bool Equals(IUser x, IUser y) => x.Upn == y.Upn;
+        public bool Equals(LabUser x, LabUser y) => x.Upn == y.Upn;
 
-        public int GetHashCode(IUser obj) => obj.Upn.GetHashCode() * 31;
+        public int GetHashCode(LabUser obj) => obj.Upn.GetHashCode() * 31;
     }
 }

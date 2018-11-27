@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
 using Microsoft.Identity.AutomationTests.Pages;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.SignIn
 {
@@ -49,7 +49,7 @@ namespace Microsoft.Identity.AutomationTests.SignIn
             _deviceSession.SwitchContext(DeviceSession.NativeAppContext);
         }
 
-        private ISignInFlow CreateSignInFlow(IUser user, BrokerType brokerType, bool usernamePrefilled)
+        private ISignInFlow CreateSignInFlow(LabUser user, BrokerType brokerType, bool usernamePrefilled)
         {
             switch (brokerType)
             {

@@ -6,9 +6,9 @@ using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
 using Microsoft.Identity.AutomationTests.Pages;
 using Microsoft.Identity.AutomationTests.SignIn;
-using Microsoft.Identity.Labs;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
@@ -18,7 +18,7 @@ namespace Microsoft.Identity.AutomationTests
         private readonly DeviceSession _deviceSession;
         private readonly SignInOrchestrator _signInOrchestrator;
         private readonly AutomationTestApp _testApp;
-        private readonly ISet<IUser> _usersWithCachedTokens = new HashSet<IUser>(new LabUserComparer());
+        private readonly ISet<LabUser> _usersWithCachedTokens = new HashSet<LabUser>(new LabUserComparer());
         //This delay is needed after hitting the go button to give the authentication flow time to complete, otherwise, the driver will fail to find the next element.
         private const int AuthenticationDelayTime = 6000;
 

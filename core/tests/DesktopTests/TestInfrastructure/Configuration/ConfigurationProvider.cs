@@ -6,10 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
-using Microsoft.Identity.Labs.JsonFile;
-using Microsoft.Identity.Labs.Rest;
-using Microsoft.Identity.Labs.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -31,7 +27,7 @@ namespace Microsoft.Identity.AutomationTests.Configuration
         private IDictionary<string, Application> _appConfig;
         private IDictionary<string, Resource> _resourcesConfig;
 
-        private readonly ILabService _labService;
+        //private readonly ILabService _labService;
 
         // Pulled from the Appium and Olympus device capability lists: 
         // https://github.com/appium/appium/blob/master/docs/en/writing-running-appium/caps.md
@@ -84,7 +80,7 @@ namespace Microsoft.Identity.AutomationTests.Configuration
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 
-            _labService = new LabServiceApi();
+            //_labService = new LabServiceApi();
 
         }
 
@@ -131,43 +127,43 @@ namespace Microsoft.Identity.AutomationTests.Configuration
             return _appConfig?[applicationType.ToString()];
         }
 
-        /// <summary>
-        /// Returns a test user account for use in testing.
-        /// An exception is thrown if no matching user is found.
-        /// </summary>
-        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
-        /// <returns>A single user that matches the given query parameters.</returns>
-        public IUser GetUser(UserQueryParameters query)
-        {
-            var availableUsers = GetUsers(query);
-            Assert.AreNotEqual(0, availableUsers.Count(), "Found no users for the given query.");
-            return availableUsers.First();
-        }
+        ///// <summary>
+        ///// Returns a test user account for use in testing.
+        ///// An exception is thrown if no matching user is found.
+        ///// </summary>
+        ///// <param name="query">Any and all parameters that the returned user should satisfy.</param>
+        ///// <returns>A single user that matches the given query parameters.</returns>
+        //public IUser GetUser(UserQueryParameters query)
+        //{
+        //    var availableUsers = GetUsers(query);
+        //    Assert.AreNotEqual(0, availableUsers.Count(), "Found no users for the given query.");
+        //    return availableUsers.First();
+        //}
 
-        /// <summary>
-        /// Returns a test user account for use in testing.
-        /// </summary>
-        /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
-        /// <returns>Users that match the given query parameters.</returns>
-        public IEnumerable<IUser> GetUsers(UserQueryParameters query)
-        {
-            foreach (var user in _labService.GetUsers(query))
-            {
-                if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
-                {
-                    Console.WriteLine($"User '{user.Upn}' has invalid Credential URL: '{user.CredentialUrl}'");
-                    continue;
-                }
+        ///// <summary>
+        ///// Returns a test user account for use in testing.
+        ///// </summary>
+        ///// <param name="query">Any and all parameters that the returned user should satisfy.</param>
+        ///// <returns>Users that match the given query parameters.</returns>
+        //public IEnumerable<IUser> GetUsers(UserQueryParameters query)
+        //{
+        //    foreach (var user in _labService.GetUsers(query))
+        //    {
+        //        if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
+        //        {
+        //            Console.WriteLine($"User '{user.Upn}' has invalid Credential URL: '{user.CredentialUrl}'");
+        //            continue;
+        //        }
 
-                if (user.IsExternal && user.HomeUser == null)
-                {
-                    Console.WriteLine($"User '{user.Upn}' has no matching home user.");
-                    continue;
-                }
+        //        if (user.IsExternal && user.HomeUser == null)
+        //        {
+        //            Console.WriteLine($"User '{user.Upn}' has no matching home user.");
+        //            continue;
+        //        }
 
-                yield return user;
-            }
-        }
+        //        yield return user;
+        //    }
+        //}
 
         private void ParseConfigFiles()
         {

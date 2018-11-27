@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.Identity.AutomationTests.Pages;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.SignIn
 {
@@ -32,7 +32,7 @@ namespace Microsoft.Identity.AutomationTests.SignIn
             _usernamePrefilled = usernamePrefilled;
         }
 
-        public void SignIn(IUser user)
+        public void SignIn(LabUser user)
         {
             var page = new AadSignInPage(_logger, _deviceSession);
 
@@ -45,7 +45,7 @@ namespace Microsoft.Identity.AutomationTests.SignIn
                 page.ClickNext();
             }
 
-            page.EnterPassword(user.GetPassword());
+            page.EnterPassword(LabUserHelper.GetUserPassword(user));
             page.ClickSignIn();
         }
     }

@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
@@ -43,7 +43,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userQuery)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userQuery);
+            var user = LabUserHelper.GetLabUserData(userQuery).User;
 
             CleanBrokerInstalls();
 
@@ -66,7 +66,7 @@ namespace Microsoft.Identity.AutomationTests
             ApplicationType application,
             UserQueryParameters userQuery)
         {
-            var user = ConfigurationProvider.Instance.GetUser(userQuery);
+            var user = LabUserHelper.GetLabUserData(userQuery).User;
 
             var resource1Request = new AuthenticationRequest
             {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Identity.AutomationTests;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.LabInfrastructure;
 using static Microsoft.Identity.AutomationTests.TestCategories;
 
 namespace DesktopTests
@@ -9,8 +9,6 @@ namespace DesktopTests
     [TestClass]
     public class HeadlessManagedTenantTests : HeadlessDesktopTestsBase
     {
-        private const FederationProvider FederationProvider = Microsoft.Identity.Labs.FederationProvider.None;
-
         [TestCategory("ProductUI")]
         [TestCategory("Headless")]
         [TestMethod]

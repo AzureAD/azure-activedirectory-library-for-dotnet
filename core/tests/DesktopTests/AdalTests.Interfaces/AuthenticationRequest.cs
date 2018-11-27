@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Identity.AutomationTests
 
         public BrokerType BrokerType { get; set; }
 
-        public IUser User { get; set; }
+        public LabUser User { get; set; }
 
         public PromptBehavior? PromptBehavior { get; set; }
 

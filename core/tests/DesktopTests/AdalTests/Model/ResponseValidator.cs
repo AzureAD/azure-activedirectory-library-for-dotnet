@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.AutomationTests.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests
 {
@@ -93,7 +93,7 @@ namespace Microsoft.Identity.AutomationTests
             Assert.AreNotEqual(authResponse1["unique_id"].ToString(), authResponse2["unique_id"].ToString(), "Unique ids should not be equal.");
         }
 
-        public void AssertIsExpectedUser(IUser user, AuthenticationResponse authResponse)
+        public void AssertIsExpectedUser(LabUser user, AuthenticationResponse authResponse)
         {
             Assert.IsNotNull(user, "User should not be null");
             Assert.IsNotNull(authResponse, "Response should not be null");

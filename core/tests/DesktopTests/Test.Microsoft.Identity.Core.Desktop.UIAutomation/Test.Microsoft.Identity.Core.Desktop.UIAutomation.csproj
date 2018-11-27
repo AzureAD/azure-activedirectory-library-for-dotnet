@@ -42,14 +42,9 @@
     <ReferenceTestFramework>true</ReferenceTestFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Labs" Version="2.1.0" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="2.31.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AdalHeadlessAutomationTestApp\AdalHeadlessAutomationTestApp.csproj">
-      <Project>{98f450a2-765c-47e6-a363-bc6833eb419c}</Project>
-      <Name>AdalHeadlessAutomationTestApp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AdalTests.Interfaces\AdalTests.Interfaces.csproj">
       <Project>{a15b9118-902e-4bd8-b239-be3e6ed702f1}</Project>
       <Name>AdalTests.Interfaces</Name>

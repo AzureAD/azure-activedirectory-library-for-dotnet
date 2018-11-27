@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Identity.Labs;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.Model
 {
@@ -7,7 +7,7 @@ namespace Microsoft.Identity.AutomationTests.Model
     {
         BrokerType BrokerType { get; }
 
-        IUser User { get; }
+        LabUser User { get; }
 
         IDictionary<string, string> AdditionalInfo { get; }
     }

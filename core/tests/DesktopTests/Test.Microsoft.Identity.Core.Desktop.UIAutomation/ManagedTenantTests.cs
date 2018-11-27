@@ -1,6 +1,6 @@
 ﻿using Microsoft.Identity.AutomationTests.Model;
-using Microsoft.Identity.Labs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Test.Microsoft.Identity.LabInfrastructure;
 using static Microsoft.Identity.AutomationTests.TestCategories;
 
 namespace DesktopTests
@@ -8,8 +8,6 @@ namespace DesktopTests
     [TestClass]
     public class ManagedTenantTests : DesktopTestsBase
     {
-        private const FederationProvider FederationProvider = Microsoft.Identity.Labs.FederationProvider.None;
-
         [TestMethod]
         [WorkItem(7067), Description("Interactive Auth with PromptBehavior.Always")]
         [TestCategory(Api.AcquireToken), TestCategory(BehaveAs.Office), TestCategory(Federation.Managed), TestCategory(Platform.Desktop)]
