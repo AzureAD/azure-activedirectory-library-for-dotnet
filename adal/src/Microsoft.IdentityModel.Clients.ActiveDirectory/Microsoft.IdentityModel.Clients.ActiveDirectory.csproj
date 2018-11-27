@@ -1,4 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/1.5.4">
+  <Target Name="OS" BeforeTargets="Build">
+    <Message Text="OS = $(OS)" Importance="High" />
+  </Target>
   <PropertyGroup Condition="'$(OS)' != 'OSX'">
     <TargetFrameworks>net45;netstandard1.1;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10</TargetFrameworks>
   </PropertyGroup>
