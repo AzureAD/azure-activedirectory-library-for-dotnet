@@ -39,13 +39,14 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace DesktopTestApp
 {
     public partial class MainForm : Form
     {
         private const string PublicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        private const string B2CClientId = "e3b9ad76-9763-4827-b088-80c7a7888f79";
+        private static string _b2CClientId;
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(PublicClientId);
         private CancellationTokenSource _cancellationTokenSource;
@@ -65,6 +66,8 @@ namespace DesktopTestApp
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
+            LabResponse labResponse = LabUserHelper.GetLabResponseWithB2CLocalAccountProvider();
+            _b2CClientId = labResponse.AppId;
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)
@@ -515,7 +518,7 @@ namespace DesktopTestApp
                 ClearResultPageInfo();
                 
                 _publicClientHandler.InteractiveAuthority = B2CAuthority;
-                _publicClientHandler.ApplicationId = B2CClientId;
+                _publicClientHandler.ApplicationId = _b2CClientId;
 
                 try
                 {
@@ -542,7 +545,7 @@ namespace DesktopTestApp
                 ClearResultPageInfo();
 
                 _publicClientHandler.InteractiveAuthority = B2CEditProfileAuthority;
-                _publicClientHandler.ApplicationId = B2CClientId;
+                _publicClientHandler.ApplicationId = _b2CClientId;
 
                 try
                 {

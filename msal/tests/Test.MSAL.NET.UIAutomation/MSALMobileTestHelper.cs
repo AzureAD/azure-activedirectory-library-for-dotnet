@@ -101,14 +101,14 @@ namespace Test.MSAL.UIAutomation
 
         private void SetInputData(
             ITestController controller,
-            string ClientID,
+            string clientId,
             string scopes,
             string uiBehavior)
         {
             controller.Tap(CoreUiTestConstants.SettingsPageID);
 
             //Enter ClientID
-            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, ClientID, XamarinSelector.ByAutomationId);
+            controller.EnterText(CoreUiTestConstants.ClientIdEntryID, clientId, XamarinSelector.ByAutomationId);
             controller.Tap(CoreUiTestConstants.SaveID);
 
             //Enter Scopes
