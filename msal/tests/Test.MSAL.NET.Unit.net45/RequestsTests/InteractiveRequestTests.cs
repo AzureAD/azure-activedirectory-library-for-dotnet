@@ -52,28 +52,18 @@ namespace Test.MSAL.NET.Unit.RequestsTests
     public class InteractiveRequestTests
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
-        private TokenCache _cache;
-        private ITelemetryManager _telemetryManager;
-        private IValidatedAuthoritiesCache _validatedAuthoritiesCache;
 
         [TestInitialize]
         public void TestInitialize()
         {
             TestCommon.ResetStateAndInitMsal();
-            _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _telemetryManager = new TelemetryManager(_myReceiver);
-
-            _cache = new TokenCache
-            {
-                TelemetryManager = _telemetryManager,
-            };
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _cache.TokenCacheAccessor.ClearAccessTokens();
-            _cache.TokenCacheAccessor.ClearRefreshTokens();
+            //_cache.TokenCacheAccessor.ClearAccessTokens();
+            //_cache.TokenCacheAccessor.ClearRefreshTokens();
         }
 
         [TestMethod]
@@ -82,14 +72,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
 
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
-                _cache = new TokenCache()
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
+                var cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
-                    TelemetryManager = _telemetryManager,
-                    AadInstanceDiscovery = aadInstanceDiscovery
+                    ServiceBundle = serviceBundle
                 };
 
                 var ui = new MockWebUI()
@@ -124,18 +113,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     SliceParameters = "key1=value1%20with%20encoded%20space&key2=value2",
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
-                    TokenCache = _cache,
+                    TokenCache = cache,
                     RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -146,8 +131,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(1, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(1, cache.TokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
             }
         }
@@ -158,13 +143,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
 
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
-                _cache = new TokenCache()
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
+                var cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
-                    TelemetryManager = _telemetryManager
+                    ServiceBundle = serviceBundle
                 };
 
                 var atItem = new MsalAccessTokenCacheItem(
@@ -180,7 +165,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 string atKey = atItem.GetKey().ToString();
                 atItem.Secret = atKey;
-                _cache.TokenCacheAccessor.SaveAccessToken(atItem);
+                cache.TokenCacheAccessor.SaveAccessToken(atItem);
 
                 var ui = new MockWebUI()
                 {
@@ -198,18 +183,14 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     Authority = authority,
                     ClientId = MsalTestConstants.ClientId,
                     Scope = MsalTestConstants.Scope,
-                    TokenCache = _cache,
+                    TokenCache = cache,
                     RequestContext = new RequestContext(null, new MsalLogger(Guid.NewGuid(), null)),
                     RedirectUri = new Uri("some://uri"),
                     ExtraQueryParameters = "extra=qp"
                 };
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -220,8 +201,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 task.Wait();
                 var result = task.Result;
                 Assert.IsNotNull(result);
-                Assert.AreEqual(1, _cache.TokenCacheAccessor.RefreshTokenCount);
-                Assert.AreEqual(2, _cache.TokenCacheAccessor.AccessTokenCount);
+                Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
+                Assert.AreEqual(2, cache.TokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(result.AccessToken, "some-access-token");
 
                 Assert.IsNotNull(
@@ -250,8 +231,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             {
                 using (var httpManager = new MockHttpManager())
                 {
-                    var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
-                    var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
+                    var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+
+                    var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
                     var parameters = new AuthenticationRequestParameters
                     {
@@ -265,15 +247,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                     };
 
                     new InteractiveRequest(
-                        httpManager,
-                        PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                        _telemetryManager,
-                        _validatedAuthoritiesCache,
-                        aadInstanceDiscovery,
+                        serviceBundle,
                         parameters,
                         ApiEvent.ApiIds.None,
                         MsalTestConstants.ScopeForAnotherResource.ToArray(),
-                        (string)null,
+                        null,
                         UIBehavior.ForceLogin,
                         new MockWebUI());
                     Assert.Fail("ArgumentException should be thrown here");
@@ -291,8 +269,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -314,11 +293,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var ui = new MockWebUI();
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -350,8 +325,9 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
                     {
@@ -372,11 +348,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 var ui = new MockWebUI();
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
@@ -407,8 +379,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
                 TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
@@ -431,15 +403,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 };
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
-                    (string)null,
+                    null,
                     UIBehavior.ForceLogin,
                     webUi);
                 try
@@ -463,15 +431,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 };
 
                 request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),
-                    (string)null,
+                    null,
                     UIBehavior.ForceLogin,
                     webUi);
 
@@ -495,9 +459,8 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {            
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, _telemetryManager);
-
-                var authority = Authority.CreateAuthority(_validatedAuthoritiesCache, aadInstanceDiscovery, MsalTestConstants.AuthorityHomeTenant, false);
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 var parameters = new AuthenticationRequestParameters
                 {
                     Authority = authority,
@@ -512,11 +475,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                 TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
 
                 var request = new InteractiveRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    _telemetryManager,
-                    _validatedAuthoritiesCache,
-                    aadInstanceDiscovery,
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     MsalTestConstants.ScopeForAnotherResource.ToArray(),

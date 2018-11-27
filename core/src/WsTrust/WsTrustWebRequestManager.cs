@@ -40,23 +40,21 @@ namespace Microsoft.Identity.Core.WsTrust
 {
     internal class WsTrustWebRequestManager : IWsTrustWebRequestManager
     {
-        private readonly IHttpManager _httpManager;
-        private readonly ICoreExceptionFactory _coreExceptionFactory;
+        private readonly IServiceBundle _serviceBundle;
 
-        public WsTrustWebRequestManager(IHttpManager httpManager, ICoreExceptionFactory coreExceptionFactory = null)
+        public WsTrustWebRequestManager(IServiceBundle serviceBundle)
         {
-            _httpManager = httpManager;
-            _coreExceptionFactory = coreExceptionFactory ?? CoreExceptionFactory.Instance;
+            _serviceBundle = serviceBundle;
         }
 
         /// <inheritdoc/>
         public async Task<MexDocument> GetMexDocumentAsync(string federationMetadataUrl, RequestContext requestContext)
         {
             var uri = new UriBuilder(federationMetadataUrl);
-            HttpResponse httpResponse = await _httpManager.SendGetAsync(uri.Uri, null, requestContext).ConfigureAwait(false);
+            HttpResponse httpResponse = await _serviceBundle.HttpManager.SendGetAsync(uri.Uri, null, requestContext).ConfigureAwait(false);
             if (httpResponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                throw _coreExceptionFactory.GetServiceException(
+                throw _serviceBundle.ExceptionFactory.GetServiceException(
                     CoreErrorCodes.AccessingWsMetadataExchangeFailed,
                     string.Format(CultureInfo.CurrentCulture,
                         CoreErrorMessages.HttpRequestUnsuccessful,
@@ -93,7 +91,7 @@ namespace Microsoft.Identity.Core.WsTrust
                 wsTrustRequest,
                 Encoding.UTF8, headers["ContentType"]);
 
-            IHttpWebResponse resp = await _httpManager.SendPostForceResponseAsync(wsTrustEndpoint.Uri, headers, body, requestContext).ConfigureAwait(false);
+            IHttpWebResponse resp = await _serviceBundle.HttpManager.SendPostForceResponseAsync(wsTrustEndpoint.Uri, headers, body, requestContext).ConfigureAwait(false);
 
             if (resp.StatusCode != System.Net.HttpStatusCode.OK)
             {
@@ -107,7 +105,7 @@ namespace Microsoft.Identity.Core.WsTrust
                     errorMessage = resp.Body;
                 }
 
-                throw _coreExceptionFactory.GetServiceException(
+                throw _serviceBundle.ExceptionFactory.GetServiceException(
                     CoreErrorCodes.FederatedServiceReturnedError,
                     string.Format(
                         CultureInfo.CurrentCulture,
@@ -128,7 +126,7 @@ namespace Microsoft.Identity.Core.WsTrust
             }
             catch (System.Xml.XmlException ex)
             {
-                throw _coreExceptionFactory.GetClientException(
+                throw _serviceBundle.ExceptionFactory.GetClientException(
                     CoreErrorCodes.ParsingWsTrustResponseFailed, CoreErrorCodes.ParsingWsTrustResponseFailed, ex);
             }
         }
@@ -142,7 +140,7 @@ namespace Microsoft.Identity.Core.WsTrust
 
             var uri = new UriBuilder(userRealmUriPrefix + userName + "?api-version=1.0").Uri;
 
-            var httpResponse = await _httpManager.SendGetAsync(uri, null, requestContext).ConfigureAwait(false);
+            var httpResponse = await _serviceBundle.HttpManager.SendGetAsync(uri, null, requestContext).ConfigureAwait(false);
             return httpResponse.StatusCode == System.Net.HttpStatusCode.OK 
                 ? JsonHelper.DeserializeFromJson<UserRealmDiscoveryResponse>(httpResponse.Body) 
                 : null;

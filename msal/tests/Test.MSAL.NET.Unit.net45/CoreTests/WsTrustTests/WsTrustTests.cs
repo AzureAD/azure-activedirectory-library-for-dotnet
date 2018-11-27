@@ -59,6 +59,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler()
                     {
@@ -73,7 +74,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
                 var requestContext = new RequestContext(null, new TestLogger(Guid.NewGuid(), null));
                 var wsTrustRequest = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
-                var manager = new WsTrustWebRequestManager(httpManager);
+                var manager = new WsTrustWebRequestManager(serviceBundle);
                 var wsTrustResponse = await manager.GetWsTrustResponseAsync(endpoint, wsTrustRequest, requestContext)
                                                    .ConfigureAwait(false);
 
@@ -90,13 +91,14 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
                 httpManager.AddMockHandlerContentNotFound(HttpMethod.Post, url: uri);
 
                 var requestContext = new RequestContext(null, new TestLogger(Guid.NewGuid(), null));
                 try
                 {
                     var message = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
-                    var manager = new WsTrustWebRequestManager(httpManager);
+                    var manager = new WsTrustWebRequestManager(serviceBundle);
 
                     WsTrustResponse wstResponse =
                         await manager.GetWsTrustResponseAsync(endpoint, message, requestContext).ConfigureAwait(false);

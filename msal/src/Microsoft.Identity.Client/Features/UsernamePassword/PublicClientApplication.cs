@@ -56,14 +56,10 @@ namespace Microsoft.Identity.Client
 
         private async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, UsernamePasswordInput usernamePasswordInput)
         {
-            Authority authority = Core.Instance.Authority.CreateAuthority(ValidatedAuthoritiesCache, AadInstanceDiscovery, Authority, ValidateAuthority);
+            Authority authority = Core.Instance.Authority.CreateAuthority(ServiceBundle, Authority, ValidateAuthority);
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             var handler = new UsernamePasswordRequest(
-                HttpManager,
-                CryptographyManager,
-                TelemetryManager,
-                ValidatedAuthoritiesCache,
-                AadInstanceDiscovery,
+                ServiceBundle,
                 WsTrustWebRequestManager,
                 requestParams,
                 ApiEvent.ApiIds.AcquireTokenWithScopeUser,

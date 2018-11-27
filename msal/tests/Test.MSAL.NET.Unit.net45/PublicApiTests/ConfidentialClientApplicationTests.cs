@@ -55,17 +55,14 @@ namespace Test.MSAL.NET.Unit
     {
         private readonly MyReceiver _myReceiver = new MyReceiver();
         private byte[] _serializedCache;
-        private ITelemetryManager _telemetryManager;
-        private IValidatedAuthoritiesCache _validatedAuthoritiesCache;
-        private IAadInstanceDiscovery _aadInstanceDiscovery;
+        private IServiceBundle _serviceBundle;
 
         [TestInitialize]
         public void TestInitialize()
         {
             TestCommon.ResetStateAndInitMsal();
-            _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
-            _telemetryManager = new TelemetryManager(_myReceiver);
-            _aadInstanceDiscovery = new AadInstanceDiscovery(new HttpManager(), _telemetryManager);
+
+            _serviceBundle = ServiceBundle.CreateForProduction(_myReceiver);
         }
 
         [TestMethod]
@@ -192,8 +189,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -227,8 +223,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -279,8 +274,7 @@ namespace Test.MSAL.NET.Unit
             int tokenResponses)
         {
             var app = new ConfidentialClientApplication(
-                httpManager,
-                _telemetryManager,
+                _serviceBundle,
                 MsalTestConstants.ClientId,
                 ClientApplicationBase.DefaultAuthority,
                 MsalTestConstants.RedirectUri,
@@ -406,8 +400,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -441,8 +434,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -489,8 +481,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -532,8 +523,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     MsalTestConstants.AuthorityGuestTenant,
                     MsalTestConstants.RedirectUri,
@@ -596,8 +586,7 @@ namespace Test.MSAL.NET.Unit
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     ClientApplicationBase.DefaultAuthority,
                     MsalTestConstants.RedirectUri,
@@ -626,10 +615,9 @@ namespace Test.MSAL.NET.Unit
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCacheForClientCredential(cache.TokenCacheAccessor);
 
-                string authority = Authority.CreateAuthority(_validatedAuthoritiesCache, _aadInstanceDiscovery, MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                string authority = Authority.CreateAuthority(_serviceBundle, MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     authority,
                     MsalTestConstants.RedirectUri,
@@ -668,10 +656,9 @@ namespace Test.MSAL.NET.Unit
                 var cache = new TokenCache();
                 TokenCacheHelper.PopulateCache(cache.TokenCacheAccessor);
 
-                string authority = Authority.CreateAuthority(_validatedAuthoritiesCache, _aadInstanceDiscovery, MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
+                string authority = Authority.CreateAuthority(_serviceBundle, MsalTestConstants.AuthorityTestTenant, false).CanonicalAuthority;
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    _serviceBundle,
                     MsalTestConstants.ClientId,
                     authority,
                     MsalTestConstants.RedirectUri,
@@ -719,6 +706,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 var cache = new TokenCache()
@@ -729,8 +717,7 @@ namespace Test.MSAL.NET.Unit
 
                 var cc = new ClientCredential("secret");
                 var app = new ConfidentialClientApplication(
-                    httpManager,
-                    _telemetryManager,
+                    serviceBundle,
                     MsalTestConstants.ClientId,
                     "https://" + MsalTestConstants.ProductionPrefNetworkEnvironment + "/tfp/home/policy",
                     MsalTestConstants.RedirectUri,

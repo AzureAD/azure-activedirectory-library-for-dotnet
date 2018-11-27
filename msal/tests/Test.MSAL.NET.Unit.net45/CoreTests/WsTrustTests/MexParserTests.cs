@@ -85,11 +85,12 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
             // TODO: should we move this into a separate test class for WsTrustWebRequestManager?
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
                 httpManager.AddMockHandlerContentNotFound(HttpMethod.Get);
 
                 try
                 {
-                    var wsTrustWebRequestHandler = new WsTrustWebRequestManager(httpManager);
+                    var wsTrustWebRequestHandler = new WsTrustWebRequestManager(serviceBundle);
                     await wsTrustWebRequestHandler.GetMexDocumentAsync("http://somehost", _requestContext).ConfigureAwait(false);
                     Assert.Fail("We expect an exception to be thrown here");
                 }

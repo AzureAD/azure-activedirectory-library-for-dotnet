@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     public sealed class AuthenticationContext
     {
-        private readonly IHttpManager _httpManager;
+        private readonly IServiceBundle _serviceBundle;
         private readonly IWsTrustWebRequestManager _wsTrustWebRequestManager;
 
         static AuthenticationContext()
@@ -108,15 +108,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
         }
 
-        internal AuthenticationContext(IHttpManager httpManager, string authority, AuthorityValidationType validateAuthority,
+        internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
             TokenCache tokenCache)
         {
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
             this.Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
             this.TokenCache = tokenCache;
 
-            _httpManager = httpManager ?? new HttpManager();
-            _wsTrustWebRequestManager = new WsTrustWebRequestManager(_httpManager);
+            _serviceBundle = serviceBundle ?? ServiceBundle.CreateForProduction();
+            _wsTrustWebRequestManager = new WsTrustWebRequestManager(_serviceBundle);
         }
 
         /// <summary>
