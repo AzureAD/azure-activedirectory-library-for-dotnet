@@ -75,7 +75,7 @@ namespace XForms
                 UIBehavior.SelectAccount.PromptValue,
                 UIBehavior.ForceLogin.PromptValue,
                 UIBehavior.Consent.PromptValue,
-                UIBehavior.None.PromptValue
+                UIBehavior.NoPrompt.PromptValue
             };
 
             UIBehaviorPicker.ItemsSource = options;
@@ -96,9 +96,9 @@ namespace XForms
                 return UIBehavior.Consent;
             }
 
-            if (UIBehavior.None.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
+            if (UIBehavior.NoPrompt.PromptValue.Equals(selectedUIBehavior, StringComparison.OrdinalIgnoreCase))
             {
-                return UIBehavior.None;
+                return UIBehavior.NoPrompt;
             }
 
             return UIBehavior.SelectAccount;

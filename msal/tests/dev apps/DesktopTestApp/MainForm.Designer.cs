@@ -58,6 +58,8 @@ namespace DesktopTestApp
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.publicClientTabPage = new System.Windows.Forms.TabPage();
+            this.b2cEditProfile = new System.Windows.Forms.Button();
+            this.b2cSilentFlow = new System.Windows.Forms.Button();
             this.b2cLogin = new System.Windows.Forms.Button();
             this.cancelOperationButton = new System.Windows.Forms.Button();
             this.acquireTokenDeviceCode = new System.Windows.Forms.Button();
@@ -76,6 +78,7 @@ namespace DesktopTestApp
             this.overriddenAuthority = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.noPrompt = new System.Windows.Forms.RadioButton();
             this.never = new System.Windows.Forms.RadioButton();
             this.consent = new System.Windows.Forms.RadioButton();
             this.forceLogin = new System.Windows.Forms.RadioButton();
@@ -90,9 +93,6 @@ namespace DesktopTestApp
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.b2cSilentFlow = new System.Windows.Forms.Button();
-            this.b2cEditProfile = new System.Windows.Forms.Button();
-            this.noPrompt = new System.Windows.Forms.RadioButton();
             this.logsTabPage.SuspendLayout();
             this.cacheTabPage.SuspendLayout();
             this.settingsTabPage.SuspendLayout();
@@ -434,6 +434,26 @@ namespace DesktopTestApp
             this.publicClientTabPage.TabIndex = 0;
             this.publicClientTabPage.Text = "publicClientTabPage";
             // 
+            // b2cEditProfile
+            // 
+            this.b2cEditProfile.Location = new System.Drawing.Point(15, 723);
+            this.b2cEditProfile.Name = "b2cEditProfile";
+            this.b2cEditProfile.Size = new System.Drawing.Size(126, 30);
+            this.b2cEditProfile.TabIndex = 42;
+            this.b2cEditProfile.Text = "B2C Edit Profile";
+            this.b2cEditProfile.UseVisualStyleBackColor = true;
+            this.b2cEditProfile.Click += new System.EventHandler(this.b2cEditProfile_Click);
+            // 
+            // b2cSilentFlow
+            // 
+            this.b2cSilentFlow.Location = new System.Drawing.Point(15, 689);
+            this.b2cSilentFlow.Name = "b2cSilentFlow";
+            this.b2cSilentFlow.Size = new System.Drawing.Size(126, 30);
+            this.b2cSilentFlow.TabIndex = 41;
+            this.b2cSilentFlow.Text = "B2C Silent AT";
+            this.b2cSilentFlow.UseVisualStyleBackColor = true;
+            this.b2cSilentFlow.Click += new System.EventHandler(this.b2cSilentFlow_Click);
+            // 
             // b2cLogin
             // 
             this.b2cLogin.Location = new System.Drawing.Point(15, 653);
@@ -602,6 +622,16 @@ namespace DesktopTestApp
             this.groupBox2.TabIndex = 10;
             this.groupBox2.TabStop = false;
             // 
+            // noPrompt
+            // 
+            this.noPrompt.AutoSize = true;
+            this.noPrompt.Location = new System.Drawing.Point(6, 43);
+            this.noPrompt.Name = "noPrompt";
+            this.noPrompt.Size = new System.Drawing.Size(98, 17);
+            this.noPrompt.TabIndex = 11;
+            this.noPrompt.Text = "B2C No Prompt";
+            this.noPrompt.UseVisualStyleBackColor = true;
+            // 
             // never
             // 
             this.never.AutoSize = true;
@@ -747,36 +777,6 @@ namespace DesktopTestApp
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(676, 814);
             this.tabControl1.TabIndex = 0;
-            // 
-            // b2cSilentFlow
-            // 
-            this.b2cSilentFlow.Location = new System.Drawing.Point(15, 689);
-            this.b2cSilentFlow.Name = "b2cSilentFlow";
-            this.b2cSilentFlow.Size = new System.Drawing.Size(126, 30);
-            this.b2cSilentFlow.TabIndex = 41;
-            this.b2cSilentFlow.Text = "B2C Silent AT";
-            this.b2cSilentFlow.UseVisualStyleBackColor = true;
-            this.b2cSilentFlow.Click += new System.EventHandler(this.b2cSilentFlow_Click);
-            // 
-            // b2cEditProfile
-            // 
-            this.b2cEditProfile.Location = new System.Drawing.Point(15, 723);
-            this.b2cEditProfile.Name = "b2cEditProfile";
-            this.b2cEditProfile.Size = new System.Drawing.Size(126, 30);
-            this.b2cEditProfile.TabIndex = 42;
-            this.b2cEditProfile.Text = "B2C Edit Profile";
-            this.b2cEditProfile.UseVisualStyleBackColor = true;
-            this.b2cEditProfile.Click += new System.EventHandler(this.b2cEditProfile_Click);
-            // 
-            // noPrompt
-            // 
-            this.noPrompt.AutoSize = true;
-            this.noPrompt.Location = new System.Drawing.Point(6, 43);
-            this.noPrompt.Name = "noPrompt";
-            this.noPrompt.Size = new System.Drawing.Size(98, 17);
-            this.noPrompt.TabIndex = 11;
-            this.noPrompt.Text = "B2C No Prompt";
-            this.noPrompt.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
