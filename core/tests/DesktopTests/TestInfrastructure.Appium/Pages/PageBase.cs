@@ -39,25 +39,39 @@ namespace Microsoft.Identity.AutomationTests.Pages
         }
 
         /// <summary>
-        /// Gets an element from a remote window. The standard WaitForElement() is not able to search in the context of windows other 
-        /// than the capabilities app because it uses AppiumDriver to get elements. AppiumDriver is unable to switch its context to
-        /// other windows on Desktop platforms. This method uses WindowsDriver scoped to the entire desktop instead, which allows us 
-        /// to get any element on any window.
+        /// Gets an element from the main or a remote window.
         /// </summary>
-        /// <param name="elementWindowName">Name of the window in which the element exists</param>
         /// <param name="by">Method used to find the element</param>
-        /// <param name="timeout">How long to search for the element before quitting</param>
         /// <param name="memberName">Name of desired element.</param>
+        /// <param name="elementWindowName">Name of the window in which the element exists</param>
+        /// <param name="timeout">How long to search for the element before quitting</param>
         /// <returns></returns>
-        public IWebElement WaitForRemoteElement(
-            string elementWindowName,
-            By by,
-            int? timeout = null,
-            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
+        public IWebElement WaitForElement(
+        By by,
+        string elementWindowName = "",
+        [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+        int? timeout = null)
         {
-            DeviceSession.NeedsFocus = true;
-            int timeoutValue = timeout*1000 ?? DeviceSession.Configuration.FindElementsTimeout*1000;
+            int timeoutValue = timeout * 1000 ?? DeviceSession.Configuration.FindElementsTimeout * 1000;
             Stopwatch sw = new Stopwatch();
+            bool isRemoteWindow = elementWindowName != "";
+
+            if (isRemoteWindow)
+            {
+                //Return focus to original app if needed
+                if (DeviceSession.NeedsFocus)
+                {
+                    //fails if this happens too fast after interacting with remote windows. Not sure why, more investigation needed
+                    Thread.Sleep(2000);
+                    DeviceSession.AppiumDriver.SwitchTo().Window(DeviceSession.AppiumDriver.CurrentWindowHandle);
+                    DeviceSession.NeedsFocus = false;
+                }
+            }
+            else
+            {
+                //Remote Window selected. Original window now needs focus
+                DeviceSession.NeedsFocus = true;
+            }
 
             //Wait for elements to load. WebDriverWait could not be used because it does not support using WindowsDriver
             while (sw.ElapsedMilliseconds < timeoutValue)
@@ -69,12 +83,29 @@ namespace Microsoft.Identity.AutomationTests.Pages
 
                 try
                 {
-                    //try to get window
-                    var window = DeviceSession.DesktopWindowDriver.FindElement(By.Name(elementWindowName));
-                    if (window != null)
+                    if (isRemoteWindow)
                     {
-                        //try to get element on window
-                        var result = window.FindElement(by);
+                        //try to get window
+                        var window = DeviceSession.DesktopWindowDriver.FindElement(By.Name(elementWindowName));
+                        if (window != null)
+                        {
+                            //try to get element on window
+                            var result = window.FindElement(by);
+                            if (result != null)
+                            {
+                                //return found element
+                                sw.Stop();
+                                return result;
+                            }
+                            continue;
+                        }
+                        else
+                            continue;
+                    }
+                    else
+                    {
+                        //try to get element on main window
+                        var result = DeviceSession.AppiumDriver.FindElement(by);
                         if (result != null)
                         {
                             //return found element
@@ -83,22 +114,10 @@ namespace Microsoft.Identity.AutomationTests.Pages
                         }
                         continue;
                     }
-                    else
-                        continue;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    //expected exceptions while looking for element. ignore and continue
-                    if (ex is ElementNotVisibleException || ex is TargetInvocationException)
-                        continue;
-                    else
-                    {
-                        Logger.LogError($"Fatal - Failed to find the element. Tried for {sw.ElapsedMilliseconds} ms. " +
-                                        $"See element_missing_{memberName} screenshot for details.", ex);
-                        DeviceSession.TakeScreenshot($"element_missing_{memberName}");
-                        sw.Stop();
-                        throw;
-                    }
+                    Logger.LogInfo($"Still Searching For Elelement {memberName}");
                 }
             }
 
@@ -110,43 +129,6 @@ namespace Microsoft.Identity.AutomationTests.Pages
                 $"See element_missing_{memberName} screenshot for details.", exception);
             DeviceSession.TakeScreenshot($"element_missing_{memberName}");
             throw exception;
-        }
-
-        public IWebElement WaitForElement(
-            By by,
-            int? timeout = null,
-            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
-        {
-            //Return focus to original app if needed
-            if (DeviceSession.NeedsFocus)
-            {
-                //fails if this happens too fast after interacting with remote windows. Not sure why, more investigation needed
-                Thread.Sleep(2000);
-                DeviceSession.AppiumDriver.SwitchTo().Window(DeviceSession.AppiumDriver.CurrentWindowHandle);
-                DeviceSession.NeedsFocus = false;
-            }
-
-            int timeoutValue = timeout ?? DeviceSession.Configuration.FindElementsTimeout;
-            var wait = new WebDriverWait(DeviceSession.AppiumDriver, TimeSpan.FromSeconds(timeoutValue))
-            {
-                PollingInterval = TimeSpan.FromSeconds(DeviceSession.Configuration.FindElementPollInterval)
-            };
-            wait.IgnoreExceptionTypes(typeof(ElementNotVisibleException), typeof(TargetInvocationException));
-
-            Stopwatch sw = new Stopwatch();
-            try
-            {
-                wait.Until(ExpectedConditions.ElementIsVisible(by));
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Fatal - Failed to find the element. Tried for {sw.ElapsedMilliseconds} ms. " +
-                                 $"See element_missing_{memberName} screenshot for details.", ex);
-                DeviceSession.TakeScreenshot($"element_missing_{memberName}");
-                throw;
-            }
-
-            return DeviceSession.AppiumDriver.FindElement(by);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Microsoft.Identity.AutomationTests.Pages
         {
             Logger.LogInfo($"{GetType().Name}: Clicking on the Next button");
 
-            WaitForRemoteElement(remoteSignInWindow, _nextButton).Click();
+            WaitForElement(_nextButton, remoteSignInWindow).Click();
         }
 
         public void ClickBack()

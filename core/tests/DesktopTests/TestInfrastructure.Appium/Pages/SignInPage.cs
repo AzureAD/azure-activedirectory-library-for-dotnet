@@ -23,7 +23,7 @@ namespace Microsoft.Identity.AutomationTests.Pages
         {
             Logger.LogInfo($"{GetType().Name}: Entering username");
 
-            var element = WaitForRemoteElement(remoteSignInWindow, UsernameTextbox);
+            var element = WaitForElement(UsernameTextbox, remoteSignInWindow);
 
             // This element is set nonClickable, try clicking on it will fail the test.
             // element.Click();
@@ -51,7 +51,7 @@ namespace Microsoft.Identity.AutomationTests.Pages
             
             Logger.LogInfo($"{GetType().Name}: Entering password");
 
-            WaitForRemoteElement(remoteSignInWindow, PasswordTextbox).SendKeys(password);
+            WaitForElement(PasswordTextbox, remoteSignInWindow).SendKeys(password);
             Logger.LogInfo($"{GetType().Name}: Password entered");
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Identity.AutomationTests.Pages
         {
             Logger.LogInfo($"{GetType().Name}: Clicking on the SignIn button");
 
-            WaitForRemoteElement(remoteSignInWindow, SignInButton).Click();
+            WaitForElement(SignInButton, remoteSignInWindow).Click();
         }
     }
 }
