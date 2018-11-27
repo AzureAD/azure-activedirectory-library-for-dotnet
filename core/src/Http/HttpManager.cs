@@ -42,7 +42,7 @@ namespace Microsoft.Identity.Core.Http
 
         public HttpManager(ICoreExceptionFactory coreExceptionFactory, IHttpClientFactory httpClientFactory = null)
         {
-            _coreExceptionFactory = coreExceptionFactory;
+            _coreExceptionFactory = coreExceptionFactory ?? CoreExceptionFactory.Instance;
             _httpClientFactory = httpClientFactory ?? new HttpClientFactory();
         }
 

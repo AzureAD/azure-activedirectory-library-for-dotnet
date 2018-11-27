@@ -124,7 +124,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForProduction();
+                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
