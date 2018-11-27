@@ -19,9 +19,7 @@
     <TestProjectType>UnitTest</TestProjectType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AdfsV2TenantTests.cs" />
-    <Compile Include="AdfsV3TenantTests.cs" />
-    <Compile Include="AdfsV4TenantTests.cs" />
+    <Compile Include="DesktopTests.cs" />
     <Compile Include="DesktopSpecificTests.cs" />
     <Compile Include="DesktopTestsBase.cs" />
     <Compile Include="DeviceCodeSignin.cs" />
@@ -32,7 +30,6 @@
     <Compile Include="Headless\HeadlessTestsBase.cs" />
     <Compile Include="Headless\HeadlessManagedTenantTests.cs" />
     <Compile Include="Headless\HeadlessShibbolethTenantTests.cs" />
-    <Compile Include="ManagedTenantTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
