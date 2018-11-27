@@ -332,7 +332,7 @@ namespace Test.MSAL.UIAutomation
             
             controller.Tap(CoreUiTestConstants.AcquirePageID);
             
-            SetUiBehavior(controller, CoreUiTestConstants.UIBehaviorNone);
+            SetUiBehavior(controller, CoreUiTestConstants.UIBehaviorNoPrompt);
 
             //Acquire token flow
             controller.Tap(CoreUiTestConstants.AcquireTokenID);
