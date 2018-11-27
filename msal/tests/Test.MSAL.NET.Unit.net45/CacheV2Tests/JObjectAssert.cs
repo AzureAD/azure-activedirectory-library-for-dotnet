@@ -25,17 +25,43 @@
 // 
 // ------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Core
+using System.Collections.Generic;
+using Microsoft.Identity.Json.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
 {
-    internal interface ICryptographyManager
+    internal static class JObjectAssert
     {
-        string CreateBase64UrlEncodedSha256Hash(string input);
-        string GenerateCodeVerifier();
-        string CreateSha256Hash(string input);
-        byte[] CreateSha256HashBytes(string input);
-        string Encrypt(string message);
-        string Decrypt(string encryptedMessage);
-        byte[] Encrypt(byte[] message);
-        byte[] Decrypt(byte[] encryptedMessage);
+        public static void AreEqual(JObject expected, JObject actual)
+        {
+            if (expected == null && actual == null)
+            {
+                return;
+            }
+
+            if (expected == null || actual == null)
+            {
+                Assert.Fail();
+            }
+
+            if (expected.Count != actual.Count)
+            {
+                Assert.Fail();
+            }
+
+            foreach (KeyValuePair<string, JToken> kvpExpected in expected)
+            {
+                if (actual.TryGetValue(kvpExpected.Key, out var value))
+                {
+                    Assert.AreEqual(kvpExpected.Value.Type, value.Type);
+                    Assert.AreEqual(kvpExpected.Value, value);
+                }
+                else
+                {
+                    Assert.Fail();
+                }
+            }
+        }
     }
 }

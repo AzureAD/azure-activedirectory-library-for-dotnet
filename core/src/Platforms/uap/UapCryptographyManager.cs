@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Core
             {
                 return null;
             }
-            
+
             IBuffer inputBuffer = CryptographicBuffer.ConvertStringToBinary(input, BinaryStringEncoding.Utf8);
 
             var hasher = HashAlgorithmProvider.OpenAlgorithm("SHA256");
@@ -80,7 +80,16 @@ namespace Microsoft.Identity.Core
 
             return CryptographicBuffer.EncodeToBase64String(hashed);
         }
-        
+
+        public byte[] CreateSha256HashBytes(string input)
+        {
+            IBuffer inputBuffer = CryptographicBuffer.ConvertStringToBinary(input, BinaryStringEncoding.Utf8);
+            var hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha256);
+
+            IBuffer hashed = hasher.HashData(inputBuffer);
+            return hashed.ToArray();
+        }
+
         public string Encrypt(string message)
         {
             if (string.IsNullOrEmpty(message))
