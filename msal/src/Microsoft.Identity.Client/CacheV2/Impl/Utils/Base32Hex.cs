@@ -31,6 +31,9 @@ using System.Text;
 
 namespace Microsoft.Identity.Client.CacheV2.Impl.Utils
 {
+    /// <summary>
+    /// A class to implement Base32Hex encoding
+    /// </summary>
     internal static class Base32Hex
     {
         /// <summary>

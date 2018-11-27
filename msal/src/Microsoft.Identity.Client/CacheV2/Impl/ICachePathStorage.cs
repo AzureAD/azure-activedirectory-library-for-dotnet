@@ -30,6 +30,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.Identity.Client.CacheV2.Impl
 {
+    /// <summary>
+    /// This interface represents raw byte i/o for cache data stored using relative paths (e.g. in memory, file system).
+    /// </summary>
     internal interface ICachePathStorage
     {
         byte[] Read(string relativePath);

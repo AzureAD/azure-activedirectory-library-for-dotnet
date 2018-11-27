@@ -35,6 +35,13 @@ using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.CacheV2
 {
+    /// <summary>
+    /// Given that we want to be able to migrate to CacheV2 with confidence, we want the existing cache
+    /// infrastructure to work and be able to test the new cache.  This interface acts as the adapter
+    /// between the product and the particular cache version being used.
+    /// Once we've fully moved to the V2 cache, the goal is that this adapter infra will be removed
+    /// and the implementation within this class for the V2 cache will move into the product code directly.
+    /// </summary>
     internal interface ITokenCacheAdapter
     {
         ITokenCache TokenCache { get; set; }

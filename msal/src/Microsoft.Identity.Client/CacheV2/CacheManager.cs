@@ -36,6 +36,7 @@ using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.Identity.Client.CacheV2
 {
+    /// <inheritdoc />
     internal class CacheManager : ICacheManager
     {
         private readonly AuthenticationRequestParameters _authParameters;
@@ -47,6 +48,7 @@ namespace Microsoft.Identity.Client.CacheV2
             _authParameters = authParameters;
         }
 
+        /// <inheritdoc />
         public bool TryReadCache(out MsalTokenResponse msalTokenResponse, out IAccount account)
         {
             msalTokenResponse = null;
@@ -167,10 +169,10 @@ namespace Microsoft.Identity.Client.CacheV2
                 return false;
             }
 
-            Microsoft.Identity.Client.CacheV2.Impl.IdToken idTokenJwt = null;
+            IdToken idTokenJwt = null;
             if (idToken != null)
             {
-                idTokenJwt = new Microsoft.Identity.Client.CacheV2.Impl.IdToken(idToken.Secret);
+                idTokenJwt = new IdToken(idToken.Secret);
             }
 
             if (accessToken != null)
@@ -195,6 +197,7 @@ namespace Microsoft.Identity.Client.CacheV2
             return true;
         }
 
+        /// <inheritdoc />
         public IAccount CacheTokenResponse(MsalTokenResponse msalTokenResponse)
         {
             var tokenResponse = new TokenResponse(msalTokenResponse);
@@ -300,6 +303,7 @@ namespace Microsoft.Identity.Client.CacheV2
             return account;
         }
 
+        /// <inheritdoc />
         public void DeleteCachedRefreshToken()
         {
             string homeAccountId = _authParameters.Account.HomeAccountId.ToString();
@@ -357,7 +361,7 @@ namespace Microsoft.Identity.Client.CacheV2
             }
         }
 
-        internal static string GetLocalAccountId(Microsoft.Identity.Client.CacheV2.Impl.IdToken idTokenJwt)
+        internal static string GetLocalAccountId(IdToken idTokenJwt)
         {
             string localAccountId = idTokenJwt.Oid;
             if (string.IsNullOrWhiteSpace(localAccountId))

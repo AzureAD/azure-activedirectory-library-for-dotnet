@@ -45,8 +45,8 @@ namespace Microsoft.Identity.Client.CacheV2.Impl
             if (accessToken != null)
             {
                 AccessToken = accessToken.Secret;
-                ExpiresOn = DateTime.UtcNow; // ToTimePoint(accessToken.ExpiresOn)
-                ExtendedExpiresOn = DateTime.UtcNow; // ToTimePoint(accessToken.ExtendedExpiresOn)
+                ExpiresOn = DateTime.UtcNow; // TODO: ToTimePoint(accessToken.ExpiresOn)
+                ExtendedExpiresOn = DateTime.UtcNow; // TODO: ToTimePoint(accessToken.ExtendedExpiresOn)
                 GrantedScopes = ScopeUtils.SplitScopes(accessToken.Target);
             }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Identity.Client.CacheV2.Impl
                 IdToken = IdToken.ToString(),
                 RefreshToken = RefreshToken,
                 Scope = ScopeUtils.JoinScopes(GrantedScopes),
-                TokenType = "whatgoeshere",
+                TokenType = "whatgoeshere",  // TODO: figure out MsalTokenResponse TokenType value(s)
             };
         }
 

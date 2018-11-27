@@ -33,6 +33,10 @@ using Microsoft.Identity.Client.CacheV2.Impl.Utils;
 
 namespace Microsoft.Identity.Client.CacheV2.Impl.InMemory
 {
+    /// <summary>
+    /// This is the in-memory cache implementation.  This should be used when a developer wants
+    /// to persist the cache data on their own (e.g. in a distributed cloud environment).
+    /// </summary>
     internal class InMemoryCachePathStorage : ICachePathStorage
     {
         private readonly object _lock = new object();

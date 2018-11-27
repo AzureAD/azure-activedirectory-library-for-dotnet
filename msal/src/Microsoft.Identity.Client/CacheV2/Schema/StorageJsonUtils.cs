@@ -32,6 +32,11 @@ using Microsoft.Identity.Json.Linq;
 
 namespace Microsoft.Identity.Client.CacheV2.Schema
 {
+    /// <summary>
+    /// This class contains the methods for encoding/decoding our object representations of cache data.
+    /// If you're modifying this class, you're updating the schema persistence behavior so ensure you're
+    /// aligned with the other cache schema models.
+    /// </summary>
     internal static class StorageJsonUtils
     {
         public static JObject CredentialToJson(Credential credential)

@@ -32,6 +32,12 @@ using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Client.CacheV2
 {
+    /// <summary>
+    /// In the V2 cache, the ITokenCache interface will provide the existing infra used by external developers
+    /// to serialize/deserialize if they're managing their own cache.
+    /// But the cache implementation does not live within the TokenCacheV2 infra, it is simply a facade
+    /// into the StorageManager and other pieces of the cache that are owned by the ClientApplicationBase.
+    /// </summary>
     internal class TokenCacheV2 : ITokenCache
     {
         private readonly object _lock = new object();

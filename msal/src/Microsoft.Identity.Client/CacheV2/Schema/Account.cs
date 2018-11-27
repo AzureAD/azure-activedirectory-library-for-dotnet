@@ -37,6 +37,11 @@ namespace Microsoft.Identity.Client.CacheV2.Schema
         Other
     }
 
+    /// <summary>
+    /// This is the object we will serialize (using StorageJson* classes for specific field names) for Account information.
+    /// If you're modifying this object and the related (de)serialization, you're modifying the cache persistence
+    /// model and need to ensure it's compatible and compliant with the other cache implementations.
+    /// </summary>
     internal class Account : IAccount
     {
         public string HomeAccountId { get; set; }

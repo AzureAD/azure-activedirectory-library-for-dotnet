@@ -25,22 +25,18 @@
 // 
 // ------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
-using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.Identity.Client.CacheV2
 {
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    ///// <param name="args"></param>
-    // public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
-
     /// <summary>
-    /// 
+    /// This is the interface that implements the public access to cache operations.
+    /// With CacheV2, this should only be necessary if the caller is persisting
+    /// the cache in their own store, since this will provide the serialize/deserialize
+    /// and before/after notifications used in that scenario.
+    /// TODO: This interface should eventually be PUBLIC.
     /// </summary>
-    public interface ITokenCache
+    internal interface ITokenCache
     {
         ///// <summary>
         ///// 
@@ -82,6 +78,6 @@ namespace Microsoft.Identity.Client.CacheV2
         /// 
         /// </summary>
         /// <param name="cacheData"></param>
-        void DeserializeUnifiedAndAdalCache(CacheData cacheData);        
+        void DeserializeUnifiedAndAdalCache(CacheData cacheData);
     }
 }
