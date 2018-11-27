@@ -37,7 +37,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);IS_MSAL</DefineConstants>
+    <DefineConstants>$(DefineConstants);IS_MSAL</DefineConstants>    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' ">
@@ -111,6 +111,8 @@
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <!-- Remove UI specific logic as it is not supported yet -->
@@ -133,6 +135,8 @@
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Security.SecureString" Version="4.3.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Compile Include="Platforms\net45\**\*.cs" />
