@@ -3,7 +3,7 @@
     <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OSX)' != ''">
-    <TargetFrameworks>netstandard1.3;Xamarin.iOS10;netcoreapp1.0;MonoAndroid8.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
