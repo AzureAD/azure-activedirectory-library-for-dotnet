@@ -356,7 +356,7 @@ namespace DesktopTestApp
 
             if (noPrompt.Checked)
             {
-                behavior = UIBehavior.NoPrompt; ;
+                behavior = UIBehavior.None; ;
             }
 
             return behavior;
