@@ -127,7 +127,7 @@ namespace Microsoft.Identity.Client
         /// Caller applications should reset the flag after serializing and persisting the state of the cache.
         /// </summary>
         [Obsolete("Please use the equivalent flag TokenCacheNotificationArgs.HasStateChanged, " +
-            "which indicates if the operation triggering the delegate is read-only or not." +
+            "which indicates if the operation triggering the notification is modifying the cache or not." +
             " Setting the flag is not required.")]
         public bool HasStateChanged
         {
