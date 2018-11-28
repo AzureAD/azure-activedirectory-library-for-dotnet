@@ -66,7 +66,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for instance validation
                 httpManager.AddMockHandler(
@@ -124,7 +124,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -163,7 +163,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for instance validation
                 httpManager.AddMockHandler(
@@ -217,7 +217,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for instance validation
                 httpManager.AddMockHandler(
@@ -261,7 +261,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -300,7 +300,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("AadAuthorityTests")]
         public void CanonicalAuthorityInitTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             const string UriNoPort = "https://login.microsoftonline.in/mytenant.com";
             const string UriNoPortTailSlash = "https://login.microsoftonline.in/mytenant.com/";

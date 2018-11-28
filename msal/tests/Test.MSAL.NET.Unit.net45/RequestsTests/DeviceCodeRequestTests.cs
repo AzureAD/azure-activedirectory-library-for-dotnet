@@ -103,7 +103,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
@@ -157,7 +157,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 const int NumberOfAuthorizationPendingRequestsToInject = 0;
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
@@ -219,7 +219,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 try
                 {
                     const int NumberOfAuthorizationPendingRequestsToInject = 2;
@@ -280,7 +280,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             int numAuthorizationPendingResults,
             out HashSet<string> expectedScopes)
         {
-            var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+            var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
             var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()

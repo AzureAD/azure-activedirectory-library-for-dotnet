@@ -68,7 +68,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 TestInitialize(httpManager);
 
                 PublicClientApplication app = new PublicClientApplication(

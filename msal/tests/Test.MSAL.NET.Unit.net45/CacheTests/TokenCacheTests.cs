@@ -91,7 +91,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -138,7 +138,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -188,7 +188,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 var cache = new TokenCache()
@@ -239,7 +239,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
@@ -281,7 +281,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
@@ -327,7 +327,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
@@ -378,7 +378,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 "someRT",
                 MockHelpers.CreateClientInfo());
 
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             string rtKey = rtItem.GetKey().ToString();
             cache.TokenCacheAccessor.SaveRefreshToken(rtItem);
@@ -413,7 +413,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 var cache = new TokenCache()
@@ -449,7 +449,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -496,7 +496,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void DoNotSaveRefreshTokenInAdalCacheForMsalB2CAuthorityTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
             var cache = new TokenCache()
             {
                 ClientId = MsalTestConstants.ClientId,
@@ -543,7 +543,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -594,7 +594,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -646,7 +646,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -695,7 +695,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithEmptyCacheTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -734,7 +734,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithMoreScopesTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -795,7 +795,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithLessScopesTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -852,7 +852,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithIntersectingScopesTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -923,7 +923,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SaveAccessAndRefreshTokenWithDifferentAuthoritySameUserTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -1004,7 +1004,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void SerializeDeserializeCacheTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var cache = new TokenCache()
             {
@@ -1080,7 +1080,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
@@ -1117,7 +1117,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
         [TestCategory("TokenCacheTests")]
         public void CacheB2CTokenTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             var B2CCache = new TokenCache()
             {

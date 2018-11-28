@@ -85,7 +85,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
             // TODO: should we move this into a separate test class for WsTrustWebRequestManager?
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddMockHandlerContentNotFound(HttpMethod.Get);
 
                 try

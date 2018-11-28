@@ -59,20 +59,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             TestCommon.ResetStateAndInitMsal();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            //_cache.TokenCacheAccessor.ClearAccessTokens();
-            //_cache.TokenCacheAccessor.ClearRefreshTokens();
-        }
-
         [TestMethod]
         [TestCategory("InteractiveRequestTests")]
         public void SliceParametersTest()
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
@@ -143,7 +136,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 var cache = new TokenCache()
@@ -231,7 +224,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             {
                 using (var httpManager = new MockHttpManager())
                 {
-                    var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                    var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                     var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
@@ -269,7 +262,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
@@ -325,7 +318,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 httpManager.AddMockHandler(
@@ -379,7 +372,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
 
                 TestCommon.MockInstanceDiscoveryAndOpenIdRequest(httpManager);
@@ -459,7 +452,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {            
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
                 var parameters = new AuthenticationRequestParameters
                 {

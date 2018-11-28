@@ -46,7 +46,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         [TestInitialize]
         public void TestInitialize()
         {
-            _serviceBundle = ServiceBundle.CreateForProduction();
+            _serviceBundle = ServiceBundle.CreateDefault();
         }
 
         [TestMethod]

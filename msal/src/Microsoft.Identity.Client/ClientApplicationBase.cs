@@ -98,8 +98,8 @@ namespace Microsoft.Identity.Client
         internal ClientApplicationBase(string clientId, string authority, string redirectUri,
             bool validateAuthority, IServiceBundle serviceBundle)
         {
-            ServiceBundle = serviceBundle ?? Microsoft.Identity.Core.ServiceBundle.CreateForProduction();
-            WsTrustWebRequestManager = new WsTrustWebRequestManager(serviceBundle);
+            ServiceBundle = serviceBundle ?? Microsoft.Identity.Core.ServiceBundle.CreateDefault();
+            WsTrustWebRequestManager = new WsTrustWebRequestManager(ServiceBundle);
 
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(ServiceBundle, authority, validateAuthority);

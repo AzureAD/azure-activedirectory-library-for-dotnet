@@ -296,7 +296,7 @@ namespace Test.ADAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 string host = "login.windows.net";
                 string preferredNetwork = "login.microsoftonline.com";

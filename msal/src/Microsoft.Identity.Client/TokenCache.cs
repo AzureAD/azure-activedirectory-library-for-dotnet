@@ -59,7 +59,7 @@ namespace Microsoft.Identity.Client
         internal const string NullPreferredUsernameDisplayLabel = "Missing from the token response";
         private const string MicrosoftLogin = "login.microsoftonline.com";
 
-        private IServiceBundle _serviceBundle = Microsoft.Identity.Core.ServiceBundle.CreateForProduction();
+        private IServiceBundle _serviceBundle = Microsoft.Identity.Core.ServiceBundle.CreateDefault();
 
         internal IServiceBundle ServiceBundle
         {

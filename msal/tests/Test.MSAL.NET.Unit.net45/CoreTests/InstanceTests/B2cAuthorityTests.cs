@@ -59,7 +59,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             try
             {
-                var serviceBundle = ServiceBundle.CreateForProduction();
+                var serviceBundle = ServiceBundle.CreateDefault();
                 var instance = Authority.CreateAuthority(serviceBundle, "https://login.microsoftonline.in/tfp/", false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.B2C);
@@ -85,7 +85,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -124,7 +124,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -163,7 +163,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestCategory("B2CAuthorityTests")]
         public void CanonicalAuthorityInitTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction();
+            var serviceBundle = ServiceBundle.CreateDefault();
 
             const string UriNoPort = CoreTestConstants.B2CAuthority;
             const string UriNoPortTailSlash = CoreTestConstants.B2CAuthority;

@@ -159,7 +159,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
                 PublicClientApplication app = new PublicClientApplication(
                     serviceBundle,
@@ -203,7 +203,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -241,7 +241,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -290,7 +290,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -339,7 +339,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -408,7 +408,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -498,7 +498,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -564,7 +564,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 PublicClientApplication app = new PublicClientApplication(
                     serviceBundle,
                     MsalTestConstants.ClientId,
@@ -677,7 +677,7 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("PublicClientApplicationTests")]
         public async Task AcquireTokenSilentScopeAndEmptyCacheTestAsync()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction(_myReceiver);
+            var serviceBundle = ServiceBundle.CreateDefault(_myReceiver);
             PublicClientApplication app =
                 new PublicClientApplication(serviceBundle, MsalTestConstants.ClientId, ClientApplicationBase.DefaultAuthority)
                 {
@@ -743,7 +743,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -852,7 +852,7 @@ namespace Test.MSAL.NET.Unit
         [TestCategory("PublicClientApplicationTests")]
         public void AcquireTokenSilentCacheOnlyLookupTest()
         {
-            var serviceBundle = ServiceBundle.CreateForProduction(_myReceiver);
+            var serviceBundle = ServiceBundle.CreateDefault(_myReceiver);
             PublicClientApplication app =
                 new PublicClientApplication(serviceBundle, MsalTestConstants.ClientId, MsalTestConstants.AuthorityTestTenant)
                 {
@@ -891,7 +891,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
 
                 PublicClientApplication app = new PublicClientApplication(
                     serviceBundle,
@@ -944,7 +944,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -998,7 +998,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -1024,7 +1024,7 @@ namespace Test.MSAL.NET.Unit
             };
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -1108,7 +1108,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -1154,7 +1154,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, _myReceiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, _myReceiver);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -1249,7 +1249,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 PublicClientApplication app = new PublicClientApplication(
                     serviceBundle,
                     CoreTestConstants.ClientId,
@@ -1280,7 +1280,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(
@@ -1313,7 +1313,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 PublicClientApplication app = new PublicClientApplication(
                     serviceBundle,
                    CoreTestConstants.ClientId,
@@ -1345,7 +1345,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
 
                 PublicClientApplication app = new PublicClientApplication(

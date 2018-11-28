@@ -115,7 +115,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
             this.TokenCache = tokenCache;
 
-            _serviceBundle = serviceBundle ?? ServiceBundle.CreateForProduction();
+            _serviceBundle = serviceBundle ?? ServiceBundle.CreateDefault();
             _wsTrustWebRequestManager = new WsTrustWebRequestManager(_serviceBundle);
         }
 

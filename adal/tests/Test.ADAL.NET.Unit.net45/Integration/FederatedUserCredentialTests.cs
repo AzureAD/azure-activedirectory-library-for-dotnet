@@ -77,7 +77,7 @@ namespace Test.ADAL.NET.Integration
         {
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
@@ -166,7 +166,7 @@ namespace Test.ADAL.NET.Integration
         {
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAuthorityCommonTenant,
@@ -252,7 +252,7 @@ namespace Test.ADAL.NET.Integration
         {
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAuthorityCommonTenant,
@@ -418,7 +418,7 @@ namespace Test.ADAL.NET.Integration
         {
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAuthorityCommonTenant,
@@ -483,7 +483,7 @@ namespace Test.ADAL.NET.Integration
         {
             using (var httpManager = new Microsoft.Identity.Core.Unit.Mocks.MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAuthorityCommonTenant,

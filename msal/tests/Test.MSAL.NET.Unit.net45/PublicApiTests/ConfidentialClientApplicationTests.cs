@@ -707,7 +707,7 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var receiver = new MyReceiver();
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, receiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, receiver);
                 await action(httpManager, serviceBundle, receiver).ConfigureAwait(false);
             }
         }
@@ -717,7 +717,7 @@ namespace Test.MSAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var receiver = new MyReceiver();
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager, receiver);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager, receiver);
                 action(httpManager, serviceBundle, receiver);
             }
         }

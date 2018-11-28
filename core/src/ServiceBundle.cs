@@ -68,12 +68,12 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public IPlatformProxy PlatformProxy { get; }
 
-        public static ServiceBundle CreateForProduction(ITelemetryReceiver telemetryReceiver = null)
+        public static ServiceBundle CreateDefault(ITelemetryReceiver telemetryReceiver = null)
         {
             return new ServiceBundle(telemetryReceiver: telemetryReceiver);
         }
 
-        public static ServiceBundle CreateForTest(IHttpManager httpManager, ITelemetryReceiver telemetryReceiver = null)
+        public static ServiceBundle CreateWithCustomHttpManager(IHttpManager httpManager, ITelemetryReceiver telemetryReceiver = null)
         {
             return new ServiceBundle(httpManager: httpManager, telemetryReceiver: telemetryReceiver, shouldClearCaches: true);
         }

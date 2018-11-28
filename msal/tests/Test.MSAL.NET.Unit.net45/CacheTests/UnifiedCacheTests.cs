@@ -57,7 +57,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 httpManager.AddInstanceDiscoveryMockHandler();
 
@@ -127,7 +127,7 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 // login to app
                 var tokenCache = new TokenCache();
                 tokenCache.SetBeforeAccess((TokenCacheNotificationArgs args) =>
@@ -214,7 +214,7 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
-                var serviceBundle = ServiceBundle.CreateForTest(httpManager);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 var app = new PublicClientApplication(
                     serviceBundle,
                     MsalTestConstants.ClientId,
