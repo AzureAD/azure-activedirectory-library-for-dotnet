@@ -120,7 +120,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CFacebookProviderWithB2CLoginAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), isB2CLoginAuthority:true);
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), true);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CFacebookProviderWithMicrosoftAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), isB2CLoginAuthority: false);
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), false);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CFacebookProviderEditPolicyAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), isB2CLoginAuthority:true);
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CFacebookProvider(), true);
             _msalMobileTestHelper.B2CFacebookProviderEditPolicyAcquireTokenInteractiveTestHelper(xamarinController);
         }
 
@@ -158,7 +158,7 @@ namespace Test.MSAL.UIAutomation
             "system browser locally.")]
         public void B2CGoogleProviderWithB2CLoginAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider(), isB2CLoginAuthority: true);
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider(), true);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Test.MSAL.UIAutomation
         [Ignore("UI is different in AppCenter compared w/local.")]
         public void B2CGoogleProviderWithMicrosoftAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider(), isB2CLoginAuthority: false);
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CGoogleProvider(), false);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CLocalAccountAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider(), isB2CLoginAuthority: true);
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider(), true);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void B2CLocalAccountAcquireTokenWithMicrosoftAuthorityTest()
         {
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider(), isB2CLoginAuthority: false);
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetLabResponseWithB2CLocalAccountProvider(), false);
         }
 
         /// <summary>
