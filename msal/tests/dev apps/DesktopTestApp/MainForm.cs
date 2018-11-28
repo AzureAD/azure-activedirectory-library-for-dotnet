@@ -46,7 +46,7 @@ namespace DesktopTestApp
     public partial class MainForm : Form
     {
         private const string PublicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        private static string _b2CClientId;
+        private static string _b2CClientId = null;
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(PublicClientId);
         private CancellationTokenSource _cancellationTokenSource;
@@ -66,8 +66,6 @@ namespace DesktopTestApp
 
             LoadSettings();
             Logger.LogCallback = LogDelegate;
-            LabResponse labResponse = LabUserHelper.GetLabResponseWithB2CLocalAccountProvider();
-            _b2CClientId = labResponse.AppId;
         }
 
         public void LogDelegate(LogLevel level, string message, bool containsPii)
@@ -358,7 +356,7 @@ namespace DesktopTestApp
 
             if (noPrompt.Checked)
             {
-                behavior = UIBehavior.NoPrompt; ;
+                behavior = UIBehavior.NoPrompt;
             }
 
             return behavior;
@@ -515,6 +513,8 @@ namespace DesktopTestApp
         {
             using (new UIProgressScope(this))
             {
+                GetB2CClientIdFromLab();
+
                 ClearResultPageInfo();
                 
                 _publicClientHandler.InteractiveAuthority = B2CAuthority;
@@ -542,6 +542,8 @@ namespace DesktopTestApp
         {
             using (new UIProgressScope(this))
             {
+                GetB2CClientIdFromLab();
+
                 ClearResultPageInfo();
 
                 _publicClientHandler.InteractiveAuthority = B2CEditProfileAuthority;
@@ -569,8 +571,10 @@ namespace DesktopTestApp
         {
             using (new UIProgressScope(this))
             {
-                ClearResultPageInfo();
+                GetB2CClientIdFromLab();
 
+                ClearResultPageInfo();
+                
                 _publicClientHandler.InteractiveAuthority = B2CAuthority;
 
                 try
@@ -587,5 +591,14 @@ namespace DesktopTestApp
             }
         }
 
+        private void GetB2CClientIdFromLab()
+        {
+            if (_b2CClientId != null)
+            {
+                return;
+            }
+            LabResponse labResponse = LabUserHelper.GetLabResponseWithB2CLocalAccountProvider();
+            _b2CClientId = labResponse.AppId;
+        }
     }
 }

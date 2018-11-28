@@ -271,16 +271,22 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private void ValidateAccountIdentifiers(ClientInfo fromServer)
         {
-            if (fromServer == null || AuthenticationRequestParameters?.Account?.HomeAccountId == null ) return;
+            if (fromServer == null || AuthenticationRequestParameters?.Account?.HomeAccountId == null) return;
 
             if (AuthenticationRequestParameters.Authority.AuthorityType == AuthorityType.B2C &&
                 fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId,
-                    StringComparison.OrdinalIgnoreCase)) return;
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
 
             if (fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
-                    StringComparison.OrdinalIgnoreCase) &&
+                StringComparison.OrdinalIgnoreCase) &&
                 fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId,
-                    StringComparison.OrdinalIgnoreCase)) return;
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
 
             AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user identifier");
 
