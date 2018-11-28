@@ -62,13 +62,13 @@ namespace Microsoft.Identity.Json.Serialization
 
             if (assemblyName != null)
             {
-                Assembly assembly;
+                Assembly assembly = null;
 
 #if !(DOTNET || PORTABLE40 || PORTABLE)
                 // look, I don't like using obsolete methods as much as you do but this is the only way
                 // Assembly.Load won't check the GAC for a partial name
 #pragma warning disable 618,612,2001
-                assembly = Assembly.LoadWithPartialName(assemblyName);
+                // assembly = Assembly.LoadWithPartialName(assemblyName);
 #pragma warning restore 618,612,2001
 #elif DOTNET || PORTABLE
                 assembly = Assembly.Load(new AssemblyName(assemblyName));
