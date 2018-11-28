@@ -74,8 +74,7 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
 
                 var requestContext = new RequestContext(null, new TestLogger(Guid.NewGuid(), null));
                 var wsTrustRequest = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
-                var manager = new WsTrustWebRequestManager(serviceBundle);
-                var wsTrustResponse = await manager.GetWsTrustResponseAsync(endpoint, wsTrustRequest, requestContext)
+                var wsTrustResponse = await serviceBundle.WsTrustWebRequestManager.GetWsTrustResponseAsync(endpoint, wsTrustRequest, requestContext)
                                                    .ConfigureAwait(false);
 
                 Assert.IsNotNull(wsTrustResponse.Token);
@@ -98,10 +97,9 @@ namespace Test.Microsoft.Identity.Unit.WsTrustTests
                 try
                 {
                     var message = endpoint.BuildTokenRequestMessageWindowsIntegratedAuth("urn:federation:SomeAudience");
-                    var manager = new WsTrustWebRequestManager(serviceBundle);
 
                     WsTrustResponse wstResponse =
-                        await manager.GetWsTrustResponseAsync(endpoint, message, requestContext).ConfigureAwait(false);
+                        await serviceBundle.WsTrustWebRequestManager.GetWsTrustResponseAsync(endpoint, message, requestContext).ConfigureAwait(false);
                     Assert.Fail("We expect an exception to be thrown here");
                 }
                 catch (TestException ex)

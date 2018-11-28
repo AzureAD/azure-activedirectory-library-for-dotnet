@@ -81,7 +81,6 @@ namespace Microsoft.Identity.Client
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             var handler = new IntegratedWindowsAuthRequest(
                 ServiceBundle,
-                WsTrustWebRequestManager,
                 requestParams,
                 ApiEvent.ApiIds.AcquireTokenWithScopeUser,
                 iwaInput);

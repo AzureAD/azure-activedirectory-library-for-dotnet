@@ -28,6 +28,7 @@
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Core
 {
@@ -40,13 +41,15 @@ namespace Microsoft.Identity.Core
             ITelemetryReceiver telemetryReceiver = null,
             IValidatedAuthoritiesCache validatedAuthoritiesCache = null,
             IAadInstanceDiscovery aadInstanceDiscovery = null,
+            IWsTrustWebRequestManager wsTrustWebRequestManager = null,
             bool shouldClearCaches = false)
         {
             ExceptionFactory = coreExceptionFactory ?? CoreExceptionFactory.Instance;
             HttpManager = httpManager ?? new HttpManager(coreExceptionFactory, httpClientFactory);
             TelemetryManager = new TelemetryManager(telemetryReceiver);
-            ValidatedAuthoritiesCache = new ValidatedAuthoritiesCache(shouldClearCaches);
-            AadInstanceDiscovery = new AadInstanceDiscovery(HttpManager, TelemetryManager, shouldClearCaches);
+            ValidatedAuthoritiesCache = validatedAuthoritiesCache ?? new ValidatedAuthoritiesCache(shouldClearCaches);
+            AadInstanceDiscovery = aadInstanceDiscovery ?? new AadInstanceDiscovery(HttpManager, TelemetryManager, shouldClearCaches);
+            WsTrustWebRequestManager = wsTrustWebRequestManager ?? new WsTrustWebRequestManager(HttpManager, ExceptionFactory);
             PlatformProxy = PlatformProxyFactory.GetPlatformProxy();
         }
 
@@ -64,6 +67,9 @@ namespace Microsoft.Identity.Core
 
         /// <inheritdoc />
         public ICoreExceptionFactory ExceptionFactory { get; }
+
+        /// <inheritdoc />
+        public IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
 
         /// <inheritdoc />
         public IPlatformProxy PlatformProxy { get; }

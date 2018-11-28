@@ -326,7 +326,7 @@ namespace Test.ADAL.NET.Unit
                 };
 
                 var handler = new AcquireTokenUsernamePasswordHandler(
-                        new WsTrustWebRequestManager(serviceBundle),
+                        serviceBundle,
                         requestData,
                         new UsernamePasswordInput("johndoe@contoso.com", "fakepassword"));
 

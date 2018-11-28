@@ -49,7 +49,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         public IntegratedWindowsAuthRequest(
             IServiceBundle serviceBundle,
-            IWsTrustWebRequestManager wsTrustWebRequestManager,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IntegratedWindowsAuthInput iwaInput)
@@ -59,7 +58,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(
                 authenticationRequestParameters.RequestContext,
                 _iwaInput,
-                wsTrustWebRequestManager);
+                serviceBundle);
         }
 
         internal override async Task<AuthenticationResult> ExecuteAsync(CancellationToken cancellationToken)

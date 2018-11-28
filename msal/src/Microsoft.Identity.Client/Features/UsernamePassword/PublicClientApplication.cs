@@ -60,7 +60,6 @@ namespace Microsoft.Identity.Client
             var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
             var handler = new UsernamePasswordRequest(
                 ServiceBundle,
-                WsTrustWebRequestManager,
                 requestParams,
                 ApiEvent.ApiIds.AcquireTokenWithScopeUser,
                 usernamePasswordInput);

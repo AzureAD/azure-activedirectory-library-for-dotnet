@@ -51,7 +51,6 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         public UsernamePasswordRequest(
             IServiceBundle serviceBundle,
-            IWsTrustWebRequestManager wsTrustWebRequestManager,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             UsernamePasswordInput usernamePasswordInput)
@@ -61,7 +60,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(
                 authenticationRequestParameters.RequestContext,
                 usernamePasswordInput,
-                wsTrustWebRequestManager);
+                serviceBundle);
         }
 
         internal override async Task<AuthenticationResult> ExecuteAsync(CancellationToken cancellationToken)

@@ -65,7 +65,6 @@ namespace Microsoft.Identity.Client
         internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
         internal IServiceBundle ServiceBundle { get; }
-        internal IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
 
         internal ITelemetryReceiver TelemetryReceiver
         {
@@ -99,7 +98,6 @@ namespace Microsoft.Identity.Client
             bool validateAuthority, IServiceBundle serviceBundle)
         {
             ServiceBundle = serviceBundle ?? Microsoft.Identity.Core.ServiceBundle.CreateDefault();
-            WsTrustWebRequestManager = new WsTrustWebRequestManager(ServiceBundle);
 
             ClientId = clientId;
             Authority authorityInstance = Core.Instance.Authority.CreateAuthority(ServiceBundle, authority, validateAuthority);
