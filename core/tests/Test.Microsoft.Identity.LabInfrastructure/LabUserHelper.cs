@@ -68,7 +68,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         public static UserQueryParameters B2CGoogleUserQuery => new UserQueryParameters
         {
-
             UserType = UserType.B2C,
             B2CIdentityProvider = B2CIdentityProvider.Google
         };
@@ -83,7 +82,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             return user;
         }
 
-        public static LabResponse GetLabResponseWithDefaultUser()
+        public static LabResponse GetDefaultUser()
         {
             if (_defaultLabResponse == null)
             {
@@ -93,25 +92,25 @@ namespace Test.Microsoft.Identity.LabInfrastructure
             return _defaultLabResponse;
         }
 
-        public static LabResponse GetLabResponseWithB2CLocalAccountProvider()
+        public static LabResponse GetB2CLocalAccount()
         {
             var user = B2CLocalAccountUserQuery;
             return GetLabUserData(user);
         }
 
-        public static LabResponse GetLabResponseWithB2CFacebookProvider()
+        public static LabResponse GetB2CFacebookAccount()
         {
             var user = B2CFacebookUserQuery;
             return GetLabUserData(user);
         }
 
-        public static LabResponse GetLabResponseWithB2CGoogleProvider()
+        public static LabResponse GetB2CGoogleAccount()
         {
             var user = B2CGoogleUserQuery;
             return GetLabUserData(user);
         }
 
-        public static LabResponse GetLabResponseWithADFSUser(FederationProvider federationProvider, bool federated = true)
+        public static LabResponse GetAdfsUser(FederationProvider federationProvider, bool federated = true)
         {
             var user = DefaultUserQuery;
             user.FederationProvider = federationProvider;

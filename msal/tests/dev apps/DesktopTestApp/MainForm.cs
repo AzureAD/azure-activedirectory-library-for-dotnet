@@ -596,7 +596,7 @@ namespace DesktopTestApp
             {
                 return;
             }
-            LabResponse labResponse = LabUserHelper.GetLabResponseWithB2CLocalAccountProvider();
+            LabResponse labResponse = LabUserHelper.GetB2CLocalAccount();
             _b2CClientId = labResponse.AppId;
         }
     }
