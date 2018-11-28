@@ -52,13 +52,11 @@ namespace Test.MSAL.NET.Unit.CacheTests
         public static long ValidExtendedExpiresIn = 7200;
 
         private TokenCache _cache;
-        private IValidatedAuthoritiesCache _validatedAuthoritiesCache;
 
         [TestInitialize]
         public void TestInitialize()
         {
             TestCommon.ResetStateAndInitMsal();
-            _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
             _cache = new TokenCache();
             new TestLogger(Guid.Empty);
         }
@@ -859,7 +857,7 @@ namespace Test.MSAL.NET.Unit.CacheTests
                 ClientId = MsalTestConstants.ClientId,
                 ServiceBundle = serviceBundle
             };
-        
+
             var response = new MsalTokenResponse
             {
                 IdToken = MockHelpers.CreateIdToken(MsalTestConstants.UniqueId, MsalTestConstants.DisplayableId),
@@ -908,12 +906,19 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
         private void AfterAccessChangedNotification(TokenCacheNotificationArgs args)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.IsTrue(args.TokenCache.HasStateChanged);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.IsTrue(args.HasStateChanged);
+
         }
 
         private void AfterAccessNoChangeNotification(TokenCacheNotificationArgs args)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.IsFalse(args.TokenCache.HasStateChanged);
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.IsFalse(args.HasStateChanged);
         }
 
 
@@ -979,7 +984,9 @@ namespace Test.MSAL.NET.Unit.CacheTests
 
             cache.SetAfterAccess(AfterAccessChangedNotification);
             cache.SaveAccessAndRefreshToken(requestParams, response);
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.IsFalse(cache.HasStateChanged);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.AreEqual(1, cache.TokenCacheAccessor.RefreshTokenCount);
             Assert.AreEqual(2, cache.TokenCacheAccessor.AccessTokenCount);
@@ -996,10 +1003,14 @@ namespace Test.MSAL.NET.Unit.CacheTests
             // Setting LogLevel.Verbose causes certain static dependencies to load
             Logger.Level = LogLevel.Verbose;
             var tokenCache = new TokenCache();
+            tokenCache.AfterAccess = args => { Assert.IsFalse(args.HasStateChanged); };
             tokenCache.Deserialize(null);
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.IsFalse(tokenCache.HasStateChanged, "State should not have changed when deserializing nothing.");
+#pragma warning restore CS0618 // Type or member is obsolete
             Logger.Level = previousLogLevel;
         }
+
         [TestMethod]
         [TestCategory("TokenCacheTests")]
         public void SerializeDeserializeCacheTest()
