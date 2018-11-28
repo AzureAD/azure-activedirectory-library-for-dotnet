@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Json.Serialization
             _typeCache = new ThreadSafeStore<StructMultiKey<string, string>, Type>(GetTypeFromTypeNameKey);
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods")]
+        [SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId="Assembly.LoadWithPartialName")]
         private Type GetTypeFromTypeNameKey(StructMultiKey<string, string> typeNameKey)
         {
             string assemblyName = typeNameKey.Value1;
