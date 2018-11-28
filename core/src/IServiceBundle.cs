@@ -1,20 +1,20 @@
-//----------------------------------------------------------------------
-//
+﻿// ------------------------------------------------------------------------------
+// 
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-//
+// 
 // This code is licensed under the MIT License.
-//
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,31 +22,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// 
+// ------------------------------------------------------------------------------
 
-using Microsoft.Identity.Client.Internal;
-using Microsoft.Identity.Core.UI;
+using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
+using Microsoft.Identity.Core.Telemetry;
+using Microsoft.Identity.Core.WsTrust;
 
-namespace Microsoft.Identity.Client.Internal.UI
+namespace Microsoft.Identity.Core
 {
-    internal class InteractiveWebUI : WebUI
+    internal interface IServiceBundle
     {
-#pragma warning disable 618 // WindowsFormsWebAuthenticationDialog is marked obsolete
-
-        private WindowsFormsWebAuthenticationDialog dialog;
-
-        protected override AuthorizationResult OnAuthenticate()
-        {
-            AuthorizationResult result;
-
-            using (dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow) {RequestContext = this.RequestContext})
-            {
-                result = dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
-            }
-
-            return result;
-        }
-#pragma warning restore 618
+        IHttpManager HttpManager { get; }
+        ITelemetryManager TelemetryManager { get; }
+        IValidatedAuthoritiesCache ValidatedAuthoritiesCache { get; }
+        IAadInstanceDiscovery AadInstanceDiscovery { get; }
+        ICoreExceptionFactory ExceptionFactory { get; }
+        IPlatformProxy PlatformProxy { get; }
+        IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
     }
 }
