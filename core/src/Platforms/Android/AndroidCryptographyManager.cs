@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Core
     {
         public string CreateBase64UrlEncodedSha256Hash(string input)
         {
-            return string.IsNullOrWhiteSpace(input) ? null : Base64UrlHelpers.Encode(CreateSha256HashBytes(input));
+            return string.IsNullOrEmpty(input) ? null : Base64UrlHelpers.Encode(CreateSha256HashBytes(input));
         }
 
         public string GenerateCodeVerifier()
@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Core
 
         public string CreateSha256Hash(string input)
         {
-            return string.IsNullOrWhiteSpace(input) ? null : Convert.ToBase64String(CreateSha256HashBytes(input));
+            return string.IsNullOrEmpty(input) ? null : Convert.ToBase64String(CreateSha256HashBytes(input));
         }
 
         public byte[] CreateSha256HashBytes(string input)

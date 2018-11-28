@@ -33,6 +33,7 @@ using Microsoft.Identity.Client.CacheV2.Impl.InMemory;
 using Microsoft.Identity.Client.CacheV2.Impl.Utils;
 using Microsoft.Identity.Client.CacheV2.Schema;
 using Microsoft.Identity.Client.Internal.Requests;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -88,7 +89,7 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
 
             using (var httpManager = new MockHttpManager())
             {
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 var cacheManager = new CacheManager(
                     _storageManager,
@@ -107,8 +108,7 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
                         // AccountId = MsalTestConstants.HomeAccountId,
                         // Authority = new Uri(MsalTestConstants.AuthorityTestTenant),
                         Authority = Authority.CreateAuthority(
-                            new ValidatedAuthoritiesCache(),
-                            aadInstanceDiscovery,
+                            serviceBundle,
                             MsalTestConstants.AuthorityTestTenant,
                             false),
                         ClientId = MsalTestConstants.ClientId,

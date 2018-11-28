@@ -82,7 +82,7 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
             var authParameters = new AuthenticationRequestParameters
             {
                 // todo(mzuber): this is going to be wonky probably...
-                Authority = Authority.CreateAuthority(null, null, authority, false)
+                Authority = Authority.CreateAuthority(null, authority, false)
             };
             var cacheManager = new CacheManager(null, authParameters);
             return cacheManager.GetAuthorityType();
