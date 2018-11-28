@@ -46,7 +46,7 @@ namespace DesktopTestApp
     public partial class MainForm : Form
     {
         private const string PublicClientId = "0615b6ca-88d4-4884-8729-b178178f7c27";
-        private static string _b2CClientId = null;
+        private string _b2CClientId = null;
 
         private readonly PublicClientHandler _publicClientHandler = new PublicClientHandler(PublicClientId);
         private CancellationTokenSource _cancellationTokenSource;
