@@ -571,11 +571,10 @@ namespace DesktopTestApp
         {
             using (new UIProgressScope(this))
             {
-                GetB2CClientIdFromLab();
-
                 ClearResultPageInfo();
                 
                 _publicClientHandler.InteractiveAuthority = B2CAuthority;
+                _publicClientHandler.ApplicationId = _b2CClientId;
 
                 try
                 {
