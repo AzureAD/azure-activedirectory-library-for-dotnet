@@ -532,11 +532,13 @@ namespace Microsoft.Identity.Client.CacheV2.Impl
 
         public byte[] Encrypt(string input)
         {
+            // TODO: enable encryption/decryption and enable configuration to determine if we should.
             return Encoding.UTF8.GetBytes(input);
         }
 
         private byte[] Decrypt(byte[] input)
         {
+            // TODO: enable encryption/decryption and enable configuration to determine if we should.
             return input;
         }
 

@@ -35,7 +35,6 @@ using Microsoft.Identity.Client.CacheV2.Schema;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.Microsoft.Identity.Core.Unit.Mocks;
 

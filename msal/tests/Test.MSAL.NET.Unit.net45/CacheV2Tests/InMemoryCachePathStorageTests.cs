@@ -49,22 +49,14 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            TestCleanup();
             _io = new InMemoryCachePathStorage();
             _data = RandomDataUtils.GetRandomData(1024);
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
         }
 
         // Verifies that multiple threads trying to read the same file concurrently will get the same output
         [TestMethod]
         public void ReadFileConcurrently()
         {
-            Debug.WriteLine("TEST START: ReadFileConcurrently");
-
             _io.Write(FileName, _data);
 
             ThreadTestUtils.ParallelExecute(
@@ -81,8 +73,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void WriteFileConcurrently()
         {
-            Debug.WriteLine("TEST START: WriteFileConcurrently");
-
             ThreadTestUtils.ParallelExecute(
                 () =>
                 {
@@ -100,8 +90,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void TestDeleteFile()
         {
-            Debug.WriteLine("TEST START: TestDeleteFile");
-
             _io.Write(FileName, _data);
             Assert.IsTrue(_io.RootDirectory.FileExists(FileName));
 
@@ -113,8 +101,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void WriteDeleteConcurrently()
         {
-            Debug.WriteLine("TEST START: WriteDeleteConcurrently");
-
             var actions = new List<Action>();
             for (int i = 0; i < 100; i++)
             {
@@ -150,8 +136,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void ReadWriteDeleteConcurrently()
         {
-            Debug.WriteLine("TEST START: ReadWriteDeleteConcurrently");
-
             int successfulReadsCount = 0;
 
             var actions = new List<Action>();
@@ -163,12 +147,10 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
                         Thread.Sleep(new Random().Next() % 10);
                         byte[] actualData = _io.Read(FileName);
 
-                        // Either the file doesn't exist
-                        if (!actualData.Any())
+                        
+                        if (actualData.Any())
                         {
-                        }
-                        else
-                        {
+                            // We successfully read the data
                             CollectionAssert.AreEqual(_data, actualData);
                             ++successfulReadsCount;
                         }
@@ -209,8 +191,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void WriteReadDataFuzz()
         {
-            Debug.WriteLine("TEST START: WriteReadDataFuzz");
-
             for (int dataSize = 1; dataSize <= 1 << 18; dataSize <<= 1)
             {
                 byte[] localData = RandomDataUtils.GetRandomData(dataSize);
@@ -226,8 +206,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void ReadNonexistentFileReturnsEmpty()
         {
-            Debug.WriteLine("TEST START: ReadNonexistentFileReturnsEmpty");
-
             Assert.IsFalse(_io.Read(FileName).Any());
         }
 
@@ -235,8 +213,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void CreateInvalidDirectoryThrows()
         {
-            Debug.WriteLine("TEST START: CreateInvalidDirectoryThrows");
-
             // Create a file called TestFolderBase
             _io.RootDirectory.CreateFile(TestFolderBase, Encoding.UTF8.GetBytes("here's some content"));
 
@@ -248,8 +224,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void ReadModifyWrite()
         {
-            Debug.WriteLine("TEST START: ReadModifyWrite");
-
             const string noRegrets = "No regrets";
             const string noRagrats = "No ragrats";
 
@@ -282,8 +256,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void ReadModifyWriteNewFile()
         {
-            Debug.WriteLine("TEST START: ReadModifyWriteNewFile");
-
             const string NewFile = "New file!";
             _io.ReadModifyWrite(FileName, bytes => bytes.Any() ? bytes : Encoding.UTF8.GetBytes(NewFile));
             CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(NewFile), _io.Read(FileName));
@@ -293,8 +265,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void ListContent()
         {
-            Debug.WriteLine("TEST START: ListContent");
-
             _io.Write("x/a.txt", _data);
             _io.Write("x/b.txt", _data);
             _io.Write("x/c/d.txt", _data);
@@ -364,8 +334,6 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
         [TestMethod]
         public void DeleteContent()
         {
-            Debug.WriteLine("TEST START: DeleteContent");
-
             _io.Write("x/a.txt", _data);
             _io.Write("x/b.txt", _data);
             _io.Write("x/c/d.txt", _data);

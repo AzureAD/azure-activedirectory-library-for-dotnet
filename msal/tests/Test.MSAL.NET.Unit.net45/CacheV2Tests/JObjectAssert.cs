@@ -40,14 +40,19 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
                 return;
             }
 
-            if (expected == null || actual == null)
+            if (expected == null)
             {
-                Assert.Fail();
+                Assert.Fail("Expected should not be null");
+            }
+
+            if (actual == null)
+            {
+                Assert.Fail("Actual should not be null");
             }
 
             if (expected.Count != actual.Count)
             {
-                Assert.Fail();
+                Assert.Fail($"expected.Count ({expected.Count}) != actual.Count ({actual.Count})");
             }
 
             foreach (KeyValuePair<string, JToken> kvpExpected in expected)
@@ -59,7 +64,7 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
                 }
                 else
                 {
-                    Assert.Fail();
+                    Assert.Fail($"actual does not have key: {kvpExpected.Key}");
                 }
             }
         }

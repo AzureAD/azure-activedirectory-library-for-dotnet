@@ -70,6 +70,6 @@ namespace Microsoft.Identity.Client.CacheV2
         ICollection<string> GetAllIdTokenCacheItems(RequestContext requestContext);
         ICollection<MsalRefreshTokenCacheItem> GetAllRefreshTokensForClient(RequestContext requestContext);
         ICollection<string> GetAllRefreshTokenCacheItems(RequestContext requestContext);
-        void RemoveMsalAccount(IAccount user, RequestContext requestContext);
+        void RemoveMsalAccount(IAccount account, RequestContext requestContext);
     }
 }

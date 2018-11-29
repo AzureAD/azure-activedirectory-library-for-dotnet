@@ -31,14 +31,6 @@ using Microsoft.Identity.Json.Linq;
 
 namespace Microsoft.Identity.Client.CacheV2.Schema
 {
-    internal enum CredentialType
-    {
-        OAuth2AccessToken,
-        OAuth2RefreshToken,
-        OidcIdToken,
-        Other
-    }
-
     /// <summary>
     /// This is the object we will serialize (using StorageJson* classes for specific field names) for Credential information.
     /// Credentials include Access Tokens, Refresh Tokens, etc.

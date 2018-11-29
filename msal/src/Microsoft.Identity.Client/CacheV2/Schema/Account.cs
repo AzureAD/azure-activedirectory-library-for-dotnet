@@ -29,14 +29,6 @@ using System;
 
 namespace Microsoft.Identity.Client.CacheV2.Schema
 {
-    internal enum AuthorityType
-    {
-        MsSts,
-        Adfs,
-        Msa,
-        Other
-    }
-
     /// <summary>
     /// This is the object we will serialize (using StorageJson* classes for specific field names) for Account information.
     /// If you're modifying this object and the related (de)serialization, you're modifying the cache persistence

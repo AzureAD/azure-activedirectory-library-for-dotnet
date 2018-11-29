@@ -37,7 +37,7 @@ namespace Microsoft.Identity.Client.CacheV2.Impl
         public Jwt(string raw)
         {
             Raw = raw;
-            if (string.IsNullOrWhiteSpace(raw))
+            if (string.IsNullOrWhiteSpace(Raw))
             {
                 // warning: constructed jwt from empty string
                 return;
@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Client.CacheV2.Impl
             string[] sections = Raw.Split('.');
             if (sections.Length != 3)
             {
-                throw new ArgumentException("failed jwt decode: wrong number of sections", nameof(raw));
+                throw new ArgumentException("failed jwt decode: wrong number of sections", nameof(Raw));
             }
 
             Payload = Base64UrlHelpers.DecodeToString(sections[1]);

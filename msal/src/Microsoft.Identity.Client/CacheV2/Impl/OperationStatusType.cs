@@ -27,20 +27,10 @@
 
 namespace Microsoft.Identity.Client.CacheV2.Impl
 {
-    internal class OperationStatus
+    internal enum OperationStatusType
     {
-        public OperationStatusType StatusType { get; set; }
-        public int Code { get; set; }
-        public string StatusDescription { get; set; }
-        public long PlatformCode { get; set; }
-        public string PlatformDomain { get; set; }
-
-        public static OperationStatus CreateSuccess()
-        {
-            return new OperationStatus
-            {
-                StatusType = OperationStatusType.Success
-            };
-        }
-    }
+        Success,
+        Failure,
+        RetriableError
+    };
 }

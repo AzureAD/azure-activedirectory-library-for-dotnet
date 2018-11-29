@@ -25,22 +25,13 @@
 // 
 // ------------------------------------------------------------------------------
 
-namespace Microsoft.Identity.Client.CacheV2.Impl
+namespace Microsoft.Identity.Client.CacheV2.Schema
 {
-    internal class OperationStatus
+    internal enum CredentialType
     {
-        public OperationStatusType StatusType { get; set; }
-        public int Code { get; set; }
-        public string StatusDescription { get; set; }
-        public long PlatformCode { get; set; }
-        public string PlatformDomain { get; set; }
-
-        public static OperationStatus CreateSuccess()
-        {
-            return new OperationStatus
-            {
-                StatusType = OperationStatusType.Success
-            };
-        }
+        OAuth2AccessToken,
+        OAuth2RefreshToken,
+        OidcIdToken,
+        Other
     }
 }
