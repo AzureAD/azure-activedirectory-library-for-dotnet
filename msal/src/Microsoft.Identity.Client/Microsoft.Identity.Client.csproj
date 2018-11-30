@@ -2,11 +2,11 @@
   <Target Name="OS" BeforeTargets="Build">
     <Message Text="OS = $(OS)" Importance="High" />
   </Target>
-  <PropertyGroup Condition="'$(OS)' != 'OSX'">
+  <PropertyGroup Condition="'$(OS)' != 'Unix'">
     <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)' == 'OSX'">
-    <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+  <PropertyGroup Condition="'$(OS)' == 'Unix'">
+    <TargetFrameworks>netstandard1.3;Xamarin.iOS10</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>7.2</LangVersion>
