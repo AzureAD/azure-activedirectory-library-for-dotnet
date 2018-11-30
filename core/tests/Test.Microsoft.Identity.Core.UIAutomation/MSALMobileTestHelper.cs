@@ -343,13 +343,13 @@ namespace Test.MSAL.UIAutomation
             CoreMobileTestHelper.VerifyResult(controller);
         }
 
-        public void PromptBehaviorTestHelper(ITestController controller, LabResponse labResponse, string behavior)
+        public void PromptBehaviorTestHelperWithConsent(ITestController controller, LabResponse labResponse)
         {
-            // 1. Acquire token with uiBehavior set to consent 
+            // 1. Acquire token with uiBehavior set to consent
             AcquireTokenInteractiveTestHelper(
                 controller,
                 labResponse,
-                behavior);
+                CoreUiTestConstants.UIBehaviorConsent);
 
             // 2. Switch ui behavior to "select account"
             SetUiBehavior(controller, CoreUiTestConstants.UIBehaviorSelectAccount);
