@@ -6,7 +6,7 @@
     <TargetFrameworks>net45;netstandard1.3;uap10.0;MonoAndroid8.1;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Unix'">
-    <TargetFrameworks>netstandard1.1;netstandard1.3;Xamarin.iOS10;netcoreapp1.0</TargetFrameworks>
+    <TargetFramework>Xamarin.iOS10</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>7.2</LangVersion>
