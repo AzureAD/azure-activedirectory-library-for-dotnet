@@ -41,7 +41,7 @@ namespace Test.ADAL.UIAutomation
     /// <summary>
     /// Configures environment for core/android tests to run
     /// </summary>
-    [TestFixture(Platform.iOS)]
+    [TestFixture(Platform.Android)]
     public class XamarinDroidADALTests
     {
         IApp app;
@@ -49,6 +49,10 @@ namespace Test.ADAL.UIAutomation
         ITestController xamarinController = new XamarinUITestController();
         ADALMobileTestHelper _adalMobileTestHelper = new ADALMobileTestHelper();
 
+        /// <summary>
+        /// Initializes Xamarin UI tests
+        /// </summary>
+        /// <param name="platform">The platform where the tests will be performed</param>
         public XamarinDroidADALTests(Platform platform)
         {
             this.platform = platform;

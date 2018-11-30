@@ -75,8 +75,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="XamarinIOSADALTests.cs" />
-    <Compile Include="XamarinIOSMSALTests.cs" />
+    <Compile Include="XamarinIOSAdalTests.cs" />
+    <Compile Include="XamarinIOSMsalTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

@@ -48,7 +48,7 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token flow, using the login prompt behavior. The ui behavior of "login" is used by default.
         /// </summary>
         /// <param name="controller">The test framework that will execute the test interaction</param>
-        public void AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(
+        public void AcquireTokenInteractiveTestHelper(
             ITestController controller,
             LabResponse labResponse,
             string promptBehavior = CoreUiTestConstants.UIBehaviorLogin)
@@ -223,7 +223,7 @@ namespace Test.MSAL.UIAutomation
         public void PromptBehaviorTestHelper(ITestController controller, LabResponse labResponse, string behavior)
         {
             // 1. Acquire token with uiBehavior set to consent 
-            AcquireTokenInteractiveTestHelperWithLoginBehaviorDefault(
+            AcquireTokenInteractiveTestHelper(
                 controller,
                 labResponse,
                 behavior);
