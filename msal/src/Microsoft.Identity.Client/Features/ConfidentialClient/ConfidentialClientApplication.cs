@@ -112,18 +112,23 @@ namespace Microsoft.Identity.Client
         /// enables app developers to create a confidential client application requesting tokens with the default authority.
         public ConfidentialClientApplication(string clientId, string authority, string redirectUri,
             ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
-            : this(null, clientId, authority, redirectUri, clientCredential, userTokenCache, appTokenCache)
+            : this(ConfidentialClientApplicationBuilder
+                   .Create(clientId, redirectUri, clientCredential)
+                   .WithAuthorityFromAuthorityString(authority, true)
+                   .WithUserTokenCache(userTokenCache)
+                   .WithAppTokenCache(appTokenCache)
+                   .Validate())
         {
         }
 
-        internal ConfidentialClientApplication(IServiceBundle serviceBundle, string clientId, string authority, string redirectUri,
-                                               ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
-            : base(clientId, authority, redirectUri, true, serviceBundle)
-        {
-            ClientCredential = clientCredential;
-            UserTokenCache = userTokenCache;
-            AppTokenCache = appTokenCache;
-        }
+        //internal ConfidentialClientApplication(IServiceBundle serviceBundle, string clientId, string authority, string redirectUri,
+        //                                       ClientCredential clientCredential, TokenCache userTokenCache, TokenCache appTokenCache)
+        //    : base(clientId, authority, redirectUri, true, serviceBundle)
+        //{
+        //    ClientCredential = clientCredential;
+        //    UserTokenCache = userTokenCache;
+        //    AppTokenCache = appTokenCache;
+        //}
 
         internal ConfidentialClientApplication(MsalConfiguration msalConfiguration) : base(msalConfiguration)
         {
@@ -364,7 +369,7 @@ namespace Microsoft.Identity.Client
             return await handler.CreateAuthorizationUriAsync().ConfigureAwait(false);
         }
 
-        internal ClientCredential ClientCredential { get; }
+        internal ClientCredential ClientCredential { get; } // TODO: => ServiceBundle.Config.ClientCredential;
 
         private TokenCache _appTokenCache;
         internal TokenCache AppTokenCache

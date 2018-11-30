@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Client
         /// <remarks>This is especially important when you deploy an application that you have initially tested locally; 
         /// you then need to add the reply URL of the deployed application in the application registration portal.
         /// </remarks>
-        string RedirectUri { get; set; }
+        string RedirectUri { get; } // TODO:  WE NEED TO REMOVE THIS WITH CONFIGURATION OBJECT  set; }
 #pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved
 
         /// <summary>
@@ -83,6 +83,7 @@ namespace Microsoft.Identity.Client
         /// value is <c>true</c>. It should currently be set to <c>false</c> for Azure AD B2C authorities as those are customer specific 
         /// (a list of known B2C authorities cannot be maintained by MSAL.NET)
         /// </summary>
+        // TODO: [Obsolete("ValidateAuthority is no longer used.  You should provide authority information via the configuration builder.")]
         bool ValidateAuthority { get; }
 
         /// <summary>

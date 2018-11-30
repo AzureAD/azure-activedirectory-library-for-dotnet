@@ -80,6 +80,9 @@ namespace Microsoft.Identity.Core.Instance
             string userPrincipalName,
             RequestContext requestContext);
 
+        // TODO: we need to remove authority and validateauthority from here and use the msalconfiguration data in servicebundle,
+        // but we have type inversion problems due to identity core architecture.
+        // Best way here is to SPLIT from core.
         public static Authority CreateAuthority(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
             authority = CanonicalizeUri(authority);

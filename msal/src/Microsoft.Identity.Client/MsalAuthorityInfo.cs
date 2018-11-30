@@ -37,11 +37,13 @@ namespace Microsoft.Identity.Client
         internal MsalAuthorityInfo(
             MsalAuthorityType authorityType,
             AadAuthorityAudience aadAuthorityAudience,
-            string authorityUri)
+            string authorityUri,
+            bool isDefault)
         {
             AuthorityType = authorityType;
             AadAuthorityAudience = aadAuthorityAudience;
             AuthorityUri = authorityUri;
+            IsDefault = isDefault;
 
             switch (authorityType)
             {
@@ -83,5 +85,10 @@ namespace Microsoft.Identity.Client
         /// The Authority URI as applicable.
         /// </summary>
         public string AuthorityUri { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsDefault { get; }
     }
 }

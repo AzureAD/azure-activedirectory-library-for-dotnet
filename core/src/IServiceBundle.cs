@@ -32,7 +32,7 @@ using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Core
 {
-    internal interface IServiceBundle
+    internal partial interface IServiceBundle
     {
         IHttpManager HttpManager { get; }
         ITelemetryManager TelemetryManager { get; }

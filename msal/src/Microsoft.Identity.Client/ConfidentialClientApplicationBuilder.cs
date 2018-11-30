@@ -29,6 +29,9 @@ using Microsoft.Identity.Client.CacheV2;
 
 namespace Microsoft.Identity.Client
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class ConfidentialClientApplicationBuilder : MsalConfigurationBuilder<ConfidentialClientApplicationBuilder>
     {
         internal ConfidentialClientApplicationBuilder(MsalConfiguration msalConfiguration)
@@ -44,6 +47,26 @@ namespace Microsoft.Identity.Client
         public static ConfidentialClientApplicationBuilder CreateFromJson(string json)
         {
             var config = new MsalConfiguration();
+            return new ConfidentialClientApplicationBuilder(config);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientId"></param>
+        /// <param name="redirectUri"></param>
+        /// <param name="clientCredential"></param>
+        /// <returns></returns>
+        public static ConfidentialClientApplicationBuilder Create(
+            string clientId,
+            string redirectUri,
+            object clientCredential)
+        {
+            var config = new MsalConfiguration
+            {
+                ClientId = clientId,
+                RedirectUri = redirectUri
+            };
             return new ConfidentialClientApplicationBuilder(config);
         }
 
@@ -84,7 +107,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="tokenCache"></param>
         /// <returns></returns>
-        public ConfidentialClientApplicationBuilder WithAppTokenCache(ITokenCache tokenCache)
+        public ConfidentialClientApplicationBuilder WithAppTokenCache(TokenCache tokenCache)
         {
             Config.TokenCache = tokenCache;
             return this;
@@ -95,7 +118,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="tokenCache"></param>
         /// <returns></returns>
-        public ConfidentialClientApplicationBuilder WithUserTokenCache(ITokenCache tokenCache)
+        public ConfidentialClientApplicationBuilder WithUserTokenCache(TokenCache tokenCache)
         {
             Config.UserTokenCache = tokenCache;
             return this;

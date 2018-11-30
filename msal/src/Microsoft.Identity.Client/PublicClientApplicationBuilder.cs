@@ -82,7 +82,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="tokenCache"></param>
         /// <returns></returns>
-        public PublicClientApplicationBuilder WithTokenCache(ITokenCache tokenCache)
+        public PublicClientApplicationBuilder WithTokenCache(TokenCache tokenCache)
         {
             Config.TokenCache = tokenCache;
             return this;

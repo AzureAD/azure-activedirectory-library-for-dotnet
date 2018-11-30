@@ -47,6 +47,7 @@ namespace Microsoft.Identity.Client
             UserTokenCache = userTokenCache;
         }
 
+        // TODO: need to fix this constructor because we can't make a servicebundle from another one and we have mixed config here.  need to resolve this with the tests.
         internal PublicClientApplication(
             IServiceBundle serviceBundle,
             string clientId,

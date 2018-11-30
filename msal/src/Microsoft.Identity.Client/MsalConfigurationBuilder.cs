@@ -26,6 +26,7 @@
 // ------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
@@ -39,7 +40,7 @@ namespace Microsoft.Identity.Client
         /// 
         /// </summary>
         /// <param name="msalConfiguration"></param>
-        protected internal MsalConfigurationBuilder(MsalConfiguration msalConfiguration)
+        internal MsalConfigurationBuilder(MsalConfiguration msalConfiguration)
         {
             Config = msalConfiguration;
         }
@@ -50,47 +51,49 @@ namespace Microsoft.Identity.Client
         /// Add an AAD authority to the configuration.
         /// </summary>
         /// <param name="aadAuthorityAudience">The AAD Authority Audience value to use.</param>
+        /// <param name="isDefaultAuthority"></param>
         /// <returns>MsalConfigurationBuilder</returns>
-        public MsalConfigurationBuilder<T> WithAadAuthority(AadAuthorityAudience aadAuthorityAudience = AadAuthorityAudience.Default)
+        public T WithAadAuthority(AadAuthorityAudience aadAuthorityAudience, bool isDefaultAuthority)
         {
-            Config.AddAuthorityInfo(new MsalAuthorityInfo(MsalAuthorityType.Aad, aadAuthorityAudience, string.Empty));
-            return this;
+            Config.AddAuthorityInfo(new MsalAuthorityInfo(MsalAuthorityType.Aad, aadAuthorityAudience, string.Empty, isDefaultAuthority));
+            return (T)this;
         }
 
         /// <summary>
         /// Add a B2C authority to the configuration.
         /// </summary>
         /// <param name="authorityUri">The authority URI used in the B2C application.</param>
+        /// <param name="isDefaultAuthority"></param>
         /// <returns>MsalConfigurationBuilder</returns>
-        public MsalConfigurationBuilder<T> WithB2CAuthority(string authorityUri)
+        public T WithB2CAuthority(string authorityUri, bool isDefaultAuthority)
         {
             Config.AddAuthorityInfo(
-                new MsalAuthorityInfo(MsalAuthorityType.B2C, AadAuthorityAudience.None, authorityUri));
-            return this;
+                new MsalAuthorityInfo(MsalAuthorityType.B2C, AadAuthorityAudience.None, authorityUri, isDefaultAuthority));
+            return (T)this;
         }
 
         /// <summary>
         /// This is only here for back compat with existing public constructors.  Ideally we deprecate this with the other public constructors so we can move to the builder pattern.
         /// </summary>
         /// <returns></returns>
-        internal MsalConfigurationBuilder<T> WithAuthorityFromAuthorityString(string authority)
+        internal T WithAuthorityFromAuthorityString(string authority, bool isDefaultAuthority)
         {
             var canonical = new Uri(authority).ToString().ToLowerInvariant();
             if (string.Compare(canonical, "https://login.microsoftonline.com/common/", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return WithAadAuthority(AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount);
+                return WithAadAuthority(AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount, isDefaultAuthority);
             }
             if (string.Compare(canonical, "https://login.microsoftonline.com/organizations/", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return WithAadAuthority(AadAuthorityAudience.AzureAdOnly);
+                return WithAadAuthority(AadAuthorityAudience.AzureAdOnly, isDefaultAuthority);
             }
             if (string.Compare(canonical, "https://login.microsoftonline.com/consumers/", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return WithAadAuthority(AadAuthorityAudience.MicrosoftAccountOnly);
+                return WithAadAuthority(AadAuthorityAudience.MicrosoftAccountOnly, isDefaultAuthority);
             }
 
             // TODO: i'm sure we're missing some parsing/cases here.  need to validate and unit test...
-            return WithB2CAuthority(authority);
+            return WithB2CAuthority(authority, isDefaultAuthority);
         }
 
         /// <summary>
@@ -98,11 +101,11 @@ namespace Microsoft.Identity.Client
         /// </summary>
         /// <param name="connectionTimeoutMilliseconds">HTTP Connection Timeout in milliseconds.</param>
         /// <returns>MsalConfigurationBuilder</returns>
-        public MsalConfigurationBuilder<T> WithHttpConnectionTimeoutMilliseconds(
+        public T WithHttpConnectionTimeoutMilliseconds(
             int connectionTimeoutMilliseconds)
         {
             Config.HttpConnectionTimeoutMilliseconds = connectionTimeoutMilliseconds;
-            return this;
+            return (T)this;
         }
 
         /// <summary>
@@ -176,7 +179,7 @@ namespace Microsoft.Identity.Client
         /// Sets the callback implementation to receive telemetry callback data.
         /// </summary>
         /// <returns>MsalConfigurationBuilder</returns>
-        public MsalConfigurationBuilder<T> WithTelemetryCallback()
+        public MsalConfigurationBuilder<T> WithTelemetryReceiver()
         {
             return this;
         }
@@ -192,6 +195,12 @@ namespace Microsoft.Identity.Client
             return this;
         }
 
+        internal MsalConfigurationBuilder<T> WithExtendedTokenLifetimeEnabled(bool enabled)
+        {
+            Config.IsExtendedTokenLifetimeEnabled = enabled;
+            return this;
+        }
+
         /// <summary>
         /// Finalize and validate the configuration and create the MsalConfiguration object.
         /// </summary>
@@ -199,6 +208,18 @@ namespace Microsoft.Identity.Client
         internal MsalConfiguration Validate()
         {
             // todo: final validation/sanity checks here...
+
+            // validate that we only have ONE default authority
+            if (Config.Authorities.Where(x => x.IsDefault).ToList().Count > 1)
+            {
+                throw new InvalidOperationException("More than one default authority was configured.");
+            }
+
+            if (!Config.Authorities.Any())
+            {
+                throw new InvalidOperationException("No authorities were configured.");
+            }
+
             return Config;
         }
  

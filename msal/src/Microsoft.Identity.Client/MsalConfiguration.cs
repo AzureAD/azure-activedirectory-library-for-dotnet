@@ -73,6 +73,11 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public IEnumerable<MsalAuthorityInfo> Authorities => _authorityInfos.AsEnumerable();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public MsalAuthorityInfo DefaultAuthority => Authorities.Single(x => x.IsDefault);
+
         // Logging
 
         /// <summary>
@@ -111,17 +116,22 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// 
         /// </summary>
-        public ITokenCache TokenCache { get; internal set; }
+        public TokenCache TokenCache { get; internal set; }
 
         /// <summary>
         /// Only used on ConfidentialClientApplication
         /// </summary>
-        public ITokenCache UserTokenCache { get; internal set; }
+        public TokenCache UserTokenCache { get; internal set; }
 
         /// <summary>
         /// Used internally for tests to override the HttpManager.
         /// </summary>
         internal IHttpManager HttpManager { get; set; }
+
+        /// <summary>
+        /// Not exposed publicly for the time being.
+        /// </summary>
+        internal bool IsExtendedTokenLifetimeEnabled { get; set; }
 
         private void InitializeDefaults()
         {

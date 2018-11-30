@@ -35,7 +35,6 @@ using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Core.Telemetry;
 using System.Threading;
-using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -91,7 +90,7 @@ namespace Microsoft.Identity.Client
         public PublicClientApplication(string clientId, string authority)
             : this(PublicClientApplicationBuilder
                    .Create(clientId, PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId))
-                   .WithAuthorityFromAuthorityString(authority)
+                   .WithAuthorityFromAuthorityString(authority, true)
                    .Validate())
         {
         }
