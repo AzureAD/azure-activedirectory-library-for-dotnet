@@ -63,7 +63,7 @@ namespace Test.MSAL.NET.Integration
         {
             if (user == null)
             {
-                user = LabUserHelper.GetLabResponseWithDefaultUser().User;
+                user = LabUserHelper.GetDefaultUser().User;
 
                 string stringPassword = LabUserHelper.GetUserPassword(user);
                 securePassword = new NetworkCredential("", stringPassword).SecurePassword;
@@ -120,7 +120,7 @@ namespace Test.MSAL.NET.Integration
 
         private void MsalDoAfter(msal::Microsoft.Identity.Client.TokenCacheNotificationArgs args)
         {
-            if (args.TokenCache.HasStateChanged)
+            if (args.HasStateChanged)
             {
                 msal::Microsoft.Identity.Core.Cache.CacheData cacheData =
                     msal::Microsoft.Identity.Client.TokenCacheExtensions.SerializeUnifiedAndAdalCache(args.TokenCache);

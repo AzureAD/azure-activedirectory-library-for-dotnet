@@ -64,15 +64,12 @@ namespace Microsoft.Identity.Client
         /// </Summary>
         internal const string DefaultAuthority = "https://login.microsoftonline.com/common/";
 
-        internal IHttpManager HttpManager { get; }
-        internal ICryptographyManager CryptographyManager { get; }
-        internal IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
-        internal ITelemetryManager TelemetryManager { get; }
+        internal IServiceBundle ServiceBundle { get; }
 
         internal ITelemetryReceiver TelemetryReceiver
         {
-            get => TelemetryManager.TelemetryReceiver;
-            set => TelemetryManager.TelemetryReceiver = value;
+            get => ServiceBundle.TelemetryManager.TelemetryReceiver;
+            set => ServiceBundle.TelemetryManager.TelemetryReceiver = value;
         }
 
         ///  <summary>
@@ -96,18 +93,14 @@ namespace Microsoft.Identity.Client
         ///  <param name="validateAuthority">Boolean telling MSAL.NET if the authority needs to be verified against a list of known authorities.
         ///  This should be set to <c>false</c> for Azure AD B2C authorities as those are customer specific (a list of known B2C authorities
         ///  cannot be maintained by MSAL.NET</param>
-        ///  <param name="httpManager"></param>
-        ///  <param name="telemetryManager"></param>
+        /// <param name="serviceBundle"></param>
         internal ClientApplicationBase(string clientId, string authority, string redirectUri,
-            bool validateAuthority, IHttpManager httpManager, ITelemetryManager telemetryManager)
+            bool validateAuthority, IServiceBundle serviceBundle)
         {
-            HttpManager = httpManager ?? new HttpManager();
-            CryptographyManager = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
-            WsTrustWebRequestManager = new WsTrustWebRequestManager(HttpManager);
-            TelemetryManager = telemetryManager ?? new TelemetryManager(Telemetry.GetInstance());
+            ServiceBundle = serviceBundle ?? Microsoft.Identity.Core.ServiceBundle.CreateDefault();
 
             ClientId = clientId;
-            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(authority, validateAuthority);
+            Authority authorityInstance = Core.Instance.Authority.CreateAuthority(ServiceBundle, authority, validateAuthority);
             Authority = authorityInstance.CanonicalAuthority;
             RedirectUri = redirectUri;
             ValidateAuthority = validateAuthority;
@@ -182,8 +175,7 @@ namespace Microsoft.Identity.Client
                 if (_userTokenCache != null)
                 {
                     _userTokenCache.ClientId = ClientId;
-                    _userTokenCache.HttpManager = HttpManager;
-                    _userTokenCache.TelemetryManager = TelemetryManager;
+                    _userTokenCache.ServiceBundle = ServiceBundle;
                 }
             }
         }
@@ -205,15 +197,20 @@ namespace Microsoft.Identity.Client
         /// <summary>
         /// Returns all the available <see cref="IAccount">accounts</see> in the user token cache for the application.
         /// </summary>
-        public async Task<IEnumerable<IAccount>> GetAccountsAsync()
+        public Task<IEnumerable<IAccount>> GetAccountsAsync()
         {
             RequestContext requestContext = new RequestContext(ClientId, new MsalLogger(Guid.Empty, null));
+            IEnumerable<IAccount> accounts = Enumerable.Empty<IAccount>();
             if (UserTokenCache == null)
             {
                 requestContext.Logger.Info("Token cache is null or empty. Returning empty list of accounts.");
-                return Enumerable.Empty<Account>();
             }
-            return await UserTokenCache.GetAccountsAsync(Authority, ValidateAuthority, requestContext).ConfigureAwait(false);
+            else
+            {
+                accounts = UserTokenCache.GetAccounts(Authority, ValidateAuthority, requestContext);
+            }
+
+            return Task.FromResult(accounts);
         }
 
         /// <summary>
@@ -280,7 +277,7 @@ namespace Microsoft.Identity.Client
             Authority authorityInstance = null;
             if (!string.IsNullOrEmpty(authority))
             {
-                authorityInstance = Core.Instance.Authority.CreateAuthority(authority, ValidateAuthority);
+                authorityInstance = Core.Instance.Authority.CreateAuthority(ServiceBundle, authority, ValidateAuthority);
             }
 
             return
@@ -293,20 +290,20 @@ namespace Microsoft.Identity.Client
         /// Removes all tokens in the cache for the specified account.
         /// </summary>
         /// <param name="account">Instance of the account that needs to be removed</param>
-        public async Task RemoveAsync(IAccount account)
+        public Task RemoveAsync(IAccount account)
         {
             RequestContext requestContext = CreateRequestContext(Guid.Empty);
-            if (account == null || UserTokenCache == null)
+            if (account != null)
             {
-                return;
+                UserTokenCache?.RemoveAccount(account, requestContext);
             }
 
-            await UserTokenCache.RemoveAsync(Authority, ValidateAuthority, account, requestContext).ConfigureAwait(false);
+            return Task.FromResult(0);
         }
 
         internal Authority GetAuthority(IAccount account)
         {
-            var authority = Core.Instance.Authority.CreateAuthority(Authority, ValidateAuthority);
+            var authority = Core.Instance.Authority.CreateAuthority(ServiceBundle, Authority, ValidateAuthority);
             var tenantId = authority.GetTenantId();
 
             if (Core.Instance.Authority.TenantlessTenantNames.Contains(tenantId)
@@ -332,9 +329,7 @@ namespace Microsoft.Identity.Client
             }
 
             var handler = new SilentRequest(
-                HttpManager,
-                CryptographyManager,
-                TelemetryManager,
+                ServiceBundle,
                 CreateRequestParameters(authority, scopes, account, UserTokenCache),
                 apiId,
                 forceRefresh);

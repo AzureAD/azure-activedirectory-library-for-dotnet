@@ -59,8 +59,9 @@ namespace Test.MSAL.NET.Unit
         private void TestInitialize(MockHttpManager httpManager)
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            Authority.ValidatedAuthorities.Clear();
-            AadInstanceDiscovery.Instance.Cache.Clear();
+
+            new AadInstanceDiscovery(null, null, true);
+            new ValidatedAuthoritiesCache(true);
 
             httpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
@@ -193,9 +194,10 @@ namespace Test.MSAL.NET.Unit
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 TestInitialize(httpManager);
 
-                PublicClientApplication app = new PublicClientApplication(httpManager, null, ClientId, RequestAuthority);
+                PublicClientApplication app = new PublicClientApplication(serviceBundle, ClientId, RequestAuthority);
                 MockWebUI ui = new MockWebUI()
                 {
                     MockResult = new AuthorizationResult(AuthorizationStatus.Success,

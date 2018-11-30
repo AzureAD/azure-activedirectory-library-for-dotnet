@@ -32,6 +32,7 @@ namespace Microsoft.Identity.Core
         string CreateBase64UrlEncodedSha256Hash(string input);
         string GenerateCodeVerifier();
         string CreateSha256Hash(string input);
+        byte[] CreateSha256HashBytes(string input);
         string Encrypt(string message);
         string Decrypt(string encryptedMessage);
         byte[] Encrypt(byte[] message);

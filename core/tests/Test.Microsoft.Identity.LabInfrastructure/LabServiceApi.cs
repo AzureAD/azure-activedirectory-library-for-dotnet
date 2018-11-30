@@ -71,9 +71,19 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
             queryDict.Add("external", query.IsExternalUser != null && (bool)(query.IsExternalUser) ? "true" : "false");
 
-            if (query.UserType == UserType.B2C)
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Local)
             {
                 queryDict.Add("b2cProvider", "local");
+            }
+
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Facebook)
+            {
+                queryDict.Add("b2cProvider", "facebook");
+            }
+
+            if (query.B2CIdentityProvider == B2CIdentityProvider.Google)
+            {
+                queryDict.Add("b2cProvider", "google");
             }
 
             UriBuilder uriBuilder = new UriBuilder("http://api.msidlab.com/api/user");

@@ -32,7 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.WsTrust;
@@ -48,20 +48,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private readonly IntegratedWindowsAuthInput _iwaInput;
 
         public IntegratedWindowsAuthRequest(
-            IHttpManager httpManager,
-            ICryptographyManager cryptographyManager,
-            ITelemetryManager telemetryManager,
-            IWsTrustWebRequestManager wsTrustWebRequestManager,
+            IServiceBundle serviceBundle,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IntegratedWindowsAuthInput iwaInput)
-            : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
+            : base(serviceBundle, authenticationRequestParameters, apiId)
         {
             _iwaInput = iwaInput ?? throw new ArgumentNullException(nameof(iwaInput));
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(
                 authenticationRequestParameters.RequestContext,
                 _iwaInput,
-                wsTrustWebRequestManager);
+                serviceBundle);
         }
 
         internal override async Task<AuthenticationResult> ExecuteAsync(CancellationToken cancellationToken)
@@ -76,7 +73,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private async Task<UserAssertion> FetchAssertionFromWsTrustAsync()
         {
-            if (AuthenticationRequestParameters.Authority.AuthorityType == Core.Instance.AuthorityType.Adfs)
+            if (AuthenticationRequestParameters.Authority.AuthorityType == AuthorityType.Adfs)
             {
                 return null;
             }
@@ -85,27 +82,34 @@ namespace Microsoft.Identity.Client.Internal.Requests
                                           .QueryUserRealmDataAsync(AuthenticationRequestParameters.Authority.UserRealmUriPrefix)
                                           .ConfigureAwait(false);
 
-            if (!userRealmResponse.IsFederated)
+            if (userRealmResponse.IsFederated)
             {
-                throw new MsalException(
-                    MsalError.UnknownUserType,
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        MsalErrorMessage.UnsupportedUserType,
-                        userRealmResponse.AccountType));
+                var wsTrustResponse = await _commonNonInteractiveHandler.PerformWsTrustMexExchangeAsync(
+                    userRealmResponse.FederationMetadataUrl,
+                    userRealmResponse.CloudAudienceUrn,
+                    UserAuthType.IntegratedAuth).ConfigureAwait(false);
+
+                // We assume that if the response token type is not SAML 1.1, it is SAML 2
+                return new UserAssertion(
+                    wsTrustResponse.Token,
+                    wsTrustResponse.TokenType == WsTrustResponse.Saml1Assertion
+                        ? OAuth2GrantType.Saml11Bearer
+                        : OAuth2GrantType.Saml20Bearer);
             }
 
-            var wsTrustResponse = await _commonNonInteractiveHandler.PerformWsTrustMexExchangeAsync(
-                                      userRealmResponse.FederationMetadataUrl,
-                                      userRealmResponse.CloudAudienceUrn,
-                                      UserAuthType.IntegratedAuth).ConfigureAwait(false);
+            if (userRealmResponse.IsManaged)
+            {
+                throw new MsalClientException(
+                    MsalError.IntegratedWindowsAuthNotSupportedForManagedUser, 
+                    MsalErrorMessage.IwaNotSupportedForManagedUser);
+            }
 
-            // We assume that if the response token type is not SAML 1.1, it is SAML 2
-            return new UserAssertion(
-                wsTrustResponse.Token,
-                wsTrustResponse.TokenType == WsTrustResponse.Saml1Assertion
-                    ? OAuth2GrantType.Saml11Bearer
-                    : OAuth2GrantType.Saml20Bearer);
+            throw new MsalClientException(
+                MsalError.UnknownUserType,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    MsalErrorMessage.UnsupportedUserType,
+                    userRealmResponse.AccountType));
         }
 
         private async Task UpdateUsernameAsync()
@@ -117,7 +121,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
         }
 
-        private Dictionary<string, string> GetAdditionalBodyParameters(UserAssertion userAssertion)
+        private static Dictionary<string, string> GetAdditionalBodyParameters(UserAssertion userAssertion)
         {
             var dict = new Dictionary<string, string>();
 

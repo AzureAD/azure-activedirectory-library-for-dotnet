@@ -39,6 +39,7 @@ using Microsoft.Identity.Client.Internal;
 using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
@@ -59,6 +60,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         private const int ExpectedInterval = 1;
         private const string ExpectedVerificationUrl = "https://microsoft.com/devicelogin";
         private TokenCache _cache;
+        private IValidatedAuthoritiesCache _validatedAuthoritiesCache;
 
         private string ExpectedMessage =>
             $"To sign in, use a web browser to open the page {ExpectedVerificationUrl} and enter the code {ExpectedUserCode} to authenticate.";
@@ -77,6 +79,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         public void TestInitialize()
         {
             TestCommon.ResetStateAndInitMsal();
+            _validatedAuthoritiesCache = new ValidatedAuthoritiesCache();
             _cache = new TokenCache();
         }
 
@@ -100,11 +103,15 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
                     NumberOfAuthorizationPendingRequestsToInject,
                     out HashSet<string> expectedScopes);
 
+                _cache.ServiceBundle = serviceBundle;
+                
                 // Check that cache is empty
                 Assert.AreEqual(0, _cache.TokenCacheAccessor.AccessTokenCount);
                 Assert.AreEqual(0, _cache.TokenCacheAccessor.AccountCount);
@@ -113,9 +120,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     result =>
@@ -152,19 +157,20 @@ namespace Test.MSAL.NET.Unit.RequestsTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 const int NumberOfAuthorizationPendingRequestsToInject = 0;
                 var parameters = CreateAuthenticationParametersAndSetupMocks(
                     httpManager,
                     NumberOfAuthorizationPendingRequestsToInject,
                     out HashSet<string> expectedScopes);
 
+                _cache.ServiceBundle = serviceBundle;
+
                 var cancellationSource = new CancellationTokenSource();
 
                 DeviceCodeResult actualDeviceCodeResult = null;
                 var request = new DeviceCodeRequest(
-                    httpManager,
-                    PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                    new TelemetryManager(),
+                    serviceBundle,
                     parameters,
                     ApiEvent.ApiIds.None,
                     async result =>
@@ -213,6 +219,7 @@ namespace Test.MSAL.NET.Unit.RequestsTests
 
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 try
                 {
                     const int NumberOfAuthorizationPendingRequestsToInject = 2;
@@ -221,10 +228,11 @@ namespace Test.MSAL.NET.Unit.RequestsTests
                         NumberOfAuthorizationPendingRequestsToInject,
                         out HashSet<string> expectedScopes);
 
+                    var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
+                    _cache.ServiceBundle = serviceBundle;
+
                     var request = new DeviceCodeRequest(
-                        httpManager,
-                        PlatformProxyFactory.GetPlatformProxy().CryptographyManager,
-                        new TelemetryManager(),
+                        serviceBundle,
                         parameters,
                         ApiEvent.ApiIds.None,
                         result => Task.FromResult(0));
@@ -272,10 +280,13 @@ namespace Test.MSAL.NET.Unit.RequestsTests
             int numAuthorizationPendingResults,
             out HashSet<string> expectedScopes)
         {
-            var authority = Authority.CreateAuthority(MsalTestConstants.AuthorityHomeTenant, false);
+            var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+            var authority = Authority.CreateAuthority(serviceBundle, MsalTestConstants.AuthorityHomeTenant, false);
             _cache = new TokenCache()
             {
-                ClientId = MsalTestConstants.ClientId
+                ClientId = MsalTestConstants.ClientId,
+                ServiceBundle = serviceBundle
             };
 
             var parameters = new AuthenticationRequestParameters()

@@ -32,6 +32,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,9 +52,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         [TestInitialize]
         public void TestInitialize()
         {
-            Authority.ValidatedAuthorities.Clear();
-            //HttpClientFactory.ReturnHttpClientForMocks = true;
-            //HttpMessageHandlerFactory.ClearMockHandlers();
         }
 
         [TestCleanup]
@@ -68,6 +66,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for on-premise DRS request
                 httpManager.AddMockHandler(
@@ -109,15 +108,13 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 ResourceHelper.GetTestResourceRelativePath(File.ReadAllText("OpenidConfiguration-OnPremise.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 Task.Run(
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            httpManager,
-                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -125,18 +122,16 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/authorize/", instance.AuthorizationEndpoint);
                 Assert.AreEqual("https://fs.contoso.com/adfs/oauth2/token/", instance.TokenEndpoint);
                 Assert.AreEqual("https://fs.contoso.com/adfs", instance.SelfSignedJwtAudience);
-                Assert.AreEqual(1, Authority.ValidatedAuthorities.Count);
+                Assert.AreEqual(1, serviceBundle.ValidatedAuthoritiesCache.Count);
 
                 //attempt to do authority validation again. NO network call should be made
-                instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 Task.Run(
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            httpManager,
-                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -153,6 +148,8 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 //add mock failure response for on-premise DRS request
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -206,15 +203,13 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 ResourceHelper.GetTestResourceRelativePath(File.ReadAllText("OpenidConfiguration-OnPremise.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 Task.Run(
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            httpManager,
-                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -231,6 +226,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
@@ -243,15 +239,13 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 ResourceHelper.GetTestResourceRelativePath(File.ReadAllText("OpenidConfiguration-OnPremise.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, false);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 Task.Run(
                     async () =>
                     {
                         await instance.ResolveEndpointsAsync(
-                            httpManager,
-                            new TelemetryManager(),
                             CoreTestConstants.FabrikamDisplayableId,
                             new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                     }).GetAwaiter().GetResult();
@@ -268,6 +262,8 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 //add mock response for on-premise DRS request
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -297,7 +293,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         ResponseMessage = MockHelpers.CreateFailureMessage(HttpStatusCode.NotFound, "not-found")
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 try
@@ -306,8 +302,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         async () =>
                         {
                             await instance.ResolveEndpointsAsync(
-                                httpManager,
-                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -326,6 +320,8 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 //add mock response for on-premise DRS request
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -355,7 +351,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         ResponseMessage = MockHelpers.CreateSuccessWebFingerResponseMessage("https://fs.some-other-sts.com")
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 try
@@ -364,8 +360,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         async () =>
                         {
                             await instance.ResolveEndpointsAsync(
-                                httpManager,
-                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -384,6 +378,8 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 //add mock failure response for on-premise DRS request
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -399,7 +395,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                                 ResourceHelper.GetTestResourceRelativePath(File.ReadAllText("drs-response-missing-field.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, true);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, true);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 try
@@ -408,8 +404,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         async () =>
                         {
                             await instance.ResolveEndpointsAsync(
-                                httpManager,
-                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();
@@ -428,6 +422,8 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
         {
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
                 //add mock response for tenant endpoint discovery
                 httpManager.AddMockHandler(
                     new MockHttpMessageHandler
@@ -438,7 +434,7 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                             ResourceHelper.GetTestResourceRelativePath(File.ReadAllText("OpenidConfiguration-MissingFields-OnPremise.json")))
                     });
 
-                Authority instance = Authority.CreateAuthority(CoreTestConstants.OnPremiseAuthority, false);
+                Authority instance = Authority.CreateAuthority(serviceBundle, CoreTestConstants.OnPremiseAuthority, false);
                 Assert.IsNotNull(instance);
                 Assert.AreEqual(instance.AuthorityType, AuthorityType.Adfs);
                 try
@@ -447,8 +443,6 @@ namespace Test.Microsoft.Identity.Core.Unit.InstanceTests
                         async () =>
                         {
                             await instance.ResolveEndpointsAsync(
-                                httpManager,
-                                new TelemetryManager(),
                                 CoreTestConstants.FabrikamDisplayableId,
                                 new RequestContext(null, new TestLogger(Guid.NewGuid(), null))).ConfigureAwait(false);
                         }).GetAwaiter().GetResult();

@@ -47,15 +47,12 @@ namespace Microsoft.Identity.Core.Instance
                 "consumers"
             });
 
-        internal static readonly ConcurrentDictionary<string, Authority> ValidatedAuthorities =
-            new ConcurrentDictionary<string, Authority>();
-
         private bool _resolved;
 
-        protected Authority(string authority, bool validateAuthority)
+        protected Authority(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
+            ServiceBundle = serviceBundle;
             ValidateAuthority = validateAuthority;
-
             var authorityUri = new UriBuilder(authority);
             Host = authorityUri.Host;
 
@@ -66,24 +63,24 @@ namespace Microsoft.Identity.Core.Instance
                 GetFirstPathSegment(authority));
         }
 
-        public AuthorityType AuthorityType { get; set; }
-        public string CanonicalAuthority { get; set; }
-        public bool ValidateAuthority { get; set; }
-        public bool IsTenantless { get; set; }
-        public string AuthorizationEndpoint { get; set; }
+        public AuthorityType AuthorityType { get; protected set; }
+        public string CanonicalAuthority { get; protected set; }
+        public bool ValidateAuthority { get; private set; }
+        public bool IsTenantless { get; protected set; }
+        public string AuthorizationEndpoint { get; private set; }
         public string TokenEndpoint { get; set; }
-        public string EndSessionEndpoint { get; set; }
+        public string EndSessionEndpoint { get; protected set; }
         public string SelfSignedJwtAudience { get; set; }
         public string UserRealmUriPrefix { get; private set; }
-        public string Host { get; set; }
+        public string Host { get; }
+
+        protected IServiceBundle ServiceBundle { get; }
 
         protected abstract Task<string> GetOpenIdConfigurationEndpointAsync(
-            IHttpManager httpManager,
-            ITelemetryManager telemetryManager,
             string userPrincipalName,
             RequestContext requestContext);
 
-        public static Authority CreateAuthority(string authority, bool validateAuthority)
+        public static Authority CreateAuthority(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
             authority = CanonicalizeUri(authority);
             ValidateAsUri(authority);
@@ -91,26 +88,24 @@ namespace Microsoft.Identity.Core.Instance
             switch (GetAuthorityType(authority))
             {
             case AuthorityType.Adfs:
-                throw CoreExceptionFactory.Instance.GetClientException(
+                throw serviceBundle.ExceptionFactory.GetClientException(
                     CoreErrorCodes.InvalidAuthorityType,
                     "ADFS is not a supported authority");
 
             case AuthorityType.B2C:
-                return new B2CAuthority(authority, validateAuthority);
+                return new B2CAuthority(serviceBundle, authority, validateAuthority);
 
             case AuthorityType.Aad:
-                return new AadAuthority(authority, validateAuthority);
+                return new AadAuthority(serviceBundle, authority, validateAuthority);
 
             default:
-                throw CoreExceptionFactory.Instance.GetClientException(
+                throw serviceBundle.ExceptionFactory.GetClientException(
                     CoreErrorCodes.InvalidAuthorityType,
-                    "Usupported authority type");
+                    "Unsupported authority type");
             }
         }
 
         internal virtual async Task UpdateCanonicalAuthorityAsync(
-            IHttpManager httpManager, 
-            ITelemetryManager telemetryManager, 
             RequestContext requestContext)
         {
             await Task.FromResult(0).ConfigureAwait(false);
@@ -171,9 +166,7 @@ namespace Microsoft.Identity.Core.Instance
         }
 
         public async Task ResolveEndpointsAsync(
-            IHttpManager httpManager, 
-            ITelemetryManager telemetryManager,
-            string userPrincipalName, 
+            string userPrincipalName,
             RequestContext requestContext)
         {
             requestContext.Logger.Info("Resolving authority endpoints... Already resolved? - " + _resolved);
@@ -193,7 +186,7 @@ namespace Microsoft.Identity.Core.Instance
                 if (ExistsInValidatedAuthorityCache(userPrincipalName))
                 {
                     requestContext.Logger.Info("Authority found in validated authority cache");
-                    var authority = ValidatedAuthorities[CanonicalAuthority];
+                    ServiceBundle.ValidatedAuthoritiesCache.TryGetValue(CanonicalAuthority, out var authority);
                     AuthorityType = authority.AuthorityType;
                     CanonicalAuthority = authority.CanonicalAuthority;
                     ValidateAuthority = authority.ValidateAuthority;
@@ -207,36 +200,32 @@ namespace Microsoft.Identity.Core.Instance
                 }
 
                 string openIdConfigurationEndpoint = await GetOpenIdConfigurationEndpointAsync(
-                                                             httpManager, 
-                                                             telemetryManager,
-                                                             userPrincipalName, 
+                                                             userPrincipalName,
                                                              requestContext)
                                                          .ConfigureAwait(false);
 
                 //discover endpoints via openid-configuration
                 var edr = await DiscoverEndpointsAsync(
-                              httpManager, 
-                              telemetryManager, 
-                              openIdConfigurationEndpoint, 
+                              openIdConfigurationEndpoint,
                               requestContext).ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(edr.AuthorizationEndpoint))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(
+                    throw ServiceBundle.ExceptionFactory.GetClientException(
                         CoreErrorCodes.TenantDiscoveryFailedError,
                         "Authorize endpoint was not found in the openid configuration");
                 }
 
                 if (string.IsNullOrEmpty(edr.TokenEndpoint))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(
+                    throw ServiceBundle.ExceptionFactory.GetClientException(
                         CoreErrorCodes.TenantDiscoveryFailedError,
                         "Token endpoint was not found in the openid configuration");
                 }
 
                 if (string.IsNullOrEmpty(edr.Issuer))
                 {
-                    throw CoreExceptionFactory.Instance.GetClientException(
+                    throw ServiceBundle.ExceptionFactory.GetClientException(
                         CoreErrorCodes.TenantDiscoveryFailedError,
                         "Issuer was not found in the openid configuration");
                 }
@@ -258,12 +247,10 @@ namespace Microsoft.Identity.Core.Instance
         internal abstract void UpdateTenantId(string tenantId);
 
         private async Task<TenantDiscoveryResponse> DiscoverEndpointsAsync(
-            IHttpManager httpManager,
-            ITelemetryManager telemetryManager,
             string openIdConfigurationEndpoint,
             RequestContext requestContext)
         {
-            var client = new OAuth2Client(httpManager, telemetryManager);
+            var client = new OAuth2Client(ServiceBundle.HttpManager, ServiceBundle.TelemetryManager);
             return await client.ExecuteRequestAsync<TenantDiscoveryResponse>(
                        new Uri(openIdConfigurationEndpoint),
                        HttpMethod.Get,

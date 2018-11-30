@@ -1,20 +1,20 @@
 ﻿// ------------------------------------------------------------------------------
-// 
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
-// 
+//
 // This code is licensed under the MIT License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-// 
+//
 // ------------------------------------------------------------------------------
 
 using System;
@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.UI;
@@ -50,18 +51,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private string _state;
 
         public InteractiveRequest(
-            IHttpManager httpManager,
-            ICryptographyManager cryptographyManager,
-            ITelemetryManager telemetryManager,
+            IServiceBundle serviceBundle,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IEnumerable<string> extraScopesToConsent,
             UIBehavior uiBehavior,
             IWebUI webUi)
             : this(
-                httpManager,
-                cryptographyManager,
-                telemetryManager,
+                serviceBundle,
                 authenticationRequestParameters,
                 apiId,
                 extraScopesToConsent,
@@ -72,16 +69,14 @@ namespace Microsoft.Identity.Client.Internal.Requests
         }
 
         public InteractiveRequest(
-            IHttpManager httpManager,
-            ICryptographyManager cryptographyManager,
-            ITelemetryManager telemetryManager,
+            IServiceBundle serviceBundle,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             IEnumerable<string> extraScopesToConsent,
             string loginHint,
             UIBehavior uiBehavior,
             IWebUI webUi)
-            : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
+            : base(serviceBundle, authenticationRequestParameters, apiId)
         {
             RedirectUriHelper.Validate(authenticationRequestParameters.RedirectUri);
             webUi?.ValidateRedirectUri(authenticationRequestParameters.RedirectUri);
@@ -128,7 +123,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             var authorizationUri = CreateAuthorizationUri(true, true);
 
             var uiEvent = new UiEvent();
-            using (TelemetryManager.CreateTelemetryHelper(
+            using (ServiceBundle.TelemetryManager.CreateTelemetryHelper(
                 AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
                 AuthenticationRequestParameters.ClientId,
                 uiEvent))
@@ -145,13 +140,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
         internal async Task<Uri> CreateAuthorizationUriAsync()
         {
             await AuthenticationRequestParameters
-                  .Authority.UpdateCanonicalAuthorityAsync(HttpManager, TelemetryManager, AuthenticationRequestParameters.RequestContext)
+                  .Authority.UpdateCanonicalAuthorityAsync(AuthenticationRequestParameters.RequestContext)
                   .ConfigureAwait(false);
 
             //this method is used in confidential clients to create authorization URLs.
             await AuthenticationRequestParameters.Authority.ResolveEndpointsAsync(
-                HttpManager,
-                TelemetryManager,
                 AuthenticationRequestParameters.LoginHint,
                 AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
             return CreateAuthorizationUri();
@@ -176,8 +169,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
             if (addVerifier)
             {
-                _codeVerifier = CryptographyManager.GenerateCodeVerifier();
-                string codeVerifierHash = CryptographyManager.CreateBase64UrlEncodedSha256Hash(_codeVerifier);
+                _codeVerifier = ServiceBundle.PlatformProxy.CryptographyManager.GenerateCodeVerifier();
+                string codeVerifierHash = ServiceBundle.PlatformProxy.CryptographyManager.CreateBase64UrlEncodedSha256Hash(_codeVerifier);
 
                 requestParameters[OAuth2Parameter.CodeChallenge] = codeVerifierHash;
                 requestParameters[OAuth2Parameter.CodeChallengeMethod] = OAuth2Value.CodeChallengeMethodValue;
@@ -278,7 +271,11 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 authorizationRequestParameters[kvp.Key] = kvp.Value;
             }
 
-            authorizationRequestParameters[OAuth2Parameter.Prompt] = _uiBehavior.PromptValue;
+            if (_uiBehavior.PromptValue != UIBehavior.NoPrompt.PromptValue)
+            {
+                authorizationRequestParameters[OAuth2Parameter.Prompt] = _uiBehavior.PromptValue;
+            }
+            
             return authorizationRequestParameters;
         }
 

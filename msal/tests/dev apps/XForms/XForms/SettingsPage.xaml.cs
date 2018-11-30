@@ -99,27 +99,32 @@ namespace XForms
             App.InitPublicClient();
             RefreshView();
         }
-        
+
         private void OnPickerSelectedIndexChanged(object sender, EventArgs args)
-        {            
+        {
             var selectedB2CAuthority = (Picker)sender;
             int selectedIndex = selectedB2CAuthority.SelectedIndex;
 
-            if (selectedIndex == 0)
+            switch (selectedIndex)
             {
-                App.Authority = App.B2cAuthority;
-                CreateB2CAppSettings();
-            }
-            else if (selectedIndex == 1)
-            {
-                App.Authority = App.B2CLoginAuthority;
-                CreateB2CAppSettings();
-            }
-            else
-            {
-                App.Authority = App.DefaultAuthority;
-                App.Scopes = App.DefaultScopes;
-                App.ClientId = App.DefaultClientId;
+                case 0:
+                    App.Authority = App.B2cAuthority;
+                    CreateB2CAppSettings();
+                    break;
+
+                case 1:
+                    App.Authority = App.B2CLoginAuthority;
+                    CreateB2CAppSettings();
+                    break;
+                case 2:
+                    App.Authority = App.B2CEditProfilePolicyAuthority;
+                    CreateB2CAppSettings();
+                    break;
+                default:
+                    App.Authority = App.DefaultAuthority;
+                    App.Scopes = App.DefaultScopes;
+                    App.ClientId = App.DefaultClientId;
+                    break;
             }
 
             InitPublicClientAndRefreshView();
@@ -130,6 +135,7 @@ namespace XForms
             App.Scopes = App.B2cScopes;
             App.ClientId = App.B2cClientId;
             App.RedirectUriOnAndroid = App.RedirectUriB2C;
+            App.RedirectUriOnIos = App.RedirectUriB2C;
         }
     }
 }

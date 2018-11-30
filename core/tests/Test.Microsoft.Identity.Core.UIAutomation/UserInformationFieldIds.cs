@@ -32,34 +32,44 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
     public class UserInformationFieldIds
     {
         public string PasswordInputId { get; set; }
-        public string SignInButtonId { get;  set; }
+        public string SignInButtonId { get; set; }
 
         public void DetermineFieldIds(LabUser user)
         {
             if (user.IsFederated)
             {
-                switch (user.FederationProvider)
-                {
-                    case FederationProvider.AdfsV3:
-                    case FederationProvider.AdfsV4:
-                        PasswordInputId = CoreUiTestConstants.AdfsV4WebPasswordID;
-                        SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
-                        break;
-                    default:
-                        PasswordInputId = CoreUiTestConstants.WebPasswordID;
-                        SignInButtonId = CoreUiTestConstants.WebSubmitID;
-                        break;
-                }
+                // We use the same IDs for ADFSv3 and ADFSv4
+                PasswordInputId = CoreUiTestConstants.AdfsV4WebPasswordID;
+                SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
+                return;
             }
-            else if (user.UserType == UserType.B2C)
+
+            if (user.UserType == UserType.B2C)
+            {
+                DetermineB2CFieldIds(user);
+                return;
+            }
+
+            PasswordInputId = CoreUiTestConstants.WebPasswordID;
+            SignInButtonId = CoreUiTestConstants.WebSubmitID;
+        }
+
+        private void DetermineB2CFieldIds(LabUser user)
+        {
+            if (user.B2CIdentityProvider == B2CIdentityProvider.Local)
             {
                 PasswordInputId = CoreUiTestConstants.B2CWebPasswordID;
                 SignInButtonId = CoreUiTestConstants.B2CWebSubmitID;
             }
-            else
+            if (user.B2CIdentityProvider == B2CIdentityProvider.Facebook)
             {
-                PasswordInputId = CoreUiTestConstants.WebPasswordID;
-                SignInButtonId = CoreUiTestConstants.WebSubmitID;
+                PasswordInputId = CoreUiTestConstants.B2CWebPasswordFacebookID;
+                SignInButtonId = CoreUiTestConstants.B2CFacebookSubmitID;
+            }
+            if (user.B2CIdentityProvider == B2CIdentityProvider.Google)
+            {
+                PasswordInputId = CoreUiTestConstants.B2CWebPasswordGoogleID;
+                SignInButtonId = CoreUiTestConstants.B2CGoogleSignInID;
             }
         }
     }

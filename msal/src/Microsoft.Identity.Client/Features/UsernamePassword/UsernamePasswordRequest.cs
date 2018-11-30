@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.WsTrust;
@@ -49,20 +50,17 @@ namespace Microsoft.Identity.Client.Internal.Requests
         private readonly UsernamePasswordInput _usernamePasswordInput;
 
         public UsernamePasswordRequest(
-            IHttpManager httpManager,
-            ICryptographyManager cryptographyManager,
-            ITelemetryManager telemetryManager,
-            IWsTrustWebRequestManager wsTrustWebRequestManager,
+            IServiceBundle serviceBundle,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId,
             UsernamePasswordInput usernamePasswordInput)
-            : base(httpManager, cryptographyManager, telemetryManager, authenticationRequestParameters, apiId)
+            : base(serviceBundle, authenticationRequestParameters, apiId)
         {
             _usernamePasswordInput = usernamePasswordInput ?? throw new ArgumentNullException(nameof(usernamePasswordInput));
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(
                 authenticationRequestParameters.RequestContext,
                 usernamePasswordInput,
-                wsTrustWebRequestManager);
+                serviceBundle);
         }
 
         internal override async Task<AuthenticationResult> ExecuteAsync(CancellationToken cancellationToken)
@@ -100,7 +98,8 @@ namespace Microsoft.Identity.Client.Internal.Requests
                         ? OAuth2GrantType.Saml11Bearer
                         : OAuth2GrantType.Saml20Bearer);
             }
-            else if (userRealmResponse.IsManaged)
+
+            if (userRealmResponse.IsManaged)
             {
                 // handle grant flow
                 if (!_usernamePasswordInput.HasPassword())
@@ -110,15 +109,13 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
                 return null;
             }
-            else
-            {
-                throw new MsalClientException(
-                    MsalError.UnknownUserType,
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        MsalErrorMessage.UnsupportedUserType,
-                        userRealmResponse.AccountType));
-            }
+
+            throw new MsalClientException(
+                MsalError.UnknownUserType,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    MsalErrorMessage.UnsupportedUserType,
+                    userRealmResponse.AccountType));
         }
 
         private async Task UpdateUsernameAsync()

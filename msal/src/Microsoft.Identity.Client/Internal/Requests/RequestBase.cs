@@ -54,28 +54,21 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 _tokenCache = value;
                 if (_tokenCache != null)
                 {
-                    _tokenCache.HttpManager = HttpManager;
-                    _tokenCache.TelemetryManager = TelemetryManager;
+                    _tokenCache.ServiceBundle = ServiceBundle;
                 }
             }
         }
 
 
         private readonly ApiEvent.ApiIds _apiId;
-        protected IHttpManager HttpManager { get; }
-        protected ICryptographyManager CryptographyManager { get; }
-        protected ITelemetryManager TelemetryManager { get; }
+        protected IServiceBundle ServiceBundle { get; }
 
         protected RequestBase(
-            IHttpManager httpManager, 
-            ICryptographyManager cryptographyManager, 
-            ITelemetryManager telemetryManager,
+            IServiceBundle serviceBundle,
             AuthenticationRequestParameters authenticationRequestParameters,
             ApiEvent.ApiIds apiId)
         {
-            HttpManager = httpManager;
-            CryptographyManager = cryptographyManager;
-            TelemetryManager = telemetryManager;
+            ServiceBundle = serviceBundle;
             TokenCache = authenticationRequestParameters.TokenCache;
             _apiId = apiId;
             
@@ -150,7 +143,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             string accountId = AuthenticationRequestParameters.Account?.HomeAccountId?.Identifier;
             var apiEvent = InitializeApiEvent(accountId);
 
-            using (TelemetryManager.CreateTelemetryHelper(
+            using (ServiceBundle.TelemetryManager.CreateTelemetryHelper(
                 AuthenticationRequestParameters.RequestContext.TelemetryRequestId,
                 AuthenticationRequestParameters.ClientId,
                 apiEvent,
@@ -189,7 +182,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
 
         private ApiEvent InitializeApiEvent(string accountId)
         {
-            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = TelemetryManager.GenerateNewRequestId();
+            AuthenticationRequestParameters.RequestContext.TelemetryRequestId = ServiceBundle.TelemetryManager.GenerateNewRequestId();
             var apiEvent = new ApiEvent(AuthenticationRequestParameters.RequestContext.Logger)
             {
                 ApiId = _apiId,
@@ -222,7 +215,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
         protected AuthenticationResult CacheTokenResponseAndCreateAuthenticationResult(MsalTokenResponse msalTokenResponse)
         {
             // developer passed in user object.
-            AuthenticationRequestParameters.RequestContext.Logger.Info("checking client info returned from the server..");
+            AuthenticationRequestParameters.RequestContext.Logger.Info("Checking client info returned from the server..");
 
             ClientInfo fromServer = null;
 
@@ -232,26 +225,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
                 fromServer = ClientInfo.CreateFromJson(msalTokenResponse.ClientInfo);
             }
 
-            if (fromServer!= null && AuthenticationRequestParameters?.Account?.HomeAccountId != null)
-            {
-                if (!fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.ObjectId, StringComparison.OrdinalIgnoreCase) ||
-                    !fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId, StringComparison.OrdinalIgnoreCase))
-                {
-                    AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user identifier");
-
-                    AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(
-                        string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Returned user identifiers (uid:{0} utid:{1}) does not match the sent user identifier (uid:{2} utid:{3})",
-                            fromServer.UniqueObjectIdentifier, 
-                            fromServer.UniqueTenantIdentifier,
-                            AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
-                            AuthenticationRequestParameters.Account.HomeAccountId.TenantId),
-                        string.Empty);
-
-                    throw new MsalClientException(MsalError.UserMismatch, MsalErrorMessage.UserMismatchSaveToken);
-                }
-            }
+            ValidateAccountIdentifiers(fromServer);
 
             IdToken idToken = IdToken.Parse(msalTokenResponse.IdToken);
 
@@ -281,19 +255,46 @@ namespace Microsoft.Identity.Client.Internal.Requests
             }
         }
 
-        // this method used to do this...  when we find derived classes that still call base() they should just call REsolveAuthorityEndpointsAsync...
-        //internal virtual async Task PreTokenRequestAsync(CancellationToken cancellationToken)
-        //{
-        //    await ResolveAuthorityEndpointsAsync().ConfigureAwait(false);
-        //}
+        private void ValidateAccountIdentifiers(ClientInfo fromServer)
+        {
+            if (fromServer == null || AuthenticationRequestParameters?.Account?.HomeAccountId == null) return;
+
+            if (AuthenticationRequestParameters.Authority.AuthorityType == Core.Instance.AuthorityType.B2C &&
+                fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (fromServer.UniqueObjectIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
+                    StringComparison.OrdinalIgnoreCase) &&
+                fromServer.UniqueTenantIdentifier.Equals(AuthenticationRequestParameters.Account.HomeAccountId.TenantId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user identifier");
+
+            AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Returned user identifiers (uid:{0} utid:{1}) does not match the sent user identifier (uid:{2} utid:{3})",
+                    fromServer.UniqueObjectIdentifier,
+                    fromServer.UniqueTenantIdentifier,
+                    AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
+                    AuthenticationRequestParameters.Account.HomeAccountId.TenantId),
+                string.Empty);
+
+            throw new MsalClientException(MsalError.UserMismatch, MsalErrorMessage.UserMismatchSaveToken);
+        }
 
         internal async Task ResolveAuthorityEndpointsAsync()
         {
-            await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync
-                (HttpManager, TelemetryManager, AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
+            await AuthenticationRequestParameters.Authority.UpdateCanonicalAuthorityAsync(AuthenticationRequestParameters.RequestContext).ConfigureAwait(false);
 
             await AuthenticationRequestParameters.Authority
-                .ResolveEndpointsAsync(HttpManager, TelemetryManager, AuthenticationRequestParameters.LoginHint,
+                .ResolveEndpointsAsync(AuthenticationRequestParameters.LoginHint,
                     AuthenticationRequestParameters.RequestContext)
                 .ConfigureAwait(false);
         }
@@ -302,7 +303,7 @@ namespace Microsoft.Identity.Client.Internal.Requests
             IDictionary<string, string> additionalBodyParameters, 
             CancellationToken cancellationToken)
         {
-            OAuth2Client client = new OAuth2Client(HttpManager, TelemetryManager);
+            OAuth2Client client = new OAuth2Client(ServiceBundle.HttpManager, ServiceBundle.TelemetryManager);
             client.AddBodyParameter(OAuth2Parameter.ClientId, AuthenticationRequestParameters.ClientId);
             client.AddBodyParameter(OAuth2Parameter.ClientInfo, "1");
             foreach (var entry in AuthenticationRequestParameters.ToParameters())

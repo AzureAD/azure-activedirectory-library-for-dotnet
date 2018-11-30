@@ -49,6 +49,9 @@ namespace Test.MSAL.NET.Unit
         {
             TestCommon.ResetStateAndInitMsal();
 
+            new AadInstanceDiscovery(null, null, true);
+            new ValidatedAuthoritiesCache(true);
+
             httpManager.AddMockHandler(
                 MockHelpers.CreateInstanceDiscoveryMockHandler(
                     MsalTestConstants.GetDiscoveryEndpoint(MsalTestConstants.AuthorityCommonTenant)));
@@ -65,11 +68,11 @@ namespace Test.MSAL.NET.Unit
 
             using (var httpManager = new MockHttpManager())
             {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 TestInitialize(httpManager);
 
                 PublicClientApplication app = new PublicClientApplication(
-                    httpManager,
-                    null,
+                    serviceBundle,
                     MsalTestConstants.ClientId,
                     string.Format(
                         CultureInfo.InvariantCulture,
