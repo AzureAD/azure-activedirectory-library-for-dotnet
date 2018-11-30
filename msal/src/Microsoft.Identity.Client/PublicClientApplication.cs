@@ -89,26 +89,35 @@ namespace Microsoft.Identity.Client
         /// Note that this setting needs to be consistent with what is declared in the application registration portal
         /// </param>
         public PublicClientApplication(string clientId, string authority)
-            : this(null, clientId, authority)
+            : this(PublicClientApplicationBuilder
+                   .Create(clientId, PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId))
+                   .WithAuthorityFromAuthorityString(authority)
+                   .Validate())
         {
-            UserTokenCache = new TokenCache()
-            {
-                ClientId = clientId
-            };
         }
 
-        internal PublicClientApplication(IServiceBundle serviceBundle, string clientId, string authority)
-            : base(
-                clientId,
-                authority,
-                PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId),
-                true,
-                serviceBundle)
+        //internal PublicClientApplication(IServiceBundle serviceBundle, string clientId, string authority)
+        //    : base(
+        //        clientId,
+        //        authority,
+        //        PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId),
+        //        true,
+        //        serviceBundle)
+        //{
+        //    UserTokenCache = new TokenCache()
+        //    {
+        //        ClientId = clientId
+        //    };
+        //}
+
+        internal PublicClientApplication(MsalConfiguration msalConfiguration)
+            : base(msalConfiguration)
         {
-            UserTokenCache = new TokenCache()
-            {
-                ClientId = clientId
-            };
+        }
+
+        internal PublicClientApplication(IServiceBundle serviceBundle)
+            : base(serviceBundle)
+        {
         }
 
         // netcoreapp does not support UI at the moment and all the Acquire* methods use UI;

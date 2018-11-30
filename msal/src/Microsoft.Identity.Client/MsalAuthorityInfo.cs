@@ -25,6 +25,8 @@
 // 
 // ------------------------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.Identity.Client
 {
     /// <summary>
@@ -40,6 +42,31 @@ namespace Microsoft.Identity.Client
             AuthorityType = authorityType;
             AadAuthorityAudience = aadAuthorityAudience;
             AuthorityUri = authorityUri;
+
+            switch (authorityType)
+            {
+            case MsalAuthorityType.Aad:
+                switch (aadAuthorityAudience)
+                {
+                case AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount:
+                    AuthorityUri = "https://login.microsoftonline.com/common/";
+                    break;
+                case AadAuthorityAudience.MicrosoftAccountOnly:
+                    AuthorityUri = "https://login.microsoftonline.com/consumers/";
+                    break;
+                case AadAuthorityAudience.Default:
+                case AadAuthorityAudience.AzureAdOnly:
+                    AuthorityUri = "https://login.microsoftonline.com/organizations/";
+                    break;
+                case AadAuthorityAudience.None:
+                default:
+                    throw new ArgumentException(nameof(aadAuthorityAudience));
+                }
+
+                break;
+            case MsalAuthorityType.B2C when AadAuthorityAudience != AadAuthorityAudience.None:
+                throw new ArgumentException(nameof(aadAuthorityAudience));
+            }
         }
 
         /// <summary>

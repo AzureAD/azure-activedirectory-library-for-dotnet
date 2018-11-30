@@ -27,6 +27,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Identity.Client.CacheV2;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Client
 {
@@ -34,7 +36,7 @@ namespace Microsoft.Identity.Client
     /// This class is used to configure the construction of a PublicClientApplication or ConfidentialClientApplication object.
     /// To construct this object, you should use the MsalConfigurationBuilder.
     /// </summary>
-    public sealed class MsalConfiguration
+    internal sealed class MsalConfiguration
     {
         private readonly List<MsalAuthorityInfo> _authorityInfos = new List<MsalAuthorityInfo>();
 
@@ -42,14 +44,6 @@ namespace Microsoft.Identity.Client
         {
             // used if we're de-serializing from json
             InitializeDefaults();
-        }
-
-        internal MsalConfiguration(string clientId, string redirectUri)
-        {
-            InitializeDefaults();
-
-            ClientId = clientId;
-            RedirectUri = redirectUri;
         }
 
         /// <summary>
@@ -61,6 +55,13 @@ namespace Microsoft.Identity.Client
         /// Redirect URI of the application being referenced.
         /// </summary>
         public string RedirectUri { get; internal set; }
+
+
+        // TODO: need to figure out #if blocks for this since ClientCredential doesn't exist in mobile scenarios.
+        ///// <summary>
+        ///// ClientCredential for ConfidentialClientApplication scenarios.
+        ///// </summary>
+        //public ClientCredential ClientCredential { get; internal set; }
 
         /// <summary>
         /// AuthorizationUserAgent being referenced.
@@ -106,6 +107,21 @@ namespace Microsoft.Identity.Client
         /// The value used during token expiration status calculations.
         /// </summary>
         public int TokenExpirationBufferMilliseconds { get; internal set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ITokenCache TokenCache { get; internal set; }
+
+        /// <summary>
+        /// Only used on ConfidentialClientApplication
+        /// </summary>
+        public ITokenCache UserTokenCache { get; internal set; }
+
+        /// <summary>
+        /// Used internally for tests to override the HttpManager.
+        /// </summary>
+        internal IHttpManager HttpManager { get; set; }
 
         private void InitializeDefaults()
         {

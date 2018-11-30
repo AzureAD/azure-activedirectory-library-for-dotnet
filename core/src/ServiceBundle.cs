@@ -32,7 +32,7 @@ using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Core
 {
-    internal class ServiceBundle : IServiceBundle
+    internal partial class ServiceBundle : IServiceBundle
     {
         internal ServiceBundle(
             ICoreExceptionFactory coreExceptionFactory = null,

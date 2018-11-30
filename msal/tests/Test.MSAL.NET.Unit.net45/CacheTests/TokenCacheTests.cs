@@ -34,7 +34,6 @@ using Microsoft.Identity.Client.Internal.Requests;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
@@ -91,7 +90,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var cache = new TokenCache()
                 {
@@ -138,7 +136,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var cache = new TokenCache()
                 {
@@ -188,7 +185,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 var cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
@@ -239,7 +235,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
@@ -281,7 +276,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
@@ -327,7 +321,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 _cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
@@ -413,7 +406,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
                 var cache = new TokenCache()
                 {
                     ClientId = MsalTestConstants.ClientId,
@@ -449,7 +441,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 _cache = new TokenCache()
                 {
@@ -543,7 +534,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var cache = new TokenCache()
                 {
@@ -594,7 +584,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var cache = new TokenCache()
                 {
@@ -646,7 +635,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var cache = new TokenCache()
                 {
@@ -1093,7 +1081,6 @@ namespace Test.MSAL.NET.Unit.CacheTests
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
                 httpManager.AddInstanceDiscoveryMockHandler();
-                var aadInstanceDiscovery = new AadInstanceDiscovery(httpManager, new TelemetryManager());
 
                 var tokenCache = new TokenCache()
                 {

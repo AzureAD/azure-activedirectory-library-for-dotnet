@@ -36,7 +36,7 @@ namespace Microsoft.Identity.Client.CacheV2
     /// and before/after notifications used in that scenario.
     /// TODO: This interface should eventually be PUBLIC.
     /// </summary>
-    internal interface ITokenCache
+    public interface ITokenCache
     {
         ///// <summary>
         ///// 

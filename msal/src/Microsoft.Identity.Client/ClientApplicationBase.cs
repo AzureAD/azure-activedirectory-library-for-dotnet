@@ -95,8 +95,10 @@ namespace Microsoft.Identity.Client
         ///  cannot be maintained by MSAL.NET</param>
         /// <param name="serviceBundle"></param>
         internal ClientApplicationBase(string clientId, string authority, string redirectUri,
-            bool validateAuthority, IServiceBundle serviceBundle)
+            bool validateAuthority, IServiceBundle serviceBundle) : this(PublicClientApplicationBuilder.Create(clientId, redirectUri).Validate())
         {
+            var msalConfig = PublicClientApplicationBuilder.Create(clientId, redirectUri).Validate();
+
             ServiceBundle = serviceBundle ?? Microsoft.Identity.Core.ServiceBundle.CreateDefault();
 
             ClientId = clientId;
@@ -115,6 +117,26 @@ namespace Microsoft.Identity.Client
                 "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
                 PlatformProxyFactory.GetPlatformProxy().GetProductName(), MsalIdHelper.GetMsalVersion(),
                 AssemblyUtils.GetAssemblyFileVersionAttribute(), AssemblyUtils.GetAssemblyInformationalVersion()));
+        }
+
+        internal ClientApplicationBase(MsalConfiguration msalConfiguration) : this(Core.ServiceBundle.CreateWithMsalConfiguration(msalConfiguration))
+        {
+        }
+
+        internal ClientApplicationBase(IServiceBundle serviceBundle)
+        {
+            ServiceBundle = serviceBundle ?? throw new ArgumentNullException(nameof(serviceBundle));
+            RequestContext requestContext = new RequestContext(ClientId, new MsalLogger(Guid.Empty, null));
+
+            requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
+                                                     "MSAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
+                                                     PlatformProxyFactory.GetPlatformProxy().GetProductName(), MsalIdHelper.GetMsalVersion(),
+                                                     AssemblyUtils.GetAssemblyFileVersionAttribute(), AssemblyUtils.GetAssemblyInformationalVersion()));
+        }
+
+        private void InitFromServiceBundle(IServiceBundle serviceBundle)
+        {
+
         }
 
         /// <summary>
