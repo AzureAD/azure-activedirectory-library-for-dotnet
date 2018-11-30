@@ -85,7 +85,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void PromptBehavior_Consent_SelectAccount()
         {
-            var labResponse = LabUserHelper.GetLabResponseWithDefaultUser();
+            var labResponse = LabUserHelper.GetDefaultUser();
 
             _msalMobileTestHelper.PromptBehaviorTestHelper(xamarinController, labResponse, CoreUiTestConstants.UIBehaviorConsent);
         }

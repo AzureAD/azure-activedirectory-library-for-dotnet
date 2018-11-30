@@ -41,9 +41,9 @@ using System.Linq;
 namespace Test.MSAL.UIAutomation
 {
     /// <summary>
-    /// Configures environment for core/android tests to run
+    /// Configures environment for core/iOS tests to run
     /// </summary>
-    [TestFixture(Platform.iOS)]
+    [TestFixture(Platform.Android)]
     public class XamarinIOSMsalTests
     {
         IApp app;
@@ -66,7 +66,7 @@ namespace Test.MSAL.UIAutomation
         [SetUp]
         public void InitializeBeforeTest()
         {
-            app = AppFactory.StartApp(platform, "XForms.iOS");
+            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.MSAL");
             xamarinController.Application = app;
         }
 
@@ -76,39 +76,18 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithDefaultUser());
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetDefaultUser());
         }
 
         /// <summary>
-        /// Runs through the standard acquire token flow with the specified ui behavior 
+        /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
         public void PromptBehavior_Consent_SelectAccount()
         {
-            var labResponse = LabUserHelper.GetLabResponseWithDefaultUser();
+            var labResponse = LabUserHelper.GetDefaultUser();
 
             _msalMobileTestHelper.PromptBehaviorTestHelper(xamarinController, labResponse, CoreUiTestConstants.UIBehaviorConsent);
-        }
-
-        /// <summary>
-        /// B2C aquire token flow with local account and login.microsoftonline.com
-        /// </summary>
-        [Test]
-        public void B2CLocalAccountAcquireTokenTest()
-        {
-            _msalMobileTestHelper.isB2CloginAuthority = false;
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
-        }
-
-        /// <summary>
-        /// B2C aquire token flow with local account and b2clogin.com authority
-        /// </summary>
-        [Test]
-        [Ignore("Related to this MSAL issue: https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/686")]
-        public void B2CLocalAccountB2CLoginAuthorityAcquireTokenTest()
-        {
-            _msalMobileTestHelper.isB2CloginAuthority = true;
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
         }
 
         /// <summary>
@@ -117,16 +96,90 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenSilentTest()
         {
-            _msalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetLabResponseWithDefaultUser());
+            _msalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetDefaultUser());
         }
 
         /// <summary>
-        /// B2C acquire token flow with local account and silent call
+        /// B2C acquire token with Facebook provider
+        /// b2clogin.com authority
+        /// with subsequent silent call
         /// </summary>
         [Test]
-        public void B2CLocalAccountAcquireTokenSilentTest()
+        public void B2CFacebookProviderWithB2CLoginAuthorityAcquireTokenTest()
         {
-            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetLabResponseWithB2CUser());
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CFacebookAccount(), true);
+        }
+
+        /// <summary>
+        /// B2C acquire token with Facebook provider 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CFacebookProviderWithMicrosoftAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CFacebookAccount(), false);
+        }
+
+        /// <summary>
+        /// B2C acquire token with Facebook provider
+        /// b2clogin.com authority
+        /// call to edit profile authority with
+        ///  UIBehavior none
+        /// </summary>
+        [Test]
+        public void B2CFacebookProviderEditPolicyAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CFacebookProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CFacebookAccount(), true);
+            _msalMobileTestHelper.B2CFacebookProviderEditPolicyAcquireTokenInteractiveTestHelper(xamarinController);
+        }
+
+        /// <summary>
+        /// B2C acquire token with Google provider
+        /// b2clogin.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        [Ignore("Google Auth does not support embedded webview from b2clogin.com authority. " +
+            "App Center cannot run system browser tests yet, so this test can only be run in " +
+            "system browser locally.")]
+        public void B2CGoogleProviderWithB2CLoginAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CGoogleAccount(), true);
+        }
+
+        /// <summary>
+        /// B2C acquire token with Google provider 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        [Ignore("UI is different in AppCenter compared w/local.")]
+        public void B2CGoogleProviderWithMicrosoftAuthorityAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CGoogleProviderAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CGoogleAccount(), false);
+        }
+
+        /// <summary>
+        /// B2C acquire token with local account 
+        /// b2clogin.com authority
+        /// and subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenTest()
+        {
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CLocalAccount(), true);
+        }
+
+        /// <summary>
+        /// B2C acquire token with local account 
+        /// login.microsoftonline.com authority
+        /// with subsequent silent call
+        /// </summary>
+        [Test]
+        public void B2CLocalAccountAcquireTokenWithMicrosoftAuthorityTest()
+        {
+            _msalMobileTestHelper.B2CLocalAccountAcquireTokenSilentTest(xamarinController, LabUserHelper.GetB2CLocalAccount(), false);
         }
 
         /// <summary>
@@ -137,7 +190,7 @@ namespace Test.MSAL.UIAutomation
         {
             _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(
                 xamarinController,
-                LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4));
+                LabUserHelper.GetAdfsUser(FederationProvider.AdfsV4));
         }
 
         /// <summary>
@@ -146,7 +199,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV3InteractiveFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV3));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV3));
         }
 
         /// <summary>
@@ -155,7 +208,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV4InteractiveNonFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV4, false));
         }
 
         /// <summary>
@@ -164,7 +217,7 @@ namespace Test.MSAL.UIAutomation
         [Test]
         public void AcquireTokenADFSV3InteractiveNonFederatedTest()
         {
-            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetLabResponseWithADFSUser(FederationProvider.AdfsV4, false));
+            _msalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV4, false));
         }
     }
 }
