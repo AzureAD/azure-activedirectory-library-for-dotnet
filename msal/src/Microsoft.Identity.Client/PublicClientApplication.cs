@@ -509,6 +509,35 @@ namespace Microsoft.Identity.Client
         // endif for !NET_CORE
 #endif
 
+#if MSAL_FEATURE_USERNAMEPASSWORD
+        /// <summary>
+        /// Non-interactive request to acquire a security token from the authority, via Username/Password Authentication.
+        /// Available only on .net desktop and .net core. See https://aka.ms/msal-net-up for details.
+        /// </summary>
+        /// <param name="scopes">Scopes requested to access a protected API</param>
+        /// <param name="username">Identifier of the user application requests token on behalf.
+        /// Generally in UserPrincipalName (UPN) format, e.g. john.doe@contoso.com</param>
+        /// <param name="securePassword">User password.</param>
+        /// <returns>Authentication result containing a token for the requested scopes and account</returns>
+        public async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, string username, System.Security.SecureString securePassword)
+        {
+            UsernamePasswordInput usernamePasswordInput = new UsernamePasswordInput(username, securePassword);
 
+            return await AcquireTokenByUsernamePasswordAsync(scopes, usernamePasswordInput).ConfigureAwait(false);
+        }
+
+        private async Task<AuthenticationResult> AcquireTokenByUsernamePasswordAsync(IEnumerable<string> scopes, UsernamePasswordInput usernamePasswordInput)
+        {
+            Authority authority = Core.Instance.Authority.CreateAuthority(ServiceBundle, Authority, ValidateAuthority);
+            var requestParams = CreateRequestParameters(authority, scopes, null, UserTokenCache);
+            var handler = new UsernamePasswordRequest(
+                ServiceBundle,
+                requestParams,
+                ApiEvent.ApiIds.AcquireTokenWithScopeUser,
+                usernamePasswordInput);
+
+            return await handler.RunAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+#endif // MSAL_FEATURE_USERNAMEPASSWORD
     }
 }

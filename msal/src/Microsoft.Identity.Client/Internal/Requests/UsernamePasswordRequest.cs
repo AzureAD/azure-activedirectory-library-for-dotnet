@@ -33,14 +33,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
-using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.Instance;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Client.Internal.Requests
 {
+#if MSAL_FEATURE_USERNAMEPASSWORD
+
     /// <summary>
     ///     Handles requests that are non-interactive. Currently MSAL supports Integrated Windows Auth.
     /// </summary>
@@ -161,4 +161,5 @@ namespace Microsoft.Identity.Client.Internal.Requests
             return dict;
         }
     }
+#endif // MSAL_FEATURE_USERNAMEPASSWORD
 }
