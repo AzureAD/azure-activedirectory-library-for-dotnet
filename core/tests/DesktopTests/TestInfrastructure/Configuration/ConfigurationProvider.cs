@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.AutomationTests.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.AutomationTests.Configuration
 {
@@ -75,8 +76,6 @@ namespace Microsoft.Identity.AutomationTests.Configuration
             {
                 throw new InvalidOperationException("Could not find the 'keyVault' configuration section");
             }
-
-            KeyVaultSecretsProvider.Initialize(keyVaultConfig);
 
             Assembly assembly = Assembly.GetExecutingAssembly();
 

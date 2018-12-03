@@ -20,16 +20,12 @@
     <Compile Include="Model\BrokerTypeExtensions.cs" />
     <Compile Include="Model\Application.cs" />
     <Compile Include="Model\ApplicationType.cs" />
-    <Compile Include="Configuration\KeyVaultAuthenticationType.cs" />
-    <Compile Include="Configuration\KeyVaultConfiguration.cs" />
     <Compile Include="Model\RedirectUriType.cs" />
     <Compile Include="Model\PlatformType.cs" />
     <Compile Include="Model\BrokerType.cs" />
-    <Compile Include="Configuration\CertificateHelper.cs" />
     <Compile Include="Configuration\ConfigurationProvider.cs" />
     <Compile Include="Configuration\DeviceConfiguration.cs" />
     <Compile Include="DictionaryExtensions.cs" />
-    <Compile Include="Configuration\KeyVaultSecretsProvider.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Model\Resource.cs" />
     <Compile Include="Model\TokenType.cs" />
