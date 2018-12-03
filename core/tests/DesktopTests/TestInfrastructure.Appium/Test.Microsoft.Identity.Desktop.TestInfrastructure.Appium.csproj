@@ -56,9 +56,6 @@
     <PackageReference Include="Selenium.Support" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestInfrastructure\TestInfrastructure.csproj">
-      <Project>{8a193a74-31a5-4539-af24-3d84dcf722b0}</Project>
-      <Name>TestInfrastructure</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\TestInfrastructure\Test.Microsoft.Identity.Desktop.TestInfrastructure.csproj" />
   </ItemGroup>
 </Project>

@@ -37,12 +37,6 @@
     <Compile Include="ReadCacheResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestInfrastructure\TestInfrastructure.csproj">
-      <Project>{8a193a74-31a5-4539-af24-3d84dcf722b0}</Project>
-      <Name>TestInfrastructure</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
   <PropertyGroup>
@@ -50,5 +44,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestInfrastructure\Test.Microsoft.Identity.Desktop.TestInfrastructure.csproj" />
   </ItemGroup>
 </Project>

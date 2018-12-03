@@ -42,22 +42,10 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="2.31.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AdalTests.Interfaces\AdalTests.Interfaces.csproj">
-      <Project>{a15b9118-902e-4bd8-b239-be3e6ed702f1}</Project>
-      <Name>AdalTests.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AdalTests\AdalTests.csproj">
-      <Project>{2e7f211d-a397-407d-8596-4f6bb5433acc}</Project>
-      <Name>AdalTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestInfrastructure.Appium\TestInfrastructure.Appium.csproj">
-      <Project>{f7353778-7c60-44f5-b141-bd7dd5327045}</Project>
-      <Name>TestInfrastructure.Appium</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestInfrastructure\TestInfrastructure.csproj">
-      <Project>{8a193a74-31a5-4539-af24-3d84dcf722b0}</Project>
-      <Name>TestInfrastructure</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\AdalTests.Interfaces\Test.Microsoft.Identity.Desktop.AdalTests.Interfaces.csproj" />
+    <ProjectReference Include="..\AdalTests\Test.Microsoft.Identity.Desktop.AdalTests.csproj" />
+    <ProjectReference Include="..\TestInfrastructure.Appium\Test.Microsoft.Identity.Desktop.TestInfrastructure.Appium.csproj" />
+    <ProjectReference Include="..\TestInfrastructure\Test.Microsoft.Identity.Desktop.TestInfrastructure.csproj" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
 </Project>

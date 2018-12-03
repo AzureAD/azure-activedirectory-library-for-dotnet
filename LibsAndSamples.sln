@@ -116,13 +116,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DesktopTests", "DesktopTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Core.Desktop.UIAutomation", "core\tests\DesktopTests\Test.Microsoft.Identity.Core.Desktop.UIAutomation\Test.Microsoft.Identity.Core.Desktop.UIAutomation.csproj", "{3D53CD26-4E5E-43C4-A4A8-9502ADFC95E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdalTests", "core\tests\DesktopTests\AdalTests\AdalTests.csproj", "{2E7F211D-A397-407D-8596-4F6BB5433ACC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Desktop.AdalTests", "core\tests\DesktopTests\AdalTests\Test.Microsoft.Identity.Desktop.AdalTests.csproj", "{2E7F211D-A397-407D-8596-4F6BB5433ACC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdalTests.Interfaces", "core\tests\DesktopTests\AdalTests.Interfaces\AdalTests.Interfaces.csproj", "{A15B9118-902E-4BD8-B239-BE3E6ED702F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Desktop.AdalTests.Interfaces", "core\tests\DesktopTests\AdalTests.Interfaces\Test.Microsoft.Identity.Desktop.AdalTests.Interfaces.csproj", "{A15B9118-902E-4BD8-B239-BE3E6ED702F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestInfrastructure", "core\tests\DesktopTests\TestInfrastructure\TestInfrastructure.csproj", "{8A193A74-31A5-4539-AF24-3D84DCF722B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Desktop.TestInfrastructure", "core\tests\DesktopTests\TestInfrastructure\Test.Microsoft.Identity.Desktop.TestInfrastructure.csproj", "{8A193A74-31A5-4539-AF24-3D84DCF722B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestInfrastructure.Appium", "core\tests\DesktopTests\TestInfrastructure.Appium\TestInfrastructure.Appium.csproj", "{F7353778-7C60-44F5-B141-BD7DD5327045}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Microsoft.Identity.Desktop.TestInfrastructure.Appium", "core\tests\DesktopTests\TestInfrastructure.Appium\Test.Microsoft.Identity.Desktop.TestInfrastructure.Appium.csproj", "{F7353778-7C60-44F5-B141-BD7DD5327045}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
