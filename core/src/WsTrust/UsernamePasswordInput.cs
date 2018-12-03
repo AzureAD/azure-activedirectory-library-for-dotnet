@@ -26,14 +26,14 @@
 //------------------------------------------------------------------------------
 
 using System.Security;
-using static System.Runtime.InteropServices.Marshal;
 
-#if DESKTOP
+#if DESKTOP 
 using static System.Runtime.InteropServices.Marshal;
 #endif
 
 #if NET_CORE || NETSTANDARD
 using static System.Security.SecureStringMarshal;
+using static System.Runtime.InteropServices.Marshal;
 #endif
 
 
