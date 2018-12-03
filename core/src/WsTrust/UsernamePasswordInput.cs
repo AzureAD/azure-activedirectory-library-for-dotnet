@@ -45,7 +45,7 @@ namespace Microsoft.Identity.Core
     internal sealed class UsernamePasswordInput : IUsernameInput
     {
         public string UserName { get; set; }
-#if DESKTOP || NET_CORE || NETSTANDARD
+#if DESKTOP || NET_CORE || NETSTANDARD //TODO: remove once MSAL is split 
         private SecureString securePassword;
 #endif
         private string password;
