@@ -83,7 +83,7 @@ namespace Microsoft.Identity.Client
         /// </summary>
         public static bool IsSystemWebviewAvailable() // This is part of the NetStandard "interface" 
         {
-            return false;
+            return true;
         }
 
     }
