@@ -367,7 +367,7 @@ namespace Test.ADAL.NET.Integration
                                 DisplayableId = AdalTestConstants.DefaultDisplayableId,
                                 UniqueId = AdalTestConstants.DefaultUniqueId
                             },
-                            IdToken = MockHelpers.CreateIdToken(
+                            IdToken = MockHelpers.CreateAdalIdToken(
                                 AdalTestConstants.DefaultUniqueId,
                                 AdalTestConstants.DefaultDisplayableId)
                         },

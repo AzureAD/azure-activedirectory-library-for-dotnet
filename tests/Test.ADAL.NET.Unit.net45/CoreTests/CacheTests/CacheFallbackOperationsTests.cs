@@ -298,7 +298,7 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.CacheTests
             var idTokenCacheItem = new MsalIdTokenCacheItem(
                 CoreTestConstants.ProductionPrefCacheEnvironment, // different env
                 CoreTestConstants.ClientId,
-                MockHelpers.CreateIdToken("u1", "username"),
+                MockHelpers.CreateMsalIdToken("u1", "username"),
                 MockHelpers.CreateClientInfo("u1", "ut1"),
                 "ut1");
 
@@ -413,7 +413,7 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.CacheTests
             var idTokenCacheItem = new MsalIdTokenCacheItem(
                 env,
                 clientId,
-                MockHelpers.CreateIdToken(uid, username),
+                MockHelpers.CreateMsalIdToken(uid, username),
                 clientInfoString,
                 uniqueTenantId);
 

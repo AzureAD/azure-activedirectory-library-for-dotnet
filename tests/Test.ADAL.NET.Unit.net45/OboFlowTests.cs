@@ -98,7 +98,7 @@ namespace Test.ADAL.NET.Unit
                                 DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
                                 UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
                             },
-                        IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                     },
                 },
                 AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
@@ -160,7 +160,7 @@ namespace Test.ADAL.NET.Unit
                                 DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
                                 UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
                             },
-                        IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                     },
                 },
                 AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
@@ -344,7 +344,7 @@ namespace Test.ADAL.NET.Unit
                                     DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
                                     UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
                                 },
-                            IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                         },
                     UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
                 },
@@ -459,7 +459,7 @@ namespace Test.ADAL.NET.Unit
                                     DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
                                     UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
                                 },
-                            IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                         },
                     UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
                 },
@@ -516,7 +516,7 @@ namespace Test.ADAL.NET.Unit
                             DisplayableId = AdalTestConstants.DefaultDisplayableId,
                             UniqueId = AdalTestConstants.DefaultUniqueId
                         },
-                    IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                    IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                 },
                 //cache entry has no user assertion hash
             },
@@ -574,7 +574,7 @@ namespace Test.ADAL.NET.Unit
                             DisplayableId = AdalTestConstants.DefaultDisplayableId,
                             UniqueId = AdalTestConstants.DefaultUniqueId
                         },
-                    IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                    IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                 },
                 //cache entry has no user assertion hash
             },
@@ -751,7 +751,7 @@ namespace Test.ADAL.NET.Unit
                                 DisplayableId = AdalTestConstants.DefaultDisplayableId,
                                 UniqueId = AdalTestConstants.DefaultUniqueId
                             },
-                        IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                     },
                 UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
             },
@@ -863,7 +863,7 @@ namespace Test.ADAL.NET.Unit
                                 DisplayableId = AdalTestConstants.DefaultDisplayableId,
                                 UniqueId = AdalTestConstants.DefaultUniqueId
                             },
-                        IdToken = MockHelpers.CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
                     },
                 UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
             },

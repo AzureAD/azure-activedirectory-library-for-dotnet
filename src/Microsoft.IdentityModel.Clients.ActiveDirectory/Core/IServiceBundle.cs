@@ -26,8 +26,6 @@
 // ------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.Instance;
-using Microsoft.Identity.Core.Telemetry;
 using Microsoft.Identity.Core.WsTrust;
 
 namespace Microsoft.Identity.Core
@@ -35,9 +33,6 @@ namespace Microsoft.Identity.Core
     internal interface IServiceBundle
     {
         IHttpManager HttpManager { get; }
-        ITelemetryManager TelemetryManager { get; }
-        IValidatedAuthoritiesCache ValidatedAuthoritiesCache { get; }
-        IAadInstanceDiscovery AadInstanceDiscovery { get; }
         IPlatformProxy PlatformProxy { get; }
         IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
     }

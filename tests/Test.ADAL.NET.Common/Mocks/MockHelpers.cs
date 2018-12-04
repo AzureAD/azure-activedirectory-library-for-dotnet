@@ -32,9 +32,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.Identity.Core.UI;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using NSubstitute;
 using Microsoft.Identity.Core.Helpers;
@@ -149,7 +147,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
             HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\"," +
                                                     "\"refresh_token\":\"" + AdalTestConstants.DefaultRefreshTokenValue + "\",\"id_token\":\"" +
-                                  CreateIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId) + "\"," +
+                                                    CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId) + "\"," +
                                   "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
 
             responseMessage.Content = content;
@@ -249,7 +247,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
         public static HttpResponseMessage CreateSuccessTokenResponseMessage(string uniqueId, string displayableId, string resource)
         {
-            string idToken = string.Format(CultureInfo.InvariantCulture, "{0}", CreateIdToken(uniqueId, displayableId));
+            string idToken = string.Format(CultureInfo.InvariantCulture, "{0}", CreateAdalIdToken(uniqueId, displayableId));
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             HttpContent content =
                 new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"resource\":\"" +
@@ -261,43 +259,53 @@ namespace Test.ADAL.NET.Common.Mocks
             return responseMessage;
         }
 
-        internal static string CreateIdToken(string uniqueId, string displayableId)
+        public static string CreateMsalIdToken(string uniqueId, string displayableId)
         {
-            string header = "{alg: \"none\"," +
-                             "typ:\"JWT\"" +
-                             "}";
-            string payload = "{\"aud\": \"e854a4a7-6c34-449c-b237-fc7a28093d84\"," +
-                        "\"iss\": \"https://login.microsoftonline.com/6c3d51dd-f0e5-4959-b4ea-a80c4e36fe5e/\"," +
+            return CreateMsalIdToken(uniqueId, displayableId, CoreTestConstants.Utid);
+        }
+
+        public static string CreateMsalIdToken(string uniqueId, string displayableId, string tenantId)
+        {
+            string id = "{\"aud\": \"e854a4a7-6c34-449c-b237-fc7a28093d84\"," +
+                        "\"iss\": \"https://login.microsoftonline.com/6c3d51dd-f0e5-4959-b4ea-a80c4e36fe5e/v2.0/\"," +
                         "\"iat\": 1455833828," +
                         "\"nbf\": 1455833828," +
                         "\"exp\": 1455837728," +
                         "\"ipaddr\": \"131.107.159.117\"," +
-                        "\"name\": \"Mario Rossi\"," +
+                        "\"name\": \"Marrrrrio Bossy\"," +
                         "\"oid\": \"" + uniqueId + "\"," +
-                        "\"upn\": \"" + displayableId + "\"," +
-                        "\"sub\": \"werwerewrewrew-Qd80ehIEdFus\"," +
-                        "\"tid\": \"" + AdalTestConstants.SomeTenantId + "\"," +
+                        "\"preferred_username\": \"" + displayableId + "\"," +
+                        "\"sub\": \"K4_SGGxKqW1SxUAmhg6C1F6VPiFzcx-Qd80ehIEdFus\"," +
+                        "\"tid\": \"" + tenantId + "\"," +
                         "\"ver\": \"2.0\"}";
+            return string.Format(CultureInfo.InvariantCulture, "someheader.{0}.somesignature", Base64UrlHelpers.Encode(id));
+        }
+
+        internal static string CreateAdalIdToken(string uniqueId, string displayableId)
+        {
+            string header = "{alg: \"none\"," +
+                            "typ:\"JWT\"" +
+                            "}";
+            string payload = "{\"aud\": \"e854a4a7-6c34-449c-b237-fc7a28093d84\"," +
+                             "\"iss\": \"https://login.microsoftonline.com/6c3d51dd-f0e5-4959-b4ea-a80c4e36fe5e/\"," +
+                             "\"iat\": 1455833828," +
+                             "\"nbf\": 1455833828," +
+                             "\"exp\": 1455837728," +
+                             "\"ipaddr\": \"131.107.159.117\"," +
+                             "\"name\": \"Mario Rossi\"," +
+                             "\"oid\": \"" + uniqueId + "\"," +
+                             "\"upn\": \"" + displayableId + "\"," +
+                             "\"sub\": \"werwerewrewrew-Qd80ehIEdFus\"," +
+                             "\"tid\": \"" + AdalTestConstants.SomeTenantId + "\"," +
+                             "\"ver\": \"2.0\"}";
 
             return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.signature", Base64UrlHelpers.Encode(header), Base64UrlHelpers.Encode(payload));
         }
 
-        public static string CreateClientInfo()
-        {
-            return CreateClientInfo(CoreTestConstants.Uid, CoreTestConstants.Utid);
-        }
 
         public static string CreateClientInfo(string uid, string utid)
         {
             return Base64UrlHelpers.Encode("{\"uid\":\"" + uid + "\",\"utid\":\"" + utid + "\"}");
-        }
-
-        internal static HttpResponseMessage CreateFailureMessage(HttpStatusCode code, string message)
-        {
-            HttpResponseMessage responseMessage = new HttpResponseMessage(code);
-            HttpContent content = new StringContent(message);
-            responseMessage.Content = content;
-            return responseMessage;
         }
 
         public static HttpResponseMessage CreateRequestTimeoutResponseMessage()
@@ -335,29 +343,6 @@ namespace Test.ADAL.NET.Common.Mocks
                 new StringContent(successResponse);
             responseMessage.Content = content;
             return responseMessage;
-        }
-
-        public static readonly string DefaultTokenResponse =
-            "{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"scope\":" +
-            "\"r1/scope1 r1/scope2\",\"access_token\":\"some-access-token\"" +
-            ",\"refresh_token\":\"OAAsomethingencryptedQwgAA\",\"client_info\"" +
-            ":\"" + CreateClientInfo() + "\",\"id_token\"" +
-            ":\"" + CreateIdToken(CoreTestConstants.UniqueId, CoreTestConstants.DisplayableId) +
-            "\",\"id_token_expires_in\":\"3600\"}";
-
-        public static HttpResponseMessage CreateSuccessWebFingerResponseMessage(string href)
-        {
-            return
-                CreateSuccessResponseMessage(
-                    "{\"subject\": \"https://fabrikam.com\",\"links\": [{\"rel\": " +
-                    "\"http://schemas.microsoft.com/rel/trusted-realm\"," +
-                    "\"href\": \"" + href + "\"}]}");
-        }
-
-        public static HttpResponseMessage CreateSuccessWebFingerResponseMessage()
-        {
-            return
-                CreateSuccessWebFingerResponseMessage("https://fs.contoso.com");
         }
     }
 }
