@@ -30,18 +30,19 @@ using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
 using Xamarin.UITest;
 using Xamarin.UITest.Queries;
+using Test.ADAL.UIAutomation;
 
 //NOTICE! Inorder to run UI automation tests for xamarin locally, you may need to upgrade nunit to 3.0 and above for this project and the core ui Automation project.
 //It is set to 2.6.4 because that is the maximum version that appcenter can support.
 //There is an error in visual studio that can prevent the NUnit test framework from loading the test dll properly.
 //Remember to return the version back to 2.6.4 before commiting to prevent appcenter from failing
 
-namespace Test.ADAL.UIAutomation
+namespace Test.Microsoft.Identity.Adal.iOS.UIAutomation
 {
     /// <summary>
     /// Configures environment for core/iOS tests to run
     /// </summary>
-    [TestFixture(Platform.Android)]
+    [TestFixture(Platform.iOS)]
     public class XamarinIOSAdalTests
     {
         IApp app;

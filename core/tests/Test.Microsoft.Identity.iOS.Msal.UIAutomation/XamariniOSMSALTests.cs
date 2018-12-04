@@ -32,19 +32,20 @@ using Xamarin.UITest;
 using Xamarin.UITest.Queries;
 using System;
 using System.Linq;
+using Test.MSAL.UIAutomation;
 
 //NOTICE! Inorder to run UI automation tests for xamarin locally, you may need to upgrade nunit to 3.0 and above for this project and the core ui Automation project.
 //It is set to 2.6.4 because that is the maximum version that appcenter can support.
 //There is an error in visual studio that can prevent the NUnit test framework from loading the test dll properly.
 //Remember to return the version back to 2.6.4 before commiting to prevent appcenter from failing
 
-namespace Test.MSAL.UIAutomation
+namespace Test.Microsoft.Identity.Msal.iOS.UIAutomation
 {
     /// <summary>
-    /// Configures environment for core/android tests to run
+    /// Configures environment for core/iOS tests to run
     /// </summary>
-    [TestFixture(Platform.Android)]
-    public class XamarinMSALDroidTests
+    [TestFixture(Platform.iOS)]
+    public class XamarinIOSMsalTests
     {
         IApp app;
         Platform platform;
@@ -55,7 +56,7 @@ namespace Test.MSAL.UIAutomation
         /// Initializes Xamarin UI tests
         /// </summary>
         /// <param name="platform">The platform where the tests will be performed</param>
-        public XamarinMSALDroidTests(Platform platform)
+        public XamarinIOSMsalTests(Platform platform)
         {
             this.platform = platform;
         }
@@ -66,7 +67,7 @@ namespace Test.MSAL.UIAutomation
         [SetUp]
         public void InitializeBeforeTest()
         {
-            app = AppFactory.StartApp(platform, "com.Microsoft.XFormsDroid.MSAL");
+            app = AppFactory.StartApp(platform, "XForms.iOS");
             xamarinController.Application = app;
         }
 
@@ -83,7 +84,7 @@ namespace Test.MSAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
-        public void PromptBehavior_Consent_SelectAccount()
+        public void PromptBehaviorConsentSelectAccount()
         {
             var labResponse = LabUserHelper.GetDefaultUser();
 

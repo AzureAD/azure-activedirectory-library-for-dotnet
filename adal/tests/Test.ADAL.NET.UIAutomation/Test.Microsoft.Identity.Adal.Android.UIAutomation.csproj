@@ -80,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="XamarinDroidADALTests.cs" />
-    <Compile Include="XamarinDroidMSALTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
