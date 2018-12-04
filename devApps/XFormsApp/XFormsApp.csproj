@@ -16,7 +16,7 @@
     <!-- Workaround until Xamarin supports PPDB -->
     <DebugType>full</DebugType>
     <SignAssembly>False</SignAssembly>
-    <AssemblyOriginatorKeyFile>35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../../build/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>    
   </PropertyGroup>
   <ItemGroup>
@@ -39,6 +39,6 @@
     </ProjectReference>
   </ItemGroup> 
 	<PropertyGroup>
-		<CodeAnalysisRuleSet>../../../build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
+		<CodeAnalysisRuleSet>../../build/SolutionWideAnalyzerConfig.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 </Project>
