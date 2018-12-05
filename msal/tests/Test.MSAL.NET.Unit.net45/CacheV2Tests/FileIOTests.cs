@@ -43,6 +43,7 @@ namespace Test.MSAL.NET.Unit.net45.CacheV2Tests
 {
 #if NETFRAMEWORK
     [TestClass]
+    [Ignore]
     public class FileIOTests
     {
         private const string FileName = "FileIOTests.bin";
