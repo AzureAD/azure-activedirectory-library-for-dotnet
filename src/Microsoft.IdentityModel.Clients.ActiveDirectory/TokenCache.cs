@@ -418,6 +418,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         // this is a cross-tenant result. use RT only
                         resultEx.Result.AccessToken = null;
 
+                        resultEx.Result.Authority = cacheQueryData.Authority;
+
                         requestContext.Logger.Info("Cross Tenant refresh token was found in the cache");
                     }
                     else if (tokenNearExpiry && !cacheQueryData.ExtendedLifeTimeEnabled)
@@ -471,7 +473,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         resultEx = null;
                     }
 
-                    if (resultEx != null)
+                    if (resultEx?.Result.Authority == null)
                     {
                         resultEx.Result.Authority = cacheKey.Authority;
                         requestContext.Logger.Info("A matching item (access token or refresh token or both) was found in the cache");
@@ -531,7 +533,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
                     Identity.Core.IdToken idToken = Identity.Core.IdToken.Parse(result.Result.IdToken);
-                    
+
                     CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
                         result.Result.UserInfo.FamilyName, idToken?.ObjectId);
@@ -604,16 +606,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // this check only applies to user tokens. client tokens should be ignored.
                 if (returnValue == null && cacheQueryData.SubjectType != TokenSubjectType.Client)
                 {
+
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> itemsForAllTenants = this.QueryCache(
-                        null, cacheQueryData.ClientId, cacheQueryData.SubjectType, cacheQueryData.UniqueId,
+                    null, cacheQueryData.ClientId, cacheQueryData.SubjectType, cacheQueryData.UniqueId,
                         cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> cloudSpecificItemsForAllTenants =
-                        itemsForAllTenants.Where(item => IsSameCloud(item.Key.Authority, cacheQueryData.Authority)).ToList();
+                        itemsForAllTenants?.Where(item => IsSameCloud(item.Key.Authority, cacheQueryData.Authority)).ToList();
 
-                    if (cloudSpecificItemsForAllTenants.Count != 0)
+                    if (cloudSpecificItemsForAllTenants?.Count != 0)
                     {
-                        returnValue = cloudSpecificItemsForAllTenants.First();
+                        returnValue = cloudSpecificItemsForAllTenants?.First();
                     }
 
                     // check if the token was issued by AAD
@@ -628,9 +631,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
         }
 
-        private static bool IsSameCloud(string authority, string authority1)
+        private static bool IsSameCloud(string cachedAuthority, string cacheQueryDataAuthority)
         {
-            return new Uri(authority).Host.Equals(new Uri(authority1).Host);
+            return new Uri(cachedAuthority).Host.Equals(new Uri(cacheQueryDataAuthority).Host);
         }
 
         /// <summary>

@@ -32,12 +32,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using Test.Microsoft.Identity.Core.Unit;
+using PromptBehavior = Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -128,7 +130,7 @@ namespace Test.ADAL.NET.Integration
         {
             var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
             AuthenticationResult result;
-            AdalSilentTokenAcquisitionException ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () => 
+            AdalSilentTokenAcquisitionException ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () =>
             result = await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false));
 
             Assert.AreEqual(ex.ErrorCode, AdalError.FailedToAcquireTokenSilently);
@@ -171,6 +173,58 @@ namespace Test.ADAL.NET.Integration
                     new UserIdentifier(AdalTestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
             Assert.IsNotNull(result);
 
+            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+        }
+
+        [TestMethod]
+        [TestCategory("AcquireTokenSilentTests")]
+        [Description("Test for same user acquiring token using different tenant")]
+        public async Task AcquireTokenSilentWithMultipleTenantsTestAsync()
+        {
+            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+            });
+            AuthenticationContext context = null;
+            PlatformParameters platformParameters = new PlatformParameters(PromptBehavior.Auto);
+            context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, true);
+            AuthenticationResult result =
+                await
+                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                        AdalTestConstants.DefaultRedirectUri, platformParameters).ConfigureAwait(false);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(AdalTestConstants.DefaultAuthorityHomeTenant, context.Authenticator.Authority);
+            Assert.AreEqual(result.AccessToken, "some-access-token");
+            Assert.IsNotNull(result.UserInfo);
+            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+
+            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint("https://login.microsoftonline.com/home2/"))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+            });
+
+            context = new AuthenticationContext("https://login.microsoftonline.com/home2/", true);
+            AuthenticationResult result2 =
+            await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId).ConfigureAwait(false);
+
+            Assert.IsNotNull(result2);
+            Assert.AreEqual("https://login.microsoftonline.com/home2/", context.Authenticator.Authority);
+            Assert.AreEqual(result2.AccessToken, "some-access-token");
+            Assert.IsNotNull(result2.UserInfo);
+            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result2.UserInfo.DisplayableId);
+            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result2.UserInfo.UniqueId);
+            Assert.AreEqual("https://login.microsoftonline.com/home2/", result2.Authority);
+
+            Assert.AreEqual(2, context.TokenCache.Count);
+
+            // All mocks are consumed
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
     }
