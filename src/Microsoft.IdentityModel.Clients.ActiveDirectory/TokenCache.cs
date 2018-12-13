@@ -612,11 +612,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> cloudSpecificItemsForAllTenants =
-                        itemsForAllTenants?.Where(item => IsSameCloud(item.Key.Authority, cacheQueryData.Authority)).ToList();
+                        itemsForAllTenants.Where(item => IsSameCloud(item.Key.Authority, cacheQueryData.Authority)).ToList();
 
-                    if (cloudSpecificItemsForAllTenants?.Count != 0)
+                    if (cloudSpecificItemsForAllTenants.Count != 0)
                     {
-                        returnValue = cloudSpecificItemsForAllTenants?.First();
+                        returnValue = cloudSpecificItemsForAllTenants.First();
                     }
 
                     // check if the token was issued by AAD
