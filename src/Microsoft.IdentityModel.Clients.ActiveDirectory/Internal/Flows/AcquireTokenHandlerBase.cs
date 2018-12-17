@@ -164,8 +164,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     ResultEx = await this.tokenCache.LoadFromCacheAsync(CacheQueryData, RequestContext).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
+                    // Check if we need to get an AT from the RT
                     if (ResultEx?.Result != null &&
-                        ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) ||
+                        ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) || 
                          (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null)))
                     {
                         ResultEx = await this.RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
@@ -175,7 +176,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         }
                     }
                 }
-
+                
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
                     if (brokerHelper.CanInvokeBroker)
@@ -199,6 +200,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     notifiedBeforeAccessCache = await StoreResultExToCacheAsync(notifiedBeforeAccessCache).ConfigureAwait(false);
                 }
 
+                // At this point we have an Acess Token - return it
                 await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return new AuthenticationResult(ResultEx.Result);
             }
