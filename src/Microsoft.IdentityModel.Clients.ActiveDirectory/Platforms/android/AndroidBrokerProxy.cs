@@ -45,31 +45,28 @@ using Signature = Android.Content.PM.Signature;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class BrokerProxy
+    internal class AndroidBrokerProxy
     {
         private const string RedirectUriScheme = "msauth";
-        private readonly Context mContext;
-        private readonly AccountManager mAcctManager;
-        private readonly string mBrokerTag;
-        public const string DATA_USER_INFO = "com.microsoft.workaccount.user.info";
+        private const string BrokerTag = BrokerConstants.Signature;
+        public const string WorkAccount = "com.microsoft.workaccount.user.info";
 
-        public RequestContext RequestContext { get; set; }
+        private readonly Context _androidContext;
+        private readonly AccountManager _androidAccountManager;
+        private readonly ICoreLogger _logger;
 
-        public BrokerProxy()
+        public AndroidBrokerProxy(Context androidContext, ICoreLogger logger)
         {
-            mBrokerTag = BrokerConstants.Signature;
-        }
+            _androidContext = androidContext ?? throw new ArgumentNullException(nameof(androidContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public BrokerProxy(Context ctx)
-        {
-            mContext = ctx;
-            mAcctManager = AccountManager.Get(mContext);
-            mBrokerTag = BrokerConstants.Signature;
+            _logger.Verbose("BrokerProxy: Getting the Android context");
+            _androidAccountManager = AccountManager.Get(_androidContext);
         }
 
         public bool CanSwitchToBroker()
         {
-            string packageName = mContext.PackageName;
+            string packageName = _androidContext.PackageName;
 
             // ADAL switches broker for following conditions:
             // 1- app is not skipping the broker
@@ -79,8 +76,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             // 4- signature of the broker is valid
             // 5- account exists
             return VerifyManifestPermissions()
-                   && VerifyAuthenticator(mAcctManager)
-                   && CheckAccount(mAcctManager, "", "")
+                   && VerifyAuthenticator(_androidAccountManager)
+                   && CheckAccount(_androidAccountManager, "", "")
                    && !packageName.Equals(BrokerConstants.PackageName, StringComparison.OrdinalIgnoreCase)
                    && !packageName
                        .Equals(BrokerConstants.AzureAuthenticatorAppPackageName, StringComparison.OrdinalIgnoreCase);
@@ -88,7 +85,160 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public bool VerifyUser(string username, string uniqueid)
         {
-            return CheckAccount(mAcctManager, username, uniqueid);
+            return CheckAccount(_androidAccountManager, username, uniqueid);
+        }
+
+        public AdalResultWrapper GetAuthTokenInBackground(AuthenticationRequest request, Activity callerActivity)
+        {
+            AdalResultWrapper authResult = null;
+            VerifyNotOnMainThread();
+
+            // if there is not any user added to account, it returns empty
+            Account targetAccount = null;
+
+            _logger.Info("BrokerProxy: Getting the broker work and school accounts ");
+            Account[] accountList = _androidAccountManager
+                .GetAccountsByType(BrokerConstants.BrokerAccountType);
+
+            if (accountList != null && accountList.Length > 0)
+            {
+                _logger.Info("BrokerProxy: The broker found some accounts");
+            }
+
+
+            if (!string.IsNullOrEmpty(request.BrokerAccountName))
+            {
+                targetAccount = FindAccount(request.BrokerAccountName, accountList);
+                _logger.Verbose("BrokerProxy: Found account based on the broker account name? " + (targetAccount != null));
+            }
+            else
+            {
+                try
+                {
+                    _logger.Verbose("BrokerProxy: No broker account - getting broker users");
+                    UserInfo[] users = GetBrokerUsers();
+
+                    if (users != null && users.Length > 0)
+                    {
+                        _logger.Verbose("Broker Proxy: Found some broker users");
+                    }
+
+                    UserInfo matchingUser = FindUserInfo(request.UserId, users);
+                    _logger.Info($"BrokerProxy: Found a matching user? " + (matchingUser != null));
+
+                    if (matchingUser != null)
+                    {
+                        targetAccount = FindAccount(matchingUser.DisplayableId, accountList);
+                        _logger.Info($"BrokerProxy: Found a matching account based on the user? " + (targetAccount != null));
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.ErrorPii(e);
+                }
+            }
+
+            if (targetAccount != null)
+            {
+                Bundle brokerOptions = GetBrokerOptions(request);
+
+                // blocking call to get token from cache or refresh request in
+                // background at Authenticator
+                IAccountManagerFuture result = null;
+                try
+                {
+                    // It does not expect activity to be launched.
+                    // AuthenticatorService is handling the request at
+                    // AccountManager.
+                    //
+                    _logger.Info("BrokerProxy: Invoking the actual broker to get a token");
+
+                    result = _androidAccountManager.GetAuthToken(
+                        targetAccount,
+                        BrokerConstants.AuthtokenType,
+                        brokerOptions,
+                        false,
+                        null /* set to null to avoid callback */,
+                        new Handler(callerActivity.MainLooper));
+
+                    // Making blocking request here
+                    _logger.Info("BrokerProxy: Received result from Authenticator? " + (result != null));
+
+                    Bundle bundleResult = (Bundle)result.GetResult(10000, TimeUnit.Milliseconds);
+                    // Authenticator should throw OperationCanceledException if
+                    // token is not available
+                    authResult = GetResultFromBrokerResponse(bundleResult);
+                }
+                catch (OperationCanceledException e)
+                {
+                    _logger.ErrorPii(e);
+                }
+                catch (AuthenticatorException e)
+                {
+                    _logger.ErrorPii(e);
+                }
+                catch (Java.Lang.Exception javaException)
+                {
+                    _logger.ErrorPii(javaException);
+                }
+                catch (Exception e)
+                {
+                    // Authenticator gets problem from webrequest or file read/write
+                    /*                    Logger.e(TAG, "Authenticator cancels the request", "",
+                                                ADALError.BROKER_AUTHENTICATOR_IO_EXCEPTION);*/
+
+                    _logger.ErrorPii(e);
+                }
+
+                _logger.Info("BrokerProxy: Returning result from Authenticator ? " + (authResult != null));
+
+                return authResult;
+            }
+            else
+            {
+                _logger.Warning("Target account is not found");
+            }
+
+            return null;
+        }
+
+        public Intent GetIntentForBrokerActivity(AuthenticationRequest request, Activity callerActivity)
+        {
+            Intent intent = null;
+            IAccountManagerFuture result = null;
+            try
+            {
+                // Callback is not passed since it is making a blocking call to get
+                // intent. Activity needs to be launched from calling app
+                // to get the calling app's metadata if needed at BrokerActivity.
+                Bundle addAccountOptions = GetBrokerOptions(request);
+                result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
+                    BrokerConstants.AuthtokenType, null, addAccountOptions, null,
+                    null, new Handler(callerActivity.MainLooper));
+
+                // Making blocking request here
+                Bundle bundleResult = (Bundle)result.Result;
+                // Authenticator should throw OperationCanceledException if
+                // token is not available
+                intent = (Intent)bundleResult.GetParcelable(AccountManager.KeyIntent);
+
+                // Add flag to this intent to signal that request is for broker
+                // logic
+                if (intent != null)
+                {
+                    intent.PutExtra(BrokerConstants.BrokerRequest, BrokerConstants.BrokerRequest);
+                }
+            }
+            catch (AdalException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                _logger.ErrorPii(e);
+            }
+
+            return intent;
         }
 
         // App needs to give permission to AccountManager to use broker.
@@ -104,7 +254,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (Permission.Granted !=
                 Application.Context.PackageManager.CheckPermission(permission, Application.Context.PackageName))
             {
-                RequestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
+                _logger.Info(string.Format(CultureInfo.InvariantCulture,
                     AdalErrorMessageAndroidEx.MissingPackagePermissionTemplate, permission));
 
                 return false;
@@ -115,13 +265,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private void VerifyNotOnMainThread()
         {
             Looper looper = Looper.MyLooper();
-            if (looper != null && looper == mContext.MainLooper)
+            if (looper != null && looper == _androidContext.MainLooper)
             {
                 Exception exception = new AdalException(
                     "Calling this from your main thread can lead to deadlock");
-                RequestContext.Logger.ErrorPii(exception);
+                _logger.ErrorPii(exception);
 
-                if (mContext.ApplicationInfo.TargetSdkVersion >= BuildVersionCodes.Froyo)
+                if (_androidContext.ApplicationInfo.TargetSdkVersion >= BuildVersionCodes.Froyo)
                 {
                     throw exception;
                 }
@@ -161,93 +311,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             return null;
         }
-
-        public AdalResultWrapper GetAuthTokenInBackground(AuthenticationRequest request, Activity callerActivity)
-        {
-            AdalResultWrapper authResult = null;
-            VerifyNotOnMainThread();
-
-            // if there is not any user added to account, it returns empty
-            Account targetAccount = null;
-            Account[] accountList = mAcctManager
-                .GetAccountsByType(BrokerConstants.BrokerAccountType);
-
-            if (!string.IsNullOrEmpty(request.BrokerAccountName))
-            {
-                targetAccount = FindAccount(request.BrokerAccountName, accountList);
-            }
-            else
-            {
-                try
-                {
-                    UserInfo[] users = GetBrokerUsers();
-                    UserInfo matchingUser = FindUserInfo(request.UserId, users);
-                    if (matchingUser != null)
-                    {
-                        targetAccount = FindAccount(matchingUser.DisplayableId, accountList);
-                    }
-                }
-                catch (Exception e)
-                {
-                    RequestContext.Logger.ErrorPii(e);
-                }
-            }
-
-            if (targetAccount != null)
-            {
-                Bundle brokerOptions = GetBrokerOptions(request);
-
-                // blocking call to get token from cache or refresh request in
-                // background at Authenticator
-                IAccountManagerFuture result = null;
-                try
-                {
-                    // It does not expect activity to be launched.
-                    // AuthenticatorService is handling the request at
-                    // AccountManager.
-                    //
-                    result = mAcctManager.GetAuthToken(targetAccount,
-                        BrokerConstants.AuthtokenType, brokerOptions, false,
-                        null /*
-                              * set to null to avoid callback
-                              */, new Handler(callerActivity.MainLooper));
-
-                    // Making blocking request here
-                    RequestContext.Logger.Verbose("Received result from Authenticator");
-
-                    Bundle bundleResult = (Bundle) result.GetResult(10000, TimeUnit.Milliseconds);
-                    // Authenticator should throw OperationCanceledException if
-                    // token is not available
-                    authResult = GetResultFromBrokerResponse(bundleResult);
-                }
-                catch (OperationCanceledException e)
-                {
-                    RequestContext.Logger.ErrorPii(e);
-                }
-                catch (AuthenticatorException e)
-                {
-                    RequestContext.Logger.ErrorPii(e);
-                }
-                catch (Exception e)
-                {
-                    // Authenticator gets problem from webrequest or file read/write
-                    /*                    Logger.e(TAG, "Authenticator cancels the request", "",
-                                                ADALError.BROKER_AUTHENTICATOR_IO_EXCEPTION);*/
-
-                    RequestContext.Logger.ErrorPii(e);
-                }
-                RequestContext.Logger.Verbose("Returning result from Authenticator");
-
-                return authResult;
-            }
-            else
-            {
-                RequestContext.Logger.Verbose("Target account is not found");
-            }
-
-            return null;
-        }
-
         private AdalResultWrapper GetResultFromBrokerResponse(Bundle bundleResult)
         {
             if (bundleResult == null)
@@ -268,6 +331,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     // Initial request from app to Authenticator needs to launch
                     // prompt. null resultEx means initial request
+                    _logger.Info("BrokerProxy: Initial request - not returning a token");
                     return null;
                 }
 
@@ -299,7 +363,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         }
 
 
-        internal static AdalUserInfo GetUserInfoFromBrokerResult(Bundle bundle)
+        private static AdalUserInfo GetUserInfoFromBrokerResult(Bundle bundle)
         {
             // Broker has one user and related to ADFS WPJ user. It does not return
             // idtoken
@@ -322,44 +386,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             };
         }
 
-        public Intent GetIntentForBrokerActivity(AuthenticationRequest request, Activity callerActivity)
-        {
-            Intent intent = null;
-            IAccountManagerFuture result = null;
-            try
-            {
-                // Callback is not passed since it is making a blocking call to get
-                // intent. Activity needs to be launched from calling app
-                // to get the calling app's metadata if needed at BrokerActivity.
-                Bundle addAccountOptions = GetBrokerOptions(request);
-                result = mAcctManager.AddAccount(BrokerConstants.BrokerAccountType,
-                    BrokerConstants.AuthtokenType, null, addAccountOptions, null,
-                    null, new Handler(callerActivity.MainLooper));
-
-                // Making blocking request here
-                Bundle bundleResult = (Bundle)result.Result;
-                // Authenticator should throw OperationCanceledException if
-                // token is not available
-                intent = (Intent)bundleResult.GetParcelable(AccountManager.KeyIntent);
-
-                // Add flag to this intent to signal that request is for broker
-                // logic
-                if (intent != null)
-                {
-                    intent.PutExtra(BrokerConstants.BrokerRequest, BrokerConstants.BrokerRequest);
-                }
-            }
-            catch (AdalException)
-            {
-                throw;
-            }
-            catch(Exception e)
-            {
-                RequestContext.Logger.ErrorPii(e);
-            }
-
-            return intent;
-        }
 
         private string GetRedirectUriForBroker()
         {
@@ -395,11 +421,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
             catch (PackageManager.NameNotFoundException)
             {
-                RequestContext.Logger.Info("Calling App's package does not exist in PackageManager");
+                _logger.Info("Calling App's package does not exist in PackageManager");
             }
             catch (NoSuchAlgorithmException)
             {
-                RequestContext.Logger.Info("Digest SHA algorithm does not exists");
+                _logger.Info("Digest SHA algorithm does not exists");
             }
 
             return null;
@@ -476,17 +502,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 if (authenticator.Type.Equals(BrokerConstants.BrokerAccountType, StringComparison.OrdinalIgnoreCase))
                 {
-                    Account[] accountList = mAcctManager
+                    Account[] accountList = _androidAccountManager
                         .GetAccountsByType(BrokerConstants.BrokerAccountType);
 
                     string packageName;
 
                     if (authenticator.PackageName
-                        .Equals(BrokerConstants.AzureAuthenticatorAppPackageName, StringComparison.OrdinalIgnoreCase)){
+                        .Equals(BrokerConstants.AzureAuthenticatorAppPackageName, StringComparison.OrdinalIgnoreCase))
+                    {
                         packageName = BrokerConstants.AzureAuthenticatorAppPackageName;
                     }
                     else if (authenticator.PackageName
-                        .Equals(BrokerConstants.PackageName, StringComparison.OrdinalIgnoreCase)){
+                        .Equals(BrokerConstants.PackageName, StringComparison.OrdinalIgnoreCase))
+                    {
                         packageName = BrokerConstants.PackageName;
                     }
                     else
@@ -499,7 +527,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     // add accounts through Adal.
                     if (HasSupportToAddUserThroughBroker(packageName))
                     {
-                        RequestContext.Logger.Verbose("Broker supports to add user through app");
+                        _logger.Verbose("Broker supports to add user through app");
                         return true;
                     }
                     else if (accountList != null && accountList.Length > 0)
@@ -532,10 +560,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
-                    RequestContext.Logger.ErrorPii(e);
+                    _logger.ErrorPii(e);
                 }
 
-                RequestContext.Logger.Verbose("It could not check the uniqueid from broker. It is not using broker");
+                _logger.Verbose("It could not check the uniqueid from broker. It is not using broker");
 
                 return false;
             }
@@ -551,18 +579,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             intent.SetPackage(packageName);
             intent.SetClassName(packageName, packageName + ".ui.AccountChooserActivity");
 
-            PackageManager packageManager = mContext.PackageManager;
+            PackageManager packageManager = _androidContext.PackageManager;
             IList<ResolveInfo> infos = packageManager.QueryIntentActivities(intent, 0);
             return infos.Count > 0;
         }
 
         private bool VerifySignature(string brokerPackageName)
         {
-            List< X509Certificate2> certs = ReadCertDataForBrokerApp(brokerPackageName);
+            List<X509Certificate2> certs = ReadCertDataForBrokerApp(brokerPackageName);
 
             VerifySignatureHash(certs);
             if (certs.Count > 1)
-            { 
+            {
                 // Verify the certificate chain is chained correctly.
                 VerifyCertificateChain(certs);
             }
@@ -581,13 +609,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                 // Check the hash for signer cert is the same as what we hardcoded.
                 string signatureHash = Base64.EncodeToString(messageDigest.Digest(), Base64Flags.NoWrap);
-                if (mBrokerTag.Equals(signatureHash, StringComparison.OrdinalIgnoreCase) ||
+                if (BrokerTag.Equals(signatureHash, StringComparison.OrdinalIgnoreCase) ||
                     BrokerConstants.AzureAuthenticatorAppSignature.Equals(signatureHash, StringComparison.OrdinalIgnoreCase))
                 {
                     validSignatureFound = true;
                 }
             }
-            
+
             if (!validSignatureFound)
             {
                 throw new AdalException(AdalErrorAndroidEx.SignatureVerificationFailed, "No matching signature found");
@@ -606,27 +634,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             chain.ChainPolicy.ExtraStore.AddRange(collection);
             foreach (X509Certificate2 certificate in certificates)
             {
-                    var chainBuilt = chain.Build(certificate);
-                    
-                    if (!chainBuilt)
+                var chainBuilt = chain.Build(certificate);
+
+                if (!chainBuilt)
+                {
+                    foreach (X509ChainStatus chainStatus in chain.ChainStatus)
                     {
-                        foreach (X509ChainStatus chainStatus in chain.ChainStatus)
+                        if (chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)
                         {
-                            if (chainStatus.Status != X509ChainStatusFlags.UntrustedRoot)
-                            {
-                                throw new AdalException(AdalErrorAndroidEx.SignatureVerificationFailed,
-                                    string.Format(CultureInfo.InvariantCulture,
-                                        "app certificate validation failed with {0}", chainStatus.Status));
-                            }
+                            throw new AdalException(AdalErrorAndroidEx.SignatureVerificationFailed,
+                                string.Format(CultureInfo.InvariantCulture,
+                                    "app certificate validation failed with {0}", chainStatus.Status));
                         }
                     }
+                }
             }
-            
+
         }
 
         private List<X509Certificate2> ReadCertDataForBrokerApp(string brokerPackageName)
         {
-            PackageInfo packageInfo = mContext.PackageManager.GetPackageInfo(brokerPackageName,
+            PackageInfo packageInfo = _androidContext.PackageManager.GetPackageInfo(brokerPackageName,
                 PackageInfoFlags.Signatures);
             if (packageInfo == null)
             {
@@ -673,7 +701,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         }
 
 
-        public UserInfo[] GetBrokerUsers()
+        private UserInfo[] GetBrokerUsers()
         {
             // Calling this on main thread will cause exception since this is
             // waiting on AccountManagerFuture
@@ -682,10 +710,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 throw new AdalException("Calling getBrokerUsers on main thread");
             }
 
-            Account[] accountList = mAcctManager
+            Account[] accountList = _androidAccountManager
                 .GetAccountsByType(BrokerConstants.BrokerAccountType);
             Bundle bundle = new Bundle();
-            bundle.PutBoolean(DATA_USER_INFO, true);
+            bundle.PutBoolean(WorkAccount, true);
 
             if (accountList != null)
             {
@@ -694,13 +722,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 for (int i = 0; i < accountList.Length; i++)
                 {
                     // Use AccountManager Api method to get extended user info
-                    IAccountManagerFuture result = mAcctManager.UpdateCredentials(
+                    IAccountManagerFuture result = _androidAccountManager.UpdateCredentials(
                         accountList[i], BrokerConstants.AuthtokenType, bundle,
                         null, null, null);
 
-                    RequestContext.Logger.Verbose("Waiting for the result");
+                    _logger.Verbose("Waiting for the result");
 
-                    Bundle userInfoBundle = (Bundle) result.Result;
+                    Bundle userInfoBundle = (Bundle)result.Result;
 
                     users[i] = new UserInfo
                     {

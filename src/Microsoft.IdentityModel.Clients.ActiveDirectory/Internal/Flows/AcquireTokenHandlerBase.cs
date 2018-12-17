@@ -33,6 +33,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -50,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly TokenCache tokenCache;
         internal readonly IDictionary<string, string> brokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
-        protected readonly BrokerHelper brokerHelper = new BrokerHelper();
+        protected readonly IBroker brokerHelper;
         private AdalHttpClient client = null;
         internal readonly RequestContext RequestContext;
 
@@ -58,7 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             this.Authenticator = requestData.Authenticator;
             RequestContext = CreateCallState(null, this.Authenticator.CorrelationId);
-            brokerHelper.RequestContext = RequestContext;
+            brokerHelper = BrokerFactory.CreateBrokerFacade(RequestContext.Logger);
 
             RequestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",

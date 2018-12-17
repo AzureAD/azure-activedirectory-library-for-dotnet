@@ -38,15 +38,22 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
-    internal class BrokerHelper
+    internal class iOSBroker : IBroker
     {
         private static SemaphoreSlim brokerResponseReady = null;
         private static NSUrl brokerResponse = null;
 
-        public RequestContext RequestContext { get; set; }
+        private readonly ICoreLogger _logger;
+
+        public iOSBroker(ICoreLogger logger)
+        {
+            _logger = logger;
+        }
+
         public IPlatformParameters PlatformParameters { get; set; }
 
         public bool CanInvokeBroker
@@ -54,10 +61,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             get
             {
                 PlatformParameters pp = PlatformParameters as PlatformParameters;
-				if (pp == null)
-				{
-					return false;
-				}
+                if (pp == null)
+                {
+                    return false;
+                }
 
                 var res = false;
 
@@ -82,7 +89,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             brokerResponse = null;
             brokerResponseReady = new SemaphoreSlim(0);
-            
+
             //call broker
             string base64EncodedString = Base64UrlHelpers.Encode(BrokerKeyHelper.GetRawBrokerKey());
             brokerPayload["broker_key"] = base64EncodedString;
@@ -97,23 +104,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
-                    string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
-                    Uri uri = new Uri(url);
-                    string query = uri.Query;
-                    if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
-                    {
-                        query = query.Substring(1);
-                    }
+                string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
+                Uri uri = new Uri(url);
+                string query = uri.Query;
+                if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Substring(1);
+                }
 
-                    Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
+                _logger.Info("Invoking the iOS broker app link");
 
+                Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
                 DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(new NSUrl(keyPair["app_link"])));
 
-                    throw new AdalException(AdalErrorIOSEx.BrokerApplicationRequired, AdalErrorMessageIOSEx.BrokerApplicationRequired);
+                throw new AdalException(AdalErrorIOSEx.BrokerApplicationRequired, AdalErrorMessageIOSEx.BrokerApplicationRequired);
             }
 
             else
             {
+                _logger.Info("Invoking the iOS broker");
                 NSUrl url = new NSUrl("msauth://broker?" + brokerPayload.ToQueryParameter());
                 DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(url));
             }
@@ -156,8 +165,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 string decryptedResponse = BrokerKeyHelper.DecryptBrokerResponse(encryptedResponse);
                 string responseActualHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateSha256Hash(decryptedResponse);
                 byte[] rawHash = Convert.FromBase64String(responseActualHash);
-                string hash  = BitConverter.ToString(rawHash);
-                if (expectedHash.Equals(hash.Replace("-",""), StringComparison.OrdinalIgnoreCase))
+                string hash = BitConverter.ToString(rawHash);
+                if (expectedHash.Equals(hash.Replace("-", ""), StringComparison.OrdinalIgnoreCase))
                 {
                     responseDictionary = EncodingHelper.ParseKeyValueList(decryptedResponse, '&', false, null);
                     response = TokenResponse.CreateFromBrokerResponse(responseDictionary);
@@ -176,10 +185,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             dateTimeOffset = dateTimeOffset.AddSeconds(response.ExpiresOn);
             return response.GetResult(dateTimeOffset, dateTimeOffset);
         }
-        
-        public static void SetBrokerResponse(NSUrl brokerResponse)
+
+        public static void SetBrokerResponse(NSUrl responseUrl)
         {
-            BrokerHelper.brokerResponse = brokerResponse;
+            brokerResponse = responseUrl;
             brokerResponseReady.Release();
         }
     }

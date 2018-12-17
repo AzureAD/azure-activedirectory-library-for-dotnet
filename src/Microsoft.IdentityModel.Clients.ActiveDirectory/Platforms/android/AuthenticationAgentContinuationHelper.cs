@@ -66,7 +66,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 case BrokerResponseCode.ResponseReceived:
                 case BrokerResponseCode.BrowserCodeError:
                 case BrokerResponseCode.UserCancelled:
-                    BrokerHelper.SetBrokerResult(data, (int)resultCode);
+                    AndroidBroker.SetBrokerResult(data, (int)resultCode);
                     break;
 
                 default:
