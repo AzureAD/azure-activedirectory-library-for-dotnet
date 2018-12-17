@@ -429,7 +429,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     else if (!tokenIsForSameResource)
                     {
                         resultEx = HandleMrrtCase(cacheQueryData, requestContext.Logger, resultEx, cacheKey);
-                      
                     }
                     else if (!tokenExtendedLifeTimeExpired && cacheQueryData.ExtendedLifeTimeEnabled && tokenNearExpiry)
                     {

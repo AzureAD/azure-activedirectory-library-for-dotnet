@@ -335,6 +335,16 @@ namespace Test.ADAL.Common.Unit
             AdalResultWrapper value = CreateCacheValue(null, "user1");
         }
 
+        internal static async Task MRRT_TestAsync()
+        {
+            var tokenCache = new TokenCache();
+            var cacheDictionary = tokenCache.tokenCacheDictionary;
+
+            AdalTokenCacheKey keyR1 = new AdalTokenCacheKey("authority", "R1", "client", TokenSubjectType.User, null, "user");
+            AdalTokenCacheKey keyR2 = new AdalTokenCacheKey("authority", "R2", "client", TokenSubjectType.User, null, "user");
+
+        }
+
         internal static async Task TokenCacheOperationsTestAsync()
         {
             var tokenCache = new TokenCache();

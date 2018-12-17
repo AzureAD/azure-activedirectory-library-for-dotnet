@@ -37,63 +37,55 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     [Android.Runtime.Preserve(AllMembers = true)]
-    internal class BrokerHelper
+    internal class AndroidBroker : IBroker
     {
         private static SemaphoreSlim readyForResponse = null;
         private static AdalResultWrapper resultEx = null;
 
-        private readonly BrokerProxy mBrokerProxy = new BrokerProxy(Application.Context);
+        private readonly AndroidBrokerProxy _brokerProxy;
+        private readonly ICoreLogger _logger;
 
-        public RequestContext RequestContext { get; set; }
+        public AndroidBroker(ICoreLogger logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _brokerProxy =  new AndroidBrokerProxy(Application.Context, logger);
+        }
 
         public IPlatformParameters PlatformParameters { get; set; }
 
-        private bool WillUseBroker()
-        {
-            PlatformParameters pp = PlatformParameters as PlatformParameters;
-            if (pp != null)
-            {
-                return pp.UseBroker;
-            }
-
-            return false;
-        }
 
         public bool CanInvokeBroker
         {
             get
-            {
-                mBrokerProxy.RequestContext = RequestContext;
-                return WillUseBroker() && mBrokerProxy.CanSwitchToBroker();
+            {                
+                return WillUseBroker() && _brokerProxy.CanSwitchToBroker();
             }
         }
 
         public async Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
         {
-            mBrokerProxy.RequestContext = RequestContext;
-
             resultEx = null;
             readyForResponse = new SemaphoreSlim(0);
             try
             {
-                await Task.Run(() => AcquireToken(brokerPayload)).ConfigureAwait(false);
+                await Task.Run(() => AcquireTokenInternal(brokerPayload)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                RequestContext.Logger.ErrorPii(ex);
+                _logger.ErrorPii(ex);
                 throw;
             }
             await readyForResponse.WaitAsync().ConfigureAwait(false);
             return resultEx;
         }
 
-        public void AcquireToken(IDictionary<string, string> brokerPayload)
+        private void AcquireTokenInternal(IDictionary<string, string> brokerPayload)
         {
-
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
                 string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
@@ -118,10 +110,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             // BROKER flow intercepts here
             // cache and refresh call happens through the authenticator service
-            if (mBrokerProxy.VerifyUser(request.LoginHint,
+            if (_brokerProxy.VerifyUser(request.LoginHint,
                 request.UserId))
             {
-                RequestContext.Logger.Verbose("It switched to broker for context: " + mContext.PackageName);
+                _logger.Verbose("It switched to broker for context: " + mContext.PackageName);
 
                 request.BrokerAccountName = request.LoginHint;
 
@@ -130,18 +122,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 bool hasAccountNameOrUserId = !string.IsNullOrEmpty(request.BrokerAccountName) || !string.IsNullOrEmpty(request.UserId);
                 if (string.IsNullOrEmpty(request.Claims) && hasAccountNameOrUserId)
                 {
-                    RequestContext.Logger.Verbose("User is specified for background token request");
+                    _logger.Verbose("User is specified for background token request");
 
-                    resultEx = mBrokerProxy.GetAuthTokenInBackground(request, platformParams.CallerActivity);
+                    resultEx = _brokerProxy.GetAuthTokenInBackground(request, platformParams.CallerActivity);
                 }
                 else
                 {
-                    RequestContext.Logger.Verbose("User is not specified for background token request");
+                    _logger.Verbose("User is not specified for background token request");
                 }
 
                 if (resultEx != null && resultEx.Result != null && !string.IsNullOrEmpty(resultEx.Result.AccessToken))
                 {
-                    RequestContext.Logger.Verbose("Token is returned from background call");
+                    _logger.Verbose("Token is returned from background call");
                     readyForResponse.Release();
                     return;
                 }
@@ -151,16 +143,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // Initial request to authenticator needs to launch activity to
                 // record calling uid for the account. This happens for Prompt auto
                 // or always behavior.
-                RequestContext.Logger.Verbose("Token is not returned from backgroud call");
+                _logger.Verbose("Token is not returned from backgroud call");
 
                 // Only happens with callback since silent call does not show UI
-                RequestContext.Logger.Verbose("Launch activity for Authenticator");
+                _logger.Verbose("Launch activity for Authenticator");
 
-                RequestContext.Logger.Verbose("Starting Authentication Activity");
+                _logger.Verbose("Starting Authentication Activity");
 
                 if (resultEx == null)
                 {
-                    RequestContext.Logger.Verbose("Initial request to authenticator");
+                    _logger.Verbose("Initial request to authenticator");
                     // Log the initial request but not force a prompt
                 }
 
@@ -172,12 +164,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // onActivityResult will receive the response
                 // Activity needs to launch to record calling app for this
                 // account
-                Intent brokerIntent = mBrokerProxy.GetIntentForBrokerActivity(request, platformParams.CallerActivity);
+                Intent brokerIntent = _brokerProxy.GetIntentForBrokerActivity(request, platformParams.CallerActivity);
                 if (brokerIntent != null)
                 {
                     try
                     {
-                        RequestContext.Logger.Verbose(
+                        _logger.Verbose(
                             "Calling activity pid:" + Android.OS.Process.MyPid()
                             + " tid:" + Android.OS.Process.MyTid() + "uid:"
                             + Android.OS.Process.MyUid());
@@ -186,7 +178,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     }
                     catch (ActivityNotFoundException e)
                     {
-                        RequestContext.Logger.ErrorPii(e);
+                        _logger.ErrorPii(e);
                     }
                 }
             }
@@ -218,18 +210,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     ExpiresOn = data.GetLongExtra(BrokerConstants.AccountExpireDate, 0)
                 };
 
-                resultEx = tokenResponse.GetResult(BrokerProxy.ConvertFromTimeT(tokenResponse.ExpiresOn),
-                    BrokerProxy.ConvertFromTimeT(tokenResponse.ExpiresOn));
+                resultEx = tokenResponse.GetResult(AndroidBrokerProxy.ConvertFromTimeT(tokenResponse.ExpiresOn),
+                    AndroidBrokerProxy.ConvertFromTimeT(tokenResponse.ExpiresOn));
             }
 
             readyForResponse.Release();
         }
-    }
 
-    internal class CallBackHandler : Java.Lang.Object, IAccountManagerCallback
-    {
-        public void Run(IAccountManagerFuture future)
+        
+        private bool WillUseBroker()
         {
+            PlatformParameters pp = PlatformParameters as PlatformParameters;
+            if (pp != null)
+            {
+                return pp.UseBroker;
+            }
+
+            return false;
         }
     }
+
+    //internal class CallBackHandler : Java.Lang.Object, IAccountManagerCallback
+    //{
+    //    public void Run(IAccountManagerFuture future)
+    //    {
+    //    }
+    //}
 }

@@ -1,4 +1,8 @@
-﻿//----------------------------------------------------------------------
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
+
+//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -23,32 +27,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-//------------------------------------------------------------------------------
+//
 
-using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Cache;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker
 {
-    internal class BrokerHelper
+    internal interface IBroker
     {
-        public RequestContext RequestContext { get; set; }
+        bool CanInvokeBroker { get; }
 
-        public IPlatformParameters PlatformParameters { get; set; }
+        IPlatformParameters PlatformParameters { get; set; } //todo: remove setter, initialize broker with PlatformParams
 
-        public bool CanInvokeBroker {
-            get { return false; } 
-        }
-
-        public Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
-        {
-            throw new NotImplementedException();
-        }
-        
+        Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload);
     }
 }

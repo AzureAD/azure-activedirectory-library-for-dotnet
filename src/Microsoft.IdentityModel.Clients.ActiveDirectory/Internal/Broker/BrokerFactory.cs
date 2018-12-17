@@ -23,28 +23,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-//------------------------------------------------------------------------------
+//
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Identity.Core;
-using Microsoft.Identity.Core.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
+using System;
 
-namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker
 {
-    internal class BrokerHelper
+    internal class BrokerFactory
     {
-        public RequestContext RequestContext { get; set; }
-        public IPlatformParameters PlatformParameters { get; set; }
 
-        public bool CanInvokeBroker { get { return false; } }
-
-        public Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
+        // thread safety ensured by implicit LazyThreadSafetyMode.ExecutionAndPublication
+        public static IBroker CreateBrokerFacade(ICoreLogger logger)
         {
-            throw new NotImplementedException();
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+#if ANDROID
+            return new AndroidBroker(logger);
+#elif iOS
+            return new iOSBroker(logger);
+#else
+            return new NullBroker();
+#endif
         }
     }
 }
