@@ -44,17 +44,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
             if (string.IsNullOrWhiteSpace(assertion))
             {
-                throw new ArgumentNullException("assertion");
+                throw new ArgumentNullException(nameof(assertion));
             }
 
-            this.ClientId = clientId;
-            this.AssertionType = OAuthAssertionType.JwtBearer;
-            this.Assertion = assertion;
+            ClientId = clientId;
+            AssertionType = OAuthAssertionType.JwtBearer;
+            Assertion = assertion;
         }
 
         /// <summary>

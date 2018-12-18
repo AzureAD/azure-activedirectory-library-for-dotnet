@@ -41,8 +41,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="useCorporateNetwork">flag to enable logged in user authentication</param>
         public PlatformParameters(PromptBehavior promptBehavior, bool useCorporateNetwork)
         {
-            this.PromptBehavior = promptBehavior;
-            this.UseCorporateNetwork = useCorporateNetwork;
+            PromptBehavior = promptBehavior;
+            UseCorporateNetwork = useCorporateNetwork;
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return new CoreUIParent()
             {
-                UseCorporateNetwork = this.UseCorporateNetwork,
-                UseHiddenBrowser = (this.PromptBehavior == PromptBehavior.Never)
+                UseCorporateNetwork = UseCorporateNetwork,
+                UseHiddenBrowser = PromptBehavior == PromptBehavior.Never
             };
         }
     }

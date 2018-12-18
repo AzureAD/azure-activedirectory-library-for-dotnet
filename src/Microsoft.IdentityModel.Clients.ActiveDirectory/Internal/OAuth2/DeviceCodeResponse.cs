@@ -63,12 +63,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         {
             return new DeviceCodeResult()
             {
-                ExpiresOn = DateTime.UtcNow.AddSeconds(this.ExpiresIn),
-                Message = this.Message,
-                DeviceCode = this.DeviceCode,
-                UserCode = this.UserCode,
-                Interval = this.Interval,
-                VerificationUrl = this.VerificationUrl,
+                ExpiresOn = DateTime.UtcNow.AddSeconds(ExpiresIn),
+                Message = Message,
+                DeviceCode = DeviceCode,
+                UserCode = UserCode,
+                Interval = Interval,
+                VerificationUrl = VerificationUrl,
                 ClientId = clientId,
                 Resource = resource
             };

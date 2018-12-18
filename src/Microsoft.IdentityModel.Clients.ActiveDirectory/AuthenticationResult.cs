@@ -45,12 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         internal AuthenticationResult(AdalResult adalResult)
         {
-            if (adalResult == null)
-            {
-                throw new ArgumentNullException(nameof(adalResult));
-            }
-
-            _adalResult = adalResult;
+            _adalResult = adalResult ?? throw new ArgumentNullException(nameof(adalResult));
             UserInfo = new UserInfo(_adalResult.UserInfo);
         }
 
@@ -115,7 +110,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>Created authorization header</returns>
         public string CreateAuthorizationHeader()
         {
-            return Oauth2AuthorizationHeader + this.AccessToken;
+            return Oauth2AuthorizationHeader + AccessToken;
         }
 
         internal void UpdateTenantAndUserInfo(string tenantId, string idToken, UserInfo userInfo)
@@ -124,7 +119,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             _adalResult.IdToken = idToken;
             if (userInfo != null)
             {
-                this.UserInfo = new UserInfo(userInfo);
+                UserInfo = new UserInfo(userInfo);
             }
         }
     }

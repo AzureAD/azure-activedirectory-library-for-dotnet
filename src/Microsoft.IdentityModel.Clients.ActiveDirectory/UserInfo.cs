@@ -64,13 +64,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private UserInfo(string uniqueId, string displayableId, string givenName, string familyName,
             string identityProvider, Uri passwordChangeUrl, DateTimeOffset? passwordExpiresOn)
         {
-            this.UniqueId = uniqueId;
-            this.DisplayableId = displayableId;
-            this.GivenName = givenName;
-            this.FamilyName = familyName;
-            this.IdentityProvider = identityProvider;
-            this.PasswordChangeUrl = passwordChangeUrl;
-            this.PasswordExpiresOn = passwordExpiresOn;
+            UniqueId = uniqueId;
+            DisplayableId = displayableId;
+            GivenName = givenName;
+            FamilyName = familyName;
+            IdentityProvider = identityProvider;
+            PasswordChangeUrl = passwordChangeUrl;
+            PasswordExpiresOn = passwordExpiresOn;
         }
 
         /// <summary>

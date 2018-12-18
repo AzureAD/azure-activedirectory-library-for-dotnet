@@ -39,20 +39,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if (userId == null)
             {
-                throw new ArgumentNullException("userId", AdalErrorMessage.SpecifyAnyUser);
+                throw new ArgumentNullException(nameof(userId), AdalErrorMessage.SpecifyAnyUser);
             }
             requestData.SubjectType = requestData.ClientKey.HasCredential
                 ? TokenSubjectType.UserPlusClient
                 : TokenSubjectType.User;
-            this.UniqueId = userId.UniqueId;
-            this.DisplayableId = userId.DisplayableId;
-            this.UserIdentifierType = userId.Type;
+            UniqueId = userId.UniqueId;
+            DisplayableId = userId.DisplayableId;
+            UserIdentifierType = userId.Type;
             brokerHelper.PlatformParameters = parameters;    
-            this.SupportADFS = true;
+            SupportADFS = true;
 
-            this.brokerParameters[BrokerParameter.Username] = userId.Id;
-            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
-            this.brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
+            brokerParameters[BrokerParameter.Username] = userId.Id;
+            brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
         protected internal /* internal for test only */ override Task<AdalResultWrapper> SendTokenRequestAsync()

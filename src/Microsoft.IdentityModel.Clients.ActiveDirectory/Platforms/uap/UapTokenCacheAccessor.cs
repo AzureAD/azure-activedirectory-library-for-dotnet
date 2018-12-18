@@ -284,7 +284,7 @@ namespace Microsoft.Identity.Core
 
             Array.Copy((byte[])composite[CacheValue + (segmentCount - 1)], 0, encryptedValue,
                 (segmentCount - 1) * MaxCompositeValueLength,
-                encyptedValueLength - (segmentCount - 1) * MaxCompositeValueLength);
+                encyptedValueLength - ((segmentCount - 1) * MaxCompositeValueLength));
 
             return _cryptographyManager.Decrypt(encryptedValue);
         }

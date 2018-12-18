@@ -40,9 +40,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             AuthorizationResult result;
 
-            using (var dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow))
+            using (var dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow))
             {
-                result = dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
+                result = dialog.AuthenticateAAD(RequestUri, CallbackUri);
             }
 
             return result;

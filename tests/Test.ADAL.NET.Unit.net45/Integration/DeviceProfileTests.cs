@@ -71,7 +71,7 @@ namespace Test.ADAL.NET.Integration
                 Resource = AdalTestConstants.DefaultResource,
 
                 DeviceCode = "device-code",
-                ExpiresOn = (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10)),
+                ExpiresOn = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10),
                 Interval = 5,
                 Message = "get token here",
                 UserCode = "user-code",

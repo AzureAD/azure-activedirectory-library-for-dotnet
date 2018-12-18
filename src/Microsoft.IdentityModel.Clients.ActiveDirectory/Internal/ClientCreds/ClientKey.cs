@@ -38,49 +38,34 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
-            this.ClientId = clientId;
-            this.HasCredential = false;
+            ClientId = clientId;
+            HasCredential = false;
         }
 
         public ClientKey(ClientCredential clientCredential)
         {
-            if (clientCredential == null)
-            {
-                throw new ArgumentNullException("clientCredential");
-            }
-
-            this.Credential = clientCredential;
-            this.ClientId = clientCredential.ClientId;
-            this.HasCredential = true;
+            Credential = clientCredential ?? throw new ArgumentNullException(nameof(clientCredential));
+            ClientId = clientCredential.ClientId;
+            HasCredential = true;
         }
 
         public ClientKey(IClientAssertionCertificate clientCertificate, Authenticator authenticator)
         {
-            this.Authenticator = authenticator;
+            Authenticator = authenticator;
 
-            if (clientCertificate == null)
-            {
-                throw new ArgumentNullException("clientCertificate");
-            }
-
-            this.Certificate = clientCertificate;
-            this.ClientId = clientCertificate.ClientId;
-            this.HasCredential = true;
+            Certificate = clientCertificate ?? throw new ArgumentNullException(nameof(clientCertificate));
+            ClientId = clientCertificate.ClientId;
+            HasCredential = true;
         }
 
         public ClientKey(ClientAssertion clientAssertion)
         {
-            if (clientAssertion == null)
-            {
-                throw new ArgumentNullException("clientAssertion");
-            }
-
-            this.Assertion = clientAssertion;
-            this.ClientId = clientAssertion.ClientId;
-            this.HasCredential = true;
+            Assertion = clientAssertion ?? throw new ArgumentNullException(nameof(clientAssertion));
+            ClientId = clientAssertion.ClientId;
+            HasCredential = true;
         }
 
         public ClientCredential Credential { get; private set; }
@@ -99,31 +84,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
 
         public void AddToParameters(IDictionary<string, string> parameters)
         {
-            if (this.ClientId != null)
+            if (ClientId != null)
             {
-                parameters[OAuthParameter.ClientId] = this.ClientId;
+                parameters[OAuthParameter.ClientId] = ClientId;
             }
 
-            if (this.Credential != null)
+            if (Credential != null)
             {
-                if (this.Credential.SecureClientSecret != null)
+                if (Credential.SecureClientSecret != null)
                 {
-                    this.Credential.SecureClientSecret.ApplyTo(parameters);
+                    Credential.SecureClientSecret.ApplyTo(parameters);
                 }
                 else
                 {
-                    parameters[OAuthParameter.ClientSecret] = this.Credential.ClientSecret;
+                    parameters[OAuthParameter.ClientSecret] = Credential.ClientSecret;
                 }
             }
-            else if (this.Assertion != null)
+            else if (Assertion != null)
             {
-                parameters[OAuthParameter.ClientAssertionType] = this.Assertion.AssertionType;
-                parameters[OAuthParameter.ClientAssertion] = this.Assertion.Assertion;
+                parameters[OAuthParameter.ClientAssertionType] = Assertion.AssertionType;
+                parameters[OAuthParameter.ClientAssertion] = Assertion.Assertion;
             }
-            else if (this.Certificate != null)
+            else if (Certificate != null)
             {
-                JsonWebToken jwtToken = new JsonWebToken(this.Certificate, this.Authenticator.SelfSignedJwtAudience);
-                ClientAssertion clientAssertion = jwtToken.Sign(this.Certificate, SendX5c);
+                JsonWebToken jwtToken = new JsonWebToken(Certificate, Authenticator.SelfSignedJwtAudience);
+                ClientAssertion clientAssertion = jwtToken.Sign(Certificate, SendX5c);
                 parameters[OAuthParameter.ClientAssertionType] = clientAssertion.AssertionType;
                 parameters[OAuthParameter.ClientAssertion] = clientAssertion.Assertion;
             }

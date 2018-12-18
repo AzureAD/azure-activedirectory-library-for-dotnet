@@ -77,7 +77,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="promptBehavior">Prompt behavior enum to control UI</param>
         public PlatformParameters(Activity callerActivity, bool useBroker, PromptBehavior promptBehavior)
         {
-            this.CallerActivity = callerActivity;
+            CallerActivity = callerActivity;
             UseBroker = useBroker;
             PromptBehavior = promptBehavior;
         }
@@ -109,8 +109,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return new CoreUIParent()
             {
-                CallerActivity = this.CallerActivity,
-                UseEmbeddedWebview = this.UseEmbeddedWebview
+                CallerActivity = CallerActivity,
+                UseEmbeddedWebview = UseEmbeddedWebview
             };
         }
     }

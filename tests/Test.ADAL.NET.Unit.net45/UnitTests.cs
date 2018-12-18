@@ -92,19 +92,25 @@ namespace Test.ADAL.NET.Unit
             const string AdditionalParameter2 = "additional_parameter2";
             string expectedString = string.Format(CultureInfo.CurrentCulture, "client_id=client_id&{0}={1}&{2}={3}", AdditionalParameter, EncodingHelper.UrlEncode(ComplexString), AdditionalParameter2, EncodingHelper.UrlEncode(ComplexString2));
 
-            var param = new DictionaryRequestParameters(null, new ClientKey(ClientId));
-            param[AdditionalParameter] = ComplexString;
-            param[AdditionalParameter2] = ComplexString2;
+            var param = new DictionaryRequestParameters(null, new ClientKey(ClientId))
+            {
+                [AdditionalParameter] = ComplexString,
+                [AdditionalParameter2] = ComplexString2
+            };
             Assert.AreEqual(expectedString, param.ToString());
 
-            param = new DictionaryRequestParameters(null, new ClientKey(ClientId));
-            param[AdditionalParameter] = ComplexString;
-            param[AdditionalParameter2] = ComplexString2;
+            param = new DictionaryRequestParameters(null, new ClientKey(ClientId))
+            {
+                [AdditionalParameter] = ComplexString,
+                [AdditionalParameter2] = ComplexString2
+            };
             Assert.AreEqual(expectedString, param.ToString());
 
-            param = new DictionaryRequestParameters(null, new ClientKey(ClientId));
-            param[AdditionalParameter] = ComplexString;
-            param[AdditionalParameter2] = ComplexString2;
+            param = new DictionaryRequestParameters(null, new ClientKey(ClientId))
+            {
+                [AdditionalParameter] = ComplexString,
+                [AdditionalParameter2] = ComplexString2
+            };
             Assert.AreEqual(expectedString, param.ToString());
 
             var stringParam = new StringRequestParameters(new StringBuilder(expectedString));
@@ -386,7 +392,7 @@ namespace Test.ADAL.NET.Unit
         {
             string encodedStr = EncodingHelper.UrlEncode(str);
 
-            char[] encodedChars = EncodingHelper.UrlEncode((str == null) ? null : str.ToCharArray());
+            char[] encodedChars = EncodingHelper.UrlEncode(str?.ToCharArray());
             string encodedStr2 = (encodedChars == null) ? null : new string(encodedChars);
 
             Assert.AreEqual(encodedStr, encodedStr2);

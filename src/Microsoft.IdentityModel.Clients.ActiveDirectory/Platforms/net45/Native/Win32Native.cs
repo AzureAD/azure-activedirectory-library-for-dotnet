@@ -115,7 +115,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Safe to expose")]
         internal static string FormatMessageFromLibrary(int message, string library)
         {
-            Debug.Assert(!String.IsNullOrEmpty(library), "!String.IsNullOrEmpty(library)");
+            Debug.Assert(!string.IsNullOrEmpty(library), "!String.IsNullOrEmpty(library)");
 
             using (SafeLibraryHandle module = UnsafeNativeMethods.LoadLibrary(library))
             {

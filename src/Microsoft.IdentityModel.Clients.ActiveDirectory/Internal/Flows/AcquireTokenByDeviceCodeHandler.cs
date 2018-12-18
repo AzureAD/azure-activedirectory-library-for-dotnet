@@ -39,9 +39,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public AcquireTokenByDeviceCodeHandler(RequestData requestData, DeviceCodeResult deviceCodeResult)
             : base(requestData)
         {
-            this.LoadFromCache = false; //no cache lookup for token
-            this.StoreToCache = (requestData.TokenCache != null);
-            this.SupportADFS = true;
+            LoadFromCache = false; //no cache lookup for token
+            StoreToCache = requestData.TokenCache != null;
+            SupportADFS = true;
             this.deviceCodeResult = deviceCodeResult;
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.DeviceCode;
-            requestParameters[OAuthParameter.Code] = this.deviceCodeResult.DeviceCode;
+            requestParameters[OAuthParameter.Code] = deviceCodeResult.DeviceCode;
         }
     }
 }

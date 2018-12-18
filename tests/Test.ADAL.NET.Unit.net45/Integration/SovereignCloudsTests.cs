@@ -52,7 +52,7 @@ namespace Test.ADAL.NET.Integration
         private IPlatformParameters _platformParameters;
         private const string SovereignAuthorityHost = "login.microsoftonline.de";
 
-        private readonly string _sovereignTenantSpecificAuthority = String.Format(
+        private readonly string _sovereignTenantSpecificAuthority = string.Format(
             CultureInfo.InvariantCulture, 
             "https://{0}/{1}/", 
             SovereignAuthorityHost, 

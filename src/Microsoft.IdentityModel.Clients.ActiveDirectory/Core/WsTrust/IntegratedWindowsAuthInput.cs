@@ -44,12 +44,12 @@ namespace Microsoft.Identity.Core
 
         public IntegratedWindowsAuthInput()
         {
-            this.UserName = null;
+            UserName = null;
         }
 
         public IntegratedWindowsAuthInput(string userName)
         {
-            this.UserName = userName;
+            UserName = userName;
         }       
     
     }

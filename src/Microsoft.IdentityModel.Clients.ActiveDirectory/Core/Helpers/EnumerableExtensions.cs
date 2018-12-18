@@ -42,10 +42,10 @@ namespace Microsoft.Identity.Core.Helpers
         {
             if (input.IsNullOrEmpty())
             {
-                return String.Empty;
+                return string.Empty;
             }
 
-            return String.Join(" ", input);
+            return string.Join(" ", input);
         }
     }
 }

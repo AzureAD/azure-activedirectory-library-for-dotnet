@@ -46,22 +46,22 @@ namespace Microsoft.Identity.Core
     {
         public string UserName { get; set; }
 #if DESKTOP || NET_CORE
-        private SecureString securePassword;
+        private readonly SecureString _securePassword;
 #endif
-        private string password;
+        private readonly string _password;
 
 
         public UsernamePasswordInput(string userName, string password)
         {
-            this.password = password;
-            this.UserName = userName;
+            _password = password;
+            UserName = userName;
         }
 
 #if DESKTOP || NET_CORE
         public UsernamePasswordInput(string userName, SecureString securePassword)
         {
-            this.securePassword = securePassword;
-            this.UserName = userName;
+            _securePassword = securePassword;
+            UserName = userName;
         }
 #endif
 
@@ -69,12 +69,12 @@ namespace Microsoft.Identity.Core
         {
             
 #if DESKTOP || NET_CORE
-            if (securePassword != null)
+            if (_securePassword != null)
             {
-                var output = new char[securePassword.Length];
+                var output = new char[_securePassword.Length];
 
-                IntPtr secureStringPtr = SecureStringToCoTaskMemUnicode(securePassword);
-                for (int i = 0; i < securePassword.Length; i++)
+                IntPtr secureStringPtr = SecureStringToCoTaskMemUnicode(_securePassword);
+                for (int i = 0; i < _securePassword.Length; i++)
                 {
                     output[i] = (char)ReadInt16(secureStringPtr, i * 2);
                 }
@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Core
             }
 
 #endif
-            return (this.password != null) ? this.password.ToCharArray() : null;
+            return _password?.ToCharArray();
         }
 
         public bool HasPassword()
@@ -92,11 +92,11 @@ namespace Microsoft.Identity.Core
 
             bool hasSecurePassword = false;
 #if DESKTOP || NET_CORE
-            hasSecurePassword = this.securePassword != null;
+            hasSecurePassword = _securePassword != null;
 #endif
-            bool hasPlainPassowrd = !string.IsNullOrEmpty(password);
+            bool hasPlainPassword = !string.IsNullOrEmpty(_password);
 
-            return hasSecurePassword || hasPlainPassowrd;
+            return hasSecurePassword || hasPlainPassword;
         }
 
     }

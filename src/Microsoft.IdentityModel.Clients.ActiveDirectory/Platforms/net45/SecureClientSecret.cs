@@ -46,12 +46,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="secret">SecureString secret. Required and cannot be null.</param>
         public SecureClientSecret(SecureString secret)
         {
-            if (secret == null)
-            {
-                throw new ArgumentNullException(nameof(secret));
-            }
-
-            this.secureString = secret;
+            secureString = secret ?? throw new ArgumentNullException(nameof(secret));
         }
         
         /// <summary>

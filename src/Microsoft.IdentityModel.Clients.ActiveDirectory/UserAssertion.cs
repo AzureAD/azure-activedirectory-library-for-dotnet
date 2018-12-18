@@ -64,17 +64,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(assertion))
             {
-                throw new ArgumentNullException("assertion");
+                throw new ArgumentNullException(nameof(assertion));
             }
 
             if (string.IsNullOrWhiteSpace(assertionType))
             {
-                throw new ArgumentNullException("assertionType");
+                throw new ArgumentNullException(nameof(assertionType));
             }
 
-            this.AssertionType = assertionType;
-            this.Assertion = assertion;
-            this.UserName = userName;
+            AssertionType = assertionType;
+            Assertion = assertion;
+            UserName = userName;
         }
 
         /// <summary>

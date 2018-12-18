@@ -80,19 +80,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
     [SuppressMessage("Sonar Code Smell", "S101:Types should be named in camel case", Justification = "See above justification")]
     internal sealed class RSACng : RSA, ICngAsymmetricAlgorithm
     {
-        private static KeySizes[] s_legalKeySizes = new KeySizes[] { new KeySizes(384, 16384, 8) };
+        private static readonly KeySizes[] SLegalKeySizes = new KeySizes[] { new KeySizes(384, 16384, 8) };
         
         // Key handle
-        private CngKey m_key;
+        private CngKey _key;
 
         // Properties used when encrypting or decrypting
-        private AsymmetricPaddingMode m_encryptionPaddingMode = AsymmetricPaddingMode.Oaep;
-        private CngAlgorithm m_encryptionHashAlgorithm = CngAlgorithm.Sha256;
+        private AsymmetricPaddingMode _encryptionPaddingMode = AsymmetricPaddingMode.Oaep;
+        private CngAlgorithm _encryptionHashAlgorithm = CngAlgorithm.Sha256;
 
         // Properties used when signing or verifying data
-        private AsymmetricPaddingMode m_signaturePaddingMode = AsymmetricPaddingMode.Pkcs1;
-        private CngAlgorithm m_signatureHashAlgorithm = CngAlgorithm.Sha256;
-        private int m_signatureSaltBytes = 20;
+        private AsymmetricPaddingMode _signaturePaddingMode = AsymmetricPaddingMode.Pkcs1;
+        private CngAlgorithm _signatureHashAlgorithm = CngAlgorithm.Sha256;
+        private int _signatureSaltBytes = 20;
 
         /// <summary>
         ///     Create an RSACng algorithm with a random 2048 bit key pair.
@@ -110,7 +110,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// <exception cref="CryptographicException">if <paramref name="keySize" /> is not valid</exception>
         public RSACng(int keySize)
         {
-            LegalKeySizesValue = s_legalKeySizes;
+            LegalKeySizesValue = SLegalKeySizes;
             KeySize = keySize;
         }
 
@@ -125,9 +125,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         public RSACng(CngKey key)
         {
             if (key == null)
-                throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
 
-            LegalKeySizesValue = s_legalKeySizes;
+            LegalKeySizesValue = SLegalKeySizes;
 
             new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Assert();
             Key = CngKey.Open(key.Handle, key.IsEphemeral ? CngKeyHandleOpenOptions.EphemeralKey : CngKeyHandleOpenOptions.None);
@@ -143,15 +145,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// <exception cref="ArgumentNullException">if EncryptionHashAlgorithm is set to null</exception>
         public CngAlgorithm EncryptionHashAlgorithm
         {
-            get { return m_encryptionHashAlgorithm; }
-
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-
-                m_encryptionHashAlgorithm = value;
-            }
+            get => _encryptionHashAlgorithm;
+            set => _encryptionHashAlgorithm = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -161,17 +156,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// <exception cref="ArgumentNullException">if EncryptionPaddingMOde is set to null</exception>
         public AsymmetricPaddingMode EncryptionPaddingMode
         {
-            get { return m_encryptionPaddingMode; }
-
+            get => _encryptionPaddingMode;
             set
             {
                 if (value != AsymmetricPaddingMode.Oaep &&
                     value != AsymmetricPaddingMode.Pkcs1)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
-                m_encryptionPaddingMode = value;
+                _encryptionPaddingMode = value;
             }
         }
 
@@ -193,40 +187,39 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
             get
             {
                 // If our key size was changed from the key we're using, we need to generate a new key
-                if (m_key != null && m_key.KeySize != KeySize)
+                if (_key != null && _key.KeySize != KeySize)
                 {
-                    m_key.Dispose();
-                    m_key = null;
+                    _key.Dispose();
+                    _key = null;
                 }
 
                 // If we don't have a key yet, we need to generate a random one now
-                if (m_key == null)
+                if (_key == null)
                 {
                     CngKeyCreationParameters creationParameters = new CngKeyCreationParameters();
                     CngProperty keySizeProperty = new CngProperty(NCryptNative.KeyPropertyName.Length,
                                                                   BitConverter.GetBytes(KeySize),
                                                                   CngPropertyOptions.None);
                     creationParameters.Parameters.Add(keySizeProperty);
-                    m_key = CngKey.Create(new CngAlgorithm(BCryptNative.AlgorithmName.Rsa), null, creationParameters);
+                    _key = CngKey.Create(new CngAlgorithm(BCryptNative.AlgorithmName.Rsa), null, creationParameters);
                 }
 
-                return m_key;
+                return _key;
             }
 
             private set
             {
                 Debug.Assert(value != null, "value != null");
                 if (value.AlgorithmGroup != CngAlgorithmGroup.Rsa)
-                    throw new ArgumentException("Key Must Be Rsa", "value");
-
-                // If we already have a key, clear it out
-                if (m_key != null)
                 {
-                    m_key.Dispose();
+                    throw new ArgumentException("Key Must Be Rsa", nameof(value));
                 }
 
-                m_key = value;
-                KeySize = m_key.KeySize;
+                // If we already have a key, clear it out
+                _key?.Dispose();
+
+                _key = value;
+                KeySize = _key.KeySize;
             }
         }
 
@@ -238,17 +231,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         {
             [SecurityCritical]
             [SecurityPermission(SecurityAction.Assert, UnmanagedCode = true)]
-            get
-            { return Key.Handle; }
+            get => Key.Handle;
         }
 
         /// <summary>
         ///     Returns "RSA-PKCS1-KeyEx". This property should not be used.
         /// </summary>
-        public override string KeyExchangeAlgorithm
-        {
-            get { return "RSA-PKCS1-KeyEx"; }
-        }
+        public override string KeyExchangeAlgorithm => "RSA-PKCS1-KeyEx";
 
         /// <summary>
         ///     Key storage provider being used for the algorithm
@@ -257,17 +246,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         public CngProvider Provider
         {
             [SecurityCritical]
-            get
-            { return Key.Provider; }
+            get => Key.Provider;
         }
 
         /// <summary>
         ///     Returns "http://www.w3.org/2000/09/xmldsig#rsa-sha1". This property should not be used.
         /// </summary>
-        public override string SignatureAlgorithm
-        {
-            get { return "http://www.w3.org/2000/09/xmldsig#rsa-sha1"; }
-        }
+        public override string SignatureAlgorithm => "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 
         /// <summary>
         ///     Gets or sets the hash algorithm to use when signing or verifying data. The default value is
@@ -276,15 +261,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// <exception cref="ArgumentNullException">if SignatureHashAlgorithm is set to null</exception>
         public CngAlgorithm SignatureHashAlgorithm
         {
-            get { return m_signatureHashAlgorithm; }
-
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-
-                m_signatureHashAlgorithm = value;
-            }
+            get => _signatureHashAlgorithm;
+            set => _signatureHashAlgorithm = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -296,17 +274,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// </exception>
         public AsymmetricPaddingMode SignaturePaddingMode
         {
-            get { return m_signaturePaddingMode; }
-
+            get => _signaturePaddingMode;
             set
             {
                 if (value != AsymmetricPaddingMode.Pkcs1 &&
                     value != AsymmetricPaddingMode.Pss)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
-                m_signaturePaddingMode = value;
+                _signaturePaddingMode = value;
             }
         }
 
@@ -321,14 +298,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// </exception>
         public int SignatureSaltBytes
         {
-            get { return m_signatureSaltBytes; }
-
+            get => _signatureSaltBytes;
             set
             {
                 if (value < 0)
-                    throw new ArgumentOutOfRangeException("value");
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
 
-                m_signatureSaltBytes = value;
+                _signatureSaltBytes = value;
             }
         }
 
@@ -338,9 +316,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && m_key != null)
+            if (disposing)
             {
-                m_key.Dispose();
+                _key?.Dispose();
             }
         }
 
@@ -350,13 +328,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         private static KeyContainerPermission BuildKeyContainerPermission(CngKey key, KeyContainerPermissionFlags flags)
         {
             // If this isn't a named key, then we can use it without any demand
-            if (key.IsEphemeral || String.IsNullOrEmpty(key.KeyName))
+            if (key.IsEphemeral || string.IsNullOrEmpty(key.KeyName))
             {
                 return null;
             }
 
-            KeyContainerPermissionAccessEntry entry = new KeyContainerPermissionAccessEntry(key.KeyName, flags);
-            entry.ProviderName = key.Provider.Provider;
+            KeyContainerPermissionAccessEntry entry = new KeyContainerPermissionAccessEntry(key.KeyName, flags)
+            {
+                ProviderName = key.Provider.Provider
+            };
 
             KeyContainerPermission permission = new KeyContainerPermission(PermissionState.None);
             permission.AccessEntries.Add(entry);
@@ -368,15 +348,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         /// </summary>
         private HashAlgorithm CreateSignatureHashObject()
         {
-            if (m_signatureHashAlgorithm == CngAlgorithm.Sha256)
+            if (_signatureHashAlgorithm == CngAlgorithm.Sha256)
             {
                 return new SHA256Cng();
             }
-            else if (m_signatureHashAlgorithm == CngAlgorithm.Sha384)
+            else if (_signatureHashAlgorithm == CngAlgorithm.Sha384)
             {
                 return new SHA384Cng();
             }
-            else if (m_signatureHashAlgorithm == CngAlgorithm.Sha512)
+            else if (_signatureHashAlgorithm == CngAlgorithm.Sha512)
             {
                 return new SHA512Cng();
             }
@@ -405,7 +385,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         public byte[] SignData(byte[] data)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             return SignData(data, 0, data.Length);
         }
@@ -431,13 +413,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         public byte[] SignData(byte[] data, int offset, int count)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             if (offset < 0)
-                throw new ArgumentOutOfRangeException("offset");
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            }
+
             if (count < 0)
-                throw new ArgumentOutOfRangeException("count");
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
             if (count > data.Length - offset)
-                throw new ArgumentOutOfRangeException("count");
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
 
             using (HashAlgorithm hashObject = CreateSignatureHashObject())
             {
@@ -481,19 +474,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         public byte[] SignHash(byte[] hash, CngAlgorithm hashAlgorithm)
         {
             if (hash == null)
-                throw new ArgumentNullException("hash");
+            {
+                throw new ArgumentNullException(nameof(hash));
+            }
+
             if (hashAlgorithm == null)
-                throw new ArgumentNullException("hashAlgorithm");
+            {
+                throw new ArgumentNullException(nameof(hashAlgorithm));
+            }
 
             // Keep a local copy of the key to prevent multi-threading issues with the key container that the key references
             // and the key container permission we're going to demand.
             CngKey key = Key;
 
             KeyContainerPermission kcp = BuildKeyContainerPermission(key, KeyContainerPermissionFlags.Sign);
-            if (kcp != null)
-            {
-                kcp.Demand();
-            }
+            kcp?.Demand();
 
             new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Assert();
             SafeNCryptKeyHandle keyHandle = key.Handle;

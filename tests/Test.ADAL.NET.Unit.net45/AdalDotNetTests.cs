@@ -90,7 +90,7 @@ namespace Test.ADAL.NET.Unit
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180))
             };
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
@@ -165,7 +165,7 @@ namespace Test.ADAL.NET.Unit
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180))
             };
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
@@ -211,7 +211,7 @@ namespace Test.ADAL.NET.Unit
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180))
             };
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
@@ -340,7 +340,7 @@ namespace Test.ADAL.NET.Unit
             _context.TokenCache.tokenCacheDictionary[key] = new AdalResultWrapper
             {
                 ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180))
             };
             var credential = new ClientCredential(AdalTestConstants.DefaultClientId, AdalTestConstants.DefaultClientSecret);
 
@@ -1086,7 +1086,7 @@ namespace Test.ADAL.NET.Unit
 
             var ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(() =>
                 _context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)));
-            Assert.IsTrue((ex.InnerException.InnerException.InnerException).Message.Contains(AdalTestConstants.ErrorSubCode));
+            Assert.IsTrue(ex.InnerException.InnerException.InnerException.Message.Contains(AdalTestConstants.ErrorSubCode));
             // All mocks are consumed
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             _context.TokenCache.Clear();

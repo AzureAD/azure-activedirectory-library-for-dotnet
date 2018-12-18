@@ -168,7 +168,7 @@ namespace Test.ADAL.NET.Unit
             var piiMessage = AdalExceptionFactory.GetPiiScrubbedDetails(adalEx);
 
             // Assert
-            Assert.IsFalse(String.IsNullOrEmpty(piiMessage));
+            Assert.IsFalse(string.IsNullOrEmpty(piiMessage));
             Assert.IsTrue(
              piiMessage.Contains(typeof(NotImplementedException).Name),
              "The pii message should contain the exception type");

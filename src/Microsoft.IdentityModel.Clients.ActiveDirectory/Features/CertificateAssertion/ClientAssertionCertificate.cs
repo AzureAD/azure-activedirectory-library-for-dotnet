@@ -52,12 +52,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
             if (certificate == null)
             {
-                throw new ArgumentNullException("certificate");
+                throw new ArgumentNullException(nameof(certificate));
             }
 
 #if NETSTANDARD1_3
@@ -66,12 +66,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 	            if (certificate.PublicKey.Key.KeySize < MinKeySizeInBits)
 #endif	
             {
-                throw new ArgumentOutOfRangeException("certificate",
+                throw new ArgumentOutOfRangeException(nameof(certificate),
                     string.Format(CultureInfo.InvariantCulture, AdalErrorMessage.CertificateKeySizeTooSmallTemplate, MinKeySizeInBits));
             }
 
             this.clientId = clientId;
-            this.Certificate = certificate;
+            Certificate = certificate;
         }
 
 
@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>Signed message as a byte array</returns>
         public byte[] Sign(string message)
         {
-            return SigningHelper.SignWithCertificate(message, this.Certificate);
+            return SigningHelper.SignWithCertificate(message, Certificate);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string Thumbprint
         {
             // Thumbprint should be url encoded
-            get { return Base64UrlHelpers.Encode(this.Certificate.GetCertHash()); }
+            get { return Base64UrlHelpers.Encode(Certificate.GetCertHash()); }
         }
     }
 }

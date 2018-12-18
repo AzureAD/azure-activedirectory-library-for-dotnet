@@ -36,10 +36,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     {
         public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
         {
-            PlatformParameters authorizationParameters = (parameters as PlatformParameters);
-            if (authorizationParameters == null)
+            if (!(parameters is PlatformParameters authorizationParameters))
             {
-                throw new ArgumentException("parameters should be of type PlatformParameters", "parameters");
+                throw new ArgumentException("parameters should be of type PlatformParameters", nameof(parameters));
             }
 
             PromptBehavior promptBehavior = authorizationParameters.PromptBehavior;
@@ -60,10 +59,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public override bool GetCacheLoadPolicy(IPlatformParameters parameters)
         {
-            PlatformParameters authorizationParameters = (parameters as PlatformParameters);
-            if (authorizationParameters == null)
+            if (!(parameters is PlatformParameters authorizationParameters))
             {
-                throw new ArgumentException("parameters should be of type PlatformParameters", "parameters");
+                throw new ArgumentException("parameters should be of type PlatformParameters", nameof(parameters));
             }
 
             PromptBehavior promptBehavior = authorizationParameters.PromptBehavior;

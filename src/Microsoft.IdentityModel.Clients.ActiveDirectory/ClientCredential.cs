@@ -43,16 +43,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
             if (string.IsNullOrWhiteSpace(clientSecret))
             {
-                throw new ArgumentNullException("clientSecret");
+                throw new ArgumentNullException(nameof(clientSecret));
             }
 
-            this.ClientId = clientId;
-            this.ClientSecret = clientSecret;
+            ClientId = clientId;
+            ClientSecret = clientSecret;
         }
 
 #if !WINDOWS_APP
@@ -65,16 +65,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                throw new ArgumentNullException("clientId");
+                throw new ArgumentNullException(nameof(clientId));
             }
 
-            if (secureClientSecret == null)
-            {
-                throw new ArgumentNullException("clientSecret");
-            }
-
-            this.ClientId = clientId;
-            this.SecureClientSecret = secureClientSecret;
+            ClientId = clientId;
+            SecureClientSecret = secureClientSecret ?? throw new ArgumentNullException("clientSecret");
         }
 #endif
 

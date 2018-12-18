@@ -110,15 +110,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 sb.AppendLine(string.Format(CultureInfo.CurrentCulture, "Exception type: {0}", ex.GetType()));
 
-                if (ex is AdalException)
+                if (ex is AdalException adalException)
                 {
-                    var adalException = (AdalException)ex;
                     sb.AppendLine(string.Format(CultureInfo.CurrentCulture, ", ErrorCode: {0}", adalException.ErrorCode));
                 }
 
-                if (ex is AdalServiceException)
+                if (ex is AdalServiceException adalServiceException)
                 {
-                    var adalServiceException = (AdalServiceException)ex;
                     sb.AppendLine(string.Format(CultureInfo.CurrentCulture, ", StatusCode: {0}", adalServiceException.StatusCode));
                 }
 
@@ -139,12 +137,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private static void ValidateRequiredArgs(string errorCode, string errorMessage)
         {
-            if (String.IsNullOrEmpty(errorCode))
+            if (string.IsNullOrEmpty(errorCode))
             {
                 throw new ArgumentNullException(nameof(errorCode));
             }
 
-            if (String.IsNullOrEmpty(errorMessage))
+            if (string.IsNullOrEmpty(errorMessage))
             {
                 throw new ArgumentNullException(nameof(errorMessage));
             }

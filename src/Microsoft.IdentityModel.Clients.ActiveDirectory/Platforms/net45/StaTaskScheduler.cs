@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             // Validate arguments
             if (numberOfThreads < 1)
             {
-                throw new ArgumentOutOfRangeException("numberOfThreads");
+                throw new ArgumentOutOfRangeException(nameof(numberOfThreads));
             }
 
             // Initialize the tasks collection
@@ -124,7 +124,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 _tasks.CompleteAdding();
 
                 // Wait for all threads to finish processing tasks
-                foreach (var thread in _threads) thread.Join();
+                foreach (var thread in _threads)
+                {
+                    thread.Join();
+                }
 
                 // Cleanup
                 _tasks.Dispose();

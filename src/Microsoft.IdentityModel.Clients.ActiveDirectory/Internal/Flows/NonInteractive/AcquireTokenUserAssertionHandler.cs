@@ -42,12 +42,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if (userAssertion == null)
             {
-                throw new ArgumentNullException("userAssertion");
+                throw new ArgumentNullException(nameof(userAssertion));
             }
 
             if (string.IsNullOrWhiteSpace(userAssertion.AssertionType))
             {
-                throw new ArgumentException(AdalErrorMessage.UserCredentialAssertionTypeEmpty, "userAssertion");
+                throw new ArgumentException(AdalErrorMessage.UserCredentialAssertionTypeEmpty, nameof(userAssertion));
             }
             this.userAssertion = userAssertion;
         }
@@ -55,7 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected override async Task PreRunAsync()
         {
             await base.PreRunAsync().ConfigureAwait(false);
-            this.DisplayableId = userAssertion.UserName;
+            DisplayableId = userAssertion.UserName;
         }
 
         protected internal /* internal for test only */ override async Task PreTokenRequestAsync()
@@ -65,8 +65,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
-            requestParameters[OAuthParameter.GrantType] = this.userAssertion.AssertionType;
-            requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(this.userAssertion.Assertion));
+            requestParameters[OAuthParameter.GrantType] = userAssertion.AssertionType;
+            requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(userAssertion.Assertion));
 
 
             // To request id_token in response

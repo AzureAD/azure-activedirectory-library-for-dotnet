@@ -86,7 +86,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             public int GetExternal(out object ppDispatch)
             {
-                ppDispatch = this.host.ObjectForScripting;
+                ppDispatch = host.ObjectForScripting;
                 return S_OK;
             }
 
@@ -109,7 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     info.dwFlags |= DOCHOSTUIFLAG_DPI_AWARE;
                 }
 
-                if (this.host.ScrollBarsEnabled)
+                if (host.ScrollBarsEnabled)
                 {
                     info.dwFlags |= DOCHOSTUIFLAG_FLAT_SCROLLBAR;
                 }
@@ -230,21 +230,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             base.CreateSink();
 
-            object activeXInstance = this.ActiveXInstance;
+            object activeXInstance = ActiveXInstance;
             if (activeXInstance != null)
             {
-                this.webBrowserEvent = new CustomWebBrowserEvent(this);
-                this.webBrowserEventCookie = new AxHost.ConnectionPointCookie(activeXInstance, this.webBrowserEvent,
+                webBrowserEvent = new CustomWebBrowserEvent(this);
+                webBrowserEventCookie = new AxHost.ConnectionPointCookie(activeXInstance, webBrowserEvent,
                     typeof(NativeWrapper.DWebBrowserEvents2));
             }
         }
 
         protected override void DetachSink()
         {
-            if (this.webBrowserEventCookie != null)
+            if (webBrowserEventCookie != null)
             {
-                this.webBrowserEventCookie.Disconnect();
-                this.webBrowserEventCookie = null;
+                webBrowserEventCookie.Disconnect();
+                webBrowserEventCookie = null;
             }
 
             base.DetachSink();
@@ -252,10 +252,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         protected virtual void OnNavigateError(WebBrowserNavigateErrorEventArgs e)
         {
-            if (NavigateError != null)
-            {
-                this.NavigateError(this, e);
-            }
+            NavigateError?.Invoke(this, e);
         }
 
 

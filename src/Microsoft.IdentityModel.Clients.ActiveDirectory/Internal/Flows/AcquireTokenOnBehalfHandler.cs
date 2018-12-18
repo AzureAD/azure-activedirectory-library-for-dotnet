@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             : base(requestData)
         {
             this.userAssertion = userAssertion ?? throw new ArgumentNullException(nameof(userAssertion));
-            this.DisplayableId = userAssertion.UserName;
+            DisplayableId = userAssertion.UserName;
             CacheQueryData.AssertionHash = PlatformProxyFactory
                                            .GetPlatformProxy()
                                            .CryptographyManager
@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             RequestContext.Logger.Verbose(string.Format(CultureInfo.InvariantCulture,
                 "Username provided in user assertion - " + string.IsNullOrEmpty(DisplayableId)));
 
-            this.SupportADFS = true;
+            SupportADFS = true;
         }
 
         protected internal /* internal for test only */ override async Task<AdalResultWrapper> SendTokenRequestAsync()
@@ -68,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.JwtBearer;
-            requestParameters[OAuthParameter.Assertion] = this.userAssertion.Assertion;
+            requestParameters[OAuthParameter.Assertion] = userAssertion.Assertion;
             requestParameters[OAuthParameter.RequestedTokenUse] = OAuthRequestedTokenUse.OnBehalfOf;
 
             // To request id_token in response

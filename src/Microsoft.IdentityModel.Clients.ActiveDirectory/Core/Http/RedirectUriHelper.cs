@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Core.Http
             {
                 throw AdalExceptionFactory.GetClientException(
                     CoreErrorCodes.DefaultRedirectUriIsInvalid,
-                    String.Format(
+                    string.Format(
                         CultureInfo.InvariantCulture,
                         CoreErrorMessages.DefaultRedirectUriIsInvalid,
                         Constants.DefaultRedirectUri));

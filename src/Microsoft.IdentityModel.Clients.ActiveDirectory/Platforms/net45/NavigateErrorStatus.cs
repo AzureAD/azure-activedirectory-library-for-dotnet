@@ -88,7 +88,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public NavigateErrorStatus()
         {
-            this.Messages = new Dictionary<int, string>
+            Messages = new Dictionary<int, string>
                 {
                     { (int)NavigateErrorStatusCode.HTTP_STATUS_BAD_REQUEST, "The request could not be processed by the server due to invalid syntax." },
                     { (int)NavigateErrorStatusCode.HTTP_STATUS_DENIED, "The requested resource requires user authentication." },

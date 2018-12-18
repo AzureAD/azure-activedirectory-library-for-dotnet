@@ -34,7 +34,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public AcquireTokenForClientHandler(RequestData requestData)
             : base(requestData)
         {
-            this.SupportADFS = true;
+            SupportADFS = true;
         }
 
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)

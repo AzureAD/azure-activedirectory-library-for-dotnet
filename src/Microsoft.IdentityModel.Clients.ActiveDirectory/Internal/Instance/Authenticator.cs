@@ -49,16 +49,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private void Init(string authority, bool validateAuthority)
         {
-            this.Authority = EnsureUrlEndsWithForwardSlash(authority);
+            Authority = EnsureUrlEndsWithForwardSlash(authority);
 
-            this.AuthorityType = DetectAuthorityType(this.Authority);
+            AuthorityType = DetectAuthorityType(Authority);
 
-            if (this.AuthorityType != AuthorityType.AAD && validateAuthority)
+            if (AuthorityType != AuthorityType.AAD && validateAuthority)
             {
-                throw new ArgumentException(AdalErrorMessage.UnsupportedAuthorityValidation, "validateAuthority");
+                throw new ArgumentException(AdalErrorMessage.UnsupportedAuthorityValidation, nameof(validateAuthority));
             }
 
-            this.ValidateAuthority = validateAuthority;
+            ValidateAuthority = validateAuthority;
         }
 
         public Authenticator(string authority, bool validateAuthority)
@@ -68,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public async Task UpdateAuthorityAsync(string authority, RequestContext requestContext)
         {
-            Init(authority, this.ValidateAuthority);
+            Init(authority, ValidateAuthority);
 
             updatedFromTemplate = false;
             await UpdateFromTemplateAsync(requestContext).ConfigureAwait(false);
@@ -78,7 +78,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public string GetAuthorityHost()
         {
-            return !string.IsNullOrWhiteSpace(Authority) ? new Uri(this.Authority).Host : null;
+            return !string.IsNullOrWhiteSpace(Authority) ? new Uri(Authority).Host : null;
         }
 
         public AuthorityType AuthorityType { get; private set; }
@@ -101,17 +101,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public async Task UpdateFromTemplateAsync(RequestContext requestContext)
         {
-            if (!this.updatedFromTemplate)
+            if (!updatedFromTemplate)
             {
-                var authorityUri = new Uri(this.Authority);
+                var authorityUri = new Uri(Authority);
                 var host = authorityUri.Host;
 
                 // The authority could be https://{AzureAD host name}/{tenantid} OR https://{Dsts host name}/dstsv2/{tenantid}
                 // Detecting the tenantId using the last segment of the url
                 string tenant = authorityUri.Segments[authorityUri.Segments.Length - 1].TrimEnd('/');
-                if (this.AuthorityType == AuthorityType.AAD)
+                if (AuthorityType == AuthorityType.AAD)
                 {
-                    var metadata = await InstanceDiscovery.GetMetadataEntryAsync(authorityUri, this.ValidateAuthority, requestContext).ConfigureAwait(false);
+                    var metadata = await InstanceDiscovery.GetMetadataEntryAsync(authorityUri, ValidateAuthority, requestContext).ConfigureAwait(false);
                     host = metadata.PreferredNetwork;
                     // All the endpoints will use this updated host, and it affects future network calls, as desired.
                     // The Authority remains its original host, and will be used in TokenCache later.
@@ -120,22 +120,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 {
                     InstanceDiscovery.AddMetadataEntry(host);
                 }
-                this.AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
-                this.DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
-                this.TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
-                this.UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
-                this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
-                this.SelfSignedJwtAudience = this.TokenUri;
-                this.updatedFromTemplate = true;
+                AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
+                IsTenantless = string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0;
+                SelfSignedJwtAudience = TokenUri;
+                updatedFromTemplate = true;
             }
         }
 
         public void UpdateTenantId(string tenantId)
         {
-            if (this.IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
+            if (IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
             {
-                this.ReplaceTenantlessTenant(tenantId);
-                this.updatedFromTemplate = false;
+                ReplaceTenantlessTenant(tenantId);
+                updatedFromTemplate = false;
             }
         }
 
@@ -143,24 +143,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
         {
             if (string.IsNullOrWhiteSpace(authority))
             {
-                throw new ArgumentNullException("authority");
+                throw new ArgumentNullException(nameof(authority));
             }
 
             if (!Uri.IsWellFormedUriString(authority, UriKind.Absolute))
             {
-                throw new ArgumentException(AdalErrorMessage.AuthorityInvalidUriFormat, "authority");
+                throw new ArgumentException(AdalErrorMessage.AuthorityInvalidUriFormat, nameof(authority));
             }
 
             var authorityUri = new Uri(authority);
             if (authorityUri.Scheme != "https")
             {
-                throw new ArgumentException(AdalErrorMessage.AuthorityUriInsecure, "authority");
+                throw new ArgumentException(AdalErrorMessage.AuthorityUriInsecure, nameof(authority));
             }
 
             string path = authorityUri.AbsolutePath.Substring(1);
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException(AdalErrorMessage.AuthorityUriInvalidPath, "authority");
+                throw new ArgumentException(AdalErrorMessage.AuthorityUriInvalidPath, nameof(authority));
             }
 
             string firstPath = path.Substring(0, path.IndexOf("/", StringComparison.Ordinal));
@@ -186,7 +186,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private void ReplaceTenantlessTenant(string tenantId)
         {
-            this.Authority = TenantNameRegex.Replace(this.Authority, tenantId, 1);
+            Authority = TenantNameRegex.Replace(Authority, tenantId, 1);
         }
     }
 }

@@ -81,12 +81,12 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             base.ViewDidLoad();
 
             // Perform any additional setup after loading the view
-            this.PushViewController(new AuthenticationAgentUIViewController(this.url, this.callback, this.callbackMethod), true);
+            PushViewController(new AuthenticationAgentUIViewController(url, callback, callbackMethod), true);
         }
 
         public override UIStatusBarStyle PreferredStatusBarStyle()
         {
-            return this.preferredStatusBarStyle;
+            return preferredStatusBarStyle;
         }
     }
 }

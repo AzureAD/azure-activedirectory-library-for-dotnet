@@ -49,8 +49,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="ownerWindow"></param>
         public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
         {
-            this.PromptBehavior = promptBehavior;
-            this.OwnerWindow = ownerWindow;
+            PromptBehavior = promptBehavior;
+            OwnerWindow = ownerWindow;
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return new CoreUIParent()
             {
-                OwnerWindow = this.OwnerWindow,
-                UseHiddenBrowser = (this.PromptBehavior == PromptBehavior.Never)
+                OwnerWindow = OwnerWindow,
+                UseHiddenBrowser = PromptBehavior == PromptBehavior.Never
             };
         }
     }

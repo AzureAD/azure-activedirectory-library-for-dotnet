@@ -72,11 +72,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(id))
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException(nameof(id));
             }
 
-            this.Id = id;
-            this.Type = type;
+            Id = id;
+            Type = type;
         }
 
         /// <summary>
@@ -99,21 +99,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal bool IsAnyUser
         {
-            get { return (this.Type == AnyUser.Type && this.Id == AnyUser.Id); }
+            get { return Type == AnyUser.Type && Id == AnyUser.Id; }
         }
 
         internal string UniqueId
         {
-            get { return (!this.IsAnyUser && this.Type == UserIdentifierType.UniqueId) ? this.Id : null; }
+            get { return (!IsAnyUser && Type == UserIdentifierType.UniqueId) ? Id : null; }
         }
 
         internal string DisplayableId
         {
             get
             {
-                return (!this.IsAnyUser && (this.Type == UserIdentifierType.OptionalDisplayableId ||
-                                            this.Type == UserIdentifierType.RequiredDisplayableId))
-                    ? this.Id
+                return (!IsAnyUser && (Type == UserIdentifierType.OptionalDisplayableId ||
+                                            Type == UserIdentifierType.RequiredDisplayableId))
+                    ? Id
                     : null;
             }
         }

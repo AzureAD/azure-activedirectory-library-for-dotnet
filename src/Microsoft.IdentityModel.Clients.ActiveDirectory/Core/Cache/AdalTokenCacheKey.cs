@@ -53,22 +53,22 @@ namespace Microsoft.Identity.Core.Cache
     /// <summary>
     /// <see cref="AdalTokenCacheKey"/> can be used with Linq to access items from the TokenCache dictionary.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     internal sealed class AdalTokenCacheKey
     {
         internal AdalTokenCacheKey(string authority, string resource, string clientId, TokenSubjectType tokenSubjectType, AdalUserInfo adalUserInfo)
-            : this(authority, resource, clientId, tokenSubjectType, (adalUserInfo != null) ? adalUserInfo.UniqueId : null, (adalUserInfo != null) ? adalUserInfo.DisplayableId : null)
+            : this(authority, resource, clientId, tokenSubjectType, adalUserInfo?.UniqueId, adalUserInfo?.DisplayableId)
         {
         }
 
         internal AdalTokenCacheKey(string authority, string resource, string clientId, TokenSubjectType tokenSubjectType, string uniqueId, string displayableId)
         {
-            this.Authority = authority;
-            this.Resource = resource;
-            this.ClientId = clientId;
-            this.TokenSubjectType = tokenSubjectType;
-            this.UniqueId = uniqueId;
-            this.DisplayableId = displayableId;
+            Authority = authority;
+            Resource = resource;
+            ClientId = clientId;
+            TokenSubjectType = tokenSubjectType;
+            UniqueId = uniqueId;
+            DisplayableId = displayableId;
         }
 
         public string Authority { get; }
@@ -92,8 +92,7 @@ namespace Microsoft.Identity.Core.Cache
         /// <param name="obj">The object to compare with the current object. </param><filterpriority>2</filterpriority>
         public override bool Equals(object obj)
         {
-            AdalTokenCacheKey other = obj as AdalTokenCacheKey;
-            return (other != null) && this.Equals(other);
+            return (obj is AdalTokenCacheKey other) && Equals(other);
         }
 
         /// <summary>
@@ -111,12 +110,12 @@ namespace Microsoft.Identity.Core.Cache
             }
 
             return other != null
-                && other.Authority == this.Authority
-                && this.ResourceEquals(other.Resource)
-                && this.ClientIdEquals(other.ClientId)
-                && other.UniqueId == this.UniqueId
-                && this.DisplayableIdEquals(other.DisplayableId)
-                && other.TokenSubjectType == this.TokenSubjectType;
+                && other.Authority == Authority
+                && ResourceEquals(other.Resource)
+                && ClientIdEquals(other.ClientId)
+                && other.UniqueId == UniqueId
+                && DisplayableIdEquals(other.DisplayableId)
+                && other.TokenSubjectType == TokenSubjectType;
         }
 
         /// <summary>
@@ -128,28 +127,28 @@ namespace Microsoft.Identity.Core.Cache
         public override int GetHashCode()
         {
             const string delimiter = ":::";
-            var hashString = this.Authority + delimiter
-                           + this.Resource.ToLowerInvariant() + delimiter
-                           + this.ClientId.ToLowerInvariant() + delimiter
-                           + this.UniqueId + delimiter
-                           + this.DisplayableId?.ToLowerInvariant() + delimiter
-                           + (int) this.TokenSubjectType;
+            var hashString = Authority + delimiter
+                           + Resource.ToLowerInvariant() + delimiter
+                           + ClientId.ToLowerInvariant() + delimiter
+                           + UniqueId + delimiter
+                           + DisplayableId?.ToLowerInvariant() + delimiter
+                           + (int) TokenSubjectType;
             return hashString.GetHashCode();
         }
 
         internal bool ResourceEquals(string otherResource)
         {
-            return (string.Compare(otherResource, this.Resource, StringComparison.OrdinalIgnoreCase) == 0);
+            return string.Compare(otherResource, Resource, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         internal bool ClientIdEquals(string otherClientId)
         {
-            return (string.Compare(otherClientId, this.ClientId, StringComparison.OrdinalIgnoreCase) == 0);
+            return string.Compare(otherClientId, ClientId, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         internal bool DisplayableIdEquals(string otherDisplayableId)
         {
-            return (string.Compare(otherDisplayableId, this.DisplayableId, StringComparison.OrdinalIgnoreCase) == 0);
+            return string.Compare(otherDisplayableId, DisplayableId, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         private string DebuggerDisplay

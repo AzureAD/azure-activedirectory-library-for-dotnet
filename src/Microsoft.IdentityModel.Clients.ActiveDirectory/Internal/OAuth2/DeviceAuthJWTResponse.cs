@@ -39,10 +39,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
     {
         public DeviceAuthHeader(string base64EncodedCertificate)
         {
-            this.Alg = "RS256";
-            this.Type = "JWT";
-            this.X5c = new List<string>();
-            this.X5c.Add(base64EncodedCertificate);
+            Alg = "RS256";
+            Type = "JWT";
+            X5c = new List<string>
+            {
+                base64EncodedCertificate
+            };
         }
 
         [DataMember(Name = "x5c", IsRequired = true)]
@@ -60,10 +62,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
     {
         public DeviceAuthPayload(string audience, string nonce)
         {
-            this.Nonce = nonce;
-            this.Audience = audience;
-            var timeSpan = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0));
-            this.Iat = (long)timeSpan.TotalSeconds;
+            Nonce = nonce;
+            Audience = audience;
+            var timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
+            Iat = (long)timeSpan.TotalSeconds;
         }
 
         [DataMember(Name = "iat", IsRequired = true)]
@@ -85,13 +87,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public DeviceAuthJWTResponse(string audience, string nonce,
             string base64EncodedCertificate)
         {
-            this.header = new DeviceAuthHeader(base64EncodedCertificate);
-            this.payload = new DeviceAuthPayload(audience, nonce);
+            header = new DeviceAuthHeader(base64EncodedCertificate);
+            payload = new DeviceAuthPayload(audience, nonce);
         }
 
         public string GetResponseToSign()
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}.{1}",
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}",
                 Base64UrlHelpers.Encode(JsonHelper.SerializeToJson(header).ToByteArray()),
                 Base64UrlHelpers.Encode(JsonHelper.SerializeToJson(payload).ToByteArray()));
         }

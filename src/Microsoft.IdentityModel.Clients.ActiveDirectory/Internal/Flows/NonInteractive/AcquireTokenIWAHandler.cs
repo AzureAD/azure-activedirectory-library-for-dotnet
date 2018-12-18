@@ -47,10 +47,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public AcquireTokenIWAHandler(IServiceBundle serviceBundle, RequestData requestData, IntegratedWindowsAuthInput iwaInput)
             : base(requestData)
         {
-            if (iwaInput == null)
-            {
-                throw new ArgumentNullException(nameof(iwaInput));
-            }
 
             // We enable ADFS support only when it makes sense to do so
             if (requestData.Authenticator.AuthorityType == AuthorityType.ADFS)
@@ -58,7 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 SupportADFS = true;
             }
 
-            _iwaInput = iwaInput;
+            _iwaInput = iwaInput ?? throw new ArgumentNullException(nameof(iwaInput));
             DisplayableId = iwaInput.UserName;
 
             _commonNonInteractiveHandler = new CommonNonInteractiveHandler(RequestContext, _iwaInput, serviceBundle);

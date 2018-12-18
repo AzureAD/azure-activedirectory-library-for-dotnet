@@ -111,7 +111,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             TokenCache tokenCache)
         {
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
-            Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
+            Authenticator = new Authenticator(authority, validateAuthority != AuthorityValidationType.False);
             TokenCache = tokenCache;
 
             _serviceBundle = serviceBundle ?? ServiceBundle.CreateDefault();
@@ -221,7 +221,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (deviceCodeResult == null)
             {
-                throw new ArgumentNullException("deviceCodeResult");
+                throw new ArgumentNullException(nameof(deviceCodeResult));
             }
 
             RequestData requestData = new RequestData
@@ -323,8 +323,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters)
         {
-            return await this
-                .AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser)
+            return await 
+                AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser)
                 .ConfigureAwait(false);
         }
 

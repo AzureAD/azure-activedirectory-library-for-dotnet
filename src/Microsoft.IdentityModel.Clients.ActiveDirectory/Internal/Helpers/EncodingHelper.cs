@@ -244,7 +244,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
 
             using (Stream stream = GenerateStreamFromString(response))
             {
-                return ((T)serializer.ReadObject(stream));
+                return (T)serializer.ReadObject(stream);
             }
         }
 
@@ -255,8 +255,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
         /// <returns>Base64 encoded string</returns>
         internal static string Base64Encode(string input)
         {
-            string encodedString = String.Empty;
-            if (!String.IsNullOrEmpty(input))
+            string encodedString = string.Empty;
+            if (!string.IsNullOrEmpty(input))
             {
                 encodedString = Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
             }
@@ -272,7 +272,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
         internal static string Base64Decode(string encodedString)
         {
             string output = null;
-            if (!String.IsNullOrEmpty(encodedString))
+            if (!string.IsNullOrEmpty(encodedString))
             {
                 byte[] outputBytes = Convert.FromBase64String(encodedString);
                 output = Encoding.UTF8.GetString(outputBytes, 0, outputBytes.Length);
@@ -299,7 +299,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
                 char[] encodedSingleChar = encodedStr.ToCharArray();
                 if (length + encodedSingleChar.Length > encodedMessage.Length)
                 {
-                    Array.Resize(ref encodedMessage, encodedMessage.Length + message.Length * 2);
+                    Array.Resize(ref encodedMessage, encodedMessage.Length + (message.Length * 2));
                 }
 
                 encodedSingleChar.CopyTo(encodedMessage, length);

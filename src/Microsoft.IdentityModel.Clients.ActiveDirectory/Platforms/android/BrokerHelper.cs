@@ -54,8 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private bool WillUseBroker()
         {
-            PlatformParameters pp = PlatformParameters as PlatformParameters;
-            if (pp != null)
+            if (PlatformParameters is PlatformParameters pp)
             {
                 return pp.UseBroker;
             }

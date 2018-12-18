@@ -301,10 +301,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
             Debug.Assert(key != null, "key != null");
             Debug.Assert(!key.IsClosed && !key.IsInvalid, "!key.IsClosed && !key.IsInvalid");
             Debug.Assert(hash != null, "hash != null");
-            Debug.Assert(!String.IsNullOrEmpty(hashAlgorithm), "!String.IsNullOrEmpty(hashAlgorithm)");
+            Debug.Assert(!string.IsNullOrEmpty(hashAlgorithm), "!String.IsNullOrEmpty(hashAlgorithm)");
 
-            BCryptNative.BCRYPT_PKCS1_PADDING_INFO pkcs1Info = new BCryptNative.BCRYPT_PKCS1_PADDING_INFO();
-            pkcs1Info.pszAlgId = hashAlgorithm;
+            var pkcs1Info = new BCryptNative.BCRYPT_PKCS1_PADDING_INFO
+            {
+                pszAlgId = hashAlgorithm
+            };
 
             return SignHash(key,
                             hash,
@@ -325,12 +327,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
             Debug.Assert(key != null, "key != null");
             Debug.Assert(!key.IsClosed && !key.IsInvalid, "!key.IsClosed && !key.IsInvalid");
             Debug.Assert(hash != null, "hash != null");
-            Debug.Assert(!String.IsNullOrEmpty(hashAlgorithm), "!String.IsNullOrEmpty(hashAlgorithm)");
+            Debug.Assert(!string.IsNullOrEmpty(hashAlgorithm), "!String.IsNullOrEmpty(hashAlgorithm)");
             Debug.Assert(saltBytes >= 0, "saltBytes >= 0");
 
-            BCryptNative.BCRYPT_PSS_PADDING_INFO pssInfo = new BCryptNative.BCRYPT_PSS_PADDING_INFO();
-            pssInfo.pszAlgId = hashAlgorithm;
-            pssInfo.cbSalt = saltBytes;
+            BCryptNative.BCRYPT_PSS_PADDING_INFO pssInfo = new BCryptNative.BCRYPT_PSS_PADDING_INFO
+            {
+                pszAlgId = hashAlgorithm,
+                cbSalt = saltBytes
+            };
 
             return SignHash(key,
                             hash,

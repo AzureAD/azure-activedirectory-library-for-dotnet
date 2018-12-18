@@ -74,10 +74,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers
         {
             IPlatformProxy platformProxy = PlatformProxyFactory.GetPlatformProxy();
 
-            var parameters = new Dictionary<string, string>();
-
-            parameters[AdalIdParameter.Product] = PlatformProxyFactory.GetPlatformProxy().GetProductName();
-            parameters[AdalIdParameter.Version] = GetAdalVersion();
+            var parameters = new Dictionary<string, string>
+            {
+                [AdalIdParameter.Product] = PlatformProxyFactory.GetPlatformProxy().GetProductName(),
+                [AdalIdParameter.Version] = GetAdalVersion()
+            };
 
             var processorInfo = platformProxy.GetProcessorArchitecture();
             if (processorInfo != null)

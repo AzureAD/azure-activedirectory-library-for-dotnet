@@ -193,23 +193,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
             {
                 CoreLoggerBase.Default.Info(string.Format(CultureInfo.InvariantCulture,
                         "ExtendedExpiresIn({0}) is less than ExpiresIn({1}). Set ExpiresIn as ExtendedExpiresIn",
-                        this.ExtendedExpiresIn, this.ExpiresIn));
+                        ExtendedExpiresIn, ExpiresIn));
                 ExtendedExpiresIn = ExpiresIn;
             }
 
-            return this.GetResult(DateTime.UtcNow + TimeSpan.FromSeconds(this.ExpiresIn),
-                DateTime.UtcNow + TimeSpan.FromSeconds(this.ExtendedExpiresIn));
+            return GetResult(DateTime.UtcNow + TimeSpan.FromSeconds(ExpiresIn),
+                DateTime.UtcNow + TimeSpan.FromSeconds(ExtendedExpiresIn));
         }
 
         public AdalResultWrapper GetResult(DateTimeOffset expiresOn, DateTimeOffset extendedExpiresOn)
         {
             AdalResultWrapper resultEx;
 
-            if (this.AccessToken != null)
+            if (AccessToken != null)
             {
-                var result = new AdalResult(this.TokenType, this.AccessToken, expiresOn, extendedExpiresOn);
+                var result = new AdalResult(TokenType, AccessToken, expiresOn, extendedExpiresOn);
 
-                IdToken idToken = IdToken.Parse(this.IdTokenString);
+                IdToken idToken = IdToken.Parse(IdTokenString);
                 if (idToken != null)
                 {
                     string tenantId = idToken.TenantId;
@@ -249,7 +249,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                         changePasswordUri = new Uri(idToken.PasswordChangeUrl);
                     }
 
-                    result.UpdateTenantAndUserInfo(tenantId, this.IdTokenString,
+                    result.UpdateTenantAndUserInfo(tenantId, IdTokenString,
                         new AdalUserInfo
                         {
                             UniqueId = uniqueId,
@@ -267,16 +267,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 resultEx = new AdalResultWrapper
                 {
                     Result = result,
-                    RefreshToken = this.RefreshToken,
+                    RefreshToken = RefreshToken,
                     // This is only needed for AcquireTokenByAuthorizationCode in which parameter resource is optional and we need
                     // to get it from the STS response.
-                    ResourceInResponse = this.Resource,
+                    ResourceInResponse = Resource,
                     RawClientInfo = ClientInfo
                 };
             }
-            else if (this.Error != null)
+            else if (Error != null)
             {
-                throw new AdalServiceException(this.Error, this.ErrorDescription);
+                throw new AdalServiceException(Error, ErrorDescription);
             }
             else
             {

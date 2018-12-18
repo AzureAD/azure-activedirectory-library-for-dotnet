@@ -51,9 +51,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public WindowsFormsWebAuthenticationDialog(object ownerWindow)
             : base(ownerWindow)
         {
-            this.Shown += this.FormShownHandler;
-            this.WebBrowser.DocumentTitleChanged += this.WebBrowserDocumentTitleChangedHandler;
-            this.WebBrowser.ObjectForScripting = this;
+            Shown += FormShownHandler;
+            WebBrowser.DocumentTitleChanged += WebBrowserDocumentTitleChangedHandler;
+            WebBrowser.ObjectForScripting = this;
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         protected override void OnAuthenticate()
         {
-            this.zoomed = false;
-            this.statusCode = 0;
-            this.ShowBrowser();
+            zoomed = false;
+            statusCode = 0;
+            ShowBrowser();
 
             base.OnAuthenticate();
         }
@@ -75,17 +75,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public void ShowBrowser()
         {
             DialogResult uiResult = DialogResult.None;
-            InvokeHandlingOwnerWindow(() => uiResult = this.ShowDialog(this.ownerWindow));
+            InvokeHandlingOwnerWindow(() => uiResult = ShowDialog(ownerWindow));
 
             switch (uiResult)
             {
                 case DialogResult.OK:
                     break;
                 case DialogResult.Cancel:
-                    this.Result = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
+                    Result = new AuthorizationResult(AuthorizationStatus.UserCancel, null);
                     break;
                 default:
-                    throw this.CreateExceptionForAuthenticationUiFailed(this.statusCode);
+                    throw CreateExceptionForAuthenticationUiFailed(statusCode);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         protected override void WebBrowserNavigatingHandler(object sender, WebBrowserNavigatingEventArgs e)
         {
-            this.SetBrowserZoom();
+            SetBrowserZoom();
             base.WebBrowserNavigatingHandler(sender, e);
         }
 
@@ -103,7 +103,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         protected override void OnClosingUrl()
         {
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         /// <summary>
@@ -111,29 +111,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         protected override void OnNavigationCanceled(int inputStatusCode)
         {
-            this.statusCode = inputStatusCode;
-            this.DialogResult = (inputStatusCode == 0) ? DialogResult.Cancel : DialogResult.Abort;
+            statusCode = inputStatusCode;
+            DialogResult = (inputStatusCode == 0) ? DialogResult.Cancel : DialogResult.Abort;
         }
 
         private void SetBrowserZoom()
         {
             int windowsZoomPercent = DpiHelper.ZoomPercent;
-            if (NativeWrapper.NativeMethods.IsProcessDPIAware() && 100 != windowsZoomPercent && !this.zoomed)
+            if (NativeWrapper.NativeMethods.IsProcessDPIAware() && 100 != windowsZoomPercent && !zoomed)
             {
                 // There is a bug in some versions of the IE browser control that causes it to 
                 // ignore scaling unless it is changed.
-                this.SetBrowserControlZoom(windowsZoomPercent - 1);
-                this.SetBrowserControlZoom(windowsZoomPercent);
+                SetBrowserControlZoom(windowsZoomPercent - 1);
+                SetBrowserControlZoom(windowsZoomPercent);
 
-                this.zoomed = true;
+                zoomed = true;
             }
         }
 
         private void SetBrowserControlZoom(int zoomPercent)
         {
-            NativeWrapper.IWebBrowser2 browser2 = (NativeWrapper.IWebBrowser2)this.WebBrowser.ActiveXInstance;
-            NativeWrapper.IOleCommandTarget cmdTarget = browser2.Document as NativeWrapper.IOleCommandTarget;
-            if (cmdTarget != null)
+            NativeWrapper.IWebBrowser2 browser2 = (NativeWrapper.IWebBrowser2)WebBrowser.ActiveXInstance;
+            if (browser2.Document is NativeWrapper.IOleCommandTarget cmdTarget)
             {
                 const int OLECMDID_OPTICAL_ZOOM = 63;
                 const int OLECMDEXECOPT_DONTPROMPTUSER = 2;
@@ -150,15 +149,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             // If we don't have an owner we need to make sure that the pop up browser 
             // window is on top of other windows.  Activating the window will accomplish this.
-            if (null == this.Owner)
+            if (null == Owner)
             {
-                this.Activate();
+                Activate();
             }
         }
 
         private void WebBrowserDocumentTitleChangedHandler(object sender, EventArgs e)
         {
-            this.Text = this.WebBrowser.DocumentTitle;
+            Text = WebBrowser.DocumentTitle;
         }
     }
 }

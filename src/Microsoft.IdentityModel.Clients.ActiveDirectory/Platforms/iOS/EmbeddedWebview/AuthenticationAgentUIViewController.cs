@@ -62,12 +62,12 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
             EvaluateJava();
 
-            this.View.AddSubview(wkWebView);
+            View.AddSubview(wkWebView);
 
-            this.NavigationItem.LeftBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Cancel,
+            NavigationItem.LeftBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Cancel,
                 CancelAuthentication);
 
-            wkWebView.LoadRequest(new NSUrlRequest(new NSUrl(this.url)));
+            wkWebView.LoadRequest(new NSUrlRequest(new NSUrl(url)));
         }
 
         protected WKWebView PrepareWKWebView()
@@ -106,7 +106,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
         public void CancelAuthentication(object sender, EventArgs e)
         {
-            this.DismissViewController(true, () =>
+            DismissViewController(true, () =>
                     callbackMethod(new AuthorizationResult(AuthorizationStatus.UserCancel, null)));
         }
 

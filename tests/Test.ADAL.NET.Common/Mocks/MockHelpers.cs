@@ -48,9 +48,11 @@ namespace Test.ADAL.NET.Common.Mocks
 
         public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
         {
-            MockWebUI webUi = new MockWebUI();
-            webUi.QueryParams = queryParamsToValidate;
-            webUi.MockResult = authorizationResult;
+            MockWebUI webUi = new MockWebUI
+            {
+                QueryParams = queryParamsToValidate,
+                MockResult = authorizationResult
+            };
 
             IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
             mockFactory.CreateAuthenticationDialog(Arg.Any<CoreUIParent>(), Arg.Any<RequestContext>()).Returns(webUi);

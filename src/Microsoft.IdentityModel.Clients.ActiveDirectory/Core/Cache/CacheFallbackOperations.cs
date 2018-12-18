@@ -125,12 +125,12 @@ namespace Microsoft.Identity.Core.Cache
             }
             catch (Exception ex)
             {
-                if (!String.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(rtItem?.Environment, idItem?.Environment, StringComparison.OrdinalIgnoreCase))
                 {
                     CoreLoggerBase.Default.Error(DifferentEnvError);
                 }
 
-                if (!String.Equals(rtItem?.Environment, (new Uri(authority)).Host, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(rtItem?.Environment, new Uri(authority).Host, StringComparison.OrdinalIgnoreCase))
                 {
                     CoreLoggerBase.Default.Error(DifferentAuthorityError);
                 }
@@ -230,7 +230,7 @@ namespace Microsoft.Identity.Core.Cache
             string displayableId,
             IDictionary<AdalTokenCacheKey, AdalResultWrapper> adalCache)
         {
-            if (String.IsNullOrEmpty(displayableId))
+            if (string.IsNullOrEmpty(displayableId))
             {
                 CoreLoggerBase.Default.Error(CoreErrorMessages.InternalErrorCacheEmptyUsername);
                 return;
@@ -268,7 +268,7 @@ namespace Microsoft.Identity.Core.Cache
             {
                 string rawClientInfo = kvp.Value.RawClientInfo;
 
-                if (!String.IsNullOrEmpty(rawClientInfo))
+                if (!string.IsNullOrEmpty(rawClientInfo))
                 {
                     string cachedAccountId = ClientInfo.CreateFromJson(rawClientInfo).ToAccountIdentifier();
                     string cachedEnvironment = new Uri(kvp.Key.Authority).Host;

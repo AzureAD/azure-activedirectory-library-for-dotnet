@@ -46,7 +46,7 @@ namespace Microsoft.Identity.Core
         private readonly ISharedPreferences _idTokenSharedPreference;
         private readonly ISharedPreferences _accountSharedPreference;
 
-        private RequestContext _requestContext;
+        private readonly RequestContext _requestContext;
 
         public AndroidTokenCacheAccessor()
         {

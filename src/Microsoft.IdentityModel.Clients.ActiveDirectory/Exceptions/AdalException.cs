@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalException()
             : base(AdalErrorMessage.Unknown)
         {
-            this.ErrorCode = AdalError.Unknown;
+            ErrorCode = AdalError.Unknown;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalException(string errorCode)
             : base(GetErrorMessage(errorCode))
         {
-            this.ErrorCode = errorCode;
+            ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalException(string errorCode, string message)
             : base(message)
         {
-            this.ErrorCode = errorCode;
+            ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalException(string errorCode, Exception innerException)
             : base(GetErrorMessage(errorCode), innerException)
         {
-            this.ErrorCode = errorCode;
+            ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalException(string errorCode, string message, Exception innerException)
             : base(message, innerException)
         {
-            this.ErrorCode = errorCode;
+            ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString()
         {
-            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tErrorCode: {0}", this.ErrorCode);
+            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tErrorCode: {0}", ErrorCode);
         }
 
         internal static string GetErrorMessage(string errorCode)
@@ -232,7 +232,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     break;
             }
 
-            return String.Format(CultureInfo.InvariantCulture, "{0}: {1}", errorCode, message);
+            return string.Format(CultureInfo.InvariantCulture, "{0}: {1}", errorCode, message);
         }
     }
 }

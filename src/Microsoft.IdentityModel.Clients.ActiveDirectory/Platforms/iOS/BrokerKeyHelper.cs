@@ -39,7 +39,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     {
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
 
-        internal static String GetBase64UrlBrokerKey()
+        internal static string GetBase64UrlBrokerKey()
         {
             return Base64UrlHelpers.Encode(GetRawBrokerKey());
         }
@@ -91,7 +91,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return brokerKey;
         }
         
-        internal static String DecryptBrokerResponse(String encryptedBrokerResponse)
+        internal static string DecryptBrokerResponse(string encryptedBrokerResponse)
         {
             byte[] outputBytes = Base64UrlHelpers.DecodeToBytes(encryptedBrokerResponse);
             string plaintext = string.Empty;
@@ -101,9 +101,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 byte[] key = GetRawBrokerKey();
 
                 AesManaged algo = GetCryptoAlgorithm(key);
-                using (CryptoStream cryptoStream = new CryptoStream(memoryStream, algo.CreateDecryptor(), CryptoStreamMode.Read))
+                using (var cryptoStream = new CryptoStream(memoryStream, algo.CreateDecryptor(), CryptoStreamMode.Read))
                 {
-                    using (StreamReader srDecrypt = new StreamReader(cryptoStream))
+                    using (var srDecrypt = new StreamReader(cryptoStream))
                     {
                         plaintext = srDecrypt.ReadToEnd();
                     }
@@ -115,13 +115,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         
         private static AesManaged GetCryptoAlgorithm(byte[] key)
         {
-            AesManaged algorithm = new AesManaged();
-         
-            //set the mode, padding and block size
-            algorithm.Padding = PaddingMode.PKCS7;
-            algorithm.Mode = CipherMode.CBC;
-            algorithm.KeySize = 256;
-            algorithm.BlockSize = 128;
+            AesManaged algorithm = new AesManaged
+            {
+                // set the mode, padding and block size
+                Padding = PaddingMode.PKCS7,
+                Mode = CipherMode.CBC,
+                KeySize = 256,
+                BlockSize = 128
+            };
             if (key != null)
             {
                 algorithm.Key = key;

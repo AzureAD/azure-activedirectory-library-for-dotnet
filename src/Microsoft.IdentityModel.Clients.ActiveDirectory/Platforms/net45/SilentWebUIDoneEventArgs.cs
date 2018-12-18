@@ -35,7 +35,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public SilentWebUIDoneEventArgs(Exception e)
         {
-            this.TransferedException = e;
+            TransferedException = e;
         }
     }
 }

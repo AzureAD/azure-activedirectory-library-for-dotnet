@@ -39,8 +39,7 @@ namespace Microsoft.Identity.Core
     internal class iOSTokenCacheAccessor : ITokenCacheAccessor
     {
         public const string CacheKeyDelimiter = "-";
-
-        static Dictionary<string, int> AuthorityTypeToAttrType = new Dictionary<string, int>()
+        private static readonly Dictionary<string, int> AuthorityTypeToAttrType = new Dictionary<string, int>()
         {
             {AuthorityType.AAD.ToString(), 1001},
             {AuthorityType.MSA.ToString(), 1002},
@@ -57,14 +56,14 @@ namespace Microsoft.Identity.Core
         }
 
         private const bool _defaultSyncSetting = false;
-        private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
+        private const SecAccessible DefaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
 
         private const string DefaultKeychainGroup = "com.microsoft.adalcache";
         // Identifier for the keychain item used to retrieve current team ID
         private const string TeamIdKey = "DotNetTeamIDHint";
 
-        private string keychainGroup;
-        private RequestContext _requestContext;
+        private string _keychainGroup;
+        private readonly RequestContext _requestContext;
 
         private string GetBundleId()
         {
@@ -75,11 +74,11 @@ namespace Microsoft.Identity.Core
         {
             if (keychainSecurityGroup == null)
             {
-                keychainGroup = GetBundleId();
+                _keychainGroup = GetBundleId();
             }
             else
             {
-                keychainGroup = keychainSecurityGroup;
+                _keychainGroup = keychainSecurityGroup;
             }
         }
 
@@ -112,7 +111,7 @@ namespace Microsoft.Identity.Core
 
         public iOSTokenCacheAccessor()
         {
-            keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
+            _keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
         }
 
         public iOSTokenCacheAccessor(RequestContext requestContext) : this()
@@ -242,7 +241,7 @@ namespace Microsoft.Identity.Core
                 Account = account,
                 Service = service,
                 CreatorType = type,
-                AccessGroup = keychainGroup
+                AccessGroup = _keychainGroup
             };
 
             var match = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
@@ -257,10 +256,10 @@ namespace Microsoft.Identity.Core
             var queryRecord = new SecRecord(SecKind.GenericPassword)
             {
                 CreatorType = type,
-                AccessGroup = keychainGroup
+                AccessGroup = _keychainGroup
             };
 
-            SecRecord[] records = SecKeyChain.QueryAsRecord(queryRecord, Int32.MaxValue, out SecStatusCode resultCode);
+            SecRecord[] records = SecKeyChain.QueryAsRecord(queryRecord, int.MaxValue, out SecStatusCode resultCode);
 
             ICollection<string> res = new List<string>();
 
@@ -309,8 +308,8 @@ namespace Microsoft.Identity.Core
                 Generic = generic,
                 CreatorType = type,
                 ValueData = NSData.FromString(value, NSStringEncoding.UTF8),
-                AccessGroup = keychainGroup,
-                Accessible = _defaultAccessiblityPolicy,
+                AccessGroup = _keychainGroup,
+                Accessible = DefaultAccessiblityPolicy,
                 Synchronizable = _defaultSyncSetting,
             };
         }
@@ -322,7 +321,7 @@ namespace Microsoft.Identity.Core
                 Account = account,
                 Service = service,
                 CreatorType = type,
-                AccessGroup = keychainGroup
+                AccessGroup = _keychainGroup
             };
 
             return SecKeyChain.Remove(record);
@@ -335,7 +334,7 @@ namespace Microsoft.Identity.Core
                 Account = updatedRecord.Account,
                 Service = updatedRecord.Service,
                 CreatorType = updatedRecord.CreatorType,
-                AccessGroup = keychainGroup
+                AccessGroup = _keychainGroup
             };
             var attributesToUpdate = new SecRecord()
             {
@@ -350,7 +349,7 @@ namespace Microsoft.Identity.Core
             var queryRecord = new SecRecord(SecKind.GenericPassword)
             {
                 CreatorType = type,
-                AccessGroup = keychainGroup
+                AccessGroup = _keychainGroup
             };
             SecKeyChain.Remove(queryRecord);
         }

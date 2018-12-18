@@ -50,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 int statusCodeInt = ( statusCode == null )? 0 : ( (int)statusCode );
 
                 WebBrowserNavigateErrorEventArgs e = new WebBrowserNavigateErrorEventArgs( uriString, frameString, statusCodeInt, pDisp );
-                this.parent.OnNavigateError( e );
+                parent.OnNavigateError( e );
                 cancel = e.Cancel;
             }
 

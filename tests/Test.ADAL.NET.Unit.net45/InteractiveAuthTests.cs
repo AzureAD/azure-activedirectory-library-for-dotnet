@@ -335,15 +335,17 @@ namespace Test.ADAL.NET.Unit.net45
             MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                                            AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
 
-            List<KeyValuePair<string, string>> HttpErrorResponseWithHeaders = new List<KeyValuePair<string, string>>();
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Retry-After", "120"));
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("GatewayTimeout", "0"));
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Forbidden", "0"));
+            var httpErrorResponseWithHeaders = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("Retry-After", "120"),
+                new KeyValuePair<string, string>("GatewayTimeout", "0"),
+                new KeyValuePair<string, string>("Forbidden", "0")
+            };
 
             AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.DefaultAuthorityCommonTenant)
             {
                 Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateCustomHeaderFailureResponseMessage(HttpErrorResponseWithHeaders)
+                ResponseMessage = MockHelpers.CreateCustomHeaderFailureResponseMessage(httpErrorResponseWithHeaders)
             });
 
             _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
@@ -358,7 +360,7 @@ namespace Test.ADAL.NET.Unit.net45
             {
                 if (ex is AdalServiceException adalEx)
                 {
-                    foreach (KeyValuePair<string, string> header in HttpErrorResponseWithHeaders)
+                    foreach (KeyValuePair<string, string> header in httpErrorResponseWithHeaders)
                     {
                         var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value.Contains(header.Value)).FirstOrDefault();
                         Assert.IsNotNull(match);

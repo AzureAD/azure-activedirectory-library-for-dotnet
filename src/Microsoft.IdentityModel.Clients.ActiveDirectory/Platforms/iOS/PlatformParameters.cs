@@ -48,9 +48,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Additional parameters used in acquiring user's authorization
         /// </summary>
         /// <param name="callerViewController">UIViewController instance</param>
-        public PlatformParameters(UIViewController callerViewController):this()
+        public PlatformParameters(UIViewController callerViewController) : this()
         {
-            this.CallerViewController = callerViewController;
+            CallerViewController = callerViewController;
         }
 
         /// <summary>
@@ -115,12 +115,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             return new CoreUIParent()
             {
-                CallerViewController = this.CallerViewController,
-                TransitioningDelegate = this.TransitioningDelegate,
-                PreferredStatusBarStyle = this.PreferredStatusBarStyle,
-                ModalTransitionStyle = this.ModalTransitionStyle,
-                ModalPresentationStyle = this.ModalPresentationStyle,
-                UseEmbeddedWebview = this.UseEmbeddedWebview
+                CallerViewController = CallerViewController,
+                TransitioningDelegate = TransitioningDelegate,
+                PreferredStatusBarStyle = PreferredStatusBarStyle,
+                ModalTransitionStyle = ModalTransitionStyle,
+                ModalPresentationStyle = ModalPresentationStyle,
+                UseEmbeddedWebview = UseEmbeddedWebview
             };
         }
 

@@ -68,10 +68,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             string claims)
             : base(requestData)
         {
-            this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, this.ClientKey?.ClientId);
-            this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
+            this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, ClientKey?.ClientId);
+            redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);
 
-            this.authorizationParameters = platformParameters;
+            authorizationParameters = platformParameters;
             this.userId = userId ?? throw new ArgumentNullException(nameof(userId), AdalErrorMessage.SpecifyAnyUser);
 
             if (!string.IsNullOrEmpty(extraQueryParameters) && extraQueryParameters[0] == '&')
@@ -80,38 +80,38 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
 
             this.extraQueryParameters = extraQueryParameters;
-            this.webUi = CreateWebUIOrNull(platformParameters);
-            this.UniqueId = userId.UniqueId;
-            this.DisplayableId = userId.DisplayableId;
-            this.UserIdentifierType = userId.Type;
-            this.SupportADFS = true;
+            webUi = CreateWebUIOrNull(platformParameters);
+            UniqueId = userId.UniqueId;
+            DisplayableId = userId.DisplayableId;
+            UserIdentifierType = userId.Type;
+            SupportADFS = true;
 
-            if (!String.IsNullOrEmpty(claims))
+            if (!string.IsNullOrEmpty(claims))
             {
-                this.LoadFromCache = false;
+                LoadFromCache = false;
                 RequestContext.Logger.Verbose("Claims present. Skip cache lookup.");
                 this.claims = claims;
             }
             else
             {
                 var platformInformation = new PlatformInformation();
-                this.LoadFromCache = (requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters));
+                LoadFromCache = requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters);
             }
 
-            this.brokerParameters[BrokerParameter.Force] = "NO";
+            brokerParameters[BrokerParameter.Force] = "NO";
             if (userId != UserIdentifier.AnyUser)
             {
-                this.brokerParameters[BrokerParameter.Username] = userId.Id;
+                brokerParameters[BrokerParameter.Username] = userId.Id;
             }
             else
             {
-                this.brokerParameters[BrokerParameter.Username] = string.Empty;
+                brokerParameters[BrokerParameter.Username] = string.Empty;
             }
-            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
 
-            this.brokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
-            this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
-            this.brokerParameters[BrokerParameter.Claims] = claims;
+            brokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
+            brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
+            brokerParameters[BrokerParameter.Claims] = claims;
             brokerHelper.PlatformParameters = authorizationParameters;
         }
 
@@ -122,8 +122,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 return null;
             }
 
-            PlatformParameters parametersObj = parameters as PlatformParameters;
-            if (parametersObj == null)
+            if (!(parameters is PlatformParameters parametersObj))
             {
                 throw new ArgumentException("Objects implementing IPlatformParameters should be of type PlatformParameters");
             }
@@ -140,7 +139,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 string defaultUriAsString = PlatformProxyFactory.GetPlatformProxy().GetDefaultRedirectUri(clientId);
 
-                if (!String.IsNullOrWhiteSpace(defaultUriAsString))
+                if (!string.IsNullOrWhiteSpace(defaultUriAsString))
                 {
                     return new Uri(defaultUriAsString);
                 }
@@ -161,8 +160,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             await base.PreTokenRequestAsync().ConfigureAwait(false);
 
             // We do not have async interactive API in .NET, so we call this synchronous method instead.
-            await this.AcquireAuthorizationAsync().ConfigureAwait(false);
-            this.VerifyAuthorizationResult();
+            await AcquireAuthorizationAsync().ConfigureAwait(false);
+            VerifyAuthorizationResult();
 
             if(!string.IsNullOrEmpty(authorizationResult.CloudInstanceHost))
             {
@@ -174,27 +173,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         internal async Task AcquireAuthorizationAsync()
         {
-            Uri authorizationUri = this.CreateAuthorizationUri();
-            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, RequestContext).ConfigureAwait(false);
+            Uri authorizationUri = CreateAuthorizationUri();
+            authorizationResult = await webUi.AcquireAuthorizationAsync(authorizationUri, redirectUri, RequestContext).ConfigureAwait(false);
         }
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)
         {
-            this.RequestContext.Logger.CorrelationId = correlationId;
-            await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
-            return this.CreateAuthorizationUri();
+            RequestContext.Logger.CorrelationId = correlationId;
+            await Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
+            return CreateAuthorizationUri();
         }
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
-            requestParameters[OAuthParameter.Code] = this.authorizationResult.Code;
-            requestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
+            requestParameters[OAuthParameter.Code] = authorizationResult.Code;
+            requestParameters[OAuthParameter.RedirectUri] = redirectUriRequestParameter;
         }
 
         protected override async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
         {
             await base.PostTokenRequestAsync(resultEx).ConfigureAwait(false);
-            if ((this.DisplayableId == null && this.UniqueId == null) || this.UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
+            if ((DisplayableId == null && UniqueId == null) || UserIdentifierType == UserIdentifierType.OptionalDisplayableId)
             {
                 return;
             }
@@ -202,14 +201,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             string uniqueId = (resultEx.Result.UserInfo != null && resultEx.Result.UserInfo.UniqueId != null) ? resultEx.Result.UserInfo.UniqueId : "NULL";
             string displayableId = (resultEx.Result.UserInfo != null) ? resultEx.Result.UserInfo.DisplayableId : "NULL";
 
-            if (this.UserIdentifierType == UserIdentifierType.UniqueId && string.Compare(uniqueId, this.UniqueId, StringComparison.Ordinal) != 0)
+            if (UserIdentifierType == UserIdentifierType.UniqueId && string.Compare(uniqueId, UniqueId, StringComparison.Ordinal) != 0)
             {
-                throw new AdalUserMismatchException(this.UniqueId, uniqueId);
+                throw new AdalUserMismatchException(UniqueId, uniqueId);
             }
 
-            if (this.UserIdentifierType == UserIdentifierType.RequiredDisplayableId && string.Compare(displayableId, this.DisplayableId, StringComparison.OrdinalIgnoreCase) != 0)
+            if (UserIdentifierType == UserIdentifierType.RequiredDisplayableId && string.Compare(displayableId, DisplayableId, StringComparison.OrdinalIgnoreCase) != 0)
             {
-                throw new AdalUserMismatchException(this.DisplayableId, displayableId);
+                throw new AdalUserMismatchException(DisplayableId, displayableId);
             }
         }
 
@@ -224,21 +223,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 loginHint = userId.Id;
             }
 
-            IRequestParameters requestParameters = this.CreateAuthorizationRequest(loginHint);
+            IRequestParameters requestParameters = CreateAuthorizationRequest(loginHint);
 
-            return new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
+            return new Uri(new Uri(Authenticator.AuthorizationUri), "?" + requestParameters);
         }
 
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
-            var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
-            authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
-            authorizationRequestParameters[OAuthParameter.HasChrome] = "1";
-            authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
+            var authorizationRequestParameters = new DictionaryRequestParameters(Resource, ClientKey)
+            {
+                [OAuthParameter.ResponseType] = OAuthResponseType.Code,
+                [OAuthParameter.HasChrome] = "1",
+                [OAuthParameter.RedirectUri] = redirectUriRequestParameter,
+                [OAuthParameter.ResponseMode] = OAuthResponseMode.FormPost
+            };
 
 #if DESKTOP
             // Added form_post as a way to request to ensure we can handle large requests for dsts scenarios
-            authorizationRequestParameters[OAuthParameter.ResponseMode] = OAuthResponseMode.FormPost;
 #endif
 
             if (!string.IsNullOrWhiteSpace(loginHint))
@@ -251,15 +252,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 authorizationRequestParameters["claims"] = claims;
             }
 
-            if (this.RequestContext != null && this.RequestContext.Logger.CorrelationId != Guid.Empty)
+            if (RequestContext != null && RequestContext.Logger.CorrelationId != Guid.Empty)
             {
-                authorizationRequestParameters[OAuthParameter.CorrelationId] = this.RequestContext.Logger.CorrelationId.ToString();
+                authorizationRequestParameters[OAuthParameter.CorrelationId] = RequestContext.Logger.CorrelationId.ToString();
             }
 
-            if (this.authorizationParameters != null)
+            if (authorizationParameters != null)
             {
                 var platformInformation = new PlatformInformation();
-                platformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
+                platformInformation.AddPromptBehaviorQueryParameter(authorizationParameters, authorizationRequestParameters);
             }
             
                 IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
@@ -289,20 +290,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private void VerifyAuthorizationResult()
         {
-            if (this.authorizationResult.Error == OAuthError.LoginRequired)
+            if (authorizationResult.Error == OAuthError.LoginRequired)
             {
                 throw new AdalException(AdalError.UserInteractionRequired);
             }
 
-            if (this.authorizationResult.Status != AuthorizationStatus.Success)
+            if (authorizationResult.Status != AuthorizationStatus.Success)
             {
-                throw new AdalServiceException(this.authorizationResult.Error, this.authorizationResult.ErrorDescription);
+                throw new AdalServiceException(authorizationResult.Error, authorizationResult.ErrorDescription);
             }
         }
 
         protected override void UpdateBrokerParameters(IDictionary<string, string> parameters)
         {
-            Uri uri = new Uri(this.authorizationResult.Code);
+            Uri uri = new Uri(authorizationResult.Code);
             string query = EncodingHelper.UrlDecode(uri.Query);
             Dictionary<string, string> kvps = EncodingHelper.ParseKeyValueList(query, '&', false, RequestContext);
             parameters["username"] = kvps["username"];
@@ -310,11 +311,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected override bool BrokerInvocationRequired()
         {
-            if (this.authorizationResult != null
-                && !string.IsNullOrEmpty(this.authorizationResult.Code)
-                && this.authorizationResult.Code.StartsWith("msauth://", StringComparison.OrdinalIgnoreCase))
+            if (authorizationResult != null
+                && !string.IsNullOrEmpty(authorizationResult.Code)
+                && authorizationResult.Code.StartsWith("msauth://", StringComparison.OrdinalIgnoreCase))
             {
-                this.brokerParameters[BrokerParameter.BrokerInstallUrl] = this.authorizationResult.Code;
+                brokerParameters[BrokerParameter.BrokerInstallUrl] = authorizationResult.Code;
                 return true;
             }
 

@@ -79,35 +79,33 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal AdalServiceException(string errorCode, string message, string[] serviceErrorCodes, Exception innerException)
             : base(errorCode, message, (innerException is HttpRequestWrapperException) ? innerException.InnerException : innerException)
         {
-            var httpRequestWrapperException = (innerException as HttpRequestWrapperException);
-            if (httpRequestWrapperException != null)
+            if (innerException is HttpRequestWrapperException httpRequestWrapperException)
             {
                 IHttpWebResponse response = httpRequestWrapperException.WebResponse;
                 if (response != null)
                 {
-                    this.StatusCode = (int)response.StatusCode;
-                    this.Headers = response.Headers;
+                    StatusCode = (int)response.StatusCode;
+                    Headers = response.Headers;
                 }
-                else if (innerException.InnerException is TaskCanceledException)
+                else if (innerException.InnerException is TaskCanceledException taskCanceledException)
                 {
-                    var taskCanceledException = ((TaskCanceledException)(innerException.InnerException));
                     if (!taskCanceledException.CancellationToken.IsCancellationRequested)
                     {
-                        this.StatusCode = (int)HttpStatusCode.RequestTimeout;
+                        StatusCode = (int)HttpStatusCode.RequestTimeout;
                     }
                     else
                     {
                         // There is no HttpStatusCode for user cancelation
-                        this.StatusCode = 0;
+                        StatusCode = 0;
                     }
                 }
                 else
                 {
-                    this.StatusCode = 0;
+                    StatusCode = 0;
                 }
             }
 
-            this.ServiceErrorCodes = serviceErrorCodes;
+            ServiceErrorCodes = serviceErrorCodes;
         }
 
         /// <summary>
@@ -133,7 +131,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString()
         {
-            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tStatusCode: {0}", this.StatusCode);
+            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tStatusCode: {0}", StatusCode);
         }
 
     }

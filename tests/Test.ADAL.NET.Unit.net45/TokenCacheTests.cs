@@ -665,7 +665,7 @@ namespace Test.ADAL.Common.Unit
 
         public static bool AreDateTimeOffsetsEqual(DateTimeOffset time1, DateTimeOffset time2)
         {
-            return (Math.Abs((time1 - time2).Seconds) < 1.0);
+            return Math.Abs((time1 - time2).Seconds) < 1.0;
         }
 
         public static string GenerateRandomString(int len)
@@ -725,7 +725,7 @@ namespace Test.ADAL.Common.Unit
 
         private static bool AreAuthenticationResultsEqual(AuthenticationResult result1, AuthenticationResult result2)
         {
-            return (AreStringsEqual(result1.AccessToken, result2.AccessToken)
+            return AreStringsEqual(result1.AccessToken, result2.AccessToken)
                     && AreStringsEqual(result1.AccessTokenType, result2.AccessTokenType)
                     && AreStringsEqual(result1.IdToken, result2.IdToken)
                     && AreStringsEqual(result1.TenantId, result2.TenantId)
@@ -736,12 +736,12 @@ namespace Test.ADAL.Common.Unit
                          && AreStringsEqual(result1.UserInfo.IdentityProvider, result2.UserInfo.IdentityProvider)
                          && result1.UserInfo.PasswordChangeUrl == result2.UserInfo.PasswordChangeUrl
                          && result1.UserInfo.PasswordExpiresOn == result2.UserInfo.PasswordExpiresOn
-                         && result1.UserInfo.UniqueId == result2.UserInfo.UniqueId)));
+                         && result1.UserInfo.UniqueId == result2.UserInfo.UniqueId));
         }
 
         private static bool AreStringsEqual(string str1, string str2)
         {
-            return (str1 == str2 || string.IsNullOrEmpty(str1) && string.IsNullOrEmpty(str2));
+            return str1 == str2 || (string.IsNullOrEmpty(str1) && string.IsNullOrEmpty(str2));
         }
 
         private static void AddToDictionary(TokenCache tokenCache, AdalTokenCacheKey key, AdalResultWrapper value)
@@ -803,9 +803,11 @@ namespace Test.ADAL.Common.Unit
 
         public static void ParallelStorePositiveTest(byte[] oldcache)
         {
-            TokenCache cache = new TokenCache(oldcache);
-            cache.BeforeAccess = DoBefore;
-            cache.AfterAccess = DoAfter;
+            TokenCache cache = new TokenCache(oldcache)
+            {
+                BeforeAccess = DoBefore,
+                AfterAccess = DoAfter
+            };
             Task readTask = Task.Run(() => cache.ReadItems());
             Task writeTask = Task.Run(() => cache.Clear());
             readTask.Wait();

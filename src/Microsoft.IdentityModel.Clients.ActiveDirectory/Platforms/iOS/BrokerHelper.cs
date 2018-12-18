@@ -53,11 +53,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             get
             {
-                PlatformParameters pp = PlatformParameters as PlatformParameters;
-				if (pp == null)
-				{
-					return false;
-				}
+                if (!(PlatformParameters is PlatformParameters pp))
+                {
+                    return false;
+                }
 
                 var res = false;
 

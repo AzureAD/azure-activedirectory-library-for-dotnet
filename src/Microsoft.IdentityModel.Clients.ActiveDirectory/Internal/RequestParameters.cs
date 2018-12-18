@@ -58,9 +58,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 EncodingHelper.AddKeyValueString(messageBuilder, EncodingHelper.UrlEncode(kvp.Key), EncodingHelper.UrlEncode(kvp.Value));
             }
 
-            if (this.ExtraQueryParameter != null)
+            if (ExtraQueryParameter != null)
             {
-                messageBuilder.Append('&' + this.ExtraQueryParameter);
+                messageBuilder.Append('&' + ExtraQueryParameter);
             }
 
             return messageBuilder.ToString();
@@ -75,12 +75,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         public StringRequestParameters(StringBuilder stringBuilderParameter)
         {
-            this.parameter = stringBuilderParameter;
+            parameter = stringBuilderParameter;
         }
 
         public override string ToString()
         {
-            return this.parameter.ToString();
+            return parameter.ToString();
         }
     }
 }

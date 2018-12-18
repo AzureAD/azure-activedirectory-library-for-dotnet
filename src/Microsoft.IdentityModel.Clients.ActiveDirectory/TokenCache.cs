@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private volatile bool hasStateChanged;
 
-        private readonly Object cacheLock = new Object();
+        private readonly object cacheLock = new object();
 
         static TokenCache()
         {
@@ -83,7 +83,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
             }
 
-            this.tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
+            tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
 
             tokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
         }
@@ -94,7 +94,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public TokenCache(byte[] state)
             : this()
         {
-            this.Deserialize(state);
+            Deserialize(state);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 lock (cacheLock)
                 {
-                    return this.hasStateChanged;
+                    return hasStateChanged;
                 }
             }
 
@@ -136,7 +136,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 lock (cacheLock)
                 {
-                    this.hasStateChanged = value;
+                    hasStateChanged = value;
                 }
             }
         }
@@ -151,7 +151,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 lock (cacheLock)
                 {
-                    return this.tokenCacheDictionary.Count;
+                    return tokenCacheDictionary.Count;
                 }
             }
         }
@@ -229,12 +229,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             lock (cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
-                this.OnBeforeAccess(args);
+                OnBeforeAccess(args);
 
                 List<TokenCacheItem> items =
-                    this.tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
+                    tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
 
-                this.OnAfterAccess(args);
+                OnAfterAccess(args);
 
                 return items;
             }
@@ -250,7 +250,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 if (item == null)
                 {
-                    throw new ArgumentNullException("item");
+                    throw new ArgumentNullException(nameof(item));
                 }
 
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
@@ -262,13 +262,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     DisplayableId = item.DisplayableId
                 };
 
-                this.OnBeforeAccess(args);
-                this.OnBeforeWrite(args);
+                OnBeforeAccess(args);
+                OnBeforeWrite(args);
 
-                AdalTokenCacheKey toRemoveKey = this.tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
+                AdalTokenCacheKey toRemoveKey = tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
                 if (toRemoveKey != null)
                 {
-                    this.tokenCacheDictionary.Remove(toRemoveKey);
+                    tokenCacheDictionary.Remove(toRemoveKey);
                     CoreLoggerBase.Default.Info("One item removed successfully");
                 }
                 else
@@ -276,8 +276,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     CoreLoggerBase.Default.Info("Item not Present in the Cache");
                 }
 
-                this.HasStateChanged = true;
-                this.OnAfterAccess(args);
+                HasStateChanged = true;
+                OnAfterAccess(args);
             }
         }
 
@@ -290,23 +290,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             lock (cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
-                this.OnBeforeAccess(args);
-                this.OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
-                    this.tokenCacheDictionary.Count));
+                OnBeforeAccess(args);
+                OnBeforeWrite(args);
+                CoreLoggerBase.Default.Info(string.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
+                    tokenCacheDictionary.Count));
 
                 ClearAdalCache();
                 ClearMsalCache();
 
                 CoreLoggerBase.Default.Info("Successfully Cleared Cache");
-                this.HasStateChanged = true;
-                this.OnAfterAccess(args);
+                HasStateChanged = true;
+                OnAfterAccess(args);
             }
         }
 
         internal void ClearAdalCache()
         {
-            this.tokenCacheDictionary.Clear();
+            tokenCacheDictionary.Clear();
         }
 
         internal void ClearMsalCache()
@@ -318,10 +318,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                if (AfterAccess != null)
-                {
-                    AfterAccess(args);
-                }
+                AfterAccess?.Invoke(args);
             }
         }
 
@@ -329,10 +326,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                if (BeforeAccess != null)
-                {
-                    BeforeAccess(args);
-                }
+                BeforeAccess?.Invoke(args);
             }
         }
 
@@ -340,10 +334,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (cacheLock)
             {
-                if (BeforeWrite != null)
-                {
-                    BeforeWrite(args);
-                }
+                BeforeWrite?.Invoke(args);
             }
         }
 
@@ -400,17 +391,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 AdalResultWrapper resultEx = null;
                 KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>? kvp =
-                    this.LoadSingleItemFromCache(cacheQueryData, requestContext);
+                    LoadSingleItemFromCache(cacheQueryData, requestContext);
 
                 if (kvp.HasValue)
                 {
                     AdalTokenCacheKey cacheKey = kvp.Value.Key;
                     resultEx = kvp.Value.Value.Clone();
 
-                    bool tokenNearExpiry = (resultEx.Result.ExpiresOn <=
-                                            DateTime.UtcNow + TimeSpan.FromMinutes(ExpirationMarginInMinutes));
-                    bool tokenExtendedLifeTimeExpired = (resultEx.Result.ExtendedExpiresOn <=
-                                                         DateTime.UtcNow);
+                    bool tokenNearExpiry = resultEx.Result.ExpiresOn <=
+                                            DateTime.UtcNow + TimeSpan.FromMinutes(ExpirationMarginInMinutes);
+                    bool tokenExtendedLifeTimeExpired = resultEx.Result.ExtendedExpiresOn <=
+                                                         DateTime.UtcNow;
 
                     //check for cross-tenant authority
                     if (!cacheKey.Authority.Equals(cacheQueryData.Authority, StringComparison.OrdinalIgnoreCase))
@@ -465,9 +456,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     if (resultEx.Result.AccessToken == null && resultEx.RefreshToken == null)
                     {
-                        this.tokenCacheDictionary.Remove(cacheKey);
+                        tokenCacheDictionary.Remove(cacheKey);
                         requestContext.Logger.Info("An old item was removed from the cache");
-                        this.HasStateChanged = true;
+                        HasStateChanged = true;
                         resultEx = null;
                     }
 
@@ -506,10 +497,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 requestContext.Logger.Verbose("Storing token in the cache...");
 
-                string uniqueId = (result.Result.UserInfo != null) ? result.Result.UserInfo.UniqueId : null;
-                string displayableId = (result.Result.UserInfo != null) ? result.Result.UserInfo.DisplayableId : null;
+                string uniqueId = result.Result.UserInfo?.UniqueId;
+                string displayableId = result.Result.UserInfo?.DisplayableId;
 
-                this.OnBeforeWrite(new TokenCacheNotificationArgs
+                OnBeforeWrite(new TokenCacheNotificationArgs
                 {
                     Resource = resource,
                     ClientId = clientId,
@@ -519,13 +510,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 AdalTokenCacheKey AdalTokenCacheKey = new AdalTokenCacheKey(authority, resource, clientId, subjectType,
                     result.Result.UserInfo);
-                this.tokenCacheDictionary[AdalTokenCacheKey] = result;
+                tokenCacheDictionary[AdalTokenCacheKey] = result;
 
                 requestContext.Logger.Verbose("An item was stored in the cache");
 
-                this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
+                UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
-                this.HasStateChanged = true;
+                HasStateChanged = true;
 
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
@@ -548,7 +539,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     //pass null for authority to update the token for all the tenants
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                        this.QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
+                        QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
                                 result.Result.UserInfo.DisplayableId, null)
                             .Where(p => p.Value.IsMultipleResourceRefreshToken)
                             .ToList();
@@ -568,7 +559,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 // First identify all potential tokens.
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> items =
-                    this.QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType,
+                    QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType,
                         cacheQueryData.UniqueId, cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> resourceSpecificItems =
@@ -604,7 +595,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // this check only applies to user tokens. client tokens should be ignored.
                 if (returnValue == null && cacheQueryData.SubjectType != TokenSubjectType.Client)
                 {
-                    List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> itemsForAllTenants = this.QueryCache(
+                    List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> itemsForAllTenants = QueryCache(
                         null, cacheQueryData.ClientId, cacheQueryData.SubjectType, cacheQueryData.UniqueId,
                         cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
@@ -645,7 +636,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 //if developer passes an assertion then assertionHash must be used to match the cache entry.
                 //if UserAssertionHash in cache entry is null then it won't be a match.
-                return this.tokenCacheDictionary.Where(
+                return tokenCacheDictionary.Where(
                         p =>
                             (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
                             && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))

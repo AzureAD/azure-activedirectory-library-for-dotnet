@@ -84,7 +84,7 @@ namespace Microsoft.Identity.Core.Helpers
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof (T));
             using (MemoryStream stream = new MemoryStream(jsonByteArray))
             {
-                response = ((T) serializer.ReadObject(stream));
+                response = (T) serializer.ReadObject(stream);
             }
 
             return response;

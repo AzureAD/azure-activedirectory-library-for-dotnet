@@ -121,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds
         {
             var startTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             TimeSpan diff = time - startTime;
-            return (long)(diff.TotalSeconds);
+            return (long)diff.TotalSeconds;
         }
 
         private string Encode(IClientAssertionCertificate credential, bool sendX5c)

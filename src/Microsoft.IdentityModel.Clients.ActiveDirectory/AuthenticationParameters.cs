@@ -92,7 +92,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (string.IsNullOrWhiteSpace(authenticateHeader))
             {
-                throw new ArgumentNullException("authenticateHeader");
+                throw new ArgumentNullException(nameof(authenticateHeader));
             }
 
             authenticateHeader = authenticateHeader.Trim();
@@ -140,7 +140,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (resourceUrl == null)
             {
-                throw new ArgumentNullException("resourceUrl");
+                throw new ArgumentNullException(nameof(resourceUrl));
             }
 
             AuthenticationParameters authParams;
@@ -175,7 +175,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             if (response == null)
             {
-                throw new ArgumentNullException("response");
+                throw new ArgumentNullException(nameof(response));
             }
 
             AuthenticationParameters authParams;
@@ -187,14 +187,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
                 else
                 {
-                    var ex = new ArgumentException(AdalErrorMessage.MissingAuthenticateHeader, "response");
+                    var ex = new ArgumentException(AdalErrorMessage.MissingAuthenticateHeader, nameof(response));
                     CoreLoggerBase.Default.ErrorPii(ex);
                     throw ex;
                 }
             }
             else
             {
-                var ex = new ArgumentException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, "response");
+                var ex = new ArgumentException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, nameof(response));
                 CoreLoggerBase.Default.ErrorPii(ex);
                 throw ex;
             }

@@ -48,46 +48,41 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             if (string.IsNullOrWhiteSpace(authorizationCode))
             {
-                throw new ArgumentNullException("authorizationCode");
+                throw new ArgumentNullException(nameof(authorizationCode));
             }
 
             this.authorizationCode = authorizationCode;
 
-            if (redirectUri == null)
-            {
-                throw new ArgumentNullException("redirectUri");
-            }
+            this.redirectUri = redirectUri ?? throw new ArgumentNullException(nameof(redirectUri));
 
-            this.redirectUri = redirectUri;
+            LoadFromCache = false;
 
-            this.LoadFromCache = false;
-
-            this.SupportADFS = true;
+            SupportADFS = true;
         }
 
         protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
-            requestParameters[OAuthParameter.Code] = this.authorizationCode;
-            requestParameters[OAuthParameter.RedirectUri] = this.redirectUri.OriginalString;
+            requestParameters[OAuthParameter.Code] = authorizationCode;
+            requestParameters[OAuthParameter.RedirectUri] = redirectUri.OriginalString;
         }
 
         protected override async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
         {
             await base.PostTokenRequestAsync(resultEx).ConfigureAwait(false);
             AdalUserInfo adalUserInfo = resultEx.Result.UserInfo;
-            this.UniqueId = (adalUserInfo == null) ? null : adalUserInfo.UniqueId;
-            this.DisplayableId = (adalUserInfo == null) ? null : adalUserInfo.DisplayableId;
+            UniqueId = adalUserInfo?.UniqueId;
+            DisplayableId = adalUserInfo?.DisplayableId;
             if (resultEx.ResourceInResponse != null)
             {
-                this.Resource = resultEx.ResourceInResponse;
+                Resource = resultEx.ResourceInResponse;
                 RequestContext.Logger.Verbose("Resource value in the token response was used for storing tokens in the cache");
             }
 
             // If resource is not passed as an argument and is not returned by STS either, 
             // we cannot store the token in the cache with null resource.
             // TODO: Store refresh token though if STS supports MRRT.
-            this.StoreToCache = this.StoreToCache && (this.Resource != null);
+            StoreToCache = StoreToCache && (Resource != null);
         }
     }
 }

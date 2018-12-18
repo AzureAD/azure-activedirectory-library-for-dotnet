@@ -367,7 +367,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             // First available signature. Applications can be signed with multiple
             // signatures.
-            string signatureDigest = this.GetCurrentSignatureForPackage(packageName);
+            string signatureDigest = GetCurrentSignatureForPackage(packageName);
             if (!string.IsNullOrEmpty(signatureDigest))
             {
                 return string.Format(CultureInfo.InvariantCulture, "{0}://{1}/{2}", RedirectUriScheme,
@@ -428,7 +428,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (request.Claims != null)
             {
-                brokerOptions.PutString(BrokerConstants.SkipCache, Boolean.TrueString.ToLowerInvariant());
+                brokerOptions.PutString(BrokerConstants.SkipCache, bool.TrueString.ToLowerInvariant());
                 brokerOptions.PutString(BrokerConstants.Claims, request.Claims);
             }
 
@@ -594,10 +594,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private void VerifyCertificateChain(List<X509Certificate2> certificates)
         {
             X509Certificate2Collection collection = new X509Certificate2Collection(certificates.ToArray());
-            X509Chain chain = new X509Chain();
-            chain.ChainPolicy = new X509ChainPolicy()
+            X509Chain chain = new X509Chain
             {
-                RevocationMode = X509RevocationMode.NoCheck
+                ChainPolicy = new X509ChainPolicy()
+                {
+                    RevocationMode = X509RevocationMode.NoCheck
+                }
             };
 
             chain.ChainPolicy.ExtraStore.AddRange(collection);

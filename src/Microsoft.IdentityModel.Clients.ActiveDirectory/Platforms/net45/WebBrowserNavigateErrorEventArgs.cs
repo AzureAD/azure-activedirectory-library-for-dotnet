@@ -63,7 +63,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             get
             {
-                return this.targetFrameName;
+                return targetFrameName;
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             get
             {
-                return this.url;
+                return url;
             }
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             get
             {
-                return this.statusCode;
+                return statusCode;
             }
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         {
             get
             {
-                return this.webBrowserActiveXInstance;
+                return webBrowserActiveXInstance;
             }
         }
     }

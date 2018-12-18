@@ -52,8 +52,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         public AdalHttpClient(string uri, RequestContext requestContext)
         {
-            this.RequestUri = CheckForExtraQueryParameter(uri);
-            this.Client = new HttpClientWrapper(RequestUri, requestContext);
+            RequestUri = CheckForExtraQueryParameter(uri);
+            Client = new HttpClientWrapper(RequestUri, requestContext);
             _requestContext = requestContext;
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         public async Task<T> GetResponseAsync<T>()
         {
-            return await this.GetResponseAsync<T>(true).ConfigureAwait(false);
+            return await GetResponseAsync<T>(true).ConfigureAwait(false);
         }
 
         private async Task<T> GetResponseAsync<T>(bool respondToDeviceAuthChallenge)
@@ -77,12 +77,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                 IDictionary<string, string> adalIdHeaders = AdalIdHelper.GetAdalIdParameters();
                 foreach (KeyValuePair<string, string> kvp in adalIdHeaders)
                 {
-                    this.Client.Headers[kvp.Key] = kvp.Value;
+                    Client.Headers[kvp.Key] = kvp.Value;
                 }
 
                 //add pkeyauth header
-                this.Client.Headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
-                IHttpWebResponse response = await this.Client.GetResponseAsync().ConfigureAwait(false);
+                Client.Headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
+                IHttpWebResponse response = await Client.GetResponseAsync().ConfigureAwait(false);
                 typedResponse = EncodingHelper.DeserializeResponse<T>(response.Body);
             }
             catch (HttpRequestWrapperException ex)
@@ -119,7 +119,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         await Task.Delay(DelayTimePeriodMilliSeconds).ConfigureAwait(false);
                         RetryOnce = false;
                         _requestContext.Logger.Info("Retrying one more time..");
-                        return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
+                        return await GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
                     _requestContext.Logger.InfoPii(
@@ -127,7 +127,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         "Retry Failed, Exception type: " + ex.InnerException?.GetType());
                 }
 
-                if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
+                if (!IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
                 {
                     TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex.WebResponse);
                     string[] errorCodes = tokenResponse.ErrorCodes ?? new[] { ex.WebResponse.StatusCode.ToString() };
@@ -180,7 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
         private async Task<T> HandleDeviceAuthChallengeAsync<T>(IHttpWebResponse response)
         {
-            IDictionary<string, string> responseDictionary = this.ParseChallengeData(response);
+            IDictionary<string, string> responseDictionary = ParseChallengeData(response);
 
             if (!responseDictionary.ContainsKey("SubmitUrl"))
             {
@@ -189,11 +189,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 
             string responseHeader = await DeviceAuthHelper.CreateDeviceAuthChallengeResponseAsync(responseDictionary)
                 .ConfigureAwait(false);
-            IRequestParameters rp = this.Client.BodyParameters;
-            this.Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]), RequestContext);
-            this.Client.BodyParameters = rp;
-            this.Client.Headers["Authorization"] = responseHeader;
-            return await this.GetResponseAsync<T>(false).ConfigureAwait(false);
+            IRequestParameters rp = Client.BodyParameters;
+            Client = new HttpClientWrapper(CheckForExtraQueryParameter(responseDictionary["SubmitUrl"]), RequestContext)
+            {
+                BodyParameters = rp
+            };
+            Client.Headers["Authorization"] = responseHeader;
+            return await GetResponseAsync<T>(false).ConfigureAwait(false);
         }
 
         private static string CheckForExtraQueryParameter(string url)
