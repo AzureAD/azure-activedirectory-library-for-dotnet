@@ -32,19 +32,25 @@ using Android.Content;
 using Android.Widget;
 using Android.OS;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Text;
 
 namespace AdalAndroidTestApp
 {
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
-        private const string clientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
-        private const string redirectUri = "urn:ietf:wg:oauth:2.0:oob";
+        private const string clientId = "9379b42e-cd73-43b1-a0c3-51c5abf569eb";
+        private const string redirectUriBroker = "msauth://adalandroidtestapp.adalandroidtestapp/CG0m9vSjvFOspGPjc3TLEZnLHbc=";
+        private const string redirectUriNonBroker = "msal9379b42e-cd73-43b1-a0c3-51c5abf569eb://auth";
+
         private const string resource1 = "https://graph.windows.net";
         private const string resource2 = "https://graph.microsoft.com";
-        readonly string user = "<USER>";
 
-        private UITextView accessTokenTextView;
+        private UITextView _accessTokenTextView;
+
+
+        AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common/");
+        string _userName = null;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -62,10 +68,45 @@ namespace AdalAndroidTestApp
             Button clearCacheButton = FindViewById<Button>(Resource.Id.clearCacheButton);
             clearCacheButton.Click += clearCacheButton_Click;
 
-            this.accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
+            this._accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
 
-            EditText email = FindViewById<EditText>(Resource.Id.email);
-            email.Text = user;
+            // Logging
+            LoggerCallbackHandler.PiiLoggingEnabled = true;
+            LoggerCallbackHandler.LogCallback = ((lvl, msg, isPii) =>
+            {
+                string messgeToLog = $"[{lvl}][{isPii}]: {msg}";
+                Console.WriteLine(messgeToLog);
+            });
+        }
+
+        private string GetResource()
+        {
+            RadioGroup radioGroup = FindViewById<RadioGroup>(Resource.Id.radioGroupResource);
+            RadioButton radioButton = FindViewById<RadioButton>(radioGroup.CheckedRadioButtonId);
+
+            if (radioButton.Id == Resource.Id.radioButtonR1)
+            {
+                return resource1;
+            }
+            else if (radioButton.Id == Resource.Id.radioButtonR2)
+            {
+                return resource2;
+            }
+
+            throw new NotImplementedException("oh noes");
+        }
+
+        private Uri GetRedirectUri()
+        {
+            return UseBroker() ? 
+                new Uri(redirectUriBroker) : 
+                new Uri(redirectUriNonBroker);
+        }
+
+        private bool UseBroker()
+        {
+            Switch brokerSwitch = FindViewById<Switch>(Resource.Id.switchUseBroker);
+            return brokerSwitch.Checked;
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -75,17 +116,35 @@ namespace AdalAndroidTestApp
                 data);
         }
 
+
         private async void acquireTokenSilentButton_Click(object sender, EventArgs e)
         {
-            this.accessTokenTextView.Text = string.Empty;
-            EditText email = FindViewById<EditText>(Resource.Id.email);
+            string resource = GetResource();
+
+            var x = this.ctx.TokenCache.Count;
+            foreach (var item in this.ctx.TokenCache.ReadItems())
+            {
+                Console.WriteLine(item.Resource);
+            }
+
+            if (String.IsNullOrEmpty(_userName))
+            {
+                this._accessTokenTextView.Text = "Call will fail because there is no username";
+                return;
+            }
+
+            this._accessTokenTextView.Text = string.Empty;
             string value = null;
             try
             {
-                AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+                var userId = new UserIdentifier(_userName, UserIdentifierType.OptionalDisplayableId);
+
                 AuthenticationResult result = await ctx
-                    .AcquireTokenSilentAsync(resource1, clientId, UserIdentifier.AnyUser,
-                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                    .AcquireTokenSilentAsync(
+                    resource,
+                    clientId,
+                    userId,
+                    new PlatformParameters(this, UseBroker())).ConfigureAwait(true);
                 value = result.AccessToken;
             }
             catch (Java.Lang.Exception ex)
@@ -97,21 +156,34 @@ namespace AdalAndroidTestApp
                 value = exc.Message;
             }
 
-            this.accessTokenTextView.Text = value;
+
+            this._accessTokenTextView.Text = value;
         }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
-            this.accessTokenTextView.Text = string.Empty;
-            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common/");
-            EditText email = FindViewById<EditText>(Resource.Id.email);
+            string resource = GetResource();
+
+
+            var x = this.ctx.TokenCache.Count;
+            foreach (var item in this.ctx.TokenCache.ReadItems())
+            {
+                Console.WriteLine(item.Resource);
+            }
+
+            this._accessTokenTextView.Text = string.Empty;
             string value = null;
             try
             {
                 AuthenticationResult result = await ctx
-                    .AcquireTokenAsync(resource2, clientId, new Uri(redirectUri),
-                        new PlatformParameters(this, false)).ConfigureAwait(false);
+                    .AcquireTokenAsync(
+                    resource,
+                    clientId,
+                    GetRedirectUri(),
+                    new PlatformParameters(this, UseBroker())).ConfigureAwait(true);
                 value = result.AccessToken;
+
+                _userName = result.UserInfo.DisplayableId;
             }
             catch (Java.Lang.Exception ex)
             {
@@ -119,10 +191,10 @@ namespace AdalAndroidTestApp
             }
             catch (Exception exc)
             {
-                value = exc.Message;
+                value = exc.Message + x;
             }
 
-            this.accessTokenTextView.Text = value;
+            this._accessTokenTextView.Text = value;
         }
 
         private async void clearCacheButton_Click(object sender, EventArgs e)
@@ -130,7 +202,7 @@ namespace AdalAndroidTestApp
             await Task.Factory.StartNew(() =>
             {
                 TokenCache.DefaultShared.Clear();
-                this.accessTokenTextView.Text = "Cache cleared";
+                this._accessTokenTextView.Text = "Cache cleared";
             });
         }
     }
