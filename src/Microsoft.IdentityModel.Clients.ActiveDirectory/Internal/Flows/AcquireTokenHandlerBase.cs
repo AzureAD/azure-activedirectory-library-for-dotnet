@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         internal readonly IDictionary<string, string> brokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
         protected readonly BrokerHelper brokerHelper = new BrokerHelper();
-        private AdalHttpClient client = null;
+        private AdalHttpClient _client = null;
         internal readonly RequestContext RequestContext;
 
         protected AcquireTokenHandlerBase(RequestData requestData)
@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             if (string.IsNullOrWhiteSpace(requestData.Resource))
             {
-                throw new ArgumentNullException("resource");
+                throw new ArgumentNullException(nameof(requestData.Resource));
             }
 
             Resource = (requestData.Resource != NullResource) ? requestData.Resource : null;
@@ -207,7 +207,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             catch (Exception ex)
             {
                 RequestContext.Logger.ErrorPii(ex);
-                if (client != null && client.Resiliency && extendedLifetimeResultEx != null)
+                if (_client != null && _client.Resiliency && extendedLifetimeResultEx != null)
                 {
                     RequestContext.Logger.Info("Refreshing access token failed due to one of these reasons:- Internal Server Error, Gateway Timeout and Service Unavailable. " +
                                        "Hence returning back stale access token");
@@ -296,7 +296,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected virtual async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
         {
-            // if broker returned Authority update Authentiator
+            // if broker returned Authority update Authenticator
             if(!string.IsNullOrEmpty(resultEx.Result.Authority))
             {
                 await UpdateAuthorityAsync(resultEx.Result.Authority).ConfigureAwait(false);
@@ -307,15 +307,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             resultEx.Result.Authority = Authenticator.Authority;
         }
 
-        protected abstract void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters);
+        protected abstract void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters);
 
-        protected internal /* interal for test only */ virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
+        protected internal /* internal for test only */ virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
             var requestParameters = new DictionaryRequestParameters(Resource, ClientKey)
             {
                 { OAuth2Parameter.ClientInfo, "1" }
             };
-            AddAditionalRequestParameters(requestParameters);
+            AddAdditionalRequestParameters(requestParameters);
             return await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }
 
@@ -382,9 +382,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private async Task<AdalResultWrapper> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            client = new AdalHttpClient(Authenticator.TokenUri, RequestContext)
-                {Client = {BodyParameters = requestParameters}};
-            TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
+            _client = new AdalHttpClient(Authenticator.TokenUri, RequestContext)
+            {
+                Client = {BodyParameters = requestParameters}
+            };
+            TokenResponse tokenResponse = await _client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
         }
 

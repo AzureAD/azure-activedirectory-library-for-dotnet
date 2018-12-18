@@ -28,7 +28,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -47,7 +46,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             UniqueId = userId.UniqueId;
             DisplayableId = userId.DisplayableId;
             UserIdentifierType = userId.Type;
-            brokerHelper.PlatformParameters = parameters;    
+            brokerHelper.PlatformParameters = parameters;
             SupportADFS = true;
 
             brokerParameters[BrokerParameter.Username] = userId.Id;
@@ -67,8 +66,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             throw new AdalSilentTokenAcquisitionException(ResultEx.Exception);
         }
 
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
-        {            
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        {
         }
     }
 }

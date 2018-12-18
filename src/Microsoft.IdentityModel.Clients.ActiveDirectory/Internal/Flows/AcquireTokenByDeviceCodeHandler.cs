@@ -79,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return resultEx;
         }
 
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.DeviceCode;
             requestParameters[OAuthParameter.Code] = deviceCodeResult.DeviceCode;

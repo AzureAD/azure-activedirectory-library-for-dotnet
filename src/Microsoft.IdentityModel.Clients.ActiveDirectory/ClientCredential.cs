@@ -69,7 +69,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             ClientId = clientId;
-            SecureClientSecret = secureClientSecret ?? throw new ArgumentNullException("clientSecret");
+            SecureClientSecret = secureClientSecret ?? throw new ArgumentNullException(nameof(secureClientSecret));
         }
 #endif
 
