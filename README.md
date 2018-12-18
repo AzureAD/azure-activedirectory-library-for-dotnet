@@ -17,7 +17,7 @@ Active Directory Authentication Library for .NET (ADAL.NET) is an easy to use au
 
 ## Branches
 
-**dev**: Contains newest development of both ADAL (v4+) and MSAL (v2+). This is where all current and future development of ADAL and MSAL takes place.  
+**dev**: Contains newest development of ADAL (v4+)
 **adalV3/dev** : Holds the v3 branch. Only security fixes will make it to v3.
 
 ## Versions
