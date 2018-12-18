@@ -39,7 +39,9 @@ namespace AdalAndroidTestApp
     [Activity(Label = "AdalAndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
+        // An app configured with 2 resources. Note that @microsoft accounts will require consent, but other AADs will work
         private const string clientId = "9379b42e-cd73-43b1-a0c3-51c5abf569eb";
+        // This Uri is Android specific, you may have to create your own app to add another one
         private const string redirectUriBroker = "msauth://adalandroidtestapp.adalandroidtestapp/CG0m9vSjvFOspGPjc3TLEZnLHbc=";
         private const string redirectUriNonBroker = "msal9379b42e-cd73-43b1-a0c3-51c5abf569eb://auth";
 
@@ -49,7 +51,7 @@ namespace AdalAndroidTestApp
         private UITextView _accessTokenTextView;
 
 
-        AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common/");
+        AuthenticationContext _ctx = new AuthenticationContext("https://login.microsoftonline.com/common/");
         string _userName = null;
 
         protected override void OnCreate(Bundle bundle)
@@ -68,7 +70,7 @@ namespace AdalAndroidTestApp
             Button clearCacheButton = FindViewById<Button>(Resource.Id.clearCacheButton);
             clearCacheButton.Click += clearCacheButton_Click;
 
-            this._accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
+            _accessTokenTextView = new UITextView(this, FindViewById<TextView>(Resource.Id.accessTokenTextView));
 
             // Logging
             LoggerCallbackHandler.PiiLoggingEnabled = true;
@@ -121,25 +123,24 @@ namespace AdalAndroidTestApp
         {
             string resource = GetResource();
 
-            var x = this.ctx.TokenCache.Count;
-            foreach (var item in this.ctx.TokenCache.ReadItems())
+            foreach (var item in _ctx.TokenCache.ReadItems())
             {
                 Console.WriteLine(item.Resource);
             }
 
             if (String.IsNullOrEmpty(_userName))
             {
-                this._accessTokenTextView.Text = "Call will fail because there is no username";
+                _accessTokenTextView.Text = "Call will fail because there is no username";
                 return;
             }
 
-            this._accessTokenTextView.Text = string.Empty;
+            _accessTokenTextView.Text = string.Empty;
             string value = null;
             try
             {
                 var userId = new UserIdentifier(_userName, UserIdentifierType.OptionalDisplayableId);
 
-                AuthenticationResult result = await ctx
+                AuthenticationResult result = await _ctx
                     .AcquireTokenSilentAsync(
                     resource,
                     clientId,
@@ -157,7 +158,7 @@ namespace AdalAndroidTestApp
             }
 
 
-            this._accessTokenTextView.Text = value;
+            _accessTokenTextView.Text = value;
         }
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
@@ -165,17 +166,17 @@ namespace AdalAndroidTestApp
             string resource = GetResource();
 
 
-            var x = this.ctx.TokenCache.Count;
-            foreach (var item in this.ctx.TokenCache.ReadItems())
+            var x = _ctx.TokenCache.Count;
+            foreach (var item in _ctx.TokenCache.ReadItems())
             {
                 Console.WriteLine(item.Resource);
             }
 
-            this._accessTokenTextView.Text = string.Empty;
+            _accessTokenTextView.Text = string.Empty;
             string value = null;
             try
             {
-                AuthenticationResult result = await ctx
+                AuthenticationResult result = await _ctx
                     .AcquireTokenAsync(
                     resource,
                     clientId,
@@ -194,7 +195,7 @@ namespace AdalAndroidTestApp
                 value = exc.Message + x;
             }
 
-            this._accessTokenTextView.Text = value;
+            _accessTokenTextView.Text = value;
         }
 
         private async void clearCacheButton_Click(object sender, EventArgs e)
@@ -202,7 +203,7 @@ namespace AdalAndroidTestApp
             await Task.Factory.StartNew(() =>
             {
                 TokenCache.DefaultShared.Clear();
-                this._accessTokenTextView.Text = "Cache cleared";
+                _accessTokenTextView.Text = "Cache cleared";
             });
         }
     }

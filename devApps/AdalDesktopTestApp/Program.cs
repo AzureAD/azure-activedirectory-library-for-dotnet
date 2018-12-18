@@ -77,7 +77,7 @@ namespace AdalDesktopTestApp
                         1. Clear the cache
                         2. Acquire Token by Integrated Windows Auth
                         3. Acquire Token Interactively
-                        4. Acquire Token Interactively hidden
+                        4. Acquire Token Interactively with PromptBehavior=Never
                         5. Acquire Token with Username and Password
                         6. Acquire Token Silently
                         7. Acquire Token by Device Code 
