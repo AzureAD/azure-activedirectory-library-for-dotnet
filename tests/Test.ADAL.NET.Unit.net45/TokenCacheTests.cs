@@ -32,6 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -335,13 +336,26 @@ namespace Test.ADAL.Common.Unit
             AdalResultWrapper value = CreateCacheValue(null, "user1");
         }
 
-        internal static async Task MRRT_TestAsync()
+        internal static void MRRTWithBroker_Test()
         {
+            const string Authority = "authority";
+            const string Resource1 = "R1";
+            const string Resource2 = "R2";
+
+            var testLogger = new TestLogger(); //todo nsubstitute this
+            var requestContext = new RequestContext(ValidClientId, testLogger);
+
             var tokenCache = new TokenCache();
             var cacheDictionary = tokenCache.tokenCacheDictionary;
 
-            AdalTokenCacheKey keyR1 = new AdalTokenCacheKey("authority", "R1", "client", TokenSubjectType.User, null, "user");
-            AdalTokenCacheKey keyR2 = new AdalTokenCacheKey("authority", "R2", "client", TokenSubjectType.User, null, "user");
+
+
+            //AdalTokenCacheKey keyR1 = new AdalTokenCacheKey(Authority, Resource1, ValidClientId, TokenSubjectType.User, null, "user");
+            //AdalTokenCacheKey keyR2 = new AdalTokenCacheKey(Authority, Resource2, ValidClientId, TokenSubjectType.User, null, "user");
+
+            var cacheValue = CreateCacheValue("uniqueId", "displayId", false);
+
+            tokenCache.StoreToCacheCommon(cacheValue, Authority, Resource1, ValidClientId, TokenSubjectType.User, requestContext);
 
         }
 
@@ -617,20 +631,26 @@ namespace Test.ADAL.Common.Unit
             }
         }
 
-        public static AdalResultWrapper CreateCacheValue(string uniqueId, string displayableId)
+        public static AdalResultWrapper CreateCacheValue(string uniqueId, string displayableId, bool withRt = true)
         {
-            string refreshToken = string.Format(CultureInfo.CurrentCulture, " RefreshToken{0}", Rand.Next());
             var result = new AdalResult(null, ValidAccessToken,
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)))
             {
                 UserInfo = new AdalUserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
             };
 
-            return new AdalResultWrapper
+            var resultWrapper = new AdalResultWrapper
             {
                 Result = result,
-                RefreshToken = refreshToken
             };
+
+            if (withRt)
+            {
+                resultWrapper.RefreshToken =
+                    string.Format(CultureInfo.CurrentCulture, " RefreshToken{0}", Rand.Next());
+            }
+
+            return resultWrapper;
         }
 
         public static void CheckPublicGetSets()
