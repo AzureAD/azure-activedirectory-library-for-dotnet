@@ -1,37 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:minWidth="25px"
-    android:minHeight="25px">
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/email" />
-    <Button
-        android:text="Acquire Token Interactive"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/acquireTokenInteractiveButton" />
-    <Button
-        android:text="Acquire Token Silent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/acquireTokenSilentButton" />
-    <Button
-        android:text="CLEAR CACHE"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/clearCacheButton"
-        android:layout_marginBottom="5.6dp"
-        android:layout_marginTop="0.0dp" />
-    <TextView
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/accessTokenTextView"
-        android:textIsSelectable="true"
-        android:text="test"
-        android:textStyle="bold" />
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:minWidth="25px"
+	android:minHeight="25px">	
+	<Button
+		android:text="Acquire Token Interactive"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/acquireTokenInteractiveButton" />
+	<Button
+		android:text="Acquire Token Silent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/acquireTokenSilentButton" />
+	<Button
+		android:text="CLEAR CACHE"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/clearCacheButton"
+		android:layout_marginBottom="5.6dp"
+		android:layout_marginTop="0.0dp" />
+	<RadioGroup
+		android:minWidth="25px"
+		android:minHeight="25px"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/radioGroupResource">
+		<RadioButton
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:checked="true"
+			android:text="Resource1 (graph.windows.net)"
+			android:id="@+id/radioButtonR1" />
+		<RadioButton
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Resource2  (graph.microsoft.com)"
+			android:id="@+id/radioButtonR2" />
+	</RadioGroup>
+		<Switch
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+		    android:text="Use Broker"
+			android:id="@+id/switchUseBroker" />
+	
+		<TextView
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/accessTokenTextView"
+			android:textIsSelectable="true"
+			android:text=""
+			android:textStyle="bold" />
 </LinearLayout>

@@ -47,7 +47,7 @@ namespace AdalDesktopTestApp
             LoggerCallbackHandler.LogCallback = AppLogger.Log;
 
 
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            AuthenticationContext context = new AuthenticationContext("https://login.windows.net/common", true, new FileCache());
 
             if (ClientId == "<CLIENT_ID>")
             {
@@ -77,9 +77,11 @@ namespace AdalDesktopTestApp
                         1. Clear the cache
                         2. Acquire Token by Integrated Windows Auth
                         3. Acquire Token Interactively
-                        4. Acquire Token with Username and Password
-                        5. Acquire Token Silently
-                        6. Acquire Token by Device Code 
+                        4. Acquire Token Interactively with PromptBehavior=Never
+                        5. Acquire Token with Username and Password
+                        6. Acquire Token Silently
+                        7. Acquire Token by Device Code 
+
                         0. Exit App
                     Enter your Selection: ");
 
@@ -100,19 +102,23 @@ namespace AdalDesktopTestApp
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
                         case 3: // acquire token interactive
-                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.Auto));
+                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.SelectAccount));
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 4: // acquire token with username and password
+                        case 4: // acquire token interactive
+                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.Never));
+                            await FetchTokenAsync(authTask).ConfigureAwait(false);
+                            break;
+                        case 5: // acquire token with username and password
                             Console.WriteLine(string.Format(CultureInfo.CurrentCulture, "Enter password for user {0} :", User));
                             authTask = context.AcquireTokenAsync(Resource, ClientId, new UserPasswordCredential(User, Console.ReadLine()));
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 5: // acquire token silent
+                        case 6: // acquire token silent
                             authTask = context.AcquireTokenSilentAsync(Resource, ClientId);
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 6: // device code flow
+                        case 7: // device code flow
                             authTask = GetTokenViaDeviceCodeAsync(context);
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
