@@ -452,6 +452,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             brokerOptions.PutString(BrokerConstants.AccountExtraQueryParam,
                 request.ExtraQueryParamsAuthentication);
 
+            brokerOptions.PutString(BrokerConstants.CallerInfoPackage, Application.Context.PackageName);
+            brokerOptions.PutString(BrokerConstants.CallerInfoUID, Android.OS.Process.MyPid().ToString(CultureInfo.InvariantCulture));
+
             if (request.Claims != null)
             {
                 brokerOptions.PutString(BrokerConstants.SkipCache, Boolean.TrueString.ToLowerInvariant());
