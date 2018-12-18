@@ -161,25 +161,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
     ///     Safe handle base class for safe handles which are associated with an additional data buffer that
     ///     must be kept alive for the same amount of time as the handle itself.
     ///     
-    ///     This is required rather than having a seperate safe handle own the key data buffer blob so
+    ///     This is required rather than having a separate safe handle own the key data buffer blob so
     ///     that we can ensure that the key handle is disposed of before the key data buffer is freed.
     /// </summary>
     internal abstract class SafeHandleWithBuffer : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private IntPtr m_dataBuffer;
+        private IntPtr _dataBuffer;
 
         protected SafeHandleWithBuffer() : base(true)
         {
         }
 
-        public override bool IsInvalid
-        {
-            get
-            {
-                return handle == IntPtr.Zero &&             // The handle is not valid
-                       m_dataBuffer == IntPtr.Zero;         // And we don't own any native memory
-            }
-        }
+        public override bool IsInvalid =>
+            handle == IntPtr.Zero &&             // The handle is not valid
+            _dataBuffer == IntPtr.Zero;
 
         /// <summary>
         ///     Buffer that holds onto the key data object. This data must be allocated with CoAllocTaskMem, 
@@ -192,16 +187,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         internal IntPtr DataBuffer
         {
             [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-            get
-            { return m_dataBuffer; }
+            get => _dataBuffer;
 
             [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
             set
             {
-                Debug.Assert(m_dataBuffer == IntPtr.Zero, "SafeHandleWithBuffer already owns a data buffer - this will result in a native memory leak.");
+                Debug.Assert(_dataBuffer == IntPtr.Zero, "SafeHandleWithBuffer already owns a data buffer - this will result in a native memory leak.");
                 Debug.Assert(value != IntPtr.Zero, "value != IntPtr.Zero");
 
-                m_dataBuffer = value;
+                _dataBuffer = value;
             }
         }
 
@@ -211,7 +205,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         protected virtual bool ReleaseBuffer()
         {
-            Marshal.FreeCoTaskMem(m_dataBuffer);
+            Marshal.FreeCoTaskMem(_dataBuffer);
             return true;
         }
 
@@ -225,7 +219,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
                 error = ReleaseNativeHandle();
             }
 
-            if (m_dataBuffer != IntPtr.Zero)
+            if (_dataBuffer != IntPtr.Zero)
             {
                 error &= ReleaseBuffer();
             }

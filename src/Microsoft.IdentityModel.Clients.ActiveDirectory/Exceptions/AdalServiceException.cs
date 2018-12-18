@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     }
                     else
                     {
-                        // There is no HttpStatusCode for user cancelation
+                        // There is no HttpStatusCode for user cancellation
                         StatusCode = 0;
                     }
                 }

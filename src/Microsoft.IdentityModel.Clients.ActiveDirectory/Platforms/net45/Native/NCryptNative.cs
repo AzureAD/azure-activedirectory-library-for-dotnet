@@ -358,7 +358,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Native
         ///     Helper method to read a structure out of the buffer, treating it as if it were an array of
         ///     T.  This method does not do any validation that the read data is within the buffer itself. 
         ///     
-        ///     Esentially, this method treats the safe handle as if it were a native T[], and returns
+        ///     Essentially, this method treats the safe handle as if it were a native T[], and returns
         ///     handle[index].  It will add enough padding space such that each T will begin on a
         ///     pointer-sized location.
         /// </summary>

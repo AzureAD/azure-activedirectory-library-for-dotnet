@@ -134,7 +134,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// ADAL's token cache, where tokens are automatically saved.
-        /// On some platforms, e.g. iOS, Android and UWP, the TokenCache is backed by a persistent store which is implemeted by ADAL.
+        /// On some platforms, e.g. iOS, Android and UWP, the TokenCache is backed by a persistent store which is implemented by ADAL.
         /// On other platforms, e.g. .net and .net core - the developer is responsible for implementing a persistent store.
         /// If not using a persistent store, an in-memory store is used, which is destroyed once the application stops. 
         /// To find out more about leveraging the token cache visit: https://aka.ms/adal-net-using-cached-tokens
@@ -668,7 +668,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// In a Web App, attemps to acquire a security token from the authority using an authorization code previously received
+        /// In a Web App, attempts to acquire a security token from the authority using an authorization code previously received
         /// (after a call to one of the overrides of <see cref="M:AcquireTokenByAuthorizationCodeAsync">AcquireTokenByAuthorizationCodeAsync</see>). 
         /// For more details see https://aka.ms/adal-net-authorization-code. This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
         /// </summary>

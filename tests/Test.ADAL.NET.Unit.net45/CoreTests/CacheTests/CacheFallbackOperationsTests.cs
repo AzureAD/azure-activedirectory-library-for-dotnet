@@ -250,7 +250,7 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.CacheTests
         {
             // in case of adalv3 -> adalv4 -> msal2 migration
             // adal cache can have different cache entities for the
-            // same user/account with client info and wihout
+            // same user/account with client info and without
             // CacheFallbackOperations.RemoveAdalUser should remove both
             PopulateLegacyWithRtAndId(
                 _legacyCachePersistence,

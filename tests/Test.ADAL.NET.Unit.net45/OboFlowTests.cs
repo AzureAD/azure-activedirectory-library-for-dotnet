@@ -50,7 +50,7 @@ namespace Test.ADAL.NET.Unit
     /// contain entries with user assertion hash. It accounts for cases where there is
     /// a single user and when there are multiple users in the cache.
     /// user assertion hash exists so that the API can deterministically identify the user
-    /// in the cache when a usernae is not passed in. It also allows the API to acquire
+    /// in the cache when a username is not passed in. It also allows the API to acquire
     /// new token when a different assertion is passed for the user. this is needed because
     /// the user may have authenticated with updated claims like MFA/device auth on the client.
     /// </summary>
@@ -249,8 +249,8 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            // call acquire token with diferent username from cache entry. this will result in a network call
-            // because cache lookup failed for non-existant user
+            // call acquire token with different username from cache entry. this will result in a network call
+            // because cache lookup failed for non-existent user
             var result =
                 await
                     context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
@@ -659,8 +659,8 @@ namespace Test.ADAL.NET.Unit
                 }
             });
 
-            // call acquire token with diferent username from cache entry. this will result in a network call
-            // because cache lookup failed for non-existant user
+            // call acquire token with different username from cache entry. this will result in a network call
+            // because cache lookup failed for non-existent user
             var result =
                 await
                     context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,

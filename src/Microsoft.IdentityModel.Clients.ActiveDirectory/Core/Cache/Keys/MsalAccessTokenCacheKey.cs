@@ -87,8 +87,8 @@ namespace Microsoft.Identity.Core.Cache
         /// </summary>
         /// <remarks>
         /// accountId - two guids plus separator - 73 chars        
-        /// "accesstoken" string - 11 chars
-        /// env - ussually loging.microsoft.net - 20 chars
+        /// "access token" string - 11 chars
+        /// env - usually loging.microsoft.net - 20 chars
         /// clientid - a guid - 36 chars
         /// tenantid - a guid - 36 chars
         /// scopes - a sha256 string - 44 chars

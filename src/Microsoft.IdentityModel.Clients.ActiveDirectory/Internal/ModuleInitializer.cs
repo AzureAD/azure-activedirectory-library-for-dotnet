@@ -50,7 +50,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         /// </summary>
         public static void EnsureModuleInitialized()
         {
-            // double check locking instead locking first to improve performace
+            // double check locking instead locking first to improve performance
             if (!_isInitialized)
             {
                 lock (LockObj)

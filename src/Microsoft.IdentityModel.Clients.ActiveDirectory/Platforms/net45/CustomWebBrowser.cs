@@ -260,7 +260,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     }
 
     /// <summary>
-    /// Delegate to handle navifation errors in the browser control
+    /// Delegate to handle navigation errors in the browser control
     /// </summary>
     /// <param name="sender">object type</param>
     /// <param name="e">WebBrowserNavigateErrorEventArgs type</param>

@@ -187,7 +187,7 @@ namespace Microsoft.Identity.Core.Cache
         /// Algorithm to delete: 
         /// 
         /// DisplayableId cannot be null 
-        /// Removal is scoped by enviroment and clientId;
+        /// Removal is scoped by environment and clientId;
         /// 
         /// If accountId != null then delete everything with the same clientInfo
         /// otherwise, delete everything with the same displayableId

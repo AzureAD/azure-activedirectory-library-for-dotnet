@@ -38,29 +38,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         /// <summary>
         /// This is how long we allow between completed navigations.
         /// </summary>
-        private const int NavigationWaitMiliSecs = 250;
+        private const int NavigationWaitMilliSecs = 250;
 
         /// <summary>
-        /// This is how long all redirect navigations are allowed to run for before a graceful 
+        /// This is how long all redirect navigations are allowed to run for before a graceful
         /// termination of the entire browser based authentication process is attempted.
         /// </summary>
         private const int NavigationOverallTimeout = 2000;
 
-        private bool disposed;
-
-        private WindowsFormsSynchronizationContext formsSyncContext;
-
-        private AuthorizationResult result;
-
-        private Exception uiException;
-
-        private ManualResetEvent threadInitializedEvent;
-
-        private SilentWindowsFormsAuthenticationDialog dialog;
+        private bool _disposed;
+        private WindowsFormsSynchronizationContext _formsSyncContext;
+        private AuthorizationResult _result;
+        private Exception _uiException;
+        private ManualResetEvent _threadInitializedEvent;
+        private SilentWindowsFormsAuthenticationDialog _dialog;
 
         public SilentWebUI(RequestContext context)
         {
-            threadInitializedEvent = new ManualResetEvent(false);
+            _threadInitializedEvent = new ManualResetEvent(false);
             this.context = context;
         }
 
@@ -87,7 +82,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             long navigationOverallTimeout = NavigationOverallTimeout;
             long navigationStartTime = DateTime.Now.Ticks;
 
-            bool initialized = threadInitializedEvent.WaitOne((int)navigationOverallTimeout);
+            bool initialized = _threadInitializedEvent.WaitOne((int)navigationOverallTimeout);
             if (initialized)
             {
                 // Calculate time remaining after time spend on initialization.
@@ -102,7 +97,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                     // The invisible dialog has failed to complete in the allotted time.
                     // Attempt a graceful shutdown.
-                    formsSyncContext.Post(state => dialog.CloseBrowser(), null);
+                    _formsSyncContext.Post(state => _dialog.CloseBrowser(), null);
                 }
             }
         }
@@ -116,28 +111,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     try
                     {
-                        formsSyncContext = new WindowsFormsSynchronizationContext();
+                        _formsSyncContext = new WindowsFormsSynchronizationContext();
 
-                        dialog = new SilentWindowsFormsAuthenticationDialog(OwnerWindow)
+                        _dialog = new SilentWindowsFormsAuthenticationDialog(OwnerWindow)
                         {
-                            NavigationWaitMiliSecs = NavigationWaitMiliSecs
+                            NavigationWaitMiliSecs = NavigationWaitMilliSecs
                         };
 
-                        dialog.Done += UIDoneHandler;
+                        _dialog.Done += UIDoneHandler;
 
-                        threadInitializedEvent.Set();
+                        _threadInitializedEvent.Set();
 
-                        dialog.AuthenticateAAD(RequestUri, CallbackUri);
+                        _dialog.AuthenticateAAD(RequestUri, CallbackUri);
 
                         // Start and turn control over to the message loop.
                         Application.Run();
 
-                        result = dialog.Result;
+                        _result = _dialog.Result;
                     }
                     catch (Exception e)
                     {
                         // Catch all exceptions to transfer them to the original calling thread.
-                        uiException = e;
+                        _uiException = e;
                     }
                 });
 
@@ -149,12 +144,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         }
 
         /// <summary>
-        /// Callers expect the call to show the authentication dialog to be synchronous.  This is easy in the 
-        /// interactive case as ShowDialog is a synchronous call.  However, ShowDialog will always show 
+        /// Callers expect the call to show the authentication dialog to be synchronous.  This is easy in the
+        /// interactive case as ShowDialog is a synchronous call.  However, ShowDialog will always show
         /// the dialog.  It can not be hidden. So it can not be used in the silent case.  Instead we need
-        /// to do the equivalent of creating our own modal dialog.  We start a new thread, launch an 
+        /// to do the equivalent of creating our own modal dialog.  We start a new thread, launch an
         /// invisible window on that thread.  The original calling thread blocks until the secondary
-        /// UI thread completes.  
+        /// UI thread completes.
         /// </summary>
         /// <returns></returns>
         protected override AuthorizationResult OnAuthenticate()
@@ -172,56 +167,56 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             ThrowIfTransferredException();
 
-            if (result == null)
+            if (_result == null)
             {
                 throw new AdalException(AdalError.UserInteractionRequired);
             }
 
-            return result;
+            return _result;
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    if (threadInitializedEvent != null)
+                    if (_threadInitializedEvent != null)
                     {
-                        threadInitializedEvent.Dispose();
-                        threadInitializedEvent = null;
+                        _threadInitializedEvent.Dispose();
+                        _threadInitializedEvent = null;
                     }
 
-                    if (formsSyncContext != null)
+                    if (_formsSyncContext != null)
                     {
-                        formsSyncContext.Dispose();
-                        formsSyncContext = null;                        
+                        _formsSyncContext.Dispose();
+                        _formsSyncContext = null;
                     }
                 }
 
-                disposed = true;
+                _disposed = true;
             }
         }
 
         private void Cleanup()
         {
-            threadInitializedEvent.Dispose();
-            threadInitializedEvent = null;
+            _threadInitializedEvent.Dispose();
+            _threadInitializedEvent = null;
         }
 
         private void ThrowIfTransferredException()
         {
-            if (null != uiException)
+            if (null != _uiException)
             {
-                throw uiException;
+                throw _uiException;
             }
         }
 
         private void UIDoneHandler(object sender, SilentWebUIDoneEventArgs e)
         {
-            if (uiException == null)
+            if (_uiException == null)
             {
-                uiException = e.TransferedException;
+                _uiException = e.TransferedException;
             }
 
             // We need call dispose, while message loop is running.
