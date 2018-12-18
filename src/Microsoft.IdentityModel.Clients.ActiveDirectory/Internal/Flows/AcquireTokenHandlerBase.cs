@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             if (string.IsNullOrWhiteSpace(requestData.Resource))
             {
-                throw new ArgumentNullException(nameof(requestData.Resource));
+                throw new ArgumentNullException("resource");
             }
 
             Resource = (requestData.Resource != NullResource) ? requestData.Resource : null;
