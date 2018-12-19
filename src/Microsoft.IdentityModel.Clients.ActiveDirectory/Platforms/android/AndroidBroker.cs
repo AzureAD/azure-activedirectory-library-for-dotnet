@@ -158,6 +158,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                 if (brokerPayload.ContainsKey(BrokerParameter.SilentBrokerFlow))
                 {
+                    _logger.Error("Can't invoke the broker in interactive mode because this is a silent flow");
                     throw new AdalSilentTokenAcquisitionException();
                 }
 

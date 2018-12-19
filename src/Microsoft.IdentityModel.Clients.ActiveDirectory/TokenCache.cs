@@ -392,7 +392,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return aliasedAuthorities;
         }
 
-        internal AdalResultWrapper LoadFromCacheCommon(CacheQueryData cacheQueryData, RequestContext requestContext)
+        internal /* internal for test */ AdalResultWrapper LoadFromCacheCommon(CacheQueryData cacheQueryData, RequestContext requestContext)
         {
             lock (cacheLock)
             {
@@ -411,24 +411,50 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                                             DateTime.UtcNow + TimeSpan.FromMinutes(ExpirationMarginInMinutes);
                     bool tokenExtendedLifeTimeExpired = resultEx.Result.ExtendedExpiresOn <= DateTime.UtcNow;
                     bool tokenIsForSameResource = cacheKey.ResourceEquals(cacheQueryData.Resource);
+                    bool rtPresent = resultEx.RefreshToken != null;
+
+                    // Handle Broker case - RT is held by the broker and the request is for a different resource
+                    if (!tokenIsForSameResource && !rtPresent)
+                    {
+                        // Can't use the AT returned by the cache - it's for a different resource
+                        // and ADAL does not have the RT to fetch a new AT
+                        requestContext.Logger.Info("Broker scenario - RT is held by the broker and the request is for a different resource. " +
+                            "Ignoring the cache. ");
+                        return null;
+                    }
 
                     //check for cross-tenant authority
                     if (!cacheKey.Authority.Equals(cacheQueryData.Authority, StringComparison.OrdinalIgnoreCase))
                     {
                         // this is a cross-tenant result. use RT only
                         resultEx.Result.AccessToken = null;
-
                         requestContext.Logger.Info("Cross Tenant refresh token was found in the cache");
                     }
                     else if (tokenNearExpiry && !cacheQueryData.ExtendedLifeTimeEnabled)
                     {
                         resultEx.Result.AccessToken = null;
-
                         requestContext.Logger.Info("An expired or near expiry token was found in the cache");
                     }
                     else if (!tokenIsForSameResource)
                     {
-                        resultEx = HandleMrrtCase(cacheQueryData, requestContext.Logger, resultEx, cacheKey);
+                        requestContext.Logger.InfoPii(
+                            string.Format(CultureInfo.CurrentCulture,
+                            "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'.",
+                            cacheKey.Resource, cacheQueryData.Resource),
+                            "Multi resource refresh token will be used to acquire a token");
+
+                        // Instructs the downflow logic to fetch an AT from the MRRT
+                        var newResultEx = new AdalResultWrapper
+                        {
+                            Result = new AdalResult(null, null, DateTimeOffset.MinValue),
+                            RefreshToken = resultEx.RefreshToken,
+                            ResourceInResponse = resultEx.ResourceInResponse
+                        };
+
+                        newResultEx.Result.UpdateTenantAndUserInfo(resultEx.Result.TenantId, resultEx.Result.IdToken,
+                            resultEx.Result.UserInfo);
+                        resultEx = newResultEx;
+
                     }
                     else if (!tokenExtendedLifeTimeExpired && cacheQueryData.ExtendedLifeTimeEnabled && tokenNearExpiry)
                     {
@@ -475,47 +501,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 return resultEx;
             }
-        }
-
-        private static AdalResultWrapper HandleMrrtCase(
-            CacheQueryData cacheQueryData,
-            ICoreLogger logger,
-            AdalResultWrapper resultEx,
-            AdalTokenCacheKey cacheKey)
-        {
-            logger.InfoPii(
-                string.Format(CultureInfo.CurrentCulture,
-                    "Multi resource refresh token for resource '{0}' will be used to acquire token for '{1}'.",
-                    cacheKey.Resource, cacheQueryData.Resource),
-                "Multi resource refresh token will be used to acquire a token");
-
-            bool mrrtIsInCache = resultEx.RefreshToken != null;
-
-            if (mrrtIsInCache)
-            {
-                logger.Info("MRRT will be used to fetch an access token. ");    
-
-                // Instruct the downflow logic to fetch an AT from the MRRT
-                var newResultEx = new AdalResultWrapper
-                {
-                    Result = new AdalResult(null, null, DateTimeOffset.MinValue),
-                    RefreshToken = resultEx.RefreshToken,
-                    ResourceInResponse = resultEx.ResourceInResponse
-                };
-
-                newResultEx.Result.UpdateTenantAndUserInfo(resultEx.Result.TenantId, resultEx.Result.IdToken,
-                    resultEx.Result.UserInfo);
-                resultEx = newResultEx;
-            }
-            else
-            {
-                logger.Info("MRRT is not present in the cache. This is most likely a broker scenario and the MRRT is on the broker. ");    
-                
-                // This AT is for a different resource, it can't be used
-                return null;
-            }
-
-            return resultEx;
         }
 
         internal async Task StoreToCacheAsync(AdalResultWrapper result, string authority, string resource, string clientId,
