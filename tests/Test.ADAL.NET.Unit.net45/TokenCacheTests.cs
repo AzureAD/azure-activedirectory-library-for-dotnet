@@ -336,29 +336,6 @@ namespace Test.ADAL.Common.Unit
             AdalResultWrapper value = CreateCacheValue(null, "user1");
         }
 
-        internal static void MRRTWithBroker_Test()
-        {
-            const string Authority = "authority";
-            const string Resource1 = "R1";
-            const string Resource2 = "R2";
-
-            var testLogger = new TestLogger(); //todo nsubstitute this
-            var requestContext = new RequestContext(ValidClientId, testLogger);
-
-            var tokenCache = new TokenCache();
-            var cacheDictionary = tokenCache.tokenCacheDictionary;
-
-
-
-            //AdalTokenCacheKey keyR1 = new AdalTokenCacheKey(Authority, Resource1, ValidClientId, TokenSubjectType.User, null, "user");
-            //AdalTokenCacheKey keyR2 = new AdalTokenCacheKey(Authority, Resource2, ValidClientId, TokenSubjectType.User, null, "user");
-
-            var cacheValue = CreateCacheValue("uniqueId", "displayId", false);
-
-            tokenCache.StoreToCacheCommon(cacheValue, Authority, Resource1, ValidClientId, TokenSubjectType.User, requestContext);
-
-        }
-
         internal static async Task TokenCacheOperationsTestAsync()
         {
             var tokenCache = new TokenCache();
