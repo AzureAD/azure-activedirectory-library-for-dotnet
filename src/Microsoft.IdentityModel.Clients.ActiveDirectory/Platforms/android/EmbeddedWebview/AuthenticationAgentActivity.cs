@@ -69,20 +69,20 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             webSettings.UseWideViewPort = true;
             webSettings.BuiltInZoomControls = true;
 
-            client = new CoreWebViewClient(Intent.GetStringExtra("Callback"), this);
+            this.client = new CoreWebViewClient(Intent.GetStringExtra("Callback"), this);
             webView.SetWebViewClient(client);
             webView.LoadUrl(url);
         }
 
         public override void Finish()
         {
-            if (client.ReturnIntent != null)
+            if (this.client.ReturnIntent != null)
             {
-                SetResult(Result.Ok, client.ReturnIntent);
+                this.SetResult(Result.Ok, this.client.ReturnIntent);
             }
             else
             {
-                SetResult(Result.Canceled, new Intent("ReturnFromEmbeddedWebview"));
+                this.SetResult(Result.Canceled, new Intent("ReturnFromEmbeddedWebview"));
             }
             base.Finish();
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             public CoreWebViewClient(string callback, Activity activity)
             {
                 this.callback = callback;
-                Activity = activity;
+                this.Activity = activity;
             }
 
             public Intent ReturnIntent { get; private set; }
@@ -107,7 +107,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
                     base.OnLoadResource(view, url);
-                    Finish(Activity, url);
+                    this.Finish(Activity, url);
                 }
 
             }
@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 {
                     CoreLoggerBase.Default.Verbose("It is an azure authenticator install request");
                     view.StopLoading();
-                    Finish(Activity, url);
+                    this.Finish(Activity, url);
                     return true;
                 }
 
@@ -143,29 +143,25 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
                     Dictionary<string, string> keyPair = CoreHelpers.ParseKeyValueList(query, '&', true, false, null);
                     string responseHeader = DeviceAuthHelper.CreateDeviceAuthChallengeResponseAsync(keyPair).Result;
-                    Dictionary<string, string> pkeyAuthEmptyResponse = new Dictionary<string, string>
-                    {
-                        [BrokerConstants.ChallangeResponseHeader] = responseHeader
-                    };
+                    Dictionary<string, string> pkeyAuthEmptyResponse = new Dictionary<string, string>();
+                    pkeyAuthEmptyResponse[BrokerConstants.ChallangeResponseHeader] = responseHeader;
                     view.LoadUrl(keyPair["SubmitUrl"], pkeyAuthEmptyResponse);
                     return true;
                 }
 
                 if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
-                    Finish(Activity, url);
+                    this.Finish(Activity, url);
                     return true;
                 }
 
 
                 if (!url.Equals(AboutBlankUri, StringComparison.OrdinalIgnoreCase) && !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
                 {
-                    UriBuilder errorUri = new UriBuilder(callback)
-                    {
-                        Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
-                        CoreErrorCodes.NonHttpsRedirectNotSupported, CoreErrorMessages.NonHttpsRedirectNotSupported)
-                    };
-                    Finish(Activity, errorUri.ToString());
+                    UriBuilder errorUri = new UriBuilder(callback);
+                    errorUri.Query = string.Format(CultureInfo.InvariantCulture, "error={0}&error_description={1}",
+                        CoreErrorCodes.NonHttpsRedirectNotSupported, CoreErrorMessages.NonHttpsRedirectNotSupported);
+                    this.Finish(Activity, errorUri.ToString());
                     return true;
                 }
 
@@ -181,7 +177,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                     Scheme = Uri.UriSchemeHttps
                 };
 
-                string link = externalBrowserUrlBuilder.Uri.AbsoluteUri;
+                String link = externalBrowserUrlBuilder.Uri.AbsoluteUri;
                 Intent intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse(link));
                 activity.StartActivity(intent);
             }
@@ -191,7 +187,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
                 if (url.StartsWith(callback, StringComparison.OrdinalIgnoreCase))
                 {
                     base.OnPageFinished(view, url);
-                    Finish(Activity, url);
+                    this.Finish(Activity, url);
                 }
 
                 base.OnPageFinished(view, url);
@@ -209,8 +205,8 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
 
             private void Finish(Activity activity, string url)
             {
-                ReturnIntent = new Intent("ReturnFromEmbeddedWebview");
-                ReturnIntent.PutExtra("ReturnedUrl", url);
+                this.ReturnIntent = new Intent("ReturnFromEmbeddedWebview");
+                this.ReturnIntent.PutExtra("ReturnedUrl", url);
                 activity.Finish();
             }
         }
