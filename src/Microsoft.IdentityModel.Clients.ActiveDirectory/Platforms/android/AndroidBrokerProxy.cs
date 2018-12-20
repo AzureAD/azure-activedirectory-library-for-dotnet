@@ -42,6 +42,7 @@ using Microsoft.Identity.Core.Cache;
 using OperationCanceledException = Android.Accounts.OperationCanceledException;
 using Permission = Android.Content.PM.Permission;
 using Signature = Android.Content.PM.Signature;
+using System.Linq;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -90,6 +91,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public AdalResultWrapper GetAuthTokenInBackground(AuthenticationRequest request, Activity callerActivity)
         {
+            _logger.Info("BrokerProxy: Starting a token acquiring flow in the background");
             AdalResultWrapper authResult = null;
             VerifyNotOnMainThread();
 
@@ -104,7 +106,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 _logger.Info("BrokerProxy: The broker found some accounts");
             }
-
+            else
+            {
+                _logger.Info("BrokerProxy: The broker did not find accounts (are Android permissions set?)");
+            }
 
             if (!string.IsNullOrEmpty(request.BrokerAccountName))
             {
@@ -497,6 +502,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private bool CheckAccount(AccountManager am, string username, string uniqueId)
         {
+            _logger.Verbose("BrokerProxy: Checking for an account");
             AuthenticatorDescription[] authenticators = am.GetAuthenticatorTypes();
             foreach (AuthenticatorDescription authenticator in authenticators)
             {
@@ -505,8 +511,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     Account[] accountList = _androidAccountManager
                         .GetAccountsByType(BrokerConstants.BrokerAccountType);
 
-                    string packageName;
+                    _logger.Info("BrokerProxy: Work accounts found on broker? " + 
+                        (accountList!= null && accountList.Any()));
 
+                    string packageName;
+                    
                     if (authenticator.PackageName
                         .Equals(BrokerConstants.AzureAuthenticatorAppPackageName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -522,16 +531,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         return false;
                     }
 
+                    _logger.Info("BrokerProxy: Broker that will be used: " + packageName);
+
                     // Existing broker logic only connects to broker for token
                     // requests if account exists. New version can allow to
                     // add accounts through Adal.
                     if (HasSupportToAddUserThroughBroker(packageName))
                     {
-                        _logger.Verbose("Broker supports to add user through app");
+                        _logger.Verbose("BrokerProxy: Broker supports to add user through app");
                         return true;
                     }
                     else if (accountList != null && accountList.Length > 0)
                     {
+                        _logger.Verbose("BrokerProxy: Checking for an account on the broker");
                         return VerifyAccount(accountList, username, uniqueId);
                     }
                 }
@@ -544,7 +556,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             if (!string.IsNullOrEmpty(username))
             {
-                return username.Equals(accountList[0].Name, StringComparison.OrdinalIgnoreCase);
+                bool match = username.Equals(accountList[0].Name, StringComparison.OrdinalIgnoreCase);
+                _logger.Verbose("BrokerProxy: The first account on the broker matches the username? " + match);
+                return match;
             }
 
             if (!string.IsNullOrEmpty(uniqueId))

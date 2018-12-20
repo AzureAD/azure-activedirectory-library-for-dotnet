@@ -86,6 +86,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private void AcquireTokenInternal(IDictionary<string, string> brokerPayload)
         {
+            _logger.Verbose("Starting to acquire token using the broker");
+
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
                 string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
@@ -99,6 +101,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
 
                 PlatformParameters pp = PlatformParameters as PlatformParameters;
+
                 pp.CallerActivity.StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse(keyPair["app_link"])));
 
                 throw new AdalException(AdalErrorAndroidEx.BrokerApplicationRequired, AdalErrorMessageAndroidEx.BrokerApplicationRequired);
@@ -110,12 +113,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             // BROKER flow intercepts here
             // cache and refresh call happens through the authenticator service
-            if (_brokerProxy.VerifyUser(request.LoginHint,
-                request.UserId))
+            if (_brokerProxy.VerifyUser(request.LoginHint, request.UserId))
             {
                 _logger.Verbose("It switched to broker for context: " + mContext.PackageName);
 
                 request.BrokerAccountName = request.LoginHint;
+
+                _logger.InfoPii(
+                    "Searching for a broker account that matches the login hint " + request.LoginHint, 
+                    "Searching for a broker account that matches the login hint ");
 
                 // Don't send background request, if prompt flag is always or
                 // refresh_session
