@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -107,14 +108,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
         }
 
+        /// <summary>
+        /// Constructor to create the context with the address of the authority and flag to turn address validation off.
+        /// Using this constructor, address validation can be turned off. Make sure you are aware of the security implication of not validating the address.
+        /// 
+        /// This constructor allows the HttpClient to be provided instead of having a new one created.  This can be useful when working with multiple different tenants.
+        /// </summary>
+        /// <param name="authority">Address of the authority to issue token.</param>
+        /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
+        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, HttpClient httpClient)
+            : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
+                   tokenCache, httpClient)
+        {
+        }
+
         internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
-            TokenCache tokenCache)
+            TokenCache tokenCache, HttpClient httpClient = null)
         {
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
             Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
             TokenCache = tokenCache;
 
-            _serviceBundle = serviceBundle ?? ServiceBundle.CreateDefault();
+            IHttpClientFactory httpClientFactory = null;
+            if (httpClient != null)
+            {
+                httpClientFactory = new HttpClientFactory(httpClient);
+            }
+
+            _serviceBundle = serviceBundle ?? new ServiceBundle(httpClientFactory: httpClientFactory);
         }
 
         /// <summary>
