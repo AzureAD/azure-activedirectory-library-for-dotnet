@@ -102,7 +102,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
         }
 
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             if (_userAssertion != null)
             {
