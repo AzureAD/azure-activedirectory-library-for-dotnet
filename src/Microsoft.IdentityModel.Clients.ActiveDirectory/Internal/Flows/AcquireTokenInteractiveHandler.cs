@@ -98,21 +98,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 this.LoadFromCache = (requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters));
             }
 
-            this.brokerParameters[BrokerParameter.Force] = "NO";
+            this.BrokerParameters[BrokerParameter.Force] = "NO";
             if (userId != UserIdentifier.AnyUser)
             {
-                this.brokerParameters[BrokerParameter.Username] = userId.Id;
+                this.BrokerParameters[BrokerParameter.Username] = userId.Id;
             }
             else
             {
-                this.brokerParameters[BrokerParameter.Username] = string.Empty;
+                this.BrokerParameters[BrokerParameter.Username] = string.Empty;
             }
-            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            this.BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
 
-            this.brokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
-            this.brokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
-            this.brokerParameters[BrokerParameter.Claims] = claims;
-            brokerHelper.PlatformParameters = authorizationParameters;
+            this.BrokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
+            this.BrokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
+            this.BrokerParameters[BrokerParameter.Claims] = claims;
+            BrokerHelper.PlatformParameters = authorizationParameters;
         }
 
         private IWebUI CreateWebUIOrNull(IPlatformParameters parameters)
@@ -184,7 +184,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
             return this.CreateAuthorizationUri();
         }
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
             requestParameters[OAuthParameter.Code] = this.authorizationResult.Code;
@@ -314,7 +314,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 && !string.IsNullOrEmpty(this.authorizationResult.Code)
                 && this.authorizationResult.Code.StartsWith("msauth://", StringComparison.OrdinalIgnoreCase))
             {
-                this.brokerParameters[BrokerParameter.BrokerInstallUrl] = this.authorizationResult.Code;
+                this.BrokerParameters[BrokerParameter.BrokerInstallUrl] = this.authorizationResult.Code;
                 return true;
             }
 
