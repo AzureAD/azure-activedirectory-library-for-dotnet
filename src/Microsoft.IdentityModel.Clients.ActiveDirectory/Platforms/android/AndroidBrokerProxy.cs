@@ -254,7 +254,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (Permission.Granted !=
                 Application.Context.PackageManager.CheckPermission(permission, Application.Context.PackageName))
             {
-                _logger.Info(string.Format(CultureInfo.InvariantCulture,
+                _logger.Warning(string.Format(CultureInfo.InvariantCulture,
                     AdalErrorMessageAndroidEx.MissingPackagePermissionTemplate, permission));
 
                 return false;
@@ -280,12 +280,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private Account FindAccount(string accountName, Account[] accountList)
         {
+            _logger.VerbosePii("BrokerProxy: Finding Account " + accountName, "BrokerProxy: finding account...");
+
             if (accountList != null)
             {
                 foreach (Account account in accountList)
                 {
-                    if (account != null && account.Name != null
-                        && account.Name.Equals(accountName, StringComparison.OrdinalIgnoreCase))
+                    bool found = account != null && 
+                                 account.Name != null && 
+                                 account.Name.Equals(accountName, StringComparison.OrdinalIgnoreCase);
+
+                    _logger.VerbosePii(
+                        $"Broker Proxy: Looking for a match at broker account {account?.Name}. Found? {found}", 
+                        $"Found? {found}");
+
+                    if (found)
                     {
                         return account;
                     }
@@ -519,6 +528,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     }
                     else
                     {
+                        _logger.Warning("BrokerProxy: Could not find the broker package so checking the account failed");
                         return false;
                     }
 
@@ -527,24 +537,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     // add accounts through Adal.
                     if (HasSupportToAddUserThroughBroker(packageName))
                     {
-                        _logger.Verbose("Broker supports to add user through app");
+                        _logger.Verbose("BrokerProxy: Broker supports adding accounts");
                         return true;
                     }
                     else if (accountList != null && accountList.Length > 0)
                     {
+                        _logger.Verbose("BrokerProxy: Broker does not support adding accounts but some accounts are configured. Verifying if an account can be used...");
                         return VerifyAccount(accountList, username, uniqueId);
                     }
                 }
             }
 
+            _logger.Warning("BrokerProxy: Could not verify that an account can be used");
             return false;
         }
 
         private bool VerifyAccount(Account[] accountList, string username, string uniqueId)
         {
+            _logger.Verbose("BrokerProxy: starting account verification");
+
             if (!string.IsNullOrEmpty(username))
             {
-                return username.Equals(accountList[0].Name, StringComparison.OrdinalIgnoreCase);
+                bool found = username.Equals(accountList[0].Name, StringComparison.OrdinalIgnoreCase);
+                _logger.Verbose("BrokerProxy: Found an account that matches the username? " + false);
+                return found;
             }
 
             if (!string.IsNullOrEmpty(uniqueId))
@@ -560,16 +576,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 }
                 catch (Exception e)
                 {
+                    _logger.Error("BrokerProxy: Could not verify an account because of an exception.");
                     _logger.ErrorPii(e);
                 }
 
-                _logger.Verbose("It could not check the uniqueid from broker. It is not using broker");
+                _logger.Warning("BrokerProxy: Could not verify the account");
 
                 return false;
             }
 
             // if username or uniqueid not specified, it should use the broker
             // account.
+            _logger.Verbose("BrokerProxy: Account verification passed");
             return true;
         }
 
@@ -693,10 +711,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 if (authenticator.Type.Equals(BrokerConstants.BrokerAccountType, StringComparison.OrdinalIgnoreCase)
                     && VerifySignature(authenticator.PackageName))
                 {
+                    _logger.Verbose("BrokerProxy: Found the Authenticator on the device");
                     return true;
                 }
             }
 
+            _logger.Warning("BrokerProxy: No Authenticator found on the device.");
             return false;
         }
 
