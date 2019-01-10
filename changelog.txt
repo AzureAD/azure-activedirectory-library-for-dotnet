@@ -1,3 +1,13 @@
+Version 4.4.3
+===============
+- **When using ADAL v4.4.2 and MSAL v2.6 in the same Xamarin project, a Duplicate Java type error was encountered**. The Android AuthenticationActivity defined name has been changed and is now distinct from the one in MSAL. [ADAL issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1479)
+- **When using brokered authentication, if the UID was not present, broker was unable to find the UID in the Android package**. Now ADAL sends the UID and package name as part of the broker options so silent authentication with broker works consistently. [ADAL PR](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1468)
+- **The token cache instance was not available in debug logs**. Now the token cache is set from the request object and is available in debug logs. [ADAL issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1471)
+
+Version 4.4.2
+===============
+- **Removed MSAL code from this repo**
+
 Version 4.4.1
 ===============
 - **Fix default redirect uri for ADAL on UWP**. When using a null RedirectURI, you typically got an error. However on UWP, this is an indication that the Windows Auth Broker (WEB) will be used. [ADAL issue #1400](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1400)
