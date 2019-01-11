@@ -107,10 +107,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Constructor to create the context with the address of the authority and flag to turn address validation off.
-        /// Using this constructor, address validation can be turned off. Make sure you are aware of the security implication of not validating the address.
-        /// This constructor allows the HttpClient to be provided instead of having a new one created.
+        /// Constructor to create the context with the address of the authority, flag to turn address validation off
+        /// and custom HttpClient.
+        /// Make sure you are aware of the security implication of not validating the address.
         /// </summary>
+        /// <remarks>See https://aka.ms/adal-custom-httpclient for details</remarks>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
         /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
@@ -120,6 +121,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                    tokenCache, httpClient)
         {
+            if (httpClient == null)
+            {
+                throw new ArgumentNullException(nameof(httpClient));
+            }
         }
 
         internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
@@ -129,13 +134,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
             TokenCache = tokenCache;
 
-            IHttpClientFactory httpClientFactory = null;
-            if (httpClient != null)
-            {
-                httpClientFactory = new HttpClientFactory(httpClient);
-            }
-
-            _serviceBundle = serviceBundle ?? new ServiceBundle(httpClientFactory: httpClientFactory);
+            _serviceBundle = serviceBundle ?? ServiceBundle.CreateWithHttpClient(httpClient);
         }
 
         /// <summary>
