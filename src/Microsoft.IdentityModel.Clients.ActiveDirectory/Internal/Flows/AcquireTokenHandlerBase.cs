@@ -46,20 +46,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal abstract class AcquireTokenHandlerBase
     {
-        protected const string NullResource = "null_resource_as_optional";
-        protected static readonly Task CompletedTask = Task.FromResult(false);
-        internal readonly IDictionary<string, string> BrokerParameters;
-        protected CacheQueryData CacheQueryData = new CacheQueryData();
-        protected readonly IBroker brokerHelper;
+        private readonly TokenCache _tokenCache;
         private AdalHttpClient _client = null;
-        internal readonly RequestContext RequestContext;
+
+        protected const string NullResource = "null_resource_as_optional";
+        protected CacheQueryData CacheQueryData = new CacheQueryData();
+
+        protected RequestContext RequestContext {  get; }
+        protected IBroker BrokerHelper { get; }
+        protected IDictionary<string, string> BrokerParameters { get; }
 
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
             Authenticator = requestData.Authenticator;
             _tokenCache = requestData.TokenCache;
             RequestContext = CreateCallState(null, this.Authenticator.CorrelationId);
-            brokerHelper = BrokerFactory.CreateBrokerFacade(RequestContext.Logger);
+            BrokerHelper = BrokerFactory.CreateBrokerFacade(RequestContext.Logger);
 
             RequestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
@@ -274,7 +276,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected virtual Task PostRunAsync(AdalResult result)
         {
             LogReturnedToken(result);
-            return CompletedTask;
+            return Task.FromResult(false);
         }
 
         protected virtual async Task PreRunAsync()
@@ -285,7 +287,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected internal /* internal for test only */ virtual Task PreTokenRequestAsync()
         {
-            return CompletedTask;
+            return Task.FromResult(false);
         }
         
         protected async Task UpdateAuthorityAsync(string updatedAuthority)
