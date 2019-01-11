@@ -110,7 +110,15 @@ namespace Microsoft.Identity.Core.Cache
 
         internal AdalResultWrapper Clone()
         {
-            return Deserialize(Serialize());
+            return new AdalResultWrapper()
+            {
+                Exception = Exception,
+                RawClientInfo = RawClientInfo,
+                RefreshToken = RefreshToken,
+                ResourceInResponse = ResourceInResponse,
+                UserAssertionHash = UserAssertionHash,
+                Result = Result.Clone()
+            };
         }
     }
 }
