@@ -31,13 +31,10 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.UI;
-using Microsoft.Identity.Core.WsTrust;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -101,7 +98,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
-        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
+        /// to use ADAL's implementation of the cache on Android, iOS and UWP. Use null to store tokens only in memory. </param>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache)
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                 tokenCache)
@@ -111,12 +109,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Constructor to create the context with the address of the authority and flag to turn address validation off.
         /// Using this constructor, address validation can be turned off. Make sure you are aware of the security implication of not validating the address.
-        /// 
-        /// This constructor allows the HttpClient to be provided instead of having a new one created.  This can be useful when working with multiple different tenants.
+        /// This constructor allows the HttpClient to be provided instead of having a new one created.
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
-        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
+        /// to use ADAL's implementation of the cache on Android, iOS and UWP. Use null to store tokens only in memory.</param>
+        /// <param name="httpClient">Custom Http Client that will be used for the lifetime of this object</param>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, HttpClient httpClient)
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                    tokenCache, httpClient)
