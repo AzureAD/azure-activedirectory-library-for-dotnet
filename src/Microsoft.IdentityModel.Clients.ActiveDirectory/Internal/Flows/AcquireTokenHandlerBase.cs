@@ -52,9 +52,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected const string NullResource = "null_resource_as_optional";
         protected CacheQueryData CacheQueryData = new CacheQueryData();
 
-        protected RequestContext RequestContext {  get; }
+        internal /* internal for test, otherwise protected */ RequestContext RequestContext {  get; }
         protected IBroker BrokerHelper { get; }
-        protected IDictionary<string, string> BrokerParameters { get; }
+        internal /* internal for test, otherwise protected */ IDictionary<string, string> BrokerParameters { get; }
 
         protected AcquireTokenHandlerBase(RequestData requestData)
         {
