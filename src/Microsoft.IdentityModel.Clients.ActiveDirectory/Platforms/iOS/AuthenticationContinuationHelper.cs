@@ -53,7 +53,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="url"></param>
         public static void SetBrokerContinuationEventArgs(NSUrl url)
         {
-            BrokerHelper.SetBrokerResponse(url);
+            iOSBroker.SetBrokerResponse(url);
         }
     }
 }

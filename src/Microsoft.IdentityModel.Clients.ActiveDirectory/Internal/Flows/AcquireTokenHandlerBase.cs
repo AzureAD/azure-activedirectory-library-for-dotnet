@@ -33,6 +33,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -49,9 +50,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected static readonly Task CompletedTask = Task.FromResult(false);
         internal readonly IDictionary<string, string> BrokerParameters;
         protected CacheQueryData CacheQueryData = new CacheQueryData();
-        protected readonly BrokerHelper BrokerHelper = new BrokerHelper();
+        protected readonly IBroker brokerHelper;
         private AdalHttpClient _client = null;
-        private readonly TokenCache _tokenCache;
         internal readonly RequestContext RequestContext;
 
         protected AcquireTokenHandlerBase(RequestData requestData)
@@ -59,7 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             Authenticator = requestData.Authenticator;
             _tokenCache = requestData.TokenCache;
             RequestContext = CreateCallState(null, this.Authenticator.CorrelationId);
-            BrokerHelper.RequestContext = RequestContext;
+            brokerHelper = BrokerFactory.CreateBrokerFacade(RequestContext.Logger);
 
             RequestContext.Logger.Info(string.Format(CultureInfo.CurrentCulture,
                 "ADAL {0} with assembly version '{1}', file version '{2}' and informational version '{3}' is running...",
@@ -167,9 +167,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     ResultEx = await _tokenCache.LoadFromCacheAsync(CacheQueryData, RequestContext).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
+                    // Check if we need to get an AT from the RT
                     if (ResultEx?.Result != null &&
-                        (ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null ||
-                         ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null))
+                        ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) || 
+                         (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null)))
                     {
                         ResultEx = await RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
@@ -178,7 +179,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         }
                     }
                 }
-
+                
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
                     if (BrokerHelper.CanInvokeBroker)
@@ -202,7 +203,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     notifiedBeforeAccessCache = await StoreResultExToCacheAsync(notifiedBeforeAccessCache).ConfigureAwait(false);
                 }
 
-                await PostRunAsync(ResultEx.Result).ConfigureAwait(false);
+                // At this point we have an Acess Token - return it
+                await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return new AuthenticationResult(ResultEx.Result);
             }
             catch (Exception ex)

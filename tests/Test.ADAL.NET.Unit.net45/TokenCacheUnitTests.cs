@@ -34,6 +34,10 @@ using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.Identity.Test.Common.Core.Mocks;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -56,6 +60,60 @@ namespace Test.ADAL.NET.Unit
         public void DefaultTokenCacheTest()
         {
             TokenCacheTests.DefaultTokenCacheTest();
+        }
+
+
+        [TestMethod]
+        [TestCategory("Regression")] // regression for https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1463
+        public void MrrtTest()
+        {
+            // Arrange
+            const string ClientId = "ClientId";
+            string Authority = AdalTestConstants.DefaultAuthorityCommonTenant;
+            const string Resource1 = "R1";
+            const string Resource2 = "R2";
+            const string UniqueId = "uniqueId";
+            const string DisplayableId = "displayId";
+
+            var requestContext = new RequestContext(ClientId, new TestLogger());
+            var tokenCache = new TokenCache();
+            var cacheDictionary = tokenCache.tokenCacheDictionary;
+
+            AdalResultWrapper entryForResource1 = TokenCacheTests.CreateCacheValue(UniqueId, DisplayableId, false);
+            CacheQueryData cacheQueryForResource2 = new CacheQueryData()
+            {
+                Authority = Authority,
+                Resource = Resource2,
+                ClientId = ClientId,
+                SubjectType = TokenSubjectType.User,
+                UniqueId = UniqueId,
+                DisplayableId = DisplayableId
+            };
+
+            CacheQueryData cacheQueryForResource1 = new CacheQueryData()
+            {
+                Authority = Authority,
+                Resource = Resource1,
+                ClientId = ClientId,
+                SubjectType = TokenSubjectType.User,
+                UniqueId = UniqueId,
+                DisplayableId = DisplayableId
+            };
+
+            // Act 
+
+            // 1. Store the AT and IdT (but not the RT as it's on the broker) 
+            tokenCache.StoreToCacheCommon(entryForResource1, Authority, Resource1, ClientId, TokenSubjectType.User, requestContext);
+
+            // 2. Rquest an AT for Resource2 from the cache -> should fail, because we don't have the MRRT (the broker has it)
+            AdalResultWrapper resultForResource2Query = tokenCache.LoadFromCacheCommon(cacheQueryForResource2, requestContext);
+
+            // 3. Request an AT for Resource1 from the cache -> should succed (it used to fail because step 2 would delete the token)
+            AdalResultWrapper resultForResource1Query = tokenCache.LoadFromCacheCommon(cacheQueryForResource1, requestContext);
+
+            // Assert
+            Assert.IsNull(resultForResource2Query, "No result should be returned from the cache for Resource2");
+            Assert.IsNotNull(resultForResource1Query, "An AT is present in the cache for Resource1");
         }
 
 #if !NET_CORE // netcore doesn't support interactive
