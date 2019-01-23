@@ -32,6 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
@@ -607,20 +608,26 @@ namespace Test.ADAL.Common.Unit
             }
         }
 
-        public static AdalResultWrapper CreateCacheValue(string uniqueId, string displayableId)
+        public static AdalResultWrapper CreateCacheValue(string uniqueId, string displayableId, bool withRt = true)
         {
-            string refreshToken = string.Format(CultureInfo.CurrentCulture, " RefreshToken{0}", Rand.Next());
             var result = new AdalResult(null, ValidAccessToken,
                 new DateTimeOffset(DateTime.UtcNow + TimeSpan.FromSeconds(ValidExpiresIn)))
             {
                 UserInfo = new AdalUserInfo { UniqueId = uniqueId, DisplayableId = displayableId }
             };
 
-            return new AdalResultWrapper
+            var resultWrapper = new AdalResultWrapper
             {
                 Result = result,
-                RefreshToken = refreshToken
             };
+
+            if (withRt)
+            {
+                resultWrapper.RefreshToken =
+                    string.Format(CultureInfo.CurrentCulture, " RefreshToken{0}", Rand.Next());
+            }
+
+            return resultWrapper;
         }
 
         public static void CheckPublicGetSets()

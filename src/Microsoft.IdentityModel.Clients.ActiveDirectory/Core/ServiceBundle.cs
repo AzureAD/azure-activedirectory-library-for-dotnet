@@ -25,6 +25,8 @@
 // 
 // ------------------------------------------------------------------------------
 
+using System;
+using System.Net.Http;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.WsTrust;
 
@@ -52,14 +54,21 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public IPlatformProxy PlatformProxy { get; }
 
-        public static ServiceBundle CreateDefault()
-        {
-            return new ServiceBundle();
-        }
-
         public static ServiceBundle CreateWithCustomHttpManager(IHttpManager httpManager)
         {
             return new ServiceBundle(httpManager: httpManager, shouldClearCaches: true);
+        }
+
+        internal static IServiceBundle CreateWithHttpClient(HttpClient httpClient)
+        {
+            if (httpClient != null)
+            {
+                return new ServiceBundle(new HttpClientFactory(httpClient));
+            }
+            else
+            {
+                return new ServiceBundle();
+            }
         }
     }
 }

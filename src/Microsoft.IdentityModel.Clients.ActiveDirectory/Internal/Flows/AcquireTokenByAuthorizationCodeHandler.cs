@@ -65,7 +65,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.SupportADFS = true;
         }
 
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
             requestParameters[OAuthParameter.Code] = this.authorizationCode;

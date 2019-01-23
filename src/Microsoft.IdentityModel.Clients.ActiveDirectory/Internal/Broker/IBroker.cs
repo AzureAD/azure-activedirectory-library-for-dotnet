@@ -1,3 +1,7 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Identity.Core.Cache;
+
 //----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
@@ -23,40 +27,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-//------------------------------------------------------------------------------
+//
 
-using Foundation;
-using System;
-using System.CodeDom.Compiler;
-using UIKit;
-
-namespace AdaliOSTestApp
+namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker
 {
-	[Register ("AdaliOSTestAppViewController")]
-	partial class AdaliOSTestAppViewController
-	{
-		[Outlet]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		UITextView ReportLabel { get; set; }
+    internal interface IBroker
+    {
+        bool CanInvokeBroker { get; }
 
-		[Action ("UIButton11_TouchUpInside:")]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		partial void UIButton11_TouchUpInside (UIButton sender);
+        IPlatformParameters PlatformParameters { get; set; } //todo: remove setter, initialize broker with PlatformParams
 
-		[Action ("UIButton16_TouchUpInside:")]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		partial void UIButton16_TouchUpInside (UIButton sender);
-
-		[Action ("UIButton30_TouchUpInside:")]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		partial void UIButton30_TouchUpInside (UIButton sender);
-
-		void ReleaseDesignerOutlets ()
-		{
-			if (ReportLabel != null) {
-				ReportLabel.Dispose ();
-				ReportLabel = null;
-			}
-		}
-	}
+        Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload);
+    }
 }

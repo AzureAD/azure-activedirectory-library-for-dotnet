@@ -85,9 +85,9 @@ namespace Test.ADAL.NET.Unit
                 ExtraQueryParameters, 
                 Claims);
 
-            Assert.AreEqual(11, acquireTokenInteractiveHandler.brokerParameters.Count);
+            Assert.AreEqual(11, acquireTokenInteractiveHandler.BrokerParameters.Count);
 
-            var brokerParams = acquireTokenInteractiveHandler.brokerParameters;
+            var brokerParams = acquireTokenInteractiveHandler.BrokerParameters;
 
             Assert.AreEqual(CanonicalizedAuthority, brokerParams[BrokerParameter.Authority]);
             Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);
@@ -111,9 +111,9 @@ namespace Test.ADAL.NET.Unit
         {
             var acquireTokenSilentHandler = new AcquireTokenSilentHandler(_requestData, new UserIdentifier(UniqueUserId, UserIdentifierType.UniqueId), null);
 
-            Assert.AreEqual(8, acquireTokenSilentHandler.brokerParameters.Count);
+            Assert.AreEqual(8, acquireTokenSilentHandler.BrokerParameters.Count);
 
-            var brokerParams = acquireTokenSilentHandler.brokerParameters;
+            var brokerParams = acquireTokenSilentHandler.BrokerParameters;
 
             Assert.AreEqual(CanonicalizedAuthority, brokerParams[BrokerParameter.Authority]);
             Assert.AreEqual(Resource, brokerParams[BrokerParameter.Resource]);

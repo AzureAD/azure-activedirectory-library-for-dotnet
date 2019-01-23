@@ -47,12 +47,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
-            brokerHelper.PlatformParameters = parameters;    
+            BrokerHelper.PlatformParameters = parameters;    
             this.SupportADFS = true;
 
-            this.brokerParameters[BrokerParameter.Username] = userId.Id;
-            this.brokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
-            this.brokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
+            this.BrokerParameters[BrokerParameter.Username] = userId.Id;
+            this.BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            this.BrokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
         protected internal /* internal for test only */ override Task<AdalResultWrapper> SendTokenRequestAsync()
@@ -67,7 +67,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             throw new AdalSilentTokenAcquisitionException(ResultEx.Exception);
         }
 
-        protected override void AddAditionalRequestParameters(DictionaryRequestParameters requestParameters)
+        protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {            
         }
     }

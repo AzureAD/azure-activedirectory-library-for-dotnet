@@ -144,5 +144,18 @@ namespace Microsoft.Identity.Core.Cache
                 this.UserInfo = new AdalUserInfo(userInfo);
             }
         }
+
+        internal AdalResult Clone()
+        {
+            var result = new AdalResult(AccessTokenType, AccessToken, ExpiresOn, ExtendedExpiresOn)
+            {
+                Authority = Authority,
+                ExtendedLifeTimeToken = ExtendedLifeTimeToken,
+            };
+
+            result.UpdateTenantAndUserInfo(TenantId, IdToken, UserInfo);
+
+            return result;
+        }
     }
 }

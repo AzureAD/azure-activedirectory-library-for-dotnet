@@ -27,6 +27,8 @@
 
 using System;
 using System.Globalization;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -47,7 +49,7 @@ namespace AdalDesktopTestApp
             LoggerCallbackHandler.LogCallback = AppLogger.Log;
 
 
-            AuthenticationContext context = new AuthenticationContext("https://login.microsoftonline.com/common", true);
+            AuthenticationContext context = new AuthenticationContext("https://login.windows.net/common", true, new FileCache());
 
             if (ClientId == "<CLIENT_ID>")
             {
@@ -77,9 +79,12 @@ namespace AdalDesktopTestApp
                         1. Clear the cache
                         2. Acquire Token by Integrated Windows Auth
                         3. Acquire Token Interactively
-                        4. Acquire Token with Username and Password
-                        5. Acquire Token Silently
-                        6. Acquire Token by Device Code 
+                        4. Acquire Token Interactively with PromptBehavior=Never
+                        5. Acquire Token with Username and Password
+                        6. Acquire Token Silently
+                        7. Acquire Token by Device Code 
+                        8. Acquire Token Silent + Interactive with custom Http Client
+
                         0. Exit App
                     Enter your Selection: ");
 
@@ -100,21 +105,29 @@ namespace AdalDesktopTestApp
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
                         case 3: // acquire token interactive
-                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.Auto));
+                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.SelectAccount));
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 4: // acquire token with username and password
+                        case 4: // acquire token interactive
+                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.Never));
+                            await FetchTokenAsync(authTask).ConfigureAwait(false);
+                            break;
+                        case 5: // acquire token with username and password
                             Console.WriteLine(string.Format(CultureInfo.CurrentCulture, "Enter password for user {0} :", User));
                             authTask = context.AcquireTokenAsync(Resource, ClientId, new UserPasswordCredential(User, Console.ReadLine()));
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 5: // acquire token silent
+                        case 6: // acquire token silent
                             authTask = context.AcquireTokenSilentAsync(Resource, ClientId);
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
-                        case 6: // device code flow
+                        case 7: // device code flow
                             authTask = GetTokenViaDeviceCodeAsync(context);
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
+                            break;
+                        case 8: // custom httpClient
+                            var authResult = await AcquireTokenUsingCustomHttpClientAsync().ConfigureAwait(false);
+                            await FetchTokenAsync(Task.FromResult(authResult)).ConfigureAwait(false);
                             break;
                         case 0:
                             return;
@@ -133,6 +146,74 @@ namespace AdalDesktopTestApp
                 Console.WriteLine("\n\nHit 'ENTER' to continue...");
                 Console.ReadLine();
             }
+        }
+
+#pragma warning disable CA2201 // Do not raise reserved exception types
+
+
+        private static async Task<AuthenticationResult> AcquireTokenUsingCustomHttpClientAsync()
+        {
+            HttpClient httpClient = CreateCustomHttpClient();
+
+            AuthenticationContext authenticationContext = new AuthenticationContext(
+                authority: "https://login.microsoftonline.com/common",
+                validateAuthority: true, 
+                tokenCache: TokenCache.DefaultShared, // on .Net and .Net core define your own cache persistence (ommited here)
+                httpClient: httpClient);
+
+            try
+            {
+                return await authenticationContext
+                    .AcquireTokenSilentAsync(Resource, ClientId)
+                    .ConfigureAwait(false);
+            }
+            catch (AdalSilentTokenAcquisitionException)
+            {
+                try
+                {
+                    return await authenticationContext.AcquireTokenAsync(
+                        Resource,
+                        ClientId,
+                        new Uri(RedirectUri),
+                        new PlatformParameters(PromptBehavior.SelectAccount))
+                        .ConfigureAwait(false);
+                    }
+                catch (AdalException adalEx)
+                {
+                    // do not show the error message to the end-user directly
+                    if (adalEx is AdalServiceException)
+                    {
+                        // define your own exception type, do not use ApplicationException
+                        throw new ApplicationException(
+                            "Authentication failed. Contact your administrator. Internal error message: " + adalEx.Message, adalEx);
+                    }
+
+                    throw new ApplicationException(
+                           "Authenticaiton failed due to an application problem. Contact your administrator. Internal error message: " + adalEx.Message, adalEx);
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException("Internal failure.", ex);
+                }
+
+            }
+                 
+        }
+
+#pragma warning restore CA2201 // Do not raise reserved exception types
+
+
+        private static HttpClient CreateCustomHttpClient()
+        {
+            var httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
+            {
+                MaxResponseContentBufferSize = 1 * 1024 * 1024 // 1 MB
+            };
+
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return httpClient;
         }
 
         private static async Task<AuthenticationResult> GetTokenViaDeviceCodeAsync(AuthenticationContext ctx)

@@ -175,6 +175,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public const string CallerInfoPackage = "caller.info.package";
 
+        public const string CallerInfoUID = "caller.info.uid";
+
         // Claims step-up. Skip cache look up
         public const string SkipCache = "skip.cache";
         public const string Claims = "account.claims";

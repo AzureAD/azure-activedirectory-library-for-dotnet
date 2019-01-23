@@ -26,6 +26,7 @@
 // ------------------------------------------------------------------------------
 
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,20 +37,27 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.HttpTests
     public class HttpClientFactoryTests
     {
         [TestMethod]
-        [TestCategory("HttpClientFactoryTests")]
         public void GetHttpClient_MaxRespContentBuffSizeSetTo1Mb()
         {
             Assert.AreEqual(1024 * 1024, new HttpClientFactory().HttpClient.MaxResponseContentBufferSize);
         }
 
         [TestMethod]
-        [TestCategory("HttpClientFactoryTests")]
         public void GetHttpClient_DefaultHeadersSetToJson()
         {
             var client = new HttpClientFactory().HttpClient;
             Assert.IsNotNull(client.DefaultRequestHeaders.Accept);
             Assert.IsTrue(
                 client.DefaultRequestHeaders.Accept.Any<MediaTypeWithQualityHeaderValue>(x => x.MediaType == "application/json"));
+        }
+
+        [TestMethod]
+        public void HttpClientFactory_UserHttpClient()
+        {
+            HttpClient httpClient = new HttpClient();
+            HttpClientFactory httpClientFactory = new HttpClientFactory(httpClient);
+            
+            Assert.AreSame(httpClient, httpClientFactory.HttpClient);
         }
     }
 }

@@ -26,17 +26,15 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Http;
-using Microsoft.Identity.Core.UI;
-using Microsoft.Identity.Core.WsTrust;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -100,21 +98,43 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
-        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken</param>
+        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
+        /// to use ADAL's implementation of the cache on Android, iOS and UWP. Use null to store tokens only in memory. </param>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache)
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                 tokenCache)
         {
         }
 
+        /// <summary>
+        /// Constructor to create the context with the address of the authority, flag to turn address validation off
+        /// and custom HttpClient.
+        /// Make sure you are aware of the security implication of not validating the address.
+        /// </summary>
+        /// <remarks>See https://aka.ms/adal-custom-httpclient for details</remarks>
+        /// <param name="authority">Address of the authority to issue token.</param>
+        /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
+        /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
+        /// to use ADAL's implementation of the cache on Android, iOS and UWP. Use null to store tokens only in memory.</param>
+        /// <param name="httpClient">Custom Http Client that will be used for the lifetime of this object</param>
+        public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, HttpClient httpClient)
+            : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
+                   tokenCache, httpClient)
+        {
+            if (httpClient == null)
+            {
+                throw new ArgumentNullException(nameof(httpClient));
+            }
+        }
+
         internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
-            TokenCache tokenCache)
+            TokenCache tokenCache, HttpClient httpClient = null)
         {
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
             Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
             TokenCache = tokenCache;
 
-            _serviceBundle = serviceBundle ?? ServiceBundle.CreateDefault();
+            _serviceBundle = serviceBundle ?? ServiceBundle.CreateWithHttpClient(httpClient);
         }
 
         /// <summary>

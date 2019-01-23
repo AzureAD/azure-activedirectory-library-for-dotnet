@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 {
     /// <summary>
     /// </summary>
-    [Activity(Name = "microsoft.identity.client.AuthenticationActivity")]
+    [Activity(Name = "microsoft.identitymodel.clients.AuthenticationActivity")]
     [Android.Runtime.Preserve(AllMembers = true)]
     internal class AuthenticationActivity : Activity
     {
