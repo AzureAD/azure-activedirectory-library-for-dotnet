@@ -25,10 +25,10 @@ For MSAL, please log issues to https://github.com/AzureAD/microsoft-authenticati
 
 Other? - please describe;
 
-** Is this a new or existing app? **
-<!-- 
+**Is this a new or existing app?**
+<!-- Ex:
 a. The app is in production, and I have upgraded to a new version of ADAL
-b. The app is in production, I have not upgarded, but started seeing this issue
+b. The app is in production, uses the same version of ADAL, but started seeing this issue
 c. This is a new app or experiment
 -->
 
@@ -48,4 +48,4 @@ A clear and concise description of what happens, e.g. exception is thrown, UI fr
 <!--- Only if you have suggestions on a fix for the bug -->
 
 **Additional context/ Logs / Screenshots**
-Add any other context about the problem here, such as logs and screebshots. Logging is described at https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Logging-in-ADAL.Net
+Add any other context about the problem here, such as logs and screebshots. Logging is described at https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Logging-in-ADAL.Net. Don't post logs containing PII on GitHub!
