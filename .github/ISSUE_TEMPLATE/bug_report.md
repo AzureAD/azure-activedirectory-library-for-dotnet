@@ -1,3 +1,8 @@
+---
+name: Bug report
+about: Create a report to help us improve
+---
+
 **Which Version of ADAL are you using ?**
 Note that to get help, you need to run the latest preview or non-preview version
 For MSAL, please log issues to https://github.com/AzureAD/microsoft-authentication-library-for-dotnet
