@@ -1,13 +1,7 @@
----
-name: Bug report
-about: Create a report to help us improve
-
----
-
 **Which Version of ADAL are you using ?**
 Note that to get help, you need to run the latest preview or non-preview version
 For MSAL, please log issues to https://github.com/AzureAD/microsoft-authentication-library-for-dotnet
-<!-- E.g. ADAL 3.19.8, ADAL 4.0.0-preview -->
+<!-- E.g. ADAL 3.19.8, ADAL 4.7.0-preview -->
 
 **Which platform has the issue?**
 <!-- Ex: net45, netcore, UWP, xamarin android, xamarin iOS -->
@@ -25,6 +19,13 @@ For MSAL, please log issues to https://github.com/AzureAD/microsoft-authenticati
     * [ ] OBO
 
 Other? - please describe;
+
+** Is this a new or existing app? **
+<!-- 
+a. The app is in production, and I have upgraded to a new version of ADAL
+b. The app is in production, I have not upgarded, but started seeing this issue
+c. This is a new app or experiment
+-->
 
 **Repro**
 
