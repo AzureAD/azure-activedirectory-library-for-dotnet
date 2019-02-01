@@ -68,7 +68,7 @@ namespace Test.ADAL.NET.Common.Mocks
             return stream;
         }
 
-        public static HttpMessageHandler CreateInstanceDiscoveryMockHandler(string url)
+        public static MockHttpMessageHandler CreateInstanceDiscoveryMockHandler(string url)
         {
             return CreateInstanceDiscoveryMockHandler(url,
                 @"{
@@ -109,7 +109,7 @@ namespace Test.ADAL.NET.Common.Mocks
                 }");
         }
 
-        public static HttpMessageHandler CreateInstanceDiscoveryMockHandler(string url, string content)
+        public static MockHttpMessageHandler CreateInstanceDiscoveryMockHandler(string url, string content)
         {
             return new MockHttpMessageHandler(url)
             {

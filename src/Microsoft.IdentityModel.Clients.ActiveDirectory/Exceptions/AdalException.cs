@@ -227,6 +227,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     message = AdalErrorMessage.UapRedirectUriUnsupported;
                     break;
 
+                case AdalError.HttpRequestTimeoutResilience:
+                    message = AdalErrorMessage.HttpRequestTimeoutResilience;
+                    break;
+
                 default:
                     message = AdalErrorMessage.Unknown;
                     break;
