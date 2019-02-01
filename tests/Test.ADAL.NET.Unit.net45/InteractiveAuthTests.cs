@@ -127,6 +127,9 @@ namespace Test.ADAL.NET.Unit.net45
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
+    
+
+
         [TestMethod]
         [Description("Positive Test for ExtendedLife Feature")]
         [TestCategory("AdalDotNet")]

@@ -38,7 +38,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
 {
-    class AdalHttpClient
+    internal class AdalHttpClient
     {
         private const string DeviceAuthHeaderName = "x-ms-PKeyAuth";
         private const string DeviceAuthHeaderValue = "1.0";
@@ -49,6 +49,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
         private readonly RequestContext _requestContext;
         internal bool Resiliency = false;
         internal bool RetryOnce = true;
+        //private readonly HttpClient
 
         public AdalHttpClient(string uri, RequestContext requestContext)
         {
@@ -122,9 +123,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
                         return await this.GetResponseAsync<T>(respondToDeviceAuthChallenge).ConfigureAwait(false);
                     }
 
-                    _requestContext.Logger.InfoPii(
+                    _requestContext.Logger.ErrorPii(
                         "Retry Failed, Exception message: " + ex.InnerException?.Message,
                         "Retry Failed, Exception type: " + ex.InnerException?.GetType());
+
+                     throw new AdalServiceException(AdalError.HttpRequestTimeoutResilience, ex);
                 }
 
                 if (!this.IsDeviceAuthChallenge(ex.WebResponse, respondToDeviceAuthChallenge))
