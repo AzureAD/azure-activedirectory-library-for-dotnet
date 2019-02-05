@@ -404,6 +404,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                 if (kvp.HasValue)
                 {
+                    requestContext.Logger.Verbose("A matching entry was found in the cache");
+
                     AdalTokenCacheKey cacheKey = kvp.Value.Key;
                     resultEx = kvp.Value.Value.Clone();
 
@@ -496,6 +498,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         requestContext.Logger.Info("Checking MSAL cache for user token cache");
                         resultEx = CacheFallbackOperations.FindMsalEntryForAdal(tokenCacheAccessor,
                             cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
+
+                        requestContext.Logger.Info("A match was found in the MSAL cache ? " + (resultEx != null));
                     }
                 }
 

@@ -174,6 +174,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) || 
                          (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null)))
                     {
+                        RequestContext.Logger.Verbose("Refreshing the AT based on the RT.");
+
                         ResultEx = await RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
                         {
@@ -184,12 +186,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
+                    RequestContext.Logger.Verbose("Either a token was not found or an exception was thrown.");
+
                     if (BrokerHelper.CanInvokeBroker)
                     {
+                        RequestContext.Logger.Verbose("Trying to acquire a token using the broker...");
                         ResultEx = await BrokerHelper.AcquireTokenUsingBrokerAsync(BrokerParameters).ConfigureAwait(false);
                     }
                     else
                     {
+                        RequestContext.Logger.Verbose("Cannot invoke the broker directly, may require install ...");
+
                         await PreTokenRequestAsync().ConfigureAwait(false);
                         // check if broker app installation is required for authentication.
                         await CheckAndAcquireTokenUsingBrokerAsync().ConfigureAwait(false);
@@ -198,6 +205,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     //broker token acquisition failed
                     if (ResultEx != null && ResultEx.Exception != null)
                     {
+                        RequestContext.Logger.Verbose("Broker token acquisition failed, throwing...");
                         throw ResultEx.Exception;
                     }
 
@@ -248,12 +256,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private async Task CheckAndAcquireTokenUsingBrokerAsync()
         {
+            RequestContext.Logger.Verbose("Check and AcquireToken using broker ");
+
             if (BrokerInvocationRequired())
             {
+                RequestContext.Logger.Verbose("Broker invocation is required");
                 ResultEx = await BrokerHelper.AcquireTokenUsingBrokerAsync(BrokerParameters).ConfigureAwait(false);
             }
             else
             {
+                RequestContext.Logger.Verbose("Broker invocation is NOT required");
                 ResultEx = await this.SendTokenRequestAsync().ConfigureAwait(false);
             }
         }
