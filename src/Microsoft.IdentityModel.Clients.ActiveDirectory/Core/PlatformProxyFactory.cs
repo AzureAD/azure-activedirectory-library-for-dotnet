@@ -45,8 +45,6 @@ namespace Microsoft.Identity.Core
             new iOSPlatformProxy()
 #elif WINDOWS_APP
             new UapPlatformProxy()
-#elif FACADE
-            new NetStandard11PlatformProxy()
 #elif NETSTANDARD1_3
             new Netstandard13PlatformProxy()
 #elif DESKTOP
