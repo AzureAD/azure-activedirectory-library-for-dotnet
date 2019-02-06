@@ -40,7 +40,7 @@ namespace XFormsApp
 
         public string User = "<User>";
         private string Tenant = "<Tenant>";
-        public const string AndroidBrokerRedirectURI = "msauth://com.microsoft.xformsdroid.adal/mJaAVvdXtcXy369xPWv2C7mV674=";
+        public const string AndroidBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
         public const string IOSBrokerRedirectURI = "adaliosapp://com.yourcompany.xformsapp";
         static string RedirectURI = "urn:ietf:wg:oauth:2.0:oob";
 

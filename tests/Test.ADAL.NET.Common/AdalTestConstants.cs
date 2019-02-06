@@ -59,6 +59,7 @@ namespace Test.ADAL.NET.Common
         public static readonly string DiscoveryEndPoint = "discovery/instance";
         public static readonly string DefaultRefreshTokenValue = "RefreshTokenValue";
         public static readonly string DefaultAuthorizationCode = "DefaultAuthorizationCode";
+        public static readonly string MSGraph = "https://graph.microsoft.com";
 
         public static readonly string DefaultUniqueIdentifier = "testUniqueIdentifier";
         public static readonly string DefaultUniqueTenantIdentifier = "testUniqueTenantIdentifier";
