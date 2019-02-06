@@ -98,10 +98,6 @@
     <Compile Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
     <Compile Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
-    <Compile Include="Platforms\netstandard1.1\**\*.cs" />
-    <Compile Include="Features\Cache\**\*.cs" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Features\Cache\**\*.cs" />
     <Compile Include="Platforms\netstandard1.3\**\*.cs" />
