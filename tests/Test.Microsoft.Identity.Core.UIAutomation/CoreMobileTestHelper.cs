@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -102,13 +101,15 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 catch (ResultVerificationFailureException ex)
                 {
                     if (attempts == CoreUiTestConstants.MaximumResultCheckRetryAttempts)
-                        Assert.Fail("Could not Verify test result");
+                        throw ex;
+                        //("Could not Verify test result");
 
                     switch (ex.Error)
                     {
                         case VerificationError.ResultIndicatesFailure:
-                            Assert.Fail("Test result indicates failure");
-                            break;
+                            throw ex;
+                            //Assert.Fail("Test result indicates failure");
+                            //break;
                         case VerificationError.ResultNotFound:
                             Task.Delay(CoreUiTestConstants.ResultCheckPolliInterval).Wait();
                             break;

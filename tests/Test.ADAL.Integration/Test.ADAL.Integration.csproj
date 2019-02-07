@@ -70,7 +70,7 @@
       <Name>Test.ADAL.NET.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Microsoft.Identity.Core.UIAutomation\Test.Microsoft.Identity.Core.UIAutomation.csproj">
-      <Project>{3DC6EC76-D350-4D43-B206-A4CEC8AA36D4}</Project>
+      <Project>{3dc6ec76-d350-4d43-b206-a4cec8aa36d4}</Project>
       <Name>Test.Microsoft.Identity.Core.UIAutomation</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test.Microsoft.Identity.LabInfrastructure\Test.Microsoft.Identity.LabInfrastructure.csproj">
