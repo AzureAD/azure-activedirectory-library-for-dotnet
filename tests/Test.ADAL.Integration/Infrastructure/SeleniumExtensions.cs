@@ -122,7 +122,7 @@ namespace Test.ADAL.Integration.Infrastructure
             driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.PasswordInputId)).SendKeys(LabUserHelper.GetUserPassword(user));
 
             Trace.WriteLine("Logging in ... Clicking next after password");
-            driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.PasswordInputId)).Click();
+            driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.SignInButtonId)).Click();
         }
 
         public static UserInformationFieldIds DetermineUserInformationFieldIds(LabUser user)

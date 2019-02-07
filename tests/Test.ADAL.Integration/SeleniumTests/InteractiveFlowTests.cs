@@ -28,13 +28,6 @@ namespace Test.ADAL.Integration.SeleniumTests
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
-
-        //[TestInitialize]
-        //public void TestInitialize()
-        //{
-        //    TestCommon.ResetStateAndInitMsal();
-        //}
-
         #endregion
 
         [TestMethod]
@@ -135,16 +128,10 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             WebUIFactoryProvider.WebUIFactory = new SeleniumWebUIFactory(seleniumLogic, _seleniumTimeout);
-
-            //PublicClientApplication pca = PublicClientApplicationBuilder.Create(labResponse.AppId)
-            //                                                            .WithRedirectUri(SeleniumWebUIFactory.FindFreeLocalhostRedirectUri())
-            //                                                            .BuildConcrete();
-
             AuthenticationContext context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
 
             // Act
-            //AuthenticationResult result = await pca.AcquireTokenAsync(new[] { "user.read" }).ConfigureAwait(false);
-            AuthenticationResult result = await context.AcquireTokenAsync(AdalTestConstants.MSGraph, labResponse.AppId, new Uri(SeleniumWebUIFactory.FindFreeLocalhostRedirectUri()), null);
+            AuthenticationResult result = await context.AcquireTokenAsync(AdalTestConstants.MSGraph, labResponse.AppId, new Uri(SeleniumWebUIFactory.FindFreeLocalhostRedirectUri()), new PlatformParameters(PromptBehavior.Always));
 
             // Assert
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
