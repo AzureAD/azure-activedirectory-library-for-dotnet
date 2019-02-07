@@ -26,17 +26,19 @@
 // ------------------------------------------------------------------------------
 
 using System.Globalization;
-using System.Runtime.Serialization;
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Json.Linq;
 
 namespace Microsoft.Identity.Core.Cache
 {
-    [DataContract]
     internal class MsalIdTokenCacheItem : MsalCredentialCacheItemBase
     {
         internal MsalIdTokenCacheItem()
         {
-            CredentialType = MsalCacheCommon.IdToken;
+            CredentialType = StorageJsonValues.CredentialTypeIdToken;
         }
 
         internal MsalIdTokenCacheItem(
@@ -70,7 +72,6 @@ namespace Microsoft.Identity.Core.Cache
             InitUserIdentifier();
         }
 
-        [DataMember(Name = "realm")]
         internal string TenantId { get; set; }
 
         internal string Authority =>
@@ -81,6 +82,36 @@ namespace Microsoft.Identity.Core.Cache
         internal MsalIdTokenCacheKey GetKey()
         {
             return new MsalIdTokenCacheKey(Environment, TenantId, HomeAccountId, ClientId);
+        }
+
+        internal static MsalIdTokenCacheItem FromJsonString(string json)
+        {
+            return FromJObject(JObject.Parse(json));
+        }
+
+        internal static MsalIdTokenCacheItem FromJObject(JObject j)
+        {
+            var item = new MsalIdTokenCacheItem
+            {
+                TenantId = JsonUtils.ExtractExistingOrEmptyString(j, StorageJsonKeys.Realm),
+            };
+
+            item.PopulateFieldsFromJObject(j);
+
+            return item;
+        }
+
+        internal override JObject ToJObject()
+        {
+            var json = base.ToJObject();
+            json[StorageJsonKeys.Realm] = TenantId;
+            return json;
+        }
+
+        internal string ToJsonString()
+        {
+            return ToJObject()
+                .ToString();
         }
     }
 }

@@ -179,7 +179,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             lock (cacheLock)
             {
                 var serializedAdalCache = AdalCacheOperations.Serialize(tokenCacheDictionary);
-                var serializedUnifiedCache = TokenCacheSerializeHelper.SerializeUnifiedCache(tokenCacheAccessor);
+
+                var dictionarySerializer = new TokenCacheDictionarySerializer(tokenCacheAccessor);
+                var serializedUnifiedCache = dictionarySerializer.Serialize();
 
                 return new CacheData()
                 {
@@ -215,8 +217,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 Deserialize(cacheData.AdalV3State);
 
-                RequestContext requestContext = new RequestContext(null, new AdalLogger(Guid.Empty));
-                TokenCacheSerializeHelper.DeserializeUnifiedCache(tokenCacheAccessor, cacheData.UnifiedState, requestContext);
+                var dictionarySerializer = new TokenCacheDictionarySerializer(tokenCacheAccessor);
+                dictionarySerializer.Deserialize(cacheData.UnifiedState);
             }
         }
 
