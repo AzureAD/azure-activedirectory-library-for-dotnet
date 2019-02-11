@@ -208,6 +208,33 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public byte[] SerializeV3()
+        {
+            lock (cacheLock)
+            {
+                var jsonSerializer = new TokenCacheJsonSerializer(tokenCacheAccessor);
+                return jsonSerializer.Serialize();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bytes"></param>
+        public void DeserializeV3(byte[] bytes)
+        {
+            lock (cacheLock)
+            {
+                tokenCacheDictionary.Clear();
+                var jsonSerializer = new TokenCacheJsonSerializer(tokenCacheAccessor);
+                jsonSerializer.Deserialize(bytes);
+            }
+        }
+
+        /// <summary>
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="cacheData">Serialized token cache <see cref="CacheData"></see></param>
