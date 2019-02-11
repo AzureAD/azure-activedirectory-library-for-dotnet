@@ -30,8 +30,8 @@ using System.Collections.Generic;
 using Security;
 using Foundation;
 using Microsoft.Identity.Core.Cache;
-using Microsoft.Identity.Core.Helpers;
 using System.Globalization;
+using System.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Identity.Core
@@ -129,7 +129,7 @@ namespace Microsoft.Identity.Core
             var generic = key.GetiOSGenericKey();
             var type = (int)CredentialAttrType.AccessToken;
 
-            var value = JsonHelper.SerializeToJson(item);
+            var value = item.ToJsonString();
 
             Save(account, service, generic, type, value);
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Identity.Core
 
             var type = (int)CredentialAttrType.RefreshToken;
 
-            var value = JsonHelper.SerializeToJson(item);
+            var value = item.ToJsonString();
 
             Save(account, service, generic, type, value);
         }
@@ -157,7 +157,7 @@ namespace Microsoft.Identity.Core
 
             var type = (int)CredentialAttrType.IdToken;
 
-            var value = JsonHelper.SerializeToJson(item);
+            var value = item.ToJsonString();
 
             Save(account, service, generic, type, value);
         }
@@ -171,85 +171,29 @@ namespace Microsoft.Identity.Core
 
             var type = AuthorityTypeToAttrType[item.AuthorityType];
 
-            var value = JsonHelper.SerializeToJson(item);
+            var value = item.ToJsonString();
 
             Save(account, service, generic, type, value);
         }
 
-        public void DeleteAccessToken(MsalAccessTokenCacheKey cacheKey)
+        public ICollection<MsalAccessTokenCacheItem> GetAllAccessTokens()
         {
-            var account = cacheKey.GetiOSAccountKey();
-            var service = cacheKey.GetiOSServiceKey();
-
-            var type = (int)CredentialAttrType.AccessToken;
-
-            Remove(account, service, type);
+            return GetValues((int)CredentialAttrType.AccessToken).Select(MsalAccessTokenCacheItem.FromJsonString).ToList();
         }
 
-        public void DeleteRefreshToken(MsalRefreshTokenCacheKey cacheKey)
+        public ICollection<MsalRefreshTokenCacheItem> GetAllRefreshTokens()
         {
-            var account = cacheKey.GetiOSAccountKey();
-            var service = cacheKey.GetiOSServiceKey();
-
-            var type = (int)CredentialAttrType.RefreshToken;
-
-            Remove(account, service, type);
+            return GetValues((int)CredentialAttrType.RefreshToken).Select(MsalRefreshTokenCacheItem.FromJsonString).ToList();
         }
 
-        public void DeleteIdToken(MsalIdTokenCacheKey cacheKey)
+        public ICollection<MsalIdTokenCacheItem> GetAllIdTokens()
         {
-            var account = cacheKey.GetiOSAccountKey();
-            var service = cacheKey.GetiOSServiceKey();
-
-            var type = (int)CredentialAttrType.IdToken;
-
-            Remove(account, service, type);
+            return GetValues((int)CredentialAttrType.IdToken).Select(MsalIdTokenCacheItem.FromJsonString).ToList();
         }
 
-        public void DeleteAccount(MsalAccountCacheKey cacheKey)
+        public ICollection<MsalAccountCacheItem> GetAllAccounts()
         {
-            var account = cacheKey.GetiOSAccountKey();
-            var service = cacheKey.GetiOSServiceKey();
-
-            var type = AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()];
-
-            Remove(account, service, type);
-        }
-        public ICollection<string> GetAllAccessTokensAsString()
-        {
-            return GetValues((int)CredentialAttrType.AccessToken);
-        }
-
-        public ICollection<string> GetAllRefreshTokensAsString()
-        {
-            return GetValues((int)CredentialAttrType.RefreshToken);
-        }
-
-        public ICollection<string> GetAllIdTokensAsString()
-        {
-            return GetValues((int)CredentialAttrType.IdToken);
-        }
-
-        public ICollection<string> GetAllAccountsAsString()
-        {
-            return GetValues(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]);
-        }
-
-        private string GetValue(string account, string service, int type)
-        {
-            var queryRecord = new SecRecord(SecKind.GenericPassword)
-            {
-                Account = account,
-                Service = service,
-                CreatorType = type,
-                AccessGroup = keychainGroup
-            };
-
-            var match = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
-
-            return (resultCode == SecStatusCode.Success)
-                ? match.ValueData.ToString(NSStringEncoding.UTF8)
-                : string.Empty;
+            return GetValues(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]).Select(MsalAccountCacheItem.FromJsonString).ToList();
         }
 
         private ICollection<string> GetValues(int type)
@@ -315,19 +259,6 @@ namespace Microsoft.Identity.Core
             };
         }
 
-        private SecStatusCode Remove(string account, string service, int type)
-        {
-            var record = new SecRecord(SecKind.GenericPassword)
-            {
-                Account = account,
-                Service = service,
-                CreatorType = type,
-                AccessGroup = keychainGroup
-            };
-
-            return SecKeyChain.Remove(record);
-        }
-
         private SecStatusCode Update(SecRecord updatedRecord)
         {
             var currentRecord = new SecRecord(SecKind.GenericPassword)
@@ -362,47 +293,6 @@ namespace Microsoft.Identity.Core
             RemoveAll((int)CredentialAttrType.IdToken);
 
             RemoveAll(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]);
-        }
-
-        public string GetAccessToken(MsalAccessTokenCacheKey accessTokenKey)
-        {
-            var account = accessTokenKey.GetiOSAccountKey();
-            var service = accessTokenKey.GetiOSServiceKey();
-
-            var type = (int)CredentialAttrType.AccessToken;
-
-            return GetValue(account, service, type);
-        }
-
-        public string GetRefreshToken(MsalRefreshTokenCacheKey refreshTokenKey)
-        {
-            var account = refreshTokenKey.GetiOSAccountKey();
-            var service = refreshTokenKey.GetiOSServiceKey();
-
-
-            var type = (int)CredentialAttrType.RefreshToken;
-
-            return GetValue(account, service, type);
-        }
-
-        public string GetIdToken(MsalIdTokenCacheKey idTokenKey)
-        {
-            var account = idTokenKey.GetiOSAccountKey();
-            var service = idTokenKey.GetiOSServiceKey();
-
-            var type = (int)CredentialAttrType.IdToken;
-
-            return GetValue(account, service, type);
-        }
-
-        public string GetAccount(MsalAccountCacheKey accountKey)
-        {
-            var account = accountKey.GetiOSAccountKey();
-            var service = accountKey.GetiOSServiceKey();
-
-            var type = AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()];
-
-            return GetValue(account, service, type);
         }
 
         /// <inheritdoc />

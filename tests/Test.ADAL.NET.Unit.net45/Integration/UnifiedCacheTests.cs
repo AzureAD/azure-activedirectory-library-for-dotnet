@@ -85,8 +85,8 @@ namespace Test.ADAL.NET.Integration
 
             IEnumerable<TokenCacheItem> tokenCacheItems = adalTokenCache.ReadItems();
 
-            Assert.IsTrue(adalTokenCache.tokenCacheAccessor.GetAllAccessTokensAsString().Count == 0);
-            Assert.IsTrue(adalTokenCache.tokenCacheAccessor.GetAllRefreshTokensAsString().Count > 0);
+            Assert.AreEqual(0, adalTokenCache.tokenCacheAccessor.AccessTokenCount);
+            Assert.IsTrue(adalTokenCache.tokenCacheAccessor.RefreshTokenCount > 0);
 
             // clear Adal Cache
             adalTokenCache.ClearAdalCache();
