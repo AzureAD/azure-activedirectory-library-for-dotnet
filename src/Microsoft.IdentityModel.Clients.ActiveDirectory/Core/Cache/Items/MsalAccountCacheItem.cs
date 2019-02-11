@@ -128,7 +128,6 @@ namespace Microsoft.Identity.Core.Cache
             json[StorageJsonKeys.Name] = Name;
             json[StorageJsonKeys.GivenName] = GivenName;
             json[StorageJsonKeys.FamilyName] = FamilyName;
-            // todo(cache): we don't support middle name json[StorageJsonKeys.MiddleName] = MiddleName;
             json[StorageJsonKeys.LocalAccountId] = LocalAccountId;
             json[StorageJsonKeys.AuthorityType] = AuthorityType;
             json[StorageJsonKeys.Realm] = TenantId;

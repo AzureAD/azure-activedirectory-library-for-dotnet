@@ -72,15 +72,7 @@ namespace Microsoft.Identity.Core.Cache
         {
             long cachedAt = JsonUtils.ExtractParsedIntOrZero(j, StorageJsonKeys.CachedAt);
             long expiresOn = JsonUtils.ExtractParsedIntOrZero(j, StorageJsonKeys.ExpiresOn);
-
-            // This handles a bug with the name in previous MSAL.  It used "ext_expires_on" instead of
-            // "extended_expires_on" per spec, so this works around that.
-            long ext_expires_on = JsonUtils.ExtractParsedIntOrZero(j, StorageJsonKeys.ExtendedExpiresOn_MsalCompat);
             long extendedExpiresOn = JsonUtils.ExtractParsedIntOrZero(j, StorageJsonKeys.ExtendedExpiresOn);
-            if (extendedExpiresOn == 0 && ext_expires_on > 0)
-            {
-                extendedExpiresOn = ext_expires_on;
-            }
 
             var item = new MsalAccessTokenCacheItem
             {
@@ -107,10 +99,6 @@ namespace Microsoft.Identity.Core.Cache
             json[StorageJsonKeys.CachedAt] = CachedAt;
             json[StorageJsonKeys.ExpiresOn] = ExpiresOnUnixTimestamp;
             json[StorageJsonKeys.ExtendedExpiresOn] = ExtendedExpiresOnUnixTimestamp;
-
-            // previous versions of msal used "ext_expires_on" instead of the correct "extended_expires_on".
-            // this is here for back compat
-            json[StorageJsonKeys.ExtendedExpiresOn_MsalCompat] = ExtendedExpiresOnUnixTimestamp;
 
             return json;
         }

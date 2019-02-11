@@ -68,7 +68,14 @@ namespace Microsoft.Identity.Core.Cache
         {
             _accessor.Clear();
 
-            var cache = CacheSerializationContract.FromJsonString(CoreHelpers.ByteArrayToString(bytes));
+            string jsonString = CoreHelpers.ByteArrayToString(bytes);
+
+            if (string.IsNullOrEmpty(jsonString))
+            {
+                return;
+            }
+
+            var cache = CacheSerializationContract.FromJsonString(jsonString);
 
             if (cache.AccessTokens != null)
             {

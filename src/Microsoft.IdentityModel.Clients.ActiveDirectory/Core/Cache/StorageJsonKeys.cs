@@ -53,9 +53,5 @@ namespace Microsoft.Identity.Core.Cache
 
         // todo(cache): this needs to be added to the spec.  needed for OBO flow on .NET.
         public const string UserAssertionHash = "user_assertion_hash";
-
-        // previous versions of msal used "ext_expires_on" instead of the correct "extended_expires_on".
-        // this is here for back compat
-        public const string ExtendedExpiresOn_MsalCompat = "ext_expires_on";
     }
 }
