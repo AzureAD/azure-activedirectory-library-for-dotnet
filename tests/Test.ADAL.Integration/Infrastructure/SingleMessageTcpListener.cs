@@ -108,16 +108,10 @@ namespace Test.ADAL.Integration.Infrastructure
         private Uri ExtractUriFromHttpRequest(string httpRequest)
 #pragma warning restore CS1570 // XML comment has badly formed XML
         {
-            string regexp = @"GET \/\?(.*) HTTP";
             string getQuery = null;
-            Regex r1 = new Regex(regexp);
-            Match match = r1.Match(httpRequest);
-            if (!match.Success)
-            {
-                throw new InvalidOperationException("Not a GET query");
-            }
+            var startPoint = httpRequest.IndexOf("code=");
+            getQuery = httpRequest.Substring(startPoint, httpRequest.Length - startPoint);
 
-            getQuery = match.Groups[1].Value;
             UriBuilder uriBuilder = new UriBuilder();
             uriBuilder.Query = getQuery;
             uriBuilder.Port = _port;

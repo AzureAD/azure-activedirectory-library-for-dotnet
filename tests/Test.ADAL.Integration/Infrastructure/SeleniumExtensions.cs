@@ -110,7 +110,7 @@ namespace Test.ADAL.Integration.Infrastructure
             driver.FindElement(By.Id(CoreUiTestConstants.WebUPNInputID)).SendKeys(user.Upn);
 
             Trace.WriteLine("Logging in ... Clicking <Next> after username");
-            driver.FindElement(By.Id(fields.SignInButtonId)).Click();
+            driver.FindElement(By.Id(CoreUiTestConstants.WebSubmitID)).Click();
 
             if (user.FederationProvider == FederationProvider.AdfsV2)
             {
