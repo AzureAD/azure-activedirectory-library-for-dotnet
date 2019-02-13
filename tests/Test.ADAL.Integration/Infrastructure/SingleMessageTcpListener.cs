@@ -147,17 +147,6 @@ namespace Test.ADAL.Integration.Infrastructure
             NetworkStream stream,
             CancellationToken cancellationToken)
         {
-            //string message = null;
-            //switch (result.Status)
-            //{
-            //    case AuthorizationStatus.Success:
-            //        message = CloseWindowSuccessHtml;
-            //        break;
-            //    default:
-            //        message = CloseWindowFailureHtml;
-            //        break;
-            //}
-
             string fullResponse = $"HTTP/1.1 200 OK\r\n\r\n{message}";
             var response = Encoding.ASCII.GetBytes(fullResponse);
             await stream.WriteAsync(response, 0, response.Length, cancellationToken).ConfigureAwait(false);
