@@ -63,7 +63,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             get
             {                
-                return WillUseBroker() && _brokerProxy.CanSwitchToBroker();
+                bool canInvoke =  WillUseBroker() && _brokerProxy.CanSwitchToBroker();
+                _logger.Verbose("Can invoke broker? " + canInvoke);
+                return canInvoke;
             }
         }
 
@@ -88,6 +90,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
+                _logger.Info("Android Broker - broker payload contains install url");
+
                 string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
                 Uri uri = new Uri(url);
                 string query = uri.Query;
@@ -99,7 +103,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
 
                 PlatformParameters pp = PlatformParameters as PlatformParameters;
-                pp.CallerActivity.StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse(keyPair["app_link"])));
+                var appLink = keyPair["app_link"];
+                _logger.Info("Android Broker - Starting ActionView activity to " + appLink);
+                pp.CallerActivity.StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse(appLink)));
 
                 throw new AdalException(AdalErrorAndroidEx.BrokerApplicationRequired, AdalErrorMessageAndroidEx.BrokerApplicationRequired);
             }
@@ -113,9 +119,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             if (_brokerProxy.VerifyUser(request.LoginHint,
                 request.UserId))
             {
-                _logger.Verbose("It switched to broker for context: " + mContext.PackageName);
 
                 request.BrokerAccountName = request.LoginHint;
+                _logger.InfoPii(
+                    "It switched to broker for context: " + mContext.PackageName + " login hint: " + request.BrokerAccountName,
+                    "It switched to broker for context");                
 
                 // Don't send background request, if prompt flag is always or
                 // refresh_session
@@ -123,7 +131,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 if (string.IsNullOrEmpty(request.Claims) && hasAccountNameOrUserId)
                 {
                     _logger.Verbose("User is specified for background token request");
-
                     resultEx = _brokerProxy.GetAuthTokenInBackground(request, platformParams.CallerActivity);
                 }
                 else
@@ -222,19 +229,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private bool WillUseBroker()
         {
             PlatformParameters pp = PlatformParameters as PlatformParameters;
-            if (pp != null)
-            {
-                return pp.UseBroker;
-            }
+            bool useBroker = pp?.UseBroker ?? false;
 
-            return false;
+            _logger.Verbose("Is Android Broker use configured via PlatformParamters? " + useBroker);
+
+            return useBroker;
         }
     }
-
-    //internal class CallBackHandler : Java.Lang.Object, IAccountManagerCallback
-    //{
-    //    public void Run(IAccountManagerFuture future)
-    //    {
-    //    }
-    //}
 }

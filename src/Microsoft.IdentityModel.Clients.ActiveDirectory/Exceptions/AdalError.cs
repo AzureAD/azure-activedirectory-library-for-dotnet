@@ -322,5 +322,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// PromptBehavior.Never is supported in SSO mode only (null or application's callback URI as redirectUri)
         /// </summary>
         public const string UapRedirectUriUnsupported = "uap_redirect_uri_not_supported";
+
+        /// <summary>
+        /// An http request has timed out after being retried once
+        /// </summary>
+        public const string HttpRequestTimeoutResilience = "http_request_timeout";
     }
 }

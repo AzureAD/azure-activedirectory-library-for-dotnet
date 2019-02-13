@@ -507,12 +507,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private bool CheckAccount(AccountManager am, string username, string uniqueId)
         {
             AuthenticatorDescription[] authenticators = am.GetAuthenticatorTypes();
+            _logger.Verbose("BrokerProxy: CheckAccount. Getting authenticator types " + (authenticators?.Length ?? 0));
+
             foreach (AuthenticatorDescription authenticator in authenticators)
             {
                 if (authenticator.Type.Equals(BrokerConstants.BrokerAccountType, StringComparison.OrdinalIgnoreCase))
                 {
                     Account[] accountList = _androidAccountManager
                         .GetAccountsByType(BrokerConstants.BrokerAccountType);
+
+                    _logger.Verbose("BrokerProxy: Getting the account list " + (accountList?.Length ?? 0));
 
                     string packageName;
 
@@ -531,6 +535,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         _logger.Warning("BrokerProxy: Could not find the broker package so checking the account failed");
                         return false;
                     }
+
+                    _logger.Verbose("BrokerProxy: Package name is " + packageName);
 
                     // Existing broker logic only connects to broker for token
                     // requests if account exists. New version can allow to
