@@ -315,7 +315,7 @@ namespace XFormsApp
                 AuthenticationResult result =
                     await
                         ctx.AcquireTokenAsync(Resource, ClientId,
-                            new Uri(AndroidBrokerRedirectURI),
+                            new Uri(DeterminePlatformForRedirectUri()),
                             BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
@@ -372,6 +372,8 @@ namespace XFormsApp
             switch (Device.RuntimePlatform)
             {
                 case Device.iOS:
+                    AcquireTokenWithBroker();
+                    break;
                 case Device.Android:
                     AcquireTokenWithBroker();
                     break;
