@@ -112,7 +112,7 @@ namespace Test.ADAL.Integration.Infrastructure
             Trace.WriteLine("Logging in ... Clicking <Next> after username");
             driver.FindElement(By.Id(CoreUiTestConstants.WebSubmitID)).Click();
 
-            if (user.FederationProvider == FederationProvider.AdfsV2)
+            if (user.IsFederated && user.FederationProvider == FederationProvider.AdfsV2)
             {
                 Trace.WriteLine("Logging in ... AFDSv2 - Entering the username again, this time in the ADFSv2 form");
                 driver.FindElement(By.Id(CoreUiTestConstants.AdfsV2WebUsernameInputId)).SendKeys(user.Upn);

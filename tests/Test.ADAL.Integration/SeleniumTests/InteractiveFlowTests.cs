@@ -70,7 +70,9 @@ namespace Test.ADAL.Integration.SeleniumTests
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
+        //TODO:Reinable once ADFSV2 server is working again
         [TestMethod]
+        [Ignore]
         public async Task Interactive_AdfsV2_FederatedAsync()
         {
             // Arrange
