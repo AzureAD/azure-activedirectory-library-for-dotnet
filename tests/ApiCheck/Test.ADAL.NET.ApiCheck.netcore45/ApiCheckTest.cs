@@ -47,6 +47,7 @@ namespace Test.ADAL.ApiCheck
         /// manually inspect the 2 assemblies with the excellent ApiReviewer tool from the .net team found at \\fxcore\tools
         /// </summary>
         [TestMethod]
+        [Ignore]
         public void PublicApi_ADALv3_netcore45_ShouldRemain_BackwardsCompatible()
         {
             ApiCheckTestWrapper apiCheckTestWrapper = new ApiCheckTestWrapper(
