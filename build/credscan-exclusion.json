@@ -20,6 +20,18 @@
     {
       "file": "UnitTests.cs",
       "_justification": "Test contains password to load the two dummy valid_cert files excluded above"
+    },
+    {
+      "file": "OAuthConstants.cs",
+      "_justification": "OAuthConstants"
+    },
+    {
+      "file": "BrokerParametersTests.cs",
+      "_justification": "Test contains dummy creds."
+    },
+    {
+      "file": "TestConstants.cs",
+      "_justification": "Test contains dummy creds."
     }
 
   ]
