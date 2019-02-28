@@ -57,7 +57,7 @@ namespace Microsoft.Identity.Test.Common.Core.Mocks
                 {
                     Method = HttpMethod.Post,
                     PostData = bodyParameters,
-                    QueryParams = queryParameters,
+                    QueryParamsToValidate = queryParameters,
                     ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
                 });
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Identity.Test.Common.Core.Mocks
                 {
                     Method = HttpMethod.Get,
                     PostData = bodyParameters,
-                    QueryParams = queryParameters,
+                    QueryParamsToValidate = queryParameters,
                     ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
                 });
         }

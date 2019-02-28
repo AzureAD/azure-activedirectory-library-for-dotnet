@@ -47,16 +47,7 @@ namespace AdalDesktopTestApp
         static void Main(string[] args)
         {
             LoggerCallbackHandler.LogCallback = AppLogger.Log;
-
-
-            AuthenticationContext context = new AuthenticationContext("https://login.windows.net/common", true, new FileCache());
-
-            if (ClientId == "<CLIENT_ID>")
-            {
-                Console.WriteLine(string.Format(CultureInfo.CurrentCulture, "Please confgure the app first!! Press any key to exit"));
-                Console.Read();
-                return;
-            }
+            var context = new AuthenticationContext("https://login.windows.net/common", true, new FileCache());
 
 #pragma warning disable CS0162 // Unreachable code detected
             RunAppAsync(context).Wait();

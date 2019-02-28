@@ -42,29 +42,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
     internal class AcquireTokenInteractiveHandler : AcquireTokenHandlerBase
     {
         internal AuthorizationResult authorizationResult;
-
         private readonly Uri redirectUri;
-
         private readonly string redirectUriRequestParameter;
-
         private readonly IPlatformParameters authorizationParameters;
-
         private readonly string extraQueryParameters;
-
         private readonly IWebUI webUi;
-
         private readonly UserIdentifier userId;
-
         private readonly string claims;
-
+        private string codeVerifier;
 
         public AcquireTokenInteractiveHandler(
-            RequestData requestData, 
-            Uri redirectUri, 
+            RequestData requestData,
+            Uri redirectUri,
             IPlatformParameters platformParameters,
-            UserIdentifier userId, 
-            string extraQueryParameters, 
-            //IWebUI webUI, 
+            UserIdentifier userId,
+            string extraQueryParameters,
             string claims)
             : base(requestData)
         {
@@ -129,7 +121,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
 
             return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(
-                parametersObj.GetCoreUIParent(), 
+                parametersObj.GetCoreUIParent(),
                 base.RequestContext);
         }
 
@@ -164,7 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             await this.AcquireAuthorizationAsync().ConfigureAwait(false);
             this.VerifyAuthorizationResult();
 
-            if(!string.IsNullOrEmpty(authorizationResult.CloudInstanceHost))
+            if (!string.IsNullOrEmpty(authorizationResult.CloudInstanceHost))
             {
                 var updatedAuthority = ReplaceHost(Authenticator.Authority, authorizationResult.CloudInstanceHost);
 
@@ -184,11 +176,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
             return this.CreateAuthorizationUri();
         }
+
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
             requestParameters[OAuthParameter.Code] = this.authorizationResult.Code;
             requestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
+            requestParameters[OAuthParameter.CodeVerifier] = this.codeVerifier;
         }
 
         protected override async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
@@ -229,12 +223,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
         }
 
+        
         private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
         {
             var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
             authorizationRequestParameters[OAuthParameter.HasChrome] = "1";
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
+
+            AddPKCESupport(authorizationRequestParameters);
 
 #if DESKTOP
             // Added form_post as a way to request to ensure we can handle large requests for dsts scenarios
@@ -261,13 +258,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 var platformInformation = new PlatformInformation();
                 platformInformation.AddPromptBehaviorQueryParameter(this.authorizationParameters, authorizationRequestParameters);
             }
-            
-                IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
-                foreach (KeyValuePair<string, string> kvp in adalIdParameters)
-                {
-                    authorizationRequestParameters[kvp.Key] = kvp.Value;
-                }
-            
+
+            IDictionary<string, string> adalIdParameters = AdalIdHelper.GetAdalIdParameters();
+            foreach (KeyValuePair<string, string> kvp in adalIdParameters)
+            {
+                authorizationRequestParameters[kvp.Key] = kvp.Value;
+            }
+
 
             if (!string.IsNullOrWhiteSpace(extraQueryParameters))
             {
@@ -285,6 +282,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
 
             return authorizationRequestParameters;
+        }
+
+        private void AddPKCESupport(DictionaryRequestParameters authorizationRequestParameters)
+        {
+            codeVerifier = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.GenerateCodeVerifier();
+            string codeVerifierHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(codeVerifier);
+            authorizationRequestParameters[OAuthParameter.CodeChallenge] = codeVerifierHash;
+            authorizationRequestParameters[OAuthParameter.CodeChallengeMethod] = OAuthValue.CodeChallengeMethodValue;
         }
 
         private void VerifyAuthorizationResult()
