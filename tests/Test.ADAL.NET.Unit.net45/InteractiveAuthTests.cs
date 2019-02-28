@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using System.Linq;
 using Test.Microsoft.Identity.Core.Unit;
+using Microsoft.Identity.Core;
 
 
 #if !NET_CORE
@@ -169,20 +170,31 @@ namespace Test.ADAL.NET.Unit.net45
         public async Task AcquireTokenPositiveWithoutUserIdAsync()
         {
             _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            var mockWebUI = MockHelpers.ConfigureMockWebUI(
+                new AuthorizationResult(
+                    AuthorizationStatus.Success,
+                    AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
+                MockHelpers.GetDefaultAuthorizationRequestParams());
+
+            var mockHandler = new MockHttpMessageHandler(
+                AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
             {
                 Method = HttpMethod.Post,
                 ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+            };
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockHandler);
 
             AuthenticationResult result =
                 await
-                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                    _context.AcquireTokenAsync(
+                        AdalTestConstants.DefaultResource,
+                        AdalTestConstants.DefaultClientId,
+                        AdalTestConstants.DefaultRedirectUri,
+                        _platformParameters).ConfigureAwait(false);
+
             Assert.IsNotNull(result);
             Assert.AreEqual(result.AccessToken, "some-access-token");
+            ValidatePkce(mockWebUI, mockHandler);
 
             var exc = AssertException.TaskThrows<ArgumentException>(() =>
                 _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
@@ -204,6 +216,20 @@ namespace Test.ADAL.NET.Unit.net45
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             _context.TokenCache.Clear();
         }
+
+        private static void ValidatePkce(MockWebUI mockWebUI, MockHttpMessageHandler exchangeAuthorizationCodeHandler)
+        {
+            string actualPkceCodeChallenge = mockWebUI.ActualQueryParams["code_challenge"];
+            string actualPkceCode = exchangeAuthorizationCodeHandler.ActualQueryOrFormsParams["code_verifier"];
+
+            Assert.IsNotNull(actualPkceCode);
+            Assert.IsNotNull(actualPkceCodeChallenge);
+
+            string expectedPkceCodeChanllenge = PlatformProxyFactory.GetPlatformProxy()
+                .CryptographyManager.CreateBase64UrlEncodedSha256Hash(actualPkceCode);
+            Assert.AreEqual(expectedPkceCodeChanllenge, actualPkceCodeChallenge);
+        }
+
 
         [TestMethod]
         [Description("Test for authority validation to AuthenticationContext")]

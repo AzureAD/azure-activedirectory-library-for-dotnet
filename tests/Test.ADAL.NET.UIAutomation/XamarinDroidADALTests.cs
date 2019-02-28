@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-using Test.Microsoft.Identity.LabInfrastructure;
+using Microsoft.Identity.Test.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
 using Xamarin.UITest;

@@ -25,14 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 
 namespace Test.ADAL.NET.Common.Mocks
 {
@@ -50,7 +49,9 @@ namespace Test.ADAL.NET.Common.Mocks
 
         public string Url { get; set; }
 
-        public IDictionary<string, string> QueryParams { get; set; }
+        public IDictionary<string, string> QueryParamsToValidate { get; set; }
+
+        public IDictionary<string, string> ActualQueryOrFormsParams { get; private set; }
 
         public IDictionary<string, string> PostData { get; set; }
 
@@ -75,15 +76,17 @@ namespace Test.ADAL.NET.Common.Mocks
                 Assert.AreEqual(Url, uri.AbsoluteUri.Split(new[] { '?' })[0]);
             }
 
+            ActualQueryOrFormsParams = ComputeQueryOrFormParams(request);
+
             //match QP passed in for validation. 
-            if (QueryParams != null)
+            if (QueryParamsToValidate != null)
             {
                 Assert.IsFalse(string.IsNullOrEmpty(uri.Query));
-                IDictionary<string, string> inputQp = EncodingHelper.ParseKeyValueList(uri.Query.Substring(1), '&', true, null);
-                foreach (var key in QueryParams.Keys)
+
+                foreach (var key in QueryParamsToValidate.Keys)
                 {
-                    Assert.IsTrue(inputQp.ContainsKey(key));
-                    Assert.AreEqual(QueryParams[key], inputQp[key]);
+                    Assert.IsTrue(ActualQueryOrFormsParams.ContainsKey(key));
+                    Assert.AreEqual(QueryParamsToValidate[key], ActualQueryOrFormsParams[key]);
                 }
             }
 
@@ -107,6 +110,24 @@ namespace Test.ADAL.NET.Common.Mocks
             }
 
             return new TaskFactory().StartNew(() => ResponseMessage, cancellationToken);
+        }
+
+        private static IDictionary<string, string> ComputeQueryOrFormParams(HttpRequestMessage request)
+        {
+            if (request.Method == HttpMethod.Get && !string.IsNullOrWhiteSpace(request.RequestUri.Query))
+            {
+                return EncodingHelper.ParseKeyValueList(request.RequestUri.Query.Substring(1), '&', true, null);
+            }
+
+            if (request.Method == HttpMethod.Post)
+            {
+                string content = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                return EncodingHelper.ParseKeyValueList(content, '&', true, null);
+
+            }
+
+            return new Dictionary<string, string>();
+
         }
     }
 }

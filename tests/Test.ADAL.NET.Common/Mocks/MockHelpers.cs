@@ -41,22 +41,37 @@ namespace Test.ADAL.NET.Common.Mocks
 {
     internal static class MockHelpers
     {
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult)
+        public static MockWebUI ConfigureMockWebUI(AuthorizationResult authorizationResult)
         {
-            ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
+            return ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
         }
 
-        public static void ConfigureMockWebUI(AuthorizationResult authorizationResult, Dictionary<string, string> queryParamsToValidate)
+        public static MockWebUI ConfigureMockWebUI(AuthorizationResult authorizationResult, IDictionary<string, string> queryParamsToValidate)
         {
             MockWebUI webUi = new MockWebUI();
-            webUi.QueryParams = queryParamsToValidate;
+            webUi.QueryParamsToValidate = queryParamsToValidate;
             webUi.MockResult = authorizationResult;
 
             IWebUIFactory mockFactory = Substitute.For<IWebUIFactory>();
             mockFactory.CreateAuthenticationDialog(Arg.Any<CoreUIParent>(), Arg.Any<RequestContext>()).Returns(webUi);
             WebUIFactoryProvider.WebUIFactory = mockFactory;
+
+            return webUi;
         }
 
+        public static IDictionary<string, string> GetDefaultAuthorizationRequestParams()
+        {
+            return new Dictionary<string, string>()
+            {
+                ["resource"] = AdalTestConstants.DefaultResource,
+                ["client_id"] = AdalTestConstants.DefaultClientId,
+                ["response_type"] = "code",
+                ["redirect_uri"] = AdalTestConstants.DefaultRedirectUri.ToString(),
+                ["code_challenge_method"] = "S256",
+                ["response_mode"] = "form_post",
+                ["x-client-sku"] = "PCL.Desktop"
+            };
+        }
 
         public static Stream GenerateStreamFromString(string s)
         {
@@ -343,6 +358,14 @@ namespace Test.ADAL.NET.Common.Mocks
                 new StringContent(successResponse);
             responseMessage.Content = content;
             return responseMessage;
+        }
+
+        public static void Merge<TKey, TValue>(this Dictionary<TKey, TValue> me, Dictionary<TKey, TValue> merge)
+        {
+            foreach (var item in merge)
+            {
+                me[item.Key] = item.Value;
+            }
         }
     }
 }
