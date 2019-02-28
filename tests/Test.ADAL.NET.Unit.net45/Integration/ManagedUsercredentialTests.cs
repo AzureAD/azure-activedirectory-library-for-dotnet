@@ -82,7 +82,7 @@ namespace Test.ADAL.NET.Integration
                             Content = new StringContent(
                                 "{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -130,7 +130,7 @@ namespace Test.ADAL.NET.Integration
                             Content = new StringContent(
                                 "{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"domain_name\":\"id.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -179,7 +179,7 @@ namespace Test.ADAL.NET.Integration
                             Content = new StringContent(
                                 "{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -272,7 +272,7 @@ namespace Test.ADAL.NET.Integration
                             Content = new StringContent(
                                 "{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -444,7 +444,7 @@ namespace Test.ADAL.NET.Integration
                         {
                             Content = new StringContent("Bad request received")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -492,7 +492,7 @@ namespace Test.ADAL.NET.Integration
                             Content = new StringContent(
                                 "{\"ver\":\"1.0\",\"account_type\":\"Unknown\",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }

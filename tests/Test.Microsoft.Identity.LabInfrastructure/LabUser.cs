@@ -29,12 +29,10 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Test.Microsoft.Identity.LabInfrastructure
+namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public class LabUser
     {
-        public LabUser() { }
-
         [JsonProperty("objectId")]
         public Guid ObjectId { get; set; }
 
@@ -78,6 +76,22 @@ namespace Test.Microsoft.Identity.LabInfrastructure
 
         [JsonProperty("b2cProvider")]
         public B2CIdentityProvider B2CIdentityProvider { get; set; }
+
+
+        private string _password = null;
+
+        public string Password
+        {
+            get
+            {
+                if (_password == null)
+                {
+                    _password = LabUserHelper.GetUserPassword(this);
+                }
+
+                return _password;
+            }
+        }
 
         public void InitializeHomeUser()
         {

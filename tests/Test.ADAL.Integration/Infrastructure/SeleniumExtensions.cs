@@ -32,8 +32,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System.Diagnostics;
-using Test.Microsoft.Identity.LabInfrastructure;
 using Test.Microsoft.Identity.Core.UIAutomation;
+using Microsoft.Identity.Test.LabInfrastructure;
 
 namespace Test.ADAL.Integration.Infrastructure
 {

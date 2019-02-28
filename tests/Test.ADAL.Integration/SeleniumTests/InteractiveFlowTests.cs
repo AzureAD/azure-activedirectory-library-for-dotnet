@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using Microsoft.Identity.Test.LabInfrastructure;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
@@ -8,7 +9,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Test.ADAL.Integration.Infrastructure;
 using Test.ADAL.NET.Common;
-using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Test.ADAL.Integration.SeleniumTests
 {
@@ -42,7 +42,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         public async Task Interactive_AdfsV3_NotFederatedAsync()
         {
             // Arrange
-            UserQueryParameters query = new UserQueryParameters
+            var query = new UserQuery
             {
                 FederationProvider = FederationProvider.AdfsV4,
                 IsMamUser = false,
@@ -58,7 +58,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         public async Task Interactive_AdfsV3_FederatedAsync()
         {
             // Arrange
-            UserQueryParameters query = new UserQueryParameters
+            var query = new UserQuery
             {
                 FederationProvider = FederationProvider.AdfsV4,
                 IsMamUser = false,
@@ -70,13 +70,11 @@ namespace Test.ADAL.Integration.SeleniumTests
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
-        //TODO:Reinable once ADFSV2 server is working again
         [TestMethod]
-        [Ignore]
         public async Task Interactive_AdfsV2_FederatedAsync()
         {
             // Arrange
-            UserQueryParameters query = new UserQueryParameters
+            var query = new UserQuery
             {
                 FederationProvider = FederationProvider.AdfsV2,
                 IsMamUser = false,
@@ -93,7 +91,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         public async Task Interactive_AdfsV4_NotFederatedAsync()
         {
             // Arrange
-            UserQueryParameters query = new UserQueryParameters
+            var query = new UserQuery
             {
                 FederationProvider = FederationProvider.AdfsV4,
                 IsMamUser = false,
@@ -109,7 +107,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         public async Task Interactive_AdfsV4_FederatedAsync()
         {
             // Arrange
-            UserQueryParameters query = new UserQueryParameters
+            var query = new UserQuery
             {
                 FederationProvider = FederationProvider.AdfsV4,
                 IsMamUser = false,
