@@ -77,7 +77,7 @@ namespace Test.ADAL.NET.Unit
 
             var requestContext = new RequestContext(ClientId, new TestLogger());
             var tokenCache = new TokenCache();
-            var cacheDictionary = tokenCache.tokenCacheDictionary;
+            var cacheDictionary = tokenCache._tokenCacheDictionary;
 
             AdalResultWrapper entryForResource1 = TokenCacheTests.CreateCacheValue(UniqueId, DisplayableId, false);
             CacheQueryData cacheQueryForResource2 = new CacheQueryData()

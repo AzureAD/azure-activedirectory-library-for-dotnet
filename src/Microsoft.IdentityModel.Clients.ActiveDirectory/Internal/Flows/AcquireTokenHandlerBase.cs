@@ -73,7 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     "=== Token Acquisition started: \n\tCacheType: {0}\n\tAuthentication Target: {1}\n\t",
                     _tokenCache != null
                         ? _tokenCache.GetType().FullName +
-                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", _tokenCache.tokenCacheDictionary.Count)
+                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", _tokenCache._tokenCacheDictionary.Count)
                         : "null",
                     requestData.SubjectType);
                 if (InstanceDiscovery.IsWhitelisted(requestData.Authenticator.GetAuthorityHost()))
@@ -88,7 +88,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     requestData.Authenticator.Authority, requestData.Resource, requestData.ClientKey.ClientId,
                     (_tokenCache != null)
                         ? _tokenCache.GetType().FullName +
-                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", _tokenCache.tokenCacheDictionary.Count)
+                          string.Format(CultureInfo.CurrentCulture, " ({0} items)", _tokenCache._tokenCacheDictionary.Count)
                         : "null",
                     requestData.SubjectType);
                 RequestContext.Logger.InfoPii(piiMsg, msg);

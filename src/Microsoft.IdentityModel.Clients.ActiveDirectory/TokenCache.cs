@@ -50,15 +50,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="args">Arguments related to the cache item impacted</param>
         public delegate void TokenCacheNotification(TokenCacheNotificationArgs args);
-
-        internal readonly IDictionary<AdalTokenCacheKey, AdalResultWrapper> tokenCacheDictionary;
+        internal readonly IDictionary<AdalTokenCacheKey, AdalResultWrapper> _tokenCacheDictionary;
 
         // We do not want to return near expiry tokens, this is why we use this hard coded setting to refresh tokens which are close to expiration.
         private const int ExpirationMarginInMinutes = 5;
-
-        private volatile bool hasStateChanged;
-
-        private readonly Object cacheLock = new Object();
+        private volatile bool _hasStateChanged;
+        private readonly object _cacheLock = new object();
 
         static TokenCache()
         {
@@ -71,7 +68,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
         }
 
-        internal ITokenCacheAccessor tokenCacheAccessor;
+        internal ITokenCacheAccessor _tokenCacheAccessor;
 
         /// <summary>
         /// Default constructor.
@@ -83,18 +80,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 CoreLoggerBase.Default = new AdalLogger(Guid.Empty);
             }
 
-            this.tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
-
-            tokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
+            _tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
+            _tokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
         }
 
         /// <summary>
         /// Constructor receiving state of the cache
-        /// </summary>        
+        /// </summary>
         public TokenCache(byte[] state)
             : this()
         {
-            this.Deserialize(state);
+            DeserializeAdalV3(state);
         }
 
         /// <summary>
@@ -126,17 +122,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                lock (cacheLock)
+                lock (_cacheLock)
                 {
-                    return this.hasStateChanged;
+                    return _hasStateChanged;
                 }
             }
 
             set
             {
-                lock (cacheLock)
+                lock (_cacheLock)
                 {
-                    this.hasStateChanged = value;
+                    _hasStateChanged = value;
                 }
             }
         }
@@ -149,9 +145,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             get
             {
-                lock (cacheLock)
+                lock (_cacheLock)
                 {
-                    return this.tokenCacheDictionary.Count;
+                    return _tokenCacheDictionary.Count;
                 }
             }
         }
@@ -161,11 +157,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
         /// <returns>Current state of the Adal V3+ cache as a blob</returns>
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public byte[] Serialize()
         {
-            lock (cacheLock)
+            return SerializeAdalV3();
+        }
+
+        /// <summary>
+        /// Serializes current state of the cache as a blob. Caller application can persist the blob and update the state of the cache later by 
+        /// passing that blob back in constructor or by calling method Deserialize.
+        /// </summary>
+        /// <returns>Current state of the Adal V3+ cache as a blob</returns>
+        public byte[] SerializeAdalV3()
+        {
+            lock (_cacheLock)
             {
-                return AdalCacheOperations.Serialize(tokenCacheDictionary);
+                return AdalCacheOperations.Serialize(_tokenCacheDictionary);
             }
         }
 
@@ -174,13 +181,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
         /// <returns>Serialized token cache <see cref="CacheData"/></returns>
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public CacheData SerializeAdalAndUnifiedCache()
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                var serializedAdalCache = AdalCacheOperations.Serialize(tokenCacheDictionary);
+                var serializedAdalCache = AdalCacheOperations.Serialize(_tokenCacheDictionary);
 
-                var dictionarySerializer = new TokenCacheDictionarySerializer(tokenCacheAccessor);
+                var dictionarySerializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
                 var serializedUnifiedCache = dictionarySerializer.Serialize();
 
                 return new CacheData()
@@ -195,41 +203,104 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public void Deserialize(byte[] adalState)
         {
-            lock (cacheLock)
+            DeserializeAdalV3(adalState);
+        }
+
+        /// <summary>
+        /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
+        /// </summary>
+        /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
+        public void DeserializeAdalV3(byte[] adalState)
+        {
+            lock (_cacheLock)
             {
-                tokenCacheDictionary.Clear();
+                _tokenCacheDictionary.Clear();
                 foreach (var entry in AdalCacheOperations.Deserialize(adalState))
                 {
-                    tokenCacheDictionary.Add(entry.Key, entry.Value);
+                    _tokenCacheDictionary.Add(entry.Key, entry.Value);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Serializes the token cache to the MSAL.NET 2.x unified cache format, which is compatible with ADAL.NET v4 and other MSAL.NET v2 applications.
+        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
+        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
+        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>. 
         /// </summary>
-        /// <returns></returns>
-        public byte[] SerializeV3()
+        /// <returns>Byte stream representation of the cache</returns>
+        /// <remarks>
+        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// </remarks>
+        public byte[] SerializeMsalV2()
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                var jsonSerializer = new TokenCacheJsonSerializer(tokenCacheAccessor);
+                var serializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
+                return serializer.Serialize();
+            }
+        }
+
+        /// <summary>
+        /// Deserializes the token cache to the MSAL.NET 2.x cache format, which is compatible with ADAL.NET v4 and other MSAL.NET v2 applications.
+        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
+        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
+        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>. 
+        /// </summary>
+        /// <param name="bytes">Byte stream representation of the cache</param>
+        /// <remarks>
+        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// </remarks>
+        public void DeserializeMsalV2(byte[] bytes)
+        {
+            lock (_cacheLock)
+            {
+                _tokenCacheDictionary.Clear();
+                var serializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
+                serializer.Deserialize(bytes);
+            }
+        }
+
+        /// <summary>
+        /// Serializes the token cache to the MSAL.NET 3.x cache format, which is compatible with other MSAL desktop libraries, e.g. MSAL for Python and MSAL for Java.
+        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
+        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
+        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>.
+        /// </summary>
+        /// <returns>Byte stream representation of the cache</returns>
+        /// <remarks>
+        /// This is the recommended format for maintaining SSO state between applications.
+        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// </remarks>
+        public byte[] SerializeMsalV3()
+        {
+            lock (_cacheLock)
+            {
+                var jsonSerializer = new TokenCacheJsonSerializer(_tokenCacheAccessor);
                 return jsonSerializer.Serialize();
             }
         }
 
         /// <summary>
-        /// 
+        /// Deserializes the token cache to the MSAL.NET 3.x cache format, which is compatible with other MSAL desktop libraries, e.g. MSAL for Python and MSAL for Java.
+        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
+        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
+        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>.
         /// </summary>
-        /// <param name="bytes"></param>
-        public void DeserializeV3(byte[] bytes)
+        /// <param name="bytes">Byte stream representation of the cache</param>
+        /// <remarks>
+        /// This is the recommended format for maintaining SSO state between applications.
+        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// </remarks>
+        public void DeserializeMsalV3(byte[] bytes)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                tokenCacheDictionary.Clear();
-                var jsonSerializer = new TokenCacheJsonSerializer(tokenCacheAccessor);
+                _tokenCacheDictionary.Clear();
+                var jsonSerializer = new TokenCacheJsonSerializer(_tokenCacheAccessor);
                 jsonSerializer.Deserialize(bytes);
             }
         }
@@ -238,32 +309,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="cacheData">Serialized token cache <see cref="CacheData"></see></param>
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public void DeserializeAdalAndUnifiedCache(CacheData cacheData)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 Deserialize(cacheData.AdalV3State);
 
-                var dictionarySerializer = new TokenCacheDictionarySerializer(tokenCacheAccessor);
+                var dictionarySerializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
                 dictionarySerializer.Deserialize(cacheData.UnifiedState);
             }
         }
 
         /// <summary>
-        /// Reads a copy of the list of all items in the cache. 
+        /// Reads a copy of the list of all items in the cache.
         /// </summary>
         /// <returns>The items in the cache</returns>
         public virtual IEnumerable<TokenCacheItem> ReadItems()
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
-                this.OnBeforeAccess(args);
-
-                List<TokenCacheItem> items =
-                    this.tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
-
-                this.OnAfterAccess(args);
+                OnBeforeAccess(args);
+                List<TokenCacheItem> items = _tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
+                OnAfterAccess(args);
 
                 return items;
             }
@@ -275,11 +344,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="item">The item to delete from the cache</param>
         public virtual void DeleteItem(TokenCacheItem item)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 if (item == null)
                 {
-                    throw new ArgumentNullException("item");
+                    throw new ArgumentNullException(nameof(item));
                 }
 
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs
@@ -291,13 +360,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     DisplayableId = item.DisplayableId
                 };
 
-                this.OnBeforeAccess(args);
-                this.OnBeforeWrite(args);
+                OnBeforeAccess(args);
+                OnBeforeWrite(args);
 
-                AdalTokenCacheKey toRemoveKey = this.tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
+                AdalTokenCacheKey toRemoveKey = _tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
                 if (toRemoveKey != null)
                 {
-                    this.tokenCacheDictionary.Remove(toRemoveKey);
+                    _tokenCacheDictionary.Remove(toRemoveKey);
                     CoreLoggerBase.Default.Info("One item removed successfully");
                 }
                 else
@@ -305,8 +374,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     CoreLoggerBase.Default.Info("Item not Present in the Cache");
                 }
 
-                this.HasStateChanged = true;
-                this.OnAfterAccess(args);
+                HasStateChanged = true;
+                OnAfterAccess(args);
             }
         }
 
@@ -316,63 +385,53 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public virtual void Clear()
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
-                this.OnBeforeAccess(args);
-                this.OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(String.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed",
-                    this.tokenCacheDictionary.Count));
+                OnBeforeAccess(args);
+                OnBeforeWrite(args);
+                CoreLoggerBase.Default.Info(string.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", _tokenCacheDictionary.Count));
 
                 ClearAdalCache();
                 ClearMsalCache();
 
                 CoreLoggerBase.Default.Info("Successfully Cleared Cache");
-                this.HasStateChanged = true;
-                this.OnAfterAccess(args);
+                HasStateChanged = true;
+                OnAfterAccess(args);
             }
         }
 
         internal void ClearAdalCache()
         {
-            this.tokenCacheDictionary.Clear();
+            _tokenCacheDictionary.Clear();
         }
 
         internal void ClearMsalCache()
         {
-            tokenCacheAccessor.Clear();
+            _tokenCacheAccessor.Clear();
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                if (AfterAccess != null)
-                {
-                    AfterAccess(args);
-                }
+                AfterAccess?.Invoke(args);
             }
         }
 
         internal void OnBeforeAccess(TokenCacheNotificationArgs args)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                if (BeforeAccess != null)
-                {
-                    BeforeAccess(args);
-                }
+                BeforeAccess?.Invoke(args);
             }
         }
 
         internal void OnBeforeWrite(TokenCacheNotificationArgs args)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
-                if (BeforeWrite != null)
-                {
-                    BeforeWrite(args);
-                }
+                BeforeWrite?.Invoke(args);
             }
         }
 
@@ -423,13 +482,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal /* internal for test */ AdalResultWrapper LoadFromCacheCommon(CacheQueryData cacheQueryData, RequestContext requestContext)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 requestContext.Logger.Verbose("Looking up cache for a token...");
 
                 AdalResultWrapper resultEx = null;
-                KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>? kvp =
-                    this.LoadSingleItemFromCache(cacheQueryData, requestContext);
+                KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>? kvp = LoadSingleItemFromCache(cacheQueryData, requestContext);
 
                 if (kvp.HasValue)
                 {
@@ -507,9 +565,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
                     if (resultEx?.Result?.AccessToken == null && resultEx?.RefreshToken == null && tokenIsForSameResource)
                     {
-                        this.tokenCacheDictionary.Remove(cacheKey);
+                        _tokenCacheDictionary.Remove(cacheKey);
                         requestContext.Logger.Info("An old item was removed from the cache");
-                        this.HasStateChanged = true;
+                        HasStateChanged = true;
                         resultEx = null;
                     }
 
@@ -525,7 +583,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (cacheQueryData.SubjectType == TokenSubjectType.User)
                     {
                         requestContext.Logger.Info("Checking MSAL cache for user token cache");
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(tokenCacheAccessor,
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(_tokenCacheAccessor,
                             cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
 
                         requestContext.Logger.Info("A match was found in the MSAL cache ? " + (resultEx != null));
@@ -546,14 +604,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         internal void StoreToCacheCommon(AdalResultWrapper result, string authority, string resource, string clientId,
             TokenSubjectType subjectType, RequestContext requestContext)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 requestContext.Logger.Verbose("Storing token in the cache...");
 
-                string uniqueId = (result.Result.UserInfo != null) ? result.Result.UserInfo.UniqueId : null;
-                string displayableId = (result.Result.UserInfo != null) ? result.Result.UserInfo.DisplayableId : null;
+                string uniqueId = result.Result.UserInfo?.UniqueId;
+                string displayableId = result.Result.UserInfo?.DisplayableId;
 
-                this.OnBeforeWrite(new TokenCacheNotificationArgs
+                OnBeforeWrite(new TokenCacheNotificationArgs
                 {
                     Resource = resource,
                     ClientId = clientId,
@@ -561,22 +619,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     DisplayableId = displayableId
                 });
 
-                AdalTokenCacheKey AdalTokenCacheKey = new AdalTokenCacheKey(authority, resource, clientId, subjectType,
-                    result.Result.UserInfo);
-                this.tokenCacheDictionary[AdalTokenCacheKey] = result;
+                AdalTokenCacheKey adalTokenCacheKey = new AdalTokenCacheKey(authority, resource, clientId, subjectType, result.Result.UserInfo);
+                _tokenCacheDictionary[adalTokenCacheKey] = result;
 
                 requestContext.Logger.Verbose("An item was stored in the cache");
 
-                this.UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
+                UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
 
-                this.HasStateChanged = true;
+                HasStateChanged = true;
 
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
                     Identity.Core.IdToken idToken = Identity.Core.IdToken.Parse(result.Result.IdToken);
 
-                    CacheFallbackOperations.WriteMsalRefreshToken(tokenCacheAccessor, result, authority, clientId, displayableId,
+                    CacheFallbackOperations.WriteMsalRefreshToken(_tokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
                         result.Result.UserInfo.FamilyName, idToken?.ObjectId);
                 }
@@ -586,13 +643,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private void UpdateCachedMrrtRefreshTokens(AdalResultWrapper result, string clientId,
             TokenSubjectType subjectType)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 if (result.Result.UserInfo != null && result.IsMultipleResourceRefreshToken)
                 {
                     //pass null for authority to update the token for all the tenants
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                        this.QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
+                        QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
                                 result.Result.UserInfo.DisplayableId, null)
                             .Where(p => p.Value.IsMultipleResourceRefreshToken)
                             .ToList();
@@ -608,11 +665,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>? LoadSingleItemFromCache(
             CacheQueryData cacheQueryData, RequestContext requestContext)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 // First identify all potential tokens.
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> items =
-                    this.QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType,
+                    QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType,
                         cacheQueryData.UniqueId, cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> resourceSpecificItems =
@@ -648,7 +705,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // this check only applies to user tokens. client tokens should be ignored.
                 if (returnValue == null && cacheQueryData.SubjectType != TokenSubjectType.Client)
                 {
-                    List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> itemsForAllTenants = this.QueryCache(
+                    List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> itemsForAllTenants = QueryCache(
                         null, cacheQueryData.ClientId, cacheQueryData.SubjectType, cacheQueryData.UniqueId,
                         cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
 
@@ -685,11 +742,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> QueryCache(string authority, string clientId,
             TokenSubjectType subjectType, string uniqueId, string displayableId, string assertionHash)
         {
-            lock (cacheLock)
+            lock (_cacheLock)
             {
                 //if developer passes an assertion then assertionHash must be used to match the cache entry.
                 //if UserAssertionHash in cache entry is null then it won't be a match.
-                return this.tokenCacheDictionary.Where(
+                return _tokenCacheDictionary.Where(
                         p =>
                             (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
                             && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))

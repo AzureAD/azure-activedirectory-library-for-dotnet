@@ -97,10 +97,10 @@ namespace Test.ADAL.Common.Unit
             Log.Comment(
                 "====== Verifying that the only existing value (with user) is retrieved when requested with user and NOT without...");
             Log.Comment("Retrieving with user...");
-            var valueInCache = cache.tokenCacheDictionary[key];
+            var valueInCache = cache._tokenCacheDictionary[key];
             VerifyAdalResultWrappersAreEqual(value, valueInCache);
             Log.Comment("Retrieving without user...");
-            cache.tokenCacheDictionary.TryGetValue(userlessKey, out valueInCache);
+            cache._tokenCacheDictionary.TryGetValue(userlessKey, out valueInCache);
             Assert.IsNull(valueInCache);
 
             Log.Comment("====== Verifying that two entries can exist at the same time, one with user and one without...");
@@ -110,10 +110,10 @@ namespace Test.ADAL.Common.Unit
             Log.Comment(
                 "====== Verifying that correct values are retrieved when requested with and without user (when two entries exist)...");
             Log.Comment("Retrieving without user...");
-            valueInCache = cache.tokenCacheDictionary[userlessKey];
+            valueInCache = cache._tokenCacheDictionary[userlessKey];
             VerifyAdalResultWrappersAreEqual(userlessValue, valueInCache);
             Log.Comment("Retrieving with user...");
-            valueInCache = cache.tokenCacheDictionary[key];
+            valueInCache = cache._tokenCacheDictionary[key];
             VerifyAdalResultWrappersAreEqual(value, valueInCache);
 
             Log.Comment("====== Verifying that correct entry is deleted when the key with user is passed...");
@@ -131,7 +131,7 @@ namespace Test.ADAL.Common.Unit
             Log.Comment("Storing without user first and then with user...");
             AddToDictionary(cache, userlessKey, userlessValue);
             AddToDictionary(cache, key2, value2);
-            valueInCache = cache.tokenCacheDictionary[key2];
+            valueInCache = cache._tokenCacheDictionary[key2];
             VerifyAdalResultWrappersAreEqual(value2, valueInCache);
             RemoveFromDictionary(cache, key2);
             VerifyCacheItems(cache, 1, userlessKey);
@@ -140,23 +140,23 @@ namespace Test.ADAL.Common.Unit
             cache.Clear();
             AddToDictionary(cache, userlessKey, value);
             Log.Comment("Retrieving with user...");
-            cache.tokenCacheDictionary.TryGetValue(key, out valueInCache);
+            cache._tokenCacheDictionary.TryGetValue(key, out valueInCache);
             Assert.IsNull(valueInCache);
             Log.Comment("Retrieving without user...");
-            valueInCache = cache.tokenCacheDictionary[userlessKey];
+            valueInCache = cache._tokenCacheDictionary[userlessKey];
             VerifyAdalResultWrappersAreEqual(value, valueInCache);
 
             Log.Comment("====== Verifying that entry cannot be retrieved with incorrect key...");
             cache.Clear();
             AddToDictionary(cache, key, value);
             Log.Comment("Retrieving with incorrect key...");
-            cache.tokenCacheDictionary.TryGetValue(key2, out valueInCache);
+            cache._tokenCacheDictionary.TryGetValue(key2, out valueInCache);
             Assert.IsNull(valueInCache);
             Log.Comment("Retrieving with incorrect user...");
-            cache.tokenCacheDictionary.TryGetValue(incorrectUserKey, out valueInCache);
+            cache._tokenCacheDictionary.TryGetValue(incorrectUserKey, out valueInCache);
             Assert.IsNull(valueInCache);
             Log.Comment("Retrieving with correct user...");
-            valueInCache = cache.tokenCacheDictionary[key];
+            valueInCache = cache._tokenCacheDictionary[key];
             VerifyAdalResultWrappersAreEqual(value, valueInCache);
 
             Log.Comment("====== Verifying that removing items from an empty cache will not throw...");
@@ -292,7 +292,7 @@ namespace Test.ADAL.Common.Unit
             AdalTokenCacheKey tempKey = new AdalTokenCacheKey(authority, resource, clientId, TokenSubjectType.User, null, null);
             AddToDictionary(localCache, tempKey, cacheValue);
             RemoveFromDictionary(localCache, tempKey);
-            Assert.IsFalse(localCache.tokenCacheDictionary.ContainsKey(tempKey));
+            Assert.IsFalse(localCache._tokenCacheDictionary.ContainsKey(tempKey));
             AddToDictionary(localCache, tempKey, cacheValue);
 
             authenticationResultFromCache =
@@ -328,7 +328,7 @@ namespace Test.ADAL.Common.Unit
         internal static void TokenCacheCrossTenantOperationsTest()
         {
             var tokenCache = new TokenCache();
-            var cacheDictionary = tokenCache.tokenCacheDictionary;
+            var cacheDictionary = tokenCache._tokenCacheDictionary;
             tokenCache.Clear();
 
             AdalTokenCacheKey key = new AdalTokenCacheKey("https://localhost/MockSts/", "resource1", "client1",
@@ -339,7 +339,7 @@ namespace Test.ADAL.Common.Unit
         internal static async Task TokenCacheOperationsTestAsync()
         {
             var tokenCache = new TokenCache();
-            var cacheDictionary = tokenCache.tokenCacheDictionary;
+            var cacheDictionary = tokenCache._tokenCacheDictionary;
 
             tokenCache.Clear();
 
@@ -498,8 +498,8 @@ namespace Test.ADAL.Common.Unit
             value2.UserAssertionHash = "hash2";
 
             TokenCache cache = new TokenCache();
-            cache.tokenCacheDictionary[key] = value;
-            cache.tokenCacheDictionary[key2] = value2;
+            cache._tokenCacheDictionary[key] = value;
+            cache._tokenCacheDictionary[key2] = value2;
             CacheQueryData data = new CacheQueryData()
             {
                 AssertionHash = "hash1",
@@ -549,7 +549,7 @@ namespace Test.ADAL.Common.Unit
             {
                 AdalResultWrapper cacheValue;
                 int index = MaxItemCount - i - 1;
-                Assert.IsTrue(tokenCache.tokenCacheDictionary.TryGetValue(keys[index], out cacheValue));
+                Assert.IsTrue(tokenCache._tokenCacheDictionary.TryGetValue(keys[index], out cacheValue));
                 Assert.AreEqual(values[index], cacheValue);
                 RemoveFromDictionary(tokenCache, keys[index]);
                 Assert.AreEqual(index, tokenCache.Count);
@@ -566,13 +566,13 @@ namespace Test.ADAL.Common.Unit
 
             tokenCache.Clear();
             AddToDictionary(tokenCache, key, null);
-            Assert.AreEqual(tokenCache.tokenCacheDictionary[key], null);
+            Assert.AreEqual(tokenCache._tokenCacheDictionary[key], null);
             for (int len = 0; len < 3000; len++)
             {
                 var value = CreateCacheValue(null, "user1");
                 tokenCache.Clear();
                 AddToDictionary(tokenCache, key, value);
-                Assert.AreEqual(tokenCache.tokenCacheDictionary[key], value);
+                Assert.AreEqual(tokenCache._tokenCacheDictionary[key], value);
             }
         }
 
@@ -590,7 +590,7 @@ namespace Test.ADAL.Common.Unit
                 AddToDictionary(tokenCache, key, result);
             }
 
-            byte[] serializedCache = tokenCache.Serialize();
+            byte[] serializedCache = tokenCache.SerializeAdalV3();
             TokenCache tokenCache2 = new TokenCache(serializedCache);
             Assert.AreEqual(tokenCache.Count, tokenCache2.Count);
             foreach (TokenCacheItem item in tokenCache.ReadItems())
@@ -601,10 +601,10 @@ namespace Test.ADAL.Common.Unit
                 Assert.IsTrue((1.0 - diff) >= 0);
             }
 
-            foreach (var key in tokenCache.tokenCacheDictionary.Keys)
+            foreach (var key in tokenCache._tokenCacheDictionary.Keys)
             {
-                AdalResultWrapper result2 = tokenCache2.tokenCacheDictionary[key];
-                VerifyAdalResultWrappersAreEqual(tokenCache.tokenCacheDictionary[key], result2);
+                AdalResultWrapper result2 = tokenCache2._tokenCacheDictionary[key];
+                VerifyAdalResultWrappersAreEqual(tokenCache._tokenCacheDictionary[key], result2);
             }
         }
 
@@ -755,7 +755,7 @@ namespace Test.ADAL.Common.Unit
         {
             tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
             tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs { TokenCache = tokenCache });
-            tokenCache.tokenCacheDictionary.Add(key, value);
+            tokenCache._tokenCacheDictionary.Add(key, value);
             tokenCache.HasStateChanged = true;
             tokenCache.OnAfterAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
         }
@@ -764,7 +764,7 @@ namespace Test.ADAL.Common.Unit
         {
             tokenCache.OnBeforeAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
             tokenCache.OnBeforeWrite(new TokenCacheNotificationArgs { TokenCache = tokenCache });
-            bool result = tokenCache.tokenCacheDictionary.Remove(key);
+            bool result = tokenCache._tokenCacheDictionary.Remove(key);
             tokenCache.HasStateChanged = true;
             tokenCache.OnAfterAccess(new TokenCacheNotificationArgs { TokenCache = tokenCache });
 
@@ -802,7 +802,7 @@ namespace Test.ADAL.Common.Unit
         {
             TokenCache cache = new TokenCache(oldcache);
             Assert.IsNotNull(cache);
-            foreach (var value in cache.tokenCacheDictionary.Values)
+            foreach (var value in cache._tokenCacheDictionary.Values)
             {
                 Assert.IsNull(value.UserAssertionHash);
             }

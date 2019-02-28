@@ -235,7 +235,7 @@ namespace Test.ADAL.NET.Integration
             AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
                 AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
                 AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
-            context.TokenCache.tokenCacheDictionary[key] = new AdalResultWrapper
+            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
             {
                 RefreshToken = "some-rt",
                 ResourceInResponse = AdalTestConstants.DefaultResource,
@@ -316,7 +316,7 @@ namespace Test.ADAL.NET.Integration
 
                 setupResult.Result.UserInfo = new AdalUserInfo();
                 setupResult.Result.UserInfo.DisplayableId = AdalTestConstants.DefaultDisplayableId;
-                context.TokenCache.tokenCacheDictionary[key] = setupResult;
+                context.TokenCache._tokenCacheDictionary[key] = setupResult;
 
                 var result = await context.AcquireTokenAsync(
                                  AdalTestConstants.DefaultResource,
@@ -333,8 +333,8 @@ namespace Test.ADAL.NET.Integration
                 // There should be only two cache entries.
                 Assert.AreEqual(2, context.TokenCache.Count);
 
-                var keys = context.TokenCache.tokenCacheDictionary.Values.ToList();
-                var values = context.TokenCache.tokenCacheDictionary.Values.ToList();
+                var keys = context.TokenCache._tokenCacheDictionary.Values.ToList();
+                var values = context.TokenCache._tokenCacheDictionary.Values.ToList();
                 Assert.AreNotEqual(keys[0].Result.UserInfo.UniqueId, keys[1].Result.UserInfo.UniqueId);
                 Assert.AreNotEqual(values[0].Result.UserInfo.UniqueId, values[1].Result.UserInfo.UniqueId);
                 Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());

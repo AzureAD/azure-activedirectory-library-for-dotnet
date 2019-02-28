@@ -173,7 +173,7 @@ namespace WinFormsAutomationApp
 
                 Dictionary<string, object> output = new Dictionary<string, object>();
                 TokenCache.DefaultShared.ReadItems();
-                var list = TokenCache.DefaultShared.tokenCacheDictionary;
+                var list = TokenCache.DefaultShared._tokenCacheDictionary;
 
                 if (list.Any())
                 {
@@ -347,7 +347,7 @@ namespace WinFormsAutomationApp
             res.Add("unique_id", result.UserInfo.UniqueId);
             res.Add("access_token", result.AccessToken);
             res.Add("tenant_id", result.TenantId);
-            res.Add("refresh_token", TokenCache.DefaultShared.tokenCacheDictionary.Where(x => x.Key.UniqueId == result.UserInfo.UniqueId).FirstOrDefault().Value.RefreshToken);
+            res.Add("refresh_token", TokenCache.DefaultShared._tokenCacheDictionary.Where(x => x.Key.UniqueId == result.UserInfo.UniqueId).FirstOrDefault().Value.RefreshToken);
             return res;
         }
 
@@ -378,7 +378,7 @@ namespace WinFormsAutomationApp
         private static async Task UpdateCacheAsync(KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> item, KeyValuePair<AdalTokenCacheKey, AdalResultWrapper> updated)
         {
             NotifyBeforeAccessCache(item.Key.Resource, item.Key.ClientId, item.Value.Result.UserInfo.UniqueId, item.Value.Result.UserInfo.DisplayableId);
-            TokenCache.DefaultShared.tokenCacheDictionary[updated.Key] = updated.Value;
+            TokenCache.DefaultShared._tokenCacheDictionary[updated.Key] = updated.Value;
             await TokenCache.DefaultShared.StoreToCacheAsync(
                 updated.Value, updated.Key.Authority, updated.Key.Resource, updated.Key.ClientId, updated.Key.TokenSubjectType, new RequestContext(null, new AdalLogger(Guid.Empty))
                 ).ConfigureAwait(false);
@@ -388,7 +388,7 @@ namespace WinFormsAutomationApp
         private static List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> QueryCache(string authority,
             string clientId, string displayableId)
         {
-            return TokenCache.DefaultShared.tokenCacheDictionary.Where(
+            return TokenCache.DefaultShared._tokenCacheDictionary.Where(
                 p =>
                     (string.IsNullOrWhiteSpace(authority) || p.Key.Authority == authority)
                     && (string.IsNullOrWhiteSpace(clientId) || p.Key.ClientIdEquals(clientId))
