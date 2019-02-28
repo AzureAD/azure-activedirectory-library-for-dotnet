@@ -27,13 +27,13 @@
 
 using System;
 
-namespace Test.Microsoft.Identity.LabInfrastructure
+namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public class LabUserNotFoundException : Exception
     {
-        public UserQueryParameters Parameters { get; set; }
+        public UserQuery Parameters { get; set; }
 
-        public LabUserNotFoundException(UserQueryParameters parameters, string message):base(message)
+        public LabUserNotFoundException(UserQuery parameters, string message) : base(message)
         {
             Parameters = parameters;
         }

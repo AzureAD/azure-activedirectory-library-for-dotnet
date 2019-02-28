@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System;
-using Test.Microsoft.Identity.LabInfrastructure;
 using Xamarin.UITest;
 using Xamarin.UITest.Queries;
 

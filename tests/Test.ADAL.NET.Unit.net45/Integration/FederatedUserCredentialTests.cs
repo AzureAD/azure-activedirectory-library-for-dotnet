@@ -99,7 +99,7 @@ namespace Test.ADAL.NET.Integration
                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -187,7 +187,7 @@ namespace Test.ADAL.NET.Integration
                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -273,7 +273,7 @@ namespace Test.ADAL.NET.Integration
                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -439,7 +439,7 @@ namespace Test.ADAL.NET.Integration
                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
@@ -504,7 +504,7 @@ namespace Test.ADAL.NET.Integration
                                 "\"federation_active_auth_url\":\"https://msft.sts.microsoft.com/adfs/services/trust/2005/usernamemixed\"" +
                                 ",\"cloud_instance_name\":\"login.microsoftonline.com\"}")
                         },
-                        QueryParams = new Dictionary<string, string>()
+                        QueryParamsToValidate = new Dictionary<string, string>()
                         {
                             {"api-version", "1.0"}
                         }
