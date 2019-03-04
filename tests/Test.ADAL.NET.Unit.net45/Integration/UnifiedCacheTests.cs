@@ -52,7 +52,7 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = new PlatformParameters(PromptBehavior.SelectAccount);
+            _platformParameters = new PlatformParameters(PromptBehavior.Auto);
             InstanceDiscovery.InstanceCache.Clear();
         }
 
@@ -110,9 +110,13 @@ namespace Test.ADAL.NET.Integration
             // get refresh token from Msal Cache
             result =
                 await
-                    adalContext.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters,
-                        new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
+                    adalContext.AcquireTokenAsync(
+                        AdalTestConstants.DefaultResource, 
+                        AdalTestConstants.DefaultClientId,
+                        AdalTestConstants.DefaultRedirectUri, 
+                        _platformParameters,
+                        new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId))
+                        .ConfigureAwait(false);
 
             //ps todo validate that state in adal is same as was before adal cache clean
             Assert.IsNotNull(result);
