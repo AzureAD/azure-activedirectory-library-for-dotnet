@@ -330,7 +330,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey)
             {
-                { OAuth2Parameter.ClientInfo, "1" }
+                { OAuthParameter.ClientInfo, "1" }
             };
             AddAdditionalRequestParameters(requestParameters);
             return await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
@@ -342,7 +342,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
             requestParameters[OAuthParameter.RefreshToken] = refreshToken;
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
-            requestParameters[OAuth2Parameter.ClientInfo] = "1";
+            requestParameters[OAuthParameter.ClientInfo] = "1";
 
             AdalResultWrapper result = await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
 

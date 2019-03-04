@@ -344,5 +344,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Error code used when 
         /// </summary>
         public const string NetStandardCustomWebUi = "netcore_custom_webui";
+
+        /// <summary>
+        /// State returned from the STS was different from the one sent by the library
+        /// <para>What happens?</para>The library sends to the STS a state associated to a request, and expects the reply to be consistent. 
+        /// This errors indicates that the reply is not associated with the request. This could indicate an attempt to replay a response
+        /// <para>Mitigation</para> None
+        /// </summary>
+        public const string StateMismatchError = "state_mismatch";
     }
 }

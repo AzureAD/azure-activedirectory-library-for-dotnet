@@ -32,33 +32,33 @@ using System.Threading.Tasks;
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility
 {
     /// <summary>
-    ///     Interface that an ADAL.NET extender can implement to provide their own Web UI in public client applications
-    ///     to sign-in user and have them consented part of the Authorization code flow.
-    ///     ADAL.NET provides an embedded web view for Windows, but there are other scenarios not yet supported.
-    ///     This extensibility point enables them to provide such UI in a secure way
+    /// Interface that an ADAL.NET extender can implement to provide their own Web UI in public client applications
+    /// to sign-in user and have them consented part of the Authorization code flow.
+    /// ADAL.NET provides an embedded web view for Windows, but there are other scenarios not yet supported.
+    /// This extensibility point enables them to provide such UI in a secure way
     /// </summary>
     public interface ICustomWebUi
     {
         /// <summary>
-        ///     Method called by ADAL.NET to delegate the authentication code Web with with the STS
+        /// Method called by ADAL.NET to delegate the authentication code Web with with the STS
         /// </summary>
         /// <param name="authorizationUri">
-        ///     URI computed by ADAL.NET that will let the UI extension
-        ///     navigate to the STS authorization endpoint in order to sign-in the user and have them consent
+        /// URI computed by ADAL.NET that will let the UI extension
+        /// navigate to the STS authorization endpoint in order to sign-in the user and have them consent
         /// </param>
         /// <param name="redirectUri">
-        ///     The redirect Uri that was configured. The auth code will be appended to this redirect uri and the browser
-        ///     will redirect to it. 
+        /// The redirect Uri that was configured. The auth code will be appended to this redirect uri and the browser
+        /// will redirect to it. 
         /// </param>       
         /// <returns>
-        ///     The URI returned back from the STS authorization endpoint. This URI contains a code=CODE
-        ///     parameters that ADAL.NET will extract and redeem.
+        /// The URI returned back from the STS authorization endpoint. This URI contains a code=CODE
+        /// parameters that ADAL.NET will extract and redeem.
         /// </returns>
         /// <remarks>
-        ///     The authorizationUri is crafted to leverage PKCE in order to protect the token from a man
-        ///     in the middle attack. Only MSAL.NET can redeem the code.
+        /// The authorizationUri is crafted to leverage PKCE in order to protect the token from a man
+        /// in the middle attack. Only MSAL.NET can redeem the code.
         ///
-        ///     In the event of cancellation, the implementer should return OperationCanceledException.
+        /// In the event of cancellation, the implementer should return OperationCanceledException.
         /// </remarks>
         Task<Uri> AcquireAuthorizationCodeAsync(Uri authorizationUri, Uri redirectUri);
     }

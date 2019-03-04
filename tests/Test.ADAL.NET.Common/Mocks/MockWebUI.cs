@@ -38,6 +38,13 @@ namespace Test.ADAL.NET.Common.Mocks
 {
     internal class MockWebUI : IWebUI
     {
+        private readonly bool addStateToAuthorizationResult;
+
+        public MockWebUI(bool addStateToAuthorizationResult = true)
+        {
+            this.addStateToAuthorizationResult = addStateToAuthorizationResult;
+        }
+
         internal AuthorizationResult MockResult { get; set; }
 
         internal IDictionary<string, string> QueryParamsToValidate { get; set; }
@@ -58,6 +65,11 @@ namespace Test.ADAL.NET.Common.Mocks
                     Assert.IsTrue(this.ActualQueryParams.ContainsKey(key), "Could not find query param " + key);
                     Assert.AreEqual(QueryParamsToValidate[key], this.ActualQueryParams[key]);
                 }
+            }
+
+            if (addStateToAuthorizationResult)
+            {
+                this.MockResult.State = this.ActualQueryParams["state"];
             }
 
             return await Task.Factory.StartNew(() => this.MockResult).ConfigureAwait(false);
