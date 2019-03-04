@@ -127,11 +127,16 @@ namespace Test.ADAL.Integration.SeleniumTests
                 driver.PerformLogin(labResponse.User);
             };
 
-            WebUIFactoryProvider.WebUIFactory = new SeleniumWebUIFactory(seleniumLogic, _seleniumTimeout);
             AuthenticationContext context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
 
             // Act
-            AuthenticationResult result = await context.AcquireTokenAsync(AdalTestConstants.MSGraph, labResponse.AppId, new Uri(SeleniumWebUIFactory.FindFreeLocalhostRedirectUri()), new PlatformParameters(PromptBehavior.Always));
+            AuthenticationResult result = await context.AcquireTokenAsync(
+                AdalTestConstants.MSGraph, 
+                labResponse.AppId, 
+                new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
+                new PlatformParameters(
+                    PromptBehavior.Always, 
+                    new SeleniumWebUI(seleniumLogic, _seleniumTimeout)));
 
             // Assert
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));

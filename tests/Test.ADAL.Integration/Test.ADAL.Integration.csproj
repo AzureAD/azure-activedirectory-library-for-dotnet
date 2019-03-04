@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,7 +56,6 @@
   <ItemGroup>
     <Compile Include="Infrastructure\SeleniumExtensions.cs" />
     <Compile Include="Infrastructure\SeleniumWebUI.cs" />
-    <Compile Include="Infrastructure\SeleniumWebUIFactory.cs" />
     <Compile Include="Infrastructure\SingleMessageTcpListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeleniumTests\InteractiveFlowTests.cs" />
