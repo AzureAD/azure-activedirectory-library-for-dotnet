@@ -88,6 +88,11 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         public const string B2CGoogleSignInID = "signIn";
         public const string B2CEditProfileContinueID = "continue";
 
+        // ADFSv2 fields
+        public const string AdfsV2WebUsernameInputId = "ContentPlaceHolder1_UsernameTextBox";
+        public const string AdfsV2WebPasswordInputId = "ContentPlaceHolder1_PasswordTextBox";
+        public const string AdfsV2WebSubmitButtonId = "ContentPlaceHolder1_SubmitButton";
+
         // these should match the product enum values
         public const string UIBehaviorConsent = "consent";
         public const string UIBehaviorSelectAccount = "select_account";

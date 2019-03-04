@@ -25,12 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Test.LabInfrastructure;
 using NUnit.Framework;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Test.Microsoft.Identity.LabInfrastructure;
-using Xamarin.UITest.Queries;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
@@ -102,7 +100,9 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
                 catch (ResultVerificationFailureException ex)
                 {
                     if (attempts == CoreUiTestConstants.MaximumResultCheckRetryAttempts)
+                    {
                         Assert.Fail("Could not Verify test result");
+                    }
 
                     switch (ex.Error)
                     {

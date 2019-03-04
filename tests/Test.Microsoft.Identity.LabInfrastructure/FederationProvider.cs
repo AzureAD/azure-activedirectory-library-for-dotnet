@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-namespace Test.Microsoft.Identity.LabInfrastructure
+namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public enum FederationProvider
     {
@@ -35,6 +35,7 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         AdfsV3 = 3,
         AdfsV4 = 4,
         PingFederateV83 = 5,
-        Shibboleth = 6
+        Shibboleth = 6,
+        ADFSv2019 = 7
     }
 }

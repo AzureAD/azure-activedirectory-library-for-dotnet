@@ -32,7 +32,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Test.Microsoft.Identity.LabInfrastructure
+namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public class KeyVaultSecretsProvider : IDisposable
     {

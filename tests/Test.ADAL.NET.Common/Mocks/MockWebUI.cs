@@ -40,20 +40,23 @@ namespace Test.ADAL.NET.Common.Mocks
     {
         internal AuthorizationResult MockResult { get; set; }
 
-        internal IDictionary<string, string> QueryParams { get; set; }
-        
+        internal IDictionary<string, string> QueryParamsToValidate { get; set; }
+
+        internal IDictionary<string, string> ActualQueryParams { get; private set; }
+
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
+            this.ActualQueryParams =
+                   EncodingHelper.ParseKeyValueList(authorizationUri.Query.Substring(1), '&', true, null);
             //match QP passed in for validation. 
-            if (QueryParams != null)
+            if (QueryParamsToValidate != null)
             {
                 Assert.IsNotNull(authorizationUri.Query);
-                IDictionary<string, string> inputQp =
-                    EncodingHelper.ParseKeyValueList(authorizationUri.Query.Substring(1), '&', true, null);
-                foreach (var key in QueryParams.Keys)
+
+                foreach (var key in QueryParamsToValidate.Keys)
                 {
-                    Assert.IsTrue(inputQp.ContainsKey(key));
-                    Assert.AreEqual(QueryParams[key], inputQp[key]);
+                    Assert.IsTrue(this.ActualQueryParams.ContainsKey(key), "Could not find query param " + key);
+                    Assert.AreEqual(QueryParamsToValidate[key], this.ActualQueryParams[key]);
                 }
             }
 

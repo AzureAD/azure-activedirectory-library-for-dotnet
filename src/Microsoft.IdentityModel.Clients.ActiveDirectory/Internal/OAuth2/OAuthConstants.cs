@@ -51,6 +51,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public const string Prompt = "prompt"; // prompt is not standard oauth2 parameter
 
         public const string ResponseMode = "response_mode";
+
+        public const string CodeChallengeMethod = "code_challenge_method";
+        public const string CodeChallenge = "code_challenge";
+        public const string CodeVerifier = "code_verifier";
     }
 
     internal static class OAuthGrantType
@@ -99,6 +103,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
     internal static class OAuthValue
     {
         public const string ScopeOpenId = "openid";
+        public const string CodeChallengeMethodValue = "S256";
     }
 
     internal static class PromptValue

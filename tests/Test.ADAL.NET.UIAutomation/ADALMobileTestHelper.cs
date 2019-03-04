@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-using Test.Microsoft.Identity.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
 using Xamarin.UITest;
@@ -33,6 +32,7 @@ using Xamarin.UITest.Queries;
 using System.Threading;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Test.LabInfrastructure;
 
 namespace Test.ADAL.UIAutomation
 {

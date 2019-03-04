@@ -25,7 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-using Test.Microsoft.Identity.LabInfrastructure;
+
+using Microsoft.Identity.Test.LabInfrastructure;
 
 namespace Test.Microsoft.Identity.Core.UIAutomation
 {
@@ -38,9 +39,22 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
         {
             if (user.IsFederated)
             {
-                // We use the same IDs for ADFSv3 and ADFSv4
-                PasswordInputId = CoreUiTestConstants.AdfsV4WebPasswordID;
-                SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
+                switch (user.FederationProvider)
+                {
+                    case FederationProvider.AdfsV3:
+                    case FederationProvider.AdfsV4:
+                        // We use the same IDs for ADFSv3 and ADFSv4
+                        PasswordInputId = CoreUiTestConstants.AdfsV4WebPasswordID;
+                        SignInButtonId = CoreUiTestConstants.AdfsV4WebSubmitID;
+                        break;
+                    case FederationProvider.AdfsV2:
+                        PasswordInputId = CoreUiTestConstants.AdfsV2WebPasswordInputId;
+                        SignInButtonId = CoreUiTestConstants.AdfsV2WebSubmitButtonId;
+                        break;
+                    default:
+                        break;
+                }
+
                 return;
             }
 
