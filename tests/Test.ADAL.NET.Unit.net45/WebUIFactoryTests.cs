@@ -65,7 +65,7 @@ namespace Test.ADAL.NET.Unit.net45
             Assert.IsInstanceOfType(webUI, typeof(InteractiveWebUI));
 
             webUI = _webUIFactory.CreateAuthenticationDialog(
-                new CoreUIParent() { CustomWebUi = new TestWebUI()} , _requestContext);
+                new CoreUIParent() { CustomWebUi = Substitute.For<ICustomWebUi>() } , _requestContext);
             Assert.IsInstanceOfType(webUI, typeof(CustomWebUiHandler));
 
         }

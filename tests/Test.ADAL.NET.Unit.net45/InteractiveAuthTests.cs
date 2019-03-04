@@ -167,7 +167,7 @@ namespace Test.ADAL.NET.Unit.net45
 
         [TestMethod]
         [Description("Positive Test for AcquireToken with missing redirectUri and/or userId")]
-        public async Task AcquireTokenPositiveWithoutUserIdAsync()
+        public async Task AcquireTokenPositiveWithoutUserId_PKCE_Async()
         {
             _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var mockWebUI = MockHelpers.ConfigureMockWebUI(

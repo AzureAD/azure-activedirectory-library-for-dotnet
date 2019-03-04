@@ -40,8 +40,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// 
         /// </summary>
         /// <param name="promptBehavior"></param>
-        public PlatformParameters(PromptBehavior promptBehavior):this(promptBehavior, null)
+        public PlatformParameters(PromptBehavior promptBehavior)
         {
+            this.PromptBehavior = promptBehavior;
         }
 
         /// <summary>
