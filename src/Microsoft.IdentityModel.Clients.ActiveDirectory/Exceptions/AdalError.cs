@@ -327,5 +327,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// An http request has timed out after being retried once
         /// </summary>
         public const string HttpRequestTimeoutResilience = "http_request_timeout";
+
+        /// <summary>
+        /// Error code used when the CustomWebUI has returned an uri, but it is invalid - it is either null or has no code.
+        /// Consider throwing an exception if you are unable to intercept the uri containing the code. 
+        /// </summary>
+        public const string CustomWebUiReturnedInvalidUri = "custom_webui_returned_invalid_uri";
+
+        /// <summary>
+        /// Error code used when the CustomWebUI has returned an uri, but it does not match the Authroity and AbsolutePath of 
+        /// the configured redirect uri.
+        /// </summary>
+        public const string CustomWebUiRedirectUriMismatch = "custom_webui_invalid_mismatch";
+
+        /// <summary>
+        /// Error code used when 
+        /// </summary>
+        public const string NetStandardCustomWebUi = "netcore_custom_webui";
     }
 }

@@ -27,6 +27,7 @@
 
 using Android.App;
 using Microsoft.Identity.Core.UI;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using System;
 
@@ -80,6 +81,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             this.CallerActivity = callerActivity;
             UseBroker = useBroker;
             PromptBehavior = promptBehavior;
+        }
+
+        /// <summary>
+        /// Constructor that allows extends to configure their own web ui. Not supported on Android, iOS and UWP. 
+        /// </summary>
+        public PlatformParameters(PromptBehavior promptBehavior, ICustomWebUi customWebUi)
+        {
+            throw new PlatformNotSupportedException("This constructor is not supported on Android");
         }
 
         /// <summary>

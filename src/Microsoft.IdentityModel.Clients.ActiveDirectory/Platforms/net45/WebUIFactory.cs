@@ -34,9 +34,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     {
         public IWebUI CreateAuthenticationDialog(CoreUIParent coreUIParent, RequestContext context)
         {
+            if (coreUIParent.CustomWebUi != null )
+            {
+                return new CustomWebUiHandler(coreUIParent.CustomWebUi);
+            }
+
             if (coreUIParent.UseHiddenBrowser)
             {
-
                 return new SilentWebUI(context) { OwnerWindow = coreUIParent.OwnerWindow };
             }
 

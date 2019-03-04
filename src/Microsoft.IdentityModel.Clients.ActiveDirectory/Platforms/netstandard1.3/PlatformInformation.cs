@@ -25,9 +25,40 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using System;
+
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class PlatformInformation : PlatformInformationBase
     {
+        public override void AddPromptBehaviorQueryParameter(IPlatformParameters parameters, DictionaryRequestParameters authorizationRequestParameters)
+        {
+            PlatformParameters authorizationParameters = (parameters as PlatformParameters);
+            if (authorizationParameters == null)
+            {
+                throw new ArgumentException("parameters should be of type PlatformParameters", "parameters");
+            }
+
+            PromptBehavior promptBehavior = authorizationParameters.PromptBehavior;
+
+            // ADFS currently ignores the parameter for now.
+            switch (promptBehavior)
+            {
+                case PromptBehavior.Always:
+                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.Login;
+                    break;
+                case PromptBehavior.SelectAccount:
+                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.SelectAccount;
+                    break;
+                case PromptBehavior.RefreshSession:
+                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.RefreshSession;
+                    break;
+                case PromptBehavior.Never:  //TODO: needs testing
+                    authorizationRequestParameters[OAuthParameter.Prompt] = PromptValue.AttemptNone;
+                    break;
+            }
+        }
+
     }
 }

@@ -35,7 +35,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     {
         public IWebUI CreateAuthenticationDialog(CoreUIParent coreUIParent, RequestContext context)
         {
-            throw new NotImplementedException();
+            if (coreUIParent == null)
+            {
+                throw new ArgumentNullException(nameof(coreUIParent));
+            }
+
+            if (coreUIParent.CustomWebUi != null)
+            {
+                return new CustomWebUiHandler(coreUIParent.CustomWebUi);
+            }
+
+            throw new AdalException(
+                AdalError.NetStandardCustomWebUi,
+                AdalErrorMessage.NetStandardCustomWebUi);
         }
     }
 }

@@ -62,7 +62,7 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = PlatformParametersFactory.CreateDefault();
+            _platformParameters = new PlatformParameters(PromptBehavior.SelectAccount);
 
             InstanceDiscovery.InstanceCache.Clear();
         }

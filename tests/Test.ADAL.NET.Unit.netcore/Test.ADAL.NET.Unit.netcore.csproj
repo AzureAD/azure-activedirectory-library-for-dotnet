@@ -15,6 +15,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Remove="..\Test.ADAL.NET.Unit.net45\CommonUnitTests.cs" />
+    <Compile Remove="..\Test.ADAL.NET.Unit.net45\Helpers\PlatformParametersFactory.cs" />
 
     <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj" />
     <ProjectReference Include="..\Test.ADAL.NET.Common\Test.ADAL.NET.Common.csproj" />

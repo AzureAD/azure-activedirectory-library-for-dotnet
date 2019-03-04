@@ -26,19 +26,49 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.UI;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
 using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
     /// <summary>
-    ///  Additional parameters used in acquiring user's authorization, specific to netstadard 1.1
+    ///  Additional parameters used in acquiring user's authorization.
     /// </summary>
     public class PlatformParameters : IPlatformParameters
     {
-        // NetStandard1.3 does not have UI
+        /// <summary>
+        /// Constructor that allows extends to configure their own web ui. Not implemented on Android, iOS and UWP. 
+        /// </summary>
+        /// <remarks> 
+        /// This object is platform specific and should not be constructed from NetStandard (shared) assemblies. 
+        /// </remarks>
+        /// <param name="promptBehavior">Controls the prompt that is displayed on web ui. Default is <see cref="PromptBehavior.SelectAccount"/>.</param>
+        /// <param name="customWebUi">Custom implementation of the web ui</param>
+        public PlatformParameters(PromptBehavior promptBehavior, ICustomWebUi customWebUi)
+        {
+            this.PromptBehavior = promptBehavior;
+            this.CustomWebUi = customWebUi ?? throw new ArgumentNullException(nameof(customWebUi));
+        }
+
+        /// <summary>
+        /// Gets the configured prompt behavior
+        /// </summary>
+        public PromptBehavior PromptBehavior { get; private set; }
+
+        /// <summary>
+        ///  Extension method enabling ADAK.NET extenders for public client applications to set a custom web ui
+        ///  that will let the user sign-in with Azure AD, present consent if needed, and get back the authorization
+        ///  code.
+        /// </summary>
+        public ICustomWebUi CustomWebUi { get; private set; }
+
         internal CoreUIParent GetCoreUIParent()
         {
-            throw new NotImplementedException();
+            return new CoreUIParent()
+            {
+                CustomWebUi = this.CustomWebUi
+            };
         }
+
     }
 }
