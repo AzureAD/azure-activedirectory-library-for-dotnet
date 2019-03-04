@@ -49,7 +49,7 @@ namespace UAPTestApp
 
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             _redirectUris.Add(NullRedirectUri);
             _redirectUris.Add("https://MyDirectorySearcherApp");
@@ -75,8 +75,6 @@ namespace UAPTestApp
         {
             this.AccessToken.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
-
-            
 
             try
             {

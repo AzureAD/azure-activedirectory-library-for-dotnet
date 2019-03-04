@@ -19,11 +19,11 @@ namespace AdalDesktopTestApp
         public FileCache(string filePath = @".\TokenCache.dat")
         {
             CacheFilePath = filePath;
-            this.AfterAccess = AfterAccessNotification;
-            this.BeforeAccess = BeforeAccessNotification;
+            AfterAccess = AfterAccessNotification;
+            BeforeAccess = BeforeAccessNotification;
             lock (FileLock)
             {
-                this.Deserialize(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
+                DeserializeAdalV3(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
             }
         }
 
@@ -40,7 +40,7 @@ namespace AdalDesktopTestApp
         {
             lock (FileLock)
             {
-                this.Deserialize(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
+                DeserializeAdalV3(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
             }
         }
 
@@ -48,14 +48,14 @@ namespace AdalDesktopTestApp
         void AfterAccessNotification(TokenCacheNotificationArgs args)
         {
             // if the access operation resulted in a cache update
-            if (this.HasStateChanged)
+            if (HasStateChanged)
             {
                 lock (FileLock)
                 {
                     // reflect changes in the persistent store
-                    File.WriteAllBytes(CacheFilePath, ProtectedData.Protect(this.Serialize(), null, DataProtectionScope.CurrentUser));
+                    File.WriteAllBytes(CacheFilePath, ProtectedData.Protect(SerializeAdalV3(), null, DataProtectionScope.CurrentUser));
                     // once the write operation took place, restore the HasStateChanged bit to false
-                    this.HasStateChanged = false;
+                    HasStateChanged = false;
                 }
             }
         }

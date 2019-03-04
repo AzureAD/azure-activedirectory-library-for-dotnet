@@ -111,9 +111,9 @@ namespace Test.ADAL.NET.Integration
             Assert.AreEqual(_sovereignTenantSpecificAuthority, authenticationContext.Authority);
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
-            Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
+            Assert.AreEqual(1, authenticationContext.TokenCache._tokenCacheDictionary.Count);
             Assert.AreEqual(_sovereignTenantSpecificAuthority,
-                authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault()?.Authority);
+                authenticationContext.TokenCache._tokenCacheDictionary.Keys.FirstOrDefault()?.Authority);
 
             // all mocks are consumed
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
@@ -175,9 +175,9 @@ namespace Test.ADAL.NET.Integration
                 AdalTestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser, "instance_aware=true").ConfigureAwait(false);
 
             // make sure AT was stored in the cache with tenant specific Sovereign Authority in the key
-            Assert.AreEqual(1, authenticationContext.TokenCache.tokenCacheDictionary.Count);
+            Assert.AreEqual(1, authenticationContext.TokenCache._tokenCacheDictionary.Count);
             Assert.AreEqual(_sovereignTenantSpecificAuthority,
-                authenticationContext.TokenCache.tokenCacheDictionary.Keys.FirstOrDefault()?.Authority);
+                authenticationContext.TokenCache._tokenCacheDictionary.Keys.FirstOrDefault()?.Authority);
 
             // DE cloud authority now included in instance cache
             Assert.AreEqual(5, InstanceDiscovery.InstanceCache.Count());

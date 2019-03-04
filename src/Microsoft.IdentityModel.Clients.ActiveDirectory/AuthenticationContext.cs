@@ -192,7 +192,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 keychainSecurityGroup = value;
                 StorageDelegates.LegacyCachePersistence.SetKeychainSecurityGroup(value);
-                TokenCache.tokenCacheAccessor.SetKeychainSecurityGroup(value);
+                TokenCache._tokenCacheAccessor.SetKeychainSecurityGroup(value);
             }
         }
 #endif

@@ -73,7 +73,7 @@ namespace AdalDesktopTestApp
                         4. Acquire Token Interactively with PromptBehavior=Never
                         5. Acquire Token with Username and Password
                         6. Acquire Token Silently
-                        7. Acquire Token by Device Code 
+                        7. Acquire Token by Device Code
                         8. Acquire Token Silent + Interactive with custom Http Client
 
                         0. Exit App
@@ -148,7 +148,7 @@ namespace AdalDesktopTestApp
 
             AuthenticationContext authenticationContext = new AuthenticationContext(
                 authority: "https://login.microsoftonline.com/common",
-                validateAuthority: true, 
+                validateAuthority: true,
                 tokenCache: TokenCache.DefaultShared, // on .Net and .Net core define your own cache persistence (ommited here)
                 httpClient: httpClient);
 
@@ -188,7 +188,7 @@ namespace AdalDesktopTestApp
                 }
 
             }
-                 
+
         }
 
 #pragma warning restore CA2201 // Do not raise reserved exception types

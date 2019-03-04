@@ -316,7 +316,7 @@ namespace Microsoft.Identity.Core.Cache
                             foreach (MsalAccountCacheItem accountCacheItem in accounts)
                             {
                                 if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase)
-                                    && accountCacheItem.PreferredUsername.Equals(upn, StringComparison.OrdinalIgnoreCase))
+                                    && (string.IsNullOrEmpty(upn) || accountCacheItem.PreferredUsername.Equals(upn, StringComparison.OrdinalIgnoreCase)))
                                 {
                                     return new AdalResultWrapper
                                     {

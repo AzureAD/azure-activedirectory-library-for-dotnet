@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public static void BeforeAccess(TokenCacheNotificationArgs args)
         {
 #if ANDROID || iOS || WINDOWS_APP
-            args?.TokenCache?.Deserialize(LegacyCachePersistence.LoadCache());
+            args?.TokenCache?.DeserializeAdalV3(LegacyCachePersistence.LoadCache());
 #endif
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 #if ANDROID || iOS || WINDOWS_APP
             if (args?.TokenCache != null && args.TokenCache.HasStateChanged)
             {
-                LegacyCachePersistence.WriteCache(args.TokenCache.Serialize());
+                LegacyCachePersistence.WriteCache(args.TokenCache.SerializeAdalV3());
                 args.TokenCache.HasStateChanged = false;
             }
 #endif

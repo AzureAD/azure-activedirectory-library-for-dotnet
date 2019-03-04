@@ -39,6 +39,7 @@ namespace Microsoft.Identity.Core.Cache
     /// to ADAL.NET 4.x, MSAL.NET 2.x and other libraries in the same Operating System
     /// (for instance ADAL and MSAL for objective C in iOS)
     /// </summary>
+    [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
     public class CacheData
     {
         /// <summary>
