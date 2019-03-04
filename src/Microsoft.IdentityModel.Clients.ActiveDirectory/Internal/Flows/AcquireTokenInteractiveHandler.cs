@@ -36,6 +36,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -49,6 +50,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly IWebUI webUi;
         private readonly UserIdentifier userId;
         private readonly string claims;
+
+        private string state;
         private string codeVerifier;
 
         public AcquireTokenInteractiveHandler(
@@ -236,7 +239,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             // PKCE and State should be used for interactive auth, but not when creating an Authorization uri
             if (addPkceAndState)
             {
-                AddPKCESupport(authorizationRequestParameters);
+                AddPKCEAndState(authorizationRequestParameters);
             }
 
 #if DESKTOP
@@ -290,16 +293,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             return authorizationRequestParameters;
         }
 
-        private void AddPKCESupport(DictionaryRequestParameters authorizationRequestParameters)
+        private void AddPKCEAndState(DictionaryRequestParameters authorizationRequestParameters)
         {
             codeVerifier = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.GenerateCodeVerifier();
             string codeVerifierHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateBase64UrlEncodedSha256Hash(codeVerifier);
             authorizationRequestParameters[OAuthParameter.CodeChallenge] = codeVerifierHash;
             authorizationRequestParameters[OAuthParameter.CodeChallengeMethod] = OAuthValue.CodeChallengeMethodValue;
+
+            state = Guid.NewGuid().ToString() + Guid.NewGuid().ToString();
+            authorizationRequestParameters[OAuthParameter.State] = state;
         }
 
         private void VerifyAuthorizationResult()
         {
+            if (this.authorizationResult.Status == AuthorizationStatus.Success &&
+              !this.state.Equals(this.authorizationResult.State,
+                  StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AdalException(
+                    AdalError.StateMismatchError,
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Returned state({0}) from authorize endpoint is not the same as the one sent({1})",
+                        authorizationResult.State,
+                        state));
+            }
+
             if (this.authorizationResult.Error == OAuthError.LoginRequired)
             {
                 throw new AdalException(AdalError.UserInteractionRequired);

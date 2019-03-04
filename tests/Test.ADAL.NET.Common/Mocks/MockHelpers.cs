@@ -46,9 +46,12 @@ namespace Test.ADAL.NET.Common.Mocks
             return ConfigureMockWebUI(authorizationResult, new Dictionary<string, string>());
         }
 
-        public static MockWebUI ConfigureMockWebUI(AuthorizationResult authorizationResult, IDictionary<string, string> queryParamsToValidate)
+        public static MockWebUI ConfigureMockWebUI(
+            AuthorizationResult authorizationResult, 
+            IDictionary<string, string> queryParamsToValidate, 
+            bool addStateToAuthroizationResult = true)
         {
-            MockWebUI webUi = new MockWebUI();
+            MockWebUI webUi = new MockWebUI(addStateToAuthroizationResult);
             webUi.QueryParamsToValidate = queryParamsToValidate;
             webUi.MockResult = authorizationResult;
 

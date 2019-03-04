@@ -100,7 +100,7 @@ namespace Test.ADAL.NET.Integration
                 PostData = new Dictionary<string, string>
                     {
                         {"client_id", AdalTestConstants.DefaultClientId},
-                        {"grant_type", OAuth2GrantType.RefreshToken},
+                        {"grant_type", OAuthGrantType.RefreshToken},
                         {"refresh_token", AdalTestConstants.DefaultRefreshTokenValue},
                         {"resource", AdalTestConstants.DefaultResource},
                         {"scope", OAuthValue.ScopeOpenId}

@@ -128,7 +128,7 @@ namespace Test.ADAL.NET.Unit.net45
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
         }
 
-    
+
 
 
         [TestMethod]
@@ -171,9 +171,7 @@ namespace Test.ADAL.NET.Unit.net45
         {
             _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
             var mockWebUI = MockHelpers.ConfigureMockWebUI(
-                new AuthorizationResult(
-                    AuthorizationStatus.Success,
-                    AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
+                new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
                 MockHelpers.GetDefaultAuthorizationRequestParams());
 
             var mockHandler = new MockHttpMessageHandler(
@@ -215,6 +213,25 @@ namespace Test.ADAL.NET.Unit.net45
             // All mocks are consumed
             Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
             _context.TokenCache.Clear();
+        }
+
+        [TestMethod]
+        [Description("Positive Test for AcquireToken with missing redirectUri and/or userId")]
+        public void InvalidStateReturned_ThrowsException()
+        {
+            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
+            MockHelpers.ConfigureMockWebUI(
+                new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
+                MockHelpers.GetDefaultAuthorizationRequestParams(),
+                addStateToAuthroizationResult: false);
+
+            var ex = AssertException.TaskThrows<AdalException>(() => _context.AcquireTokenAsync(
+                        AdalTestConstants.DefaultResource,
+                        AdalTestConstants.DefaultClientId,
+                        AdalTestConstants.DefaultRedirectUri,
+                        _platformParameters));
+
+            Assert.AreEqual(AdalError.StateMismatchError, ex.ErrorCode);
         }
 
         private static void ValidatePkce(MockWebUI mockWebUI, MockHttpMessageHandler exchangeAuthorizationCodeHandler)

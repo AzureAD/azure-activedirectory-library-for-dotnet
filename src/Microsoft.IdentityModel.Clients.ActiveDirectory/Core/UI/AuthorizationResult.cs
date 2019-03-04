@@ -82,6 +82,14 @@ namespace Microsoft.Identity.Core.UI
         [DataMember]
         public string CloudInstanceHost { get; set; }
 
+        /// <summary>
+        /// A string that is added to each Authroization Request and is expected to be sent back along with the 
+        /// authorization code. MSAL is responsible for validating that the state sent is identical to the state received.
+        /// </summary>
+        /// <remarks>
+        /// This is in addition to PKCE, which is validated by the server to ensure that the system redeeming the auth code
+        /// is the same as the system who asked for it.  It protects against XSRF https://openid.net/specs/openid-connect-core-1_0.html
+        /// </remarks>
         public string State { get; set; }
 
         public void ParseAuthorizeResponse(string webAuthenticationResult)
@@ -97,9 +105,9 @@ namespace Microsoft.Identity.Core.UI
                 Dictionary<string, string> response = CoreHelpers.ParseKeyValueList(resultData.Substring(1), '&',
                     true, null);
 
-                if (response.ContainsKey(OAuth2Parameter.State))
+                if (response.ContainsKey(IdentityModel.Clients.ActiveDirectory.Internal.OAuth2.OAuthParameter.State))
                 {
-                    State = response[OAuth2Parameter.State];
+                    State = response[IdentityModel.Clients.ActiveDirectory.Internal.OAuth2.OAuthParameter.State];
                 }
 
                 if (response.ContainsKey(TokenResponseClaim.Code))
