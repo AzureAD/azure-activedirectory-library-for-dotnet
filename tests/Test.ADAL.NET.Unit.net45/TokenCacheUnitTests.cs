@@ -129,7 +129,7 @@ namespace Test.ADAL.NET.Unit
         [TestCategory("AdalDotNetUnit")]
         public async Task TokenCacheKeyTestAsync()
         {
-            await TokenCacheTests.TokenCacheKeyTestAsync(PlatformParametersFactory.CreateDefault())
+            await TokenCacheTests.TokenCacheKeyTestAsync(new PlatformParameters(PromptBehavior.Auto))
                 .ConfigureAwait(false);
         }
 #endif

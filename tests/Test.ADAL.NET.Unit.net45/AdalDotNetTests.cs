@@ -989,6 +989,12 @@ namespace Test.ADAL.NET.Unit
             Assert.IsNotNull(uri);
             Assert.IsTrue(uri.AbsoluteUri.Contains("login_hint"));
             Assert.IsTrue(uri.AbsoluteUri.Contains("extra=123"));
+
+            // Interactive auth adds these, but GetAuthorizationRequestURL should not
+            Assert.IsFalse(uri.AbsoluteUri.Contains("state"));
+            Assert.IsFalse(uri.AbsoluteUri.Contains("code_challenge"));
+            Assert.IsFalse(uri.AbsoluteUri.Contains("code_verifier"));
+            
             uri = await _context.GetAuthorizationRequestUrlAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, AdalTestConstants.DefaultRedirectUri, UserIdentifier.AnyUser, null).ConfigureAwait(false);
             Assert.IsNotNull(uri);
             Assert.IsFalse(uri.AbsoluteUri.Contains("login_hint"));

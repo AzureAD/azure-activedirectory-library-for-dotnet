@@ -166,15 +166,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         internal async Task AcquireAuthorizationAsync()
         {
-            Uri authorizationUri = this.CreateAuthorizationUri();
-            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(authorizationUri, this.redirectUri, RequestContext).ConfigureAwait(false);
+            Uri authorizationUri = this.CreateAuthorizationUri(true);
+            this.authorizationResult = await this.webUi.AcquireAuthorizationAsync(
+                authorizationUri, 
+                this.redirectUri, RequestContext).ConfigureAwait(false);
         }
 
         internal async Task<Uri> CreateAuthorizationUriAsync(Guid correlationId)
         {
             this.RequestContext.Logger.CorrelationId = correlationId;
             await this.Authenticator.UpdateFromTemplateAsync(RequestContext).ConfigureAwait(false);
-            return this.CreateAuthorizationUri();
+            return this.CreateAuthorizationUri(false);
         }
 
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
@@ -207,7 +209,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
         }
 
-        private Uri CreateAuthorizationUri()
+        private Uri CreateAuthorizationUri(bool addPkce)
         {
             string loginHint = null;
 
@@ -218,20 +220,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 loginHint = userId.Id;
             }
 
-            IRequestParameters requestParameters = this.CreateAuthorizationRequest(loginHint);
+            IRequestParameters requestParameters = this.CreateAuthorizationRequest(loginHint, addPkce);
 
             return new Uri(new Uri(this.Authenticator.AuthorizationUri), "?" + requestParameters);
         }
 
         
-        private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint)
+        private DictionaryRequestParameters CreateAuthorizationRequest(string loginHint, bool addPkceAndState)
         {
             var authorizationRequestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey);
             authorizationRequestParameters[OAuthParameter.ResponseType] = OAuthResponseType.Code;
             authorizationRequestParameters[OAuthParameter.HasChrome] = "1";
             authorizationRequestParameters[OAuthParameter.RedirectUri] = this.redirectUriRequestParameter;
 
-            AddPKCESupport(authorizationRequestParameters);
+            // PKCE and State should be used for interactive auth, but not when creating an Authorization uri
+            if (addPkceAndState)
+            {
+                AddPKCESupport(authorizationRequestParameters);
+            }
 
 #if DESKTOP
             // Added form_post as a way to request to ensure we can handle large requests for dsts scenarios
