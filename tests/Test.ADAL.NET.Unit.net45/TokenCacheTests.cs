@@ -173,6 +173,7 @@ namespace Test.ADAL.Common.Unit
             VerifyCacheItemCount(cache, 0);
         }
 
+        #if !NET_CORE // netcore doesn't support interactive
         /// <summary>
         /// Check when there are multiple users in the cache with the same
         /// authority, clientId, resource but different unique and displayId's that
@@ -230,7 +231,7 @@ namespace Test.ADAL.Common.Unit
             authenticationResultFromCache = await acWithLocalCache.AcquireTokenSilentAsync(resource, clientId, userIdUpper).ConfigureAwait(false);
             VerifyAuthenticationResultsAreEqual(new AuthenticationResult(cacheValue.Result), authenticationResultFromCache);
         }
-
+#endif
 
         public static async Task TokenCacheKeyTestAsync(IPlatformParameters parameters)
         {

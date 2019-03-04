@@ -47,15 +47,16 @@ namespace Test.ADAL.NET.Integration
     {
         private IPlatformParameters _platformParameters;
 
+#if !NET_CORE // interactive auth not supported on netcore
         [TestInitialize]
         public void Initialize()
         {
             AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            _platformParameters = PlatformParametersFactory.CreateDefault();
+            _platformParameters = new PlatformParameters(PromptBehavior.SelectAccount);
             InstanceDiscovery.InstanceCache.Clear();
         }
 
-#if !NET_CORE // interactive auth not supported on netcore
+
         [TestMethod]
         [Description("Test unified token cache")]
         public async Task UnifedCache_AdalStoresToAndReadRtFromMsalCacheAsync()

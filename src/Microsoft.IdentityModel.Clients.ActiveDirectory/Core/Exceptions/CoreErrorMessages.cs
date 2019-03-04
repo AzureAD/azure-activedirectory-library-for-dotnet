@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 
+using System.Globalization;
+
 namespace Microsoft.Identity.Core
 {
     internal class CoreErrorMessages
@@ -114,6 +116,15 @@ namespace Microsoft.Identity.Core
         public const string RedirectUriContainsFragment = "'redirectUri' must NOT include a fragment component";
 
         public const string NoRedirectUri = "No redirectUri was configured. ADAL does not provide any defaults.";
+
+        public const string CustomWebUiReturnedInvalidUri = "ICustomWebUi returned an invalid uri - it is empty or has no query.";
+
+        public static string CustomWebUiRedirectUriMismatch(string expectedUri, string actualUri)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture, 
+                "Redirect Uri was not a match to the proper uri.  Expected ({0}) Actual ({1})", expectedUri, actualUri);
+        }
 
     }
 }

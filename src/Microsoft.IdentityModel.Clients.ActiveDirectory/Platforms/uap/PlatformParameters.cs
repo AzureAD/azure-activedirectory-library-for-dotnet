@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.UI;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
+using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -43,6 +45,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             this.PromptBehavior = promptBehavior;
             this.UseCorporateNetwork = useCorporateNetwork;
+        }
+
+        /// <summary>
+        /// Constructor that allows extends to configure their own web ui. Not supported on Android, iOS and UWP. 
+        /// </summary>
+        public PlatformParameters(PromptBehavior promptBehavior, ICustomWebUi customWebUi)
+        {
+            throw new PlatformNotSupportedException("This constructor is not supported on UWP");
         }
 
         /// <summary>

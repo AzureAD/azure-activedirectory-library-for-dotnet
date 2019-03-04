@@ -154,6 +154,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string IwaNotSupportedForManagedUser = "Integrated Windows Auth is not supported for managed users. See https://aka.ms/adal-iwa for details.";
 
         public const string HttpRequestTimeoutResilience = "An HTTP request has timed out. ADAL has already retried once. See inner exception for details";
+
+        public const string NetStandardCustomWebUi = "For this framework, ADAL does not provide an way to perform interactive auth. You can do this by implementing ICustomWebUi";
     }
     
 }

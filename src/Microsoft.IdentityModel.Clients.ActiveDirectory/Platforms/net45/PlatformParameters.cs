@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.UI;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
+using System;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -54,6 +56,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
+        /// Constructor that allows extends to configure their own web ui. 
+        /// </summary>
+        /// <param name="promptBehavior">Controls the prompt that is displayed on web ui. Default is <see cref="PromptBehavior.SelectAccount"/>.</param>
+        /// <param name="customWebUi">Custom implementation of the web ui</param>
+        public PlatformParameters(PromptBehavior promptBehavior, ICustomWebUi customWebUi)
+        {
+            this.PromptBehavior = promptBehavior;
+            this.CustomWebUi = customWebUi ?? throw new ArgumentNullException(nameof(customWebUi));
+        }
+
+        /// <summary>
         /// Gets the owner of the browser dialog which pops up for receiving user credentials. It can be null.
         /// </summary>
         public object OwnerWindow { get; private set; }
@@ -63,12 +76,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public PromptBehavior PromptBehavior { get; internal set; }
 
+        /// <summary>
+        ///  Extension method enabling ADAK.NET extenders for public client applications to set a custom web ui
+        ///  that will let the user sign-in with Azure AD, present consent if needed, and get back the authorization
+        ///  code.
+        /// </summary>
+        public ICustomWebUi CustomWebUi { get; private set; }
+
         internal CoreUIParent GetCoreUIParent()
         {
             return new CoreUIParent()
             {
                 OwnerWindow = this.OwnerWindow,
-                UseHiddenBrowser = (this.PromptBehavior == PromptBehavior.Never)
+                UseHiddenBrowser = (this.PromptBehavior == PromptBehavior.Never),
+                CustomWebUi = this.CustomWebUi
             };
         }
     }
