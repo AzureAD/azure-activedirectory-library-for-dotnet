@@ -258,7 +258,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                _tokenCacheDictionary.Clear();
                 var serializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
                 serializer.Deserialize(bytes);
             }
@@ -299,7 +298,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                _tokenCacheDictionary.Clear();
                 var jsonSerializer = new TokenCacheJsonSerializer(_tokenCacheAccessor);
                 jsonSerializer.Deserialize(bytes);
             }
