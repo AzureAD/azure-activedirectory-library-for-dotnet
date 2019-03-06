@@ -66,8 +66,6 @@ namespace Microsoft.Identity.Core.Cache
 
         public void Deserialize(byte[] bytes)
         {
-            _accessor.Clear();
-
             string jsonString = CoreHelpers.ByteArrayToString(bytes);
 
             if (string.IsNullOrEmpty(jsonString))

@@ -85,8 +85,6 @@ namespace Microsoft.Identity.Core.Cache
 
         public void Deserialize(byte[] bytes)
         {
-            _accessor.Clear();
-
             var cacheDict = JsonHelper.DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(bytes);
 
             if (cacheDict == null || cacheDict.Count == 0)
