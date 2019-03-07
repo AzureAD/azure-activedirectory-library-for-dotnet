@@ -129,8 +129,6 @@ namespace Test.ADAL.NET.Unit.net45
         }
 
 
-
-
         [TestMethod]
         [Description("Positive Test for ExtendedLife Feature")]
         [TestCategory("AdalDotNet")]
@@ -245,6 +243,22 @@ namespace Test.ADAL.NET.Unit.net45
             string expectedPkceCodeChanllenge = PlatformProxyFactory.GetPlatformProxy()
                 .CryptographyManager.CreateBase64UrlEncodedSha256Hash(actualPkceCode);
             Assert.AreEqual(expectedPkceCodeChanllenge, actualPkceCodeChallenge);
+        }
+
+
+        [TestMethod]
+        public void ArgNull_PlatformParamters()
+        {
+            AssertException.Throws<ArgumentNullException>(() =>
+          {
+              new PlatformParameters(PromptBehavior.SelectAccount, null);
+          });
+
+
+            AssertException.Throws<ArgumentNullException>(() =>
+            {
+                new PlatformParameters(PromptBehavior.SelectAccount, (object)null);
+            });
         }
 
 

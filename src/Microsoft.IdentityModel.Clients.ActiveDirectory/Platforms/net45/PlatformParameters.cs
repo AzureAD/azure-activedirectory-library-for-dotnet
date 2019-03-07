@@ -53,7 +53,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public PlatformParameters(PromptBehavior promptBehavior, object ownerWindow)
         {
             this.PromptBehavior = promptBehavior;
-            this.OwnerWindow = ownerWindow;
+            this.OwnerWindow = ownerWindow ?? throw new ArgumentNullException(nameof(ownerWindow));
         }
 
         /// <summary>
