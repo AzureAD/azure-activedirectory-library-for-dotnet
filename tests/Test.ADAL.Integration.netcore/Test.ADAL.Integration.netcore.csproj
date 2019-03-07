@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);NET_CORE;ADAL_TEST</DefineConstants>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);NET_CORE</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile>../../build/35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     
-    <Compile Include="..\Test.ADAL.Integration.net45\**\*.cs" 
-             Exclude="..\Test.ADAL.Integration.net45\obj\**\*;..\Test.ADAL.Integration.net45\bin\**\*" />
+    <Compile Include="..\Test.ADAL.Integration.net45\**\*.cs" Exclude="..\Test.ADAL.Integration.net45\obj\**\*;..\Test.ADAL.Integration.net45\bin\**\*" />
     <None Include="..\Test.ADAL.Integration.net45\Resources\**\*" LinkBase="Resources">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -28,6 +27,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="StrongNamer" Version="0.0.8" />
     <!-- This reference is a workaround for a bug in .net46
     https://stackoverflow.com/questions/45563560/could-not-load-file-or-assembly-system-net-http-version-4-1-1-1-net-standard-->
