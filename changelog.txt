@@ -1,6 +1,6 @@
 Version 5.0.0-preview
 ==============
-- **Enhancements includes support for MSALv3 Cache (which is also or will soon be supported by other libraries such as Python and Java, more detail here https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/MSAL.NET-3-released) as well as enabling users to bring their own browser as part of the Auth Code retrieval.
+- **Enhancements include support for MSALv3 Cache (which is also or will soon be supported by other libraries such as Python and Java, more detail here https://aka.ms/msal-net-3x) as well as enabling users to bring their own browser as part of the Auth Code retrieval(#1521).
 
 Version 4.5.1
 ===============
