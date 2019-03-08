@@ -1,3 +1,7 @@
+Version 5.0-preview
+==============
+- **Enhancements includes support for MSALv3 Cache (which is also or will soon be supported by other libraries such as Python and Java, more detail here https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/MSAL.NET-3-released) as well as enabling users to bring their own browser as part of the Auth Code retrieval.
+
 Version 4.5.1
 ===============
 - **ADAL 4.5.0 and lower fails to install due to a version conflict on Android projects targeting Xamarin.Android.Support libraries version 28.x**. The ADAL Xamarin.Android.Support libraries have been updated to 27.0.2.1, the maximum version on Android8.1. [ADAL issue #1486](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1486)
