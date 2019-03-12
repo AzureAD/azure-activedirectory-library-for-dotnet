@@ -329,10 +329,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
                 OnBeforeAccess(args);
-                List<TokenCacheItem> items = _tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
-                OnAfterAccess(args);
-
-                return items;
+                try
+                {
+                    List<TokenCacheItem> items =
+                        _tokenCacheDictionary.Select(kvp => new TokenCacheItem(kvp.Key, kvp.Value.Result)).ToList();
+                    return items;
+                }
+                finally
+                {
+                    OnAfterAccess(args);
+                }
             }
         }
 
@@ -359,21 +365,27 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 };
 
                 OnBeforeAccess(args);
-                OnBeforeWrite(args);
-
-                AdalTokenCacheKey toRemoveKey = _tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
-                if (toRemoveKey != null)
+                try
                 {
-                    _tokenCacheDictionary.Remove(toRemoveKey);
-                    CoreLoggerBase.Default.Info("One item removed successfully");
-                }
-                else
-                {
-                    CoreLoggerBase.Default.Info("Item not Present in the Cache");
-                }
+                    OnBeforeWrite(args);
 
-                HasStateChanged = true;
-                OnAfterAccess(args);
+                    AdalTokenCacheKey toRemoveKey = _tokenCacheDictionary.Keys.FirstOrDefault(item.Match);
+                    if (toRemoveKey != null)
+                    {
+                        _tokenCacheDictionary.Remove(toRemoveKey);
+                        CoreLoggerBase.Default.Info("One item removed successfully");
+                    }
+                    else
+                    {
+                        CoreLoggerBase.Default.Info("Item not Present in the Cache");
+                    }
+
+                    HasStateChanged = true;
+                }
+                finally
+                {
+                    OnAfterAccess(args);
+                }
             }
         }
 
@@ -387,15 +399,25 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 TokenCacheNotificationArgs args = new TokenCacheNotificationArgs { TokenCache = this };
                 OnBeforeAccess(args);
-                OnBeforeWrite(args);
-                CoreLoggerBase.Default.Info(string.Format(CultureInfo.CurrentCulture, "Clearing Cache :- {0} items to be removed", _tokenCacheDictionary.Count));
+                try
+                {
+                    OnBeforeWrite(args);
+                    CoreLoggerBase.Default.Info(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            "Clearing Cache :- {0} items to be removed",
+                            _tokenCacheDictionary.Count));
 
-                ClearAdalCache();
-                ClearMsalCache();
+                    ClearAdalCache();
+                    ClearMsalCache();
 
-                CoreLoggerBase.Default.Info("Successfully Cleared Cache");
-                HasStateChanged = true;
-                OnAfterAccess(args);
+                    CoreLoggerBase.Default.Info("Successfully Cleared Cache");
+                    HasStateChanged = true;
+                }
+                finally
+                {
+                    OnAfterAccess(args);
+                }
             }
         }
 
