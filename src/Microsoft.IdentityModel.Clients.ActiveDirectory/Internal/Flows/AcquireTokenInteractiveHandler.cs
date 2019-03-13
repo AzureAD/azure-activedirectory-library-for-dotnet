@@ -55,13 +55,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private string codeVerifier;
 
         public AcquireTokenInteractiveHandler(
+            IServiceBundle serviceBundle,
             RequestData requestData,
             Uri redirectUri,
             IPlatformParameters platformParameters,
             UserIdentifier userId,
             string extraQueryParameters,
             string claims)
-            : base(requestData)
+            : base(serviceBundle, requestData)
         {
             this.redirectUri = ComputeAndValidateRedirectUri(redirectUri, this.ClientKey?.ClientId);
             this.redirectUriRequestParameter = PlatformProxyFactory.GetPlatformProxy().GetBrokerOrRedirectUri(this.redirectUri);

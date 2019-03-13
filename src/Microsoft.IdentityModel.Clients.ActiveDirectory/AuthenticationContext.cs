@@ -117,25 +117,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
         /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 
         /// to use ADAL's implementation of the cache on Android, iOS and UWP. Use null to store tokens only in memory.</param>
-        /// <param name="httpClient">Custom Http Client that will be used for the lifetime of this object</param>
-        public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, HttpClient httpClient)
+        /// <param name="httpClientFactory">HTTP client factory</param>
+        /// <remarks>ADAL does not guarantee that it will not modify the HttpClient, for example by adding new headers.</remarks>
+        public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, IHttpClientFactory httpClientFactory)
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
-                   tokenCache, httpClient)
+                   tokenCache, httpClientFactory)
         {
-            if (httpClient == null)
+            if (httpClientFactory == null)
             {
-                throw new ArgumentNullException(nameof(httpClient));
+                throw new ArgumentNullException(nameof(httpClientFactory));
             }
         }
 
         internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
-            TokenCache tokenCache, HttpClient httpClient = null)
+         TokenCache tokenCache, IHttpClientFactory httpClientFactory = null)
         {
+            _serviceBundle = serviceBundle ?? ServiceBundle.CreateWithHttpClientFactory(httpClientFactory);
+
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
-            Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False));
+            Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False), _serviceBundle);
             TokenCache = tokenCache;
 
-            _serviceBundle = serviceBundle ?? ServiceBundle.CreateWithHttpClient(httpClient);
+            TokenCache?.SetServiceBundle(_serviceBundle);
         }
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId,
             string extraQueryParameters)
         {
-            var handler = new AcquireDeviceCodeHandler(Authenticator, resource, clientId, extraQueryParameters);
+            var handler = new AcquireDeviceCodeHandler(_serviceBundle, Authenticator, resource, clientId, extraQueryParameters);
             return await handler.RunHandlerAsync().ConfigureAwait(false);
         }
 
@@ -271,7 +274,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(deviceCodeResult.ClientId)
             };
 
-            var handler = new AcquireTokenByDeviceCodeHandler(requestData, deviceCodeResult, cancellationToken);
+            var handler = new AcquireTokenByDeviceCodeHandler(_serviceBundle, requestData, deviceCodeResult);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -300,6 +303,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
 
             var handler = new AcquireTokenInteractiveHandler(
+                _serviceBundle,
                 requestData, 
                 redirectUri, 
                 parameters, 
@@ -413,7 +417,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
-            var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, null, userId,
+            var handler = new AcquireTokenInteractiveHandler(_serviceBundle, requestData, redirectUri, null, userId,
                 extraQueryParameters, claims);
             return await handler.CreateAuthorizationUriAsync(CorrelationId).ConfigureAwait(false);
         }
@@ -434,7 +438,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 requestData.Resource = nullResource;
             }
-            var handler = new AcquireTokenByAuthorizationCodeHandler(requestData, authorizationCode, redirectUri);
+            var handler = new AcquireTokenByAuthorizationCodeHandler(_serviceBundle, requestData, authorizationCode, redirectUri);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -449,7 +453,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
                 SubjectType = TokenSubjectType.Client
             };
-            var handler = new AcquireTokenForClientHandler(requestData);
+            var handler = new AcquireTokenForClientHandler(_serviceBundle, requestData);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -465,7 +469,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
 
-            var handler = new AcquireTokenOnBehalfHandler(requestData, userAssertion);
+            var handler = new AcquireTokenOnBehalfHandler(_serviceBundle, requestData, userAssertion);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -518,7 +522,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
             };
-            var handler = new AcquireTokenUserAssertionHandler(requestData, userAssertion);
+            var handler = new AcquireTokenUserAssertionHandler(_serviceBundle, requestData, userAssertion);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
@@ -534,7 +538,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
             };
-            var handler = new AcquireTokenInteractiveHandler(requestData, redirectUri, parameters, userId,
+            var handler = new AcquireTokenInteractiveHandler(_serviceBundle, requestData, redirectUri, parameters, userId,
                 extraQueryParameters, claims);
             return await handler.RunAsync().ConfigureAwait(false);
         }
@@ -551,7 +555,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = clientKey
             };
 
-            var handler = new AcquireTokenSilentHandler(requestData, userId, parameters);
+            var handler = new AcquireTokenSilentHandler(_serviceBundle, requestData, userId, parameters);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

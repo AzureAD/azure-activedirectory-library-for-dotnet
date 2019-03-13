@@ -28,6 +28,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
@@ -38,8 +39,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly DeviceCodeResult _deviceCodeResult;
         private readonly CancellationToken _cancellationToken;
 
-        public AcquireTokenByDeviceCodeHandler(RequestData requestData, DeviceCodeResult deviceCodeResult, CancellationToken cancellationToken)
-            : base(requestData)
+        public AcquireTokenByDeviceCodeHandler(
+            IServiceBundle serviceBundle, 
+            RequestData requestData, 
+            DeviceCodeResult deviceCodeResult)
+            : base(serviceBundle, requestData)
         {
             LoadFromCache = false; //no cache lookup for token
             StoreToCache = (requestData.TokenCache != null);

@@ -36,13 +36,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenOnBehalfHandler : AcquireTokenHandlerBase
     {
-        private readonly UserAssertion userAssertion;
+        private readonly UserAssertion _userAssertion;
 
-        public AcquireTokenOnBehalfHandler(RequestData requestData, UserAssertion userAssertion)
-            : base(requestData)
+        public AcquireTokenOnBehalfHandler(
+            IServiceBundle serviceBundle, 
+            RequestData requestData, 
+            UserAssertion userAssertion)
+            : base(serviceBundle, requestData)
         {
-            this.userAssertion = userAssertion ?? throw new ArgumentNullException(nameof(userAssertion));
-            this.DisplayableId = userAssertion.UserName;
+            _userAssertion = userAssertion ?? throw new ArgumentNullException(nameof(userAssertion));
+            DisplayableId = userAssertion.UserName;
             CacheQueryData.AssertionHash = PlatformProxyFactory
                                            .GetPlatformProxy()
                                            .CryptographyManager
@@ -68,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.JwtBearer;
-            requestParameters[OAuthParameter.Assertion] = this.userAssertion.Assertion;
+            requestParameters[OAuthParameter.Assertion] = this._userAssertion.Assertion;
             requestParameters[OAuthParameter.RequestedTokenUse] = OAuthRequestedTokenUse.OnBehalfOf;
 
             // To request id_token in response

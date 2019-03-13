@@ -35,9 +35,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
     {
         public HttpWebResponseWrapper(string responseString, HttpResponseHeaders headers, HttpStatusCode statusCode)
         {
-            this.Body = responseString;
-            this.Headers = headers;
-            this.StatusCode = statusCode;
+            Body = responseString;
+            Headers = headers;
+            StatusCode = statusCode;
         }
 
         public HttpStatusCode StatusCode { get; private set; }
@@ -45,7 +45,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http
         public HttpResponseHeaders Headers { get; private set; }
 
         public string Body { get; private set; }
-
-
     }
 }

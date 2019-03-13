@@ -117,7 +117,7 @@ namespace AdalDesktopTestApp
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
                         case 8: // custom httpClient
-                            var authResult = await AcquireTokenUsingCustomHttpClientAsync().ConfigureAwait(false);
+                            var authResult = await AcquireTokenUsingCustomHttpClientFactoryAsync().ConfigureAwait(false);
                             await FetchTokenAsync(Task.FromResult(authResult)).ConfigureAwait(false);
                             break;
                         case 0:
@@ -125,8 +125,6 @@ namespace AdalDesktopTestApp
                         default:
                             break;
                     }
-
-
                 }
                 catch (Exception ex)
                 {
@@ -142,15 +140,16 @@ namespace AdalDesktopTestApp
 #pragma warning disable CA2201 // Do not raise reserved exception types
 
 
-        private static async Task<AuthenticationResult> AcquireTokenUsingCustomHttpClientAsync()
+        private static async Task<AuthenticationResult> AcquireTokenUsingCustomHttpClientFactoryAsync()
         {
-            HttpClient httpClient = CreateCustomHttpClient();
+            IHttpClientFactory myHttpClientFactory = new MyHttpClientFactory();
+            myHttpClientFactory.GetHttpClient();
 
             AuthenticationContext authenticationContext = new AuthenticationContext(
                 authority: "https://login.microsoftonline.com/common",
                 validateAuthority: true,
                 tokenCache: TokenCache.DefaultShared, // on .Net and .Net core define your own cache persistence (ommited here)
-                httpClient: httpClient);
+                httpClientFactory: myHttpClientFactory);
 
             try
             {
@@ -192,21 +191,7 @@ namespace AdalDesktopTestApp
         }
 
 #pragma warning restore CA2201 // Do not raise reserved exception types
-
-
-        private static HttpClient CreateCustomHttpClient()
-        {
-            var httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
-            {
-                MaxResponseContentBufferSize = 1 * 1024 * 1024 // 1 MB
-            };
-
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            return httpClient;
-        }
-
+        
         private static async Task<AuthenticationResult> GetTokenViaDeviceCodeAsync(AuthenticationContext ctx)
         {
             AuthenticationResult result = null;

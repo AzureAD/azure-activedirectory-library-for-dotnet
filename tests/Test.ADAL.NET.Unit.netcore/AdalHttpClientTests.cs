@@ -1,7 +1,4 @@
-﻿using Microsoft.Identity.Core;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-//----------------------------------------------------------------------
+﻿//----------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -30,13 +27,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using Microsoft.Identity.Test.Common.Core.Mocks;
-using Test.Microsoft.Identity.Core.Unit;
+using Test.ADAL.NET.Common.Mocks;
+using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
-    public class AdalHttpClientTests
+    public class OAuthClientTests
     {
+        IServiceBundle _serviceBundle = TestCommon.CreateDefaultServiceBundle();
+
         [TestMethod]
         public void QueryParamsFromEnvVariable()
         {
@@ -51,24 +53,32 @@ namespace Test.ADAL.NET.Unit
                     new TestLogger(Guid.NewGuid(), null));
 
                 const string extraQueryParams = "n1=v1&n2=v2";
+
                 Environment.SetEnvironmentVariable(
-                    AdalHttpClient.ExtraQueryParamEnvVariable,
+                    OAuthClient.ExtraQueryParamEnvVariable, 
                     extraQueryParams);
 
                 // Act
-                string actualUriWithVars = new AdalHttpClient(
-                     uriWithVars, requestContext).RequestUri;
+                OAuthClient client = new OAuthClient(
+                    _serviceBundle.HttpManager,
+                    uriWithVars,
+                    requestContext);
+                string actualUriWithVars = client.RequestUri;
 
-                string actualUriWithoutVars = new AdalHttpClient(
-                  uriWithoutVars, requestContext).RequestUri;
-                
+                OAuthClient client2 = new OAuthClient(
+                    _serviceBundle.HttpManager,
+                    uriWithoutVars,
+                    requestContext);
+
+                string actualUriWithoutVars = client2.RequestUri;
+
                 // Assert
                 Assert.AreEqual(uriWithoutVars + "?" + extraQueryParams, actualUriWithoutVars);
                 Assert.AreEqual(uriWithVars + "&" + extraQueryParams, actualUriWithVars);
             }
             finally
             {
-                Environment.SetEnvironmentVariable(AdalHttpClient.ExtraQueryParamEnvVariable, null);
+                Environment.SetEnvironmentVariable(OAuthClient.ExtraQueryParamEnvVariable, null);
             }
         }
 
@@ -76,7 +86,7 @@ namespace Test.ADAL.NET.Unit
         public void QueryParamsNoEnvVariable()
         {
             // Arrange
-            Environment.SetEnvironmentVariable(AdalHttpClient.ExtraQueryParamEnvVariable, "");
+            Environment.SetEnvironmentVariable(OAuthClient.ExtraQueryParamEnvVariable, "");
             string initialUri = "http://contoso.com?existingVar=var&foo=bar";
 
             RequestContext requestContext = new RequestContext(
@@ -84,8 +94,12 @@ namespace Test.ADAL.NET.Unit
                 new TestLogger(Guid.NewGuid(), null));
 
             // Act
-            string requestUri = new AdalHttpClient(
-                     initialUri, requestContext).RequestUri;
+            OAuthClient client = new OAuthClient(
+                    _serviceBundle.HttpManager,
+                    initialUri,
+                    requestContext);
+
+            string requestUri = client.RequestUri;
 
             // Assert
             Assert.AreEqual(initialUri, requestUri);

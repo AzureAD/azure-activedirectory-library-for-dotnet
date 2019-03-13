@@ -39,13 +39,13 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.HttpTests
         [TestMethod]
         public void GetHttpClient_MaxRespContentBuffSizeSetTo1Mb()
         {
-            Assert.AreEqual(1024 * 1024, new HttpClientFactory().HttpClient.MaxResponseContentBufferSize);
+            Assert.AreEqual(1024 * 1024, new HttpClientFactory().GetHttpClient().MaxResponseContentBufferSize);
         }
 
         [TestMethod]
         public void GetHttpClient_DefaultHeadersSetToJson()
         {
-            var client = new HttpClientFactory().HttpClient;
+            var client = new HttpClientFactory().GetHttpClient();
             Assert.IsNotNull(client.DefaultRequestHeaders.Accept);
             Assert.IsTrue(
                 client.DefaultRequestHeaders.Accept.Any<MediaTypeWithQualityHeaderValue>(x => x.MediaType == "application/json"));
@@ -54,10 +54,9 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.HttpTests
         [TestMethod]
         public void HttpClientFactory_UserHttpClient()
         {
-            HttpClient httpClient = new HttpClient();
-            HttpClientFactory httpClientFactory = new HttpClientFactory(httpClient);
+            HttpClientFactory httpClientFactory = new HttpClientFactory();
             
-            Assert.AreSame(httpClient, httpClientFactory.HttpClient);
+            Assert.IsNotNull(httpClientFactory.GetHttpClient());
         }
     }
 }

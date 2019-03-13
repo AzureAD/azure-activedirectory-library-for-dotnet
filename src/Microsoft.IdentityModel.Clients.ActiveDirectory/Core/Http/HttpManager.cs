@@ -33,6 +33,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.Identity.Core.Http
 {
@@ -45,9 +46,9 @@ namespace Microsoft.Identity.Core.Http
             _httpClientFactory = httpClientFactory ?? new HttpClientFactory();
         }
 
-        protected virtual HttpClient GetHttpClient()
+        internal virtual HttpClient GetHttpClient()
         {
-            return _httpClientFactory.HttpClient;
+            return _httpClientFactory.GetHttpClient();
         }
 
         public async Task<HttpResponse> SendPostAsync(
@@ -61,9 +62,9 @@ namespace Microsoft.Identity.Core.Http
         }
 
         public async Task<HttpResponse> SendPostAsync(
-            Uri endpoint, 
+            Uri endpoint,
             IDictionary<string, string> headers,
-            HttpContent body, 
+            HttpContent body,
             RequestContext requestContext)
         {
             return await ExecuteWithRetryAsync(endpoint, headers, body, HttpMethod.Post, requestContext).ConfigureAwait(false);
@@ -144,6 +145,10 @@ namespace Microsoft.Identity.Core.Http
                 {
                     isRetryable = true;
                 }
+                else
+                {
+                    return response;
+                }
             }
             catch (TaskCanceledException exception)
             {
@@ -174,13 +179,25 @@ namespace Microsoft.Identity.Core.Http
                     throw AdalExceptionFactory.GetServiceException(
                         CoreErrorCodes.RequestTimeout,
                         "Request to the endpoint timed out.",
-                        timeoutException, 
-                        null); // no http response to add more details to this exception
+                        timeoutException,
+                        ExceptionDetail.FromHttpResponse(response)); // no http response to add more details to this exception
                 }
 
                 if (doNotThrow)
                 {
                     return response;
+                }
+
+                if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
+                {
+                    throw AdalExceptionFactory.GetServiceException(
+                         response.StatusCode.ToString(),
+                         string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    "Response status code does not indicate success: {0} ({1}).",
+                                    (int)response.StatusCode,
+                                    response.StatusCode),
+                         response);
                 }
 
                 throw AdalExceptionFactory.GetServiceException(

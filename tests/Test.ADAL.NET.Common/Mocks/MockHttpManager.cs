@@ -65,7 +65,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
         /// <inheritdoc />
 
-        protected override HttpClient GetHttpClient()
+        internal override HttpClient GetHttpClient()
         {
             var messageHandler = _httpMessageHandlerQueue.Dequeue();
             var httpClient = new HttpClient(messageHandler)

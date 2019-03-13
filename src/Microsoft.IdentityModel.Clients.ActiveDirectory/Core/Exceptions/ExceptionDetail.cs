@@ -49,6 +49,8 @@ namespace Microsoft.Identity.Core
 
         public string Claims { get; set; }
 
+        public IHttpWebResponse Response { get; set; }
+
         /// <summary>
         /// Raw response body received from the server.
         /// </summary>
@@ -62,7 +64,8 @@ namespace Microsoft.Identity.Core
             {
                 ResponseBody = response?.Body,
                 StatusCode = response != null ? (int)response.StatusCode : -1,
-                HttpResponseHeaders = response?.Headers
+                HttpResponseHeaders = response?.Headers,
+                Response = response
             };
         }
     }
