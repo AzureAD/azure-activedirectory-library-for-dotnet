@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
@@ -34,24 +35,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenByDeviceCodeHandler : AcquireTokenHandlerBase
     {
-        private readonly DeviceCodeResult deviceCodeResult;
+        private readonly DeviceCodeResult _deviceCodeResult;
+        private readonly CancellationToken _cancellationToken;
 
-        public AcquireTokenByDeviceCodeHandler(RequestData requestData, DeviceCodeResult deviceCodeResult)
+        public AcquireTokenByDeviceCodeHandler(RequestData requestData, DeviceCodeResult deviceCodeResult, CancellationToken cancellationToken)
             : base(requestData)
         {
-            this.LoadFromCache = false; //no cache lookup for token
-            this.StoreToCache = (requestData.TokenCache != null);
-            this.SupportADFS = true;
-            this.deviceCodeResult = deviceCodeResult;
+            LoadFromCache = false; //no cache lookup for token
+            StoreToCache = (requestData.TokenCache != null);
+            SupportADFS = true;
+            _deviceCodeResult = deviceCodeResult;
+            _cancellationToken = cancellationToken;
         }
 
         protected internal /* internal for test only */ override async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
-            TimeSpan timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
+            TimeSpan timeRemaining = _deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
             AdalResultWrapper resultEx = null;
 
             while (timeRemaining.TotalSeconds > 0)
             {
+                if (_cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException();
+                }
+
                 try
                 {
                     resultEx = await base.SendTokenRequestAsync().ConfigureAwait(false);
@@ -65,8 +73,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(deviceCodeResult.Interval)).ConfigureAwait(false);
-                timeRemaining = deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
+                await Task.Delay(TimeSpan.FromSeconds(_deviceCodeResult.Interval)).ConfigureAwait(false);
+                timeRemaining = _deviceCodeResult.ExpiresOn - DateTimeOffset.UtcNow;
             }
 
             if (resultEx == null)
@@ -75,14 +83,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     AdalError.DeviceCodeAuthorizationCodeExpired, 
                     AdalErrorMessage.DeviceCodeAuthorizationCodeExpired);
             }
-           
+
             return resultEx;
         }
 
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.DeviceCode;
-            requestParameters[OAuthParameter.Code] = this.deviceCodeResult.DeviceCode;
+            requestParameters[OAuthParameter.Code] = _deviceCodeResult.DeviceCode;
         }
     }
 }
