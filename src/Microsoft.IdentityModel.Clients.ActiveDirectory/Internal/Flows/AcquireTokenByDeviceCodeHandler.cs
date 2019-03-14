@@ -55,10 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             while (timeRemaining.TotalSeconds > 0)
             {
-                if (_cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
+                _cancellationToken.ThrowIfCancellationRequested();
 
                 try
                 {
