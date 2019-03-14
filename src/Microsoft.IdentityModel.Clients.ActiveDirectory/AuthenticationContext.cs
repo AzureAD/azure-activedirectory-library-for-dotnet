@@ -27,6 +27,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -237,11 +238,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if iOS
         [Obsolete("This device profile API should only be used on text-only devices, and not on this target platform which is offering an interactive authentication experience. For details please see https://aka.ms/AdalNetConfFlows")]
 #endif
-        public async Task<AuthenticationResult> AcquireTokenByDeviceCodeAsync(DeviceCodeResult deviceCodeResult)
+        public Task<AuthenticationResult> AcquireTokenByDeviceCodeAsync(DeviceCodeResult deviceCodeResult)
+        {
+            return AcquireTokenByDeviceCodeAsync(deviceCodeResult, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Acquires security token from the authority using an device code previously received.
+        /// This method does not lookup token cache, but stores the result in it, so it can be looked up using other methods such as <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.
+        /// </summary>
+        /// <param name="deviceCodeResult">The device code result received from calling AcquireDeviceCodeAsync.</param>
+        /// <param name="cancellationToken">A CancellationToken which can be triggered to cancel the operation in progress.</param>
+        /// <returns>It contains Access Token, its expiration time, user information.</returns>
+#if iOS
+        [Obsolete("This device profile API should only be used on text-only devices, and not on this target platform which is offering an interactive authentication experience. For details please see https://aka.ms/AdalNetConfFlows")]
+#endif
+        public async Task<AuthenticationResult> AcquireTokenByDeviceCodeAsync(
+            DeviceCodeResult deviceCodeResult,
+            CancellationToken cancellationToken)
         {
             if (deviceCodeResult == null)
             {
-                throw new ArgumentNullException("deviceCodeResult");
+                throw new ArgumentNullException(nameof(deviceCodeResult));
             }
 
             RequestData requestData = new RequestData
@@ -253,7 +271,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(deviceCodeResult.ClientId)
             };
 
-            var handler = new AcquireTokenByDeviceCodeHandler(requestData, deviceCodeResult);
+            var handler = new AcquireTokenByDeviceCodeHandler(requestData, deviceCodeResult, cancellationToken);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

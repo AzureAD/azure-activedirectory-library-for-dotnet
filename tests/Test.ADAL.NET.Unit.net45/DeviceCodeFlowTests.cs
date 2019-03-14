@@ -27,6 +27,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -93,6 +94,55 @@ namespace Test.ADAL.NET.Unit
             AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
             Assert.IsNotNull(result);
             Assert.AreEqual("some-access-token", result.AccessToken);
+        }
+
+        [TestMethod]
+        public void TestDeviceCodeCancel()
+        {
+            DeviceCodeResult dcr = new DeviceCodeResult()
+            {
+                ClientId = AdalTestConstants.DefaultClientId,
+                Resource = AdalTestConstants.DefaultResource,
+                DeviceCode = "device-code",
+                ExpiresOn = (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(10)),
+                Interval = 5,
+                Message = "get token here",
+                UserCode = "user-code",
+                VerificationUrl = "https://login.microsoftonline.com/home.oauth2/token"
+            };
+
+            MockHttpMessageHandler mockMessageHandler = new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                Url = "https://login.microsoftonline.com/home/oauth2/token",
+                ResponseMessage = MockHelpers.CreateFailureResponseMessage("{\"error\":\"authorization_pending\"," +
+                                                                           "\"error_description\":\"AADSTS70016: Pending end-user authorization." +
+                                                                           "\\r\\nTrace ID: f6c2c73f-a21d-474e-a71f-d8b121a58205\\r\\nCorrelation ID: " +
+                                                                           "36fe3e82-442f-4418-b9f4-9f4b9295831d\\r\\nTimestamp: 2015-09-24 19:51:51Z\"," +
+                                                                           "\"error_codes\":[70016],\"timestamp\":\"2015-09-24 19:51:51Z\",\"trace_id\":" +
+                                                                           "\"f6c2c73f-a21d-474e-a71f-d8b121a58205\",\"correlation_id\":" +
+                                                                           "\"36fe3e82-442f-4418-b9f4-9f4b9295831d\"}")
+            };
+
+            AdalHttpMessageHandlerFactory.AddMockHandler(mockMessageHandler);
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler()
+            {
+                Method = HttpMethod.Post,
+                Url = "https://login.microsoftonline.com/home/oauth2/token",
+                ResponseMessage =
+                    MockHelpers.CreateSuccessTokenResponseMessage(AdalTestConstants.DefaultUniqueId,
+                        AdalTestConstants.DefaultDisplayableId, AdalTestConstants.DefaultResource)
+            });
+
+            TokenCache cache = new TokenCache();
+            AuthenticationContext ctx = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, cache);
+
+            var cancellationSource = new CancellationTokenSource();
+            // We setup the cancel before calling the RunAsync operation since we don't check the cancel
+            // until later and the mock network calls run insanely fast for us to timeout for them.
+            cancellationSource.Cancel();
+
+            AssertException.TaskThrows<OperationCanceledException>(() => ctx.AcquireTokenByDeviceCodeAsync(dcr, cancellationSource.Token));
         }
 
         [TestMethod]
