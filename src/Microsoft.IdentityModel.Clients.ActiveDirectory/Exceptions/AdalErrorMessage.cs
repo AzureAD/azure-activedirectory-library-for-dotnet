@@ -156,6 +156,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string HttpRequestTimeoutResilience = "An HTTP request has timed out. ADAL has already retried once. See inner exception for details";
 
         public const string NetStandardCustomWebUi = "For this framework, ADAL does not provide an way to perform interactive auth. You can do this by implementing ICustomWebUi";
+
+        public const string AdalExceptionFailedToParse = "Attempted to deserialize an AdalException but the type was unknown.";
     }
-    
 }

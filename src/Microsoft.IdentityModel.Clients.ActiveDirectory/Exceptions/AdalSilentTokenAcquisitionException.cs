@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using Microsoft.Identity.Json.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -50,6 +51,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AdalSilentTokenAcquisitionException(Exception innerException)
             : base(AdalError.FailedToAcquireTokenSilently, AdalErrorMessage.FailedToAcquireTokenSilently, innerException)
         {
+        }
+
+        internal static AdalException FromJsonStringExplicit(JObject jobj)
+        {
+            return new AdalSilentTokenAcquisitionException();
         }
     }
 }

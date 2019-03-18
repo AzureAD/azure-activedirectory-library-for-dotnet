@@ -352,5 +352,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <para>Mitigation</para> None
         /// </summary>
         public const string StateMismatchError = "state_mismatch";
+
+        /// <summary>
+        /// JSON Parse error.
+        /// </summary>
+        public const string JsonParseError = "json_parse_failed";
     }
 }
