@@ -25,7 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Globalization;
+using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Json.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -42,8 +45,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             : base(AdalError.UserMismatch, 
                    string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.UserMismatch, returnedUser, requestedUser))
         {
-            this.RequestedUser = requestedUser;
-            this.ReturnedUser = returnedUser;
+            RequestedUser = requestedUser;
+            ReturnedUser = returnedUser;
         }
 
         /// <summary>
@@ -63,6 +66,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public override string ToString()
         {
             return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tRequestedUser: {0}\n\tReturnedUser: {1}", this.RequestedUser, this.ReturnedUser);
+        }
+
+        private const string RequestedUserKey = "requested_user";
+        private const string ReturnedUserKey = "returned_user";
+
+        internal override void PopulateJson(JObject jobj)
+        {
+            base.PopulateJson(jobj);
+
+            jobj[RequestedUserKey] = RequestedUser;
+            jobj[ReturnedUserKey] = ReturnedUser;
+        }
+
+        internal override void PopulateObjectFromJson(JObject jobj)
+        {
+            base.PopulateObjectFromJson(jobj);
+
+            RequestedUser = JsonUtils.GetExistingOrEmptyString(jobj, RequestedUserKey);
+            ReturnedUser = JsonUtils.GetExistingOrEmptyString(jobj, ReturnedUserKey);
+        }
+
+        internal static AdalException FromJsonStringExplicit(JObject jobj)
+        {
+            string requestedUser = JsonUtils.GetExistingOrEmptyString(jobj, RequestedUserKey);
+            string returnedUser = JsonUtils.GetExistingOrEmptyString(jobj, ReturnedUserKey);
+
+            AdalException ex = new AdalUserMismatchException(requestedUser, returnedUser);
+            ex.PopulateObjectFromJson(jobj);
+            return ex;
         }
     }
 }

@@ -29,12 +29,11 @@ using System.Globalization;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Net.Http.Headers;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Json.Linq;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -85,29 +84,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 IHttpWebResponse response = httpRequestWrapperException.WebResponse;
                 if (response != null)
                 {
-                    this.StatusCode = (int)response.StatusCode;
-                    this.Headers = response.Headers;
+                    StatusCode = (int)response.StatusCode;
+                    Headers = response.Headers;
                 }
-                else if (innerException.InnerException is TaskCanceledException)
+                else if (innerException.InnerException is TaskCanceledException taskCanceledException)
                 {
-                    var taskCanceledException = ((TaskCanceledException)(innerException.InnerException));
                     if (!taskCanceledException.CancellationToken.IsCancellationRequested)
                     {
-                        this.StatusCode = (int)HttpStatusCode.RequestTimeout;
+                        StatusCode = (int)HttpStatusCode.RequestTimeout;
                     }
                     else
                     {
-                        // There is no HttpStatusCode for user cancelation
-                        this.StatusCode = 0;
+                        // There is no HttpStatusCode for user cancellation
+                        StatusCode = 0;
                     }
                 }
                 else
                 {
-                    this.StatusCode = 0;
+                    StatusCode = 0;
                 }
             }
 
-            this.ServiceErrorCodes = serviceErrorCodes;
+            ServiceErrorCodes = serviceErrorCodes;
         }
 
         /// <summary>
@@ -133,8 +131,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>A string representation of the current exception.</returns>
         public override string ToString()
         {
-            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tStatusCode: {0}", this.StatusCode);
+            return base.ToString() + string.Format(CultureInfo.CurrentCulture, "\n\tStatusCode: {0}", StatusCode);
         }
 
+        private const string StatusCodeKey = "status_code";
+
+        internal override void PopulateJson(JObject jobj)
+        {
+            base.PopulateJson(jobj);
+
+            jobj[StatusCodeKey] = StatusCode.ToString(CultureInfo.InvariantCulture);
+        }
+
+        internal override void PopulateObjectFromJson(JObject jobj)
+        {
+            base.PopulateObjectFromJson(jobj);
+
+            StatusCode = int.Parse(JsonUtils.GetExistingOrEmptyString(jobj, StatusCodeKey), CultureInfo.InvariantCulture);
+        }
     }
 }
