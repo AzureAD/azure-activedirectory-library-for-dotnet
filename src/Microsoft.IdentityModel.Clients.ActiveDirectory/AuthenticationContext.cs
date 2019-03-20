@@ -274,7 +274,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(deviceCodeResult.ClientId)
             };
 
-            var handler = new AcquireTokenByDeviceCodeHandler(_serviceBundle, requestData, deviceCodeResult);
+            var handler = new AcquireTokenByDeviceCodeHandler(
+                _serviceBundle, 
+                requestData, 
+                deviceCodeResult,
+                cancellationToken);
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

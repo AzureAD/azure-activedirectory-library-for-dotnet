@@ -42,7 +42,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public AcquireTokenByDeviceCodeHandler(
             IServiceBundle serviceBundle, 
             RequestData requestData, 
-            DeviceCodeResult deviceCodeResult)
+            DeviceCodeResult deviceCodeResult,
+            CancellationToken cancellationToken)
             : base(serviceBundle, requestData)
         {
             LoadFromCache = false; //no cache lookup for token
