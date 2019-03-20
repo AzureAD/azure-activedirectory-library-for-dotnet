@@ -317,6 +317,36 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.CacheTests
             CoreLoggerBase.Default.Received().Error(Arg.Is<string>(CacheFallbackOperations.DifferentEnvError));
         }
 
+        [TestMethod]
+        public void LoginMultipleAccountsAndSerializeDeserializeMsalV3ShouldFindProperAccountAtSilentLogin()
+        {
+            // Login first user in tenantId1
+            // Login second user in tenantId1
+            // Serialize MSALv3
+            // Deserialize MSALv3 -- this moves the lookup logic in ADAL from the ADAL cache to the MSAL fallback cache
+            // Attempt to login silent with uid of second user.
+            // Assert that second user was found and not first.
+            // Attempt to login silent with uid of first user.
+            // Assert that first user was found and not second.
+
+            PopulateLegacyWithRtAndId(
+                _legacyCachePersistence,
+                CoreTestConstants.ClientId,
+                CoreTestConstants.ProductionPrefNetworkEnvironment,
+                "uid1",
+                "tenantId1",
+                "user1");
+
+            PopulateLegacyWithRtAndId(
+                _legacyCachePersistence,
+                CoreTestConstants.ClientId,
+                CoreTestConstants.ProductionPrefNetworkEnvironment,
+                "uid2",
+                "tenantId1",
+                "user2");
+
+        }
+
         private static void PopulateLegacyCache(ILegacyCachePersistence legacyCachePersistence)
         {
             PopulateLegacyWithRtAndId(

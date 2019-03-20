@@ -168,35 +168,8 @@ namespace Test.ADAL.NET.Integration
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler(
-                        AdalTestConstants.GetUserRealmEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant) + "/" +
-                        AdalTestConstants.DefaultDisplayableId)
-                    {
-                        Method = HttpMethod.Get,
-                        ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new StringContent(
-                                "{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
-                        },
-                        QueryParamsToValidate = new Dictionary<string, string>()
-                        {
-                            {"api-version", "1.0"}
-                        }
-                    });
-
-                AdalHttpMessageHandlerFactory.AddMockHandler(
-                    new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                        PostData = new Dictionary<string, string>()
-                        {
-                            {"grant_type", "password"},
-                            {"username", AdalTestConstants.DefaultDisplayableId},
-                            {"password", AdalTestConstants.DefaultPassword}
-                        }
-                    });
+                AddUserRealmMockHandler(httpManager, AdalTestConstants.DefaultDisplayableId);
+                AddSuccessTokenMockHandler(AdalTestConstants.DefaultDisplayableId);
 
                 TokenCache cache = new TokenCache();
 
@@ -226,6 +199,139 @@ namespace Test.ADAL.NET.Integration
                 Assert.AreEqual(1, context.TokenCache.Count);
             }
         }
+
+        [TestMethod]
+        public async Task LoginMultipleAccountsAndSerializeDeserializeMsalV3ShouldFindProperAccountAtSilentLoginAsync()
+        {
+            // Login first user in tenantId1
+            // Login second user in tenantId1
+            // Serialize MSALv3
+            // Deserialize MSALv3 -- this moves the lookup logic in ADAL from the ADAL cache to the MSAL fallback cache
+            // Attempt to login silent with uid of second user.
+            // Assert that second user was found and not first.
+            // Attempt to login silent with uid of first user.
+            // Assert that first user was found and not second.
+
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                string userId1 = "userid1@id.com";
+                string userId2 = "userid2@someotherid.com";
+                byte[] cacheContents;
+
+                string uidUser1;
+                string uidUser2;
+
+
+                {
+                    TokenCache cache = new TokenCache();
+
+                    var context = new AuthenticationContext(
+                        serviceBundle,
+                        AdalTestConstants.DefaultAuthorityHomeTenant,
+                        AuthorityValidationType.True,
+                        cache);
+
+                    Assert.AreEqual(0, context.TokenCache.Count);
+
+                    AddUserRealmMockHandler(httpManager, userId1);
+                    AddSuccessTokenMockHandler(userId1);
+                    var result = await context.AcquireTokenAsync(
+                                                  AdalTestConstants.DefaultResource,
+                                                  AdalTestConstants.DefaultClientId,
+                                                  new UserPasswordCredential(userId1, AdalTestConstants.DefaultPassword))
+                                              .ConfigureAwait(false);
+
+                    Assert.IsNotNull(result);
+                    uidUser1 = result.UserInfo.UniqueId;
+
+                    AddUserRealmMockHandler(httpManager, userId2);
+                    AddSuccessTokenMockHandler(userId2);
+                    result = await context.AcquireTokenAsync(
+                                              AdalTestConstants.DefaultResource,
+                                              AdalTestConstants.DefaultClientId,
+                                              new UserPasswordCredential(userId2, AdalTestConstants.DefaultPassword))
+                                          .ConfigureAwait(false);
+
+                    Assert.IsNotNull(result);
+                    uidUser2 = result.UserInfo.UniqueId;
+
+                    // todo: check we have both accounts in the ADAL cache.
+
+                    cacheContents = cache.SerializeMsalV3();
+                }
+
+                {
+                    TokenCache cache = new TokenCache();
+
+                    var context = new AuthenticationContext(
+                        serviceBundle,
+                        AdalTestConstants.DefaultAuthorityHomeTenant,
+                        AuthorityValidationType.True,
+                        cache);
+
+                    Assert.AreEqual(0, context.TokenCache.Count);
+
+                    cache.DeserializeMsalV3(cacheContents);
+
+                    AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                        PostData = new Dictionary<string, string>()
+                        {
+                            { "client_id", AdalTestConstants.DefaultClientId},
+                            {"grant_type", "refresh_token"},
+                            {"refresh_token", "some_rt" }
+                        }
+                    });
+
+                    var result = await context.AcquireTokenSilentAsync(
+                        AdalTestConstants.DefaultResource,
+                        AdalTestConstants.DefaultClientId,
+                        new UserIdentifier(uidUser1, UserIdentifierType.UniqueId)).ConfigureAwait(false);
+
+                    Assert.AreEqual(uidUser2, result.UserInfo.UniqueId);
+                }
+            }
+        }
+
+        private static void AddSuccessTokenMockHandler(string displayableId)
+        {
+            AdalHttpMessageHandlerFactory.AddMockHandler(
+                new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
+                    {
+                        {"grant_type", "password"},
+                        {"username", displayableId},
+                        {"password", AdalTestConstants.DefaultPassword}
+                    }
+                });
+        }
+
+        private static void AddUserRealmMockHandler(MockHttpManager httpManager, string displayableId)
+        {
+            httpManager.AddMockHandler(
+                new MockHttpMessageHandler(
+                    AdalTestConstants.GetUserRealmEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant) + "/" +
+                    displayableId)
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{\"ver\":\"1.0\",\"account_type\":\"Managed\",\"domain_name\":\"id.com\"}")
+                    },
+                    QueryParamsToValidate = new Dictionary<string, string>()
+                    {
+                        {"api-version", "1.0"}
+                    }
+                });
+        }
+
         [TestMethod]
         [Description("Test for AcquireToken with valid token in cache")]
         public async Task AcquireTokenWithValidTokenInCache_ReturnsCachedTokenAsync()
