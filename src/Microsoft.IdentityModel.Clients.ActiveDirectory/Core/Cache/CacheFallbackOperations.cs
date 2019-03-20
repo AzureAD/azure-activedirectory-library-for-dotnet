@@ -289,8 +289,12 @@ namespace Microsoft.Identity.Core.Cache
             }
         }
 
-        public static AdalResultWrapper FindMsalEntryForAdal(ITokenCacheAccessor tokenCacheAccessor, string authority,
-            string clientId, string upn, RequestContext requestContext)
+        public static AdalResultWrapper FindMsalEntryForAdal(
+            ITokenCacheAccessor tokenCacheAccessor, 
+            string authority,
+            string clientId, 
+            string upn, 
+            RequestContext requestContext)
         {
             try
             {

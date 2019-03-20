@@ -140,12 +140,26 @@ namespace Test.ADAL.NET.Common.Mocks
             };
         }
 
-        public static HttpResponseMessage CreateSuccessTokenResponseMessage()
+        public static HttpResponseMessage CreateSuccessTokenResponseMessage(
+            string displayableId = AdalTestConstants.DefaultDisplayableId,
+            string uniqueId = AdalTestConstants.DefaultUniqueId,
+            string uniqueObjectIdentifier = AdalTestConstants.DefaultUniqueIdentifier,
+            string uniqueTenantIdentifier = AdalTestConstants.DefaultUniqueTenantIdentifier)
         {
-            return CreateSuccessTokenResponseMessage(false);
+            return CreateSuccessTokenResponseMessage(
+                false, 
+                displayableId: displayableId, 
+                uniqueId: uniqueId,
+                uniqueObjectIdentifier: uniqueObjectIdentifier,
+                uniqueTenantIdentifier: uniqueTenantIdentifier);
         }
 
-        public static HttpResponseMessage CreateSuccessTokenResponseMessage(bool setExtendedExpiresIn)
+        public static HttpResponseMessage CreateSuccessTokenResponseMessage(
+            bool setExtendedExpiresIn, 
+            string displayableId = AdalTestConstants.DefaultDisplayableId,
+            string uniqueId = AdalTestConstants.DefaultUniqueId,
+            string uniqueObjectIdentifier = AdalTestConstants.DefaultUniqueIdentifier,
+            string uniqueTenantIdentifier = AdalTestConstants.DefaultUniqueTenantIdentifier)
         {
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             string extendedExpiresIn = "";
@@ -157,15 +171,15 @@ namespace Test.ADAL.NET.Common.Mocks
 
             var clientInfo = new ClientInfo
             {
-                UniqueObjectIdentifier = AdalTestConstants.DefaultUniqueIdentifier,
-                UniqueTenantIdentifier = AdalTestConstants.DefaultUniqueTenantIdentifier
+                UniqueObjectIdentifier = uniqueObjectIdentifier,
+                UniqueTenantIdentifier = uniqueTenantIdentifier
             };
             var base64EncodedSerializedClientInfo = Base64UrlHelpers.Encode(JsonHelper.SerializeToJson<ClientInfo>(clientInfo));
 
 
             HttpContent content = new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3600\"," + extendedExpiresIn + "\"resource\":\"resource1\",\"access_token\":\"some-access-token\"," +
                                                     "\"refresh_token\":\"" + AdalTestConstants.DefaultRefreshTokenValue + "\",\"id_token\":\"" +
-                                                    CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId) + "\"," +
+                                                    CreateAdalIdToken(uniqueId, displayableId) + "\"," +
                                   "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
 
             responseMessage.Content = content;

@@ -169,7 +169,7 @@ namespace Test.ADAL.NET.Integration
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 AddUserRealmMockHandler(httpManager, AdalTestConstants.DefaultDisplayableId);
-                AddSuccessTokenMockHandler(AdalTestConstants.DefaultDisplayableId);
+                AddSuccessTokenMockHandler(AdalTestConstants.DefaultDisplayableId, AdalTestConstants.DefaultUniqueId);
 
                 TokenCache cache = new TokenCache();
 
@@ -217,12 +217,19 @@ namespace Test.ADAL.NET.Integration
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
                 string userId1 = "userid1@id.com";
+                string uniqueId1 = "unique_id_1";
+                string uniqueObjectId1 = "unique_object_id_1";
+                string uniqueTenantIdentifier1 = AdalTestConstants.DefaultUniqueTenantIdentifier;
+
                 string userId2 = "userid2@someotherid.com";
+                string uniqueId2 = "unique_id_2";
+                string uniqueObjectId2 = "unique_object_id_2";
+                string uniqueTenantIdentifier2 = AdalTestConstants.DefaultUniqueTenantIdentifier;
+
                 byte[] cacheContents;
 
                 string uidUser1;
                 string uidUser2;
-
 
                 {
                     TokenCache cache = new TokenCache();
@@ -236,7 +243,7 @@ namespace Test.ADAL.NET.Integration
                     Assert.AreEqual(0, context.TokenCache.Count);
 
                     AddUserRealmMockHandler(httpManager, userId1);
-                    AddSuccessTokenMockHandler(userId1);
+                    AddSuccessTokenMockHandler(userId1, uniqueId1, uniqueObjectId1, uniqueTenantIdentifier1);
                     var result = await context.AcquireTokenAsync(
                                                   AdalTestConstants.DefaultResource,
                                                   AdalTestConstants.DefaultClientId,
@@ -247,7 +254,7 @@ namespace Test.ADAL.NET.Integration
                     uidUser1 = result.UserInfo.UniqueId;
 
                     AddUserRealmMockHandler(httpManager, userId2);
-                    AddSuccessTokenMockHandler(userId2);
+                    AddSuccessTokenMockHandler(userId2, uniqueId2, uniqueObjectId2, uniqueTenantIdentifier2);
                     result = await context.AcquireTokenAsync(
                                               AdalTestConstants.DefaultResource,
                                               AdalTestConstants.DefaultClientId,
@@ -275,15 +282,17 @@ namespace Test.ADAL.NET.Integration
 
                     cache.DeserializeMsalV3(cacheContents);
 
-                    AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                    AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(
+                        AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
                     {
                         Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
+                            userId2, uniqueId2, uniqueObjectId2, uniqueTenantIdentifier2),
                         PostData = new Dictionary<string, string>()
                         {
-                            { "client_id", AdalTestConstants.DefaultClientId},
-                            {"grant_type", "refresh_token"},
-                            {"refresh_token", "some_rt" }
+                            { "client_id", AdalTestConstants.DefaultClientId },
+                            { "grant_type", "refresh_token" },
+                            { "refresh_token", AdalTestConstants.DefaultRefreshTokenValue }
                         }
                     });
 
@@ -292,23 +301,31 @@ namespace Test.ADAL.NET.Integration
                         AdalTestConstants.DefaultClientId,
                         new UserIdentifier(uidUser1, UserIdentifierType.UniqueId)).ConfigureAwait(false);
 
-                    Assert.AreEqual(uidUser2, result.UserInfo.UniqueId);
+                    Assert.AreEqual(uidUser1, result.UserInfo.UniqueId);
                 }
             }
         }
 
-        private static void AddSuccessTokenMockHandler(string displayableId)
+        private static void AddSuccessTokenMockHandler(
+            string displayableId,
+            string uniqueId,
+            string uniqueObjectIdentifier = AdalTestConstants.DefaultUniqueIdentifier,
+            string uniqueTenantIdentifier = AdalTestConstants.DefaultUniqueTenantIdentifier)
         {
             AdalHttpMessageHandlerFactory.AddMockHandler(
                 new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
                 {
                     Method = HttpMethod.Post,
-                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
+                        displayableId: displayableId,
+                        uniqueId: uniqueId,
+                        uniqueObjectIdentifier: uniqueObjectIdentifier,
+                        uniqueTenantIdentifier: uniqueTenantIdentifier),
                     PostData = new Dictionary<string, string>()
                     {
-                        {"grant_type", "password"},
-                        {"username", displayableId},
-                        {"password", AdalTestConstants.DefaultPassword}
+                        { "grant_type", "password" },
+                        { "username", displayableId },
+                        { "password", AdalTestConstants.DefaultPassword }
                     }
                 });
         }

@@ -32,37 +32,37 @@ namespace Test.ADAL.NET.Common
 {
 	public static class AdalTestConstants
     {
-        public static readonly string DefaultResource = "resource1";
-        public static readonly string AnotherResource = "resource2";
-        public static readonly string DefaultAdfsAuthorityTenant = "https://login.contoso.com/adfs/";
-        public static readonly string DefaultAuthorityHomeTenant = "https://login.microsoftonline.com/home/";
-        public static readonly string SomeTenantId = "some-tenant-id";
-        public static readonly string TenantSpecificAuthority = "https://login.microsoftonline.com/" + SomeTenantId + "/";
-        public static readonly string DefaultAuthorityGuestTenant = "https://login.microsoftonline.com/guest/";
-        public static readonly string DefaultAuthorityCommonTenant = "https://login.microsoftonline.com/common/";
-        public static readonly string DefaultAuthorityBlackforestTenant = "https://login.microsoftonline.de/common/";
-        public static readonly string DefaultClientId = "client_id";
-        public static readonly string DefaultUniqueId = "unique_id";
-        public static readonly string DefaultThumbprint = "some_thumbprint";
-        public static readonly string DefaultDisplayableId = "displayable@id.com";
+        public const string DefaultResource = "resource1";
+        public const string AnotherResource = "resource2";
+        public const string DefaultAdfsAuthorityTenant = "https://login.contoso.com/adfs/";
+        public const string DefaultAuthorityHomeTenant = "https://login.microsoftonline.com/home/";
+        public const string SomeTenantId = "some-tenant-id";
+        public const string TenantSpecificAuthority = "https://login.microsoftonline.com/" + SomeTenantId + "/";
+        public const string DefaultAuthorityGuestTenant = "https://login.microsoftonline.com/guest/";
+        public const string DefaultAuthorityCommonTenant = "https://login.microsoftonline.com/common/";
+        public const string DefaultAuthorityBlackforestTenant = "https://login.microsoftonline.de/common/";
+        public const string DefaultClientId = "client_id";
+        public const string DefaultUniqueId = "unique_id";
+        public const string DefaultThumbprint = "some_thumbprint";
+        public const string DefaultDisplayableId = "displayable@id.com";
         public static readonly Uri DefaultRedirectUri = new Uri("urn:ietf:wg:oauth:2.0:oob");
-        public static readonly bool DefaultRestrictToSingleUser = false;
-        public static readonly string DefaultClientSecret = "client_secret";
-        public static readonly string DefaultPassword = "password";
-        public static readonly bool DefaultExtendedLifeTimeEnabled = false;
-        public static readonly bool PositiveExtendedLifeTimeEnabled = true;
-        public static readonly string ErrorSubCode = "ErrorSubCode";
-        public static readonly string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
-        public static readonly string CloudAudienceUrn = "urn:federation:Blackforest";
-        public static readonly string TokenEndPoint = "oauth2/token";
-        public static readonly string UserRealmEndPoint = "userrealm";
-        public static readonly string DiscoveryEndPoint = "discovery/instance";
-        public static readonly string DefaultRefreshTokenValue = "RefreshTokenValue";
-        public static readonly string DefaultAuthorizationCode = "DefaultAuthorizationCode";
-        public static readonly string MSGraph = "https://graph.microsoft.com";
+        public const bool DefaultRestrictToSingleUser = false;
+        public const string DefaultClientSecret = "client_secret";
+        public const string DefaultPassword = "password";
+        public const bool DefaultExtendedLifeTimeEnabled = false;
+        public const bool PositiveExtendedLifeTimeEnabled = true;
+        public const string ErrorSubCode = "ErrorSubCode";
+        public const string CloudAudienceUrnMicrosoft = "urn:federation:MicrosoftOnline";
+        public const string CloudAudienceUrn = "urn:federation:Blackforest";
+        public const string TokenEndPoint = "oauth2/token";
+        public const string UserRealmEndPoint = "userrealm";
+        public const string DiscoveryEndPoint = "discovery/instance";
+        public const string DefaultRefreshTokenValue = "RefreshTokenValue";
+        public const string DefaultAuthorizationCode = "DefaultAuthorizationCode";
+        public const string MSGraph = "https://graph.microsoft.com";
 
-        public static readonly string DefaultUniqueIdentifier = "testUniqueIdentifier";
-        public static readonly string DefaultUniqueTenantIdentifier = "testUniqueTenantIdentifier";
+        public const string DefaultUniqueIdentifier = "testUniqueIdentifier";
+        public const string DefaultUniqueTenantIdentifier = "testUniqueTenantIdentifier";
 
         public static string GetTokenEndpoint(string Authority)
         {
