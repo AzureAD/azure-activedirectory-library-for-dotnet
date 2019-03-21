@@ -56,7 +56,7 @@ namespace Test.ADAL.NET.Unit
 
         private readonly RequestData _requestData = new RequestData
         {
-            Authenticator = new Authenticator(Authority, false, TestCommon.CreateDefaultServiceBundle()),
+            Authenticator = new Authenticator(TestCommon.CreateDefaultServiceBundle(), Authority, false),
             Resource = Resource,
             ClientKey = new ClientKey(new ClientCredential(ClientId, ClientSecret)),
             SubjectType = TokenSubjectType.Client,

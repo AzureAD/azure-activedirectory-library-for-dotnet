@@ -26,12 +26,9 @@ namespace Microsoft.Identity.Core.OAuth2
         private const string WwwAuthenticateHeader = "WWW-Authenticate";
         private const string PKeyAuthName = "PKeyAuth";
         internal /* internal for test only */ const string ExtraQueryParamEnvVariable = "ExtraQueryParameter";
-        internal bool Resiliency = false;
         private readonly RequestContext _requestContext;
         private readonly IHttpManager _httpManager;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>();
-
-        internal OAuthClient() { }
 
         public OAuthClient(IHttpManager httpManager, string uri, RequestContext requestContext)
         {
@@ -42,7 +39,7 @@ namespace Microsoft.Identity.Core.OAuth2
 
         public int TimeoutInMilliSeconds { set; get; } = 30000;
         public IRequestParameters BodyParameters { get; set; }
-        internal string RequestUri { get; set; }
+        internal string RequestUri { get; private set; }
 
         public async Task<T> GetResponseAsync<T>()
         {

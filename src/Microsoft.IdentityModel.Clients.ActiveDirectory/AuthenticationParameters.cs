@@ -36,8 +36,6 @@ using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -61,11 +59,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public string Resource { get; set; }
 
-        private static IHttpManager HttpManager { get; set; }
+        private static IHttpManager _httpManager;
 
         internal AuthenticationParameters(IHttpManager httpManager)
         {
-            HttpManager = httpManager;
+            _httpManager = httpManager;
         }
 
         /// <summary>
@@ -134,7 +132,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw newEx;
             }
 
-            var authParams = new AuthenticationParameters(HttpManager);
+            var authParams = new AuthenticationParameters(_httpManager);
             string param;
             authenticateHeaderItems.TryGetValue(AuthorityKey, out param);
             authParams.Authority = param;
@@ -155,7 +153,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                OAuthClient client = new OAuthClient(HttpManager, resourceUrl.AbsoluteUri, null);
+                OAuthClient client = new OAuthClient(_httpManager, resourceUrl.AbsoluteUri, null);
                 await client.ExecuteRequestAsync<IHttpWebResponse>().ConfigureAwait(false);
 
                 var ex = new AdalException(AdalError.UnauthorizedResponseExpected);

@@ -47,7 +47,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private static readonly Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-        private void Init(string authority, bool validateAuthority, IServiceBundle serviceBundle)
+        private void Init(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
             Authority = EnsureUrlEndsWithForwardSlash(authority);
 
@@ -62,14 +62,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
             ServiceBundle = serviceBundle;
         }
 
-        public Authenticator(string authority, bool validateAuthority, IServiceBundle serviceBundle)
+        public Authenticator(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
-            Init(authority, validateAuthority, serviceBundle);
+            Init(serviceBundle, authority, validateAuthority);
         }
 
-        public async Task UpdateAuthorityAsync(string authority, RequestContext requestContext, IServiceBundle serviceBundle)
+        public async Task UpdateAuthorityAsync(IServiceBundle serviceBundle, string authority, RequestContext requestContext)
         {
-            Init(authority, ValidateAuthority, serviceBundle);
+            Init(serviceBundle, authority, ValidateAuthority);
 
             _updatedFromTemplate = false;
             await UpdateFromTemplateAsync(requestContext).ConfigureAwait(false);
@@ -103,8 +103,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public async Task UpdateFromTemplateAsync(RequestContext requestContext)
         {
-            InstanceDiscovery instanceDiscovery = new InstanceDiscovery(ServiceBundle.HttpManager);
-
             if (!_updatedFromTemplate)
             {
                 var authorityUri = new Uri(Authority);
@@ -115,16 +113,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 string tenant = authorityUri.Segments[authorityUri.Segments.Length - 1].TrimEnd('/');
                 if (AuthorityType == AuthorityType.AAD)
                 {
-                    var metadata = await instanceDiscovery.GetMetadataEntryAsync(authorityUri, ValidateAuthority, requestContext).ConfigureAwait(false);
+                    var metadata = await ServiceBundle.InstanceDiscovery.GetMetadataEntryAsync(authorityUri, ValidateAuthority, requestContext).ConfigureAwait(false);
                     host = metadata.PreferredNetwork;
                     // All the endpoints will use this updated host, and it affects future network calls, as desired.
                     // The Authority remains its original host, and will be used in TokenCache later.
                 }
                 else
                 {
-                    instanceDiscovery.AddMetadataEntry(host);
+                    ServiceBundle.InstanceDiscovery.AddMetadataEntry(host);
                 }
-                AuthorizationUri = instanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                AuthorizationUri = ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
                 DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
                 TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
                 UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));

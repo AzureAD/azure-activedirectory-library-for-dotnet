@@ -28,7 +28,6 @@
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.WsTrust;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 
 namespace Microsoft.Identity.Core
 {
@@ -37,7 +36,6 @@ namespace Microsoft.Identity.Core
         IHttpManager HttpManager { get; }
         IPlatformProxy PlatformProxy { get; }
         IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
-
         InstanceDiscovery InstanceDiscovery { get; }
         AuthenticationParameters AuthenticationParameters { get; }
     }

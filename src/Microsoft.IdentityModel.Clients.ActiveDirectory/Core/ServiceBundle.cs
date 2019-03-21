@@ -25,8 +25,6 @@
 // 
 // ------------------------------------------------------------------------------
 
-using System;
-using System.Net.Http;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.WsTrust;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;

@@ -178,7 +178,7 @@ namespace Test.ADAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
-                var authenticator = new Authenticator("https://login.contoso.com/adfs", false, serviceBundle);
+                var authenticator = new Authenticator(serviceBundle, "https://login.contoso.com/adfs", false);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
         }
@@ -272,7 +272,7 @@ namespace Test.ADAL.NET.Unit
 
                 string host = "login.windows.net";
                 string preferredNetwork = "login.microsoftonline.com";
-                var authenticator = new Authenticator($"https://{host}/contoso.com/", false, serviceBundle);
+                var authenticator = new Authenticator(serviceBundle, $"https://{host}/contoso.com/", false);
                 AddMockInstanceDiscovery(host, httpManager);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
 
@@ -311,7 +311,7 @@ namespace Test.ADAL.NET.Unit
 
                 string host = "login.windows.net";
                 string preferredNetwork = "login.microsoftonline.com";
-                var authenticator = new Authenticator($"https://{host}/contoso.com/", false, serviceBundle);
+                var authenticator = new Authenticator(serviceBundle, $"https://{host}/contoso.com/", false);
                 AddMockInstanceDiscovery(host, httpManager);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
 
@@ -355,7 +355,7 @@ namespace Test.ADAL.NET.Unit
 
                 string host = "login.windows.net";
                 string preferredNetwork = "login.microsoftonline.com";
-                var authenticator = new Authenticator($"https://{host}/contoso.com/", false, serviceBundle);
+                var authenticator = new Authenticator(serviceBundle, $"https://{host}/contoso.com/", false);
                 AddMockInstanceDiscovery(host, httpManager);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
 
@@ -426,7 +426,7 @@ namespace Test.ADAL.NET.Unit
 
                 string host = "uswest-dsts.dsts.core.windows.net/dstsv2";
                 string preferredNetwork = "uswest-dsts.dsts.core.windows.net/dstsv2";
-                var authenticator = new Authenticator($"https://{host}/contoso.com/", false, serviceBundle);
+                var authenticator = new Authenticator(serviceBundle, $"https://{host}/contoso.com/", false);
                 AddMockInstanceDiscovery(host, httpManager);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
 

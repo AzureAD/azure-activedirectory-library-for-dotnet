@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -47,7 +48,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
     internal abstract class AcquireTokenHandlerBase
     {
         private readonly TokenCache _tokenCache;
-        private OAuthClient _client = null;
 
         protected const string NullResource = "null_resource_as_optional";
         protected CacheQueryData CacheQueryData = new CacheQueryData();
@@ -56,6 +56,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected IBroker BrokerHelper { get; }
         internal /* internal for test, otherwise protected */ IDictionary<string, string> BrokerParameters { get; }
 
+        
         protected AcquireTokenHandlerBase(IServiceBundle serviceBundle, RequestData requestData)
         {
             ServiceBundle = serviceBundle;
@@ -144,7 +145,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected bool LoadFromCache { get; set; }
 
         protected bool StoreToCache { get; set; }
-
         protected IServiceBundle ServiceBundle { get; }
 
         public async Task<AuthenticationResult> RunAsync()
@@ -217,27 +217,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
 
                 // At this point we have an Acess Token - return it
-                await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
+                await PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return new AuthenticationResult(ResultEx.Result);
             }
             catch (Exception ex)
             {
                 RequestContext.Logger.ErrorPii(ex);
 
-                if (_client == null)
-                {
-                    _client = new OAuthClient();
-                }
-
                 if (ex.InnerException is AdalServiceException serviceException)
                 {
+                    bool resiliency = false;
+
                     if (serviceException.StatusCode >= 500 && serviceException.StatusCode < 600 ||
-                    serviceException.StatusCode == 408)
+                    serviceException.StatusCode == (int)HttpStatusCode.RequestTimeout)
                     {
-                        _client.Resiliency = true;
+                        resiliency = true;
                     }
 
-                    if (_client.Resiliency && extendedLifetimeResultEx != null)
+                    if (resiliency && extendedLifetimeResultEx != null)
                     {
                         RequestContext.Logger.Info("Refreshing access token failed due to one of these reasons:- Internal Server Error, Gateway Timeout and Service Unavailable. " +
                                            "Hence returning back stale access token");
@@ -251,7 +248,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 if (notifiedBeforeAccessCache)
                 {
-                    this.NotifyAfterAccessCache();
+                    NotifyAfterAccessCache();
                 }
             }
         }
@@ -324,7 +321,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             if (!Authenticator.Authority.Equals(updatedAuthority, StringComparison.OrdinalIgnoreCase))
             {
-                await Authenticator.UpdateAuthorityAsync(updatedAuthority, RequestContext, ServiceBundle).ConfigureAwait(false);
+                await Authenticator.UpdateAuthorityAsync(ServiceBundle, updatedAuthority, RequestContext).ConfigureAwait(false);
                 ValidateAuthorityType();
             }
         }
@@ -350,7 +347,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 { OAuthParameter.ClientInfo, "1" }
             };
-
             AddAdditionalRequestParameters(requestParameters);
             return await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
         }
@@ -418,12 +414,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private async Task<AdalResultWrapper> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            _client = new OAuthClient(ServiceBundle.HttpManager, Authenticator.TokenUri, RequestContext)
+            OAuthClient client = new OAuthClient(ServiceBundle.HttpManager, Authenticator.TokenUri, RequestContext)
             {
                 BodyParameters = requestParameters
             };
 
-            TokenResponse tokenResponse = await _client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
+            TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
         }
 

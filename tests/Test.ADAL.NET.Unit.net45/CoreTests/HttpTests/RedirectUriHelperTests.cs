@@ -59,14 +59,5 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.HttpTests
             // Assert
             // no exception is thrown
         }
-
-        [TestMethod]
-        public void ValidateRedirectUri_NoOAuth2DefaultWhenUsingSystemBrowser()
-        {
-            Assert.ThrowsException<AdalException>(() =>
-                RedirectUriHelper.Validate(new Uri(Constants.DefaultRedirectUri), true));
-
-              RedirectUriHelper.Validate(new Uri(Constants.DefaultRedirectUri), false);
-        }
     }
 }

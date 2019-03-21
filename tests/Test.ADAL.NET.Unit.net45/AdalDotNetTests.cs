@@ -1248,7 +1248,7 @@ namespace Test.ADAL.NET.Unit
                     TokenSubjectType.Client, "id", "user1"), resultEx);
                 RequestData data = new RequestData
                 {
-                    Authenticator = new Authenticator("https://login.microsoftonline.com/common/", false, serviceBundle),
+                    Authenticator = new Authenticator(serviceBundle, "https://login.microsoftonline.com/common/", false),
                     TokenCache = cache,
                     Resource = "resource1",
                     ClientKey = new ClientKey(new ClientCredential("client1", "something")),

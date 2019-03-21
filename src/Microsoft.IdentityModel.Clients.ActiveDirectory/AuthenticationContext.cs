@@ -135,7 +135,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             _serviceBundle = serviceBundle ?? ServiceBundle.CreateWithHttpClientFactory(httpClientFactory);
 
             // If authorityType is not provided (via first constructor), we validate by default (except for ASG and Office tenants).
-            Authenticator = new Authenticator(authority, (validateAuthority != AuthorityValidationType.False), _serviceBundle);
+            Authenticator = new Authenticator(_serviceBundle, authority, (validateAuthority != AuthorityValidationType.False));
             TokenCache = tokenCache;
 
             TokenCache?.SetServiceBundle(_serviceBundle);
