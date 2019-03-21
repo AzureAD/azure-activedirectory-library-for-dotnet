@@ -2,13 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdalDesktopTestApp
 {
@@ -16,7 +11,7 @@ namespace AdalDesktopTestApp
     {
         private HttpClient _httpClient;
 
-        public HttpClient GetHttpClient()
+        public MyHttpClientFactory()
         {
             _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
             {
@@ -25,6 +20,10 @@ namespace AdalDesktopTestApp
 
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
+        public HttpClient GetHttpClient()
+        {
             return _httpClient;
         }
     }

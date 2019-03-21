@@ -33,7 +33,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Microsoft.Identity.Core.Http
 {
@@ -137,7 +136,7 @@ namespace Microsoft.Identity.Core.Http
                     return response;
                 }
 
-                requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
+                requestContext?.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                     CoreErrorMessages.HttpRequestUnsuccessful,
                     (int)response.StatusCode, response.StatusCode));
 
@@ -152,7 +151,7 @@ namespace Microsoft.Identity.Core.Http
             }
             catch (TaskCanceledException exception)
             {
-                requestContext.Logger.ErrorPii(exception);
+                requestContext?.Logger.ErrorPii(exception);
                 isRetryable = true;
                 timeoutException = exception;
             }
@@ -161,7 +160,7 @@ namespace Microsoft.Identity.Core.Http
             {
                 if (retry)
                 {
-                    requestContext.Logger.Info("Retrying one more time..");
+                    requestContext?.Logger.Info("Retrying one more time..");
                     await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     return await ExecuteWithRetryAsync(
                         endpoint,
@@ -173,7 +172,7 @@ namespace Microsoft.Identity.Core.Http
                         retry: false).ConfigureAwait(false);
                 }
 
-                requestContext.Logger.Info("Request retry failed.");
+                requestContext?.Logger.Info("Request retry failed.");
                 if (timeoutException != null)
                 {
                     throw AdalExceptionFactory.GetServiceException(

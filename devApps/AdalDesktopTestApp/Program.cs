@@ -143,7 +143,6 @@ namespace AdalDesktopTestApp
         private static async Task<AuthenticationResult> AcquireTokenUsingCustomHttpClientFactoryAsync()
         {
             IHttpClientFactory myHttpClientFactory = new MyHttpClientFactory();
-            myHttpClientFactory.GetHttpClient();
 
             AuthenticationContext authenticationContext = new AuthenticationContext(
                 authority: "https://login.microsoftonline.com/common",

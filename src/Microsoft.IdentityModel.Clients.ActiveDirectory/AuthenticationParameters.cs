@@ -36,6 +36,7 @@ using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -153,8 +154,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                OAuthClient client = new OAuthClient(_httpManager, resourceUrl.AbsoluteUri, null);
-                await client.ExecuteRequestAsync<IHttpWebResponse>().ConfigureAwait(false);
+                await _httpManager.SendGetAsync(
+                    new Uri(resourceUrl.AbsoluteUri),
+                    null,
+                    new RequestContext(
+                        null, new AdalLogger(Guid.Empty)))
+                        .ConfigureAwait(false);
 
                 var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
                 CoreLoggerBase.Default.ErrorPii(ex);

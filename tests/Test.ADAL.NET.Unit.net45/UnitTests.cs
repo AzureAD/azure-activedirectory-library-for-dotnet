@@ -311,7 +311,7 @@ namespace Test.ADAL.NET.Unit
 
                 OAuthClient client = new OAuthClient(httpManager, AdalTestConstants.DefaultAuthorityCommonTenant, null);
                 var exc = AssertException.TaskThrows<InvalidOperationException>(() =>
-                    client.ExecuteRequestAsync<IHttpWebResponse>());
+                    client.ExecuteRequestAsync());
             }
         }
 
@@ -341,7 +341,7 @@ namespace Test.ADAL.NET.Unit
 
                 OAuthClient client = new OAuthClient(httpManager, AdalTestConstants.DefaultAuthorityCommonTenant, null);
 
-                await client.ExecuteRequestAsync<IHttpWebResponse>().ConfigureAwait(false);
+                await client.ExecuteRequestAsync().ConfigureAwait(false);
             }
         }
 

@@ -54,7 +54,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             RequestContext.Logger.Verbose(string.Format(CultureInfo.InvariantCulture,
                 "Username provided in user assertion - " + string.IsNullOrEmpty(DisplayableId)));
 
-            this.SupportADFS = true;
+            SupportADFS = true;
         }
 
         protected internal /* internal for test only */ override async Task<AdalResultWrapper> SendTokenRequestAsync()
@@ -71,7 +71,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.JwtBearer;
-            requestParameters[OAuthParameter.Assertion] = this._userAssertion.Assertion;
+            requestParameters[OAuthParameter.Assertion] = _userAssertion.Assertion;
             requestParameters[OAuthParameter.RequestedTokenUse] = OAuthRequestedTokenUse.OnBehalfOf;
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }

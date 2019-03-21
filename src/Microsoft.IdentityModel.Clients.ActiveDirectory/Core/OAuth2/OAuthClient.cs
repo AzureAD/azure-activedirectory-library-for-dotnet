@@ -30,18 +30,17 @@ namespace Microsoft.Identity.Core.OAuth2
         private readonly IHttpManager _httpManager;
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>();
 
-        public OAuthClient(IHttpManager httpManager, string uri, RequestContext requestContext)
+        internal OAuthClient(IHttpManager httpManager, string uri, RequestContext requestContext)
         {
             _httpManager = httpManager ?? throw new ArgumentNullException(nameof(httpManager));
             RequestUri = CheckForExtraQueryParameter(uri);
             _requestContext = requestContext;
         }
 
-        public int TimeoutInMilliSeconds { set; get; } = 30000;
-        public IRequestParameters BodyParameters { get; set; }
+        internal IRequestParameters BodyParameters { get; set; }
         internal string RequestUri { get; private set; }
 
-        public async Task<T> GetResponseAsync<T>()
+        internal async Task<T> GetResponseAsync<T>()
         {
             return await GetResponseAsync<T>(true).ConfigureAwait(false);
         }
@@ -60,7 +59,7 @@ namespace Microsoft.Identity.Core.OAuth2
 
                 //add pkeyauth header
                 _headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
-                var response = await ExecuteRequestAsync<IHttpWebResponse>().ConfigureAwait(false);
+                var response = await ExecuteRequestAsync().ConfigureAwait(false);
                 typedResponse = EncodingHelper.DeserializeResponse<T>(response.Body);
 
                 if (response.StatusCode != HttpStatusCode.OK)
@@ -162,7 +161,7 @@ namespace Microsoft.Identity.Core.OAuth2
             return url;
         }
 
-        internal async Task<IHttpWebResponse> ExecuteRequestAsync<T>()
+        internal async Task<IHttpWebResponse> ExecuteRequestAsync()
         {
             bool addCorrelationId = _requestContext != null && _requestContext.Logger.CorrelationId != Guid.Empty;
             if (addCorrelationId)
