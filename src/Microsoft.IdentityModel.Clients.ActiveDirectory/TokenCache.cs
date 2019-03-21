@@ -669,8 +669,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     //pass null for authority to update the token for all the tenants
                     List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                        QueryCache(null, clientId, subjectType, result.Result.UserInfo.UniqueId,
-                                result.Result.UserInfo.DisplayableId, null)
+                        QueryCache(
+                            null, 
+                            clientId, 
+                            subjectType, 
+                            result.Result.UserInfo.UniqueId,
+                            result.Result.UserInfo.DisplayableId, 
+                            null)
                             .Where(p => p.Value.IsMultipleResourceRefreshToken)
                             .ToList();
 
@@ -689,8 +694,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 // First identify all potential tokens.
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> items =
-                    QueryCache(cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.SubjectType,
-                        cacheQueryData.UniqueId, cacheQueryData.DisplayableId, cacheQueryData.AssertionHash);
+                    QueryCache(
+                        cacheQueryData.Authority, 
+                        cacheQueryData.ClientId, 
+                        cacheQueryData.SubjectType,
+                        cacheQueryData.UniqueId, 
+                        cacheQueryData.DisplayableId, 
+                        cacheQueryData.AssertionHash);
 
                 List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> resourceSpecificItems =
                     items.Where(p => p.Key.ResourceEquals(cacheQueryData.Resource)).ToList();

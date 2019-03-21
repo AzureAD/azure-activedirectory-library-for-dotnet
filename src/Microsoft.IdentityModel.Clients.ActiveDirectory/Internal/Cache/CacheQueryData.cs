@@ -29,7 +29,7 @@ using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
 {
-    class CacheQueryData
+    internal class CacheQueryData
     {
         public string Authority { get; set; }
 
@@ -46,5 +46,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache
         public string AssertionHash { get; set; }
 
         public bool ExtendedLifeTimeEnabled { get; set; }
+
+        public UserIdentifierType UserIdentifierType { get; set; } = UserIdentifierType.UniqueId;
     }
 }

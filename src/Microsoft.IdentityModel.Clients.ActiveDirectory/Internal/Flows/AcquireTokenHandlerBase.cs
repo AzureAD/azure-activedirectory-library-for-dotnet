@@ -158,13 +158,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     RequestContext.Logger.Verbose("Loading from cache.");
 
                     CacheQueryData.Authority = Authenticator.Authority;
-                    CacheQueryData.Resource = this.Resource;
-                    CacheQueryData.ClientId = this.ClientKey.ClientId;
-                    CacheQueryData.SubjectType = this.TokenSubjectType;
-                    CacheQueryData.UniqueId = this.UniqueId;
-                    CacheQueryData.DisplayableId = this.DisplayableId;
+                    CacheQueryData.Resource = Resource;
+                    CacheQueryData.ClientId = ClientKey.ClientId;
+                    CacheQueryData.SubjectType = TokenSubjectType;
+                    CacheQueryData.UniqueId = UniqueId;
+                    CacheQueryData.DisplayableId = DisplayableId;
+                    CacheQueryData.UserIdentifierType = UserIdentifierType;
 
-                    this.NotifyBeforeAccessCache();
+                    NotifyBeforeAccessCache();
                     notifiedBeforeAccessCache = true;
                     ResultEx = await _tokenCache.LoadFromCacheAsync(CacheQueryData, RequestContext).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;

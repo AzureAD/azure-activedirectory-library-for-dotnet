@@ -200,6 +200,21 @@ namespace Test.ADAL.NET.Integration
             }
         }
 
+        private class TestAdalUserData
+        {
+            public TestAdalUserData(string userId, string uniqueId, string uniqueObjectId, string uniqueTenantIdentifier)
+            {
+                UserId = userId;
+                UniqueId = uniqueId;
+                UniqueObjectId = uniqueObjectId;
+                UniqueTenantIdentifier = uniqueTenantIdentifier;
+            }
+            public string UserId {get;}
+            public string UniqueId {get;}
+            public string UniqueObjectId {get;}
+            public string UniqueTenantIdentifier {get;}
+        }
+
         [TestMethod]
         public async Task LoginMultipleAccountsAndSerializeDeserializeMsalV3ShouldFindProperAccountAtSilentLoginAsync()
         {
@@ -216,94 +231,96 @@ namespace Test.ADAL.NET.Integration
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-                string userId1 = "userid1@id.com";
-                string uniqueId1 = "unique_id_1";
-                string uniqueObjectId1 = "unique_object_id_1";
-                string uniqueTenantIdentifier1 = AdalTestConstants.DefaultUniqueTenantIdentifier;
-
-                string userId2 = "userid2@someotherid.com";
-                string uniqueId2 = "unique_id_2";
-                string uniqueObjectId2 = "unique_object_id_2";
-                string uniqueTenantIdentifier2 = AdalTestConstants.DefaultUniqueTenantIdentifier;
+                var userInfo1 = new TestAdalUserData("userid1@id.com", "unique_id_1", "unique_object_id_1", AdalTestConstants.DefaultUniqueTenantIdentifier);
+                var userInfo2 = new TestAdalUserData("userid2@someotherid.com", "unique_id_2", "unique_object_id_2", AdalTestConstants.DefaultUniqueTenantIdentifier);
 
                 byte[] cacheContents;
 
-                string uidUser1;
-                string uidUser2;
+                AuthenticationResult resultUser1SignIn;
+                AuthenticationResult resultUser2SignIn;
 
                 {
-                    TokenCache cache = new TokenCache();
+                    AuthenticationContext context = CreateAuthenticationContextFromServiceBundle(serviceBundle);
 
-                    var context = new AuthenticationContext(
-                        serviceBundle,
-                        AdalTestConstants.DefaultAuthorityHomeTenant,
-                        AuthorityValidationType.True,
-                        cache);
+                    resultUser1SignIn = await LoginUserWithPasswordAsync(httpManager, context, userInfo1).ConfigureAwait(false);
+                    Assert.IsNotNull(resultUser1SignIn);
 
-                    Assert.AreEqual(0, context.TokenCache.Count);
+                    resultUser2SignIn = await LoginUserWithPasswordAsync(httpManager, context, userInfo2).ConfigureAwait(false);
+                    Assert.IsNotNull(resultUser2SignIn);
 
-                    AddUserRealmMockHandler(httpManager, userId1);
-                    AddSuccessTokenMockHandler(userId1, uniqueId1, uniqueObjectId1, uniqueTenantIdentifier1);
-                    var result = await context.AcquireTokenAsync(
-                                                  AdalTestConstants.DefaultResource,
-                                                  AdalTestConstants.DefaultClientId,
-                                                  new UserPasswordCredential(userId1, AdalTestConstants.DefaultPassword))
-                                              .ConfigureAwait(false);
+                    //// Silent Login with UserInfo2 and ensure we logged in with that user
+                    var result1 = await AcquireTokenSilentWithTestAdalUserDataAsync(userInfo2, context).ConfigureAwait(false);
+                    Assert.AreEqual(resultUser2SignIn.UserInfo.UniqueId, result1.UserInfo.UniqueId);
 
-                    Assert.IsNotNull(result);
-                    uidUser1 = result.UserInfo.UniqueId;
+                    //// Silent Login with UserInfo1 and ensure we logged in with that user
+                    var result2 = await AcquireTokenSilentWithTestAdalUserDataAsync(userInfo1, context).ConfigureAwait(false);
+                    Assert.AreEqual(resultUser1SignIn.UserInfo.UniqueId, result2.UserInfo.UniqueId);
 
-                    AddUserRealmMockHandler(httpManager, userId2);
-                    AddSuccessTokenMockHandler(userId2, uniqueId2, uniqueObjectId2, uniqueTenantIdentifier2);
-                    result = await context.AcquireTokenAsync(
-                                              AdalTestConstants.DefaultResource,
-                                              AdalTestConstants.DefaultClientId,
-                                              new UserPasswordCredential(userId2, AdalTestConstants.DefaultPassword))
-                                          .ConfigureAwait(false);
-
-                    Assert.IsNotNull(result);
-                    uidUser2 = result.UserInfo.UniqueId;
-
-                    // todo: check we have both accounts in the ADAL cache.
-
-                    cacheContents = cache.SerializeMsalV3();
+                    cacheContents = context.TokenCache.SerializeMsalV3();
                 }
 
                 {
-                    TokenCache cache = new TokenCache();
+                    AuthenticationContext context = CreateAuthenticationContextFromServiceBundle(serviceBundle);
+                    context.TokenCache.DeserializeMsalV3(cacheContents);
 
-                    var context = new AuthenticationContext(
-                        serviceBundle,
-                        AdalTestConstants.DefaultAuthorityHomeTenant,
-                        AuthorityValidationType.True,
-                        cache);
+                    // Silent Login with UserInfo2 and ensure we logged in with that user
+                    var result1 = await AcquireTokenSilentWithTestAdalUserDataAsync(userInfo2, context).ConfigureAwait(false);
+                    Assert.AreEqual(resultUser2SignIn.UserInfo.UniqueId, result1.UserInfo.UniqueId);
 
-                    Assert.AreEqual(0, context.TokenCache.Count);
-
-                    cache.DeserializeMsalV3(cacheContents);
-
-                    AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(
-                        AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
-                            userId2, uniqueId2, uniqueObjectId2, uniqueTenantIdentifier2),
-                        PostData = new Dictionary<string, string>()
-                        {
-                            { "client_id", AdalTestConstants.DefaultClientId },
-                            { "grant_type", "refresh_token" },
-                            { "refresh_token", AdalTestConstants.DefaultRefreshTokenValue }
-                        }
-                    });
-
-                    var result = await context.AcquireTokenSilentAsync(
-                        AdalTestConstants.DefaultResource,
-                        AdalTestConstants.DefaultClientId,
-                        new UserIdentifier(uidUser1, UserIdentifierType.UniqueId)).ConfigureAwait(false);
-
-                    Assert.AreEqual(uidUser1, result.UserInfo.UniqueId);
+                    // Silent Login with UserInfo1 and ensure we logged in with that user
+                    var result2 = await AcquireTokenSilentWithTestAdalUserDataAsync(userInfo1, context).ConfigureAwait(false);
+                    Assert.AreEqual(resultUser1SignIn.UserInfo.UniqueId, result2.UserInfo.UniqueId);
                 }
             }
+        }
+
+        private static AuthenticationContext CreateAuthenticationContextFromServiceBundle(ServiceBundle serviceBundle)
+        {
+            return new AuthenticationContext(
+                serviceBundle,
+                AdalTestConstants.DefaultAuthorityHomeTenant,
+                AuthorityValidationType.True,
+                new TokenCache());
+        }
+
+        private static async Task<AuthenticationResult> AcquireTokenSilentWithTestAdalUserDataAsync(
+            TestAdalUserData userInfo, 
+            AuthenticationContext context)
+        {
+            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(
+                AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
+                    userInfo.UserId, userInfo.UniqueId, userInfo.UniqueObjectId, userInfo.UniqueTenantIdentifier),
+                PostData = new Dictionary<string, string>()
+                {
+                    { "client_id", AdalTestConstants.DefaultClientId },
+                    { "grant_type", "refresh_token" },
+                    { "refresh_token", AdalTestConstants.DefaultRefreshTokenValue }
+                }
+            });
+
+            var result = await context.AcquireTokenSilentAsync(
+                AdalTestConstants.DefaultResource,
+                AdalTestConstants.DefaultClientId,
+                new UserIdentifier(userInfo.UserId, UserIdentifierType.UniqueId)).ConfigureAwait(false);
+            return result;
+        }
+
+        private async Task<AuthenticationResult> LoginUserWithPasswordAsync(
+            MockHttpManager httpManager, 
+            AuthenticationContext context,
+            TestAdalUserData userData)
+        {
+            AddUserRealmMockHandler(httpManager, userData.UserId);
+            AddSuccessTokenMockHandler(userData.UserId, userData.UniqueId, userData.UniqueObjectId, userData.UniqueTenantIdentifier);
+            var result = await context.AcquireTokenAsync(
+                                          AdalTestConstants.DefaultResource,
+                                          AdalTestConstants.DefaultClientId,
+                                          new UserPasswordCredential(userData.UserId, AdalTestConstants.DefaultPassword))
+                                      .ConfigureAwait(false);
+            return result;
         }
 
         private static void AddSuccessTokenMockHandler(
