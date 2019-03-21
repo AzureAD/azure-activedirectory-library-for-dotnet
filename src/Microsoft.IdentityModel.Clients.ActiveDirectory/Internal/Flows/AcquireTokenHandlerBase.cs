@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
@@ -47,17 +48,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
     internal abstract class AcquireTokenHandlerBase
     {
         private readonly TokenCache _tokenCache;
-        private AdalHttpClient _client = null;
 
         protected const string NullResource = "null_resource_as_optional";
         protected CacheQueryData CacheQueryData = new CacheQueryData();
 
-        internal /* internal for test, otherwise protected */ RequestContext RequestContext {  get; }
+        internal /* internal for test, otherwise protected */ RequestContext RequestContext { get; }
         protected IBroker BrokerHelper { get; }
         internal /* internal for test, otherwise protected */ IDictionary<string, string> BrokerParameters { get; }
 
-        protected AcquireTokenHandlerBase(RequestData requestData)
+        
+        protected AcquireTokenHandlerBase(IServiceBundle serviceBundle, RequestData requestData)
         {
+            ServiceBundle = serviceBundle;
             Authenticator = requestData.Authenticator;
             _tokenCache = requestData.TokenCache;
             RequestContext = CreateCallState(null, this.Authenticator.CorrelationId);
@@ -143,6 +145,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected bool LoadFromCache { get; set; }
 
         protected bool StoreToCache { get; set; }
+        protected IServiceBundle ServiceBundle { get; }
 
         public async Task<AuthenticationResult> RunAsync()
         {
@@ -171,7 +174,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
                     // Check if we need to get an AT from the RT
                     if (ResultEx?.Result != null &&
-                        ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) || 
+                        ((ResultEx.Result.AccessToken == null && ResultEx.RefreshToken != null) ||
                          (ResultEx.Result.ExtendedLifeTimeToken && ResultEx.RefreshToken != null)))
                     {
                         RequestContext.Logger.Verbose("Refreshing the AT based on the RT.");
@@ -183,7 +186,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         }
                     }
                 }
-                
+
                 if (ResultEx == null || ResultEx.Exception != null)
                 {
                     RequestContext.Logger.Verbose("Either a token was not found or an exception was thrown.");
@@ -214,18 +217,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
 
                 // At this point we have an Acess Token - return it
-                await this.PostRunAsync(ResultEx.Result).ConfigureAwait(false);
+                await PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return new AuthenticationResult(ResultEx.Result);
             }
             catch (Exception ex)
             {
                 RequestContext.Logger.ErrorPii(ex);
-                if (_client != null && _client.Resiliency && extendedLifetimeResultEx != null)
-                {
-                    RequestContext.Logger.Info("Refreshing access token failed due to one of these reasons:- Internal Server Error, Gateway Timeout and Service Unavailable. " +
-                                       "Hence returning back stale access token");
 
-                    return new AuthenticationResult(extendedLifetimeResultEx.Result);
+                if (ex.InnerException is AdalServiceException serviceException)
+                {
+                    bool resiliency = false;
+
+                    if (serviceException.StatusCode >= 500 && serviceException.StatusCode < 600 ||
+                    serviceException.StatusCode == (int)HttpStatusCode.RequestTimeout)
+                    {
+                        resiliency = true;
+                    }
+
+                    if (resiliency && extendedLifetimeResultEx != null)
+                    {
+                        RequestContext.Logger.Info("Refreshing access token failed due to one of these reasons:- Internal Server Error, Gateway Timeout and Service Unavailable. " +
+                                           "Hence returning back stale access token");
+
+                        return new AuthenticationResult(extendedLifetimeResultEx.Result);
+                    }
                 }
                 throw;
             }
@@ -233,7 +248,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 if (notifiedBeforeAccessCache)
                 {
-                    this.NotifyAfterAccessCache();
+                    NotifyAfterAccessCache();
                 }
             }
         }
@@ -301,12 +316,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             return Task.FromResult(false);
         }
-        
+
         protected async Task UpdateAuthorityAsync(string updatedAuthority)
         {
-            if(!Authenticator.Authority.Equals(updatedAuthority, StringComparison.OrdinalIgnoreCase))
+            if (!Authenticator.Authority.Equals(updatedAuthority, StringComparison.OrdinalIgnoreCase))
             {
-                await Authenticator.UpdateAuthorityAsync(updatedAuthority, RequestContext).ConfigureAwait(false);
+                await Authenticator.UpdateAuthorityAsync(ServiceBundle, updatedAuthority, RequestContext).ConfigureAwait(false);
                 ValidateAuthorityType();
             }
         }
@@ -314,7 +329,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         protected virtual async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
         {
             // if broker returned Authority update Authentiator
-            if(!string.IsNullOrEmpty(resultEx.Result.Authority))
+            if (!string.IsNullOrEmpty(resultEx.Result.Authority))
             {
                 await UpdateAuthorityAsync(resultEx.Result.Authority).ConfigureAwait(false);
             }
@@ -387,9 +402,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                             AdalError.FailedToRefreshToken,
                             AdalErrorMessage.FailedToRefreshToken + ". " + serviceException.Message,
                             serviceException.ServiceErrorCodes,
+                            serviceException.Response,
                             serviceException);
                     }
-                    newResultEx = new AdalResultWrapper {Exception = ex};
+                    newResultEx = new AdalResultWrapper { Exception = ex };
                 }
             }
 
@@ -398,9 +414,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private async Task<AdalResultWrapper> SendHttpMessageAsync(IRequestParameters requestParameters)
         {
-            _client = new AdalHttpClient(Authenticator.TokenUri, RequestContext)
-                {Client = {BodyParameters = requestParameters}};
-            TokenResponse tokenResponse = await _client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
+            OAuthClient client = new OAuthClient(ServiceBundle.HttpManager, Authenticator.TokenUri, RequestContext)
+            {
+                BodyParameters = requestParameters
+            };
+
+            TokenResponse tokenResponse = await client.GetResponseAsync<TokenResponse>().ConfigureAwait(false);
             return tokenResponse.GetResult();
         }
 

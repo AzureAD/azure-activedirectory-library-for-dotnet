@@ -39,6 +39,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
 using Test.ADAL.NET.Unit;
 using Test.Microsoft.Identity.Core.Unit;
 using UserCredential = Microsoft.IdentityModel.Clients.ActiveDirectory.UserCredential;
@@ -60,7 +61,7 @@ namespace Test.ADAL.Common.Unit
 
         // Passing a seed to make repro possible
         private static readonly Random Rand = new Random(42);
-
+        
         public static void DefaultTokenCacheTest()
         {
             AuthenticationContext context = new AuthenticationContext("https://login.windows.net/dummy", false);
@@ -340,6 +341,7 @@ namespace Test.ADAL.Common.Unit
         internal static async Task TokenCacheOperationsTestAsync()
         {
             var tokenCache = new TokenCache();
+            tokenCache.SetServiceBundle(TestCommon.CreateDefaultServiceBundle());
             var cacheDictionary = tokenCache._tokenCacheDictionary;
 
             tokenCache.Clear();
@@ -499,6 +501,7 @@ namespace Test.ADAL.Common.Unit
             value2.UserAssertionHash = "hash2";
 
             TokenCache cache = new TokenCache();
+            cache.SetServiceBundle(TestCommon.CreateDefaultServiceBundle());
             cache._tokenCacheDictionary[key] = value;
             cache._tokenCacheDictionary[key2] = value2;
             CacheQueryData data = new CacheQueryData()

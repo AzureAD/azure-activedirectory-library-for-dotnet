@@ -31,7 +31,6 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
@@ -40,7 +39,6 @@ using Microsoft.Identity.Core.UI;
 using System.Collections.Generic;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using System.Linq;
-using Test.Microsoft.Identity.Core.Unit;
 using Microsoft.Identity.Core;
 
 
@@ -57,11 +55,16 @@ namespace Test.ADAL.NET.Unit.net45
         public void Initialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-
-            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant)));
             _platformParameters = new PlatformParameters(PromptBehavior.Auto);
+        }
+
+        internal void SetupMocks(MockHttpManager httpManager)
+        {
+            httpManager.AddMockHandler(
+                    MockHelpers.CreateInstanceDiscoveryMockHandler(
+                        AdalTestConstants.GetDiscoveryEndpoint(
+                            AdalTestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestCleanup()]
@@ -75,28 +78,38 @@ namespace Test.ADAL.NET.Unit.net45
         [TestCategory("AdalDotNet")]
         public async Task SmokeTestAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
-            AuthenticationResult result =
-                await
-                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            Assert.IsNotNull(result.UserInfo);
-            Assert.AreEqual(result.ExpiresOn, result.ExtendedExpiresOn);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
-            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                SetupMocks(httpManager);
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    null);
+
+                AuthenticationResult result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                Assert.IsNotNull(result.UserInfo);
+                Assert.AreEqual(result.ExpiresOn, result.ExtendedExpiresOn);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+            }
         }
 
         [TestMethod]
@@ -104,132 +117,171 @@ namespace Test.ADAL.NET.Unit.net45
         [TestCategory("AdalDotNet")]
         public async Task SmokeTestWithExtendedExpiresOnAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(true)
-            });
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
-            AuthenticationResult result =
-                await
-                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            Assert.IsNotNull(result.UserInfo);
-            Assert.IsTrue(result.ExtendedExpiresOn.Subtract(result.ExpiresOn) > TimeSpan.FromSeconds(5));
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
-            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                SetupMocks(httpManager);
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(true)
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    null);
+
+                AuthenticationResult result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.IsTrue(_context.Authenticator.Authority.EndsWith("/some-tenant-id/"));
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                Assert.IsNotNull(result.UserInfo);
+                Assert.IsTrue(result.ExtendedExpiresOn.Subtract(result.ExpiresOn) > TimeSpan.FromSeconds(5));
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+            }
         }
-
 
         [TestMethod]
         [Description("Positive Test for ExtendedLife Feature")]
         [TestCategory("AdalDotNet")]
         public async Task ExtendedLifetimeRetryAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                  AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    new TokenCache());
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout),
-            });
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout),
+                });
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-            });
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                });
 
-            _context.ExtendedLifeTimeEnabled = true;
-            AuthenticationResult result =
-            await _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.AccessToken);
+                _context.ExtendedLifeTimeEnabled = true;
+                AuthenticationResult result =
+                await _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.IsNotNull(result.AccessToken);
 
-            _context.TokenCache.Clear();
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
-
+                _context.TokenCache.Clear();
+            }
         }
-
 
         [TestMethod]
         [Description("Positive Test for AcquireToken with missing redirectUri and/or userId")]
         public async Task AcquireTokenPositiveWithoutUserId_PKCE_Async()
         {
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            var mockWebUI = MockHelpers.ConfigureMockWebUI(
-                new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
-                MockHelpers.GetDefaultAuthorizationRequestParams());
-
-            var mockHandler = new MockHttpMessageHandler(
-                AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            };
-            AdalHttpMessageHandlerFactory.AddMockHandler(mockHandler);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            AuthenticationResult result =
-                await
-                    _context.AcquireTokenAsync(
-                        AdalTestConstants.DefaultResource,
-                        AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri,
-                        _platformParameters).ConfigureAwait(false);
+                SetupMocks(httpManager);
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            ValidatePkce(mockWebUI, mockHandler);
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
 
-            var exc = AssertException.TaskThrows<ArgumentException>(() =>
-                _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                    AdalTestConstants.DefaultRedirectUri, _platformParameters, null));
-            Assert.IsTrue(exc.Message.StartsWith(AdalErrorMessage.SpecifyAnyUser));
+                var mockWebUI = MockHelpers.ConfigureMockWebUI(
+                    new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
+                    MockHelpers.GetDefaultAuthorizationRequestParams());
 
+                var mockHandler = new MockHttpMessageHandler(
+                    AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                };
+                httpManager.AddMockHandler(mockHandler);
 
-            // this should hit the cache
-            result =
-                await
+                AuthenticationResult result =
+                    await
+                        _context.AcquireTokenAsync(
+                            AdalTestConstants.DefaultResource,
+                            AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri,
+                            _platformParameters).ConfigureAwait(false);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                ValidatePkce(mockWebUI, mockHandler);
+
+                var exc = AssertException.TaskThrows<ArgumentException>(() =>
                     _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
+                        AdalTestConstants.DefaultRedirectUri, _platformParameters, null));
+                Assert.IsTrue(exc.Message.StartsWith(AdalErrorMessage.SpecifyAnyUser));
 
-            // There should be one cached entry.
-            Assert.AreEqual(1, _context.TokenCache.Count);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
-            _context.TokenCache.Clear();
+
+                // this should hit the cache
+                result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters, UserIdentifier.AnyUser).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+
+                // There should be one cached entry.
+                Assert.AreEqual(1, _context.TokenCache.Count);
+
+                _context.TokenCache.Clear();
+            }
         }
 
         [TestMethod]
         [Description("Positive Test for AcquireToken with missing redirectUri and/or userId")]
         public void InvalidStateReturned_ThrowsException()
         {
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            MockHelpers.ConfigureMockWebUI(
-                new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
-                MockHelpers.GetDefaultAuthorizationRequestParams(),
-                addStateToAuthroizationResult: false);
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            var ex = AssertException.TaskThrows<AdalException>(() => _context.AcquireTokenAsync(
-                        AdalTestConstants.DefaultResource,
-                        AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri,
-                        _platformParameters));
+                SetupMocks(httpManager);
 
-            Assert.AreEqual(AdalError.StateMismatchError, ex.ErrorCode);
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                MockHelpers.ConfigureMockWebUI(
+                    new AuthorizationResult(AuthorizationStatus.Success, AdalTestConstants.DefaultRedirectUri + "?code=some-code"),
+                    MockHelpers.GetDefaultAuthorizationRequestParams(),
+                    addStateToAuthroizationResult: false);
+
+                var ex = AssertException.TaskThrows<AdalException>(() => _context.AcquireTokenAsync(
+                            AdalTestConstants.DefaultResource,
+                            AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri,
+                            _platformParameters));
+
+                Assert.AreEqual(AdalError.StateMismatchError, ex.ErrorCode);
+            }
         }
 
         private static void ValidatePkce(MockWebUI mockWebUI, MockHttpMessageHandler exchangeAuthorizationCodeHandler)
@@ -261,173 +313,225 @@ namespace Test.ADAL.NET.Unit.net45
             });
         }
 
-
         [TestMethod]
         [Description("Test for authority validation to AuthenticationContext")]
         public async Task AuthenticationContextAuthorityValidationTestAsync()
         {
-            _context = null;
-            AuthenticationResult result = null;
-
-            var ex = AssertException.Throws<ArgumentException>(() => new AuthenticationContext("https://login.contoso.com/adfs"));
-            Assert.AreEqual(ex.ParamName, "validateAuthority");
-
-
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            //whitelisted authority
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true, new TokenCache());
-            _context.TokenCache.Clear(); // need to reset cache before starting utest.
-            result =
-                await
+                SetupMocks(httpManager);
+
+                _context = null;
+                AuthenticationResult result = null;
+
+                var ex = AssertException.Throws<ArgumentException>(() => new AuthenticationContext(
+                    serviceBundle,
+                    "https://login.contoso.com/adfs",
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache()));
+                Assert.AreEqual(ex.ParamName, "validateAuthority");
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                    AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+
+                //whitelisted authority
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    new TokenCache());
+                _context.TokenCache.Clear(); // need to reset cache before starting utest.
+                result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters,
+                            new UserIdentifier(AdalTestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                Assert.IsNotNull(result.UserInfo);
+
+                // There should be one cached entry.
+                Assert.AreEqual(1, _context.TokenCache.Count, "Number of items in the cache is not as expected.");
+
+                //add handler to return failed discovery response
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Get,
+                    ResponseMessage =
+                        MockHelpers.CreateFailureResponseMessage(
+                            "{\"error\":\"invalid_instance\",\"error_description\":\"AADSTS70002: Error in validating authority.\"}")
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    "https://login.microsoft0nline.com/common",
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+                var adalEx = AssertException.TaskThrows<AdalException>(() =>
                     _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters,
-                        new UserIdentifier(AdalTestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            Assert.IsNotNull(result.UserInfo);
+                        AdalTestConstants.DefaultRedirectUri, _platformParameters));
 
-            // There should be one cached entry.
-            Assert.AreEqual(1, _context.TokenCache.Count, "Number of items in the cache is not as expected.");
-
-            //add handler to return failed discovery response
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
-            {
-                Method = HttpMethod.Get,
-                ResponseMessage =
-                    MockHelpers.CreateFailureResponseMessage(
-                        "{\"error\":\"invalid_instance\",\"error_description\":\"AADSTS70002: Error in validating authority.\"}")
-            });
-
-            _context = new AuthenticationContext("https://login.microsoft0nline.com/common");
-            var adalEx = AssertException.TaskThrows<AdalException>(() =>
-                _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                    AdalTestConstants.DefaultRedirectUri, _platformParameters));
-
-            Assert.AreEqual(adalEx.ErrorCode, AdalError.AuthorityNotInValidList);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
-            _context.TokenCache.Clear();
+                Assert.AreEqual(adalEx.ErrorCode, AdalError.AuthorityNotInValidList);
+                _context.TokenCache.Clear();
+            }
         }
 
         [TestMethod]
         [Description("Negative Test for AcquireToken with user canceling authentication")]
         public void AcquireTokenWithAuthenticationCanceledTest()
         {
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.UserCancel,
-                AdalTestConstants.DefaultRedirectUri + "?error=user_cancelled"));
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            var exc = AssertException.TaskThrows<AdalServiceException>(() =>
-                _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters));
+                SetupMocks(httpManager);
 
-            Assert.AreEqual(exc.ErrorCode, AdalError.AuthenticationCanceled);
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
 
-            // There should be no cached entries.
-            Assert.AreEqual(0, _context.TokenCache.Count);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.UserCancel,
+                    AdalTestConstants.DefaultRedirectUri + "?error=user_cancelled"));
+
+                var exc = AssertException.TaskThrows<AdalServiceException>(() =>
+                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters));
+
+                Assert.AreEqual(exc.ErrorCode, AdalError.AuthenticationCanceled);
+
+                // There should be no cached entries.
+                Assert.AreEqual(0, _context.TokenCache.Count);
+            }
         }
 
         [TestMethod]
         [Description("Positive Test for AcquireToken testing default token cache")]
         public async Task AcquireTokenPositiveWithNullCacheTestAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, null);
-            AuthenticationResult result =
-                await
-                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            Assert.IsNotNull(result.UserInfo);
+                SetupMocks(httpManager);
 
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle, AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    null);
+
+                AuthenticationResult result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                Assert.IsNotNull(result.UserInfo);
+            }
         }
 
         [TestMethod]
         [Description("Test for acquiring token using tenant specific endpoint")]
         public async Task TenantSpecificAuthorityTestAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-            });
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, true);
-            AuthenticationResult result =
-                await
-                    _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(AdalTestConstants.DefaultAuthorityHomeTenant, _context.Authenticator.Authority);
-            Assert.AreEqual(result.AccessToken, "some-access-token");
-            Assert.IsNotNull(result.UserInfo);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
-            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                SetupMocks(httpManager);
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.True,
+                    null);
+
+                AuthenticationResult result =
+                    await
+                        _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(AdalTestConstants.DefaultAuthorityHomeTenant, _context.Authenticator.Authority);
+                Assert.AreEqual(result.AccessToken, "some-access-token");
+                Assert.IsNotNull(result.UserInfo);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.UserInfo.UniqueId);
+            }
         }
 
         [TestMethod]
         [Description("Test for ensuring ADAL returns the appropriate headers during a http failure.")]
         public async Task HttpErrorResponseWithHeadersAsync()
         {
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
                                            AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
 
-            List<KeyValuePair<string, string>> HttpErrorResponseWithHeaders = new List<KeyValuePair<string, string>>();
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Retry-After", "120"));
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("GatewayTimeout", "0"));
-            HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Forbidden", "0"));
+                List<KeyValuePair<string, string>> HttpErrorResponseWithHeaders = new List<KeyValuePair<string, string>>();
+                HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Retry-After", "120"));
+                HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("GatewayTimeout", "0"));
+                HttpErrorResponseWithHeaders.Add(new KeyValuePair<string, string>("Forbidden", "0"));
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.DefaultAuthorityCommonTenant)
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateCustomHeaderFailureResponseMessage(HttpErrorResponseWithHeaders)
-            });
-
-            _context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
-
-            try
-            {
-                AuthenticationResult result = await _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                                              AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-                if (ex is AdalServiceException adalEx)
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.DefaultAuthorityCommonTenant)
                 {
-                    foreach (KeyValuePair<string, string> header in HttpErrorResponseWithHeaders)
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateCustomHeaderFailureResponseMessage(HttpErrorResponseWithHeaders)
+                });
+
+                _context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    new TokenCache());
+
+                try
+                {
+                    AuthenticationResult result = await _context.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                                                  AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+                    Assert.Fail();
+                }
+                catch (Exception ex)
+                {
+                    if (ex is AdalServiceException adalEx)
                     {
-                        var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value.Contains(header.Value)).FirstOrDefault();
-                        Assert.IsNotNull(match);
+                        foreach (KeyValuePair<string, string> header in HttpErrorResponseWithHeaders)
+                        {
+                            var match = adalEx.Headers.Where(x => x.Key == header.Key && x.Value.Contains(header.Value)).FirstOrDefault();
+                            Assert.IsNotNull(match);
+                        }
                     }
                 }
+                _context.TokenCache.Clear();
             }
-            // All mocks are consumed
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
-            _context.TokenCache.Clear();
         }
     }
 }

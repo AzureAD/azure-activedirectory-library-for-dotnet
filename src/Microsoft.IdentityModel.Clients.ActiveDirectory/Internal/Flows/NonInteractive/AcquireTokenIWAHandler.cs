@@ -45,7 +45,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly CommonNonInteractiveHandler _commonNonInteractiveHandler;
 
         public AcquireTokenIWAHandler(IServiceBundle serviceBundle, RequestData requestData, IntegratedWindowsAuthInput iwaInput)
-            : base(requestData)
+            : base(serviceBundle, requestData)
         {
             if (iwaInput == null)
             {

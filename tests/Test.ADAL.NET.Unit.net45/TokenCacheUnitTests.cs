@@ -31,8 +31,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common.Unit;
 using Test.ADAL.NET.Common;
-using Test.ADAL.NET.Common.Mocks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.Identity.Core;
@@ -49,9 +47,7 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
@@ -61,7 +57,6 @@ namespace Test.ADAL.NET.Unit
         {
             TokenCacheTests.DefaultTokenCacheTest();
         }
-
 
         [TestMethod]
         [TestCategory("Regression")] // regression for https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1463

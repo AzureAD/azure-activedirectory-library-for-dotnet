@@ -80,6 +80,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 errorCode,
                 errorMessage,
                 exceptionDetail?.ServiceErrorCodes,
+                exceptionDetail?.Response,
                 innerException)
             {
                 StatusCode = exceptionDetail != null ? exceptionDetail.StatusCode : 0,
@@ -139,12 +140,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         private static void ValidateRequiredArgs(string errorCode, string errorMessage)
         {
-            if (String.IsNullOrEmpty(errorCode))
+            if (string.IsNullOrEmpty(errorCode))
             {
                 throw new ArgumentNullException(nameof(errorCode));
             }
 
-            if (String.IsNullOrEmpty(errorMessage))
+            if (string.IsNullOrEmpty(errorMessage))
             {
                 throw new ArgumentNullException(nameof(errorMessage));
             }

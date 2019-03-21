@@ -65,906 +65,1083 @@ namespace Test.ADAL.NET.Unit
         public void TestInitialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
-            ResetInstanceDiscovery();
             _crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
         }
 
-        public void ResetInstanceDiscovery()
+        internal void SetupMocks(MockHttpManager httpManager)
         {
             InstanceDiscovery.InstanceCache.Clear();
-            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant)));
+            httpManager.AddMockHandler(
+                    MockHelpers.CreateInstanceDiscoveryMockHandler(
+                        AdalTestConstants.GetDiscoveryEndpoint(
+                            AdalTestConstants.DefaultAuthorityCommonTenant)));
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                //cache entry has no user assertion hash
-                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                    //cache entry has no user assertion hash
+                    await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
                     {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                            },
-                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                },
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        },
                     },
-                },
-                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            }
-            ResetInstanceDiscovery();
+                    AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                   new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+                }
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with no username. this will result in a network call because cache entry with no assertion hash is
-            // treated as a cache miss.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with no username. this will result in a network call because cache entry with no assertion hash is
+                // treated as a cache miss.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null).UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null).UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                //cache entry has no user assertion hash
-                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                    //cache entry has no user assertion hash
+                    await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
                     {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                            },
-                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                },
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        },
                     },
-                },
-                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            }
-            ResetInstanceDiscovery();
+                    AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                   new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+                }
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with matching username from cache entry. this will result in a network call 
-            // because cache entry with no assertion hash is treated as a cache miss.
+                // call acquire token with matching username from cache entry. this will result in a network call 
+                // because cache entry with no assertion hash is treated as a cache miss.
 
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null).UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null).UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                    cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
-                //cache entry has no user assertion hash
-                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                    AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                        AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                        cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
+                    //cache entry has no user assertion hash
+                    context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
                     {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                            }
-                    },
-                };
-            }
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result = new AdalResult("Bearer", cachenoise + "some-token-in-cache", _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                }
+                        },
+                    };
+                }
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            string displayableId2 = "extra" + AdalTestConstants.DefaultDisplayableId;
-            string uniqueId2 = "extra" + AdalTestConstants.DefaultUniqueId;
+                string displayableId2 = "extra" + AdalTestConstants.DefaultDisplayableId;
+                string uniqueId2 = "extra" + AdalTestConstants.DefaultUniqueId;
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage =
-                    MockHelpers.CreateSuccessTokenResponseMessage(uniqueId2, displayableId2,
-                        AdalTestConstants.DefaultResource),
-                PostData = new Dictionary<string, string>()
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage =
+                        MockHelpers.CreateSuccessTokenResponseMessage(uniqueId2, displayableId2,
+                            AdalTestConstants.DefaultResource),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with diferent username from cache entry. this will result in a network call
-            // because cache lookup failed for non-existant user
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer,
-                            "non-existant" + AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(displayableId2, result.UserInfo.DisplayableId);
+                // call acquire token with diferent username from cache entry. this will result in a network call
+                // because cache lookup failed for non-existant user
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer,
+                                "non-existant" + AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(displayableId2, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(3, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(3, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null)
-                    .UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First(x => x.UserAssertionHash != null)
+                        .UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                    cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result =
-                        new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
-                        {
-                            UserInfo =
-                                new AdalUserInfo()
-                                {
-                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                                }
-                        },
-                    UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
-                };
+                    AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                        AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                        cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
+
+                    context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                    {
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result =
+                            new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
+                            {
+                                UserInfo =
+                                    new AdalUserInfo()
+                                    {
+                                        DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                        UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                    }
+                            },
+                        UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
+                    };
+                }
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+
+                // call acquire token with no username and matching assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual(tokenInCache, result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
             }
-
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-
-            // call acquire token with no username and matching assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(tokenInCache, result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
-
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result =
-                        new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
-                        {
-                            UserInfo =
-                                new AdalUserInfo()
-                                {
-                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                                },
-                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                        },
-                    UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
-                },
-                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            }
-            ResetInstanceDiscovery();
+                    await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                    {
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result =
+                            new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
+                            {
+                                UserInfo =
+                                    new AdalUserInfo()
+                                    {
+                                        DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                        UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                    },
+                                IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                            },
+                        UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
+                    },
+                    AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                   new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+                }
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            // call acquire token with no username and different assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion("non-existant" + accessToken)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with no username and different assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion("non-existant" + accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                    cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+                foreach (var cachenoise in _cacheNoise)
                 {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result =
-                        new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
-                        {
-                            UserInfo =
-                                new AdalUserInfo()
-                                {
-                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                                }
-                        },
-                    UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
-                };
+                    AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                        AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                        cachenoise + AdalTestConstants.DefaultUniqueId, cachenoise + AdalTestConstants.DefaultDisplayableId);
+
+                    context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                    {
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result =
+                            new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
+                            {
+                                UserInfo =
+                                    new AdalUserInfo()
+                                    {
+                                        DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                        UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                    }
+                            },
+                        UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
+                    };
+                }
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+
+                // call acquire token with matching username and matching assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual(tokenInCache, result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
+
+                //assertion hash should be stored in the cache entry.
+                var expectedHash = _crypto.CreateSha256Hash(accessToken);
+
+                Assert.IsTrue(context.TokenCache._tokenCacheDictionary.Values.Any(v => v.UserAssertionHash == expectedHash));
             }
-
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-
-            // call acquire token with matching username and matching assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(tokenInCache, result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
-
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
-
-            //assertion hash should be stored in the cache entry.
-            var expectedHash = _crypto.CreateSha256Hash(accessToken);
-
-            Assert.IsTrue(context.TokenCache._tokenCacheDictionary.Values.Any(v => v.UserAssertionHash == expectedHash));
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-            foreach (var cachenoise in _cacheNoise)
+            using (var httpManager = new MockHttpManager())
             {
-                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
-                {
-                    RefreshToken = cachenoise + "some-rt",
-                    ResourceInResponse = AdalTestConstants.DefaultResource,
-                    Result =
-                        new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
-                        {
-                            UserInfo =
-                                new AdalUserInfo()
-                                {
-                                    DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
-                                    UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
-                                },
-                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                        },
-                    UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
-                },
-                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            }
-            ResetInstanceDiscovery();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+                foreach (var cachenoise in _cacheNoise)
+                {
+                    await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                    {
+                        RefreshToken = cachenoise + "some-rt",
+                        ResourceInResponse = AdalTestConstants.DefaultResource,
+                        Result =
+                            new AdalResult("Bearer", cachenoise + tokenInCache, _expirationTime)
+                            {
+                                UserInfo =
+                                    new AdalUserInfo()
+                                    {
+                                        DisplayableId = cachenoise + AdalTestConstants.DefaultDisplayableId,
+                                        UniqueId = cachenoise + AdalTestConstants.DefaultUniqueId
+                                    },
+                                IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                            },
+                        UserAssertionHash = _crypto.CreateSha256Hash(cachenoise + accessToken)
+                    },
+                    AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                   new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+                }
+
+                SetupMocks(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            // call acquire token with matching username and different assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer,
-                            AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with matching username and different assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer,
+                                AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
-                {
-                    UserInfo =
-                        new AdalUserInfo()
-                        {
-                            DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                            UniqueId = AdalTestConstants.DefaultUniqueId
-                        },
-                    IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                },
-                //cache entry has no user assertion hash
-            },
-            AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            ResetInstanceDiscovery();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
+                    {
+                        UserInfo =
+                            new AdalUserInfo()
+                            {
+                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                UniqueId = AdalTestConstants.DefaultUniqueId
+                            },
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                    },
+                    //cache entry has no user assertion hash
+                },
+                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+
+                SetupMocks(httpManager);
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with no username. this will result in a network call because cache entry with no assertion hash is
-            // treated as a cache miss.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with no username. this will result in a network call because cache entry with no assertion hash is
+                // treated as a cache miss.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
-                {
-                    UserInfo =
-                        new AdalUserInfo()
-                        {
-                            DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                            UniqueId = AdalTestConstants.DefaultUniqueId
-                        },
-                    IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                },
-                //cache entry has no user assertion hash
-            },
-            AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            ResetInstanceDiscovery();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
+                    {
+                        UserInfo =
+                            new AdalUserInfo()
+                            {
+                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                UniqueId = AdalTestConstants.DefaultUniqueId
+                            },
+                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                    },
+                    //cache entry has no user assertion hash
+                },
+                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+
+                SetupMocks(httpManager);
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with matching username from cache entry. this will result in a network call 
-            // because cache entry with no assertion hash is treated as a cache miss.
+                // call acquire token with matching username from cache entry. this will result in a network call 
+                // because cache entry with no assertion hash is treated as a cache miss.
 
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
-            //cache entry has no user assertion hash
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
+                //cache entry has no user assertion hash
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
                 {
-                    UserInfo =
-                        new AdalUserInfo()
-                        {
-                            DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                            UniqueId = AdalTestConstants.DefaultUniqueId
-                        }
-                },
-            };
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "some-token-in-cache", _expirationTime)
+                    {
+                        UserInfo =
+                            new AdalUserInfo()
+                            {
+                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                UniqueId = AdalTestConstants.DefaultUniqueId
+                            }
+                    },
+                };
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            string displayableId2 = "extra" + AdalTestConstants.DefaultDisplayableId;
-            string uniqueId2 = "extra" + AdalTestConstants.DefaultUniqueId;
+                string displayableId2 = "extra" + AdalTestConstants.DefaultDisplayableId;
+                string uniqueId2 = "extra" + AdalTestConstants.DefaultUniqueId;
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage =
-                    MockHelpers.CreateSuccessTokenResponseMessage(uniqueId2, displayableId2,
-                        AdalTestConstants.DefaultResource),
-                PostData = new Dictionary<string, string>()
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage =
+                        MockHelpers.CreateSuccessTokenResponseMessage(uniqueId2, displayableId2,
+                            AdalTestConstants.DefaultResource),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            // call acquire token with diferent username from cache entry. this will result in a network call
-            // because cache lookup failed for non-existant user
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, displayableId2
-                            )).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(displayableId2, result.UserInfo.DisplayableId);
+                // call acquire token with diferent username from cache entry. this will result in a network call
+                // because cache lookup failed for non-existant user
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer, displayableId2
+                                )).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(displayableId2, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First(
-                    s => s.Result.UserInfo != null && s.Result.UserInfo.DisplayableId.Equals(displayableId2, StringComparison.OrdinalIgnoreCase))
-                    .UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First(
+                        s => s.Result.UserInfo != null && s.Result.UserInfo.DisplayableId.Equals(displayableId2, StringComparison.OrdinalIgnoreCase))
+                        .UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
-
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result =
-                    new AdalResult("Bearer", tokenInCache, _expirationTime)
-                    {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = AdalTestConstants.DefaultUniqueId
-                            }
-                    },
-                UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
-            };
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                SetupMocks(httpManager);
 
-            // call acquire token with no username and matching assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(tokenInCache, result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                var context = new AuthenticationContext(
+                    serviceBundle, AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                string accessToken = "access-token";
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result =
+                        new AdalResult("Bearer", tokenInCache, _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = AdalTestConstants.DefaultUniqueId
+                                }
+                        },
+                    UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
+                };
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+
+                // call acquire token with no username and matching assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual(tokenInCache, result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
+
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            string tokenInCache = "obo-access-token";
-            await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result =
-                    new AdalResult("Bearer", tokenInCache, _expirationTime)
-                    {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = AdalTestConstants.DefaultUniqueId
-                            },
-                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                    },
-                UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
-            },
-            AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            ResetInstanceDiscovery();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                string tokenInCache = "obo-access-token";
+                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result =
+                        new AdalResult("Bearer", tokenInCache, _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = AdalTestConstants.DefaultUniqueId
+                                },
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        },
+                    UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
+                },
+                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+
+                SetupMocks(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            // call acquire token with no username and different assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with no username and different assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
-
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
-
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result =
-                    new AdalResult("Bearer", tokenInCache, _expirationTime)
-                    {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = AdalTestConstants.DefaultUniqueId
-                            }
-                    },
-                UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
-            };
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                SetupMocks(httpManager);
 
-            // call acquire token with matching username and matching assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual(tokenInCache, result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                string accessToken = "access-token";
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result =
+                        new AdalResult("Bearer", tokenInCache, _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = AdalTestConstants.DefaultUniqueId
+                                }
+                        },
+                    UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
+                };
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
+
+                // call acquire token with matching username and matching assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual(tokenInCache, result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
+
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            string tokenInCache = "obo-access-token";
-            await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result =
-                    new AdalResult("Bearer", tokenInCache, _expirationTime)
-                    {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = AdalTestConstants.DefaultUniqueId
-                            },
-                        IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
-                    },
-                UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
-            },
-            AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-           new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
-            ResetInstanceDiscovery();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                string tokenInCache = "obo-access-token";
+                await context.TokenCache.StoreToCacheAsync(new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result =
+                        new AdalResult("Bearer", tokenInCache, _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = AdalTestConstants.DefaultUniqueId
+                                },
+                            IdToken = MockHelpers.CreateAdalIdToken(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId)
+                        },
+                    UserAssertionHash = _crypto.CreateSha256Hash(accessToken + "different")
+                },
+                AdalTestConstants.DefaultAuthorityHomeTenant, AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+               new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+
+                SetupMocks(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            // call acquire token with matching username and different assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                        new UserAssertion(accessToken)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with matching username and different assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
+                            new UserAssertion(accessToken)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
-                context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken),
+                    context.TokenCache._tokenCacheDictionary.Values.First().UserAssertionHash);
+            }
         }
 
         [TestMethod]
         [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionDifferentResourceTestAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, new TokenCache());
-            string accessToken = "access-token";
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.UserPlusClient,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            //cache entry has user assertion hash
-            string tokenInCache = "obo-access-token";
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
-            {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result =
-                    new AdalResult("Bearer", tokenInCache, _expirationTime)
-                    {
-                        UserInfo =
-                            new AdalUserInfo()
-                            {
-                                DisplayableId = AdalTestConstants.DefaultDisplayableId,
-                                UniqueId = AdalTestConstants.DefaultUniqueId
-                            }
-                    },
-                UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
-            };
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(AdalTestConstants.AnotherResource,
+                SetupMocks(httpManager);
+
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                string accessToken = "access-token";
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.UserPlusClient,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
+
+                //cache entry has user assertion hash
+                string tokenInCache = "obo-access-token";
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result =
+                        new AdalResult("Bearer", tokenInCache, _expirationTime)
+                        {
+                            UserInfo =
+                                new AdalUserInfo()
+                                {
+                                    DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                                    UniqueId = AdalTestConstants.DefaultUniqueId
+                                }
+                        },
+                    UserAssertionHash = _crypto.CreateSha256Hash(accessToken)
+                };
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(AdalTestConstants.AnotherResource,
                     AdalTestConstants.DefaultDisplayableId, AdalTestConstants.DefaultUniqueId),
-                PostData = new Dictionary<string, string>()
+                    PostData = new Dictionary<string, string>()
                 {
                     {"client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
                 }
-            });
+                });
 
-            ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultClientSecret);
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                    AdalTestConstants.DefaultClientSecret);
 
-            // call acquire token with matching username and different assertion hash. this will result in a cache
-            // hit.
-            var result =
-                await
-                    context.AcquireTokenAsync(AdalTestConstants.AnotherResource, clientCredential,
-                        new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount(), "all mocks should have been consumed");
-            Assert.IsNotNull(result.AccessToken);
-            Assert.AreEqual("some-access-token", result.AccessToken);
-            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
+                // call acquire token with matching username and different assertion hash. this will result in a cache
+                // hit.
+                var result =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.AnotherResource, clientCredential,
+                            new UserAssertion(accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result.AccessToken);
+                Assert.AreEqual("some-access-token", result.AccessToken);
+                Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
 
-            //there should be only one cache entry.
-            Assert.AreEqual(2, context.TokenCache.Count);
+                //there should be only one cache entry.
+                Assert.AreEqual(2, context.TokenCache.Count);
 
-            //assertion hash should be stored in the cache entry.
-            foreach (var value in context.TokenCache._tokenCacheDictionary.Values)
-            {
-                Assert.AreEqual(_crypto.CreateSha256Hash(accessToken), value.UserAssertionHash);
+                //assertion hash should be stored in the cache entry.
+                foreach (var value in context.TokenCache._tokenCacheDictionary.Values)
+                {
+                    Assert.AreEqual(_crypto.CreateSha256Hash(accessToken), value.UserAssertionHash);
+                }
             }
         }
     }

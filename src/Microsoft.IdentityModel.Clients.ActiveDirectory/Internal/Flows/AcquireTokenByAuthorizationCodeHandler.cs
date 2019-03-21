@@ -27,6 +27,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
@@ -38,8 +39,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         private readonly Uri redirectUri;
 
-        public AcquireTokenByAuthorizationCodeHandler(RequestData requestData, string authorizationCode, Uri redirectUri)
-            : base(requestData)
+        public AcquireTokenByAuthorizationCodeHandler(
+            IServiceBundle serviceBundle, 
+            RequestData requestData, 
+            string authorizationCode, 
+            Uri redirectUri)
+            : base(serviceBundle, requestData)
         {
             if (requestData.Resource == null)
             {

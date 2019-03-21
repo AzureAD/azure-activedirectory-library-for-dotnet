@@ -59,6 +59,5 @@ namespace Microsoft.Identity.Core.Http
         public string UserAgent { get; set; }
 
         public string Body { get; set; }
-
     }
 }

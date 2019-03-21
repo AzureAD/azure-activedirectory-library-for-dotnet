@@ -25,10 +25,9 @@
 // 
 // ------------------------------------------------------------------------------
 
-using System;
-using System.Net.Http;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.WsTrust;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Identity.Core
 {
@@ -43,6 +42,8 @@ namespace Microsoft.Identity.Core
             HttpManager = httpManager ?? new HttpManager(httpClientFactory);
             WsTrustWebRequestManager = wsTrustWebRequestManager ?? new WsTrustWebRequestManager(HttpManager);
             PlatformProxy = PlatformProxyFactory.GetPlatformProxy();
+            InstanceDiscovery = new InstanceDiscovery(HttpManager);
+            AuthenticationParameters = new AuthenticationParameters(HttpManager);
         }
 
         /// <inheritdoc />
@@ -54,16 +55,23 @@ namespace Microsoft.Identity.Core
         /// <inheritdoc />
         public IPlatformProxy PlatformProxy { get; }
 
+        /// <inheritdoc />
+        public InstanceDiscovery InstanceDiscovery { get; }
+
+        /// <inheritdoc />
+        public AuthenticationParameters AuthenticationParameters { get; }
+
+
         public static ServiceBundle CreateWithCustomHttpManager(IHttpManager httpManager)
         {
             return new ServiceBundle(httpManager: httpManager, shouldClearCaches: true);
         }
 
-        internal static IServiceBundle CreateWithHttpClient(HttpClient httpClient)
+        internal static IServiceBundle CreateWithHttpClientFactory(IHttpClientFactory httpClientFactory)
         {
-            if (httpClient != null)
+            if (httpClientFactory != null)
             {
-                return new ServiceBundle(new HttpClientFactory(httpClient));
+                return new ServiceBundle(new HttpClientFactory());
             }
             else
             {

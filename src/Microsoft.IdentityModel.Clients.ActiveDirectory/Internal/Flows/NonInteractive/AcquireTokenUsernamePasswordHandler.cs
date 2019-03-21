@@ -42,7 +42,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly CommonNonInteractiveHandler _commonNonInteractiveHandler;
 
         public AcquireTokenUsernamePasswordHandler(IServiceBundle serviceBundle, RequestData requestData, UsernamePasswordInput userPasswordInput)
-            : base(requestData)
+            : base(serviceBundle, requestData)
         {
             // We enable ADFS support only when it makes sense to do so
             if (requestData.Authenticator.AuthorityType == AuthorityType.ADFS)

@@ -34,11 +34,9 @@ namespace Microsoft.Identity.Core.Http
     internal class RedirectUriHelper
     {
         /// <summary>
-        /// Check common redirect uri problems. 
-        /// Optionally check that the redirect uri is not the OAuth2 standard redirect uri urn:ietf:wg:oauth:2.0:oob
-        /// when using a system browser, because the browser cannot redirect back to the app.
+        /// Check common redirect uri problems.
         /// </summary>
-        public static void Validate(Uri redirectUri, bool usesSystemBrowser = false)
+        public static void Validate(Uri redirectUri)
         {
             if (redirectUri == null)
             {
@@ -54,19 +52,6 @@ namespace Microsoft.Identity.Core.Http
                     CoreErrorMessages.RedirectUriContainsFragment,
                     nameof(redirectUri));
             }
-
-            // Currenlty only MSAL supports the system browser, on Android and iOS
-            if (usesSystemBrowser &&
-                Constants.DefaultRedirectUri.Equals(redirectUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
-            {
-                throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.DefaultRedirectUriIsInvalid,
-                    String.Format(
-                        CultureInfo.InvariantCulture,
-                        CoreErrorMessages.DefaultRedirectUriIsInvalid,
-                        Constants.DefaultRedirectUri));
-            }
         }
-
     }
 }

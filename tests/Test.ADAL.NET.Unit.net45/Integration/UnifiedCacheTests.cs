@@ -39,6 +39,7 @@ using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core.UI;
 using Test.ADAL.NET.Unit;
+using Microsoft.Identity.Core;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -51,7 +52,6 @@ namespace Test.ADAL.NET.Integration
         [TestInitialize]
         public void Initialize()
         {
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             _platformParameters = new PlatformParameters(PromptBehavior.Auto);
             InstanceDiscovery.InstanceCache.Clear();
         }
@@ -61,43 +61,53 @@ namespace Test.ADAL.NET.Integration
         [Description("Test unified token cache")]
         public async Task UnifedCache_AdalStoresToAndReadRtFromMsalCacheAsync()
         {
-            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                httpManager.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(
                 AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant)));
 
-            MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
-                AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
-            AdalHttpMessageHandlerFactory.AddMockHandler(
-                new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                MockHelpers.ConfigureMockWebUI(new AuthorizationResult(AuthorizationStatus.Success,
+                    AdalTestConstants.DefaultRedirectUri + "?code=some-code"));
+
+                httpManager.AddMockHandler(
+                    new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                    {
+                        Method = HttpMethod.Post,
+                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
+                    });
+
+                var adalTokenCache = TokenCache.DefaultShared;
+
+                var adalContext = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    adalTokenCache);
+
+                var result =
+                    await
+                        adalContext.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
+
+                Assert.IsTrue(adalTokenCache.Count > 0);
+                Assert.IsNotNull(result);
+
+                IEnumerable<TokenCacheItem> tokenCacheItems = adalTokenCache.ReadItems();
+
+                Assert.AreEqual(0, adalTokenCache._tokenCacheAccessor.AccessTokenCount);
+                Assert.IsTrue(adalTokenCache._tokenCacheAccessor.RefreshTokenCount > 0);
+
+                // clear Adal Cache
+                adalTokenCache.ClearAdalCache();
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler
+                    (AdalTestConstants.GetTokenEndpoint(AdalTestConstants.TenantSpecificAuthority))
                 {
                     Method = HttpMethod.Post,
-                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage()
-                });
-
-            var adalTokenCache = TokenCache.DefaultShared;
-
-            var adalContext = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
-            var result =
-                await
-                    adalContext.AcquireTokenAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, _platformParameters).ConfigureAwait(false);
-
-            Assert.IsTrue(adalTokenCache.Count > 0);
-            Assert.IsNotNull(result);
-
-            IEnumerable<TokenCacheItem> tokenCacheItems = adalTokenCache.ReadItems();
-
-            Assert.AreEqual(0, adalTokenCache._tokenCacheAccessor.AccessTokenCount);
-            Assert.IsTrue(adalTokenCache._tokenCacheAccessor.RefreshTokenCount > 0);
-
-            // clear Adal Cache
-            adalTokenCache.ClearAdalCache();
-
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler
-                (AdalTestConstants.GetTokenEndpoint(AdalTestConstants.TenantSpecificAuthority))
-            {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>
                     {
                         {"client_id", AdalTestConstants.DefaultClientId},
                         {"grant_type", OAuthGrantType.RefreshToken},
@@ -105,21 +115,22 @@ namespace Test.ADAL.NET.Integration
                         {"resource", AdalTestConstants.DefaultResource},
                         {"scope", OAuthValue.ScopeOpenId}
                     }
-            });
+                });
 
-            // get refresh token from Msal Cache
-            result =
-                await
-                    adalContext.AcquireTokenAsync(
-                        AdalTestConstants.DefaultResource, 
-                        AdalTestConstants.DefaultClientId,
-                        AdalTestConstants.DefaultRedirectUri, 
-                        _platformParameters,
-                        new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId))
-                        .ConfigureAwait(false);
+                // get refresh token from Msal Cache
+                result =
+                    await
+                        adalContext.AcquireTokenAsync(
+                            AdalTestConstants.DefaultResource,
+                            AdalTestConstants.DefaultClientId,
+                            AdalTestConstants.DefaultRedirectUri,
+                            _platformParameters,
+                            new UserIdentifier(result.UserInfo.DisplayableId, UserIdentifierType.RequiredDisplayableId))
+                            .ConfigureAwait(false);
 
-            //ps todo validate that state in adal is same as was before adal cache clean
-            Assert.IsNotNull(result);
+                //ps todo validate that state in adal is same as was before adal cache clean
+                Assert.IsNotNull(result);
+            }
         }
 #endif
     }
