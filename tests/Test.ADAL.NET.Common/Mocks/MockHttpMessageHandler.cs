@@ -61,9 +61,9 @@ namespace Test.ADAL.NET.Common.Mocks
 
         public Action<HttpRequestMessage> AdditionalRequestValidation { get; set; }
 
-        public MockHttpMessageHandler(string Url)
+        public MockHttpMessageHandler(string url)
         {
-            this.Url = Url;
+            Url = url;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
