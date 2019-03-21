@@ -63,8 +63,6 @@ namespace Test.ADAL.NET.Unit
             ExtendedLifeTimeEnabled = false
         };
 
-        IServiceBundle _serviceBundle = TestCommon.CreateDefaultServiceBundle();
-
         [TestInitialize]
         public void Initialize()
         {
@@ -76,7 +74,7 @@ namespace Test.ADAL.NET.Unit
         public void AcquireTokenInteractiveHandlerConstructor_InitializeBrokerParameters()
         {
             var acquireTokenInteractiveHandler = new AcquireTokenInteractiveHandler(
-                _serviceBundle,
+                TestCommon.CreateDefaultServiceBundle(),
                 _requestData,
                 AdalTestConstants.DefaultRedirectUri, 
                 null, 
@@ -109,7 +107,7 @@ namespace Test.ADAL.NET.Unit
         public void AcquireTokenSilentHandlerConstructor_InitializeBrokerParameters()
         {
             var acquireTokenSilentHandler = new AcquireTokenSilentHandler(
-                _serviceBundle,
+                TestCommon.CreateDefaultServiceBundle(),
                 _requestData, 
                 new UserIdentifier(
                     UniqueUserId, 
