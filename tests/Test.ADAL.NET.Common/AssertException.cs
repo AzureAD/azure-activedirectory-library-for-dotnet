@@ -36,7 +36,6 @@ namespace Test.ADAL.NET.Common
 {
     public static class AssertException
     {
-        [DebuggerStepThrough]
         public static void DoesNotThrow(Action testCode)
         {
             var ex = Recorder.Exception<Exception>(testCode);
@@ -46,7 +45,6 @@ namespace Test.ADAL.NET.Common
             }
         }
 
-        [DebuggerStepThrough]
         public static void DoesNotThrow(Func<object> testCode)
         {
             var ex = Recorder.Exception<Exception>(testCode);
@@ -56,14 +54,12 @@ namespace Test.ADAL.NET.Common
             }
         }
 
-        [DebuggerStepThrough]
         public static TException Throws<TException>(Action testCode)
              where TException : Exception
         {
             return Throws<TException>(testCode, false);
         }
 
-        [DebuggerStepThrough]
         public static TException Throws<TException>(Action testCode, bool allowDerived)
              where TException : Exception
         {
@@ -79,14 +75,12 @@ namespace Test.ADAL.NET.Common
             return exception;
         }
 
-        [DebuggerStepThrough]
         public static TException Throws<TException>(Func<object> testCode)
             where TException : Exception
         {
             return Throws<TException>(testCode, false);
         }
 
-        [DebuggerStepThrough]
         public static TException Throws<TException>(Func<object> testCode, bool allowDerived)
             where TException : Exception
         {
@@ -102,28 +96,38 @@ namespace Test.ADAL.NET.Common
             return exception;
         }
 
-        [DebuggerStepThrough]
-        public static T TaskThrows<T>(Func<Task> testCode)
+        public static T TaskThrows<T>(Func<Task> testCode, bool allowDerived = false)
             where T : Exception
         {
-            var exception = Recorder.Exception<AggregateException>(() => testCode().Wait());
+            var exception = Recorder.Exception(() => testCode().Wait());
 
             if (exception == null)
             {
                 throw new AssertFailedException("AssertExtensions.Throws failed. No exception occurred.");
             }
 
-            var exceptionsMatching = exception.InnerExceptions.OfType<T>().ToList();
-
-            if (!exceptionsMatching.Any())
+            if (exception is AggregateException aggEx)
             {
-                throw new AssertFailedException(string.Format(CultureInfo.CurrentCulture, "AssertExtensions.Throws failed. Incorrect exception {0} occurred.", exception.GetType().Name), exception);
+                if (aggEx.InnerException.GetType() == typeof(AssertFailedException))
+                {
+                    throw aggEx.InnerException;
+                }
+
+                var exceptionsMatching = aggEx.InnerExceptions.OfType<T>().ToList();
+
+                if (!exceptionsMatching.Any())
+                {
+                    throw new AssertFailedException(string.Format(CultureInfo.CurrentCulture, "AssertExtensions.Throws failed. Incorrect exception {0} occurred.", exception.GetType().Name), exception);
+                }
+
+                return exceptionsMatching.First();
             }
 
-            return exceptionsMatching.First();
+            CheckExceptionType<T>(exception, allowDerived);
+
+            return (exception as T);
         }
 
-        [DebuggerStepThrough]
         public static void TaskDoesNotThrow(Func<Task> testCode)
         {
             var exception = Recorder.Exception<AggregateException>(() => testCode().Wait());
@@ -136,7 +140,6 @@ namespace Test.ADAL.NET.Common
             throw new AssertFailedException(string.Format(CultureInfo.CurrentCulture, "AssertExtensions.TaskDoesNotThrow failed. Incorrect exception {0} occurred.", exception.GetType().Name), exception);
         }
 
-        [DebuggerStepThrough]
         public static void TaskDoesNotThrow<T>(Func<Task> testCode) where T : Exception
         {
             var exception = Recorder.Exception<AggregateException>(() => testCode().Wait());
@@ -156,7 +159,6 @@ namespace Test.ADAL.NET.Common
             throw new AssertFailedException(string.Format(CultureInfo.CurrentCulture, "AssertExtensions.Throws failed. Incorrect exception {0} occurred.", exception.GetType().Name), exception);
         }
 
-        [DebuggerStepThrough]
         private static void CheckExceptionType<TException>(Exception actualException, bool allowDerived)
         {
             Type expectedType = typeof(TException);
@@ -189,6 +191,19 @@ namespace Test.ADAL.NET.Common
         private static class Recorder
         {
             [DebuggerStepThrough]
+            public static Exception Exception(Action code)
+            {
+                try
+                {
+                    code();
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    return ex;
+                }
+            }
+
             public static TException Exception<TException>(Action code)
                 where TException : Exception
             {
@@ -201,11 +216,14 @@ namespace Test.ADAL.NET.Common
                 {
                     return ex;
                 }
+                catch (Exception e)
+                {
+                    throw new AssertFailedException($"Expected to capture a {typeof(TException)} exception but got {e.GetType()}");
+                }
             }
 
-            [DebuggerStepThrough]
             public static TException Exception<TException>(Func<object> code)
-                where TException : Exception
+               where TException : Exception
             {
                 try
                 {
@@ -215,6 +233,10 @@ namespace Test.ADAL.NET.Common
                 catch (TException ex)
                 {
                     return ex;
+                }
+                catch (Exception e)
+                {
+                    throw new AssertFailedException($"Expected to capture a {typeof(TException)} exception but got {e.GetType()}");
                 }
             }
         }

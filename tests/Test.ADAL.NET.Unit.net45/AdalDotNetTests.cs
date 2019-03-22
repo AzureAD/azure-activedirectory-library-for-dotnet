@@ -34,7 +34,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
-using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 using System.Collections.Generic;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using System.Security.Cryptography.X509Certificates;
@@ -1269,6 +1268,7 @@ namespace Test.ADAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+                InstanceDiscovery.InstanceCache.Clear();
 
                 SetupMocks(httpManager);
 
