@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Identity.Json;
 using Microsoft.Identity.Json.Linq;
 
@@ -35,20 +36,36 @@ namespace Microsoft.Identity.Core.Cache
 {
     internal class CacheSerializationContract
     {
-        public Dictionary<string, MsalAccessTokenCacheItem> AccessTokens { get; set; } =
+        private static readonly IEnumerable<string> KnownPropertyNames = new[] {
+                StorageJsonValues.CredentialTypeAccessToken,
+                StorageJsonValues.CredentialTypeRefreshToken,
+                StorageJsonValues.CredentialTypeIdToken,
+                StorageJsonValues.AccountRootKey };
+
+        public CacheSerializationContract(IDictionary<string, JToken> unkownNodes)
+        {
+            UnknownNodes = unkownNodes ?? new Dictionary<string, JToken>();
+        }
+
+        public Dictionary<string, MsalAccessTokenCacheItem> AccessTokens { get;  } =
             new Dictionary<string, MsalAccessTokenCacheItem>();
 
-        public Dictionary<string, MsalRefreshTokenCacheItem> RefreshTokens { get; set; } =
+        public Dictionary<string, MsalRefreshTokenCacheItem> RefreshTokens { get;  } =
             new Dictionary<string, MsalRefreshTokenCacheItem>();
 
-        public Dictionary<string, MsalIdTokenCacheItem> IdTokens { get; set; } = new Dictionary<string, MsalIdTokenCacheItem>();
+        public Dictionary<string, MsalIdTokenCacheItem> IdTokens { get; } = new Dictionary<string, MsalIdTokenCacheItem>();
 
-        public Dictionary<string, MsalAccountCacheItem> Accounts { get; set; } = new Dictionary<string, MsalAccountCacheItem>();
+        public Dictionary<string, MsalAccountCacheItem> Accounts { get; } = new Dictionary<string, MsalAccountCacheItem>();
+
+        public IDictionary<string, JToken> UnknownNodes { get; }
+
 
         internal static CacheSerializationContract FromJsonString(string json)
         {
             JObject root = JObject.Parse(json);
-            var contract = new CacheSerializationContract();
+            var unkownNodes = ExtractUnkownNodes(root);
+
+            var contract = new CacheSerializationContract(unkownNodes);
 
             // Access Tokens
             if (root.ContainsKey(StorageJsonValues.CredentialTypeAccessToken))
@@ -106,7 +123,15 @@ namespace Microsoft.Identity.Core.Cache
                 }
             }
 
+
             return contract;
+        }
+
+        private static IDictionary<string, JToken> ExtractUnkownNodes(JObject root)
+        {
+            return (root as IDictionary<string, JToken>)
+                .Where(kvp => !KnownPropertyNames.Any(p => string.Equals(kvp.Key, p, StringComparison.OrdinalIgnoreCase)))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         internal string ToJsonString()
@@ -148,6 +173,11 @@ namespace Microsoft.Identity.Core.Cache
             }
 
             root[StorageJsonValues.AccountRootKey] = accountsRoot;
+
+            foreach (var kvp in UnknownNodes)
+            {
+                root[kvp.Key] = kvp.Value;
+            }
 
             return root.ToString();
         }

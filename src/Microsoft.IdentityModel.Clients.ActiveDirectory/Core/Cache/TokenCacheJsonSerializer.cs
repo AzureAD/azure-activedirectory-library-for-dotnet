@@ -26,6 +26,8 @@
 // ------------------------------------------------------------------------------
 
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Json.Linq;
+using System.Collections.Generic;
 
 namespace Microsoft.Identity.Core.Cache
 {
@@ -38,9 +40,10 @@ namespace Microsoft.Identity.Core.Cache
             _accessor = accessor;
         }
 
-        public byte[] Serialize()
+        public byte[] Serialize(IDictionary<string, JToken> unkownNodes)
         {
-            var cache = new CacheSerializationContract();
+            var cache = new CacheSerializationContract(unkownNodes);
+
             foreach (var token in _accessor.GetAllAccessTokens())
             {
                 cache.AccessTokens[token.GetKey().ToString()] = token;
@@ -64,13 +67,13 @@ namespace Microsoft.Identity.Core.Cache
             return cache.ToJsonString().ToByteArray();
         }
 
-        public void Deserialize(byte[] bytes)
+        public IDictionary<string, JToken> Deserialize(byte[] bytes)
         {
             string jsonString = CoreHelpers.ByteArrayToString(bytes);
 
             if (string.IsNullOrEmpty(jsonString))
             {
-                return;
+                return null;
             }
 
             var cache = CacheSerializationContract.FromJsonString(jsonString);
@@ -106,6 +109,8 @@ namespace Microsoft.Identity.Core.Cache
                     _accessor.SaveAccount(account);
                 }
             }
+
+            return cache.UnknownNodes;
         }
     }
 }

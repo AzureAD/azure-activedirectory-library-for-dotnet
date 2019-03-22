@@ -16,14 +16,14 @@ namespace AdalDesktopTestApp
 
         // Initializes the cache against a local file.
         // If the file is already present, it loads its content in the ADAL cache
-        public FileCache(string filePath = @".\TokenCache.dat")
+        public FileCache(string filePath = @"c:\temp\TokenCache2.json")
         {
             CacheFilePath = filePath;
             AfterAccess = AfterAccessNotification;
             BeforeAccess = BeforeAccessNotification;
             lock (FileLock)
             {
-                DeserializeAdalV3(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
+                DeserializeMsalV3(File.Exists(CacheFilePath) ? File.ReadAllBytes(CacheFilePath) : null);
             }
         }
 
@@ -40,7 +40,7 @@ namespace AdalDesktopTestApp
         {
             lock (FileLock)
             {
-                DeserializeAdalV3(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
+                DeserializeMsalV3(File.Exists(CacheFilePath) ? File.ReadAllBytes(CacheFilePath) : null);
             }
         }
 
@@ -53,7 +53,7 @@ namespace AdalDesktopTestApp
                 lock (FileLock)
                 {
                     // reflect changes in the persistent store
-                    File.WriteAllBytes(CacheFilePath, ProtectedData.Protect(SerializeAdalV3(), null, DataProtectionScope.CurrentUser));
+                    File.WriteAllBytes(CacheFilePath, SerializeMsalV3());
                     // once the write operation took place, restore the HasStateChanged bit to false
                     HasStateChanged = false;
                 }

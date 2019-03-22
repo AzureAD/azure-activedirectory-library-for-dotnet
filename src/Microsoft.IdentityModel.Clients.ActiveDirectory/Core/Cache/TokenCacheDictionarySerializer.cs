@@ -27,9 +27,13 @@
 
 using System.Collections.Generic;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.Identity.Json.Linq;
 
 namespace Microsoft.Identity.Core.Cache
 {
+    /// <summary>
+    /// The dictionary serializer does not handle UnkownNodes
+    /// </summary>
     internal class TokenCacheDictionarySerializer : ITokenCacheSerializer
     {
         private const string AccessTokenKey = "access_tokens";
@@ -43,7 +47,7 @@ namespace Microsoft.Identity.Core.Cache
             _accessor = accessor;
         }
 
-        public byte[] Serialize()
+        public byte[] Serialize(IDictionary<string, JToken> unkownNodes)
         {
             var accessTokensAsString = new List<string>();
             var refreshTokensAsString = new List<string>();
@@ -83,13 +87,13 @@ namespace Microsoft.Identity.Core.Cache
                              .ToByteArray();
         }
 
-        public void Deserialize(byte[] bytes)
+        public IDictionary<string, JToken> Deserialize(byte[] bytes)
         {
             var cacheDict = JsonHelper.DeserializeFromJson<Dictionary<string, IEnumerable<string>>>(bytes);
 
             if (cacheDict == null || cacheDict.Count == 0)
             {
-                return;
+                return null;
             }
 
             if (cacheDict.ContainsKey(AccessTokenKey))
@@ -123,6 +127,8 @@ namespace Microsoft.Identity.Core.Cache
                     _accessor.SaveAccount(MsalAccountCacheItem.FromJsonString(account));
                 }
             }
+
+            return null;
         }
     }
 }
