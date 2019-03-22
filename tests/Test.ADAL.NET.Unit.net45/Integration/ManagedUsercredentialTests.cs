@@ -173,30 +173,15 @@ namespace Test.ADAL.NET.Integration
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
+                SetupMocks(httpManager);
                 AddUserRealmMockHandler(httpManager, AdalTestConstants.DefaultDisplayableId);
                 AddSuccessTokenMockHandler(httpManager, AdalTestConstants.DefaultDisplayableId, AdalTestConstants.DefaultUniqueId);
-                SetupMocks(httpManager);
-
-                httpManager.AddMockHandler(
-                    new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                        PostData = new Dictionary<string, string>()
-                        {
-                            {"grant_type", "password"},
-                            {"username", AdalTestConstants.DefaultDisplayableId},
-                            {"password", AdalTestConstants.DefaultPassword}
-                        }
-                    });
-
-                TokenCache cache = new TokenCache();
 
                 var context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAuthorityHomeTenant,
                     AuthorityValidationType.True,
-                    cache);
+                    new TokenCache());
 
                 Assert.AreEqual(0, context.TokenCache.Count);
 
@@ -257,6 +242,7 @@ namespace Test.ADAL.NET.Integration
 
                 {
                     AuthenticationContext context = CreateAuthenticationContextFromServiceBundle(serviceBundle);
+                    httpManager.AddInstanceDiscoveryMockHandler();
 
                     resultUser1SignIn = await LoginUserWithPasswordAsync(httpManager, context, userInfo1).ConfigureAwait(false);
                     Assert.IsNotNull(resultUser1SignIn);
@@ -277,6 +263,7 @@ namespace Test.ADAL.NET.Integration
 
                 {
                     AuthenticationContext context = CreateAuthenticationContextFromServiceBundle(serviceBundle);
+
                     context.TokenCache.DeserializeMsalV3(cacheContents);
 
                     // Silent Login with UserInfo2 and ensure we logged in with that user
@@ -304,7 +291,19 @@ namespace Test.ADAL.NET.Integration
             TestAdalUserData userInfo,
             AuthenticationContext context)
         {
-            AddSuccessTokenMockHandler(httpManager, userInfo.UserId, userInfo.UniqueId, userInfo.UniqueObjectId, userInfo.UniqueTenantIdentifier);
+            httpManager.AddMockHandler(new MockHttpMessageHandler(
+                AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
+            {
+                Method = HttpMethod.Post,
+                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(
+                    userInfo.UserId, userInfo.UniqueId, userInfo.UniqueObjectId, userInfo.UniqueTenantIdentifier),
+                PostData = new Dictionary<string, string>()
+                {
+                    { "client_id", AdalTestConstants.DefaultClientId },
+                    { "grant_type", "refresh_token" },
+                    { "refresh_token", AdalTestConstants.DefaultRefreshTokenValue }
+                }
+            });
 
             var result = await context.AcquireTokenSilentAsync(
                 AdalTestConstants.DefaultResource,
