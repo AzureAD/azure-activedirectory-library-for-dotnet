@@ -33,6 +33,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Json.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
@@ -57,6 +58,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private volatile bool _hasStateChanged;
         private readonly object _cacheLock = new object();
 
+        // Keep a dictionary of unkown nodes in memory (names and json strings) from the json cache - 
+        // this provised forward compat when MSAL adds more nodes
+        IDictionary<string, JToken> _unkownNodes;
+
         static TokenCache()
         {
             ModuleInitializer.EnsureModuleInitialized();
@@ -68,7 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             };
         }
 
-        internal ITokenCacheAccessor _tokenCacheAccessor;
+        internal ITokenCacheAccessor TokenCacheAccessor { get; set; }
 
         /// <summary>
         /// Default constructor.
@@ -81,7 +86,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             }
 
             _tokenCacheDictionary = new ConcurrentDictionary<AdalTokenCacheKey, AdalResultWrapper>();
-            _tokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
+            TokenCacheAccessor = PlatformProxyFactory.GetPlatformProxy().CreateTokenCacheAccessor();
         }
 
         /// <summary>
@@ -195,8 +200,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 var serializedAdalCache = AdalCacheOperations.Serialize(_tokenCacheDictionary);
 
-                var dictionarySerializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
-                var serializedUnifiedCache = dictionarySerializer.Serialize();
+                var dictionarySerializer = new TokenCacheDictionarySerializer(TokenCacheAccessor);
+                var serializedUnifiedCache = dictionarySerializer.Serialize(null);
 
                 return new CacheData()
                 {
@@ -246,8 +251,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                var serializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
-                return serializer.Serialize();
+                var serializer = new TokenCacheDictionarySerializer(TokenCacheAccessor);
+                return serializer.Serialize(null);
             }
         }
 
@@ -265,7 +270,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                var serializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
+                var serializer = new TokenCacheDictionarySerializer(TokenCacheAccessor);
                 serializer.Deserialize(bytes);
             }
         }
@@ -285,8 +290,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                var jsonSerializer = new TokenCacheJsonSerializer(_tokenCacheAccessor);
-                return jsonSerializer.Serialize();
+                var jsonSerializer = new TokenCacheJsonSerializer(TokenCacheAccessor);
+                return jsonSerializer.Serialize(_unkownNodes);
             }
         }
 
@@ -305,8 +310,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             lock (_cacheLock)
             {
-                var jsonSerializer = new TokenCacheJsonSerializer(_tokenCacheAccessor);
-                jsonSerializer.Deserialize(bytes);
+                var jsonSerializer = new TokenCacheJsonSerializer(TokenCacheAccessor);
+                _unkownNodes = jsonSerializer.Deserialize(bytes);
+                
             }
         }
 
@@ -321,7 +327,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 Deserialize(cacheData.AdalV3State);
 
-                var dictionarySerializer = new TokenCacheDictionarySerializer(_tokenCacheAccessor);
+                var dictionarySerializer = new TokenCacheDictionarySerializer(TokenCacheAccessor);
                 dictionarySerializer.Deserialize(cacheData.UnifiedState);
             }
         }
@@ -435,7 +441,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal void ClearMsalCache()
         {
-            _tokenCacheAccessor.Clear();
+            TokenCacheAccessor.Clear();
         }
 
         internal void OnAfterAccess(TokenCacheNotificationArgs args)
@@ -610,7 +616,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (cacheQueryData.SubjectType == TokenSubjectType.User)
                     {
                         requestContext.Logger.Info("Checking MSAL cache for user token cache");
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(_tokenCacheAccessor,
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
                             cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
 
                         requestContext.Logger.Info("A match was found in the MSAL cache ? " + (resultEx != null));
@@ -660,7 +666,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 {
                     Identity.Core.IdToken idToken = Identity.Core.IdToken.Parse(result.Result.IdToken);
 
-                    CacheFallbackOperations.WriteMsalRefreshToken(_tokenCacheAccessor, result, authority, clientId, displayableId,
+                    CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
                         result.Result.UserInfo.FamilyName, idToken?.ObjectId);
                 }

@@ -25,11 +25,14 @@
 // 
 // ------------------------------------------------------------------------------
 
+using Microsoft.Identity.Json.Linq;
+using System.Collections.Generic;
+
 namespace Microsoft.Identity.Core.Cache
 {
     internal interface ITokenCacheSerializer
     {
-        void Deserialize(byte[] bytes);
-        byte[] Serialize();
+        IDictionary<string, JToken> Deserialize(byte[] bytes);
+        byte[] Serialize(IDictionary<string, JToken> additionalNodes);
     }
 }

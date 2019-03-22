@@ -41,7 +41,7 @@ namespace Microsoft.Identity.Core.Helpers
                 return null;
             }
 
-            return Encoding.UTF8.GetString(input, 0, input.Length);
+            return Encoding.UTF8.GetString(input);
         }
 
         public static DateTime UnixTimestampToDateTime(double unixTimestamp)
