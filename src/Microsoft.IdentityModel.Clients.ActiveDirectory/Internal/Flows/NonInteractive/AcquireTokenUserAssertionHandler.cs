@@ -28,17 +28,21 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenUserAssertionHandler : AcquireTokenHandlerBase
     {
-        private UserAssertion userAssertion;
+        private UserAssertion _userAssertion;
 
 
-        public AcquireTokenUserAssertionHandler(RequestData requestData, UserAssertion userAssertion)
-            : base(requestData)
+        public AcquireTokenUserAssertionHandler(
+            IServiceBundle serviceBundle, 
+            RequestData requestData, 
+            UserAssertion userAssertion)
+            : base(serviceBundle, requestData)
         {
             if (userAssertion == null)
             {
@@ -49,13 +53,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             {
                 throw new ArgumentException(AdalErrorMessage.UserCredentialAssertionTypeEmpty, "userAssertion");
             }
-            this.userAssertion = userAssertion;
+            _userAssertion = userAssertion;
         }
 
         protected override async Task PreRunAsync()
         {
             await base.PreRunAsync().ConfigureAwait(false);
-            this.DisplayableId = userAssertion.UserName;
+            DisplayableId = _userAssertion.UserName;
         }
 
         protected internal /* internal for test only */ override async Task PreTokenRequestAsync()
@@ -65,13 +69,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
-            requestParameters[OAuthParameter.GrantType] = this.userAssertion.AssertionType;
-            requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(this.userAssertion.Assertion));
+            requestParameters[OAuthParameter.GrantType] = _userAssertion.AssertionType;
+            requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(_userAssertion.Assertion));
 
 
             // To request id_token in response
             requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
-
     }
 }

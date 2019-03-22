@@ -25,17 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
-
+using Microsoft.Identity.Core;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -49,7 +43,6 @@ namespace Test.ADAL.NET.Unit.net45
         public void Initialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
         }
 
@@ -57,39 +50,47 @@ namespace Test.ADAL.NET.Unit.net45
         [WorkItem(1489)] // https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1489
         public async Task DoubleTimeoutDoesNotResultInANullRef_Async()
         {
-            // Arrange 
-            MockHttpMessageHandler mockHandler1 = MockHelpers.CreateInstanceDiscoveryMockHandler(
-                AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
-            MockHttpMessageHandler mockHandler2 = MockHelpers.CreateInstanceDiscoveryMockHandler(
-                AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
-
-            mockHandler1.ExceptionToThrow = new TaskCanceledException("First Timeout");
-            mockHandler2.ExceptionToThrow = new TaskCanceledException("Second Timeout");
-
-            // Timeouts are retried once, so setup 2 timeouts
-            AdalHttpMessageHandlerFactory.AddMockHandler(mockHandler1);
-            AdalHttpMessageHandlerFactory.AddMockHandler(mockHandler2);
-
-            AuthenticationContext context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, true);
-
-            try
+            using (var httpManager = new MockHttpManager())
             {
-                // Act
-                await context.AcquireTokenForClientCommonAsync(
-                    AdalTestConstants.DefaultResource, new ClientKey(AdalTestConstants.DefaultClientId))
-                    .ConfigureAwait(false);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                // Arrange 
+                MockHttpMessageHandler mockHandler1 = MockHelpers.CreateInstanceDiscoveryMockHandler(
+                AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
+                MockHttpMessageHandler mockHandler2 = MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
+
+                mockHandler1.ExceptionToThrow = new TaskCanceledException("First Timeout");
+                mockHandler2.ExceptionToThrow = new TaskCanceledException("Second Timeout");
+
+                // Timeouts are retried once, so setup 2 timeouts
+                httpManager.AddMockHandler(mockHandler1);
+                httpManager.AddMockHandler(mockHandler2);
+
+                AuthenticationContext context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    null);
+
+                try
+                {
+                    // Act
+                    await context.AcquireTokenForClientCommonAsync(
+                        AdalTestConstants.DefaultResource, new ClientKey(AdalTestConstants.DefaultClientId))
+                        .ConfigureAwait(false);
+                }
+                catch (AdalException ex)
+                {
+                    // Assert
+
+                    // Instance Discovery will wrap all exceptions, so the task cancelled is burried 2 times deep
+                    Assert.AreSame(mockHandler2.ExceptionToThrow.Message, ex.InnerException.InnerException.InnerException.Message);
+                    return;
+                }
+
+                Assert.Fail("Expecting a timeout ADAL Service Exception to have been thrown");
             }
-            catch (AdalException ex)
-            {
-                // Assert
-
-                // Instance Discovery will wrap all exceptions, so the task cancelled is burried 2 times deep
-                Assert.AreSame(mockHandler2.ExceptionToThrow, ex.InnerException.InnerException);
-                return;
-            }
-
-
-            Assert.Fail("Expecting a timeout ADAL Service Exception to have been thrown");
         }
     }
 }

@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
@@ -45,9 +46,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         private readonly string _resource;
         private readonly RequestContext _requestContext;
         private readonly string _extraQueryParameters;
+        private readonly IServiceBundle _serviceBundle;
 
-        public AcquireDeviceCodeHandler(Authenticator authenticator, string resource, string clientId, string extraQueryParameters)
+        public AcquireDeviceCodeHandler(
+            IServiceBundle serviceBundle, 
+            Authenticator authenticator, 
+            string resource, 
+            string clientId, 
+            string extraQueryParameters)
         {
+            _serviceBundle = serviceBundle;
             _authenticator = authenticator;
             _requestContext = AcquireTokenHandlerBase.CreateCallState(clientId, _authenticator.CorrelationId);
             _clientKey = new ClientKey(clientId);
@@ -90,13 +98,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         internal async Task<DeviceCodeResult> RunHandlerAsync()
         {
             await _authenticator.UpdateFromTemplateAsync(_requestContext).ConfigureAwait(false);
-            AdalHttpClient client = new AdalHttpClient(_authenticator.DeviceCodeUri, _requestContext)
+            OAuthClient client = new OAuthClient(
+                _serviceBundle.HttpManager,
+                _authenticator.DeviceCodeUri,
+                _requestContext)
             {
-                Client =
-                {
-                    BodyParameters = GetRequestParameters()
-                }
+                BodyParameters = GetRequestParameters()
             };
+
             DeviceCodeResponse response = await client.GetResponseAsync<DeviceCodeResponse>().ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(response.Error))

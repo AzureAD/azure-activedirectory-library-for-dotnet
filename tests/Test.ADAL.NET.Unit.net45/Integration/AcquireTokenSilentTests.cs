@@ -34,10 +34,10 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
-using Test.Microsoft.Identity.Core.Unit;
+using Test.ADAL.NET.Unit.net45;
+using Microsoft.Identity.Core;
 
 namespace Test.ADAL.NET.Integration
 {
@@ -48,47 +48,71 @@ namespace Test.ADAL.NET.Integration
         public void Initialize()
         {
             TokenCache.DefaultShared.Clear();
-            AdalHttpMessageHandlerFactory.InitializeMockProvider();
             InstanceDiscovery.InstanceCache.Clear();
-            AdalHttpMessageHandlerFactory.AddMockHandler(MockHelpers.CreateInstanceDiscoveryMockHandler(AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant)));
+        }
+
+        internal void SetupMocks(MockHttpManager httpManager)
+        {
+            httpManager.AddInstanceDiscoveryMockHandler();
         }
 
         [TestMethod]
         [TestCategory("AcquireTokenSilentTests")]
         public void AcquireTokenSilentServiceErrorTest()
         {
-            TokenCache cache = new TokenCache();
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityCommonTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User, "unique_id",
-                "displayable@id.com");
-            cache._tokenCacheDictionary[key] = new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "something-invalid",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow)
-            };
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
 
-            AuthenticationContext context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, cache);
+                SetupMocks(httpManager);
 
-            var ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () =>
+                TokenCache cache = new TokenCache();
+
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User, "unique_id",
+                    "displayable@id.com");
+                cache._tokenCacheDictionary[key] = new AdalResultWrapper
                 {
-                    AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
-                    {
-                        Method = HttpMethod.Post,
-                        ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
-                    });
-                    await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+                    RefreshToken = "something-invalid",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow)
+                };
+
+                var myHttpClientFactory = new MyHttpClientFactory();
+
+                AuthenticationContext context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    cache,
+                    myHttpClientFactory);
+
+                var ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () =>
+                {
+                    httpManager.AddMockHandler(
+                        new MockHttpMessageHandler(
+                        AdalTestConstants.GetTokenEndpoint(
+                            AdalTestConstants.DefaultAuthorityCommonTenant))
+                        {
+                            Method = HttpMethod.Post,
+                            ResponseMessage = MockHelpers.CreateInvalidGrantTokenResponseMessage()
+                        });
+                    await context.AcquireTokenSilentAsync(
+                        AdalTestConstants.DefaultResource,
+                        AdalTestConstants.DefaultClientId,
+                        new UserIdentifier("unique_id", UserIdentifierType.UniqueId))
+                        .ConfigureAwait(false);
                 });
 
-            Assert.AreEqual(AdalError.FailedToAcquireTokenSilently, ex.ErrorCode);
-            Assert.AreEqual(AdalErrorMessage.FailedToAcquireTokenSilently, ex.Message);
-            Assert.IsNotNull(ex.InnerException);
-            Assert.IsTrue(ex.InnerException is AdalException);
-            Assert.AreEqual(((AdalException)ex.InnerException).ErrorCode, "invalid_grant");
+                Assert.AreEqual(AdalError.FailedToAcquireTokenSilently, ex.ErrorCode);
+                Assert.AreEqual(AdalErrorMessage.FailedToAcquireTokenSilently, ex.Message);
+                Assert.IsNotNull(ex.InnerException);
+                Assert.IsTrue(ex.InnerException is AdalException);
+                Assert.AreEqual(((AdalException)ex.InnerException).ErrorCode, "invalid_grant");
 
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                // There should be one cached entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
+            }
         }
 
         [TestMethod]
@@ -96,29 +120,38 @@ namespace Test.ADAL.NET.Integration
         //292916 Ensure AcquireTokenSilent tests exist in ADAL.NET for public clients
         public async Task AcquireTokenSilentTestWithValidTokenInCacheAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
-
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+            using (var httpManager = new MockHttpManager())
             {
-                RefreshToken = "some-rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "existing-access-token",
-                    DateTimeOffset.UtcNow + TimeSpan.FromMinutes(100))
-            };
+                SetupMocks(httpManager);
 
-            AuthenticationResult result =
-                await
-                    context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+                var context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AuthorityValidationType.True,
+                    new TokenCache());
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("existing-access-token", result.AccessToken);
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityHomeTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                {
+                    RefreshToken = "some-rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "existing-access-token",
+                        DateTimeOffset.UtcNow + TimeSpan.FromMinutes(100))
+                };
 
-            // There should be one cached entry.
-            Assert.AreEqual(1, context.TokenCache.Count);
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                AuthenticationResult result =
+                    await
+                        context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual("existing-access-token", result.AccessToken);
+
+                // There should be one cached entry.
+                Assert.AreEqual(1, context.TokenCache.Count);
+            }
         }
 
         [TestMethod]
@@ -128,7 +161,7 @@ namespace Test.ADAL.NET.Integration
         {
             var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityHomeTenant, true, new TokenCache());
             AuthenticationResult result;
-            AdalSilentTokenAcquisitionException ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () => 
+            AdalSilentTokenAcquisitionException ex = AssertException.TaskThrows<AdalSilentTokenAcquisitionException>(async () =>
             result = await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, new UserIdentifier("unique_id", UserIdentifierType.UniqueId)).ConfigureAwait(false));
 
             Assert.AreEqual(ex.ErrorCode, AdalError.FailedToAcquireTokenSilently);
@@ -141,37 +174,46 @@ namespace Test.ADAL.NET.Integration
         //292916 Ensure AcquireTokenSilent tests exist in ADAL.NET for public clients
         public async Task ExpiredATValidRTInCache_GetNewATRTFromServiceAsync()
         {
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant, new TokenCache());
-
-            AdalHttpMessageHandlerFactory.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+            using (var httpManager = new MockHttpManager())
             {
-                Method = HttpMethod.Post,
-                ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
-                PostData = new Dictionary<string, string>()
+                SetupMocks(httpManager);
+
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+                
+                var context = new AuthenticationContext(
+                   serviceBundle,
+                   AdalTestConstants.DefaultAuthorityCommonTenant,
+                   AuthorityValidationType.NotProvided,
+                   new TokenCache());
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(),
+                    PostData = new Dictionary<string, string>()
                 {
                     { "client_id", AdalTestConstants.DefaultClientId},
                     {"grant_type", "refresh_token"},
                     {"refresh_token", "some_rt" }
                 }
-            });
+                });
 
-            AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityCommonTenant,
-                AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
-                AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
+                AdalTokenCacheKey key = new AdalTokenCacheKey(AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId, TokenSubjectType.User,
+                    AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultDisplayableId);
 
-            context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
-            {
-                RefreshToken = "some_rt",
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "existing-access-token",
-                    DateTimeOffset.UtcNow)
-            };
+                context.TokenCache._tokenCacheDictionary[key] = new AdalResultWrapper
+                {
+                    RefreshToken = "some_rt",
+                    ResourceInResponse = AdalTestConstants.DefaultResource,
+                    Result = new AdalResult("Bearer", "existing-access-token",
+                        DateTimeOffset.UtcNow)
+                };
 
-            AuthenticationResult result = await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
-                    new UserIdentifier(AdalTestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
-            Assert.IsNotNull(result);
-
-            Assert.AreEqual(0, AdalHttpMessageHandlerFactory.MockHandlersCount());
+                AuthenticationResult result = await context.AcquireTokenSilentAsync(AdalTestConstants.DefaultResource, AdalTestConstants.DefaultClientId,
+                        new UserIdentifier(AdalTestConstants.DefaultDisplayableId, UserIdentifierType.RequiredDisplayableId)).ConfigureAwait(false);
+                Assert.IsNotNull(result);
+            }
         }
     }
 }

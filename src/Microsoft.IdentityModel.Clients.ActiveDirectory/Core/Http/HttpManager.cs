@@ -45,9 +45,9 @@ namespace Microsoft.Identity.Core.Http
             _httpClientFactory = httpClientFactory ?? new HttpClientFactory();
         }
 
-        protected virtual HttpClient GetHttpClient()
+        internal virtual HttpClient GetHttpClient()
         {
-            return _httpClientFactory.HttpClient;
+            return _httpClientFactory.GetHttpClient();
         }
 
         public async Task<HttpResponse> SendPostAsync(
@@ -61,9 +61,9 @@ namespace Microsoft.Identity.Core.Http
         }
 
         public async Task<HttpResponse> SendPostAsync(
-            Uri endpoint, 
+            Uri endpoint,
             IDictionary<string, string> headers,
-            HttpContent body, 
+            HttpContent body,
             RequestContext requestContext)
         {
             return await ExecuteWithRetryAsync(endpoint, headers, body, HttpMethod.Post, requestContext).ConfigureAwait(false);
@@ -136,7 +136,7 @@ namespace Microsoft.Identity.Core.Http
                     return response;
                 }
 
-                requestContext.Logger.Info(string.Format(CultureInfo.InvariantCulture,
+                requestContext?.Logger.Info(string.Format(CultureInfo.InvariantCulture,
                     CoreErrorMessages.HttpRequestUnsuccessful,
                     (int)response.StatusCode, response.StatusCode));
 
@@ -144,10 +144,14 @@ namespace Microsoft.Identity.Core.Http
                 {
                     isRetryable = true;
                 }
+                else
+                {
+                    return response;
+                }
             }
             catch (TaskCanceledException exception)
             {
-                requestContext.Logger.ErrorPii(exception);
+                requestContext?.Logger.ErrorPii(exception);
                 isRetryable = true;
                 timeoutException = exception;
             }
@@ -156,7 +160,7 @@ namespace Microsoft.Identity.Core.Http
             {
                 if (retry)
                 {
-                    requestContext.Logger.Info("Retrying one more time..");
+                    requestContext?.Logger.Info("Retrying one more time..");
                     await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     return await ExecuteWithRetryAsync(
                         endpoint,
@@ -168,19 +172,31 @@ namespace Microsoft.Identity.Core.Http
                         retry: false).ConfigureAwait(false);
                 }
 
-                requestContext.Logger.Info("Request retry failed.");
+                requestContext?.Logger.Info("Request retry failed.");
                 if (timeoutException != null)
                 {
                     throw AdalExceptionFactory.GetServiceException(
                         CoreErrorCodes.RequestTimeout,
                         "Request to the endpoint timed out.",
-                        timeoutException, 
-                        null); // no http response to add more details to this exception
+                        timeoutException,
+                        ExceptionDetail.FromHttpResponse(response)); // no http response to add more details to this exception
                 }
 
                 if (doNotThrow)
                 {
                     return response;
+                }
+
+                if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
+                {
+                    throw AdalExceptionFactory.GetServiceException(
+                         response.StatusCode.ToString(),
+                         string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    "Response status code does not indicate success: {0} ({1}).",
+                                    (int)response.StatusCode,
+                                    response.StatusCode),
+                         response);
                 }
 
                 throw AdalExceptionFactory.GetServiceException(

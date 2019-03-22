@@ -137,7 +137,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public void ValidateRedirectUri(Uri redirectUri)
         {
-            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
+            RedirectUriHelper.Validate(redirectUri);
         }
 
     }

@@ -33,9 +33,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Http;
+using Microsoft.Identity.Core.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -60,13 +60,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         public string Resource { get; set; }
 
+        private static IHttpManager _httpManager;
+
+        internal AuthenticationParameters(IHttpManager httpManager)
+        {
+            _httpManager = httpManager;
+        }
+
         /// <summary>
         /// Creates authentication parameters from address of the resource. This method expects the resource server to return unauthorized response
         /// with WWW-Authenticate header containing authentication parameters.
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
-        public static async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
+        public async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
         {
             return await CreateFromResourceUrlCommonAsync(resourceUrl).ConfigureAwait(false);
         }
@@ -79,7 +86,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
             HttpResponseMessage responseMessage)
         {
-            return CreateFromUnauthorizedResponseCommon(await HttpClientWrapper.CreateResponseAsync(responseMessage)
+            return CreateFromUnauthorizedResponseCommon(await OAuthClient.CreateResponseAsync(responseMessage)
                 .ConfigureAwait(false));
         }
 
@@ -126,7 +133,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw newEx;
             }
 
-            var authParams = new AuthenticationParameters();
+            var authParams = new AuthenticationParameters(_httpManager);
             string param;
             authenticateHeaderItems.TryGetValue(AuthorityKey, out param);
             authParams.Authority = param;
@@ -136,7 +143,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return authParams;
         }
 
-        private static async Task<AuthenticationParameters> CreateFromResourceUrlCommonAsync(Uri resourceUrl)
+        private async Task<AuthenticationParameters> CreateFromResourceUrlCommonAsync(Uri resourceUrl)
         {
             if (resourceUrl == null)
             {
@@ -147,17 +154,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                IHttpClient request = new HttpClientWrapper(resourceUrl.AbsoluteUri, null);
-                await request.GetResponseAsync().ConfigureAwait(false);
+                await _httpManager.SendGetAsync(
+                    new Uri(resourceUrl.AbsoluteUri),
+                    null,
+                    new RequestContext(
+                        null, new AdalLogger(Guid.Empty)))
+                        .ConfigureAwait(false);
 
                 var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
                 CoreLoggerBase.Default.ErrorPii(ex);
                 throw ex;
 
             }
-            catch (HttpRequestWrapperException ex)
+            catch (AdalServiceException ex)
             {
-                IHttpWebResponse response = ex.WebResponse;
+                IHttpWebResponse response = ex.Response;
                 if (response == null)
                 {
                     var serviceEx = new AdalServiceException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, ex);

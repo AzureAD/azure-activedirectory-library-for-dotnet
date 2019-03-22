@@ -43,34 +43,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
     {
         private const string TenantlessTenantName = "Common";
 
-        private bool updatedFromTemplate;
+        private bool _updatedFromTemplate;
 
         private static readonly Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-        private void Init(string authority, bool validateAuthority)
+        private void Init(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
-            this.Authority = EnsureUrlEndsWithForwardSlash(authority);
+            Authority = EnsureUrlEndsWithForwardSlash(authority);
 
-            this.AuthorityType = DetectAuthorityType(this.Authority);
+            AuthorityType = DetectAuthorityType(Authority);
 
-            if (this.AuthorityType != AuthorityType.AAD && validateAuthority)
+            if (AuthorityType != AuthorityType.AAD && validateAuthority)
             {
                 throw new ArgumentException(AdalErrorMessage.UnsupportedAuthorityValidation, "validateAuthority");
             }
 
-            this.ValidateAuthority = validateAuthority;
+            ValidateAuthority = validateAuthority;
+            ServiceBundle = serviceBundle;
         }
 
-        public Authenticator(string authority, bool validateAuthority)
+        public Authenticator(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
-            Init(authority, validateAuthority);
+            Init(serviceBundle, authority, validateAuthority);
         }
 
-        public async Task UpdateAuthorityAsync(string authority, RequestContext requestContext)
+        public async Task UpdateAuthorityAsync(IServiceBundle serviceBundle, string authority, RequestContext requestContext)
         {
-            Init(authority, this.ValidateAuthority);
+            Init(serviceBundle, authority, ValidateAuthority);
 
-            updatedFromTemplate = false;
+            _updatedFromTemplate = false;
             await UpdateFromTemplateAsync(requestContext).ConfigureAwait(false);
         }
 
@@ -78,9 +79,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         public string GetAuthorityHost()
         {
-            return !string.IsNullOrWhiteSpace(Authority) ? new Uri(this.Authority).Host : null;
+            return !string.IsNullOrWhiteSpace(Authority) ? new Uri(Authority).Host : null;
         }
-
+        
         public AuthorityType AuthorityType { get; private set; }
 
         public bool ValidateAuthority { get; private set; }
@@ -98,44 +99,45 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
         public string SelfSignedJwtAudience { get; private set; }
 
         public Guid CorrelationId { get; set; }
+        internal IServiceBundle ServiceBundle { get; private set; }
 
         public async Task UpdateFromTemplateAsync(RequestContext requestContext)
         {
-            if (!this.updatedFromTemplate)
+            if (!_updatedFromTemplate)
             {
-                var authorityUri = new Uri(this.Authority);
+                var authorityUri = new Uri(Authority);
                 var host = authorityUri.Host;
 
                 // The authority could be https://{AzureAD host name}/{tenantid} OR https://{Dsts host name}/dstsv2/{tenantid}
                 // Detecting the tenantId using the last segment of the url
                 string tenant = authorityUri.Segments[authorityUri.Segments.Length - 1].TrimEnd('/');
-                if (this.AuthorityType == AuthorityType.AAD)
+                if (AuthorityType == AuthorityType.AAD)
                 {
-                    var metadata = await InstanceDiscovery.GetMetadataEntryAsync(authorityUri, this.ValidateAuthority, requestContext).ConfigureAwait(false);
+                    var metadata = await ServiceBundle.InstanceDiscovery.GetMetadataEntryAsync(authorityUri, ValidateAuthority, requestContext).ConfigureAwait(false);
                     host = metadata.PreferredNetwork;
                     // All the endpoints will use this updated host, and it affects future network calls, as desired.
                     // The Authority remains its original host, and will be used in TokenCache later.
                 }
                 else
                 {
-                    InstanceDiscovery.AddMetadataEntry(host);
+                    ServiceBundle.InstanceDiscovery.AddMetadataEntry(host);
                 }
-                this.AuthorizationUri = InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
-                this.DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
-                this.TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
-                this.UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
-                this.IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
-                this.SelfSignedJwtAudience = this.TokenUri;
-                this.updatedFromTemplate = true;
+                AuthorizationUri = ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
+                IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
+                SelfSignedJwtAudience = this.TokenUri;
+                _updatedFromTemplate = true;
             }
         }
 
         public void UpdateTenantId(string tenantId)
         {
-            if (this.IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
+            if (IsTenantless && !string.IsNullOrWhiteSpace(tenantId))
             {
-                this.ReplaceTenantlessTenant(tenantId);
-                this.updatedFromTemplate = false;
+                ReplaceTenantlessTenant(tenantId);
+                _updatedFromTemplate = false;
             }
         }
 
@@ -186,7 +188,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private void ReplaceTenantlessTenant(string tenantId)
         {
-            this.Authority = TenantNameRegex.Replace(this.Authority, tenantId, 1);
+            Authority = TenantNameRegex.Replace(Authority, tenantId, 1);
         }
     }
 }

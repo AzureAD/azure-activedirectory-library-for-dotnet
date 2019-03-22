@@ -25,21 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
+using Test.ADAL.NET.Common.Mocks;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -60,7 +56,7 @@ namespace Test.ADAL.NET.Unit
 
         private readonly RequestData _requestData = new RequestData
         {
-            Authenticator = new Authenticator(Authority, false),
+            Authenticator = new Authenticator(TestCommon.CreateDefaultServiceBundle(), Authority, false),
             Resource = Resource,
             ClientKey = new ClientKey(new ClientCredential(ClientId, ClientSecret)),
             SubjectType = TokenSubjectType.Client,
@@ -78,6 +74,7 @@ namespace Test.ADAL.NET.Unit
         public void AcquireTokenInteractiveHandlerConstructor_InitializeBrokerParameters()
         {
             var acquireTokenInteractiveHandler = new AcquireTokenInteractiveHandler(
+                TestCommon.CreateDefaultServiceBundle(),
                 _requestData,
                 AdalTestConstants.DefaultRedirectUri, 
                 null, 
@@ -109,7 +106,13 @@ namespace Test.ADAL.NET.Unit
         [Description("Test setting of brokerParameters by AcquireTokenSilentHandler constructor")]
         public void AcquireTokenSilentHandlerConstructor_InitializeBrokerParameters()
         {
-            var acquireTokenSilentHandler = new AcquireTokenSilentHandler(_requestData, new UserIdentifier(UniqueUserId, UserIdentifierType.UniqueId), null);
+            var acquireTokenSilentHandler = new AcquireTokenSilentHandler(
+                TestCommon.CreateDefaultServiceBundle(),
+                _requestData, 
+                new UserIdentifier(
+                    UniqueUserId, 
+                    UserIdentifierType.UniqueId), 
+                null);
 
             Assert.AreEqual(8, acquireTokenSilentHandler.BrokerParameters.Count);
 

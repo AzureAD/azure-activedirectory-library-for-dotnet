@@ -32,10 +32,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using System;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
@@ -62,7 +62,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public string[] Aliases { get; set; }
     }
 
-    internal static class InstanceDiscovery
+    internal class InstanceDiscovery
     {
         public const string DefaultTrustedAuthority = "login.microsoftonline.com";
 
@@ -85,6 +85,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             "dsts.core.azure-test.net"
         });
 
+        private readonly IHttpManager _httpManager;
+
+        public InstanceDiscovery(IHttpManager httpManager)
+        {
+            _httpManager = httpManager;
+        }
+
         internal static bool IsWhitelisted(string authorityHost)
         {
             return WhitelistedAuthorities.Contains(authorityHost) || 
@@ -93,12 +100,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         // The following cache could be private, but we keep it public so that internal unit test can take a peek into it.
         // Keys are host strings.
-        public static readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache =
+        public static ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache { get; } = 
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
-        public static async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(Uri authority, bool validateAuthority,
+        public async Task<InstanceDiscoveryMetadataEntry> GetMetadataEntryAsync(Uri authority, bool validateAuthority,
             RequestContext requestContext)
         {
             if (authority == null)
@@ -127,7 +134,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return entry;
         }
 
-        public static string FormatAuthorizeEndpoint(string host, string tenant)
+        public string FormatAuthorizeEndpoint(string host, string tenant)
         {
             return string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/authorize", host, tenant);
         }
@@ -151,14 +158,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         // No return value. Modifies InstanceCache directly.
-        private static async Task DiscoverAsync(Uri authority, bool validateAuthority, RequestContext requestContext)
+        private async Task DiscoverAsync(Uri authority, bool validateAuthority, RequestContext requestContext)
         {
             string instanceDiscoveryEndpoint = string.Format(
                 CultureInfo.InvariantCulture,
                 "https://{0}/common/discovery/instance?api-version=1.1&authorization_endpoint={1}",
                 IsWhitelisted(authority.Host) ? GetHost(authority) : DefaultTrustedAuthority,
                 FormatAuthorizeEndpoint(authority.Host, GetTenant(authority)));
-            var client = new AdalHttpClient(instanceDiscoveryEndpoint, requestContext);
+
+            var client = new OAuthClient(_httpManager, instanceDiscoveryEndpoint, requestContext);
+
             InstanceDiscoveryResponse discoveryResponse = null;
             try
             {
@@ -197,7 +206,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         // To populate a host into the cache as-is, when it is not already there
-        public static bool AddMetadataEntry(string host)
+        public bool AddMetadataEntry(string host)
         {
             if (host == null)
             {

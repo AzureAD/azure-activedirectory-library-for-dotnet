@@ -110,7 +110,7 @@ namespace Microsoft.Identity.Core.UI
         /// <inheritdoc />
         public void ValidateRedirectUri(Uri redirectUri)
         {
-            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: false);
+            RedirectUriHelper.Validate(redirectUri);
         }
     }
 }

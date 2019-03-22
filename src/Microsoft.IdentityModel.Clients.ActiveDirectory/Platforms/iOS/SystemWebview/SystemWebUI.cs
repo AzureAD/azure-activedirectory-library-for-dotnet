@@ -149,7 +149,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
 
         public override void ValidateRedirectUri(Uri redirectUri)
         {
-            RedirectUriHelper.Validate(redirectUri, usesSystemBrowser: true);
+            RedirectUriHelper.Validate(redirectUri);
         }
     }
 }

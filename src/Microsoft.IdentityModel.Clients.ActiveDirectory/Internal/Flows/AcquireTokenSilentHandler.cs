@@ -27,15 +27,19 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
     internal class AcquireTokenSilentHandler : AcquireTokenHandlerBase
     {
-        public AcquireTokenSilentHandler(RequestData requestData, UserIdentifier userId, IPlatformParameters parameters)
-            : base(requestData)
+        public AcquireTokenSilentHandler(
+            IServiceBundle serviceBundle, 
+            RequestData requestData, 
+            UserIdentifier userId, 
+            IPlatformParameters parameters)
+            : base(serviceBundle, requestData)
         {
             if (userId == null)
             {
@@ -44,15 +48,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestData.SubjectType = requestData.ClientKey.HasCredential
                 ? TokenSubjectType.UserPlusClient
                 : TokenSubjectType.User;
-            this.UniqueId = userId.UniqueId;
-            this.DisplayableId = userId.DisplayableId;
-            this.UserIdentifierType = userId.Type;
+            UniqueId = userId.UniqueId;
+            DisplayableId = userId.DisplayableId;
+            UserIdentifierType = userId.Type;
             BrokerHelper.PlatformParameters = parameters;    
-            this.SupportADFS = true;
+            SupportADFS = true;
 
-            this.BrokerParameters[BrokerParameter.Username] = userId.Id;
-            this.BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
-            this.BrokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
+            BrokerParameters[BrokerParameter.Username] = userId.Id;
+            BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            BrokerParameters[BrokerParameter.SilentBrokerFlow] = null; //add key
         }
 
         protected internal /* internal for test only */ override Task<AdalResultWrapper> SendTokenRequestAsync()
