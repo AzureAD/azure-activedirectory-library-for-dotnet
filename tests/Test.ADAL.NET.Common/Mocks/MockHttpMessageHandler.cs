@@ -68,7 +68,7 @@ namespace Test.ADAL.NET.Common.Mocks
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Assert.AreEqual(Method, request.Method);
+            Assert.AreEqual(Method, request.Method, $"The request that came from ADAL was for {request.RequestUri} and the mock handler is for {Url}");
 
             Uri uri = request.RequestUri;
             if (!string.IsNullOrEmpty(Url))

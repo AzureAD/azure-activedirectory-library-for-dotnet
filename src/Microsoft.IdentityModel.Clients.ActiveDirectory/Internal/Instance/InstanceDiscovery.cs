@@ -100,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         // The following cache could be private, but we keep it public so that internal unit test can take a peek into it.
         // Keys are host strings.
-        public static readonly ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache =
+        public static ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache { get; } = 
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
