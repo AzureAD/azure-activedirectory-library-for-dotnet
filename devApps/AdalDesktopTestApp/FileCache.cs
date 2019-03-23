@@ -16,7 +16,7 @@ namespace AdalDesktopTestApp
 
         // Initializes the cache against a local file.
         // If the file is already present, it loads its content in the ADAL cache
-        public FileCache(string filePath = @"c:\temp\TokenCache2.json")
+        public FileCache(string filePath = @".\TokenCache.dat")
         {
             CacheFilePath = filePath;
             AfterAccess = AfterAccessNotification;
