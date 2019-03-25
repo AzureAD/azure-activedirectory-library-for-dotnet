@@ -55,18 +55,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 authorizationResult = Authenticate(authorizationUri, redirectUri);
             });
 
-            var sendAuthorizeRequestWithTcs = new Action<object>((tcs) =>
-            {
-                authorizationResult = Authenticate(authorizationUri, redirectUri);
-                ((TaskCompletionSource<object>)tcs).TrySetResult(null);
-            });
-
             // If the thread is MTA, it cannot create or communicate with WebBrowser which is a COM control.
             // In this case, we have to create the browser in an STA thread via StaTaskScheduler object.
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 if (SynchronizationContext != null)
                 {
+                    var sendAuthorizeRequestWithTcs = new Action<object>((t) =>
+                    {
+                        authorizationResult = Authenticate(authorizationUri, redirectUri);
+                        ((TaskCompletionSource<object>)t).TrySetResult(null);
+                    });
+
+                    // The Post is needed here to ensure that the Authenticate() execution is posted to the message queue
+                    // of the UI thread, but the UI thread may be locked so a synchronous Send() can't be done.                    
                     var tcs = new TaskCompletionSource<object>();
                     SynchronizationContext.Post(new SendOrPostCallback(sendAuthorizeRequestWithTcs), tcs);
                     await tcs.Task.ConfigureAwait(false);
