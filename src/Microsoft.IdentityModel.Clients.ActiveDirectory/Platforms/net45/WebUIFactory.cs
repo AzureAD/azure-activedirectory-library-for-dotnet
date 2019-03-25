@@ -41,10 +41,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (coreUIParent.UseHiddenBrowser)
             {
-                return new SilentWebUI(context) { OwnerWindow = coreUIParent.OwnerWindow };
+                return new SilentWebUI(context, coreUIParent);
             }
 
-            return new InteractiveWebUI(context) { OwnerWindow = coreUIParent.OwnerWindow };
+            return new InteractiveWebUI(context, coreUIParent);
         }
     }
 }

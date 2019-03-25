@@ -32,17 +32,20 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
     internal class InteractiveWebUI : WebUI
     {
-        public InteractiveWebUI(RequestContext context) { 
-            this.context = context;
+        public InteractiveWebUI(RequestContext context, CoreUIParent coreUIParent)
+        {
+            RequestContext = context;
+            OwnerWindow = coreUIParent.OwnerWindow;
+            SynchronizationContext = coreUIParent.SynchronizationContext;
         }
 
         protected override AuthorizationResult OnAuthenticate()
         {
             AuthorizationResult result;
 
-            using (var dialog = new WindowsFormsWebAuthenticationDialog(this.OwnerWindow))
+            using (var dialog = new WindowsFormsWebAuthenticationDialog(OwnerWindow))
             {
-                result = dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
+                result = dialog.AuthenticateAAD(RequestUri, CallbackUri);
             }
 
             return result;

@@ -25,19 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
-    class RequestData
+    internal class RequestData
     {
         public Authenticator Authenticator { get; set; }
 
@@ -50,6 +44,5 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public TokenSubjectType SubjectType { get; set; }
 
         public bool ExtendedLifeTimeEnabled { get; set; }
-
     }
 }
