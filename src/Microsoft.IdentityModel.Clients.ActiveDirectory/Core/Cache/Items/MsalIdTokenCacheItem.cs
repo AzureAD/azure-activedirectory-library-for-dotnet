@@ -77,7 +77,6 @@ namespace Microsoft.Identity.Core.Cache
         internal string Authority =>
             string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/", Environment, TenantId ?? "common");
 
-        internal IdToken IdToken => IdToken.Parse(Secret);
 
         internal MsalIdTokenCacheKey GetKey()
         {

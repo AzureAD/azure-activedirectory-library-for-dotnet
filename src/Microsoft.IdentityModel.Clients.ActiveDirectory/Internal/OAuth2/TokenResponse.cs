@@ -213,27 +213,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                 if (idToken != null)
                 {
                     string tenantId = idToken.TenantId;
-                    string uniqueId = null;
-                    string displayableId = null;
-
-                    if (!string.IsNullOrWhiteSpace(idToken.ObjectId))
-                    {
-                        uniqueId = idToken.ObjectId;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Subject))
-                    {
-                        uniqueId = idToken.Subject;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(idToken.UPN))
-                    {
-                        displayableId = idToken.UPN;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(idToken.Email))
-                    {
-                        displayableId = idToken.Email;
-                    }
-
+                    string uniqueId = idToken.GetUniqueId();
+                    string displayableId = idToken.GetDisplayableId();
                     string givenName = idToken.GivenName;
                     string familyName = idToken.FamilyName;
                     string identityProvider = idToken.IdentityProvider ?? idToken.Issuer;

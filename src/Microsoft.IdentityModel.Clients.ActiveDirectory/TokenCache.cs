@@ -36,6 +36,7 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
@@ -658,11 +659,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
-                    Identity.Core.IdToken idToken = Identity.Core.IdToken.Parse(result.Result.IdToken);
+                    IdToken idToken = IdToken.Parse(result.Result.IdToken);
 
                     CacheFallbackOperations.WriteMsalRefreshToken(_tokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
-                        result.Result.UserInfo.FamilyName, idToken?.ObjectId);
+                        result.Result.UserInfo.FamilyName, 
+                        idToken?.ObjectId); // should this be UniqueId?!
                 }
             }
         }
