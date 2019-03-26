@@ -85,6 +85,36 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         [DataMember(Name = IdTokenClaim.Issuer, IsRequired = false)]
         public string Issuer { get; set; }
 
+        public string GetDisplayableId()
+        {
+            if (!string.IsNullOrWhiteSpace(UPN))
+            {
+                return UPN;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Email))
+            {
+                return Email;
+            }
+
+            return null;
+        }
+
+        public string GetUniqueId()
+        {
+            if (!string.IsNullOrWhiteSpace(ObjectId))
+            {
+                return ObjectId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Subject))
+            {
+                return Subject;
+            }
+
+            return null;
+        }
+
         public static IdToken Parse(string idToken)
         {
             IdToken idTokenBody = null;
