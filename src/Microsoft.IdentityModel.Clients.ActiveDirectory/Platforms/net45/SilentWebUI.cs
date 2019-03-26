@@ -54,14 +54,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private Exception uiException;
 
-        private ManualResetEvent threadInitializedEvent;
+        private ManualResetEvent _threadInitializedEvent;
 
         private SilentWindowsFormsAuthenticationDialog dialog;
 
-        public SilentWebUI(RequestContext context)
+        public SilentWebUI(RequestContext context, CoreUIParent coreUIParent)
         {
-            this.threadInitializedEvent = new ManualResetEvent(false);
-            this.context = context;
+            _threadInitializedEvent = new ManualResetEvent(false);
+            OwnerWindow = coreUIParent.OwnerWindow;
+            RequestContext = context;
+            SynchronizationContext = coreUIParent.SynchronizationContext;
         }
 
         ~SilentWebUI()
@@ -87,7 +89,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             long navigationOverallTimeout = NavigationOverallTimeout;
             long navigationStartTime = DateTime.Now.Ticks;
 
-            bool initialized = this.threadInitializedEvent.WaitOne((int)navigationOverallTimeout);
+            bool initialized = this._threadInitializedEvent.WaitOne((int)navigationOverallTimeout);
             if (initialized)
             {
                 // Calculate time remaining after time spend on initialization.
@@ -98,7 +100,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 bool completedNormally = uiThread.Join(navigationOverallTimeout > 0 ? (int)navigationOverallTimeout : 0);
                 if (!completedNormally)
                 {
-                    context.Logger.Info("Silent login thread did not complete on time.");
+                    RequestContext.Logger.Info("Silent login thread did not complete on time.");
 
                     // The invisible dialog has failed to complete in the allotted time.
                     // Attempt a graceful shutdown.
@@ -125,7 +127,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                         this.dialog.Done += this.UIDoneHandler;
 
-                        this.threadInitializedEvent.Set();
+                        this._threadInitializedEvent.Set();
 
                         this.dialog.AuthenticateAAD(this.RequestUri, this.CallbackUri);
 
@@ -186,10 +188,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 if (disposing)
                 {
-                    if (this.threadInitializedEvent != null)
+                    if (this._threadInitializedEvent != null)
                     {
-                        this.threadInitializedEvent.Dispose();
-                        this.threadInitializedEvent = null;
+                        this._threadInitializedEvent.Dispose();
+                        this._threadInitializedEvent = null;
                     }
 
                     if (this.formsSyncContext != null)
@@ -205,8 +207,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private void Cleanup()
         {
-            this.threadInitializedEvent.Dispose();
-            this.threadInitializedEvent = null;
+            this._threadInitializedEvent.Dispose();
+            this._threadInitializedEvent = null;
         }
 
         private void ThrowIfTransferredException()
