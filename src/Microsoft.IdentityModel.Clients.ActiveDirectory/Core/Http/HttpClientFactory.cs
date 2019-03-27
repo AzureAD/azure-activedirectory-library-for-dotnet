@@ -28,28 +28,34 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http;
 using System.Net.Http.Headers;
+#if iOS || MAC
+using Foundation;
+#endif
 
 namespace Microsoft.Identity.Core.Http
-{ 
+{
     internal class HttpClientFactory : IHttpClientFactory
     {
         private readonly HttpClient _httpClient;
 
         // The HttpClient is a singleton per ClientApplication so that we don't have a process wide singleton.
-        public const long MaxResponseContentBufferSizeInBytes = 1024*1024;
+        public const long MaxResponseContentBufferSizeInBytes = 1024 * 1024;
 
         public HttpClientFactory()
         {
-            if (_httpClient == null)
+#if iOS || MAC
+            _httpClient = new HttpClient(new NSUrlSessionHandler())
             {
-                _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
-                {
-                    MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
-                };
-
-                _httpClient.DefaultRequestHeaders.Accept.Clear();
-                _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            }
+                MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
+            };
+#else
+            _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
+            {
+                MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
+            };
+#endif
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public HttpClient GetHttpClient()
