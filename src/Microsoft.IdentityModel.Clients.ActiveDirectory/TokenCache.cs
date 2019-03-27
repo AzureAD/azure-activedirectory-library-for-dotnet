@@ -665,12 +665,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 //store ADAL RT in MSAL cache for user tokens where authority is AAD
                 if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
                 {
-                    IdToken idToken = IdToken.Parse(result.Result.IdToken);
+                    IdToken.TryParse(result.Result.IdToken, out IdToken idToken);
 
                     CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
                         result.Result.UserInfo.GivenName,
                         result.Result.UserInfo.FamilyName, 
-                        idToken?.ObjectId); // should this be UniqueId?!
+                        idToken?.GetUniqueId()); 
                 }
             }
         }

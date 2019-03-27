@@ -209,7 +209,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
             {
                 var result = new AdalResult(this.TokenType, this.AccessToken, expiresOn, extendedExpiresOn);
 
-                IdToken idToken = IdToken.Parse(this.IdTokenString);
+                IdToken.TryParse(this.IdTokenString, out IdToken idToken);
                 if (idToken != null)
                 {
                     string tenantId = idToken.TenantId;
