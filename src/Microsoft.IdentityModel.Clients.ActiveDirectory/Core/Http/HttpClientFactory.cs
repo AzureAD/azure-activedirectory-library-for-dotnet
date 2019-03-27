@@ -28,8 +28,9 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http;
 using System.Net.Http.Headers;
-#if iOS || MAC
+#if iOS
 using Foundation;
+using UIKit;
 #endif
 
 namespace Microsoft.Identity.Core.Http
@@ -43,11 +44,14 @@ namespace Microsoft.Identity.Core.Http
 
         public HttpClientFactory()
         {
-#if iOS || MAC
-            _httpClient = new HttpClient(new NSUrlSessionHandler())
+#if iOS
+            if (UIDevice.CurrentDevice.CheckSystemVersion(7, 0))
             {
-                MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
-            };
+                _httpClient = new HttpClient(new NSUrlSessionHandler())
+                {
+                    MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
+                };
+            }
 #else
             _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
             {
