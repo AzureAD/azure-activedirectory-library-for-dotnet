@@ -78,6 +78,7 @@ namespace Test.ADAL.NET.Unit
                 _requestData,
                 AdalTestConstants.DefaultRedirectUri, 
                 null, 
+                null,
                 UserIdentifier.AnyUser,
                 ExtraQueryParameters, 
                 Claims);

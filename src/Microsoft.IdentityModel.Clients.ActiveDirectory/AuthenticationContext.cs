@@ -292,10 +292,17 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <param name="claims">Additional claims that are needed for authentication. Acquired from the AdalClaimChallengeException</param>
+        /// <param name="synchronizationContext">Optional SynchronizationContext for ensuring interactive calls are executed on the UI thread.</param>
         /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
-        public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
+        public async Task<AuthenticationResult> AcquireTokenAsync(
+            string resource, 
+            string clientId, 
+            Uri redirectUri,
             IPlatformParameters parameters,
-            UserIdentifier userId, string extraQueryParameters, string claims)
+            UserIdentifier userId, 
+            string extraQueryParameters, 
+            string claims, 
+            SynchronizationContext synchronizationContext = null)
         {
             RequestData requestData = new RequestData
             {
@@ -311,6 +318,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 requestData, 
                 redirectUri, 
                 parameters, 
+                synchronizationContext,
                 userId,
                 extraQueryParameters, 
                 claims);
@@ -369,8 +377,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters)
         {
-            return await this
-                .AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser)
+            return await AcquireTokenCommonAsync(resource, clientId, redirectUri, parameters, UserIdentifier.AnyUser)
                 .ConfigureAwait(false);
         }
 
@@ -409,9 +416,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 extraQueryParameters).ConfigureAwait(false);
         }
 
-        internal async Task<Uri> GetAuthorizationRequestUrlCommonAsync(string resource, string clientId,
+        internal async Task<Uri> GetAuthorizationRequestUrlCommonAsync(
+            string resource, 
+            string clientId,
             Uri redirectUri,
-            UserIdentifier userId, string extraQueryParameters, string claims)
+            UserIdentifier userId, 
+            string extraQueryParameters, 
+            string claims, 
+            SynchronizationContext synchronizationContext = null)
         {
             RequestData requestData = new RequestData
             {
@@ -421,8 +433,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled
             };
-            var handler = new AcquireTokenInteractiveHandler(_serviceBundle, requestData, redirectUri, null, userId,
-                extraQueryParameters, claims);
+            var handler = new AcquireTokenInteractiveHandler(
+                _serviceBundle, 
+                requestData, 
+                redirectUri, 
+                null, 
+                synchronizationContext, 
+                userId,
+                extraQueryParameters, 
+                claims);
+
             return await handler.CreateAuthorizationUriAsync(CorrelationId).ConfigureAwait(false);
         }
 
@@ -530,9 +550,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             return await handler.RunAsync().ConfigureAwait(false);
         }
 
-        private async Task<AuthenticationResult> AcquireTokenCommonAsync(string resource, string clientId,
-            Uri redirectUri, IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters = null,
-            string claims = null)
+        private async Task<AuthenticationResult> AcquireTokenCommonAsync(
+            string resource, 
+            string clientId,
+            Uri redirectUri, 
+            IPlatformParameters parameters, 
+            UserIdentifier userId, 
+            string extraQueryParameters = null,
+            string claims = null, 
+            SynchronizationContext synchronizationContext = null)
         {
             RequestData requestData = new RequestData
             {
@@ -542,8 +568,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 ClientKey = new ClientKey(clientId),
                 ExtendedLifeTimeEnabled = ExtendedLifeTimeEnabled,
             };
-            var handler = new AcquireTokenInteractiveHandler(_serviceBundle, requestData, redirectUri, parameters, userId,
-                extraQueryParameters, claims);
+            var handler = new AcquireTokenInteractiveHandler(
+                _serviceBundle, 
+                requestData, 
+                redirectUri, 
+                parameters, 
+                synchronizationContext, 
+                userId,
+                extraQueryParameters, 
+                claims);
+
             return await handler.RunAsync().ConfigureAwait(false);
         }
 

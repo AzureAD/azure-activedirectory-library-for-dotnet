@@ -33,6 +33,7 @@ using Android.App;
 using UIKit;
 #endif
 
+using System.Threading;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
 
 namespace Microsoft.Identity.Core.UI
@@ -44,6 +45,7 @@ namespace Microsoft.Identity.Core.UI
         }
 
         public ICustomWebUi CustomWebUi { get; set; }
+        public SynchronizationContext SynchronizationContext { get; set; }
 
 #if ANDROID || iOS
         internal bool UseEmbeddedWebview { get; set; }

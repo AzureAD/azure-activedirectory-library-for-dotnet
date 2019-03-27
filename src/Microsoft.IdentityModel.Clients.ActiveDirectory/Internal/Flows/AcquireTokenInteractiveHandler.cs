@@ -37,6 +37,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.Identity.Core.Http;
 using Microsoft.Identity.Core.OAuth2;
+using System.Threading;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -59,6 +60,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             RequestData requestData,
             Uri redirectUri,
             IPlatformParameters platformParameters,
+            SynchronizationContext synchronizationContext,
             UserIdentifier userId,
             string extraQueryParameters,
             string claims)
@@ -76,57 +78,59 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             }
 
             this.extraQueryParameters = extraQueryParameters;
-            this.webUi = CreateWebUIOrNull(platformParameters);
+            this.webUi = CreateWebUIOrNull(platformParameters, synchronizationContext);
             this.UniqueId = userId.UniqueId;
             this.DisplayableId = userId.DisplayableId;
             this.UserIdentifierType = userId.Type;
             this.SupportADFS = true;
 
-            if (!String.IsNullOrEmpty(claims))
+            if (!string.IsNullOrEmpty(claims))
             {
-                this.LoadFromCache = false;
+                LoadFromCache = false;
                 RequestContext.Logger.Verbose("Claims present. Skip cache lookup.");
                 this.claims = claims;
             }
             else
             {
                 var platformInformation = new PlatformInformation();
-                this.LoadFromCache = (requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters));
+                LoadFromCache = (requestData.TokenCache != null && platformParameters != null && platformInformation.GetCacheLoadPolicy(platformParameters));
             }
 
-            this.BrokerParameters[BrokerParameter.Force] = "NO";
+            BrokerParameters[BrokerParameter.Force] = "NO";
             if (userId != UserIdentifier.AnyUser)
             {
-                this.BrokerParameters[BrokerParameter.Username] = userId.Id;
+                BrokerParameters[BrokerParameter.Username] = userId.Id;
             }
             else
             {
-                this.BrokerParameters[BrokerParameter.Username] = string.Empty;
+                BrokerParameters[BrokerParameter.Username] = string.Empty;
             }
-            this.BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
+            BrokerParameters[BrokerParameter.UsernameType] = userId.Type.ToString();
 
-            this.BrokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
-            this.BrokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
-            this.BrokerParameters[BrokerParameter.Claims] = claims;
+            BrokerParameters[BrokerParameter.RedirectUri] = this.redirectUri.AbsoluteUri;
+            BrokerParameters[BrokerParameter.ExtraQp] = extraQueryParameters;
+            BrokerParameters[BrokerParameter.Claims] = claims;
             BrokerHelper.PlatformParameters = authorizationParameters;
         }
 
-        private IWebUI CreateWebUIOrNull(IPlatformParameters parameters)
+        private IWebUI CreateWebUIOrNull(IPlatformParameters parameters, SynchronizationContext synchronizationContext)
         {
             if (parameters == null)
             {
                 return null;
             }
 
-            PlatformParameters parametersObj = parameters as PlatformParameters;
-            if (parametersObj == null)
+            if (!(parameters is PlatformParameters parametersObj))
             {
                 throw new ArgumentException("Objects implementing IPlatformParameters should be of type PlatformParameters");
             }
 
+            var coreUIParent = parametersObj.GetCoreUIParent();
+            coreUIParent.SynchronizationContext = synchronizationContext;
+
             return WebUIFactoryProvider.WebUIFactory.CreateAuthenticationDialog(
-                parametersObj.GetCoreUIParent(),
-                base.RequestContext);
+                coreUIParent,
+                RequestContext);
         }
 
         private static Uri ComputeAndValidateRedirectUri(Uri redirectUri, string clientId)
