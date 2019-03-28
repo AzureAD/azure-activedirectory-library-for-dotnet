@@ -115,9 +115,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
             return null;
         }
 
-        public static IdToken Parse(string idToken)
+        public static bool TryParse(string idToken, out IdToken result)
         {
-            IdToken idTokenBody = null;
+            result = null;
             if (!string.IsNullOrWhiteSpace(idToken))
             {
                 string[] idTokenSegments = idToken.Split(new[] { '.' });
@@ -131,21 +131,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
                         using (var stream = new MemoryStream(idTokenBytes))
                         {
                             var serializer = new DataContractJsonSerializer(typeof(IdToken));
-                            idTokenBody = (IdToken)serializer.ReadObject(stream);
+                            result = (IdToken)serializer.ReadObject(stream);
+                            return true;
                         }
                     }
                     catch (SerializationException)
                     {
                         // We silently ignore the id token if exception occurs.   
+                        return false;
                     }
                     catch (ArgumentException)
                     {
                         // Again, we silently ignore the id token if exception occurs.   
+                        return false;
                     }
                 }
             }
 
-            return idTokenBody;
+            return false;
         }
     }
 }
