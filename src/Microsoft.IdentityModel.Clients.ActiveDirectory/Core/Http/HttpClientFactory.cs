@@ -28,28 +28,39 @@
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Net.Http;
 using System.Net.Http.Headers;
+#if iOS
+using Foundation;
+using UIKit;
+#endif
 
 namespace Microsoft.Identity.Core.Http
-{ 
+{
     internal class HttpClientFactory : IHttpClientFactory
     {
         private readonly HttpClient _httpClient;
 
         // The HttpClient is a singleton per ClientApplication so that we don't have a process wide singleton.
-        public const long MaxResponseContentBufferSizeInBytes = 1024*1024;
+        public const long MaxResponseContentBufferSizeInBytes = 1024 * 1024;
 
         public HttpClientFactory()
         {
-            if (_httpClient == null)
+#if iOS
+            // See https://aka.ms/adal-net-httpclient for details
+            if (UIDevice.CurrentDevice.CheckSystemVersion(7, 0))
             {
-                _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
+                _httpClient = new HttpClient(new NSUrlSessionHandler())
                 {
                     MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
                 };
-
-                _httpClient.DefaultRequestHeaders.Accept.Clear();
-                _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }
+#else
+            _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
+            {
+                MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
+            };
+#endif
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public HttpClient GetHttpClient()
