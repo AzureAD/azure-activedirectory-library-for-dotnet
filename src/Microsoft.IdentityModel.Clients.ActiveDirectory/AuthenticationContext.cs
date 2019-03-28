@@ -109,10 +109,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// Constructor to create the context with the address of the authority, flag to turn address validation off
-        /// and custom HttpClient.
+        /// and custom IHttpClientFactory.
         /// Make sure you are aware of the security implication of not validating the address.
         /// </summary>
-        /// <remarks>See https://aka.ms/adal-custom-httpclient for details</remarks>
+        /// <remarks>See https://aka.ms/adal-net-httpclient for details</remarks>
         /// <param name="authority">Address of the authority to issue token.</param>
         /// <param name="validateAuthority">Flag to turn address validation ON or OFF.</param>
         /// <param name="tokenCache">Token cache used to lookup cached tokens on calls to AcquireToken. Use <see cref="TokenCache.DefaultShared"/> 

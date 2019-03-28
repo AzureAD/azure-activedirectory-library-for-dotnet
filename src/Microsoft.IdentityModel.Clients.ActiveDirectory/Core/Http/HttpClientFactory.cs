@@ -45,6 +45,7 @@ namespace Microsoft.Identity.Core.Http
         public HttpClientFactory()
         {
 #if iOS
+            // See https://aka.ms/adal-net-httpclient for details
             if (UIDevice.CurrentDevice.CheckSystemVersion(7, 0))
             {
                 _httpClient = new HttpClient(new NSUrlSessionHandler())
