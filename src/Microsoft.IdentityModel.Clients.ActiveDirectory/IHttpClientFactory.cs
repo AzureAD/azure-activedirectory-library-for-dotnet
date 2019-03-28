@@ -11,7 +11,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
     /// </summary>
     /// <remarks>
     /// Implementations must be thread safe. Consider creating and configuring an HttpClient in the constructor
-    /// of the factory and return the same object in <see cref="GetHttpClient"/>
+    /// of the factory, and returning the same object in <see cref="GetHttpClient"/>
     /// </remarks>
     public interface IHttpClientFactory
     {
