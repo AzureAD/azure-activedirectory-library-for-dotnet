@@ -56,8 +56,6 @@ namespace Microsoft.Identity.Core.Http
 
         public HttpStatusCode StatusCode { get; set; }
 
-        public string UserAgent { get; set; }
-
         public string Body { get; set; }
     }
 }

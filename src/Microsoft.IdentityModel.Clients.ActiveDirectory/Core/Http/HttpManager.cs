@@ -36,6 +36,14 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Identity.Core.Http
 {
+    /// <remarks>
+    /// We invoke this class from different threads and they all use the same HttpClient. 
+    /// To prevent race conditions, make sure you do not get / set anything on HttpClient itself,
+    /// instead rely on HttpRequest objects which are thread specific.
+    ///
+    /// In particular, do not change any properties on HttpClient such as BaseAddress, buffer sizes and Timeout. You should
+    /// also not access DefaultRequestHeaders because the getters are not thread safe (use HttpRequestMessage.Headers instead). 
+    /// </remarks>
     internal class HttpManager : IHttpManager
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -225,7 +233,6 @@ namespace Microsoft.Identity.Core.Http
                     await client.SendAsync(requestMessage).ConfigureAwait(false))
                 {
                     HttpResponse returnValue = await CreateResponseAsync(responseMessage).ConfigureAwait(false);
-                    returnValue.UserAgent = client.DefaultRequestHeaders.UserAgent.ToString();
                     return returnValue;
                 }
             }
