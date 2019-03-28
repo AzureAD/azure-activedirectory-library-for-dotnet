@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Identity.Core.Cache
 {
@@ -78,46 +79,48 @@ namespace Microsoft.Identity.Core.Cache
             ITokenCacheAccessor tokenCacheAccessor,
             string authority,
             string clientId,
-            string upn,
-            RequestContext requestContext)
+            string displayableId,
+            string uniqueId)
         {
             try
             {
                 string environment = new Uri(authority).Host;
 
-                List<MsalAccountCacheItem> accounts = new List<MsalAccountCacheItem>();
-                foreach (MsalAccountCacheItem accountItem in tokenCacheAccessor.GetAllAccounts())
+                List<MsalAccountCacheItem> accounts = tokenCacheAccessor
+                    .GetAllAccounts()
+                    .Where(accountItem => accountItem != null &&
+                           accountItem.Environment.Equals(environment, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (accounts.Any())
                 {
-                    if (accountItem != null && accountItem.Environment.Equals(environment, StringComparison.OrdinalIgnoreCase))
+                    var rtItems = tokenCacheAccessor
+                        .GetAllRefreshTokens()
+                        .Where(rt => environment.Equals(rt.Environment, StringComparison.OrdinalIgnoreCase) &&
+                               rt.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase));
+
+                    //TODO - authority check needs to be updated for alias check
+
+                    foreach (var rt in rtItems)
                     {
-                        accounts.Add(accountItem);
-                    }
-                }
-                if (accounts.Count > 0)
-                {
-                    foreach (MsalRefreshTokenCacheItem rtCacheItem in tokenCacheAccessor.GetAllRefreshTokens())
-                    {
-                        //TODO - authority check needs to be updated for alias check
-                        if (rtCacheItem != null && environment.Equals(rtCacheItem.Environment, StringComparison.OrdinalIgnoreCase)
-                            && rtCacheItem.ClientId.Equals(clientId, StringComparison.OrdinalIgnoreCase))
+                        // join refresh token cache item to corresponding account cache item to get upn
+                        foreach (var account in accounts)
                         {
-                            // join refresh token cache item to corresponding account cache item to get upn
-                            foreach (MsalAccountCacheItem accountCacheItem in accounts)
+                            if (rt.HomeAccountId.Equals(account.HomeAccountId, StringComparison.OrdinalIgnoreCase) &&
+                                (string.IsNullOrEmpty(displayableId) || account.PreferredUsername.Equals(displayableId, StringComparison.OrdinalIgnoreCase)) &&
+                                (string.IsNullOrEmpty(uniqueId) || account.LocalAccountId.Equals(uniqueId, StringComparison.OrdinalIgnoreCase)))
                             {
-                                if (rtCacheItem.HomeAccountId.Equals(accountCacheItem.HomeAccountId, StringComparison.OrdinalIgnoreCase)
-                                    && (string.IsNullOrEmpty(upn) || accountCacheItem.PreferredUsername.Equals(upn, StringComparison.OrdinalIgnoreCase)))
+                                return new AdalResultWrapper
                                 {
-                                    return new AdalResultWrapper
-                                    {
-                                        Result = new AdalResult(null, null, DateTimeOffset.MinValue),
-                                        RefreshToken = rtCacheItem.Secret,
-                                        RawClientInfo = rtCacheItem.RawClientInfo
-                                    };
-                                }
+                                    Result = new AdalResult(null, null, DateTimeOffset.MinValue),
+                                    RefreshToken = rt.Secret,
+                                    RawClientInfo = rt.RawClientInfo
+                                };
                             }
                         }
                     }
                 }
+            
             }
             catch (Exception ex)
             {

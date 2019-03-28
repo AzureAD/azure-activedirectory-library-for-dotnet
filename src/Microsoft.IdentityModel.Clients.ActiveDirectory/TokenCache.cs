@@ -617,8 +617,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (cacheQueryData.SubjectType == TokenSubjectType.User)
                     {
                         requestContext.Logger.Info("Checking MSAL cache for user token cache");
-                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(TokenCacheAccessor,
-                            cacheQueryData.Authority, cacheQueryData.ClientId, cacheQueryData.DisplayableId, requestContext);
+                        resultEx = CacheFallbackOperations.FindMsalEntryForAdal(
+                            TokenCacheAccessor,
+                            cacheQueryData.Authority, 
+                            cacheQueryData.ClientId, 
+                            cacheQueryData.DisplayableId, 
+                            cacheQueryData.UniqueId);
 
                         requestContext.Logger.Info("A match was found in the MSAL cache ? " + (resultEx != null));
                     }
