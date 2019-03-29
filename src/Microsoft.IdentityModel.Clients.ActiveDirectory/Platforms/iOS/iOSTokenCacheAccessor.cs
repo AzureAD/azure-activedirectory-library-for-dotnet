@@ -71,6 +71,19 @@ namespace Microsoft.Identity.Core
             return NSBundle.MainBundle.BundleIdentifier;
         }
 
+        public void SetiOSKeychainSecurityGroup(string keychainSecurityGroup)
+        {
+            if (keychainSecurityGroup == null)
+            {
+                keychainGroup = GetBundleId();
+            }
+            else
+            {
+                keychainGroup = GetTeamId() + '.' + keychainSecurityGroup;
+            }
+        }
+
+        [Obsolete("Use SetiOSKeychainSecurityGroup instead (See https://aka.ms/adal-net-ios-keychain-access)", false)]
         public void SetKeychainSecurityGroup(string keychainSecurityGroup)
         {
             if (keychainSecurityGroup == null)

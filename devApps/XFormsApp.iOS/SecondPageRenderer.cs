@@ -53,6 +53,7 @@ namespace XFormsApp.iOS
             iOSPlatformParametersFactory.UIViewController = this;
 
             page.BrokerParameters = new PlatformParameters(this, true, PromptBehavior.SelectAccount);
+            //page.AuthContext.iOSKeychainSecurityGroup = "com.microsoft.adalcache";
         }
     }
 }

@@ -183,9 +183,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Xamarin iOS specific property enables the application to share the token cache with other applications sharing the same keychain security group.
         /// If you provide this key, you MUST add the capability to your Application Entitlement.
+        /// In this property, the value should not contain the TeamId prefix, ADAL will resolve the TeamId at runtime.
+        /// For more details, please see https://aka.ms/adal-net-sharing-cache-on-ios and https://aka.ms/adal-net-ios-keychain-access
+        /// </summary>
+        /// <remarks>This API may change in future release.</remarks>
+        public string iOSKeychainSecurityGroup
+        {
+            get
+            {
+                return keychainSecurityGroup;
+            }
+            set
+            {
+                keychainSecurityGroup = value;
+                StorageDelegates.LegacyCachePersistence.SetKeychainSecurityGroup(value);
+                TokenCache.TokenCacheAccessor.SetiOSKeychainSecurityGroup(value);
+            }
+        }
+
+        /// <summary>
+        /// Xamarin iOS specific property enables the application to share the token cache with other applications sharing the same keychain security group.
+        /// If you provide this key, you MUST add the capability to your Application Entitlement. When using this property, the value must contain the TeamId prefix, 
+        /// which is why this is obsolete.
         /// For more details, please see https://aka.ms/adal-net-sharing-cache-on-ios
         /// </summary>
         /// <remarks>This API may change in future release.</remarks>
+        [Obsolete("Use iOSKeychainSecurityGroup instead (See https://aka.ms/adal-net-ios-keychain-access)", false)]
         public string KeychainSecurityGroup
         {
             get

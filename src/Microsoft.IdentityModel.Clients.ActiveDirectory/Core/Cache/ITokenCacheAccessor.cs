@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Identity.Core.Cache
@@ -55,6 +56,9 @@ namespace Microsoft.Identity.Core.Cache
         ICollection<MsalAccountCacheItem> GetAllAccounts();
 
 #if iOS
+        void SetiOSKeychainSecurityGroup(string keychainSecurityGroup);
+
+        [Obsolete("Use SetiOSKeychainSecurityGroup instead (See https://aka.ms/adal-net-ios-keychain-access)", false)]
         void SetKeychainSecurityGroup(string keychainSecurityGroup);
 #endif
 

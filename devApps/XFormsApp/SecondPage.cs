@@ -67,6 +67,8 @@ namespace XFormsApp
 
         public string PlatformParameters { get; set; }
 
+         public AuthenticationContext AuthContext { get; set; } = new AuthenticationContext("https://login.microsoftonline.com/common");
+
         public SecondPage()
         {
             var acquireTokenButton = new Button
@@ -239,11 +241,11 @@ namespace XFormsApp
 
         private async void AcquireTokenButton_Clicked(object sender, EventArgs e)
         {
-            this.result.Text = string.Empty;
-            AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
+            result.Text = string.Empty;
+
             string output = string.Empty;
             string accessToken = string.Empty;
-            this.testResult.Text = "Result:";
+            testResult.Text = "Result:";
 
             try
             {
@@ -252,7 +254,7 @@ namespace XFormsApp
 
                 AuthenticationResult result =
                     await
-                        ctx.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), platformParameters).ConfigureAwait(false);
+                        AuthContext.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectURI), platformParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
                 User = result.UserInfo.DisplayableId;
@@ -266,9 +268,9 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
-                    this.result.Text += "Result : " + output;
-                    this.result.Text += "Logs : " + DrainLogs();
+                    testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
+                    result.Text += "Result : " + output;
+                    result.Text += "Logs : " + DrainLogs();
                 });
             }
         }
