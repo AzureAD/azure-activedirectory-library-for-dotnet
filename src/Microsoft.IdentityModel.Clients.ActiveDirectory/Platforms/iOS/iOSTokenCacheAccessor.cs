@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Core
             }
             else
             {
-                keychainGroup = keychainSecurityGroup;
+                keychainGroup = GetTeamId() + '.' + keychainSecurityGroup;
             }
         }
 
