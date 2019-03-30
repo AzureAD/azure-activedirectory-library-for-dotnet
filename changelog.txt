@@ -1,3 +1,13 @@
+Version 5.0.1-preview
+==============
+- **ADAL now guarantees Before/After Access is called in all cases for the TokenCache**. [Adal issue 1525](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1525)
+- **In CustomWebUI flows, it's possible that the process implementing the UI is in another process**. ADAL now serializes the exceptions in this case. [ADAL issue 1526](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1526)
+- **AcquireTokenByDeviceCodeAsync now supports the CancellationToken**. CancellationToken support was needed in this API to allow the developer to cancel the operation as needed. [ADAL issue 1533](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1533)
+- **UI can hang due to not having proper SynchronizationContext for UI interaction**. When staring the Windows web authentication dialog, running on an MTA or STA thread, ADAL usually ends up on an MTA thread because of the async await, and then tries to create a new STA thread to run the browser on. This can result in a deadlock. ADAL now captures the synchronization context at AcquireTokenInteractive so the appropriate sync context is used when creating the interactive browser dialog. [ADAL issue 1548](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1548)
+- **ADAL does not reuse the HttpClient**. A New interface is introduced `IHttpClientFactory` to pass-in the HttpClient to be used by ADAL.NET to communicate with the endpoints of Microsoft identity platform for developers. See https://aka.ms/adal-net-httpclient for details. [Adal issue 1488](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1488)
+- **ADAL now creates an HttpClient that uses the NSURLSessionHandler for iOS7 and newer** [ADAL issue 1554](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1554)
+- **ADAL now publishes symbols to the Microsoft Symbol Server** [ADAL issue 1540](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1540)
+
 Version 5.0.0-preview
 ==============
 - **Enhancements include support for MSALv3 Cache (which is also or will soon be supported by other libraries such as Python and Java, more detail here https://aka.ms/msal-net-3x) as well as enabling users to bring their own browser as part of the Auth Code retrieval (#1521).
