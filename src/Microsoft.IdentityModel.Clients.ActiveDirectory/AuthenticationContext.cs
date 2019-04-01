@@ -123,7 +123,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
                    tokenCache, httpClientFactory)
         {
-            if (httpClientFactory == null)
+            if (_serviceBundle.HttpManager == null)
             {
                 throw new ArgumentNullException(nameof(httpClientFactory));
             }
