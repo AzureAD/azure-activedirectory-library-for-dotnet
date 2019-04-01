@@ -121,12 +121,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <remarks>ADAL does not guarantee that it will not modify the HttpClient, for example by adding new headers.</remarks>
         public AuthenticationContext(string authority, bool validateAuthority, TokenCache tokenCache, IHttpClientFactory httpClientFactory)
             : this(null, authority, validateAuthority ? AuthorityValidationType.True : AuthorityValidationType.False,
-                   tokenCache, httpClientFactory)
+                   tokenCache, ValidateNotNull(httpClientFactory))
         {
-            if (httpClientFactory == null)
-            {
-                throw new ArgumentNullException(nameof(httpClientFactory));
-            }
         }
 
         internal AuthenticationContext(IServiceBundle serviceBundle, string authority, AuthorityValidationType validateAuthority,
@@ -139,6 +135,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             TokenCache = tokenCache;
 
             TokenCache?.SetServiceBundle(_serviceBundle);
+        }
+
+        private static IHttpClientFactory ValidateNotNull(IHttpClientFactory httpClientFactory)
+        {
+            if (httpClientFactory == null)
+            {
+                throw new ArgumentNullException(nameof(httpClientFactory));
+            }
+            return httpClientFactory;
         }
 
         /// <summary>

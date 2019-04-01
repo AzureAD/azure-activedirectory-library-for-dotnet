@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Core
         {
             if (httpClientFactory != null)
             {
-                return new ServiceBundle(new HttpClientFactory());
+                return new ServiceBundle(httpClientFactory);
             }
             else
             {
