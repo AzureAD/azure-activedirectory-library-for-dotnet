@@ -7,6 +7,7 @@ Version 5.0.1-preview
 - **ADAL does not reuse the HttpClient**. A New interface is introduced `IHttpClientFactory` to pass-in the HttpClient to be used by ADAL.NET to communicate with the endpoints of Microsoft identity platform for developers. See https://aka.ms/adal-net-httpclient for details. [Adal issue 1488](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1488)
 - **ADAL now creates an HttpClient that uses the NSURLSessionHandler for iOS7 and newer** [ADAL issue 1554](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1554)
 - **ADAL now publishes symbols to the Microsoft Symbol Server** [ADAL issue 1540](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1540)
+- **When using the `KeychainSecurityGroup` property to enable application sharing of the token cache, developers were required to include the TeamId**. Now, ADAL resolves the TeamId at runtime. A new property `iOSKeychainSecurityGroup` should be used instead. See https://aka.ms/adal-net-ios-keychain-access for details. [ADAL issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1564)
 
 Version 5.0.0-preview
 ==============
