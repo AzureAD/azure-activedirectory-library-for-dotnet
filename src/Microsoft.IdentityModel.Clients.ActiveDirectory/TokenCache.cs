@@ -157,7 +157,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 }
             }
         }
-        
+
         internal IServiceBundle ServiceBundle { get; private set; }
 
         internal void SetServiceBundle(IServiceBundle serviceBundle)
@@ -313,7 +313,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 var jsonSerializer = new TokenCacheJsonSerializer(TokenCacheAccessor);
                 _unkownNodes = jsonSerializer.Deserialize(bytes);
-                
+
             }
         }
 
@@ -473,13 +473,30 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             AdalResultWrapper resultEx = null;
             var aliasedHosts = await GetOrderedAliasesAsync(cacheQueryData.Authority, false, requestContext).ConfigureAwait(false);
-            foreach (var aliasedHost in aliasedHosts)
+
+            lock (_cacheLock)
             {
-                cacheQueryData.Authority = ReplaceHost(cacheQueryData.Authority, aliasedHost);
-                resultEx = LoadFromCacheCommon(cacheQueryData, requestContext);
-                if (resultEx?.Result != null)
+                var notificationArgs = new TokenCacheNotificationArgs
                 {
-                    break;
+                    TokenCache = this,
+                };
+
+                OnBeforeAccess(notificationArgs);
+                try
+                {
+                    foreach (var aliasedHost in aliasedHosts)
+                    {
+                        cacheQueryData.Authority = ReplaceHost(cacheQueryData.Authority, aliasedHost);
+                        resultEx = LoadFromCacheCommon(cacheQueryData, requestContext);
+                        if (resultEx?.Result != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+                finally
+                {
+                    OnAfterAccess(notificationArgs);
                 }
             }
 
@@ -619,9 +636,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         requestContext.Logger.Info("Checking MSAL cache for user token cache");
                         resultEx = CacheFallbackOperations.FindMsalEntryForAdal(
                             TokenCacheAccessor,
-                            cacheQueryData.Authority, 
-                            cacheQueryData.ClientId, 
-                            cacheQueryData.DisplayableId, 
+                            cacheQueryData.Authority,
+                            cacheQueryData.ClientId,
+                            cacheQueryData.DisplayableId,
                             cacheQueryData.UniqueId);
 
                         requestContext.Logger.Info("A match was found in the MSAL cache ? " + (resultEx != null));
@@ -645,36 +662,46 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             lock (_cacheLock)
             {
                 requestContext.Logger.Verbose("Storing token in the cache...");
-
                 string uniqueId = result.Result.UserInfo?.UniqueId;
                 string displayableId = result.Result.UserInfo?.DisplayableId;
 
-                OnBeforeWrite(new TokenCacheNotificationArgs
+                var notificationArgs = new TokenCacheNotificationArgs
                 {
+                    TokenCache = this,
                     Resource = resource,
                     ClientId = clientId,
                     UniqueId = uniqueId,
                     DisplayableId = displayableId
-                });
+                };
 
-                AdalTokenCacheKey adalTokenCacheKey = new AdalTokenCacheKey(authority, resource, clientId, subjectType, result.Result.UserInfo);
-                _tokenCacheDictionary[adalTokenCacheKey] = result;
-
-                requestContext.Logger.Verbose("An item was stored in the cache");
-
-                UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
-
-                HasStateChanged = true;
-
-                //store ADAL RT in MSAL cache for user tokens where authority is AAD
-                if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
+                OnBeforeAccess(notificationArgs);
+                try
                 {
-                    IdToken.TryParse(result.Result.IdToken, out IdToken idToken);
+                    OnBeforeWrite(notificationArgs);
 
-                    CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
-                        result.Result.UserInfo.GivenName,
-                        result.Result.UserInfo.FamilyName, 
-                        idToken?.GetUniqueId()); 
+                    AdalTokenCacheKey adalTokenCacheKey = new AdalTokenCacheKey(authority, resource, clientId, subjectType, result.Result.UserInfo);
+                    _tokenCacheDictionary[adalTokenCacheKey] = result;
+
+                    requestContext.Logger.Verbose("An item was stored in the cache");
+
+                    UpdateCachedMrrtRefreshTokens(result, clientId, subjectType);
+
+                    HasStateChanged = true;
+
+                    //store ADAL RT in MSAL cache for user tokens where authority is AAD
+                    if (subjectType == TokenSubjectType.User && Authenticator.DetectAuthorityType(authority) == Internal.Instance.AuthorityType.AAD)
+                    {
+                        IdToken.TryParse(result.Result.IdToken, out IdToken idToken);
+
+                        CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
+                            result.Result.UserInfo.GivenName,
+                            result.Result.UserInfo.FamilyName,
+                            idToken?.GetUniqueId());
+                    }
+                }
+                finally
+                {
+                    OnAfterAccess(notificationArgs);
                 }
             }
         }
@@ -724,18 +751,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         returnValue = resourceSpecificItems.First();
                         break;
                     case 0:
-                        {
-                            // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
-                            List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
-                                items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
+                    {
+                        // There are no resource specific tokens.  Choose any of the MRRT tokens if there are any.
+                        List<KeyValuePair<AdalTokenCacheKey, AdalResultWrapper>> mrrtItems =
+                            items.Where(p => p.Value.IsMultipleResourceRefreshToken).ToList();
 
-                            if (mrrtItems.Any())
-                            {
-                                returnValue = mrrtItems.First();
-                                requestContext.Logger.Info("A Multi Resource Refresh Token for a different resource was found which can be used");
-                            }
+                        if (mrrtItems.Any())
+                        {
+                            returnValue = mrrtItems.First();
+                            requestContext.Logger.Info("A Multi Resource Refresh Token for a different resource was found which can be used");
                         }
-                        break;
+                    }
+                    break;
                     default:
                         throw new AdalException(AdalError.MultipleTokensMatched);
                 }

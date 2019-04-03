@@ -38,7 +38,6 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
@@ -55,7 +54,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         internal /* internal for test, otherwise protected */ RequestContext RequestContext { get; }
         protected IBroker BrokerHelper { get; }
         internal /* internal for test, otherwise protected */ IDictionary<string, string> BrokerParameters { get; }
-
         
         protected AcquireTokenHandlerBase(IServiceBundle serviceBundle, RequestData requestData)
         {
@@ -107,8 +105,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             ClientKey = requestData.ClientKey;
             TokenSubjectType = requestData.SubjectType;
 
-            LoadFromCache = (_tokenCache != null);
-            StoreToCache = (_tokenCache != null);
+            LoadFromCache = _tokenCache != null;
+            StoreToCache = _tokenCache != null;
             SupportADFS = false;
 
             BrokerParameters = new Dictionary<string, string>
@@ -149,7 +147,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         public async Task<AuthenticationResult> RunAsync()
         {
-            bool notifiedBeforeAccessCache = false;
             AdalResultWrapper extendedLifetimeResultEx = null;
 
             try
@@ -161,14 +158,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     RequestContext.Logger.Verbose("Loading from cache.");
 
                     CacheQueryData.Authority = Authenticator.Authority;
-                    CacheQueryData.Resource = this.Resource;
-                    CacheQueryData.ClientId = this.ClientKey.ClientId;
-                    CacheQueryData.SubjectType = this.TokenSubjectType;
-                    CacheQueryData.UniqueId = this.UniqueId;
-                    CacheQueryData.DisplayableId = this.DisplayableId;
+                    CacheQueryData.Resource = Resource;
+                    CacheQueryData.ClientId = ClientKey.ClientId;
+                    CacheQueryData.SubjectType = TokenSubjectType;
+                    CacheQueryData.UniqueId = UniqueId;
+                    CacheQueryData.DisplayableId = DisplayableId;
 
-                    this.NotifyBeforeAccessCache();
-                    notifiedBeforeAccessCache = true;
                     ResultEx = await _tokenCache.LoadFromCacheAsync(CacheQueryData, RequestContext).ConfigureAwait(false);
                     extendedLifetimeResultEx = ResultEx;
 
@@ -182,7 +177,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         ResultEx = await RefreshAccessTokenAsync(ResultEx).ConfigureAwait(false);
                         if (ResultEx != null && ResultEx.Exception == null)
                         {
-                            notifiedBeforeAccessCache = await StoreResultExToCacheAsync(notifiedBeforeAccessCache).ConfigureAwait(false);
+                            await StoreResultExToCacheAsync().ConfigureAwait(false);
                         }
                     }
                 }
@@ -212,8 +207,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                         throw ResultEx.Exception;
                     }
 
-                    await this.PostTokenRequestAsync(ResultEx).ConfigureAwait(false);
-                    notifiedBeforeAccessCache = await StoreResultExToCacheAsync(notifiedBeforeAccessCache).ConfigureAwait(false);
+                    await PostTokenRequestAsync(ResultEx).ConfigureAwait(false);
+                    await StoreResultExToCacheAsync().ConfigureAwait(false);
                 }
 
                 // At this point we have an Acess Token - return it
@@ -244,29 +239,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
                 throw;
             }
-            finally
-            {
-                if (notifiedBeforeAccessCache)
-                {
-                    NotifyAfterAccessCache();
-                }
-            }
         }
 
-        private async Task<bool> StoreResultExToCacheAsync(bool notifiedBeforeAccessCache)
+        private async Task StoreResultExToCacheAsync()
         {
             if (StoreToCache)
             {
-                if (!notifiedBeforeAccessCache)
-                {
-                    NotifyBeforeAccessCache();
-                    notifiedBeforeAccessCache = true;
-                }
-
                 await _tokenCache.StoreToCacheAsync(ResultEx, Authenticator.Authority, Resource,
                     ClientKey.ClientId, TokenSubjectType, RequestContext).ConfigureAwait(false);
             }
-            return notifiedBeforeAccessCache;
         }
 
         private async Task CheckAndAcquireTokenUsingBrokerAsync()
@@ -343,7 +324,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected internal /* internal for test only */ virtual async Task<AdalResultWrapper> SendTokenRequestAsync()
         {
-            var requestParameters = new DictionaryRequestParameters(this.Resource, this.ClientKey)
+            var requestParameters = new DictionaryRequestParameters(Resource, ClientKey)
             {
                 { OAuthParameter.ClientInfo, "1" }
             };
@@ -353,11 +334,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
         protected async Task<AdalResultWrapper> SendTokenRequestByRefreshTokenAsync(string refreshToken)
         {
-            var requestParameters = new DictionaryRequestParameters(Resource, ClientKey);
-            requestParameters[OAuthParameter.GrantType] = OAuthGrantType.RefreshToken;
-            requestParameters[OAuthParameter.RefreshToken] = refreshToken;
-            requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
-            requestParameters[OAuthParameter.ClientInfo] = "1";
+            var requestParameters = new DictionaryRequestParameters(Resource, ClientKey)
+            {
+                [OAuthParameter.GrantType] = OAuthGrantType.RefreshToken,
+                [OAuthParameter.RefreshToken] = refreshToken,
+                [OAuthParameter.Scope] = OAuthValue.ScopeOpenId,
+                [OAuthParameter.ClientInfo] = "1"
+            };
 
             AdalResultWrapper result = await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);
 
@@ -382,7 +365,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 {
                     newResultEx = await SendTokenRequestByRefreshTokenAsync(result.RefreshToken)
                         .ConfigureAwait(false);
-                    this.Authenticator.UpdateTenantId(result.Result.TenantId);
+                    Authenticator.UpdateTenantId(result.Result.TenantId);
 
                     newResultEx.Result.Authority = Authenticator.Authority;
 
@@ -395,8 +378,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 }
                 catch (AdalException ex)
                 {
-                    AdalServiceException serviceException = ex as AdalServiceException;
-                    if (serviceException != null && serviceException.ErrorCode == "invalid_request")
+                    if (ex is AdalServiceException serviceException && serviceException.ErrorCode == "invalid_request")
                     {
                         throw new AdalServiceException(
                             AdalError.FailedToRefreshToken,
