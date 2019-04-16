@@ -53,6 +53,8 @@ namespace Microsoft.Identity.Core.Http
                     MaxResponseContentBufferSize = MaxResponseContentBufferSizeInBytes
                 };
             }
+#elif ANDROID
+            _httpClient = new HttpClient(new Xamarin.Android.Net.AndroidClientHandler());
 #else
             _httpClient = new HttpClient(new HttpClientHandler() { UseDefaultCredentials = true })
             {
