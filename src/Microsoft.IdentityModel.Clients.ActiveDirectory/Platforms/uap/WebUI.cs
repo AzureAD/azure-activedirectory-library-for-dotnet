@@ -52,7 +52,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         public async Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext)
         {
-            bool ssoMode = ReferenceEquals(redirectUri, Constants.UapWEBRedirectUri);
+            bool ssoMode = string.Equals(redirectUri.OriginalString, Constants.UapWEBRedirectUri, StringComparison.OrdinalIgnoreCase);
             if (uiParent.UseHiddenBrowser && !ssoMode && redirectUri.Scheme != Constant.MsAppScheme)
             {
                 throw new AdalException(AdalError.UapRedirectUriUnsupported);
