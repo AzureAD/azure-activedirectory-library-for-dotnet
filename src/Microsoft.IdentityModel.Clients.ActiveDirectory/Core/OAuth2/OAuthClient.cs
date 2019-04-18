@@ -60,8 +60,7 @@ namespace Microsoft.Identity.Core.OAuth2
                 //add pkeyauth header
                 _headers[DeviceAuthHeaderName] = DeviceAuthHeaderValue;
                 var response = await ExecuteRequestAsync().ConfigureAwait(false);
-                typedResponse = EncodingHelper.DeserializeResponse<T>(response.Body);
-
+                
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     throw AdalExceptionFactory.GetServiceException(
@@ -73,6 +72,8 @@ namespace Microsoft.Identity.Core.OAuth2
                                     response.StatusCode),
                          response);
                 }
+
+                typedResponse = EncodingHelper.DeserializeResponse<T>(response.Body);
             }
 
             catch (AdalServiceException ex)
