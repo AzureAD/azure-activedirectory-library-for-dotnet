@@ -1,3 +1,13 @@
+Version 5.0.3-preview
+==============
+- **ADAL now creates an HttpClient that uses the AndroidClientHandler** for Android 4.1 and higher. See [documentation for more information](https://docs.microsoft.com/en-us/xamarin/android/app-fundamentals/http-stack?tabs=windows). [ADAL issue #1581](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1581)
+- **SSO on UWP was not displaying a list of currently logged-in users**. ADAL now honors sso on UWP and displays the logged-in user list. Developers will need to [follow the guidance in the wiki](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Acquiring-tokens-interactively---Public-client-application-flows#getting-the-redirect-uri-in-the-case-of-windows-universal-apps) for setting this up and pass in null in the RedirectUri. See [ADAL issue 1580 for more information and code snippets](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1580)
+- **Custom HttpClient exceptions were not propagated in 5.0.2-preview**. ADAL now returns the custom HttpClient exceptions. [ADAL issue 1575](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1575)
+
+Version 5.0.2-preview
+==============
+- TokenCache before/after access notifications need to be within the cachelock boundary [1571]
+
 Version 5.0.1-preview
 ==============
 - **ADAL now guarantees Before/After Access is called in all cases for the TokenCache**. [Adal issue 1525](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1525)
