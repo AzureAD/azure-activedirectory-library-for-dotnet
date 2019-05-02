@@ -329,7 +329,7 @@ namespace WinFormsAutomationApp
             platformParameters = new PlatformParameters(PromptBehavior.Always, false);
 #else
             //desktop
-            platformParameters = new PlatformParameters(pb, null);
+            platformParameters = new PlatformParameters(pb);
 #endif
 #endif
 #endif
