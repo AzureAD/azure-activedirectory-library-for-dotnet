@@ -28,21 +28,16 @@
 using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using System;
-using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-using Test.ADAL.Integration.Infrastructure;
 using Test.ADAL.NET.Common;
 
-namespace Test.ADAL.Integration.SeleniumTests
+namespace Test.ADAL.Integration.net45.HeadlessTetss
 {
+#if DESKTOP
     [TestClass]
-    public class InteractiveFlowTests
+    public class UsernamePasswordTests
     {
-        private readonly TimeSpan _seleniumTimeout = TimeSpan.FromMinutes(2);
-
         #region MSTest Hooks
         /// <summary>
         /// Initialized by MSTest (do not make private or readonly)
@@ -56,49 +51,16 @@ namespace Test.ADAL.Integration.SeleniumTests
         }
         #endregion
 
-#if DESKTOP
         [TestMethod]
-        public async Task InteractiveAuth_DefaultUserAsync()
+        public async Task ROPC_DefaultUserAsync()
         {
             // Arrange
             LabResponse labResponse = LabUserHelper.GetDefaultUser();
-
-            Action<IWebDriver> seleniumLogic = (driver) =>
-            {
-                Trace.WriteLine("Starting Selenium automation");
-                driver.PerformLogin(labResponse.User);
-            };
-
-            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
-
-            // Act - acquire with empty cache => interactive auth
-            AuthenticationResult result = await context.AcquireTokenAsync(
-                AdalTestConstants.MSGraph,
-                labResponse.AppId,
-                new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
-                new PlatformParameters(
-                    PromptBehavior.Auto,
-                    new SeleniumWebUI(seleniumLogic, _seleniumTimeout)))
-                    .ConfigureAwait(false);
-
-            // Assert
-            Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
-
-            // Act - acquire with token in cache => silent
-            result = await context.AcquireTokenAsync(
-               AdalTestConstants.MSGraph,
-               labResponse.AppId,
-               new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
-               new PlatformParameters(PromptBehavior.Auto))
-               .ConfigureAwait(false);
-
-            // Assert
-            Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
-#endif
 
         [TestMethod]
-        public async Task Interactive_AdfsV3_NotFederatedAsync()
+        public async Task ROPC_AdfsV3_NotFederatedAsync()
         {
             // Arrange
             var query = new UserQuery
@@ -110,11 +72,11 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task Interactive_AdfsV3_FederatedAsync()
+        public async Task ROPC_AdfsV3_FederatedAsync()
         {
             // Arrange
             var query = new UserQuery
@@ -126,11 +88,11 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task Interactive_AdfsV2_FederatedAsync()
+        public async Task ROPC_AdfsV2_FederatedAsync()
         {
             // Arrange
             var query = new UserQuery
@@ -143,11 +105,11 @@ namespace Test.ADAL.Integration.SeleniumTests
 
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task Interactive_AdfsV4_NotFederatedAsync()
+        public async Task ROPC_AdfsV4_NotFederatedAsync()
         {
             // Arrange
             var query = new UserQuery
@@ -159,11 +121,11 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task Interactive_AdfsV4_FederatedAsync()
+        public async Task ROPC_AdfsV4_FederatedAsync()
         {
             // Arrange
             var query = new UserQuery
@@ -175,32 +137,23 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
-        private async Task RunTestForUserPromptAutoAsync(LabResponse labResponse)
+
+        private static async Task RunTestForUserAsync(LabResponse labResponse)
         {
-            Action<IWebDriver> seleniumLogic = (driver) =>
-            {
-                Trace.WriteLine("Starting Selenium automation");
-                driver.PerformLogin(labResponse.User);
-            };
+            var user = labResponse.User;
 
             var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
+            var authResult = await context.AcquireTokenAsync(
+                AdalTestConstants.MSGraph,
+                labResponse.AppId,
+                new UserPasswordCredential(user.Upn, user.Password))
+                .ConfigureAwait(false);
 
-            // Act
-            AuthenticationResult result = await context.AcquireTokenAsync(
-                AdalTestConstants.MSGraph, 
-                labResponse.AppId, 
-                new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
-                new PlatformParameters(
-                    PromptBehavior.Always, 
-                    new SeleniumWebUI(seleniumLogic, _seleniumTimeout)));
-
-            // Assert
-            Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
+            Assert.IsNotNull(authResult.AccessToken);
         }
-
-       
     }
+#endif
 }
