@@ -1,3 +1,7 @@
+Version 5.0.5
+==============
+- **Update ADAL.NET documentation on cache to use ADALv3 methods as default**. [ADAL issue 1593](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1593)
+
 Version 5.0.3-preview
 ==============
 - **ADAL.NET now creates an HttpClient that uses the AndroidClientHandler** for Android 4.1 and higher. See [documentation for more information](https://docs.microsoft.com/en-us/xamarin/android/app-fundamentals/http-stack?tabs=windows). [ADAL issue #1581](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1581)
