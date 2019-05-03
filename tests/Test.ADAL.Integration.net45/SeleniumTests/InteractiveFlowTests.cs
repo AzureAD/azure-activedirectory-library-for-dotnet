@@ -56,6 +56,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         }
         #endregion
 
+#if DESKTOP
         [TestMethod]
         public async Task InteractiveAuth_DefaultUserAsync()
         {
@@ -93,8 +94,8 @@ namespace Test.ADAL.Integration.SeleniumTests
 
             // Assert
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
-
         }
+#endif
 
         [TestMethod]
         public async Task Interactive_AdfsV3_NotFederatedAsync()
