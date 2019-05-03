@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace XFormsApp
@@ -62,12 +63,16 @@ namespace XFormsApp
 
         private string ClientId { get; set; } = AppConstants.UiAutomationTestClientId;
         private string Resource { get; set; } = AppConstants.MSGraph;
-        
+
         public IPlatformParameters BrokerParameters { get; set; }
 
         public string PlatformParameters { get; set; }
 
-         public AuthenticationContext AuthContext { get; set; } = new AuthenticationContext("https://login.microsoftonline.com/common");
+        public AuthenticationContext AuthContext { get; set; } = new AuthenticationContext("https://login.microsoftonline.com/common");
+
+        private AuthenticationResult AuthResult { get; set; }
+        private string AccessToken { get; set; }
+        private string UserIdentifier { get; set; }
 
         public SecondPage()
         {
@@ -99,6 +104,12 @@ namespace XFormsApp
             {
                 Text = "Acquire Token Silent With Broker",
                 AutomationId = "acquireTokenSilentWithBroker"
+            };
+
+            var silentAuthGuestTenantButton = new Button
+            {
+                Text = "Acquire Token Silent With Guest Tenant",
+                AutomationId = "acquireTokenSilentWithGuestTenant"
             };
 
             testResult = new Label()
@@ -186,6 +197,7 @@ namespace XFormsApp
             clearAllCacheButton.Clicked += ClearAllCacheButton_Clicked;
             acquireTokenWithBrokerButton.Clicked += AcquireTokenWithBrokerButton_Clicked;
             acquireTokenSilentWithBrokerButton.Clicked += AcquireTokenSilentWithBrokerButton_Clicked;
+            silentAuthGuestTenantButton.Clicked += AcquireTokenSilentWithGuestTenantButton_Clicked;
             clientIdPicker.SelectedIndexChanged += UpdateClientId;
             resourcePicker.SelectedIndexChanged += UpdateResourceId;
             clientIdInput.TextChanged += UpdateClientIdFromInput;
@@ -218,6 +230,7 @@ namespace XFormsApp
                     clearAllCacheButton,
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
+                    silentAuthGuestTenantButton,
                     clientIdInputLabel,
                     clientIdPicker,
                     clientIdInput,
@@ -277,11 +290,11 @@ namespace XFormsApp
 
         private async void AcquireTokenSilentButton_Clicked(object sender, EventArgs e)
         {
-            this.result.Text = string.Empty;
+            result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/" + Tenant);
             string output = string.Empty;
             string accessToken = string.Empty;
-            this.testResult.Text = "Result:";
+            testResult.Text = "Result:";
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
@@ -297,20 +310,20 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
-                    this.result.Text += "Result : " + output;
-                    this.result.Text += "Logs : " + DrainLogs();
+                    testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
+                    result.Text += "Result : " + output;
+                    result.Text += "Logs : " + DrainLogs();
                 });
             }
         }
 
         private async void AcquireTokenWithBroker()
         {
-            this.result.Text = string.Empty;
+            result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
-            string accessToken = String.Empty;
-            this.testResult.Text = "Result:";
+            string accessToken = string.Empty;
+            testResult.Text = "Result:";
 
             try
             {
@@ -331,21 +344,21 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
-                    this.result.Text += "Result : " + output;
+                    testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
+                    result.Text += "Result : " + output;
 
-                    this.result.Text += "Logs : " + DrainLogs();
+                    result.Text += "Logs : " + DrainLogs();
                 });
             }
         }
 
         private async void AcquireTokenSilentWithBroker()
         {
-            this.result.Text = string.Empty;
+            result.Text = string.Empty;
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = String.Empty;
-            this.testResult.Text = "Result:";
+            testResult.Text = "Result:";
             try
             {
                 AuthenticationResult result = await ctx.AcquireTokenSilentAsync(Resource, ClientId,
@@ -361,10 +374,10 @@ namespace XFormsApp
             {
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
-                    this.result.Text += "Result : " + output;
+                    testResult.Text = string.IsNullOrWhiteSpace(accessToken) ? "Result: Failure" : "Result: Success";
+                    result.Text += "Result : " + output;
 
-                    this.result.Text += "Logs : " + DrainLogs();
+                    result.Text += "Logs : " + DrainLogs();
                 });
             }
         }
@@ -380,7 +393,7 @@ namespace XFormsApp
                     AcquireTokenWithBroker();
                     break;
                 case Device.UWP:
-                    this.result.Text = "UWP does not support broker. Use iOS or Android.";
+                    result.Text = "UWP does not support broker. Use iOS or Android.";
                     break;
                 default:
                     throw new NotImplementedException();
@@ -398,11 +411,94 @@ namespace XFormsApp
                     AcquireTokenSilentWithBroker();
                     break;
                 case Device.UWP:
-                    this.result.Text = "UWP does not support broker. Use iOS or Android.";
+                    result.Text = "UWP does not support broker. Use iOS or Android.";
                     break;
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+
+
+        private async void AcquireTokenSilentWithGuestTenantButton_Clicked(object sender, EventArgs e)
+        {
+            TokenCache tokenCache = new TokenCache();
+
+            // sign in to both using the corp account; 
+
+            // your corp account is a normal account in this tentant
+            AuthenticationContext homeAccount = new AuthenticationContext("https://login.microsoftonline.com/microsoft.onmicrosoft.com/", tokenCache);
+
+            // your corp account is a guest account in this tenant
+            AuthenticationContext guestAccount = new AuthenticationContext("https://login.microsoftonline.com/msidentitysamplestesting.onmicrosoft.com", tokenCache);
+
+            await AcquireAndLogAsync(guestAccount, Resource, "Guest Tenant:\n").ConfigureAwait(false);
+
+            await AcquireAndLogAsync(homeAccount, Resource, "Home Tenant:\n", AuthResult.UserInfo).ConfigureAwait(false);
+        }
+
+        private async Task AcquireAndLogAsync(AuthenticationContext authContext, string resource, string tenantType, UserInfo userInfo = null)
+        {
+            string clientId = "1c778544-53e4-492d-bfab-902cc4b968da";
+            var factory = DependencyService.Get<IPlatformParametersFactory>();
+            IPlatformParameters platformParameters = factory.GetPlatformParameters(PlatformParameters);
+            AuthenticationResult authResult;
+
+            try
+            {
+                authResult = await authContext.AcquireTokenSilentAsync(resource, clientId).ConfigureAwait(false);
+                SetValuesFromAuthResult(authResult);
+            }
+            catch (AdalException adalException)
+            {
+                if (adalException.ErrorCode == AdalError.FailedToAcquireTokenSilently ||
+                    adalException.ErrorCode == AdalError.InteractionRequired)
+                {
+                    if (userInfo != null)
+                    {
+                        authResult = await authContext.AcquireTokenAsync(
+                            resource,
+                            ClientId,
+                            new Uri(RedirectURI),
+                            platformParameters,
+                            new UserIdentifier(
+                                userInfo.UniqueId,
+                                UserIdentifierType.UniqueId),
+                            null).ConfigureAwait(false);
+                        SetValuesFromAuthResult(authResult);
+                    }
+                    else
+                    {
+                        authResult = await authContext.AcquireTokenAsync(
+                            resource,
+                            clientId,
+                            new Uri(RedirectURI),
+                            platformParameters).ConfigureAwait(false);
+                        SetValuesFromAuthResult(authResult);
+                    }
+                }
+                else
+                {
+                    throw adalException;
+                }
+            }
+            finally
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    result.Text += tenantType +
+                    "Access token:\n" + AccessToken +
+                    "\nUser.Identifier: " + UserIdentifier;
+                    result.Text += "\nLogs : " + DrainLogs();
+                });
+            }
+        }
+
+        private void SetValuesFromAuthResult(AuthenticationResult authResult)
+        {
+            AuthResult = authResult;
+            AccessToken = authResult.AccessToken;
+            UserIdentifier = authResult.UserInfo.DisplayableId;
         }
 
         private string DeterminePlatformForRedirectUri()
@@ -425,9 +521,9 @@ namespace XFormsApp
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                this.result.Text = "Cache items before clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
+                result.Text = "Cache items before clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
                 TokenCache.DefaultShared.Clear();
-                this.result.Text += "Cache items after clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
+                result.Text += "Cache items after clear: " + TokenCache.DefaultShared.Count + Environment.NewLine;
             });
         }
 
