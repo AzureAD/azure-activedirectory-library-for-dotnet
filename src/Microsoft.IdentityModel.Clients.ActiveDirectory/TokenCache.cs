@@ -170,7 +170,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
         /// <returns>Current state of the Adal V3+ cache as a blob</returns>
-        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeAdalV3/DeserializeAdalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public byte[] Serialize()
         {
             return SerializeAdalV3();
@@ -180,6 +180,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Serializes current state of the cache as a blob. Caller application can persist the blob and update the state of the cache later by 
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
+        /// <remarks>This should always be used in an app that references ADAL v3 or later</remarks>
         /// <returns>Current state of the Adal V3+ cache as a blob</returns>
         public byte[] SerializeAdalV3()
         {
@@ -194,7 +195,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// passing that blob back in constructor or by calling method Deserialize.
         /// </summary>
         /// <returns>Serialized token cache <see cref="CacheData"/></returns>
-        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeAdalV3/DeserializeAdalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public CacheData SerializeAdalAndUnifiedCache()
         {
             lock (_cacheLock)
@@ -216,7 +217,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
-        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeAdalV3/DeserializeAdalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public void Deserialize(byte[] adalState)
         {
             DeserializeAdalV3(adalState);
@@ -225,6 +226,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
+        /// <remarks>This should always be used in an app that references ADAL v3 or later</remarks>
         /// <param name="adalState">State of the cache in Adal V3+ format as a blob</param>
         public void DeserializeAdalV3(byte[] adalState)
         {
@@ -239,15 +241,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Serializes the token cache to the MSAL.NET 2.x unified cache format, which is compatible with ADAL.NET v4 and other MSAL.NET v2 applications.
-        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
-        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
-        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>. 
+        /// Serializes parts of the token cache to the MSAL.NET 2.x unified cache format.
+        /// If you need to maintain SSO between an application using ADAL 3.x or later and MSAL 2.x, use both <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> and <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>.
         /// </summary>
-        /// <returns>Byte stream representation of the cache</returns>
         /// <remarks>
-        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// An application using ADAL should not rely exclusively on SerializeMsal* / DeserializeMsal* because access tokens and ID tokens will be lost, as they are not compatible between ADAL and MSAL. 
+        /// This will cause ADAL to contact AAD for an access token on every AcquireTokenSilent call, introducing seconds of delay into your app.
         /// </remarks>
+        /// <returns>Byte stream representation of the cache</returns>
         public byte[] SerializeMsalV2()
         {
             lock (_cacheLock)
@@ -258,14 +259,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Deserializes the token cache to the MSAL.NET 2.x cache format, which is compatible with ADAL.NET v4 and other MSAL.NET v2 applications.
-        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
-        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
-        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>. 
+        /// Deserializes parts of the token cache to the MSAL.NET 2.x cache format, which is compatible with ADAL.NET v4 and other MSAL.NET v2 applications.
+        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x, use both <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> and <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>.
         /// </summary>
         /// <param name="bytes">Byte stream representation of the cache</param>
         /// <remarks>
-        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// An application using ADAL should not rely exclusively on SerializeMsal* / DeserializeMsal* because access tokens and ID tokens will be lost, as they are not compatible between ADAL and MSAL. 
+        /// This will cause ADAL to contact AAD for an access token on every AcquireTokenSilent call, introducing seconds of delay into your app.
         /// </remarks>
         public void DeserializeMsalV2(byte[] bytes)
         {
@@ -277,15 +277,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Serializes the token cache to the MSAL.NET 3.x cache format, which is compatible with other MSAL desktop libraries, e.g. MSAL for Python and MSAL for Java.
-        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
-        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
-        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>.
+        /// Serializes parts of the token cache to the MSAL.NET 3.x cache format, which is compatible with other MSAL desktop libraries, e.g. MSAL for Python and MSAL for Java.
+        /// If you need to maintain SSO between an application using ADAL 3.x or later and MSAL 3.x use both <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> and <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>.
         /// </summary>
         /// <returns>Byte stream representation of the cache</returns>
         /// <remarks>
-        /// This is the recommended format for maintaining SSO state between applications.
-        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// An application using ADAL should not rely exclusively on SerializeMsal* / DeserializeMsal* because access tokens and ID tokens will be lost, as they are not compatible between ADAL and MSAL. 
+        /// This will cause ADAL to contact AAD for an access token on every AcquireTokenSilent call, introducing seconds of delay into your app.
         /// </remarks>
         public byte[] SerializeMsalV3()
         {
@@ -298,14 +296,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         /// <summary>
         /// Deserializes the token cache to the MSAL.NET 3.x cache format, which is compatible with other MSAL desktop libraries, e.g. MSAL for Python and MSAL for Java.
-        /// If you need to maintain SSO between an application using ADAL 3.x or MSAL 2.x and this application using MSAL 3.x,
-        /// you might also want to serialize and deserialize with <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> or <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>, 
-        /// otherwise just use <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/>.
+        /// If you need to maintain SSO between an application using ADAL 3.x or later and MSAL 3.x use both <see cref="SerializeAdalV3"/>/<see cref="DeserializeAdalV3"/> and <see cref="SerializeMsalV2"/>/<see cref="DeserializeMsalV2"/>.
         /// </summary>
         /// <param name="bytes">Byte stream representation of the cache</param>
         /// <remarks>
-        /// This is the recommended format for maintaining SSO state between applications.
-        /// <see cref="SerializeMsalV3"/>/<see cref="DeserializeMsalV3"/> is compatible with other MSAL libraries such as MSAL for Python and MSAL for Java.
+        /// An application using ADAL should not rely exclusively on SerializeMsal* / DeserializeMsal* because access tokens and ID tokens will be lost, as they are not compatible between ADAL and MSAL. 
+        /// This will cause ADAL to contact AAD for an access token on every AcquireTokenSilent call, introducing seconds of delay into your app.
         /// </remarks>
         public void DeserializeMsalV3(byte[] bytes)
         {
@@ -321,7 +317,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Deserializes state of the cache. The state should be the blob received earlier by calling the method Serialize.
         /// </summary>
         /// <param name="cacheData">Serialized token cache <see cref="CacheData"></see></param>
-        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeMsalV3/DeserializeMsalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
+        [Obsolete("This is expected to be removed in MSAL.NET v3 and ADAL.NET v5. We recommend using SerializeAdalV3/DeserializeAdalV3. Read more: https://aka.ms/msal-net-3x-cache-breaking-change", false)]
         public void DeserializeAdalAndUnifiedCache(CacheData cacheData)
         {
             lock (_cacheLock)
