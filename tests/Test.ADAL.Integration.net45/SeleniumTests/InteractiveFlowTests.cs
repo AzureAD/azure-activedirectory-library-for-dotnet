@@ -61,7 +61,39 @@ namespace Test.ADAL.Integration.SeleniumTests
         {
             // Arrange
             LabResponse labResponse = LabUserHelper.GetDefaultUser();
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+
+            Action<IWebDriver> seleniumLogic = (driver) =>
+            {
+                Trace.WriteLine("Starting Selenium automation");
+                driver.PerformLogin(labResponse.User);
+            };
+
+            var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
+
+            // Act - acquire with empty cache => interactive auth
+            AuthenticationResult result = await context.AcquireTokenAsync(
+                AdalTestConstants.MSGraph,
+                labResponse.AppId,
+                new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
+                new PlatformParameters(
+                    PromptBehavior.Auto,
+                    new SeleniumWebUI(seleniumLogic, _seleniumTimeout)))
+                    .ConfigureAwait(false);
+
+            // Assert
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
+
+            // Act - acquire with token in cache => silent
+            result = await context.AcquireTokenAsync(
+               AdalTestConstants.MSGraph,
+               labResponse.AppId,
+               new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
+               new PlatformParameters(PromptBehavior.Auto))
+               .ConfigureAwait(false);
+
+            // Assert
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result.AccessToken));
+
         }
 
         [TestMethod]
@@ -77,7 +109,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -93,7 +125,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -110,7 +142,7 @@ namespace Test.ADAL.Integration.SeleniumTests
 
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -126,7 +158,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -142,10 +174,10 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
             LabResponse labResponse = LabUserHelper.GetLabUserData(query);
-            await RunTestForUserAsync(labResponse).ConfigureAwait(false);
+            await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
-        private async Task RunTestForUserAsync(LabResponse labResponse)
+        private async Task RunTestForUserPromptAutoAsync(LabResponse labResponse)
         {
             Action<IWebDriver> seleniumLogic = (driver) =>
             {
