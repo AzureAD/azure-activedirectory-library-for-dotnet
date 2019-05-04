@@ -707,6 +707,28 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// Acquires security token without asking for user credential.
         /// </summary>
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
+        /// <param name="clientCertificate">The client certificate to use for token acquisition.</param>
+        /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
+        /// <param name="sendX5c">This parameter enables application developers to achieve easy certificates roll-over
+        /// in Azure AD: setting this parameter to true will send the public certificate to Azure AD
+        /// along with the token request, so that Azure AD can use it to validate the subject name based on a trusted issuer policy.
+        /// This saves the application admin from the need to explicitly manage the certificate rollover
+        /// (either via portal or powershell/CLI operation)</param>
+        /// <returns>It contains Access Token, its expiration time, user information. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
+#if ANDROID || iOS || WINDOWS_APP
+        [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
+#endif
+        public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
+            IClientAssertionCertificate clientCertificate, UserIdentifier userId, bool sendX5C)
+        {
+            return await AcquireTokenSilentCommonAsync(resource,
+                new ClientKey(clientCertificate, Authenticator) { SendX5c = sendX5C }, userId, null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Acquires security token without asking for user credential.
+        /// </summary>
+        /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientAssertion">The client assertion to use for token acquisition.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <returns>It contains Access Token, its expiration time, user information. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
