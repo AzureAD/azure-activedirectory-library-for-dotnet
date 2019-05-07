@@ -35,23 +35,13 @@ namespace Microsoft.Identity.Core.UI
         protected static SemaphoreSlim returnedUriReady;
         protected static AuthorizationResult authorizationResult;
 
-        public static void SetAuthorizationResult(AuthorizationResult authorizationResultInput, RequestContext requestContext)
+        public static void SetAuthorizationResult(AuthorizationResult authorizationResultInput)
         {
             if (returnedUriReady != null)
             {
                 authorizationResult = authorizationResultInput;
                 returnedUriReady.Release();
             }
-            else
-            {
-                requestContext.Logger.Info("No pending request for response from web ui.");
-            }
-        }
-
-        public static void SetAuthorizationResult(AuthorizationResult authorizationResultInput)
-        {
-            authorizationResult = authorizationResultInput;
-            returnedUriReady.Release();
         }
 
         public abstract Task<AuthorizationResult> AcquireAuthorizationAsync(Uri authorizationUri, Uri redirectUri, RequestContext requestContext);
