@@ -43,7 +43,6 @@ namespace Microsoft.Identity.Core
             WsTrustWebRequestManager = wsTrustWebRequestManager ?? new WsTrustWebRequestManager(HttpManager);
             PlatformProxy = PlatformProxyFactory.GetPlatformProxy();
             InstanceDiscovery = new InstanceDiscovery(HttpManager);
-            AuthenticationParameters = new AuthenticationParameters(HttpManager);
         }
 
         /// <inheritdoc />
@@ -57,10 +56,6 @@ namespace Microsoft.Identity.Core
 
         /// <inheritdoc />
         public InstanceDiscovery InstanceDiscovery { get; }
-
-        /// <inheritdoc />
-        public AuthenticationParameters AuthenticationParameters { get; }
-
 
         public static ServiceBundle CreateWithCustomHttpManager(IHttpManager httpManager)
         {

@@ -40,6 +40,8 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
+    // This is a helper class and its functionality is tied to ADAL. It uses a vanilla HttpClient
+
     /// <summary>
     /// Contains authentication parameters based on unauthorized response from resource server.
     /// </summary>
@@ -53,18 +55,22 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets or sets the address of the authority to issue token.
         /// </summary>
-        public string Authority { get; set; }
+        public string Authority { get; }
 
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
-        public string Resource { get; set; }
+        public string Resource { get; }
 
-        private static IHttpManager _httpManager;
-
-        internal AuthenticationParameters(IHttpManager httpManager)
+        static AuthenticationParameters()
         {
-            _httpManager = httpManager;
+            ModuleInitializer.EnsureModuleInitialized();
+        }
+
+        private AuthenticationParameters(string authority, string resource)
+        {
+            Authority = authority;
+            Resource = resource;
         }
 
         /// <summary>
@@ -73,7 +79,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
-        public async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
+        public static async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
         {
             return await CreateFromResourceUrlCommonAsync(resourceUrl).ConfigureAwait(false);
         }
@@ -133,17 +139,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 throw newEx;
             }
 
-            var authParams = new AuthenticationParameters(_httpManager);
             string param;
             authenticateHeaderItems.TryGetValue(AuthorityKey, out param);
-            authParams.Authority = param;
+            string authority = param;
             authenticateHeaderItems.TryGetValue(ResourceKey, out param);
-            authParams.Resource = param;
+            string resource = param;
 
-            return authParams;
+            return new AuthenticationParameters(authority, resource);
         }
 
-        private async Task<AuthenticationParameters> CreateFromResourceUrlCommonAsync(Uri resourceUrl)
+        private static async Task<AuthenticationParameters> CreateFromResourceUrlCommonAsync(Uri resourceUrl)
         {
             if (resourceUrl == null)
             {
@@ -154,7 +159,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             try
             {
-                await _httpManager.SendGetAsync(
+                HttpManager httpManager = new HttpManager();
+                var resp = await httpManager.SendGetAsync(
                     new Uri(resourceUrl.AbsoluteUri),
                     null,
                     new RequestContext(
@@ -164,7 +170,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
                 CoreLoggerBase.Default.ErrorPii(ex);
                 throw ex;
-
             }
             catch (AdalServiceException ex)
             {

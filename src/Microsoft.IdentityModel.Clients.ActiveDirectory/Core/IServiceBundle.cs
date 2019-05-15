@@ -37,6 +37,5 @@ namespace Microsoft.Identity.Core
         IPlatformProxy PlatformProxy { get; }
         IWsTrustWebRequestManager WsTrustWebRequestManager { get; }
         InstanceDiscovery InstanceDiscovery { get; }
-        AuthenticationParameters AuthenticationParameters { get; }
     }
 }
