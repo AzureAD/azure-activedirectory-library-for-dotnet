@@ -719,10 +719,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #endif
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
-            IClientAssertionCertificate clientCertificate, UserIdentifier userId, bool sendX5C)
+            IClientAssertionCertificate clientCertificate, UserIdentifier userId, bool sendX5c)
         {
             return await AcquireTokenSilentCommonAsync(resource,
-                new ClientKey(clientCertificate, Authenticator) { SendX5c = sendX5C }, userId, null).ConfigureAwait(false);
+                new ClientKey(clientCertificate, Authenticator) { SendX5c = sendX5c }, userId, null).ConfigureAwait(false);
         }
 
         /// <summary>
