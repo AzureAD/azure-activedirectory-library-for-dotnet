@@ -40,7 +40,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 {
-    // This is a helper class and its functionality is tied to ADAL. It uses a vanilla HttpClient
+    // This is a helper class and its functionality is not tied to ADAL. It uses a vanilla HttpClient
 
     /// <summary>
     /// Contains authentication parameters based on unauthorized response from resource server.
@@ -74,21 +74,32 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Creates authentication parameters from address of the resource. This method expects the resource server to return unauthorized response
-        /// with WWW-Authenticate header containing authentication parameters.
+        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to 
+        /// retrieve the authority and resource.
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
+        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
         public static async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
         {
-            return await CreateFromResourceUrlCommonAsync(resourceUrl).ConfigureAwait(false);
+            if (resourceUrl == null)
+            {
+                throw new ArgumentNullException("resourceUrl");
+            }
+
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, resourceUrl))
+                .ConfigureAwait(false);
+
+
+            return await CreateFromUnauthorizedResponseAsync(response).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Creates authentication parameters from the response received from the response received from the resource. This method expects the response to have unauthorized status and
-        /// WWW-Authenticate header containing authentication parameters.</summary>
+        /// Looks at the Http response for an WWW-Authenticate header and parses it to retrieve the authority and resource</summary>
         /// <param name="responseMessage">Response received from the resource (e.g. via an http call using HttpClient).</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
+        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
         public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
             HttpResponseMessage responseMessage)
         {
@@ -101,6 +112,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authenticateHeader">Content of header WWW-Authenticate header</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
+        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>        
         public static AuthenticationParameters CreateFromResponseAuthenticateHeader(string authenticateHeader)
         {
             if (string.IsNullOrWhiteSpace(authenticateHeader))
@@ -146,45 +158,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             string resource = param;
 
             return new AuthenticationParameters(authority, resource);
-        }
-
-        private static async Task<AuthenticationParameters> CreateFromResourceUrlCommonAsync(Uri resourceUrl)
-        {
-            if (resourceUrl == null)
-            {
-                throw new ArgumentNullException("resourceUrl");
-            }
-
-            AuthenticationParameters authParams;
-
-            try
-            {
-                HttpManager httpManager = new HttpManager();
-                var resp = await httpManager.SendGetAsync(
-                    new Uri(resourceUrl.AbsoluteUri),
-                    null,
-                    new RequestContext(
-                        null, new AdalLogger(Guid.Empty)))
-                        .ConfigureAwait(false);
-
-                var ex = new AdalException(AdalError.UnauthorizedResponseExpected);
-                CoreLoggerBase.Default.ErrorPii(ex);
-                throw ex;
-            }
-            catch (AdalServiceException ex)
-            {
-                IHttpWebResponse response = ex.Response;
-                if (response == null)
-                {
-                    var serviceEx = new AdalServiceException(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected, ex);
-                    CoreLoggerBase.Default.ErrorPii(serviceEx);
-                    throw serviceEx;
-                }
-
-                authParams = CreateFromUnauthorizedResponseCommon(response);
-            }
-
-            return authParams;
         }
 
         private static AuthenticationParameters CreateFromUnauthorizedResponseCommon(IHttpWebResponse response)
