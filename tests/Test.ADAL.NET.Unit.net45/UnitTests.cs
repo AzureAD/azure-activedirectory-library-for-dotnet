@@ -25,32 +25,28 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.OAuth2;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
-using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Identity.Core.Cache;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Test.ADAL.Common;
-using Microsoft.Identity.Core;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using Test.Microsoft.Identity.Core.Unit;
-using AuthorityType=Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType;
-using Microsoft.Identity.Core.OAuth2;
-using Microsoft.Identity.Core.Http;
+using AuthorityType = Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -68,7 +64,7 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
-        }      
+        }
 
         [TestMethod]
         [Description("Positive Test for UrlEncoding")]
