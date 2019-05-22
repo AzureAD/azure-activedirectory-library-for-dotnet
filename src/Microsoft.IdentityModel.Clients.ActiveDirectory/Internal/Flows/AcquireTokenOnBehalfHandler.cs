@@ -73,7 +73,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.JwtBearer;
             requestParameters[OAuthParameter.Assertion] = _userAssertion.Assertion;
             requestParameters[OAuthParameter.RequestedTokenUse] = OAuthRequestedTokenUse.OnBehalfOf;
-            requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
     }
 }

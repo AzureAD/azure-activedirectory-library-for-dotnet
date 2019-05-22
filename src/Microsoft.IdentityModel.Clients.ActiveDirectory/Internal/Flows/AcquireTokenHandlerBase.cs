@@ -326,7 +326,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             var requestParameters = new DictionaryRequestParameters(Resource, ClientKey)
             {
-                { OAuthParameter.ClientInfo, "1" }
+                { OAuthParameter.ClientInfo, "1" },
+                { OAuthParameter.Scope, OAuthValue.ScopeOpenId }
             };
             AddAdditionalRequestParameters(requestParameters);
             return await SendHttpMessageAsync(requestParameters).ConfigureAwait(false);

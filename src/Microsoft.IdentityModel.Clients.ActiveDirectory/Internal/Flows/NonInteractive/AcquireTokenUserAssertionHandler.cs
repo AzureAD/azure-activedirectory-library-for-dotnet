@@ -71,10 +71,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         {
             requestParameters[OAuthParameter.GrantType] = _userAssertion.AssertionType;
             requestParameters[OAuthParameter.Assertion] = Convert.ToBase64String(Encoding.UTF8.GetBytes(_userAssertion.Assertion));
-
-
-            // To request id_token in response
-            requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
     }
 }

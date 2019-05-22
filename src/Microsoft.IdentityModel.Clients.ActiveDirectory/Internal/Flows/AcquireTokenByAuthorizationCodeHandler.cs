@@ -65,34 +65,34 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 
             this.redirectUri = redirectUri;
 
-            this.LoadFromCache = false;
+            LoadFromCache = false;
 
-            this.SupportADFS = true;
+            SupportADFS = true;
         }
 
         protected override void AddAdditionalRequestParameters(DictionaryRequestParameters requestParameters)
         {
             requestParameters[OAuthParameter.GrantType] = OAuthGrantType.AuthorizationCode;
-            requestParameters[OAuthParameter.Code] = this.authorizationCode;
-            requestParameters[OAuthParameter.RedirectUri] = this.redirectUri.OriginalString;
+            requestParameters[OAuthParameter.Code] = authorizationCode;
+            requestParameters[OAuthParameter.RedirectUri] = redirectUri.OriginalString;
         }
 
         protected override async Task PostTokenRequestAsync(AdalResultWrapper resultEx)
         {
             await base.PostTokenRequestAsync(resultEx).ConfigureAwait(false);
             AdalUserInfo adalUserInfo = resultEx.Result.UserInfo;
-            this.UniqueId = (adalUserInfo == null) ? null : adalUserInfo.UniqueId;
-            this.DisplayableId = (adalUserInfo == null) ? null : adalUserInfo.DisplayableId;
+            UniqueId = (adalUserInfo == null) ? null : adalUserInfo.UniqueId;
+            DisplayableId = (adalUserInfo == null) ? null : adalUserInfo.DisplayableId;
             if (resultEx.ResourceInResponse != null)
             {
-                this.Resource = resultEx.ResourceInResponse;
+                Resource = resultEx.ResourceInResponse;
                 RequestContext.Logger.Verbose("Resource value in the token response was used for storing tokens in the cache");
             }
 
             // If resource is not passed as an argument and is not returned by STS either, 
             // we cannot store the token in the cache with null resource.
             // TODO: Store refresh token though if STS supports MRRT.
-            this.StoreToCache = this.StoreToCache && (this.Resource != null);
+            StoreToCache = StoreToCache && (Resource != null);
         }
     }
 }

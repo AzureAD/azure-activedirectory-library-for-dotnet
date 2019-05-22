@@ -116,9 +116,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                 requestParameters[OAuthParameter.Username] = _userPasswordInput.UserName;
                 requestParameters[OAuthParameter.Password] = new string(_userPasswordInput.PasswordToCharArray());
             }
-
-            // To request id_token in response
-            requestParameters[OAuthParameter.Scope] = OAuthValue.ScopeOpenId;
         }
     }
 }
