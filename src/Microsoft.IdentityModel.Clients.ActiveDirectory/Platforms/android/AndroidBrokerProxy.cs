@@ -214,10 +214,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // to get the calling app's metadata if needed at BrokerActivity.
                 Bundle addAccountOptions = GetBrokerOptions(request);
 
-                _logger.Info("BrokerProxy: Broker options:" +
+                _logger.InfoPii("BrokerProxy: Broker options:" +
                     "\nAuthority: " + request.Authority +
-                    "\nBroker Account Name: " + request.BrokerAccountName +
-                    "\nClaims: " + request.Claims);
+                    "\nBroker Account Name: " + request.BrokerAccountName,
+                    "BrokerProxy: Broker options: "  +
+                    "\nBroker Account Name: " + request.BrokerAccountName);
 
                 result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
                     BrokerConstants.AuthtokenType, null, addAccountOptions, null,
@@ -234,8 +235,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // token is not available
                 intent = (Intent)bundleResult?.GetParcelable(AccountManager.KeyIntent);
 
-                // Add flag to this intent to signal that request is for broker
-                // logic
+                // Add flag to this intent to signal that request is for broker logic
                 if (intent != null)
                 {
                     _logger.Info("BrokerProxy: Intent created from BundleResult is not null. ");
@@ -244,6 +244,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 else
                 {
                     _logger.Info("BrokerProxy: Intent created from BundleResult is null. ");
+                    throw new AdalException(AdalErrorAndroidEx.NullIntentReturnedFromBroker, AdalErrorMessageAndroidEx.NullIntentReturnedFromBroker);
                 }
             }
             catch (AdalException ex)
@@ -256,14 +257,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 _logger.ErrorPii(e);
             }
 
-            if (intent == null)
-            {
-                _logger.Info("BrokerProxy outside Try/Catch: null intent returned from Bundle result. ");
-            }
-            else
-            {
-                _logger.Info("BrokerProxy outside Try/Catch: intent returned from Bundle result. ");
-            }
             return intent;
         }
 
