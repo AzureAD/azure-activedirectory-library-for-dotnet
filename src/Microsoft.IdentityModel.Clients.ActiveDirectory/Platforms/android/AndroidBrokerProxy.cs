@@ -429,7 +429,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             };
         }
 
-
         private string GetRedirectUriForBroker()
         {
             string packageName = Application.Context.PackageName;
@@ -534,7 +533,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
-                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri));
+                string msg = string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri);
+                _logger.Info(msg);
+                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, msg);
             }
         }
 
