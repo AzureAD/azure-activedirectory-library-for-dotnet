@@ -690,8 +690,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                         IdToken.TryParse(result.Result.IdToken, out IdToken idToken);
 
                         CacheFallbackOperations.WriteMsalRefreshToken(TokenCacheAccessor, result, authority, clientId, displayableId,
-                            result.Result.UserInfo.GivenName,
-                            result.Result.UserInfo.FamilyName,
+                            result.Result.UserInfo?.GivenName,
+                            result.Result.UserInfo?.FamilyName,
                             idToken?.GetUniqueId());
                     }
                 }

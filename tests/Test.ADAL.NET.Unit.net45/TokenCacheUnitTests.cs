@@ -36,6 +36,8 @@ using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Test.ADAL.NET.Common.Mocks;
+using System;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -186,11 +188,72 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [Description("Test to ensure the token cache doesnt throw an exception when cleared")]
+        [Description("Test to ensure the token cache doesn't throw an exception when cleared")]
         [TestCategory("AdalDotNet.Unit")]
         public void TokenCacheClearTest()
         {
             TokenCacheTests.TokenCacheClearTest(File.ReadAllBytes("oldcache.serialized"));
+        }
+
+        [TestMethod]
+        [Description("Test to ensure a null IdToken is handled correctly")]
+        [TestCategory("AdalDotNet.Unit")]
+        public void NullIdTokenCacheTest()
+        {
+            // arrange & act
+            TokenCache tokenCache = new TokenCache();
+
+            WriteMsalRefreshToken(CreateAdalResultWrapper(), tokenCache.TokenCacheAccessor);
+
+            // assert
+            // no IdToken present, CacheFallbackOperations exits early
+            Assert.AreEqual(tokenCache.TokenCacheAccessor.AccountCount, 0);
+            Assert.AreEqual(tokenCache.TokenCacheAccessor.RefreshTokenCount, 0);
+        }
+
+        [TestMethod]
+        [Description("Test to ensure WriteMsalRefreshToken handles presence of IdToken correctly")]
+        [TestCategory("AdalDotNet.Unit")]
+        public void IdTokenReturnedCacheTest()
+        {
+            // arrange
+            TokenCache tokenCache = new TokenCache();
+
+            var result = CreateAdalResultWrapper();
+
+            result.Result.IdToken = "some-id-token";
+
+            // act
+            WriteMsalRefreshToken(result, tokenCache.TokenCacheAccessor);
+
+            // assert
+            // IdToken present
+            Assert.AreEqual(tokenCache.TokenCacheAccessor.AccountCount, 1);
+            Assert.AreEqual(tokenCache.TokenCacheAccessor.RefreshTokenCount, 1);
+        }
+
+        private AdalResultWrapper CreateAdalResultWrapper()
+        {
+            return new AdalResultWrapper
+            {
+                RefreshToken = "some-rt",
+                RawClientInfo = MockHelpers.CreateClientInfo(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultUniqueTenantIdentifier),
+                ResourceInResponse = AdalTestConstants.DefaultResource,
+                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+            };
+        }
+
+        private void WriteMsalRefreshToken(AdalResultWrapper result, ITokenCacheAccessor tokenCacheAccessor)
+        {
+            CacheFallbackOperations.WriteMsalRefreshToken(
+                tokenCacheAccessor,
+                result,
+                AdalTestConstants.DefaultAuthorityCommonTenant,
+                AdalTestConstants.DefaultClientId,
+                AdalTestConstants.DefaultDisplayableId,
+                null,
+                null,
+                AdalTestConstants.DefaultUniqueId);
         }
     }
 }
