@@ -78,6 +78,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 WebviewBase.SetAuthorizationResult(authorizationResult);
             }
+            else
+            {
+                authorizationResult = new AuthorizationResult(AuthorizationStatus.UnknownError, "the authorization result is null");
+                WebviewBase.SetAuthorizationResult(authorizationResult);
+            }
         }
     }
 }

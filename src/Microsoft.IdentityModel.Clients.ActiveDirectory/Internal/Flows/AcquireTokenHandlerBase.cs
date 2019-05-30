@@ -203,7 +203,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     //broker token acquisition failed
                     if (ResultEx != null && ResultEx.Exception != null)
                     {
-                        RequestContext.Logger.Verbose("Broker token acquisition failed, throwing...");
+                        string msg = "Broker token acquisition failed, throwing...";
+                        RequestContext.Logger.VerbosePii(msg + ResultEx.Exception, msg);
                         throw ResultEx.Exception;
                     }
 

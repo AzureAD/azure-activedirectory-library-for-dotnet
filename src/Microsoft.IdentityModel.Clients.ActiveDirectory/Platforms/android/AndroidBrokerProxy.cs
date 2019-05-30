@@ -150,7 +150,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     // It does not expect activity to be launched.
                     // AuthenticatorService is handling the request at
                     // AccountManager.
-                    //
+                    
                     _logger.Info("BrokerProxy: Invoking the actual broker to get a token");
 
                     result = _androidAccountManager.GetAuthToken(
@@ -205,32 +205,47 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public Intent GetIntentForBrokerActivity(AuthenticationRequest request, Activity callerActivity)
         {
             Intent intent = null;
-            IAccountManagerFuture result = null;
+
             try
             {
+                IAccountManagerFuture result = null;
                 // Callback is not passed since it is making a blocking call to get
                 // intent. Activity needs to be launched from calling app
                 // to get the calling app's metadata if needed at BrokerActivity.
                 Bundle addAccountOptions = GetBrokerOptions(request);
+
+                _logger.Info("BrokerProxy: Broker Account Name: " + request.BrokerAccountName);
+
                 result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
                     BrokerConstants.AuthtokenType, null, addAccountOptions, null,
-                    null, new Handler(callerActivity.MainLooper));
+                    null, GetPreferredLooper(callerActivity));
+
+                if (result == null)
+                {
+                    _logger.Info("BrokerProxy: Android account manager AddAccount didn't return any results. ");
+                }
 
                 // Making blocking request here
-                Bundle bundleResult = (Bundle)result.Result;
+                Bundle bundleResult = (Bundle)result?.Result;
                 // Authenticator should throw OperationCanceledException if
                 // token is not available
-                intent = (Intent)bundleResult.GetParcelable(AccountManager.KeyIntent);
+                intent = (Intent)bundleResult?.GetParcelable(AccountManager.KeyIntent);
 
-                // Add flag to this intent to signal that request is for broker
-                // logic
+                // Add flag to this intent to signal that request is for broker logic
                 if (intent != null)
                 {
+                    _logger.Info("BrokerProxy: Intent created from BundleResult is not null. ");
                     intent.PutExtra(BrokerConstants.BrokerRequest, BrokerConstants.BrokerRequest);
                 }
+                else
+                {
+                    _logger.Info("BrokerProxy: Intent created from BundleResult is null. ");
+                    throw new AdalException(AdalErrorAndroidEx.NullIntentReturnedFromBroker, AdalErrorMessageAndroidEx.NullIntentReturnedFromBroker);
+                }
             }
-            catch (AdalException)
+            catch (AdalException ex)
             {
+                _logger.ErrorPii(ex);
                 throw;
             }
             catch (Exception e)
@@ -239,6 +254,21 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             }
 
             return intent;
+        }
+
+        private Handler GetPreferredLooper(Activity callerActivity)
+        {
+            var myLooper = Looper.MyLooper();
+            if (myLooper != null && callerActivity.MainLooper != myLooper)
+            {
+                _logger.Info("myLooper returned. Calling thread is associated with a Looper: " + myLooper.ToString());
+                return new Handler(myLooper);
+            }
+            else
+            {
+                _logger.Info("callerActivity.MainLooper returned: " +  callerActivity.MainLooper.ToString());
+                return new Handler(callerActivity.MainLooper);
+            }
         }
 
         // App needs to give permission to AccountManager to use broker.
@@ -280,18 +310,18 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private Account FindAccount(string accountName, Account[] accountList)
         {
-            _logger.VerbosePii("BrokerProxy: Finding Account " + accountName, "BrokerProxy: finding account...");
+            _logger.VerbosePii("BrokerProxy: Finding Account: " + accountName, "- BrokerProxy: finding account...");
 
             if (accountList != null)
             {
                 foreach (Account account in accountList)
                 {
-                    bool found = account != null && 
-                                 account.Name != null && 
+                    bool found = account != null &&
+                                 !string.IsNullOrEmpty(account.Name) &&
                                  account.Name.Equals(accountName, StringComparison.OrdinalIgnoreCase);
 
                     _logger.VerbosePii(
-                        $"Broker Proxy: Looking for a match at broker account {account?.Name}. Found? {found}", 
+                        $"Broker Proxy: Looking for a match at broker account {account?.Name}. Found? {found}",
                         $"Found? {found}");
 
                     if (found)
@@ -320,6 +350,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             return null;
         }
+
         private AdalResultWrapper GetResultFromBrokerResponse(Bundle bundleResult)
         {
             if (bundleResult == null)
@@ -371,7 +402,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return startTime.AddMilliseconds(seconds);
         }
 
-
         private static AdalUserInfo GetUserInfoFromBrokerResult(Bundle bundle)
         {
             // Broker has one user and related to ADFS WPJ user. It does not return
@@ -395,14 +425,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             };
         }
 
-
         private string GetRedirectUriForBroker()
         {
             string packageName = Application.Context.PackageName;
 
             // First available signature. Applications can be signed with multiple
             // signatures.
-            string signatureDigest = this.GetCurrentSignatureForPackage(packageName);
+            string signatureDigest = GetCurrentSignatureForPackage(packageName);
             if (!string.IsNullOrEmpty(signatureDigest))
             {
                 return string.Format(CultureInfo.InvariantCulture, "{0}://{1}/{2}", RedirectUriScheme,
@@ -500,7 +529,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (!string.Equals(computedRedirectUri, request.RedirectUri, StringComparison.OrdinalIgnoreCase))
             {
-                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri));
+                string msg = string.Format(CultureInfo.CurrentCulture, AdalErrorMessage.BrokerRedirectUriIncorrectFormat, computedRedirectUri);
+                _logger.Info(msg);
+                throw new AdalException(AdalError.BrokerRedirectUriIncorrectFormat, msg);
             }
         }
 

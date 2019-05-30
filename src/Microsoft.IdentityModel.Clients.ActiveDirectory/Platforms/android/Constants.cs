@@ -40,6 +40,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string NoBrokerAccountFound = "broker_account_not_found";
         public const string BrokerApplicationRequired = "broker_application_required";
         public const string IncorrectBrokerRedirectUri = "incorrect_broker_redirecturi";
+        public const string NullIntentReturnedFromBroker = "null_intent_returned_from_broker";
     }
 
     internal static class AdalErrorMessageAndroidEx
@@ -54,6 +55,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string SignatureVerificationFailed = "Error in verifying broker app's signature";
         public const string NoBrokerAccountFound = "No account found in broker app";
         public const string BrokerApplicationRequired = "Broker application must be installed to continue authentication";
+        public const string NullIntentReturnedFromBroker = "Broker returned a null intent. Check the Xamarin Android app settings and logs for more information. " +
+            "See https://aka.ms/adal-net-broker-android for details. ";
     }
 
     internal static class BrokerResponseCode
