@@ -214,11 +214,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 // to get the calling app's metadata if needed at BrokerActivity.
                 Bundle addAccountOptions = GetBrokerOptions(request);
 
-                _logger.InfoPii("BrokerProxy: Broker options:" +
-                    "\nAuthority: " + request.Authority +
-                    "\nBroker Account Name: " + request.BrokerAccountName,
-                    "BrokerProxy: Broker options: "  +
-                    "\nBroker Account Name: " + request.BrokerAccountName);
+                _logger.Info("BrokerProxy: Broker Account Name: " + request.BrokerAccountName);
 
                 result = _androidAccountManager.AddAccount(BrokerConstants.BrokerAccountType,
                     BrokerConstants.AuthtokenType, null, addAccountOptions, null,
@@ -226,7 +222,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                 if (result == null)
                 {
-                    _logger.Info("BrokerProxy: IAccountManagerFuture returned null. ");
+                    _logger.Info("BrokerProxy: Android account manager AddAccount didn't return any results. ");
                 }
 
                 // Making blocking request here
