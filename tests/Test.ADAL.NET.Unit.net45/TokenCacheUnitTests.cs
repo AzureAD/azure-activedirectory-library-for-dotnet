@@ -203,12 +203,15 @@ namespace Test.ADAL.NET.Unit
             // arrange & act
             TokenCache tokenCache = new TokenCache();
 
-            WriteMsalRefreshToken(CreateAdalResultWrapper(), tokenCache.TokenCacheAccessor);
+            var result = CreateAdalResultWithIdToken(false);
+
+            WriteMsalRefreshTokenValues(result, tokenCache.TokenCacheAccessor);
 
             // assert
             // no IdToken present, CacheFallbackOperations exits early
             Assert.AreEqual(tokenCache.TokenCacheAccessor.AccountCount, 0);
             Assert.AreEqual(tokenCache.TokenCacheAccessor.RefreshTokenCount, 0);
+            Assert.IsNull(result.Result.UserInfo);
         }
 
         [TestMethod]
@@ -219,41 +222,61 @@ namespace Test.ADAL.NET.Unit
             // arrange
             TokenCache tokenCache = new TokenCache();
 
-            var result = CreateAdalResultWrapper();
-
-            result.Result.IdToken = "some-id-token";
+            var result = CreateAdalResultWithIdToken(true);
 
             // act
-            WriteMsalRefreshToken(result, tokenCache.TokenCacheAccessor);
+            WriteMsalRefreshTokenValues(result, tokenCache.TokenCacheAccessor);
 
             // assert
             // IdToken present
             Assert.AreEqual(tokenCache.TokenCacheAccessor.AccountCount, 1);
             Assert.AreEqual(tokenCache.TokenCacheAccessor.RefreshTokenCount, 1);
+            Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.Result.UserInfo.DisplayableId);
+            Assert.AreEqual(AdalTestConstants.DefaultUniqueId, result.Result.UserInfo.UniqueId);
         }
 
-        private AdalResultWrapper CreateAdalResultWrapper()
+        private AdalResultWrapper CreateAdalResultWithIdToken(bool withIdToken)
         {
-            return new AdalResultWrapper
+            var result = new AdalResultWrapper
             {
                 RefreshToken = "some-rt",
                 RawClientInfo = MockHelpers.CreateClientInfo(AdalTestConstants.DefaultUniqueId, AdalTestConstants.DefaultUniqueTenantIdentifier),
-                ResourceInResponse = AdalTestConstants.DefaultResource,
-                Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, (DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180)))
+                ResourceInResponse = AdalTestConstants.DefaultResource
             };
+
+            if (withIdToken)
+            {
+                result.Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180))
+                {
+                    UserInfo = new AdalUserInfo()
+                    {
+                        DisplayableId = AdalTestConstants.DefaultDisplayableId,
+                        UniqueId = AdalTestConstants.DefaultUniqueId
+                    },
+                    IdToken = MockHelpers.CreateAdalIdToken(
+                                AdalTestConstants.DefaultUniqueId,
+                                AdalTestConstants.DefaultDisplayableId)
+                };
+            }
+            else
+            {
+                result.Result = new AdalResult("Bearer", "some-access-token", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow + TimeSpan.FromMinutes(180));
+            }
+
+            return result;
         }
 
-        private void WriteMsalRefreshToken(AdalResultWrapper result, ITokenCacheAccessor tokenCacheAccessor)
+        private void WriteMsalRefreshTokenValues(AdalResultWrapper result, ITokenCacheAccessor tokenCacheAccessor)
         {
             CacheFallbackOperations.WriteMsalRefreshToken(
                 tokenCacheAccessor,
                 result,
                 AdalTestConstants.DefaultAuthorityCommonTenant,
                 AdalTestConstants.DefaultClientId,
-                AdalTestConstants.DefaultDisplayableId,
-                null,
-                null,
-                AdalTestConstants.DefaultUniqueId);
+                result.Result.UserInfo?.DisplayableId,
+                result.Result.UserInfo?.GivenName,
+                result.Result.UserInfo?.FamilyName,
+                result.Result.UserInfo?.UniqueId);
         }
     }
 }
