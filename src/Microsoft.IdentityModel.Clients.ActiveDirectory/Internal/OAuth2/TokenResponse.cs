@@ -148,10 +148,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
             };
         }
 
-        public static TokenResponse CreateFromErrorResponse(IHttpWebResponse webResponse)
+        public static TokenResponse CreateFromErrorResponse(IHttpWebResponse webResponse, ICoreLogger logger)
         {
-            if (webResponse == null)
+            if (webResponse == null || string.IsNullOrEmpty(webResponse.Body))
             {
+                logger.Info("Service returned error");
                 return new TokenResponse
                 {
                     Error = AdalError.ServiceReturnedError,
@@ -166,7 +167,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 
                 try
                 {
-                    tokenResponse = JsonHelper.DeserializeFromJson<TokenResponse>(responseStreamString);
+                    if (!string.IsNullOrEmpty(responseStreamString))
+                    {
+                        tokenResponse = JsonHelper.DeserializeFromJson<TokenResponse>(responseStreamString);
+                    }
                 }
                 catch (SerializationException)
                 {
@@ -270,6 +274,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 
         private static string ReadStreamContent(Stream stream)
         {
+            if (stream == null)
+            {
+                return null;
+            }
+
             using (StreamReader sr = new StreamReader(stream))
             {
                 return sr.ReadToEnd();
