@@ -78,23 +78,41 @@ namespace Microsoft.Identity.Core.OAuth2
 
             catch (AdalServiceException ex)
             {
-                if (!IsDeviceAuthChallenge(ex.Response, respondToDeviceAuthChallenge))
+                _requestContext.Logger.Warning("A service exception occurred");
+
+                bool isDeviceCode = IsDeviceAuthChallenge(ex.Response, respondToDeviceAuthChallenge);
+                _requestContext.Logger.Info("IsDeviceCode? " + isDeviceCode);
+
+                if (!isDeviceCode)
                 {
-                    TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex.Response);
-                    string[] errorCodes = tokenResponse.ErrorCodes ?? new[] { ex.StatusCode.ToString(CultureInfo.InvariantCulture) };
-                    AdalServiceException serviceEx = new AdalServiceException(
-                        tokenResponse.Error,
-                        tokenResponse.ErrorDescription,
-                        errorCodes,
-                        ex.Response,
-                        ex);
+                    TokenResponse tokenResponse = TokenResponse.CreateFromErrorResponse(ex?.Response, _requestContext.Logger);
+                    _requestContext.Logger.Info("TokenResponse ? " + (tokenResponse != null));
+
 
                     if (ex.StatusCode == 400 &&
+                        tokenResponse?.Error != null &&
                         tokenResponse.Error == AdalError.InteractionRequired)
                     {
                         throw new AdalClaimChallengeException(tokenResponse.Error, tokenResponse.ErrorDescription, ex, tokenResponse.Claims);
                     }
 
+                    if (tokenResponse == null)
+                    {
+                        _requestContext.Logger.Info("Invalid token response. Re-throwing exception. ");
+                        throw;
+                    }
+
+                    string[] errorCodes = tokenResponse?.ErrorCodes ?? new[] { ex.StatusCode.ToString(CultureInfo.InvariantCulture) };
+
+                    _requestContext.Logger.Info("Error Code(s): " + string.Join(" ", errorCodes));
+                    AdalServiceException serviceEx = new AdalServiceException(
+                       tokenResponse.Error,
+                       tokenResponse.ErrorDescription,
+                       errorCodes,
+                       ex.Response,
+                       ex);
+
+                    _requestContext.Logger.Info("Re-throwing a service exception with token response details");
                     throw serviceEx;
                 }
 

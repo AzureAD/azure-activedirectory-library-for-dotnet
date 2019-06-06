@@ -30,6 +30,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Net;
 using System.Threading.Tasks;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -44,6 +45,52 @@ namespace Test.ADAL.NET.Unit.net45
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
             InstanceDiscovery.InstanceCache.Clear();
+        }
+
+        [TestMethod]
+        public async Task Double504Async()
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                // Arrange 
+                MockHttpMessageHandler mockHandler1 = MockHelpers.CreateInstanceDiscoveryMockHandler(
+                AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
+                MockHttpMessageHandler mockHandler2 = MockHelpers.CreateInstanceDiscoveryMockHandler(
+                    AdalTestConstants.GetDiscoveryEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant));
+
+                mockHandler1.ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout);
+                mockHandler2.ResponseMessage = MockHelpers.CreateResiliencyMessage(HttpStatusCode.GatewayTimeout);
+
+                // Timeouts are retried once, so setup 2 timeouts
+                httpManager.AddMockHandler(mockHandler1);
+                httpManager.AddMockHandler(mockHandler2);
+
+                AuthenticationContext context = new AuthenticationContext(
+                    serviceBundle,
+                    AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.True,
+                    null);
+
+                try
+                {
+                    // Act
+                    await context.AcquireTokenForClientCommonAsync(
+                        AdalTestConstants.DefaultResource, new ClientKey(AdalTestConstants.DefaultClientId))
+                        .ConfigureAwait(false);
+                }
+                catch (AdalException ex)
+                {
+                    // Instance Discovery will wrap service exceptions, so the task cancelled is burried 2 times deep
+                    Assert.AreEqual(AdalError.AuthorityValidationFailed, ex.ErrorCode);
+                    AdalServiceException inner = ex.InnerException as AdalServiceException;
+                    Assert.AreEqual((int)HttpStatusCode.GatewayTimeout, inner.StatusCode);
+                    return;
+                }
+
+                Assert.Fail("Expecting a timeout ADAL Service Exception to have been thrown");
+            }
         }
 
         [TestMethod]
