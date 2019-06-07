@@ -31,16 +31,12 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Helpers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 {
@@ -59,6 +55,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
         public const string Error = "error";
         public const string ErrorDescription = "error_description";
         public const string ErrorCodes = "error_codes";
+        public const string ErrorDomain = "error_domain";
         public const string Claims = "claims";
         public const string CloudInstanceHost = "cloud_instance_host_name";
         public const string Authority = "authority";
@@ -119,33 +116,47 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2
 
         internal static TokenResponse CreateFromBrokerResponse(IDictionary<string, string> responseDictionary)
         {
+            TokenResponse tokenResponse;
+
             if (responseDictionary.ContainsKey(TokenResponseClaim.ErrorDescription))
             {
-                return new TokenResponse
+                tokenResponse = new TokenResponse
                 {
-                    Error = responseDictionary[TokenResponseClaim.Error],
                     ErrorDescription = responseDictionary[TokenResponseClaim.ErrorDescription]
                 };
+                if (responseDictionary.ContainsKey(TokenResponseClaim.Error))
+                {
+                    tokenResponse.Error = responseDictionary[TokenResponseClaim.Error];
+                }
+                else
+                {
+                    // error_domain is a required field in a failed iOS broker response
+                    tokenResponse.Error = responseDictionary[TokenResponseClaim.ErrorDomain];
+                }
             }
 
-            return new TokenResponse
+            else
             {
-                Authority = responseDictionary.ContainsKey("authority")
+                tokenResponse = new TokenResponse
+                {
+                    Authority = responseDictionary.ContainsKey("authority")
                     ? Authenticator.EnsureUrlEndsWithForwardSlash(EncodingHelper.UrlDecode(responseDictionary["authority"]))
                     : null,
-                AccessToken = responseDictionary["access_token"],
-                RefreshToken = responseDictionary.ContainsKey("refresh_token")
+                    AccessToken = responseDictionary["access_token"],
+                    RefreshToken = responseDictionary.ContainsKey("refresh_token")
                     ? responseDictionary["refresh_token"]
                     : null,
-                IdTokenString = responseDictionary["id_token"],
-                TokenType = "Bearer",
-                CorrelationId = responseDictionary["correlation_id"],
-                Resource = responseDictionary["resource"],
-                ExpiresOn = long.Parse(responseDictionary["expires_on"].Split('.')[0], CultureInfo.CurrentCulture),
-                ClientInfo = responseDictionary.ContainsKey("client_info")
+                    IdTokenString = responseDictionary["id_token"],
+                    TokenType = "Bearer",
+                    CorrelationId = responseDictionary["correlation_id"],
+                    Resource = responseDictionary["resource"],
+                    ExpiresOn = long.Parse(responseDictionary["expires_on"].Split('.')[0], CultureInfo.CurrentCulture),
+                    ClientInfo = responseDictionary.ContainsKey("client_info")
                 ? responseDictionary["client_info"]
                 : null,
-            };
+                };
+            }
+            return tokenResponse;
         }
 
         public static TokenResponse CreateFromErrorResponse(IHttpWebResponse webResponse)
