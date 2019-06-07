@@ -35,6 +35,7 @@ using System.Net.Http.Headers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Test.ADAL.NET.Common;
 using Test.Microsoft.Identity.Core.Unit;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -43,6 +44,13 @@ namespace Test.ADAL.NET.Unit
     {
         private const string exCode = "exCode";
         private const string exMessage = "exMessage";
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
         [TestMethod]
         public void ParamValidation()

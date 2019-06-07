@@ -50,6 +50,12 @@ namespace Test.ADAL.NET.Unit.net45
             new TestLogger());
         private WebUIFactory _webUIFactory = new WebUIFactory();
 
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
 #if DESKTOP
         [TestMethod]

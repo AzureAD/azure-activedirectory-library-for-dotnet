@@ -38,6 +38,14 @@ namespace Test.ADAL.NET.Unit.net45
     [TestClass]
     public class TokenCacheJsonSerializerTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
+
         [TestMethod]
         public void TestDeserializeEmptyBytes()
         {

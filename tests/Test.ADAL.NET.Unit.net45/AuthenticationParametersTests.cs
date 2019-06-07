@@ -28,6 +28,7 @@
 using System;
 using System.Globalization;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.Common;
 using Test.ADAL.NET.Common;
@@ -38,6 +39,13 @@ namespace Test.ADAL.NET.Unit
     [TestClass]
     public class AuthenticationParametersTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
         [TestMethod]
         [Description("Test for discovery via 401 challenge response")]
         public void AuthenticationParametersTest()

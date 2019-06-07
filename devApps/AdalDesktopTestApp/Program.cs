@@ -96,7 +96,12 @@ namespace AdalDesktopTestApp
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
                         case 3: // acquire token interactive
-                            authTask = context.AcquireTokenAsync(Resource, ClientId, new Uri(RedirectUri), new PlatformParameters(PromptBehavior.SelectAccount));
+                            authTask = context.AcquireTokenAsync(
+                                Resource, 
+                                ClientId, 
+                                new Uri(RedirectUri), 
+                                new PlatformParameters(PromptBehavior.SelectAccount));
+
                             await FetchTokenAsync(authTask).ConfigureAwait(false);
                             break;
                         case 4: // acquire token interactive

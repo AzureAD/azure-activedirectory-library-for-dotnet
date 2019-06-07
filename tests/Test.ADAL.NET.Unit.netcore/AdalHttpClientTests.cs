@@ -39,6 +39,14 @@ namespace Test.ADAL.NET.Unit
     {
         IServiceBundle _serviceBundle = TestCommon.CreateDefaultServiceBundle();
 
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
+
         [TestMethod]
         public void QueryParamsFromEnvVariable()
         {

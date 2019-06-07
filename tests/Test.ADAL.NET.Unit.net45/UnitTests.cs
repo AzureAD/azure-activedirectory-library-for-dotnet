@@ -64,6 +64,7 @@ namespace Test.ADAL.NET.Unit
         public void Initialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
         }
 
         [TestMethod]
