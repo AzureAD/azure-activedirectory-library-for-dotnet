@@ -30,6 +30,7 @@ using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
