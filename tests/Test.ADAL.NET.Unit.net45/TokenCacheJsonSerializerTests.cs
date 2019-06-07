@@ -29,6 +29,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Json.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Test.Microsoft.Identity.Core.Unit;
@@ -38,6 +39,14 @@ namespace Test.ADAL.NET.Unit.net45
     [TestClass]
     public class TokenCacheJsonSerializerTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
+
         [TestMethod]
         public void TestDeserializeEmptyBytes()
         {

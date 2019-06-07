@@ -32,11 +32,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.ADAL.NET.Unit.net45
 {
+
+   
     [TestClass]
     public class AdalExceptionSerializationTests
     {
         private const string SomeErrorCode = "some_error_code";
         private const string SomeErrorMessage = "Some error message.";
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
         private AdalException SerializeAndDeserialize(AdalException ex)
         {

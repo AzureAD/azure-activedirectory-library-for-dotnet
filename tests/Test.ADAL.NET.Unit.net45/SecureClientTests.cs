@@ -56,6 +56,13 @@ namespace Test.ADAL.NET.Unit
     [TestClass]
     public class SecureClientTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
         [TestMethod]
         [Description("Tests for SecureClientSecret")]
         public void SecureClientSecretTest()

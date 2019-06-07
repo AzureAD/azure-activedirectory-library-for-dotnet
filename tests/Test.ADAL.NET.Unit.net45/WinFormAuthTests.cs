@@ -32,12 +32,20 @@ using System;
 using System.Windows.Forms;
 using Microsoft.Identity.Core.UI;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Unit
 {
     [TestClass]
     public class WinFormAuthTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
         [TestMethod]
         public void WindowsFormsWebAuthenticationDialog_FormPostToUrlTest()
         {

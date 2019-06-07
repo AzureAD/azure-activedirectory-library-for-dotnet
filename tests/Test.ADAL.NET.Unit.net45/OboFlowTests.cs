@@ -65,6 +65,8 @@ namespace Test.ADAL.NET.Unit
         public void TestInitialize()
         {
             ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+
             _crypto = PlatformProxyFactory.GetPlatformProxy().CryptographyManager;
         }
 

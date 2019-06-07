@@ -30,6 +30,7 @@ using Microsoft.Identity.Core.UI;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Extensibility;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -50,6 +51,12 @@ namespace Test.ADAL.NET.Unit.net45
             new TestLogger());
         private WebUIFactory _webUIFactory = new WebUIFactory();
 
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
 #if DESKTOP
         [TestMethod]

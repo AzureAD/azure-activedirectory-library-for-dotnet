@@ -33,6 +33,7 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Cache;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -45,6 +46,13 @@ namespace Test.ADAL.NET.Unit
         private const TokenSubjectType SubjectType = TokenSubjectType.User;
         private const string UniqueId = "27f324f9-4164-4a1e-b778-e13e06606127";
         private const string DisplayableId = "A displayable ID";
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
         #region Tests
 

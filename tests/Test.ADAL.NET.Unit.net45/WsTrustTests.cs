@@ -29,6 +29,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Identity.Core.WsTrust;
 using System.IO;
 using System.Xml.Linq;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -36,6 +38,13 @@ namespace Test.ADAL.NET.Unit
     [DeploymentItem("Resources\\WsTrustResponse.xml")]
     public class WsTrustTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
+
         [TestMethod]
         [TestCategory("WsTrustTests")]
         public void TestCreateFromResponseDocument_WhenInputContainsWhitespace_ShouldPreserveWhitespace()

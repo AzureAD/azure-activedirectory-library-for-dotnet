@@ -31,6 +31,8 @@ using Test.ADAL.NET.Common.Mocks;
 using Microsoft.Identity.Core.OAuth2;
 using Microsoft.Identity.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -38,6 +40,13 @@ namespace Test.ADAL.NET.Unit
     public class OAuthClientTests
     {
         IServiceBundle _serviceBundle = TestCommon.CreateDefaultServiceBundle();
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            ModuleInitializer.ForceModuleInitializationTestOnly();
+            InstanceDiscovery.InstanceCache.Clear();
+        }
 
         [TestMethod]
         public void QueryParamsFromEnvVariable()
