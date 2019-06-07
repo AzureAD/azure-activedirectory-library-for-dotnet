@@ -82,14 +82,13 @@ namespace Test.ADAL.NET.Unit.net45
                 }
                 catch (AdalException ex)
                 {
-                    // Instance Discovery will wrap service exceptions, so the task cancelled is burried 2 times deep
                     Assert.AreEqual(AdalError.AuthorityValidationFailed, ex.ErrorCode);
                     AdalServiceException inner = ex.InnerException as AdalServiceException;
                     Assert.AreEqual((int)HttpStatusCode.GatewayTimeout, inner.StatusCode);
                     return;
                 }
 
-                Assert.Fail("Expecting a timeout ADAL Service Exception to have been thrown");
+                Assert.Fail("Expecting a timeout ADAL Exception to have been thrown");
             }
         }
 
