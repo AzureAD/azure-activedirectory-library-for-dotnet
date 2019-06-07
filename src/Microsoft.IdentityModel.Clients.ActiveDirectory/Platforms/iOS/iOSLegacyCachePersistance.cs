@@ -36,22 +36,18 @@ namespace Microsoft.Identity.Core.Cache
         const string NAME = "ADAL.PCL.iOS";
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
 
-        private string keychainGroup;
-
-        private string GetBundleId()
-        {
-            return NSBundle.MainBundle.BundleIdentifier;
-        }
+        private string keychainGroupLegacy;
 
         public void SetKeychainSecurityGroup(string keychainSecurityGroup)
         {
-            if (keychainSecurityGroup == null)
+            iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
+            if (string.IsNullOrEmpty(keychainSecurityGroup))
             {
-                keychainGroup = GetBundleId();
+                keychainGroupLegacy = iOSTokenCacheAccessor.GetTeamId() + '.' + iOSTokenCacheAccessor.DefaultKeychainGroup;
             }
             else
             {
-                keychainGroup = keychainSecurityGroup;
+                keychainGroupLegacy = iOSTokenCacheAccessor.GetTeamId() + '.' + keychainSecurityGroup;
             }
         }
 
@@ -71,9 +67,9 @@ namespace Microsoft.Identity.Core.Cache
                     Description = "Storage for cache"
                 };
 
-                if (keychainGroup != null)
+                if (keychainGroupLegacy != null)
                 {
-                    rec.AccessGroup = keychainGroup;
+                    rec.AccessGroup = keychainGroupLegacy;
                 }
 
                 var match = SecKeyChain.QueryAsRecord(rec, out res);
@@ -106,9 +102,9 @@ namespace Microsoft.Identity.Core.Cache
                     Description = "Storage for cache"
                 };
 
-                if (keychainGroup != null)
+                if (keychainGroupLegacy != null)
                 {
-                    s.AccessGroup = keychainGroup;
+                    s.AccessGroup = keychainGroupLegacy;
                 }
 
                 var err = SecKeyChain.Remove(s);
@@ -126,6 +122,10 @@ namespace Microsoft.Identity.Core.Cache
                     {
                         string msg = "Failed to save adal cache record: ";
                         CoreLoggerBase.Default.WarningPii(msg + err, msg);
+                    }
+                    else
+                    {
+                        CoreLoggerBase.Default.Warning("Saved adal cache record. ");
                     }
                 }
             }

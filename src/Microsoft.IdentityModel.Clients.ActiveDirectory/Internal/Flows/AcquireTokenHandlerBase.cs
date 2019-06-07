@@ -263,7 +263,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
             else
             {
                 RequestContext.Logger.Verbose("Broker invocation is NOT required");
-                ResultEx = await this.SendTokenRequestAsync().ConfigureAwait(false);
+                ResultEx = await SendTokenRequestAsync().ConfigureAwait(false);
             }
         }
 
