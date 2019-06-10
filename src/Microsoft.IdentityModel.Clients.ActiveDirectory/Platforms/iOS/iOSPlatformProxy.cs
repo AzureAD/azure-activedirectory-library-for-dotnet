@@ -126,12 +126,12 @@ namespace Microsoft.Identity.Core
 
         public ILegacyCachePersistence CreateLegacyCachePersistence()
         {
-            return new iOSTokenCacheAccessor();
+            return new iOSLegacyCachePersistence();
         }
 
         public ITokenCacheAccessor CreateTokenCacheAccessor()
         {
-            return new iOSTokenCacheAccessor() as ITokenCacheAccessor;
+            return new iOSTokenCacheAccessor();
         }
 
         /// <inheritdoc />

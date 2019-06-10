@@ -200,6 +200,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             set
             {
                 keychainSecurityGroup = value;
+                StorageDelegates.LegacyCachePersistence.SetKeychainSecurityGroup(value);
                 TokenCache.TokenCacheAccessor.SetiOSKeychainSecurityGroup(value);
             }
         }
@@ -221,6 +222,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             set
             {
                 keychainSecurityGroup = value;
+                StorageDelegates.LegacyCachePersistence.SetKeychainSecurityGroup(value);
                 TokenCache.TokenCacheAccessor.SetKeychainSecurityGroup(value);
             }
         }

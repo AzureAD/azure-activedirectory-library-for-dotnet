@@ -36,24 +36,9 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Identity.Core
 {
-    internal class iOSTokenCacheAccessor : ITokenCacheAccessor, ILegacyCachePersistence
+    internal class iOSTokenCacheAccessor : ITokenCacheAccessor
     {
         public const string CacheKeyDelimiter = "-";
-        private const bool _defaultSyncSetting = false;
-        private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
-
-        private const string DefaultKeychainGroup = "com.microsoft.adalcache";
-        // Identifier for the keychain item used to retrieve current team ID
-        private const string TeamIdKey = "DotNetTeamIDHint";
-        const string NAME = "ADAL.PCL.iOS";
-        private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
-
-        private string keychainGroup;
-
-        public iOSTokenCacheAccessor()
-        {
-            SetiOSKeychainSecurityGroup(null);
-        }
 
         static Dictionary<string, int> AuthorityTypeToAttrType = new Dictionary<string, int>()
         {
@@ -71,11 +56,36 @@ namespace Microsoft.Identity.Core
             Password = 2004
         }
 
+        private const bool _defaultSyncSetting = false;
+        private const SecAccessible _defaultAccessiblityPolicy = SecAccessible.AfterFirstUnlockThisDeviceOnly;
+
+        private const string DefaultKeychainGroup = "com.microsoft.adalcache";
+        // Identifier for the keychain item used to retrieve current team ID
+        private const string TeamIdKey = "DotNetTeamIDHint";
+        private RequestContext _requestContext;
+
+        private string keychainGroup;
+
+        public iOSTokenCacheAccessor()
+        {
+            keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
+        }
+
+        public iOSTokenCacheAccessor(RequestContext requestContext) : this()
+        {
+            _requestContext = requestContext;
+        }
+
+        private string GetBundleId()
+        {
+            return NSBundle.MainBundle.BundleIdentifier;
+        }
+
         public void SetiOSKeychainSecurityGroup(string keychainSecurityGroup)
         {
-            if (string.IsNullOrEmpty(keychainSecurityGroup))
+            if (keychainSecurityGroup == null)
             {
-                keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
+                keychainGroup = GetBundleId();
             }
             else
             {
@@ -94,10 +104,6 @@ namespace Microsoft.Identity.Core
             {
                 keychainGroup = keychainSecurityGroup;
             }
-        }
-        private string GetBundleId()
-        {
-            return NSBundle.MainBundle.BundleIdentifier;
         }
 
         private string GetTeamId()
@@ -324,90 +330,6 @@ namespace Microsoft.Identity.Core
         public void ClearAccessTokens()
         {
             throw new NotImplementedException();
-        }
-
-        byte[] ILegacyCachePersistence.LoadCache()
-        {
-            try
-            {
-                SecStatusCode res;
-                var rec = new SecRecord(SecKind.GenericPassword)
-                {
-                    Generic = NSData.FromString(LocalSettingsContainerName),
-                    Accessible = SecAccessible.Always,
-                    Service = NAME + " Service",
-                    Account = NAME + " cache",
-                    Label = NAME + " Label",
-                    Comment = NAME + " Cache",
-                    Description = "Storage for cache"
-                };
-
-                if (keychainGroup != null)
-                {
-                    rec.AccessGroup = keychainGroup;
-                }
-
-                var match = SecKeyChain.QueryAsRecord(rec, out res);
-                if (res == SecStatusCode.Success && match != null && match.ValueData != null)
-                {
-                    return match.ValueData.ToArray();
-
-                }
-            }
-            catch (Exception ex)
-            {
-                CoreLoggerBase.Default.WarningPiiWithPrefix(ex, "Failed to load adal cache: ");
-                // Ignore as the cache seems to be corrupt
-            }
-            return null;
-        }
-
-        void ILegacyCachePersistence.WriteCache(byte[] serializedCache)
-        {
-            try
-            {
-                var s = new SecRecord(SecKind.GenericPassword)
-                {
-                    Generic = NSData.FromString(LocalSettingsContainerName),
-                    Accessible = SecAccessible.Always,
-                    Service = NAME + " Service",
-                    Account = NAME + " cache",
-                    Label = NAME + " Label",
-                    Comment = NAME + " Cache",
-                    Description = "Storage for cache"
-                };
-
-                if (keychainGroup != null)
-                {
-                    s.AccessGroup = keychainGroup;
-                }
-
-                var err = SecKeyChain.Remove(s);
-                if (err != SecStatusCode.Success)
-                {
-                    string msg = "Failed to remove adal cache record: ";
-                    CoreLoggerBase.Default.WarningPii(msg + err, msg);
-                }
-
-                if (serializedCache != null && serializedCache.Length > 0)
-                {
-                    s.ValueData = NSData.FromArray(serializedCache);
-                    err = SecKeyChain.Add(s);
-                    if (err != SecStatusCode.Success)
-                    {
-                        string msg = "Failed to save adal cache record: ";
-                        CoreLoggerBase.Default.WarningPii(msg + err, msg);
-                    }
-                    else
-                    {
-                        CoreLoggerBase.Default.Warning("Saved adal cache record. ");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CoreLoggerBase.Default.WarningPiiWithPrefix(ex, "Failed to save adal cache: ");
-            }
         }
     }
 }
