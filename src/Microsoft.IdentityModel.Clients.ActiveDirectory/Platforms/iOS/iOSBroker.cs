@@ -73,6 +73,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     pp.CallerViewController.InvokeOnMainThread(() =>
                     {
                         res = UIApplication.SharedApplication.CanOpenUrl(new NSUrl("msauth://"));
+                        _logger.Info("iOS Broker can be invoked. ");
                     });
                 }
 
@@ -84,6 +85,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             if (brokerPayload.ContainsKey(BrokerParameter.SilentBrokerFlow))
             {
+                _logger.Info("iOS Broker payload contains silent flow key in payload. " +
+                    "Throwing AdalSilentTokenAcquisitionException() ");
                 throw new AdalSilentTokenAcquisitionException();
             }
 
@@ -122,7 +125,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             else
             {
-                _logger.Info("Invoking the iOS broker");
+                _logger.Info("Invoking the iOS broker. ");
                 NSUrl url = new NSUrl("msauth://broker?" + brokerPayload.ToQueryParameter());
                 DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(url));
             }
@@ -135,6 +138,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private AdalResultWrapper ProcessBrokerResponse()
         {
             string[] keyValuePairs = brokerResponse.Query.Split('&');
+
+            _logger.Info("Processing response from iOS Broker. ");
 
             IDictionary<string, string> responseDictionary = new Dictionary<string, string>();
             foreach (string pair in keyValuePairs)
@@ -156,6 +161,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (responseDictionary.ContainsKey("error") || responseDictionary.ContainsKey("error_description"))
             {
+                _logger.Info("Broker response returned an error. ");
                 response = TokenResponse.CreateFromBrokerResponse(responseDictionary);
             }
             else
@@ -170,6 +176,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     responseDictionary = EncodingHelper.ParseKeyValueList(decryptedResponse, '&', false, null);
                     response = TokenResponse.CreateFromBrokerResponse(responseDictionary);
+                    _logger.Info("Broker response successful. ");
                 }
                 else
                 {
@@ -178,6 +185,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         Error = AdalError.BrokerReponseHashMismatch,
                         ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
                     };
+                    _logger.InfoPii("Broker response hash mismatch: " + response.Error, "Broker response hash mismatch. ");
                 }
             }
 

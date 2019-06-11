@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using Microsoft.Identity.Core.Cache;
 using UIKit;
 using Foundation;
-using Microsoft.Identity.Core.Http;
 
 namespace Microsoft.Identity.Core
 {

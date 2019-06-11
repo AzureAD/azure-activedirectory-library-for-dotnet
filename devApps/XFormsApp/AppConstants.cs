@@ -10,7 +10,7 @@ namespace XFormsApp
         public const string UiAutomationTestClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
         public const string MSIDLAB4ClientId = "4b0db8c2-9f26-4417-8bde-3f0e3656f8e0";
         public const string ManualTestClientId = "d3590ed6-52b3-4102-aeff-aad2292ab01c";
-        public const string BrokerClientId = "c663b6e3-d25b-4566-8b68-4858fc86e85d";
+        public const string BrokerClientId = "3a981c29-5df7-4656-a776-c473e132a0d4";
 
         //Resources
         public const string UiAutomationTestResource = "ae55a6cc-da5e-42f8-b75d-c37e41a1a0d9";

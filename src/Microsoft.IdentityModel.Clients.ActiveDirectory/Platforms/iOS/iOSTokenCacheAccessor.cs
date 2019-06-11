@@ -62,9 +62,19 @@ namespace Microsoft.Identity.Core
         private const string DefaultKeychainGroup = "com.microsoft.adalcache";
         // Identifier for the keychain item used to retrieve current team ID
         private const string TeamIdKey = "DotNetTeamIDHint";
+        private RequestContext _requestContext;
 
         private string keychainGroup;
-        private RequestContext _requestContext;
+
+        public iOSTokenCacheAccessor()
+        {
+            keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
+        }
+
+        public iOSTokenCacheAccessor(RequestContext requestContext) : this()
+        {
+            _requestContext = requestContext;
+        }
 
         private string GetBundleId()
         {
@@ -121,16 +131,6 @@ namespace Microsoft.Identity.Core
             throw AdalExceptionFactory.GetClientException(
                 CoreErrorCodes.CannotAccessPublisherKeyChain,
                 CoreErrorMessages.CannotAccessPublisherKeyChain);
-        }
-
-        public iOSTokenCacheAccessor()
-        {
-            keychainGroup = GetTeamId() + '.' + DefaultKeychainGroup;
-        }
-
-        public iOSTokenCacheAccessor(RequestContext requestContext) : this()
-        {
-            _requestContext = requestContext;
         }
 
         public void SaveAccessToken(MsalAccessTokenCacheItem item)

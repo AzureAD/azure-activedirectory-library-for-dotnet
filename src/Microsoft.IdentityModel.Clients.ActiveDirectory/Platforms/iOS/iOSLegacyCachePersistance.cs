@@ -127,6 +127,10 @@ namespace Microsoft.Identity.Core.Cache
                         string msg = "Failed to save adal cache record: ";
                         CoreLoggerBase.Default.WarningPii(msg + err, msg);
                     }
+                    else
+                    {
+                        CoreLoggerBase.Default.Warning("Saved adal cache record. ");
+                    }
                 }
             }
             catch (Exception ex)

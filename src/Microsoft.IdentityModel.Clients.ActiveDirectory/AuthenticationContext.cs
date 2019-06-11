@@ -182,7 +182,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
 #if iOS
-
         private string keychainSecurityGroup;
 
         /// <summary>
