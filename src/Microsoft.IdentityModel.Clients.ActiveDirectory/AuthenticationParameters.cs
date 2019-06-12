@@ -55,19 +55,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets or sets the address of the authority to issue token.
         /// </summary>
-        public string Authority { get; }
+        public string Authority { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
-        public string Resource { get; }
+        public string Resource { get; set; }
 
         static AuthenticationParameters()
         {
             ModuleInitializer.EnsureModuleInitialized();
         }
 
-        private AuthenticationParameters(string authority, string resource)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        [Obsolete("Please use the static builders of this class, not the constructor", false)]
+        public AuthenticationParameters(string authority, string resource)
         {
             Authority = authority;
             Resource = resource;
@@ -80,7 +84,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="resourceUrl">Address of the resource</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
         /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
-        public static async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
+        [Obsolete("Please use the static version of this method - CreateFromUrlAsync", false)]
+        public async Task<AuthenticationParameters> CreateFromResourceUrlAsync(Uri resourceUrl)
+        {
+            var result = await CreateFromUrlAsync(resourceUrl).ConfigureAwait(false);
+            this.Authority = result.Authority;
+            this.Resource = result.Resource;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to 
+        /// retrieve the authority and resource.
+        /// </summary>
+        /// <param name="resourceUrl">Address of the resource</param>
+        /// <returns>AuthenticationParameters object containing authentication parameters</returns>
+        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
+        public static async Task<AuthenticationParameters> CreateFromUrlAsync(Uri resourceUrl)
         {
             if (resourceUrl == null)
             {

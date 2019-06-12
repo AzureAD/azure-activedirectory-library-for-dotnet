@@ -45,7 +45,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         {
             string protectedApi = "https://graph.microsoft.com/v1.0/me/";
 
-            var ap = await AuthenticationParameters.CreateFromResourceUrlAsync(
+            AuthenticationParameters ap = await AuthenticationParameters.CreateFromUrlAsync(
                 new Uri(protectedApi))
                 .ConfigureAwait(false);
 
@@ -53,10 +53,27 @@ namespace Test.ADAL.Integration.SeleniumTests
             Assert.AreEqual(ap.Authority, "https://login.microsoftonline.com/common/oauth2/authorize");
 
             // Graph does not provide a resource_id in the response header, probably because they want MSAL to access it
-            // I couldn't find protected APIs that advertise resources (tried Grasph, AAD Graph, Dynamics...)
+            // I couldn't find protected APIs that advertise resources (tried Graph, AAD Graph, Dynamics...)
             Assert.IsNull(ap.Resource);
         }
 
+        [TestMethod]
+        [Obsolete]
+        public async Task AuthenticationParametersCanBeDiscoveredNonStatic()
+        {
+            string protectedApi = "https://graph.microsoft.com/v1.0/me/";
+            AuthenticationParameters ap = new AuthenticationParameters(null, null);
 
+            await ap.CreateFromResourceUrlAsync(
+                new Uri(protectedApi))
+                .ConfigureAwait(false);
+
+            // Authority might change, but should be a rare occurence
+            Assert.AreEqual(ap.Authority, "https://login.microsoftonline.com/common/oauth2/authorize");
+
+            // Graph does not provide a resource_id in the response header, probably because they want MSAL to access it
+            // I couldn't find protected APIs that advertise resources (tried Graph, AAD Graph, Dynamics...)
+            Assert.IsNull(ap.Resource);
+        }
     }
 }
