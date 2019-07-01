@@ -4,7 +4,7 @@ about: Suggest an idea for this project
 
 ---
 
-**MSAL is the preferred auth library for Microsoft**
+**MSAL is the recommended/preferred auth library for use with the Microsoft identity platform**
 
 No new features will be implemented on ADAL. The team's efforts are on improving (MSAL)[https://github.com/AzureAD/microsoft-authentication-library-for-dotnet], the next-gen auth library. MSAL's wiki contains a (migration guide)[https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Adal-to-Msal] from ADAL.
 
