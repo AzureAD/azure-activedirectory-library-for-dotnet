@@ -4,14 +4,8 @@ about: Suggest an idea for this project
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**MSAL is the preferred auth library for Microsoft**
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+No new features will be implemented on ADAL. The team's efforts are on improving (MSAL)[https://github.com/AzureAD/microsoft-authentication-library-for-dotnet], the next-gen auth library.  
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.
+If you require a new feature, there's a good chance it has already been implemented in MSAL. If it hasn't, tell us about it and we will prioritize it!
