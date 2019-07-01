@@ -3,11 +3,11 @@ name: Bug report
 about: Create a report to help us improve
 ---
 
-**MSAL is the preferred Microsoft auth library**
+**MSAL is the recommended auth library for use with the Microsoft identity platform**
 
 No new features will be implemented on ADAL. The team's efforts are on improving [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet), the next-gen auth library. MSAL's wiki contains a [migration guide](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/Adal-to-Msal) from ADAL.
 
-Only regressions, high severity issues and security issues will be fixed on ADAL. Other issues are likely to have already been fixed in MSAL. If not, please log them and the team will prioritize them. 
+Only regressions, high severity issues and security issues will be fixed on ADAL. Other issues are likely to have already been fixed in MSAL. 
 
 If you think that your issue falls into the above categories, please fill in the form below.
 
