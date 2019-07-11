@@ -320,7 +320,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = string.Empty;
-            testResult.Text = "Result:"; 
+            testResult.Text = "Result:";
 
             try
             {
@@ -328,8 +328,7 @@ namespace XFormsApp
                     await
                         ctx.AcquireTokenAsync(Resource, ClientId,
                             new Uri(DeterminePlatformForRedirectUri()),
-                            BrokerParameters,
-                            new UserIdentifier("fIDLAB@msidlab3.com", UserIdentifierType.UniqueId)).ConfigureAwait(false);
+                            BrokerParameters).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
                 User = result.UserInfo.DisplayableId;
