@@ -1,6 +1,31 @@
-﻿using System;
+﻿//----------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
 using System.Collections.Generic;
-using System.Text;
 
 namespace XFormsApp
 {
@@ -23,21 +48,27 @@ namespace XFormsApp
             //Adding default applications and resources to make testing easier by removing the need to rebuild the application 
             //whenever a user wants to change a resource. You can add new applications and resources here and they will be available via 
             //drop down when the app runs.
-            LabelToApplicationUriMap = new Dictionary<string, string>();
-            LabelToApplicationUriMap.Add("Ui Test App", UiAutomationTestClientId);
-            LabelToApplicationUriMap.Add("MSID Lab 4", MSIDLAB4ClientId);
-            LabelToApplicationUriMap.Add("Manual Test", ManualTestClientId);
-            LabelToApplicationUriMap.Add("Broker Test", BrokerClientId);
+            LabelToApplicationUriMap = new Dictionary<string, string>
+            {
+                { "Ui Test App", UiAutomationTestClientId },
+                { "MSID Lab 4", MSIDLAB4ClientId },
+                { "Manual Test", ManualTestClientId },
+                { "Broker Test", BrokerClientId }
+            };
 
-            LabelToResourceUriMap = new Dictionary<string, string>();
-            LabelToResourceUriMap.Add("MS Graph", MSGraph);
-            LabelToResourceUriMap.Add("Ui Test Resource", UiAutomationTestResource);
-            LabelToResourceUriMap.Add("Exchange", Exchange);
-            LabelToResourceUriMap.Add("SharePoint", SharePoint);
+            LabelToResourceUriMap = new Dictionary<string, string>
+            {
+                { "MS Graph", MSGraph },
+                { "Ui Test Resource", UiAutomationTestResource },
+                { "Exchange", Exchange },
+                { "SharePoint", SharePoint }
+            };
 
-            PromptBehaviorList = new List<string>();
-            PromptBehaviorList.Add("auto");
-            PromptBehaviorList.Add("always");
+            PromptBehaviorList = new List<string>
+            {
+                "auto",
+                "always"
+            };
         }
 
         public static Dictionary<string, string> LabelToApplicationUriMap { get; set; }

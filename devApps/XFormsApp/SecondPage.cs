@@ -54,12 +54,12 @@ namespace XFormsApp
 
         private readonly Label result;
         private readonly Label testResult;
-        private Picker clientIdPicker;
-        private Picker resourcePicker;
-        private Picker promptBehaviorPicker;
-        private Entry clientIdInput;
-        private Entry resourceInput;
-        private Entry promptBehaviorInput;
+        private readonly Picker clientIdPicker;
+        private readonly Picker resourcePicker;
+        private readonly Picker promptBehaviorPicker;
+        private readonly Entry clientIdInput;
+        private readonly Entry resourceInput;
+        private readonly Entry promptBehaviorInput;
 
         private string ClientId { get; set; } = AppConstants.UiAutomationTestClientId;
         private string Resource { get; set; } = AppConstants.MSGraph;
@@ -181,9 +181,9 @@ namespace XFormsApp
             var scrollView = new ScrollView()
             {
                 VerticalOptions = LayoutOptions.FillAndExpand,
+                Orientation = ScrollOrientation.Vertical,
                 Content = new StackLayout()
                 {
-                    VerticalOptions = LayoutOptions.FillAndExpand,
                     Children =
                     {
                         testResult,
@@ -231,13 +231,10 @@ namespace XFormsApp
                     acquireTokenWithBrokerButton,
                     acquireTokenSilentWithBrokerButton,
                     silentAuthGuestTenantButton,
-                    clientIdInputLabel,
                     clientIdPicker,
                     clientIdInput,
-                    resourceInputLabel,
                     resourcePicker,
                     resourceInput,
-                    promptBehaviorLabel,
                     promptBehaviorPicker,
                     promptBehaviorInput,
                     scrollView
@@ -323,7 +320,7 @@ namespace XFormsApp
             AuthenticationContext ctx = new AuthenticationContext("https://login.microsoftonline.com/common");
             string output = string.Empty;
             string accessToken = string.Empty;
-            testResult.Text = "Result:";
+            testResult.Text = "Result:"; 
 
             try
             {
@@ -331,7 +328,8 @@ namespace XFormsApp
                     await
                         ctx.AcquireTokenAsync(Resource, ClientId,
                             new Uri(DeterminePlatformForRedirectUri()),
-                            BrokerParameters).ConfigureAwait(false);
+                            BrokerParameters,
+                            new UserIdentifier("fIDLAB@msidlab3.com", UserIdentifierType.UniqueId)).ConfigureAwait(false);
                 output = "Signed in User - " + result.UserInfo.DisplayableId;
                 accessToken = result.AccessToken;
                 User = result.UserInfo.DisplayableId;
@@ -417,8 +415,6 @@ namespace XFormsApp
                     throw new NotImplementedException();
             }
         }
-
-
 
         private async void AcquireTokenSilentWithGuestTenantButton_Clicked(object sender, EventArgs e)
         {
