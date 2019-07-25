@@ -127,7 +127,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 }
 
                 //Check if custom port is set on authority
-                if (authorityUri.Port != 443)
+                if (authorityUri.Port != DefaultHttpsPort)
                 {
                     //Adding port back to updated uri
                     var builder = new UriBuilder(ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant));
