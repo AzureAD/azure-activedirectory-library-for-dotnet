@@ -47,6 +47,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
         private static readonly Regex TenantNameRegex = new Regex(Regex.Escape(TenantlessTenantName), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+        private const int DefaultHttpsPort = 443;
+
         private void Init(IServiceBundle serviceBundle, string authority, bool validateAuthority)
         {
             Authority = EnsureUrlEndsWithForwardSlash(authority);
@@ -107,6 +109,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
             {
                 var authorityUri = new Uri(Authority);
                 var host = authorityUri.Host;
+                var authority = authorityUri.Authority;
 
                 // The authority could be https://{AzureAD host name}/{tenantid} OR https://{Dsts host name}/dstsv2/{tenantid}
                 // Detecting the tenantId using the last segment of the url
@@ -122,10 +125,35 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 {
                     ServiceBundle.InstanceDiscovery.AddMetadataEntry(host);
                 }
-                AuthorizationUri = ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
-                DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
-                TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
-                UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
+
+                //Check if custom port is set on authority
+                if (authorityUri.Port != 443)
+                {
+                    //Adding port back to updated uri
+                    var builder = new UriBuilder(ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant));
+                    builder.Port = authorityUri.Port;
+                    AuthorizationUri = builder.Uri.AbsoluteUri;
+
+                    builder = new UriBuilder(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant));
+                    builder.Port = authorityUri.Port;
+                    DeviceCodeUri = builder.Uri.AbsoluteUri;
+
+                    builder = new UriBuilder(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant));
+                    builder.Port = authorityUri.Port;
+                    AuthorizationUri = builder.Uri.AbsoluteUri;
+
+                    builder = new UriBuilder(EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host)));
+                    builder.Port = authorityUri.Port;
+                    UserRealmUriPrefix = builder.Uri.AbsoluteUri;
+                }
+                else
+                {
+                    AuthorizationUri = ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
+                    DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
+                    TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
+                    UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
+                }
+
                 IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 SelfSignedJwtAudience = this.TokenUri;
                 _updatedFromTemplate = true;
