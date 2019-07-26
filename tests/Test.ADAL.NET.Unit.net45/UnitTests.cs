@@ -27,7 +27,9 @@
 
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.Helpers;
 using Microsoft.Identity.Core.OAuth2;
+using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
@@ -38,6 +40,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -117,6 +121,30 @@ namespace Test.ADAL.NET.Unit
             Assert.AreEqual(AuthorityType.ADFS, Authenticator.DetectAuthorityType("https://abc.com/adfs/dummy/"));
         }
 
+        [TestMethod]
+        public void AuthorityCustomPortTest()
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                var CustomPortAuthority = "https://localhost:5215/common/";
+                httpManager.AddInstanceDiscoveryMockHandler();
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                var context = new AuthenticationContext(
+                              serviceBundle,
+                              CustomPortAuthority,
+                              AuthorityValidationType.False,
+                              new TokenCache());
+
+                var result = context.AcquireTokenAsync(AdalTestConstants.DefaultRedirectUri.ToString(),
+                                                           AdalTestConstants.DefaultClientId,
+                                                           AdalTestConstants.DefaultRedirectUri,
+                                                           new PlatformParameters(PromptBehavior.SelectAccount));
+
+                //Ensure that the SDK does not remove the port from the authority
+                Assert.AreEqual(CustomPortAuthority, context.Authority);
+            }
+        }
 
         [TestMethod]
         [Description("Test for AuthenticationParameters.CreateFromResponseAuthenticateHeader")]
