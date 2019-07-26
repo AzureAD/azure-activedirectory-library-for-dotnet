@@ -140,7 +140,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 
                     builder = new UriBuilder(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant));
                     builder.Port = authorityUri.Port;
-                    AuthorizationUri = builder.Uri.AbsoluteUri;
+                    TokenUri = builder.Uri.AbsoluteUri;
 
                     builder = new UriBuilder(EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host)));
                     builder.Port = authorityUri.Port;
