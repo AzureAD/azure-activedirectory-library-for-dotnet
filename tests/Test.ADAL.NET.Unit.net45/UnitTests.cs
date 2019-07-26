@@ -40,8 +40,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
