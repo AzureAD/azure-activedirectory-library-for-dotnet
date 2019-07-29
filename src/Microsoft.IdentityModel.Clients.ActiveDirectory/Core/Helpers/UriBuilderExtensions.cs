@@ -26,11 +26,14 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core.Helpers
 {
     internal static class UriBuilderExtensions
     {
+        private const int DefaultHttpsPort = 443;
+
         public static void AppendQueryParameters(this UriBuilder builder, string queryParams)
         {
             if (builder == null || String.IsNullOrEmpty(queryParams))
@@ -46,6 +49,33 @@ namespace Microsoft.Identity.Core.Helpers
             {
                 builder.Query = queryParams;
             }
+        }
+
+        public static string GetHttpsUriWithOptionalPort(string host, string tenant, string path, int port)
+        {
+            var builder = new UriBuilder("https", host);
+            builder.Path = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", tenant, path);
+
+            //No need to set port if it equals 443 as it is the default https port
+            if (port != DefaultHttpsPort)
+            {
+                builder.Port = port;
+            }
+
+            return builder.Uri.AbsoluteUri;
+        }
+
+        public static string GetHttpsUriWithOptionalPort(string uri, int port)
+        {
+            //No need to set port if it equals 443 as it is the default https port
+            if (port != DefaultHttpsPort)
+            {
+                var builder = new UriBuilder(uri);
+                builder.Port = port;
+                return builder.Uri.AbsoluteUri;
+            }
+
+            return uri;
         }
     }
 }
