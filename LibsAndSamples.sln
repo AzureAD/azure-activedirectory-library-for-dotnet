@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28606.126
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IdentityModel.Clients.ActiveDirectory", "src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj", "{AECE489D-9ED4-442D-8D8F-0F383AEBB781}"
 EndProject
@@ -48,9 +48,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit.net45", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit.netcore", "tests\Test.ADAL.NET.Unit.netcore\Test.ADAL.NET.Unit.netcore.csproj", "{B3FD3E41-2331-4923-80C5-DF3A9B3B9A0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.Integration.netcore", "tests\Test.ADAL.Integration.netcore\Test.ADAL.Integration.netcore.csproj", "{0EEDD8DB-8AB7-4E0F-9D0A-8A5536A5E68A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.Integration.netcore", "tests\Test.ADAL.Integration.netcore\Test.ADAL.Integration.netcore.csproj", "{0EEDD8DB-8AB7-4E0F-9D0A-8A5536A5E68A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.Integration.net45", "tests\Test.ADAL.Integration.net45\Test.ADAL.Integration.net45.csproj", "{AC731CF1-0380-47E7-9BCB-77CAE56FAFBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.Integration.net45", "tests\Test.ADAL.Integration.net45\Test.ADAL.Integration.net45.csproj", "{AC731CF1-0380-47E7-9BCB-77CAE56FAFBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -983,8 +983,6 @@ Global
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Debug|x64.Build.0 = Debug|x64
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Debug|x64.Deploy.0 = Debug|x64
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Debug|x86.ActiveCfg = Debug|x86
-		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Debug|x86.Build.0 = Debug|x86
-		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Debug|x86.Deploy.0 = Debug|x86
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Release|Any CPU.ActiveCfg = Release|x86
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Release|Any CPU.Build.0 = Release|x86
 		{CF5DD35B-A52F-4C9C-B77C-04D15DF99D0F}.Release|ARM.ActiveCfg = Release|ARM

@@ -125,7 +125,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                     ServiceBundle.InstanceDiscovery.AddMetadataEntry(host);
                 }
 
-                //Check if custom port is set on authority
                 AuthorizationUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant), authorityUri.Port);
                 DeviceCodeUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(host, tenant, "oauth2/devicecode", authorityUri.Port);
                 TokenUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(host, tenant, "oauth2/token", authorityUri.Port);
