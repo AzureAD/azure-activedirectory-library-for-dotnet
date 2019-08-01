@@ -30,6 +30,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
+using Microsoft.Identity.Core.Helpers;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
 {
@@ -107,6 +108,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
             {
                 var authorityUri = new Uri(Authority);
                 var host = authorityUri.Host;
+                var authority = authorityUri.Authority;
 
                 // The authority could be https://{AzureAD host name}/{tenantid} OR https://{Dsts host name}/dstsv2/{tenantid}
                 // Detecting the tenantId using the last segment of the url
@@ -122,10 +124,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance
                 {
                     ServiceBundle.InstanceDiscovery.AddMetadataEntry(host);
                 }
-                AuthorizationUri = ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant);
-                DeviceCodeUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/devicecode", host, tenant);
-                TokenUri = string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/oauth2/token", host, tenant);
-                UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(string.Format(CultureInfo.InvariantCulture, "https://{0}/common/userrealm", host));
+
+                AuthorizationUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(ServiceBundle.InstanceDiscovery.FormatAuthorizeEndpoint(host, tenant), authorityUri.Port);
+                DeviceCodeUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(host, tenant, "oauth2/devicecode", authorityUri.Port);
+                TokenUri = UriBuilderExtensions.GetHttpsUriWithOptionalPort(host, tenant, "oauth2/token", authorityUri.Port);
+                UserRealmUriPrefix = EnsureUrlEndsWithForwardSlash(
+                                     UriBuilderExtensions.GetHttpsUriWithOptionalPort(host, string.Empty, "common/userrealm", authorityUri.Port));
+
                 IsTenantless = (string.Compare(tenant, TenantlessTenantName, StringComparison.OrdinalIgnoreCase) == 0);
                 SelfSignedJwtAudience = this.TokenUri;
                 _updatedFromTemplate = true;

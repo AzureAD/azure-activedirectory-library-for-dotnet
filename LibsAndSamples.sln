@@ -48,9 +48,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit.net45", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.NET.Unit.netcore", "tests\Test.ADAL.NET.Unit.netcore\Test.ADAL.NET.Unit.netcore.csproj", "{B3FD3E41-2331-4923-80C5-DF3A9B3B9A0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.Integration.netcore", "tests\Test.ADAL.Integration.netcore\Test.ADAL.Integration.netcore.csproj", "{0EEDD8DB-8AB7-4E0F-9D0A-8A5536A5E68A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.Integration.netcore", "tests\Test.ADAL.Integration.netcore\Test.ADAL.Integration.netcore.csproj", "{0EEDD8DB-8AB7-4E0F-9D0A-8A5536A5E68A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ADAL.Integration.net45", "tests\Test.ADAL.Integration.net45\Test.ADAL.Integration.net45.csproj", "{AC731CF1-0380-47E7-9BCB-77CAE56FAFBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.ADAL.Integration.net45", "tests\Test.ADAL.Integration.net45\Test.ADAL.Integration.net45.csproj", "{AC731CF1-0380-47E7-9BCB-77CAE56FAFBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
