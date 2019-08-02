@@ -53,7 +53,14 @@ namespace Microsoft.Identity.Core.Helpers
 
         public static string GetHttpsUriWithOptionalPort(string host, string tenant, string path, int port)
         {
-            return GetHttpsUriWithOptionalPort(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/{2}", host, tenant, path), port);
+            if (string.IsNullOrEmpty(tenant))
+            {
+                return GetHttpsUriWithOptionalPort(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}", host, path), port);
+            }
+            else
+            {
+                return GetHttpsUriWithOptionalPort(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/{2}", host, tenant, path), port);
+            }
         }
 
         public static string GetHttpsUriWithOptionalPort(string uri, int port)
