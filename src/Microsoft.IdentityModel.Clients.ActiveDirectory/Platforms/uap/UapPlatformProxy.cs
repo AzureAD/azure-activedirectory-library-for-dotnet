@@ -63,8 +63,8 @@ namespace Microsoft.Identity.Core
             if (users == null || !users.Any())
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
-                    CoreErrorMessages.UapCannotFindDomainUser);
+                    ErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
+                    ErrorMessages.UapCannotFindDomainUser);
             }
 
             var getUserDetailTasks = users.Select(async u =>
@@ -82,8 +82,8 @@ namespace Microsoft.Identity.Core
 
             // try to get a user that has both domain name and upn
             var userDetailWithDomainAndPn = userDetails.FirstOrDefault(
-                d => !String.IsNullOrWhiteSpace(d.Domain) &&
-                !String.IsNullOrWhiteSpace(d.PrincipalName));
+                d => !string.IsNullOrWhiteSpace(d.Domain) &&
+                !string.IsNullOrWhiteSpace(d.PrincipalName));
 
             if (userDetailWithDomainAndPn != null)
             {
@@ -92,7 +92,7 @@ namespace Microsoft.Identity.Core
 
             // try to get a user that at least has upn
             var userDetailWithPn = userDetails.FirstOrDefault(
-              d => !String.IsNullOrWhiteSpace(d.PrincipalName));
+              d => !string.IsNullOrWhiteSpace(d.PrincipalName));
 
             if (userDetailWithPn != null)
             {
@@ -100,17 +100,17 @@ namespace Microsoft.Identity.Core
             }
 
             // user has domain name, but no upn -> missing Enterprise Auth capability
-            if (userDetails.Any(d => !String.IsNullOrWhiteSpace(d.Domain)))
+            if (userDetails.Any(d => !string.IsNullOrWhiteSpace(d.Domain)))
             {
                 throw AdalExceptionFactory.GetClientException(
-                   CoreErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
-                   CoreErrorMessages.UapCannotFindUpn);
+                   ErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
+                   ErrorMessages.UapCannotFindUpn);
             }
 
             // no domain, no upn -> missing User Info capability
             throw AdalExceptionFactory.GetClientException(
-                CoreErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
-                CoreErrorMessages.UapCannotFindDomainUser);
+                ErrorCodes.CannotAccessUserInformationOrUserNotDomainJoined,
+                ErrorMessages.UapCannotFindDomainUser);
 
         }
 

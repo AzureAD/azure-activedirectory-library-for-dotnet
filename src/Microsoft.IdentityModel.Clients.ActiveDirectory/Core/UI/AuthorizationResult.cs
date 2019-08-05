@@ -49,13 +49,13 @@ namespace Microsoft.Identity.Core.UI
         {
             if (Status == AuthorizationStatus.UserCancel)
             {
-                Error = CoreErrorCodes.AuthenticationCanceledError;
-                ErrorDescription = CoreErrorMessages.AuthenticationCanceled;
+                Error = ErrorCodes.AuthenticationCanceledError;
+                ErrorDescription = ErrorMessages.AuthenticationCanceled;
             }
             else if (Status == AuthorizationStatus.UnknownError)
             {
-                Error = CoreErrorCodes.UnknownError;
-                ErrorDescription = CoreErrorMessages.Unknown;
+                Error = ErrorCodes.UnknownError;
+                ErrorDescription = ErrorMessages.Unknown;
             }
             else
             {
@@ -128,8 +128,8 @@ namespace Microsoft.Identity.Core.UI
                 }
                 else
                 {
-                    Error = CoreErrorCodes.AuthenticationFailed;
-                    ErrorDescription = CoreErrorMessages.AuthorizationServerInvalidResponse;
+                    Error = ErrorCodes.AuthenticationFailed;
+                    ErrorDescription = ErrorMessages.AuthorizationServerInvalidResponse;
                     Status = AuthorizationStatus.UnknownError;
                 }
 
@@ -140,8 +140,8 @@ namespace Microsoft.Identity.Core.UI
             }
             else
             {
-                Error = CoreErrorCodes.AuthenticationFailed;
-                ErrorDescription = CoreErrorMessages.AuthorizationServerInvalidResponse;
+                Error = ErrorCodes.AuthenticationFailed;
+                ErrorDescription = ErrorMessages.AuthorizationServerInvalidResponse;
                 Status = AuthorizationStatus.UnknownError;
             }
         }

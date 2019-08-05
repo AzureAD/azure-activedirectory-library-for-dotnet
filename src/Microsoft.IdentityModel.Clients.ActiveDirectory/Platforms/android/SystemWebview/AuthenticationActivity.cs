@@ -76,7 +76,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             if (Intent == null)
             {
                 SendError(
-                    CoreErrorCodes.UnresolvableIntentError,
+                    ErrorCodes.UnresolvableIntentError,
                     "Received null data intent from caller");
                 return;
             }
@@ -85,7 +85,7 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
             _requestId = Intent.GetIntExtra(AndroidConstants.RequestId, 0);
             if (string.IsNullOrEmpty(_requestUrl))
             {
-                SendError(CoreErrorCodes.InvalidRequest, "Request url is not set on the intent");
+                SendError(ErrorCodes.InvalidRequest, "Request url is not set on the intent");
             }
         }
 
@@ -137,8 +137,8 @@ namespace Microsoft.Identity.Core.UI.SystemWebview
                 catch (ActivityNotFoundException ex)
                 {
                     throw AdalExceptionFactory.GetClientException(
-                           CoreErrorCodes.AndroidActivityNotFound,
-                           CoreErrorMessages.AndroidActivityNotFound, ex);
+                           ErrorCodes.AndroidActivityNotFound,
+                           ErrorMessages.AndroidActivityNotFound, ex);
                 }
             }
             else

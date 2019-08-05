@@ -32,7 +32,7 @@ namespace Microsoft.Identity.Core
     /// Error codes attached to each exception.
     /// These need to be duplicated and publicly exposed in the MSAL and ADAL because users refer to them
     /// </summary>
-    internal class CoreErrorCodes
+    internal class ErrorCodes
     {
         public const string JsonParseError = "json_parse_failed";
         public const string RequestTimeout = "request_timeout";

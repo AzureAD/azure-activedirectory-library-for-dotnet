@@ -61,8 +61,8 @@ namespace Microsoft.Identity.Core.WsTrust
                 _requestContext.Logger.Error("Could not find UPN for logged in user.");
 
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.UnknownUser,
-                    CoreErrorMessages.UnknownUser);
+                    ErrorCodes.UnknownUser,
+                    ErrorMessages.UnknownUser);
             }
 
             _requestContext.Logger.InfoPii($"Logged in user detected with user name '{platformUsername}'", "Logged in user detected");
@@ -79,8 +79,8 @@ namespace Microsoft.Identity.Core.WsTrust
             if (userRealmResponse == null)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.UserRealmDiscoveryFailed,
-                    CoreErrorMessages.UserRealmDiscoveryFailed);
+                    ErrorCodes.UserRealmDiscoveryFailed,
+                    ErrorMessages.UserRealmDiscoveryFailed);
             }
 
             _requestContext.Logger.InfoPii(
@@ -103,8 +103,8 @@ namespace Microsoft.Identity.Core.WsTrust
             catch (XmlException ex)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.ParsingWsMetadataExchangeFailed,
-                    CoreErrorMessages.ParsingMetadataDocumentFailed,
+                    ErrorCodes.ParsingWsMetadataExchangeFailed,
+                    ErrorMessages.ParsingMetadataDocumentFailed,
                     ex);
             }
 
@@ -115,8 +115,8 @@ namespace Microsoft.Identity.Core.WsTrust
             if (wsTrustEndpoint == null)
             {
                 throw AdalExceptionFactory.GetClientException(
-                  CoreErrorCodes.WsTrustEndpointNotFoundInMetadataDocument,
-                  CoreErrorMessages.WsTrustEndpointNotFoundInMetadataDocument);
+                  ErrorCodes.WsTrustEndpointNotFoundInMetadataDocument,
+                  ErrorMessages.WsTrustEndpointNotFoundInMetadataDocument);
             }
 
             _requestContext.Logger.InfoPii(
@@ -160,7 +160,7 @@ namespace Microsoft.Identity.Core.WsTrust
             catch (Exception ex)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.ParsingWsTrustResponseFailed,
+                    ErrorCodes.ParsingWsTrustResponseFailed,
                     ex.Message,
                     ex);
             }

@@ -148,7 +148,7 @@ namespace Microsoft.Identity.Core.Http
                 }
 
                 requestContext?.Logger.Info(string.Format(CultureInfo.InvariantCulture,
-                    CoreErrorMessages.HttpRequestUnsuccessful,
+                    ErrorMessages.HttpRequestUnsuccessful,
                     (int)response.StatusCode, response.StatusCode));
 
                 if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
@@ -187,7 +187,7 @@ namespace Microsoft.Identity.Core.Http
                 if (timeoutException != null)
                 {
                     throw AdalExceptionFactory.GetServiceException(
-                        CoreErrorCodes.RequestTimeout,
+                        ErrorCodes.RequestTimeout,
                         "Request to the endpoint timed out.",
                         timeoutException,
                         ExceptionDetail.FromHttpResponse(response)); // no http response to add more details to this exception
@@ -211,7 +211,7 @@ namespace Microsoft.Identity.Core.Http
                 }
 
                 throw AdalExceptionFactory.GetServiceException(
-                        CoreErrorCodes.ServiceNotAvailable,
+                        ErrorCodes.ServiceNotAvailable,
                         "Service is unavailable to process the request",
                         response);
             }

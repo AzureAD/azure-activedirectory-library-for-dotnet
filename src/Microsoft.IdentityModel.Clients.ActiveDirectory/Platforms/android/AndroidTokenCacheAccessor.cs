@@ -60,7 +60,7 @@ namespace Microsoft.Identity.Core
                 || _idTokenSharedPreference == null || _accountSharedPreference == null)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.FailedToCreateSharedPreference,
+                    ErrorCodes.FailedToCreateSharedPreference,
                     "Fail to create SharedPreference");
             }
         }

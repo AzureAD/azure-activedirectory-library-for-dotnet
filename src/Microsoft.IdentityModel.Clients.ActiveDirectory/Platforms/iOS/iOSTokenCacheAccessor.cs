@@ -129,8 +129,8 @@ namespace Microsoft.Identity.Core
             }
 
             throw AdalExceptionFactory.GetClientException(
-                CoreErrorCodes.CannotAccessPublisherKeyChain,
-                CoreErrorMessages.CannotAccessPublisherKeyChain);
+                ErrorCodes.CannotAccessPublisherKeyChain,
+                ErrorMessages.CannotAccessPublisherKeyChain);
         }
 
         public void SaveAccessToken(MsalAccessTokenCacheItem item)
@@ -247,10 +247,10 @@ namespace Microsoft.Identity.Core
             if (secStatusCode == SecStatusCode.MissingEntitlement)
             {
                 throw AdalExceptionFactory.GetClientException(
-                CoreErrorCodes.MissingEntitlements,
+                ErrorCodes.MissingEntitlements,
                 string.Format(
                     CultureInfo.InvariantCulture,
-                    CoreErrorMessages.MissingEntitlements,
+                    ErrorMessages.MissingEntitlements,
                     recordToSave.AccessGroup));
             }
 

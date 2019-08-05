@@ -74,8 +74,8 @@ namespace Microsoft.Identity.Core
                 if (platformProxy == null)
                 {
                     throw AdalExceptionFactory.GetClientException(
-                        CoreErrorCodes.PlatformNotSupported,
-                        CoreErrorMessages.PlatformNotSupported);
+                        ErrorCodes.PlatformNotSupported,
+                        ErrorMessages.PlatformNotSupported);
                 }
 
                 var parameters = new Dictionary<string, string>

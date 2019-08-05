@@ -81,7 +81,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             catch (Exception ex)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.AuthenticationUiFailed, 
+                    ErrorCodes.AuthenticationUiFailed, 
                     "See inner exception for details", 
                     ex);
             }

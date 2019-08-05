@@ -41,15 +41,15 @@ namespace Microsoft.Identity.Core.Http
             if (redirectUri == null)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.NoRedirectUri,
-                    CoreErrorMessages.NoRedirectUri);
+                    ErrorCodes.NoRedirectUri,
+                    ErrorMessages.NoRedirectUri);
 
             }
 
             if (!string.IsNullOrWhiteSpace(redirectUri.Fragment))
             {
                 throw new ArgumentException(
-                    CoreErrorMessages.RedirectUriContainsFragment,
+                    ErrorMessages.RedirectUriContainsFragment,
                     nameof(redirectUri));
             }
         }
