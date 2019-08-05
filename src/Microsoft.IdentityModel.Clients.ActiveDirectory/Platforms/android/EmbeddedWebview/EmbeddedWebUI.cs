@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             catch (Exception ex)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.AuthenticationUiFailedError, 
+                    ErrorCodes.AuthenticationUiFailedError, 
                     "AuthenticationActivity failed to start", 
                     ex);
             }

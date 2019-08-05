@@ -98,7 +98,7 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.WsTrustTests
                 }
                 catch (AdalException ex)
                 {
-                    Assert.AreEqual(CoreErrorCodes.FederatedServiceReturnedError, ex.ErrorCode);
+                    Assert.AreEqual(ErrorCodes.FederatedServiceReturnedError, ex.ErrorCode);
                 }
             }
         }

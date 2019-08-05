@@ -96,7 +96,7 @@ namespace Microsoft.Identity.Test.Unit.CoreTests.WsTrustTests
                 }
                 catch (AdalException ex)
                 {
-                    Assert.AreEqual(CoreErrorCodes.AccessingWsMetadataExchangeFailed, ex.ErrorCode);
+                    Assert.AreEqual(ErrorCodes.AccessingWsMetadataExchangeFailed, ex.ErrorCode);
                 }
             }
         }

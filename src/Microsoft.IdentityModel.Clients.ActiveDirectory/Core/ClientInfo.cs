@@ -53,7 +53,7 @@ namespace Microsoft.Identity.Core
             if (string.IsNullOrEmpty(clientInfo))
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.JsonParseError,
+                    ErrorCodes.JsonParseError,
                     "client info is null");
             }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Core
             catch (Exception exc)
             {
                 throw AdalExceptionFactory.GetClientException(
-                     CoreErrorCodes.JsonParseError,
+                     ErrorCodes.JsonParseError,
                      "Failed to parse the returned client info.",
                      exc);
             }

@@ -30,7 +30,7 @@ using System.Globalization;
 
 namespace Microsoft.Identity.Core
 {
-    internal class CoreErrorMessages
+    internal class ErrorMessages
     {
         public const string UnknownUser = "Could not identify the user logged into the OS. See http://aka.ms/msal-net-iwa for details.";
 
@@ -46,10 +46,7 @@ namespace Microsoft.Identity.Core
 
         public const string AuthorityUriInvalidPath =
          "'authority' Uri should have at least one segment in the path (i.e. https://<host>/<path>/...)";
-
-        public const string B2cAuthorityUriInvalidPath =
-          "B2C 'authority' Uri should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)";
-
+        
         public const string UnsupportedAuthorityValidation =
             "Authority validation is not supported for this type of authority. See http://aka.ms/valid-authorities for details";
 
@@ -100,13 +97,13 @@ namespace Microsoft.Identity.Core
         public const string CannotAccessPublisherKeyChain =
            "The application cannot access the iOS keychain for the application publisher (the TeamId is null). " +
            "This is needed to enable Single Sign On between applications of the same publisher. " +
-           "This is an iOS configuration issue. See https://aka.ms/msal-net-enable-keychain-access for more details on enabling keychain access.";
+           "This is an iOS configuration issue. See https://aka.ms/adal-net-enable-keychain-groups for more details on enabling keychain access.";
 
         public const string MissingEntitlements =
             "The application does not have keychain access groups enabled in the Entitlements.plist. " +
             "As a result, there was a failure to save to the iOS keychain. " +
             "The keychain access group '{0}' is not enabled in the Entitlements.plist. " +
-            "See https://aka.ms/msal-net-enable-keychain-groups for more details on enabling keychain access groups and entitlements.";
+            "See https://aka.ms/adal-net-enable-keychain-groups for more details on enabling keychain access groups and entitlements.";
 
         public const string AndroidActivityNotFound = "The Activity cannot be found to launch the given Intent. To ensure authentication, a browser with custom tab support " +
             "is recommended. See https://aka.ms/msal-net-system-browsers for more details on using system browser on Android.";

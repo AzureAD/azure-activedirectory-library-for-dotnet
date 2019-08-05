@@ -56,9 +56,9 @@ namespace Microsoft.Identity.Core.WsTrust
             if (httpResponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 throw AdalExceptionFactory.GetServiceException(
-                    CoreErrorCodes.AccessingWsMetadataExchangeFailed,
+                    ErrorCodes.AccessingWsMetadataExchangeFailed,
                     string.Format(CultureInfo.CurrentCulture,
-                        CoreErrorMessages.HttpRequestUnsuccessful,
+                        ErrorMessages.HttpRequestUnsuccessful,
                         (int)httpResponse.StatusCode, httpResponse.StatusCode),
                     new ExceptionDetail()
                     {
@@ -107,10 +107,10 @@ namespace Microsoft.Identity.Core.WsTrust
                 }
 
                 throw AdalExceptionFactory.GetServiceException(
-                    CoreErrorCodes.FederatedServiceReturnedError,
+                    ErrorCodes.FederatedServiceReturnedError,
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        CoreErrorMessages.FederatedServiceReturnedErrorTemplate,
+                        ErrorMessages.FederatedServiceReturnedErrorTemplate,
                         wsTrustEndpoint.Uri,
                         errorMessage),
                     new ExceptionDetail()
@@ -128,7 +128,7 @@ namespace Microsoft.Identity.Core.WsTrust
             catch (System.Xml.XmlException ex)
             {
                 throw AdalExceptionFactory.GetClientException(
-                    CoreErrorCodes.ParsingWsTrustResponseFailed, CoreErrorCodes.ParsingWsTrustResponseFailed, ex);
+                    ErrorCodes.ParsingWsTrustResponseFailed, ErrorCodes.ParsingWsTrustResponseFailed, ex);
             }
         }
 

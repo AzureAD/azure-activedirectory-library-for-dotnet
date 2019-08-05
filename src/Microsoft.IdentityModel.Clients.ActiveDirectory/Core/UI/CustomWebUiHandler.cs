@@ -71,7 +71,7 @@ namespace Microsoft.Identity.Core.UI
                 {
                     throw new AdalException(
                         AdalError.CustomWebUiReturnedInvalidUri,
-                        CoreErrorMessages.CustomWebUiReturnedInvalidUri);
+                        ErrorMessages.CustomWebUiReturnedInvalidUri);
                 }
 
                 if (authCodeUri.Authority.Equals(redirectUri.Authority, StringComparison.OrdinalIgnoreCase) &&
@@ -89,7 +89,7 @@ namespace Microsoft.Identity.Core.UI
 
                 throw new AdalException(
                     AdalError.CustomWebUiRedirectUriMismatch,
-                    CoreErrorMessages.CustomWebUiRedirectUriMismatch(
+                    ErrorMessages.CustomWebUiRedirectUriMismatch(
                         authCodeUri.AbsolutePath,
                         redirectUri.AbsolutePath));
             }

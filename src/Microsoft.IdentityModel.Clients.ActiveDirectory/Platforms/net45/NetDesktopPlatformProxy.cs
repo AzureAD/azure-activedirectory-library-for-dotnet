@@ -63,8 +63,8 @@ namespace Microsoft.Identity.Core
                 if (userNameSize == 0)
                 {
                     throw AdalExceptionFactory.GetClientException(
-                        CoreErrorCodes.GetUserNameFailed,
-                        CoreErrorMessages.GetUserNameFailed,
+                        ErrorCodes.GetUserNameFailed,
+                        ErrorMessages.GetUserNameFailed,
                         new Win32Exception(Marshal.GetLastWin32Error()));
                 }
 
@@ -72,8 +72,8 @@ namespace Microsoft.Identity.Core
                 if (!WindowsNativeMethods.GetUserNameEx(NameUserPrincipal, sb, ref userNameSize))
                 {
                     throw AdalExceptionFactory.GetClientException(
-                       CoreErrorCodes.GetUserNameFailed,
-                       CoreErrorMessages.GetUserNameFailed,
+                       ErrorCodes.GetUserNameFailed,
+                       ErrorMessages.GetUserNameFailed,
                        new Win32Exception(Marshal.GetLastWin32Error()));
                 }
 
