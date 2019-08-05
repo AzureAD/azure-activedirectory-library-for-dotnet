@@ -53,16 +53,14 @@ namespace Microsoft.Identity.Core.Helpers
 
         public static string GetHttpsUriWithOptionalPort(string host, string tenant, string path, int port)
         {
-            var builder = new UriBuilder("https", host);
-            builder.Path = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", tenant, path);
-
-            //No need to set port if it equals 443 as it is the default https port
-            if (port != DefaultHttpsPort)
+            if (string.IsNullOrEmpty(tenant))
             {
-                builder.Port = port;
+                return GetHttpsUriWithOptionalPort(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}", host, path), port);
             }
-
-            return builder.Uri.AbsoluteUri;
+            else
+            {
+                return GetHttpsUriWithOptionalPort(string.Format(CultureInfo.InvariantCulture, "https://{0}/{1}/{2}", host, tenant, path), port);
+            }
         }
 
         public static string GetHttpsUriWithOptionalPort(string uri, int port)
