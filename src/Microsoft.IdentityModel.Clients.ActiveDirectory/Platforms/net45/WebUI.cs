@@ -63,8 +63,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     var sendAuthorizeRequestWithTcs = new Action<object>((t) =>
                     {
-                        authorizationResult = Authenticate(authorizationUri, redirectUri);
-                        ((TaskCompletionSource<object>)t).TrySetResult(null);
+                        try
+                        {
+                            authorizationResult = Authenticate(authorizationUri, redirectUri);
+                            ((TaskCompletionSource<object>)t).TrySetResult(null);
+                        }catch(Exception e)
+                        {
+                            ((TaskCompletionSource<object>)t).TrySetException(e);
+                        }
                     });
 
                     // The Post is needed here to ensure that the Authenticate() execution is posted to the message queue
