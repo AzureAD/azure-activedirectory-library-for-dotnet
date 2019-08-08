@@ -1,3 +1,10 @@
+Version 5.1.1
+==============
+Bug fixes:
+- **When specifying a port, ADAL.NET would always make the call on port 443**. ADAL.NET now honors the port specified by the developer. [Issue 1627](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1627)
+- **On Android, using embedded webview, during log-in, when the screen orientation changed, ADAL.NET lost the information the user typed into the login screen**. ADAL.NET now maintains information typed into the log in screen during screen orientation changes. See [issue for more details](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1622)
+- **ADAL.NET was not correctly catching a network down exception**. ADAL.NET now catches the exception and sets it on the correct TaskCompletionSource object. [See PR for more information](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/pull/1636)
+
 Version 5.1.0
 ==============
 Bug fixes:
