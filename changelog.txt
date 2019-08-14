@@ -1,3 +1,8 @@
+Version 5.2.0
+==============
+Bug fix:
+- **For Web Apps and Web APIs, we recommend the serialization of one cache per account, as noted in the [wiki](https://aka.ms/adal-net-cache-serialization-web-app-web-api). If this recommendation was not followed, starting in ADAL.NET Version 5.0.0-preview, some scenarios involving the On-Behalf-Of flow and specific use cases of the UserAssertion, could result in an elevation of privilege in specific problem scenarios**. ADAL.NET now skips the MSAL.NET shared cache look up for On-Behalf-Of scenarios. Please refer to the [CVE-2019-1258](https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2019-1258) for more details.
+
 Version 5.1.1
 ==============
 Bug fixes:
