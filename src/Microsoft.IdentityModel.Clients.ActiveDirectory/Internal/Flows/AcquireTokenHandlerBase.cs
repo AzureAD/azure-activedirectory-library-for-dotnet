@@ -212,7 +212,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
                     await StoreResultExToCacheAsync().ConfigureAwait(false);
                 }
 
-                // At this point we have an Acess Token - return it
+                // At this point we have an Access Token - return it
                 await PostRunAsync(ResultEx.Result).ConfigureAwait(false);
                 return new AuthenticationResult(ResultEx.Result);
             }

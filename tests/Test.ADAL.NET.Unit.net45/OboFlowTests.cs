@@ -32,6 +32,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
+using Microsoft.Identity.Core.UI;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
@@ -80,7 +81,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -154,7 +154,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -229,7 +228,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -309,7 +307,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -371,7 +368,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -445,7 +441,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -511,7 +506,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task MultiUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -553,7 +547,6 @@ namespace Test.ADAL.NET.Unit
                 }
 
                 SetupMocks(httpManager);
-
                 httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityHomeTenant))
                 {
                     Method = HttpMethod.Post,
@@ -573,8 +566,8 @@ namespace Test.ADAL.NET.Unit
                 var result =
                     await
                         context.AcquireTokenAsync(AdalTestConstants.DefaultResource, clientCredential,
-                            new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer,
-                                AdalTestConstants.DefaultDisplayableId)).ConfigureAwait(false);
+                            new UserAssertion("non-existant" + accessToken, OAuthGrantType.JwtBearer, AdalTestConstants.DefaultDisplayableId))
+                        .ConfigureAwait(false);
                 Assert.IsNotNull(result.AccessToken);
                 Assert.AreEqual("some-access-token", result.AccessToken);
                 Assert.AreEqual(AdalTestConstants.DefaultDisplayableId, result.UserInfo.DisplayableId);
@@ -585,7 +578,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheNoUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -655,7 +647,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheMatchingUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -726,7 +717,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserNoHashInCacheDifferentUsernamePassedInAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -803,7 +793,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheNoUsernameAndMatchingAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -864,7 +853,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheNoUsernameAndDifferentAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -937,7 +925,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -999,7 +986,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndDifferentAssertionTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -1072,7 +1058,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("OboFlowTests")]
         public async Task SingleUserWithHashInCacheMatchingUsernameAndMatchingAssertionDifferentResourceTestAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -1144,6 +1129,66 @@ namespace Test.ADAL.NET.Unit
                 {
                     Assert.AreEqual(_crypto.CreateSha256Hash(accessToken), value.UserAssertionHash);
                 }
+            }
+        }
+
+        [TestMethod]
+        public async Task OboATForAT2CacheLookUp_OboATForAT1Cached_CacheMissAsync()
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                AuthenticationContext context = null;
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                SetupMocks(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.DefaultAuthorityCommonTenant))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(AdalTestConstants.AnotherResource,
+                    AdalTestConstants.DefaultDisplayableId, AdalTestConstants.DefaultUniqueId),
+                    PostData = new Dictionary<string, string>()
+                {
+                    {"client_id", AdalTestConstants.DefaultClientId},
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                }
+                });
+
+                context = new AuthenticationContext(
+                    serviceBundle, AdalTestConstants.DefaultAuthorityCommonTenant,
+                    AuthorityValidationType.NotProvided,
+                    new TokenCache());
+
+                ClientCredential clientCredential = new ClientCredential(AdalTestConstants.DefaultClientId,
+                        AdalTestConstants.DefaultClientSecret);
+
+                var result1 = await context.AcquireTokenAsync
+                    (AdalTestConstants.AnotherResource, clientCredential, new UserAssertion("Access Token1", OAuthGrantType.JwtBearer))
+                    .ConfigureAwait(false);
+
+                Assert.IsNotNull(result1);
+                Assert.AreEqual(result1.AccessToken, "some-access-token");
+                Assert.IsNotNull(result1.UserInfo);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.GetTokenEndpoint(AdalTestConstants.TenantSpecificAuthority))
+                {
+                    Method = HttpMethod.Post,
+                    ResponseMessage = MockHelpers.CreateSuccessTokenResponseMessage(AdalTestConstants.AnotherResource,
+                    AdalTestConstants.DefaultDisplayableId + "_1", AdalTestConstants.DefaultUniqueId + "_1"),
+                    PostData = new Dictionary<string, string>()
+                {
+                    {"client_id", AdalTestConstants.DefaultClientId},
+                    {"grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"}
+                }
+                });
+
+                // make sure obo grant is used, so matching AT or RT is not found in the cache
+                var result2 =
+                    await
+                        context.AcquireTokenAsync(AdalTestConstants.AnotherResource, clientCredential,
+                            new UserAssertion("Access Token2", OAuthGrantType.JwtBearer)).ConfigureAwait(false);
+
+                Assert.IsNotNull(result2.AccessToken);
             }
         }
     }

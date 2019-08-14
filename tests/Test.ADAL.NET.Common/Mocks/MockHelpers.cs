@@ -47,8 +47,8 @@ namespace Test.ADAL.NET.Common.Mocks
         }
 
         public static MockWebUI ConfigureMockWebUI(
-            AuthorizationResult authorizationResult, 
-            IDictionary<string, string> queryParamsToValidate, 
+            AuthorizationResult authorizationResult,
+            IDictionary<string, string> queryParamsToValidate,
             bool addStateToAuthroizationResult = true)
         {
             MockWebUI webUi = new MockWebUI(addStateToAuthroizationResult);
@@ -267,12 +267,20 @@ namespace Test.ADAL.NET.Common.Mocks
         {
             string idToken = string.Format(CultureInfo.InvariantCulture, "{0}", CreateAdalIdToken(uniqueId, displayableId));
             HttpResponseMessage responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
+            var clientInfo = new ClientInfo
+            {
+                UniqueObjectIdentifier = displayableId,
+                UniqueTenantIdentifier = AdalTestConstants.SomeTenantId
+            };
+            var base64EncodedSerializedClientInfo = Base64UrlHelpers.Encode(JsonHelper.SerializeToJson<ClientInfo>(clientInfo));
+
             HttpContent content =
                 new StringContent("{\"token_type\":\"Bearer\",\"expires_in\":\"3599\",\"resource\":\"" +
                                   resource +
                                   "\",\"access_token\":\"some-access-token\",\"refresh_token\":\"OAAsomethingencryptedQwgAA\",\"id_token\":\"" +
                                   idToken +
-                                  "\"}");
+                                  "\"," + "\"client_info\":\"" + base64EncodedSerializedClientInfo + "\"}");
             responseMessage.Content = content;
             return responseMessage;
         }
