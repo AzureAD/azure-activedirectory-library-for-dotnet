@@ -79,7 +79,7 @@ namespace Microsoft.Identity.Core.Http
 
         public async Task<HttpResponse> SendGetAsync(
             Uri endpoint,
-            Dictionary<string, string> headers,
+            IDictionary<string, string> headers,
             RequestContext requestContext)
         {
             return await ExecuteWithRetryAsync(endpoint, headers, null, HttpMethod.Get, requestContext).ConfigureAwait(false);

@@ -48,7 +48,7 @@ namespace Microsoft.Identity.Core.Http
 
         Task<HttpResponse> SendGetAsync(
             Uri endpoint,
-            Dictionary<string, string> headers,
+            IDictionary<string, string> headers,
             RequestContext requestContext);
 
         Task<IHttpWebResponse> SendPostForceResponseAsync(
