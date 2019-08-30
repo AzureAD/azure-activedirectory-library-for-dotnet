@@ -1,7 +1,7 @@
 Version 5.2.1
 ==============
 Bug fix:
-- **Fixed issue with integrated windows authentication in seamless SSO Hybrid environments where users were not able to sign in.** [Issue 1478](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1478)
+- **Fixed issue with integrated windows authentication in seamless SSO hybrid environments where users were not able to sign in.** [Issue 1478](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1478)
 
 Version 5.2.0
 ==============
