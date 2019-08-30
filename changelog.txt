@@ -1,3 +1,13 @@
+Version 5.2.1
+==============
+Bug fix:
+- **When using integrated Windows authentication in hybrid environments, managed (cloud) users were not able to sign-in.** Now, ADAL.NET sends the correct header information to enable seamless SSO in hybrid environments for managed users.
+Additional info: 
+[MSDOCS on Seamless SSO](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso)
+[Seamless SSO Wiki] (https://aka.ms/adal-seamless-sso)
+[Integrated Windows Auth Wiki](https://aka.ms/adal-iwa)
+[Issue 1478](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1478)
+
 Version 5.2.0
 ==============
 Bug fix:
