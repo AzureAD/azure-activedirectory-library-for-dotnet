@@ -27,9 +27,7 @@
 
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Xamarin.Forms;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
+
 
 namespace XFormsApp
 {
@@ -45,11 +43,7 @@ namespace XFormsApp
 
         protected override void OnStart()
         {
-            // Handle when your app starts
-            AppCenter.Start("android=3ea693de-dcb4-4b65-a1b5-04ad2f71ada0;" +
-                  "uwp={Your UWP App secret here};" +
-                  "ios={Your iOS App secret here}",
-                  typeof(Analytics), typeof(Crashes));
+
         }
 
         protected override void OnSleep()
