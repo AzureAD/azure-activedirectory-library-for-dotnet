@@ -49,6 +49,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private readonly ICoreLogger _logger;
 
+        private string _brokerRequestNonce;
+        private string _brokerResponseNonce;
+        private bool _brokerV3Installed = false;
+
         public iOSBroker(ICoreLogger logger)
         {
             _logger = logger;
@@ -66,19 +70,45 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     return false;
                 }
 
-                var res = false;
+                bool canStartBroker = false;
 
                 if (pp.UseBroker)
                 {
                     pp.CallerViewController.InvokeOnMainThread(() =>
                     {
-                        res = UIApplication.SharedApplication.CanOpenUrl(new NSUrl("msauth://"));
-                        _logger.Info("iOS Broker can be invoked. ");
+                        if (IsBrokerInstalled("msauthv3://"))
+                        {
+                            _logger.Info("iOS Broker (msauthv3://) can be invoked. ");
+                            _brokerV3Installed = true;
+                            canStartBroker = true;
+                        }
                     });
+
+                    if (!canStartBroker)
+                    {
+                        pp.CallerViewController.InvokeOnMainThread(() =>
+                        {
+                            if (IsBrokerInstalled("msauth://"))
+                            {
+                                _logger.Info("iOS Broker (msauth://) can be invoked. ");
+                                canStartBroker = true;
+                            }
+                        });
+                    }
                 }
 
-                return res;
+                return canStartBroker;
             }
+        }
+
+        private bool IsBrokerInstalled(string brokerUriScheme)
+        {
+            return UIApplication.SharedApplication.CanOpenUrl(new NSUrl(brokerUriScheme));
+        }
+
+        private void CreateBrokerRequestNonce()
+        {
+            _brokerRequestNonce = Guid.NewGuid().ToString();
         }
 
         public async Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
@@ -103,6 +133,12 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 brokerPayload.Add("skip_cache", "YES");
                 string claims = EncodingHelper.UrlEncode(brokerPayload[BrokerParameter.Claims]);
                 brokerPayload[BrokerParameter.Claims] = claims;
+            }
+
+            if(_brokerV3Installed)
+            {
+                CreateBrokerRequestNonce();
+                brokerPayload[BrokerParameter.BrokerNonce] = _brokerRequestNonce;
             }
 
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
@@ -172,6 +208,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 string responseActualHash = PlatformProxyFactory.GetPlatformProxy().CryptographyManager.CreateSha256Hash(decryptedResponse);
                 byte[] rawHash = Convert.FromBase64String(responseActualHash);
                 string hash = BitConverter.ToString(rawHash);
+
                 if (expectedHash.Equals(hash.Replace("-", ""), StringComparison.OrdinalIgnoreCase))
                 {
                     responseDictionary = EncodingHelper.ParseKeyValueList(decryptedResponse, '&', false, null);
@@ -187,11 +224,37 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     };
                     _logger.InfoPii("Broker response hash mismatch: " + response.Error, "Broker response hash mismatch. ");
                 }
+
+                if(!string.IsNullOrEmpty(_brokerRequestNonce))
+                {
+                    if(!ValidateBrokerResponseNonceWithRequestNonce(responseDictionary))
+                    {
+                        response = new TokenResponse
+                        {
+                            Error = AdalError.BrokerReponseHashMismatch,
+                            ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
+                        };
+                    }
+                }
             }
 
             var dateTimeOffset = new DateTimeOffset(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
             dateTimeOffset = dateTimeOffset.AddSeconds(response.ExpiresOn);
             return response.GetResult(dateTimeOffset, dateTimeOffset);
+        }
+
+        private bool ValidateBrokerResponseNonceWithRequestNonce(IDictionary<string, string> brokerResponseDictionary)
+        {
+            _brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
+                   ? brokerResponseDictionary[BrokerParameter.BrokerNonce]
+                   : null;
+
+            if (_brokerResponseNonce == _brokerRequestNonce)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)

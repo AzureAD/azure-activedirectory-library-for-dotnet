@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using Foundation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
@@ -44,7 +45,24 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <returns>True if the response is from broker, False otherwise.</returns>
         public static bool IsBrokerResponse(string sourceApplication)
         {
-            return sourceApplication != null && sourceApplication.Equals("com.microsoft.azureauthenticator", StringComparison.OrdinalIgnoreCase);
+            Debug.WriteLine("IsBrokerResponse called with sourceApplication {0}", sourceApplication);
+
+            if (sourceApplication != null && sourceApplication.Equals("com.microsoft.azureauthenticator", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            else if (string.IsNullOrEmpty(sourceApplication))
+            {
+                // For iOS 13+, SourceApplication will not be returned
+                // Customers will need to install iOS broker >= 6.3.19
+                // ADAL.NET will generate a nonce (guid), which broker will
+                // return in the response. ADAL.NET will validate a match in iOSBroker.cs
+                // So if SourceApplication is null, just return, ADAL.NET will throw a 
+                // specific error message if the nonce does not match.
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

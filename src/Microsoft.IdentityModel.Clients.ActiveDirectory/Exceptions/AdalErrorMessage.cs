@@ -89,6 +89,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string RedirectUriContainsFragment = "'redirectUri' must NOT include a fragment component";
         public const string ServiceReturnedError = "Service returned error. Check InnerException for more details";
         public const string BrokerReponseHashMismatch = "Unencrypted broker response hash did not match the expected hash";
+        public const string BrokerNonceMismatch = "Broker response nonce does not match the request nonce sent by MSAL.NET." +
+            "Please see https://aka.ms/adal-net-ios-13-broker for more details. ";
 
         public const string StsMetadataRequestFailed =
             "Metadata request to Access Control service failed. Check InnerException for more details";

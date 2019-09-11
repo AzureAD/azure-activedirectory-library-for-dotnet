@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
 {
@@ -21,5 +18,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows
         public const string Claims = "claims";
         public const string SilentBrokerFlow = "silent_broker_flow";
         public const string BrokerInstallUrl = "broker_install_url";
+        public const string BrokerNonce = "broker_nonce";
     }
 }
