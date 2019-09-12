@@ -50,7 +50,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         private readonly ICoreLogger _logger;
 
         private string _brokerRequestNonce;
-        private string _brokerResponseNonce;
         private bool _brokerV3Installed = false;
 
         public iOSBroker(ICoreLogger logger)
@@ -106,11 +105,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return UIApplication.SharedApplication.CanOpenUrl(new NSUrl(brokerUriScheme));
         }
 
-        private void CreateBrokerRequestNonce()
-        {
-            _brokerRequestNonce = Guid.NewGuid().ToString();
-        }
-
         public async Task<AdalResultWrapper> AcquireTokenUsingBrokerAsync(IDictionary<string, string> brokerPayload)
         {
             if (brokerPayload.ContainsKey(BrokerParameter.SilentBrokerFlow))
@@ -137,7 +131,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if(_brokerV3Installed)
             {
-                CreateBrokerRequestNonce();
+                _brokerRequestNonce = string.Empty;
+                _brokerRequestNonce = Guid.NewGuid().ToString();
                 brokerPayload[BrokerParameter.BrokerNonce] = _brokerRequestNonce;
             }
 
@@ -245,16 +240,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private bool ValidateBrokerResponseNonceWithRequestNonce(IDictionary<string, string> brokerResponseDictionary)
         {
-            _brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
+            string brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
                    ? brokerResponseDictionary[BrokerParameter.BrokerNonce]
                    : null;
 
-            if (_brokerResponseNonce == _brokerRequestNonce)
-            {
-                return true;
-            }
-
-            return false;
+            return string.Equals(brokerResponseNonce, _brokerRequestNonce);           
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)

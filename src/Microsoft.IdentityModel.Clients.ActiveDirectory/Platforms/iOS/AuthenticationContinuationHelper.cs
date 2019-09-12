@@ -51,7 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             {
                 return true;
             }
-            else if (string.IsNullOrEmpty(sourceApplication))
+            if (string.IsNullOrEmpty(sourceApplication))
             {
                 // For iOS 13+, SourceApplication will not be returned
                 // Customers will need to install iOS broker >= 6.3.19
