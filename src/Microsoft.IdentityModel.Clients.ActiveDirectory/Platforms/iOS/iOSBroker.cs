@@ -129,7 +129,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 brokerPayload[BrokerParameter.Claims] = claims;
             }
 
-            if(_brokerV3Installed)
+            if (_brokerV3Installed)
             {
                 _brokerRequestNonce = string.Empty;
                 _brokerRequestNonce = Guid.NewGuid().ToString();
@@ -220,16 +220,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                     _logger.InfoPii("Broker response hash mismatch: " + response.Error, "Broker response hash mismatch. ");
                 }
 
-                if(!string.IsNullOrEmpty(_brokerRequestNonce))
+                if (!ValidateBrokerResponseNonceWithRequestNonce(responseDictionary))
                 {
-                    if(!ValidateBrokerResponseNonceWithRequestNonce(responseDictionary))
+                    response = new TokenResponse
                     {
-                        response = new TokenResponse
-                        {
-                            Error = AdalError.BrokerReponseHashMismatch,
-                            ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
-                        };
-                    }
+                        Error = AdalError.BrokerReponseHashMismatch,
+                        ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
+                    };
                 }
             }
 
@@ -240,11 +237,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private bool ValidateBrokerResponseNonceWithRequestNonce(IDictionary<string, string> brokerResponseDictionary)
         {
-            string brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
+            if (!string.IsNullOrEmpty(_brokerRequestNonce))
+            {
+                string brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
                    ? brokerResponseDictionary[BrokerParameter.BrokerNonce]
                    : null;
 
-            return string.Equals(brokerResponseNonce, _brokerRequestNonce);           
+                return string.Equals(brokerResponseNonce, _brokerRequestNonce);
+            }
+            return false;
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)
