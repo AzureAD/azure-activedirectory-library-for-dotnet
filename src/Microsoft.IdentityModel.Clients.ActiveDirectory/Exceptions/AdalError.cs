@@ -273,6 +273,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string BrokerReponseHashMismatch = "broker_response_hash_mismatch";
 
         /// <summary>
+        /// Broker response nonce does not match the request nonce sent by MSAL.NET for iOS broker >= v6.3.19
+        /// </summary>
+        public const string BrokerNonceMismatch = "broker_nonce_mismatch";
+
+        /// <summary>
         /// Device certificate not found.
         /// </summary>
         public const string DeviceCertificateNotFound = "device_certificate_not_found";
