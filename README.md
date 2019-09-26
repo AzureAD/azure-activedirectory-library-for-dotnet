@@ -15,6 +15,17 @@ Active Directory Authentication Library for .NET (ADAL.NET) is an easy to use au
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [![Build status](https://identitydivision.visualstudio.com/_apis/public/build/definitions/a7934fdd-dcde-4492-a406-7fad6ac00e17/556/badge)](https://identitydivision.visualstudio.com/IDDP/IDDP%20Team/_build/index?definitionId=556) | [![Build status](https://identitydivision.visualstudio.com/_apis/public/build/definitions/a7934fdd-dcde-4492-a406-7fad6ac00e17/187/badge)](https://identitydivision.visualstudio.com/IDDP/IDDP%20Team/_build/index?definitionId=187) |
 
+## [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) is the new authentication library to be used with the Microsoft identity platform
+
+Building on top of ADAL, MSAL works with the new and Open ID Connect certified Azure AD V2 endpoint and the new social identity solution from Microsoft, Azure AD B2C.
+
+ADAL.NET is in maintenance mode and no new features will be added to ADAL.NET anymore. All our ongoing efforts will be focused on improving the new [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet). MSAL’s documentation also contains a [migration guide]( https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration) which simplifies upgrading from ADAL.NET, including how to migrate Xamarin.iOS apps using brokers.
+
+## ADAL.NET 2.x is no longer supported
+
+ADAL.NET 2.x is no longer supported. ADAL.NET 3.x became generally available more than 3 years ago, superseding ADAL 2.x which was last released in August 2017
+If you are still using 2.x, we recommend that you update directly to MSAL.NET
+
 ## Branches
 
 **dev**: Contains newest development of ADAL (v4+)
