@@ -139,9 +139,9 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
 
     <!-- 4.1.3 has CVE-2018-0786 -->
-    <PackageReference Include="System.ServiceModel.Http" Version="4.4.1" Condition="'$(TargetFramework)' == 'uap10.0'" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.1" Condition="'$(TargetFramework)' == 'uap10.0'" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.4.1" Condition="'$(TargetFramework)' == 'uap10.0'" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.1" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.1" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.1" />
     
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
