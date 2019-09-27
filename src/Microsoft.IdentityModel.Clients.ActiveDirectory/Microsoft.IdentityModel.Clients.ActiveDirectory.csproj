@@ -87,11 +87,6 @@
     <EmbeddedResource Include="Properties\Microsoft.IdentityModel.Clients.ActiveDirectory.rd.xml" />
   </ItemGroup>
 
-  <ItemGroup Label="Dependency overrides due to security vulnerabilities">
-   
-   
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
