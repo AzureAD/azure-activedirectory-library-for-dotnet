@@ -251,6 +251,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                             brokerResponseNonce, 
                             _brokerRequestNonce));
                 }
+                return ok;
             }
             return true;
         }
