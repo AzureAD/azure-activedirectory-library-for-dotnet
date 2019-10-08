@@ -39,6 +39,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
+using System.Globalization;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -224,8 +225,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     response = new TokenResponse
                     {
-                        Error = AdalError.BrokerReponseHashMismatch,
-                        ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
+                        Error = AdalError.BrokerNonceMismatch,
+                        ErrorDescription = AdalErrorMessage.BrokerNonceMismatch
                     };
                 }
             }
@@ -243,7 +244,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                    ? brokerResponseDictionary[BrokerParameter.BrokerNonce]
                    : null;
 
-                return string.Equals(brokerResponseNonce, _brokerRequestNonce);
+                _logger.Info(string.Format(CultureInfo.CurrentCulture, "Broker response nonce is:  {0}, \nBroker request nonce is: {1}", brokerResponseNonce, _brokerRequestNonce));
+                
+                return string.Equals(brokerResponseNonce, _brokerRequestNonce, StringComparison.InvariantCultureIgnoreCase);
             }
             return false;
         }

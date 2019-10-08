@@ -1,7 +1,7 @@
 Version 5.2.2
 ==============
 Bug Fixes:
-- **Ensures that ADAL.NET works fine with brokers on iOS 13**. On iOS 13, iOS, the broker, may or may not return the source application, which is used by ADAL.NET to verify the response is coming from broker. To maintain secure calls, MSAL.NET will now also create a nonce to send in the broker request and will verify the same nonce is returned in the broker response in the case of a missing source application. [Issue](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/1357)
+- **Ensures that ADAL.NET works with brokers on iOS 13**. On iOS 13, the iOS broker, may or may not return the source application, which will be used by ADAL.NET to verify that the response is coming from the iOS broker. To maintain secure calls, ADAL.NET will now also create a nonce to send in the broker request and will verify the same nonce is returned in the broker response in the case of a missing source application. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1642)
 
 Version 5.2.1
 ==============
