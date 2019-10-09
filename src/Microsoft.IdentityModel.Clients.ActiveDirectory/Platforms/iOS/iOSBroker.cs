@@ -39,6 +39,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.OAuth2;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
+using System.Globalization;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -131,7 +132,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (_brokerV3Installed)
             {
-                _brokerRequestNonce = string.Empty;
                 _brokerRequestNonce = Guid.NewGuid().ToString();
                 brokerPayload[BrokerParameter.BrokerNonce] = _brokerRequestNonce;
             }
@@ -224,8 +224,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     response = new TokenResponse
                     {
-                        Error = AdalError.BrokerReponseHashMismatch,
-                        ErrorDescription = AdalErrorMessage.BrokerReponseHashMismatch
+                        Error = AdalError.BrokerNonceMismatch,
+                        ErrorDescription = AdalErrorMessage.BrokerNonceMismatch
                     };
                 }
             }
@@ -237,15 +237,23 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
         private bool ValidateBrokerResponseNonceWithRequestNonce(IDictionary<string, string> brokerResponseDictionary)
         {
-            if (!string.IsNullOrEmpty(_brokerRequestNonce))
+            if (_brokerV3Installed)
             {
-                string brokerResponseNonce = brokerResponseDictionary.ContainsKey(BrokerParameter.BrokerNonce)
-                   ? brokerResponseDictionary[BrokerParameter.BrokerNonce]
-                   : null;
+                string brokerResponseNonce = brokerResponseDictionary[BrokerParameter.BrokerNonce];
+                bool ok = string.Equals(brokerResponseNonce, _brokerRequestNonce, StringComparison.InvariantCultureIgnoreCase);
 
-                return string.Equals(brokerResponseNonce, _brokerRequestNonce);
+                if (!ok)
+                {
+                    _logger.Error(
+                        string.Format(
+                            CultureInfo.CurrentCulture, 
+                            "Nonce check failed! Broker response nonce is:  {0}, \nBroker request nonce is: {1}", 
+                            brokerResponseNonce, 
+                            _brokerRequestNonce));
+                }
+                return ok;
             }
-            return false;
+            return true;
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)
