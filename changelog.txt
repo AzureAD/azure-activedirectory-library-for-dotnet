@@ -1,3 +1,8 @@
+Version 5.2.3
+==============
+Bug Fixes:
+- **Customers reported issues signing in with the Authenticator App on iOS devices < 13 with ADAL.NET**. The issue has been resolved and increased logging included in the iOS broker scenario. See [issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1666) for more details.
+
 Version 5.2.2
 ==============
 Bug Fixes:
