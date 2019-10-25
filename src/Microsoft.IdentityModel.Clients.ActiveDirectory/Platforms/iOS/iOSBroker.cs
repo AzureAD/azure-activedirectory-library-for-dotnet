@@ -275,7 +275,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
 
-            SecStatusCode secStatusCode = iOSTokenCacheAccessor.Save(clientId, applicationToken);
+            SecStatusCode secStatusCode = iOSTokenCacheAccessor.SaveBrokerApplicationToken(clientId, applicationToken);
 
             _logger.Info(string.Format(
                CultureInfo.CurrentCulture,
@@ -287,7 +287,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         {
             iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
 
-            return iOSTokenCacheAccessor.GetBrokerApplicationToken(brokerPaylaod[BrokerParameter.ClientId]);
+            SecStatusCode secStatusCode =  iOSTokenCacheAccessor.TryGetBrokerApplicationToken(brokerPaylaod[BrokerParameter.ClientId], out string appToken);
+
+            _logger.Info(string.Format(
+               CultureInfo.CurrentCulture,
+               BrokerConstants.SecStatusCodeFromTryGetBrokerApplicationToken + "SecStatusCode: {0}",
+               secStatusCode));
+
+            return appToken;
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)

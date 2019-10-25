@@ -210,7 +210,7 @@ namespace Microsoft.Identity.Core
             return GetValues(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]).Select(MsalAccountCacheItem.FromJsonString).ToList();
         }
 
-        internal string GetBrokerApplicationToken(string clientId)
+        internal SecStatusCode TryGetBrokerApplicationToken(string clientId, out string appToken)
         {
             var queryRecord = new SecRecord(SecKind.GenericPassword)
             {
@@ -221,12 +221,14 @@ namespace Microsoft.Identity.Core
 
             SecRecord record = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
 
+            appToken = null;
+
             if (resultCode == SecStatusCode.Success)
             {
-                return record.ValueData.ToString(NSStringEncoding.UTF8);
+                appToken = record.ValueData.ToString(NSStringEncoding.UTF8);
             }
 
-            return null;
+            return resultCode;
         }
 
         private ICollection<string> GetValues(int type)
@@ -277,8 +279,15 @@ namespace Microsoft.Identity.Core
             return secStatusCode;
         }
 
-        internal SecStatusCode Save(string clientIdAsKey, string applicationToken)
+        internal SecStatusCode SaveBrokerApplicationToken(string clientIdAsKey, string applicationToken)
         {
+            // The broker application token is used starting w/iOS broker 6.3.19+ (v3)
+            // If the application cannot be verified, an additional user consent dialog will be required the first time 
+            // when the application is using the iOS broker. 
+            // After initial user consent, the iOS broker will issue a token to the application that will 
+            // grant application access to its own cache on subsequent broker invocations.
+            // On subsequent calls, the application presents the application token to the iOS broker, this will prevent
+            // the showing of the consent dialog.
             var recordToSave = new SecRecord(SecKind.GenericPassword)
             {
                 Account = clientIdAsKey,
