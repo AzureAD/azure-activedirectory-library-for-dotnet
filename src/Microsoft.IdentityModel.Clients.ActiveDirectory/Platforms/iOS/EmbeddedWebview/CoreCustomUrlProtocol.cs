@@ -28,6 +28,7 @@
 
 using System;
 using Foundation;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 #if MAC
 using INSUrlProtocolClient = Foundation.NSUrlProtocolClient;
 #endif

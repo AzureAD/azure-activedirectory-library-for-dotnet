@@ -29,8 +29,8 @@ using System;
 using System.Collections.Generic;
 using CoreFoundation;
 using Foundation;
-using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Helpers;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using UIKit;
 using WebKit;
 

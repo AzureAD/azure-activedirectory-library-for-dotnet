@@ -33,6 +33,7 @@ using Microsoft.Identity.Core.Cache;
 using System.Globalization;
 using System.Linq;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
 namespace Microsoft.Identity.Core
 {
@@ -209,6 +210,25 @@ namespace Microsoft.Identity.Core
             return GetValues(AuthorityTypeToAttrType[AuthorityType.MSSTS.ToString()]).Select(MsalAccountCacheItem.FromJsonString).ToList();
         }
 
+        internal string GetBrokerApplicationToken(string clientId)
+        {
+            var queryRecord = new SecRecord(SecKind.GenericPassword)
+            {
+                AccessGroup = keychainGroup,
+                Account = clientId,
+                Service = BrokerConstants.iOSBroker,
+            };
+
+            SecRecord record = SecKeyChain.QueryAsRecord(queryRecord, out SecStatusCode resultCode);
+
+            if (resultCode == SecStatusCode.Success)
+            {
+                return record.ValueData.ToString(NSStringEncoding.UTF8);
+            }
+
+            return null;
+        }
+
         private ICollection<string> GetValues(int type)
         {
             var queryRecord = new SecRecord(SecKind.GenericPassword)
@@ -252,6 +272,28 @@ namespace Microsoft.Identity.Core
                     CultureInfo.InvariantCulture,
                     ErrorMessages.MissingEntitlements,
                     recordToSave.AccessGroup));
+            }
+
+            return secStatusCode;
+        }
+
+        internal SecStatusCode Save(string clientIdAsKey, string applicationToken)
+        {
+            var recordToSave = new SecRecord(SecKind.GenericPassword)
+            {
+                Account = clientIdAsKey,
+                Service = BrokerConstants.iOSBroker,
+                ValueData = NSData.FromString(applicationToken, NSStringEncoding.UTF8),
+                AccessGroup = keychainGroup,
+                Accessible = _defaultAccessiblityPolicy,
+                Synchronizable = _defaultSyncSetting
+            };
+
+            SecStatusCode secStatusCode = Update(recordToSave);
+
+            if (secStatusCode == SecStatusCode.ItemNotFound)
+            {
+                secStatusCode = SecKeyChain.Add(recordToSave);
             }
 
             return secStatusCode;
