@@ -136,7 +136,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 _brokerRequestNonce = Guid.NewGuid().ToString();
                 brokerPayload[BrokerParameter.BrokerNonce] = _brokerRequestNonce;
 
-                string applicationToken = ReadBrokerApplicationTokenFromKeychain(brokerPayload);
+                string applicationToken = TryReadBrokerApplicationTokenFromKeychain(brokerPayload);
 
                 if (!string.IsNullOrEmpty(applicationToken))
                 {
@@ -239,7 +239,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
                 if (responseDictionary.ContainsKey(BrokerConstants.ApplicationToken))
                 {
-                    WriteBrokerApplicationTokenToKeychain(
+                    TryWriteBrokerApplicationTokenToKeychain(
                         responseDictionary[BrokerParameter.ClientId],
                         responseDictionary[BrokerConstants.ApplicationToken]);
                 }
@@ -271,30 +271,47 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return true;
         }
 
-        private void WriteBrokerApplicationTokenToKeychain(string clientId, string applicationToken)
+        private void TryWriteBrokerApplicationTokenToKeychain(string clientId, string applicationToken)
         {
             iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
+            try
+            {
+                SecStatusCode secStatusCode = iOSTokenCacheAccessor.SaveBrokerApplicationToken(clientId, applicationToken);
 
-            SecStatusCode secStatusCode = iOSTokenCacheAccessor.SaveBrokerApplicationToken(clientId, applicationToken);
-
-            _logger.Info(string.Format(
-               CultureInfo.CurrentCulture,
-               BrokerConstants.AttemptToSaveBrokerApplicationToken + "SecStatusCode: {0}",
-               secStatusCode));
+                _logger.Info(string.Format(
+                   CultureInfo.CurrentCulture,
+                   BrokerConstants.AttemptToSaveBrokerApplicationToken + "SecStatusCode: {0}",
+                   secStatusCode));
+            }
+            catch(Exception ex)
+            {
+                throw new AdalException(
+                    AdalErrorIOSEx.WritingApplicationTokenToKeychainFailed,
+                    AdalErrorMessageIOSEx.WritingApplicationTokenToKeychainFailed + ex.Message);
+            }
         }
 
-        private string ReadBrokerApplicationTokenFromKeychain(IDictionary<string, string> brokerPaylaod)
+        private string TryReadBrokerApplicationTokenFromKeychain(IDictionary<string, string> brokerPaylaod)
         {
             iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
 
-            SecStatusCode secStatusCode =  iOSTokenCacheAccessor.TryGetBrokerApplicationToken(brokerPaylaod[BrokerParameter.ClientId], out string appToken);
+            try
+            {
+                SecStatusCode secStatusCode = iOSTokenCacheAccessor.TryGetBrokerApplicationToken(brokerPaylaod[BrokerParameter.ClientId], out string appToken);
 
-            _logger.Info(string.Format(
-               CultureInfo.CurrentCulture,
-               BrokerConstants.SecStatusCodeFromTryGetBrokerApplicationToken + "SecStatusCode: {0}",
-               secStatusCode));
+                _logger.Info(string.Format(
+                   CultureInfo.CurrentCulture,
+                   BrokerConstants.SecStatusCodeFromTryGetBrokerApplicationToken + "SecStatusCode: {0}",
+                   secStatusCode));
 
-            return appToken;
+                return appToken;
+            }
+            catch(Exception ex)
+            {
+                throw new AdalException(
+                   AdalErrorIOSEx.ReadingApplicationTokenFromKeychainFailed,
+                   AdalErrorMessageIOSEx.ReadingApplicationTokenFromKeychainFailed + ex.Message);
+            }
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)
