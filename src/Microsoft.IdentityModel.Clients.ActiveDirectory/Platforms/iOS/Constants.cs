@@ -30,10 +30,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     internal static class AdalErrorIOSEx
     {
         public const string BrokerApplicationRequired = "broker_application_required";
+        public const string WritingApplicationTokenToKeychainFailed = "writing_application_token_to_keychain_failed";
+        public const string ReadingApplicationTokenFromKeychainFailed = "reading_application_token_from_keychain_failed";
     }
 
     internal static class AdalErrorMessageIOSEx
     {
         public const string BrokerApplicationRequired = "Broker application must be installed to continue authentication";
+        public const string WritingApplicationTokenToKeychainFailed = "This error indicates that the writing of the application token from iOS broker to the" +
+            " keychain threw an exception. No SecStatusCode was returned. ";
+        public const string ReadingApplicationTokenFromKeychainFailed = "This error indicates that the reading of the application token from they keychain" +
+            " threw an exception. No SecStatusCode was returned. ";
     }
 }

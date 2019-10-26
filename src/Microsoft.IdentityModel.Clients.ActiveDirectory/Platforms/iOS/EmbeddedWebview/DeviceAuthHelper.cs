@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;

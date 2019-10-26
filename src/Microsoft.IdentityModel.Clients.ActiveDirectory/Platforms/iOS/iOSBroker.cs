@@ -40,6 +40,7 @@ using Microsoft.Identity.Core.Cache;
 using Microsoft.Identity.Core.Helpers;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Broker;
 using System.Globalization;
+using Security;
 
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 {
@@ -134,6 +135,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             {
                 _brokerRequestNonce = Guid.NewGuid().ToString();
                 brokerPayload[BrokerParameter.BrokerNonce] = _brokerRequestNonce;
+
+                string applicationToken = TryReadBrokerApplicationTokenFromKeychain(brokerPayload);
+
+                if (!string.IsNullOrEmpty(applicationToken))
+                {
+                    brokerPayload.Add(BrokerConstants.ApplicationToken, applicationToken);
+                }
             }
 
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
@@ -228,6 +236,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                         ErrorDescription = AdalErrorMessage.BrokerNonceMismatch
                     };
                 }
+
+                if (responseDictionary.ContainsKey(BrokerConstants.ApplicationToken))
+                {
+                    TryWriteBrokerApplicationTokenToKeychain(
+                        responseDictionary[BrokerParameter.ClientId],
+                        responseDictionary[BrokerConstants.ApplicationToken]);
+                }
             }
 
             var dateTimeOffset = new DateTimeOffset(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
@@ -246,14 +261,57 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 {
                     _logger.Error(
                         string.Format(
-                            CultureInfo.CurrentCulture, 
-                            "Nonce check failed! Broker response nonce is:  {0}, \nBroker request nonce is: {1}", 
-                            brokerResponseNonce, 
+                            CultureInfo.CurrentCulture,
+                            "Nonce check failed! Broker response nonce is:  {0}, \nBroker request nonce is: {1}",
+                            brokerResponseNonce,
                             _brokerRequestNonce));
                 }
                 return ok;
             }
             return true;
+        }
+
+        private void TryWriteBrokerApplicationTokenToKeychain(string clientId, string applicationToken)
+        {
+            iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
+            try
+            {
+                SecStatusCode secStatusCode = iOSTokenCacheAccessor.SaveBrokerApplicationToken(clientId, applicationToken);
+
+                _logger.Info(string.Format(
+                   CultureInfo.CurrentCulture,
+                   BrokerConstants.AttemptToSaveBrokerApplicationToken + "SecStatusCode: {0}",
+                   secStatusCode));
+            }
+            catch(Exception ex)
+            {
+                throw new AdalException(
+                    AdalErrorIOSEx.WritingApplicationTokenToKeychainFailed,
+                    AdalErrorMessageIOSEx.WritingApplicationTokenToKeychainFailed + ex.Message);
+            }
+        }
+
+        private string TryReadBrokerApplicationTokenFromKeychain(IDictionary<string, string> brokerPaylaod)
+        {
+            iOSTokenCacheAccessor iOSTokenCacheAccessor = new iOSTokenCacheAccessor();
+
+            try
+            {
+                SecStatusCode secStatusCode = iOSTokenCacheAccessor.TryGetBrokerApplicationToken(brokerPaylaod[BrokerParameter.ClientId], out string appToken);
+
+                _logger.Info(string.Format(
+                   CultureInfo.CurrentCulture,
+                   BrokerConstants.SecStatusCodeFromTryGetBrokerApplicationToken + "SecStatusCode: {0}",
+                   secStatusCode));
+
+                return appToken;
+            }
+            catch(Exception ex)
+            {
+                throw new AdalException(
+                   AdalErrorIOSEx.ReadingApplicationTokenFromKeychainFailed,
+                   AdalErrorMessageIOSEx.ReadingApplicationTokenFromKeychainFailed + ex.Message);
+            }
         }
 
         public static void SetBrokerResponse(NSUrl responseUrl)
