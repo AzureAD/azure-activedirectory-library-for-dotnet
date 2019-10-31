@@ -76,14 +76,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             "login.microsoftonline.com" // Microsoft Azure Worldwide
         });
 
-        private static HashSet<string> WhitelistedDomains = new HashSet<string>(new[]
-        {
-            "dsts.core.windows.net", 
-            "dsts.core.chinacloudapi.cn", 
-            "dsts.core.cloudapi.de",
-            "dsts.core.usgovcloudapi.net", 
-            "dsts.core.azure-test.net"
-        });
+        private static HashSet<string> WhitelistedDomains = new HashSet<string>();
 
         private readonly IHttpManager _httpManager;
 
@@ -119,6 +112,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 await semaphore.WaitAsync().ConfigureAwait(false); // SemaphoreSlim.WaitAsync() will not block current thread
                 try
                 {
+                    // Dynamicly add dSTS endpoints to whitelist
+                    if (authority.Host.Contains(".dsts.") && 
+                        !WhitelistedDomains.Any(domain => authority.Host.EndsWith(domain, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        int dstsSuffixIndex = authority.Host.IndexOf(".dsts.", StringComparison.OrdinalIgnoreCase) + 1;
+                        WhitelistedDomains.Add(authority.Host.Substring(dstsSuffixIndex));
+                    }
+
                     if (!InstanceCache.TryGetValue(authority.Host, out entry))
                     {
                         await DiscoverAsync(authority, validateAuthority, requestContext).ConfigureAwait(false);
