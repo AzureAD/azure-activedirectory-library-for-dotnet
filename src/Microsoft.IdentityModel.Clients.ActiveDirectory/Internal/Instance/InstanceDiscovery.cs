@@ -116,7 +116,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                     if (authority.Host.Contains(".dsts.") && 
                         !WhitelistedDomains.Any(domain => authority.Host.EndsWith(domain, StringComparison.OrdinalIgnoreCase)))
                     {
-                        int dstsSuffixIndex = authority.Host.IndexOf(".dsts.", StringComparison.InvariantCultureIgnoreCase) + 1;
+                        int dstsSuffixIndex = authority.Host.IndexOf(".dsts.", StringComparison.OrdinalIgnoreCase) + 1;
                         WhitelistedDomains.Add(authority.Host.Substring(dstsSuffixIndex));
                     }
 
