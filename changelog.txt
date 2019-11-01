@@ -1,3 +1,8 @@
+Version 5.3.0
+=============
+New Features:
+**ADAL .NET now stores the application token returned from the iOS broker (Authenticator)**. This may result in the user experiencing less prompts. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1657)
+
 Version 5.2.3
 ==============
 Bug Fixes:
