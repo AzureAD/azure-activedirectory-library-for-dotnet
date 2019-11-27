@@ -72,13 +72,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="url"></param>
         public static void SetBrokerContinuationEventArgs(NSUrl url)
         {
-            if(url == null)
+            // url should always be present
+            // if coming from broker, will be the broker response
+            // check to prevent null ref later
+            if (url == null) 
             {
                 return;
             }
 
             string urlString = string.Format(CultureInfo.CurrentCulture, url.ToString());
-            if(urlString.Contains(BrokerConstants.Broker))
+            if(urlString.Contains(BrokerConstants.IdentifyiOSBrokerFromResponseUrl))
             {
                 iOSBroker.SetBrokerResponse(url);
             }           
