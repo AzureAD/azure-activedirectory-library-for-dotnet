@@ -317,7 +317,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public static void SetBrokerResponse(NSUrl responseUrl)
         {
             brokerResponse = responseUrl;
-            brokerResponseReady.Release();
+            brokerResponseReady?.Release();
         }
     }
 }

@@ -27,6 +27,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Foundation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
@@ -71,7 +72,16 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="url"></param>
         public static void SetBrokerContinuationEventArgs(NSUrl url)
         {
-            iOSBroker.SetBrokerResponse(url);
+            if(url == null)
+            {
+                return;
+            }
+
+            string urlString = string.Format(CultureInfo.CurrentCulture, url.ToString());
+            if(urlString.Contains(BrokerConstants.Broker))
+            {
+                iOSBroker.SetBrokerResponse(url);
+            }           
         }
     }
 }
