@@ -27,6 +27,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Foundation;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 
@@ -71,7 +72,19 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="url"></param>
         public static void SetBrokerContinuationEventArgs(NSUrl url)
         {
-            iOSBroker.SetBrokerResponse(url);
+            // url should always be present
+            // if coming from broker, will be the broker response
+            // check to prevent null ref later
+            if (url == null) 
+            {
+                return;
+            }
+
+            string urlString = string.Format(CultureInfo.CurrentCulture, url.ToString());
+            if(urlString.Contains(BrokerConstants.IdentifyiOSBrokerFromResponseUrl))
+            {
+                iOSBroker.SetBrokerResponse(url);
+            }           
         }
     }
 }

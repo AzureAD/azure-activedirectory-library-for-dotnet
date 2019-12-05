@@ -51,5 +51,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         public const string ApplicationToken = "application_token"; // sent in request and response with iOS broker v3
         public const string AttemptToSaveBrokerApplicationToken = "Attempt to save iOS broker application token resulted in: ";
         public const string SecStatusCodeFromTryGetBrokerApplicationToken = "The SecStatusCode from trying to get the broker application token is: ";
+
+        public const string IdentifyiOSBrokerFromResponseUrl = "broker";
     }
 }
