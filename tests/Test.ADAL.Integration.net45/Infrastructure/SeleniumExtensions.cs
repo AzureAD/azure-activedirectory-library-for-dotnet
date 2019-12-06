@@ -52,7 +52,7 @@ namespace Test.ADAL.Integration.Infrastructure
 
             var env = Environment.GetEnvironmentVariable("ChromeWebDriver");
 
-            if (String.IsNullOrEmpty(env))
+            if (string.IsNullOrEmpty(env))
             {
                 driver = new ChromeDriver(options);
             }

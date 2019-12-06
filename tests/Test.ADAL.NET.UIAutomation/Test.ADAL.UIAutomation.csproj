@@ -75,8 +75,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ADALMobileTestHelper.cs" />
-    <Compile Include="XamarinDroidADALTests.cs" />
+    <Compile Include="MobileTestHelper.cs" />
+    <Compile Include="XamarinAndroidTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

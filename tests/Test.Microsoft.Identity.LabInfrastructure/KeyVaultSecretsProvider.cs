@@ -1,36 +1,14 @@
-﻿//----------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Test.Microsoft.Identity.LabInfrastructure;
 
 namespace Microsoft.Identity.Test.LabInfrastructure
 {
@@ -49,8 +27,6 @@ namespace Microsoft.Identity.Test.LabInfrastructure
 
         private ClientAssertionCertificate _assertionCert;
 
-        private KeyVaultConfiguration _config;
-
         private readonly string _keyVaultClientID = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
 
         private readonly string _keyVaultThumbPrint = "79FBCBEB5CD28994E50DAFF8035BACF764B14306";
@@ -58,6 +34,9 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         private readonly string _dataFileName = "data.txt";
 
         private AuthenticationResult _authResult;
+
+        private const string _buildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
+        private const string _mSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";
 
         /// <summary>Initialize the secrets provider with the "keyVault" configuration section.</summary>
         /// <remarks>
@@ -88,26 +67,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         /// </remarks>
         public KeyVaultSecretsProvider()
         {
-            _config = new KeyVaultConfiguration();
-            _config.AuthType = KeyVaultAuthenticationType.ClientCertificate;
-
-            //The data.txt is a place holder for the keyvault secret. It will only be written to during build time when testing appcenter.
-            //After the tests are finished in appcenter, the file will be deleted from the appcenter servers.
-            //The file will then be deleted locally Via VSTS task.
-            if (File.Exists(_dataFileName))
-            {
-                var data = File.ReadAllText(_dataFileName);
-
-                if (!string.IsNullOrWhiteSpace(data))
-                {
-                    _config.AuthType = KeyVaultAuthenticationType.ClientSecret;
-                    _config.KeyVaultSecret = data;
-                }
-            }
-
-            _config.ClientId = _keyVaultClientID;
-            _config.CertThumbprint = _keyVaultThumbPrint;
-            _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);            
+            _keyVaultClient = new KeyVaultClient(AuthenticationCallbackAsync);
         }
 
         ~KeyVaultSecretsProvider()
@@ -120,43 +80,23 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             return _keyVaultClient.GetSecretAsync(secretUrl).GetAwaiter().GetResult();
         }
 
+        public SecretBundle GetMsidLabSecret(string secretName)
+        {
+            return _keyVaultClient.GetSecretAsync(_mSIDLabLabKeyVaultName, secretName).GetAwaiter().GetResult();
+        }
+
+        public X509Certificate2 GetCertificateWithPrivateMaterial(string certName)
+        {
+            SecretBundle secret = _keyVaultClient.GetSecretAsync(_buildAutomationKeyVaultName, certName).GetAwaiter().GetResult();
+            X509Certificate2 certificate = new X509Certificate2(Convert.FromBase64String(secret.Value));
+            return certificate;
+        }
+
         private async Task<string> AuthenticationCallbackAsync(string authority, string resource, string scope)
         {
-            if (_authResult != null)
-            {
-                return _authResult.AccessToken;
-            }
-            var authContext = new AuthenticationContext(authority, keyVaultTokenCache);
-
-            AuthenticationResult authResult;
-            switch (_config.AuthType)
-            {
-                case KeyVaultAuthenticationType.ClientCertificate:
-                    if (_assertionCert == null)
-                    {
-                        var cert = CertificateHelper.FindCertificateByThumbprint(_config.CertThumbprint);
-                        if (cert == null)
-                        {
-                            throw new InvalidOperationException(
-                                "Test setup error - cannot find a certificate in the My store for KeyVault. This is available for Microsoft employees only.");
-                        }
-                        _assertionCert = new ClientAssertionCertificate(_config.ClientId, cert);
-                    }
-                    authResult = await authContext.AcquireTokenAsync(resource, _assertionCert).ConfigureAwait(false);
-                    break;
-                case KeyVaultAuthenticationType.ClientSecret:
-                    ClientCredential cred = new ClientCredential(_config.ClientId, _config.KeyVaultSecret);
-                    authResult = await authContext.AcquireTokenAsync(resource, cred).ConfigureAwait(false);
-                    break;
-                case KeyVaultAuthenticationType.UserCredential:
-                    authResult = await authContext.AcquireTokenAsync(resource, _config.ClientId, new UserCredential()).ConfigureAwait(false);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            _authResult = authResult;
-            return authResult?.AccessToken;
+            return await LabAuthenticationHelper.GetLabAccessTokenAsync(
+                authority, 
+                resource).ConfigureAwait(false);
         }
 
         public void Dispose()

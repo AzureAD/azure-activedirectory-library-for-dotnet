@@ -61,7 +61,7 @@ namespace Test.ADAL.Integration.SeleniumTests
         public async Task InteractiveAuth_DefaultUserAsync()
         {
             // Arrange
-            LabResponse labResponse = LabUserHelper.GetDefaultUser();
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
             Action<IWebDriver> seleniumLogic = (driver) =>
             {
@@ -74,7 +74,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             // Act - acquire with empty cache => interactive auth
             AuthenticationResult result = await context.AcquireTokenAsync(
                 AdalTestConstants.MSGraph,
-                labResponse.AppId,
+                labResponse.App.AppId,
                 new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
                 new PlatformParameters(
                     PromptBehavior.Auto,
@@ -87,7 +87,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             // Act - acquire with token in cache => silent
             result = await context.AcquireTokenAsync(
                AdalTestConstants.MSGraph,
-               labResponse.AppId,
+               labResponse.App.AppId,
                new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
                new PlatformParameters(PromptBehavior.Auto))
                .ConfigureAwait(false);
@@ -109,7 +109,7 @@ namespace Test.ADAL.Integration.SeleniumTests
                 IsFederatedUser = false
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -125,7 +125,7 @@ namespace Test.ADAL.Integration.SeleniumTests
                 IsFederatedUser = true
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -142,7 +142,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             };
 
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -158,7 +158,7 @@ namespace Test.ADAL.Integration.SeleniumTests
                 IsFederatedUser = false
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -174,7 +174,7 @@ namespace Test.ADAL.Integration.SeleniumTests
                 IsFederatedUser = true
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserPromptAutoAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -191,7 +191,7 @@ namespace Test.ADAL.Integration.SeleniumTests
             // Act
             AuthenticationResult result = await context.AcquireTokenAsync(
                 AdalTestConstants.MSGraph, 
-                labResponse.AppId, 
+                labResponse.App.AppId, 
                 new Uri(SeleniumWebUI.FindFreeLocalhostRedirectUri()),
                 new PlatformParameters(
                     PromptBehavior.Always, 

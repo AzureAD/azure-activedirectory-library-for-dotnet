@@ -1,29 +1,5 @@
-﻿//----------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
@@ -74,29 +50,30 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         [JsonProperty("homeUPN")]
         public string HomeUPN { get; set; }
 
-        [JsonProperty("b2cProvider")]
-        public B2CIdentityProvider B2CIdentityProvider { get; set; }
+        [JsonProperty("appid")]
+        public string AppId { get; set; }
 
+        [JsonProperty("labname")]
+        public string LabName { get; set; }
+
+        public string TenantId { get; set; }
 
         private string _password = null;
 
-        public string Password
+        public string GetOrFetchPassword()
         {
-            get
+            if (_password == null)
             {
-                if (_password == null)
-                {
-                    _password = LabUserHelper.GetUserPassword(this);
-                }
-
-                return _password;
+                _password = LabUserHelper.FetchUserPassword(LabName);
             }
+
+            return _password;
         }
 
         public void InitializeHomeUser()
         {
             HomeUser = new LabUser();
-            var labHomeUser = (LabUser)HomeUser;
+            var labHomeUser = HomeUser;
 
             labHomeUser.ObjectId = ObjectId;
             labHomeUser.UserType = UserType;
@@ -112,7 +89,6 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             labHomeUser.HomeUPN = HomeUPN;
             labHomeUser.CurrentTenantId = HomeTenantId;
             labHomeUser.Upn = HomeUPN;
-            labHomeUser.B2CIdentityProvider = B2CIdentityProvider;
         }
     }
 }

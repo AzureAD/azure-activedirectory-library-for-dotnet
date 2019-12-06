@@ -43,16 +43,15 @@ namespace Test.ADAL.Integration.SeleniumTests
         [TestMethod]
         public async Task AuthorityMigrationAsync()
         {
-            var labResponse = LabUserHelper.GetDefaultUser();
-            var user = labResponse.User;
+            var labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
 
             Trace.WriteLine("Acquire a token using a not so common authority alias");
 
-            var context = new AuthenticationContext("https://sts.windows.net/" + user.CurrentTenantId);
+            var context = new AuthenticationContext("https://sts.windows.net/" + labResponse.User.CurrentTenantId);
             var authResult = await context.AcquireTokenAsync(
                 AdalTestConstants.MSGraph,
-                labResponse.AppId,
-                new UserPasswordCredential(user.Upn, user.Password))
+                labResponse.User.AppId,
+                new UserPasswordCredential(labResponse.User.Upn, labResponse.User.GetOrFetchPassword()))
                 .ConfigureAwait(false);
 
             Assert.IsTrue(!string.IsNullOrWhiteSpace(authResult?.AccessToken));
@@ -62,12 +61,10 @@ namespace Test.ADAL.Integration.SeleniumTests
             context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
             authResult = await context.AcquireTokenSilentAsync(
                 AdalTestConstants.MSGraph,
-                labResponse.AppId)
+                labResponse.User.AppId)
                 .ConfigureAwait(false);
             Assert.IsNotNull(authResult.AccessToken);
         }
-
 #endif
-
     }
 }

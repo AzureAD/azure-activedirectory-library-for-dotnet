@@ -1,29 +1,5 @@
-﻿//----------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using Microsoft.Identity.Test.LabInfrastructure;
 using NUnit.Framework;
@@ -42,14 +18,14 @@ namespace Test.ADAL.UIAutomation
     /// Configures environment for core/android tests to run
     /// </summary>
     [TestFixture(Platform.Android)]
-    public class XamarinDroidADALTests
+    public class XamarinAndroidTests
     {
         IApp app;
         Platform platform;
         ITestController xamarinController = new XamarinUITestController();
-        ADALMobileTestHelper _adalMobileTestHelper = new ADALMobileTestHelper();
+        MobileTestHelper _adalMobileTestHelper = new MobileTestHelper();
 
-        public XamarinDroidADALTests(Platform platform)
+        public XamarinAndroidTests(Platform platform)
         {
             this.platform = platform;
         }
@@ -70,7 +46,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetDefaultUser());
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController,
+                LabUserHelper.GetDefaultUserAsync().GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -79,7 +57,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenSilentTest()
         {
-            _adalMobileTestHelper.AcquireTokenSilentTestHelper(xamarinController, LabUserHelper.GetDefaultUser());
+            _adalMobileTestHelper.AcquireTokenSilentTestHelper(
+                xamarinController,
+                LabUserHelper.GetDefaultUserAsync().GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -90,7 +70,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveWithPromptAlwaysTest()
         {
-            _adalMobileTestHelper.AcquireTokenWithPromptBehaviorAlwaysHelper(xamarinController, LabUserHelper.GetDefaultUser());
+            _adalMobileTestHelper.AcquireTokenWithPromptBehaviorAlwaysHelper(
+                xamarinController,
+                LabUserHelper.GetDefaultUserAsync().GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -99,7 +81,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenADFSv4FederatedInteractiveTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV4));
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController, 
+                LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV4).GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -108,7 +92,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv4NonFederatedTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV4, false));
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController,
+                LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV4, false).GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -117,7 +103,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenADFSv3FederatedInteractiveTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV3));
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController, 
+                LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV3).GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -126,7 +114,9 @@ namespace Test.ADAL.UIAutomation
         [Test]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
-            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(xamarinController, LabUserHelper.GetAdfsUser(FederationProvider.AdfsV3, false));
+            _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
+                xamarinController, 
+                LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV3, false).GetAwaiter().GetResult());
         }
     }
 }

@@ -1,33 +1,10 @@
-﻿//------------------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.Identity.Test.LabInfrastructure
 {
@@ -42,11 +19,11 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         static LabUserHelper()
         {
             _keyVaultSecretsProvider = new KeyVaultSecretsProvider();
-            _labService = new LabServiceApi(_keyVaultSecretsProvider);
+            _labService = new LabServiceApi();
         }
 
 
-        public static LabResponse GetLabUserData(UserQuery query)
+        public static async Task<LabResponse> GetLabUserDataAsync(UserQuery query)
         {
             if (_userCache.ContainsKey(query))
             {
@@ -54,7 +31,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
                 return _userCache[query];
             }
 
-            var user = _labService.GetLabResponse(query);
+            var user = await _labService.GetLabResponseAsync(query).ConfigureAwait(false);
             if (user == null)
             {
                 throw new LabUserNotFoundException(query, "Found no users for the given query.");
@@ -66,33 +43,40 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             return user;
         }
 
-        public static LabResponse GetDefaultUser()
+        public static Task<LabResponse> GetDefaultUserAsync()
         {
-            return GetLabUserData(UserQuery.DefaultUserQuery);
+            return GetLabUserDataAsync(UserQuery.DefaultUserQuery);
         }
 
-        public static LabResponse GetB2CLocalAccount()
+        public static string FetchUserPassword(string userLabName)
         {
-            return GetLabUserData(UserQuery.B2CLocalAccountUserQuery);
+            if (string.IsNullOrWhiteSpace(userLabName))
+            {
+                throw new InvalidOperationException("Error: lab name is not set on user. Password retrieval failed.");
+            }
+
+            if (_keyVaultSecretsProvider == null)
+            {
+                throw new InvalidOperationException("Error: Keyvault secrets provider is not set");
+            }
+
+            try
+            {
+                return _labService.GetUserSecretAsync(userLabName).Result;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Test setup: cannot get the user password. See inner exception.", e);
+            }
         }
 
-        public static LabResponse GetB2CFacebookAccount()
-        {
-            return GetLabUserData(UserQuery.B2CFacebookUserQuery);
-        }
-
-        public static LabResponse GetB2CGoogleAccount()
-        {
-            return GetLabUserData(UserQuery.B2CGoogleUserQuery);
-        }
-
-        public static LabResponse GetAdfsUser(FederationProvider federationProvider, bool federated = true)
+        public static Task<LabResponse> GetAdfsUserAsync(FederationProvider federationProvider, bool federated = true)
         {
             var query = UserQuery.DefaultUserQuery;
             query.FederationProvider = federationProvider;
             query.IsFederatedUser = true;
             query.IsFederatedUser = federated;
-            return GetLabUserData(query);
+            return GetLabUserDataAsync(query);
         }
 
         public static string GetUserPassword(LabUser user)
