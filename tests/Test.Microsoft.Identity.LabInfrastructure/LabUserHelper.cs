@@ -78,28 +78,5 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             query.IsFederatedUser = federated;
             return GetLabUserDataAsync(query);
         }
-
-        public static string GetUserPassword(LabUser user)
-        {
-            if (string.IsNullOrWhiteSpace(user.CredentialUrl))
-            {
-                throw new InvalidOperationException("Error: CredentialUrl is not set on user. Password retrieval failed.");
-            }
-
-            if (_keyVaultSecretsProvider == null)
-            {
-                throw new InvalidOperationException("Error: Keyvault secrets provider is not set");
-            }
-
-            try
-            {
-                var secret = _keyVaultSecretsProvider.GetSecret(user.CredentialUrl);
-                return secret.Value;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("Test setup: cannot get the user password. See inner exception.", e);
-            }
-        }
     }
 }

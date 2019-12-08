@@ -47,7 +47,7 @@ namespace Test.ADAL.Integration.SeleniumTests
 
             Trace.WriteLine("Acquire a token using a not so common authority alias");
 
-            var context = new AuthenticationContext("https://sts.windows.net/" + labResponse.User.CurrentTenantId);
+            var context = new AuthenticationContext("https://sts.windows.net/" + labResponse.User.TenantId);
             var authResult = await context.AcquireTokenAsync(
                 AdalTestConstants.MSGraph,
                 labResponse.User.AppId,

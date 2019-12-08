@@ -124,14 +124,14 @@ namespace Test.ADAL.Integration.Infrastructure
             Trace.WriteLine("Logging in ... Clicking <Next> after username");
             driver.FindElement(By.Id(CoreUiTestConstants.WebSubmitID)).Click();
 
-            if (user.IsFederated && user.FederationProvider == FederationProvider.AdfsV2)
+            if (user.UserType == UserType.Federated && user.FederationProvider == FederationProvider.AdfsV2)
             {
                 Trace.WriteLine("Logging in ... AFDSv2 - Entering the username again, this time in the ADFSv2 form");
                 driver.FindElement(By.Id(CoreUiTestConstants.AdfsV2WebUsernameInputId)).SendKeys(user.Upn);
             }
 
             Trace.WriteLine("Logging in ... Entering password");
-            driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.PasswordInputId)).SendKeys(LabUserHelper.GetUserPassword(user));
+            driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.PasswordInputId)).SendKeys(user.GetOrFetchPassword());
 
             Trace.WriteLine("Logging in ... Clicking next after password");
             driver.WaitForElementToBeVisibleAndEnabled(By.Id(fields.SignInButtonId)).Click();

@@ -12,7 +12,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
 
         public void DetermineFieldIds(LabUser user)
         {
-            if (user.IsFederated)
+            if (user.UserType == UserType.Federated)
             {
                 switch (user.FederationProvider)
                 {

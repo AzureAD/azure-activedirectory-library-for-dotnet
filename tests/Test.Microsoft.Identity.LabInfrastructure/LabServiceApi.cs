@@ -43,7 +43,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             }
 
             queryDict.Add(LabApiConstants.MobileAppManagement, query.IsMamUser != null && (bool)(query.IsMamUser) ? LabApiConstants.True : LabApiConstants.False);
-            queryDict.Add(LabApiConstants.MultiFactorAuthentication, query.IsMfaUser != null && (bool)(query.IsMfaUser) ? LabApiConstants.True : LabApiConstants.False);
+            queryDict.Add(LabApiConstants.MultiFactorAuthentication, query.IsMfaUser != null && (bool)(query.IsMfaUser) ? LabApiConstants.MfaOnAll : LabApiConstants.None);
 
             if (query.Licenses != null && query.Licenses.Count > 0)
             {
@@ -70,16 +70,10 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         public async Task<LabResponse> GetLabResponseAsync(UserQuery query)
         {
             var response = await GetLabResponseFromApiAsync(query).ConfigureAwait(false);
-            var user = response.User;
 
-            if (!Uri.IsWellFormedUriString(user.CredentialUrl, UriKind.Absolute))
+            if (response == null)
             {
-                Console.WriteLine($"User '{user.Upn}' has invalid Credential URL: '{user.CredentialUrl}'");
-            }
-
-            if (user.IsExternal && user.HomeUser == null)
-            {
-                Console.WriteLine($"User '{user.Upn}' has no matching home user.");
+                throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
             return response;
@@ -95,17 +89,31 @@ namespace Microsoft.Identity.Test.LabInfrastructure
                 throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
             }
 
-            LabResponse response = JsonConvert.DeserializeObject<LabResponse>(result);
-            _ = response.User;
-
-            LabUser user = JsonConvert.DeserializeObject<LabUser>(result);
-
-            if (!string.IsNullOrEmpty(user.HomeTenantId) && !string.IsNullOrEmpty(user.HomeUPN))
+            LabUser[] userResponses = JsonConvert.DeserializeObject<LabUser[]>(result);
+            if (userResponses.Length > 1)
             {
-                user.InitializeHomeUser();
+                throw new InvalidOperationException(
+                    "Test Setup Error: Not expecting the lab to return multiple users for a query." +
+                    " Please have rewrite the query so that it returns a single user.");
             }
 
-            return response;
+            var user = userResponses[0];
+
+            var appResponse = await GetLabResponseAsync(LabApiConstants.LabAppEndpoint + user.AppId).ConfigureAwait(false);
+            LabApp[] labApps = JsonConvert.DeserializeObject<LabApp[]>(appResponse);
+
+            var labInfoResponse = await GetLabResponseAsync(LabApiConstants.LabInfoEndpoint + user.LabName).ConfigureAwait(false);
+            Lab[] labs = JsonConvert.DeserializeObject<Lab[]>(labInfoResponse);
+
+            user.TenantId = labs[0].TenantId;
+            user.FederationProvider = labs[0].FederationProvider;
+
+            return new LabResponse
+            {
+                User = user,
+                App = labApps[0],
+                Lab = labs[0]
+            };
         }
 
         private async Task<string> SendLabRequestAsync(string requestUrl, IDictionary<string, string> queryDict)

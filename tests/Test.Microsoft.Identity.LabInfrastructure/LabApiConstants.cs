@@ -23,6 +23,8 @@ namespace Microsoft.Identity.Test.LabInfrastructure
 
         public const string True = "true";
         public const string False = "false";
+        public const string None = "none"; // for mfa false
+        public const string MfaOnAll = "mfaonall"; // for mfa true
 
         public const string BetaEndpoint = "http://api.msidlab.com/api/userbeta";
 
