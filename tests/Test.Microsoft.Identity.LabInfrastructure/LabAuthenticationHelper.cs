@@ -4,10 +4,7 @@
 using Microsoft.Identity.Test.LabInfrastructure;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Test.Microsoft.Identity.LabInfrastructure
@@ -26,28 +23,9 @@ namespace Test.Microsoft.Identity.LabInfrastructure
         private const string LabAccessConfidentialClientId = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
         private const string LabAccessPublicClientId = "3c1e0e0d-b742-45ba-a35e-01c664e14b16";
         private const string LabAccessThumbPrint = "3051A5BE699BC4596EE47E9FEBBF48DBA85BE67B";
-        private const string DataFileName = "data.txt";
-        private static LabAccessAuthenticationType s_defaultAuthType = LabAccessAuthenticationType.ClientCertificate;
-        private static string s_secret;
+        private static readonly LabAccessAuthenticationType s_defaultAuthType = LabAccessAuthenticationType.ClientCertificate;
+        private static readonly string s_secret;
         private static ClientAssertionCertificate _assertionCert;
-        private static AuthenticationResult _authResult;
-
-        static LabAuthenticationHelper()
-        {
-            //The data.txt is a place holder for the keyvault secret. It will only be written to during build time when testing appcenter.
-            //After the tests are finished in appcenter, the file will be deleted from the appcenter servers.
-            //The file will then be deleted locally Via VSTS task.
-            if (File.Exists(DataFileName))
-            {
-                var data = File.ReadAllText(DataFileName);
-
-                if (!string.IsNullOrWhiteSpace(data))
-                {
-                    s_defaultAuthType = LabAccessAuthenticationType.ClientSecret;
-                    s_secret = data;
-                }
-            }
-        }
 
         public static async Task<string> GetAccessTokenForLabAPIAsync(string labAccessClientId, string labAccessSecret)
         {
@@ -116,7 +94,6 @@ namespace Test.Microsoft.Identity.LabInfrastructure
                     throw new ArgumentOutOfRangeException();
             }
 
-            _authResult = authResult;
             return authResult?.AccessToken;
         }
     }
