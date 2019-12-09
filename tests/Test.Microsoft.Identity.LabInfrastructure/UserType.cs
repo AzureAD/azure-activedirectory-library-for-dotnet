@@ -31,6 +31,10 @@ namespace Microsoft.Identity.Test.LabInfrastructure
     {
         Member = 0,
         Guest = 1,
-        B2C = 2
+        B2C = 2,
+        Cloud = 3,
+        Federated = 4,
+        OnPrem = 5,
+        MSA = 6
     }
 }

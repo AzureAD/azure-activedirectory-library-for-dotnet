@@ -55,7 +55,7 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
         public async Task ROPC_DefaultUserAsync()
         {
             // Arrange
-            LabResponse labResponse = LabUserHelper.GetDefaultUser();
+            LabResponse labResponse = await LabUserHelper.GetDefaultUserAsync().ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -71,7 +71,7 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
                 IsFederatedUser = false
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -87,7 +87,7 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
                 IsFederatedUser = true
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -103,8 +103,7 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
                 IsFederatedUser = true
             };
 
-
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -120,7 +119,7 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
                 IsFederatedUser = false
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
@@ -136,20 +135,20 @@ namespace Test.ADAL.Integration.net45.HeadlessTetss
                 IsFederatedUser = true
             };
 
-            LabResponse labResponse = LabUserHelper.GetLabUserData(query);
+            LabResponse labResponse = await LabUserHelper.GetLabUserDataAsync(query).ConfigureAwait(false);
             await RunTestForUserAsync(labResponse).ConfigureAwait(false);
         }
 
 
         private static async Task RunTestForUserAsync(LabResponse labResponse)
         {
-            var user = labResponse.User;
-
             var context = new AuthenticationContext(AdalTestConstants.DefaultAuthorityCommonTenant);
             var authResult = await context.AcquireTokenAsync(
                 AdalTestConstants.MSGraph,
-                labResponse.AppId,
-                new UserPasswordCredential(user.Upn, user.Password))
+                labResponse.User.AppId,
+                new UserPasswordCredential(
+                    labResponse.User.Upn, 
+                    labResponse.User.GetOrFetchPassword()))
                 .ConfigureAwait(false);
 
             Assert.IsNotNull(authResult.AccessToken);

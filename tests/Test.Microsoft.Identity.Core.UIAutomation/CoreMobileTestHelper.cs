@@ -46,7 +46,7 @@ namespace Test.Microsoft.Identity.Core.UIAutomation
             //idSIButton9 = Sign in button
             controller.Tap(CoreUiTestConstants.WebSubmitID, XamarinSelector.ByHtmlIdAttribute);
             //i0118 = password text field
-            controller.EnterText(userInformationFieldIds.PasswordInputId, LabUserHelper.GetUserPassword(user), XamarinSelector.ByHtmlIdAttribute);
+            controller.EnterText(userInformationFieldIds.PasswordInputId, user.GetOrFetchPassword(), XamarinSelector.ByHtmlIdAttribute);
             controller.Tap(userInformationFieldIds.SignInButtonId, XamarinSelector.ByHtmlIdAttribute);
         }
 

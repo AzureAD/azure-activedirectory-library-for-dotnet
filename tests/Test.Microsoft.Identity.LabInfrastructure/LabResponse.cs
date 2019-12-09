@@ -1,70 +1,58 @@
-﻿//-----------------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public class LabResponse
     {
-        [JsonProperty("AppId")]
-        public string AppId { get; set; }
+        [JsonProperty("app")]
+        public LabApp App { get; set; }
 
-        [JsonProperty("B2CAuthorities")]
-        public IList<B2CAuthority> B2CAuthoritities { get; set; }
-
-        [JsonProperty("Authority")]
-        public IList<string> Authority { get; set; }
-
-        [JsonProperty("Scope")]
-        public IList<string> Scopes { get; set; }
-
-        [JsonProperty("Users")]
+        [JsonProperty("user")]
         public LabUser User { get; set; }
 
-        [JsonProperty("RedirectUri")]
-        public IList<string> RedirectUris { get; set; }
+        [JsonProperty("lab")]
+        public Lab Lab { get; set; }
     }
 
-    public class B2CAuthority
+    public class LabApp
     {
-        [JsonProperty("Authority")]
+        [JsonProperty("appid")]
+        public string AppId { get; set; }
+
+        // TODO: this is a list, but lab sends a string. Not used today, discuss with lab to return a list
+        [JsonProperty("redirecturi")]
+        public string RedirectUri { get; set; }
+
+        [JsonProperty("signinaudience")]
+        public string Audience { get; set; }
+
+        // TODO: this is a list, but lab sends a string. Not used today, discuss with lab to return a list
+        [JsonProperty("authority")]
         public string Authority { get; set; }
 
-        [JsonProperty("AuthorityType")]
-        public B2CPolicy Policy { get; set; }
     }
 
-    public enum B2CPolicy
+    public class Lab
     {
-        SISOPolicy,
-        SignInPolicy,
-        SignUpPolicy,
-        ProfileEditPolicy,
+        [JsonProperty("tenantid")]
+        public string TenantId { get; set; }
+
+        [JsonProperty("federationprovider")]
+        public FederationProvider FederationProvider { get; set; }
+
+        [JsonProperty("credentialvaultkeyname")]
+        public string CredentialVaultkeyName { get; set; }
+
+        [JsonProperty("authority")]
+        public string Authority { get; set; }
+    }
+
+    public class LabCredentialResponse
+    {
+        [JsonProperty("Value")]
+        public string Secret { get; set; }
     }
 }
