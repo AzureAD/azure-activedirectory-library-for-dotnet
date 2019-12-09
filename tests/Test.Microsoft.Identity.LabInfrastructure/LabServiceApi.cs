@@ -67,19 +67,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
         /// </summary>
         /// <param name="query">Any and all parameters that the returned user should satisfy.</param>
         /// <returns>Users that match the given query parameters.</returns>
-        public async Task<LabResponse> GetLabResponseAsync(UserQuery query)
-        {
-            var response = await GetLabResponseFromApiAsync(query).ConfigureAwait(false);
-
-            if (response == null)
-            {
-                throw new LabUserNotFoundException(query, "No lab user with specified parameters exists");
-            }
-
-            return response;
-        }
-
-        private async Task<LabResponse> GetLabResponseFromApiAsync(UserQuery query)
+        public async Task<LabResponse> GetLabResponseFromApiAsync(UserQuery query)
         {
             //Fetch user
             string result = await RunQueryAsync(query).ConfigureAwait(false);

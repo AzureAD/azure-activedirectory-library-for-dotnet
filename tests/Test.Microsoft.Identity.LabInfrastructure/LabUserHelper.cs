@@ -22,7 +22,6 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             _labService = new LabServiceApi();
         }
 
-
         public static async Task<LabResponse> GetLabUserDataAsync(UserQuery query)
         {
             if (_userCache.ContainsKey(query))
@@ -31,7 +30,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
                 return _userCache[query];
             }
 
-            var user = await _labService.GetLabResponseAsync(query).ConfigureAwait(false);
+            var user = await _labService.GetLabResponseFromApiAsync(query).ConfigureAwait(false);
             if (user == null)
             {
                 throw new LabUserNotFoundException(query, "Found no users for the given query.");
