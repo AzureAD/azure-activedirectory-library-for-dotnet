@@ -226,6 +226,14 @@ namespace Test.ADAL.NET.Common.Mocks
             return responseMessage;
         }
 
+        public static HttpResponseMessage CreateFailureResponseMessage(string message, HttpStatusCode httpStatusCode)
+        {
+            HttpResponseMessage responseMessage = new HttpResponseMessage(httpStatusCode);
+            HttpContent content = new StringContent(message);
+            responseMessage.Content = content;
+            return responseMessage;
+        }
+
         public static HttpResponseMessage CreateCustomHeaderFailureResponseMessage(IEnumerable<KeyValuePair<string, string>> headers)
         {
             HttpResponseMessage responseMessage = CreateHttpErrorResponse();

@@ -87,13 +87,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
         internal static bool IsWhitelisted(string authorityHost)
         {
-            return WhitelistedAuthorities.Contains(authorityHost) || 
+            return WhitelistedAuthorities.Contains(authorityHost) ||
                 WhitelistedDomains.Any(domain => authorityHost.EndsWith(domain, StringComparison.OrdinalIgnoreCase));
         }
 
         // The following cache could be private, but we keep it public so that internal unit test can take a peek into it.
         // Keys are host strings.
-        public static ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache { get; } = 
+        public static ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry> InstanceCache { get; } =
             new ConcurrentDictionary<string, InstanceDiscoveryMetadataEntry>();
 
         private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
@@ -113,7 +113,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 try
                 {
                     // Dynamicly add dSTS endpoints to whitelist
-                    if (authority.Host.Contains(".dsts.") && 
+                    if (authority.Host.Contains(".dsts.") &&
                         !WhitelistedDomains.Any(domain => authority.Host.EndsWith(domain, StringComparison.OrdinalIgnoreCase)))
                     {
                         int dstsSuffixIndex = authority.Host.IndexOf(".dsts.", StringComparison.OrdinalIgnoreCase) + 1;
@@ -187,11 +187,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // All other unexpected exceptions will still bubble up, as always.
                 if (validateAuthority)
                 {
-                    // hard stop here
-                    throw new AdalException(
-                        (ex.ErrorCode == "invalid_instance")
-                            ? AdalError.AuthorityNotInValidList
-                            : AdalError.AuthorityValidationFailed, ex);
+                    if (Equals(ex.ErrorCode == ErrorCodes.InvalidInstance, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new AdalException(
+                            AdalError.AuthorityNotInValidList, 
+                            AdalError.AuthorityValidationFailed, 
+                            ex);
+                    }
+                    throw;
                 }
             }
 

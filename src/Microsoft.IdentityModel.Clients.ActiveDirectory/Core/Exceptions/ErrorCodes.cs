@@ -62,6 +62,8 @@ namespace Microsoft.Identity.Core
 
         public const string UnknownUser = "unknown_user";
         public const string UserRealmDiscoveryFailed = "user_realm_discovery_failed";
+        public const string InvalidInstance = "invalid_instance";
+
         /// <summary>
         /// Federation Metadata Url is missing for federated user.
         /// </summary>
