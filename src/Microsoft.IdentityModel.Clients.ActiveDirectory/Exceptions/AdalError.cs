@@ -78,6 +78,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public const string AuthorityValidationFailed = "authority_validation_failed";
 
         /// <summary>
+        /// Instance discovery endpoint has timed out.
+        /// </summary>
+        public const string InstanceDiscoveryEndpointTimeout = "instance_discovery_endpoint_timeout";
+
+        /// <summary>
         /// Loading required assembly failed.
         /// </summary>
         public const string AssemblyLoadFailed = "assembly_load_failed";

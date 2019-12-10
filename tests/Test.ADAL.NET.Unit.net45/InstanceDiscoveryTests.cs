@@ -42,6 +42,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using MockHttpMessageHandler = Test.ADAL.NET.Common.Mocks.MockHttpMessageHandler;
+using System.Collections.Generic;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -59,7 +60,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsInvalidButValidationIsNotRequired_ShouldCacheTheProvidedAuthorityAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -87,7 +87,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsValidButNoMetadataIsReturned_ShouldCacheTheProvidedAuthorityAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -112,7 +111,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("InstanceDiscoveryTests")]
         public void TestInstanceDiscovery_WhenMultipleSimultaneousCallsWithTheSameAuthority_ShouldMakeOnlyOneRequest()
         {
             using (var httpManager = new MockHttpManager())
@@ -130,7 +128,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsValidAndMetadataIsReturned_ShouldCacheAllReturnedAliasesAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -172,7 +169,6 @@ namespace Test.ADAL.NET.Unit
         }
 
         [TestMethod]
-        [TestCategory("InstanceDiscoveryTests")]
         public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscoveryAsync()
         {
             using (var httpManager = new MockHttpManager())
@@ -207,6 +203,36 @@ namespace Test.ADAL.NET.Unit
                     new string[] { preferredCache, givenHost, "login.microsoftonline.com", "login.windows.net", "sts.microsoft.com" },
                     orderedList);
             }
+        }
+
+        [TestMethod]
+        public void TestInstanceDiscovery_WhenEndpointTimesOut_ShouldThrowCorrectErrorMessage()
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                CreateFailureMockHandler(httpManager);
+                CreateFailureMockHandler(httpManager);
+
+                RequestContext requestContext = new RequestContext(null, new AdalLogger(new Guid()));
+                string givenHost = "sts.microsoft.com";
+
+                // ADAL still behaves correctly using developer provided authority
+                var exc = AssertException.TaskThrows<AdalException>(async () =>
+                    await serviceBundle.InstanceDiscovery.GetMetadataEntryAsync(new Uri($"https://{givenHost}/tenant"), true, requestContext).ConfigureAwait(false));
+                Assert.AreEqual(AdalError.InstanceDiscoveryEndpointTimeout, exc.ErrorCode);
+            }
+        }
+
+        private void CreateFailureMockHandler(MockHttpManager httpManager)
+        {
+            httpManager.AddMockHandler(new MockHttpMessageHandler(AdalTestConstants.DefaultAuthorityHomeTenant)
+            {
+                Method = HttpMethod.Get,
+                Url = $"https://{InstanceDiscovery.DefaultTrustedAuthority}/common/discovery/instance",
+                ResponseMessage = MockHelpers.CreateFailureResponseMessage("{\"error\":\"unknown_error\"}", HttpStatusCode.BadGateway)
+            });
         }
 
         private void AddMockInstanceDiscovery(string host, MockHttpManager httpManager)
