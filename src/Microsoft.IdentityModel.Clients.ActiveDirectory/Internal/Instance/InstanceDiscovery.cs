@@ -187,11 +187,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
                 // All other unexpected exceptions will still bubble up, as always.
                 if (validateAuthority)
                 {
-                    if (Equals(ex.ErrorCode == ErrorCodes.InvalidInstance, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(ex.ErrorCode, ErrorCodes.InvalidInstance, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new AdalException(
-                            AdalError.AuthorityNotInValidList, 
-                            AdalError.AuthorityValidationFailed, 
+                            AdalError.AuthorityNotInValidList,                              
                             ex);
                     }
                     throw;

@@ -82,7 +82,7 @@ namespace Test.ADAL.NET.Unit.net45
                 }
                 catch (AdalException ex)
                 {
-                    Assert.AreEqual(AdalError.AuthorityValidationFailed, ex.ErrorCode);
+                    Assert.AreEqual(AdalError.Unknown, ex.ErrorCode);
                     AdalServiceException inner = ex.InnerException as AdalServiceException;
                     Assert.AreEqual((int)HttpStatusCode.GatewayTimeout, inner.StatusCode);
                     return;
@@ -130,8 +130,8 @@ namespace Test.ADAL.NET.Unit.net45
                 {
                     // Assert
 
-                    // Instance Discovery will wrap all exceptions, so the task cancelled is burried 2 times deep
-                    Assert.AreSame(mockHandler2.ExceptionToThrow.Message, ex.InnerException.InnerException.InnerException.Message);
+                    // Instance Discovery will wrap all exceptions, so the task cancelled is burried 1 time 
+                    Assert.AreSame(mockHandler2.ExceptionToThrow.Message, ex.InnerException.InnerException.Message);
                     return;
                 }
 
