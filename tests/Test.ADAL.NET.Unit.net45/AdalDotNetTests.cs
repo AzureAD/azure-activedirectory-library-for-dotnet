@@ -1268,7 +1268,6 @@ namespace Test.ADAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
-                InstanceDiscovery.InstanceCache.Clear();
 
                 SetupMocks(httpManager);
 
