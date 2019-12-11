@@ -50,8 +50,8 @@ namespace Microsoft.Identity.Core.UI.EmbeddedWebview
             base.OnCreate(bundle);
             // Create your application here
 
-            WebView webView = new WebView(ApplicationContext);
-            var relativeLayout = new RelativeLayout(ApplicationContext);
+            WebView webView = new WebView(this);
+            var relativeLayout = new RelativeLayout(this);
             webView.LayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MatchParent, RelativeLayout.LayoutParams.MatchParent);
 
             relativeLayout.AddView(webView);
