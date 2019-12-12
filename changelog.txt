@@ -2,7 +2,7 @@ Version 5.2.5
 =============
 Bug Fixes:
 **Due to network timeouts, hitting the instance discovery endpoint may time out.** ADAL.NET now returns a more explicit error message. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1662)
-**On iOS 13, the `IsBrokerResponse` method can return true if `SourceApplication` is null, which later resulted in a null ref on non-broker related calls**. ADAL.NET now checks the `openUrl` is a broker response before proceeding. [Issue](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/pull/1534)
+**On iOS 13, the `IsBrokerResponse` method can return true if `SourceApplication` is null, which later resulted in a null ref on non-broker related calls**. ADAL.NET now checks the `openUrl` is a broker response before proceeding. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1673)
 **On Android with embedded webview, when setting up the password reset, the security information drop boxes were not active**. ADAL.NET now uses the correct Activity context in the embedded webview. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1684)
 
 Version 5.2.4
