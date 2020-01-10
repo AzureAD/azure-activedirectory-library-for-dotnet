@@ -491,7 +491,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
                 request.ExtraQueryParamsAuthentication);
 
             brokerOptions.PutString(BrokerConstants.CallerInfoPackage, Application.Context.PackageName);
-            brokerOptions.PutInt(BrokerConstants.CallerInfoUID, Android.OS.Process.MyPid());
+            brokerOptions.PutInt(BrokerConstants.CallerInfoUID, Android.OS.Process.MyUid());
 
             if (request.Claims != null)
             {
