@@ -1263,7 +1263,6 @@ namespace Test.ADAL.NET.Unit
 
         [TestMethod]
         [Description("Test for returning entire HttpResponse as inner exception")]
-        [Ignore] //TODO fix broken test
         public void HttpErrorResponseAsInnerException()
         {
             using (var httpManager = new MockHttpManager())
