@@ -1,3 +1,8 @@
+Version 5.2.6
+=============
+Bug Fixes:
+**Due to incorrect parameters sent in brokered authentication requests on Android, the broker may fail to sign the user in silently.** ADAL.NET now sends the correct parameters during brokered authentication on Android. [Issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1687)
+
 Version 5.2.5
 =============
 Bug Fixes:
