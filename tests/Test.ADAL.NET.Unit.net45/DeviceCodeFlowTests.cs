@@ -204,8 +204,8 @@ namespace Test.ADAL.NET.Unit
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
 
-                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id", context.Authority);
-                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id", context.Authenticator.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id/", context.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id/", context.Authenticator.Authority);
                 Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
                 Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
                 Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
@@ -242,8 +242,8 @@ namespace Test.ADAL.NET.Unit
                 Assert.IsNotNull(dcr);
                 Assert.AreEqual("some-user-code", dcr.UserCode);
 
-                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id", context.Authority);
-                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id", context.Authenticator.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id/", context.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/some-tenant-id/", context.Authenticator.Authority);
                 Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
                 Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
                 Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
