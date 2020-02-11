@@ -173,7 +173,7 @@ namespace Test.ADAL.NET.Unit
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
-                var authenticator = new Authenticator(serviceBundle, "https://login.contoso.com/adfs", false);
+                var authenticator = new Authenticator(serviceBundle, "https://login.contoso.com/adfs/" + AdalTestConstants.SomeTenantId, false);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
             }
         }
