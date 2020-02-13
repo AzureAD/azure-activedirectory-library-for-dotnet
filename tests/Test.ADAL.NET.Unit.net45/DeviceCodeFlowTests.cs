@@ -33,6 +33,7 @@ using Microsoft.Identity.Core;
 using Microsoft.Identity.Test.Common.Core.Mocks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
+using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
@@ -194,14 +195,22 @@ namespace Test.ADAL.NET.Unit
                 });
 
                 TokenCache cache = new TokenCache();
-                AuthenticationContext ctx = new AuthenticationContext(
+                AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
                     AdalTestConstants.DefaultAdfsAuthorityTenant,
                     AuthorityValidationType.False,
                     cache);
-                AuthenticationResult result = await ctx.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
+                AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
+
+                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authenticator.Authority);
+                Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.SelfSignedJwtAudience);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.TokenUri);
             }
         }
 
@@ -224,13 +233,22 @@ namespace Test.ADAL.NET.Unit
                     AdalTestConstants.DefaultAdfsAuthorityTenant,
                     AuthorityValidationType.False,
                     null);
+
                 DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(
                     AdalTestConstants.DefaultResource,
                     AdalTestConstants.DefaultClientId)
                     .ConfigureAwait(false);
 
                 Assert.IsNotNull(dcr);
-                Assert.AreEqual(dcr.UserCode, "some-user-code");
+                Assert.AreEqual("some-user-code", dcr.UserCode);
+
+                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authority);
+                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authenticator.Authority);
+                Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.SelfSignedJwtAudience);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.TokenUri);
             }
         }
     }
