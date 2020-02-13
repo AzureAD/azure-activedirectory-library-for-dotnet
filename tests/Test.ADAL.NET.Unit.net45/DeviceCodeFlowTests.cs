@@ -156,6 +156,61 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         public async Task AdfsPositiveTestAsync()
         {
+            await CreateAdfsDeviceCodeTestAsync(AdalTestConstants.DefaultAdfsAuthorityTenant).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task AdfsWithTenantIdPositiveTestAsync()
+        {
+            await CreateAdfsDeviceCodeTestAsync(AdalTestConstants.AdfsAuthorityWithTenant).ConfigureAwait(false); // adfs should never have a tenantId
+        }
+
+        [TestMethod]
+        public async Task AdfsPostMethodTestAsync()
+        {
+            await CreateAdfsPostMethodTestAsync(AdalTestConstants.DefaultAdfsAuthorityTenant).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task AdfsWithTenantIdPostMethodTestAsync()
+        {
+            await CreateAdfsPostMethodTestAsync(AdalTestConstants.AdfsAuthorityWithTenant).ConfigureAwait(false); // adfs should never have a tenantId
+        }
+
+        private async Task CreateAdfsPostMethodTestAsync(string authority)
+        {
+            using (var httpManager = new MockHttpManager())
+            {
+                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
+
+                httpManager.AddMockHandler(new MockHttpMessageHandler()
+                {
+                    Method = HttpMethod.Post,
+                    Url = "https://login.contoso.com/adfs/oauth2/devicecode",
+                    ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
+                });
+
+                AuthenticationContext context = new AuthenticationContext(
+                    serviceBundle,
+                    authority,
+                    AuthorityValidationType.False,
+                    null);
+
+                DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(
+                    AdalTestConstants.DefaultResource,
+                    AdalTestConstants.DefaultClientId)
+                    .ConfigureAwait(false);
+
+                Assert.IsNotNull(dcr);
+                Assert.AreEqual("some-user-code", dcr.UserCode);
+
+                Assert.AreEqual(authority, context.Authority);
+                CheckAdfsEndpoints(authority, context.Authenticator);
+            }
+        }
+
+        private async Task CreateAdfsDeviceCodeTestAsync(string authority)
+        {
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
@@ -197,59 +252,25 @@ namespace Test.ADAL.NET.Unit
                 TokenCache cache = new TokenCache();
                 AuthenticationContext context = new AuthenticationContext(
                     serviceBundle,
-                    AdalTestConstants.DefaultAdfsAuthorityTenant,
+                    authority,
                     AuthorityValidationType.False,
                     cache);
                 AuthenticationResult result = await context.AcquireTokenByDeviceCodeAsync(dcr).ConfigureAwait(false);
                 Assert.IsNotNull(result);
                 Assert.AreEqual("some-access-token", result.AccessToken);
 
-                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authority);
-                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authenticator.Authority);
-                Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.SelfSignedJwtAudience);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.TokenUri);
+                CheckAdfsEndpoints(authority, context.Authenticator);
             }
         }
 
-        [TestMethod]
-        public async Task AdfsPostMethodTestAsync()
+        private void CheckAdfsEndpoints(string authority, Authenticator authenticator)
         {
-            using (var httpManager = new MockHttpManager())
-            {
-                var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
-
-                httpManager.AddMockHandler(new MockHttpMessageHandler()
-                {
-                    Method = HttpMethod.Post,
-                    Url = "https://login.contoso.com/adfs/oauth2/devicecode",
-                    ResponseMessage = MockHelpers.CreateSuccessDeviceCodeResponseMessage()
-                });
-
-                AuthenticationContext context = new AuthenticationContext(
-                    serviceBundle,
-                    AdalTestConstants.DefaultAdfsAuthorityTenant,
-                    AuthorityValidationType.False,
-                    null);
-
-                DeviceCodeResult dcr = await context.AcquireDeviceCodeAsync(
-                    AdalTestConstants.DefaultResource,
-                    AdalTestConstants.DefaultClientId)
-                    .ConfigureAwait(false);
-
-                Assert.IsNotNull(dcr);
-                Assert.AreEqual("some-user-code", dcr.UserCode);
-
-                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authority);
-                Assert.AreEqual("https://login.contoso.com/adfs/", context.Authenticator.Authority);
-                Assert.AreEqual(AuthorityType.ADFS, context.Authenticator.AuthorityType);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", context.Authenticator.AuthorizationUri);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", context.Authenticator.DeviceCodeUri);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.SelfSignedJwtAudience);
-                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", context.Authenticator.TokenUri);
-            }
+            Assert.AreEqual(authority, authenticator.Authority);
+            Assert.AreEqual(AuthorityType.ADFS, authenticator.AuthorityType);
+            Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", authenticator.AuthorizationUri);
+            Assert.AreEqual("https://login.contoso.com/adfs/oauth2/devicecode", authenticator.DeviceCodeUri);
+            Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", authenticator.SelfSignedJwtAudience);
+            Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", authenticator.TokenUri);
         }
     }
 }

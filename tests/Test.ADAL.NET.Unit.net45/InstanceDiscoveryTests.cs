@@ -34,7 +34,6 @@ using System.Net;
 using Microsoft.Identity.Core;
 using Microsoft.Identity.Core.Cache;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal;
-using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Flows;
 using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.ClientCreds;
@@ -42,6 +41,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform;
 using Test.ADAL.NET.Common;
 using Test.ADAL.NET.Common.Mocks;
 using MockHttpMessageHandler = Test.ADAL.NET.Common.Mocks.MockHttpMessageHandler;
+using AuthorityType = Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Instance.AuthorityType;
 
 namespace Test.ADAL.NET.Unit
 {
@@ -170,11 +170,27 @@ namespace Test.ADAL.NET.Unit
         [TestMethod]
         public async Task TestInstanceDiscovery_WhenAuthorityIsAdfs_ShouldNotDoInstanceDiscoveryAsync()
         {
+            await BasicAdfsTestAsync(AdalTestConstants.DefaultAdfsAuthorityTenant).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task TestInstanceDiscovery_WhenAuthorityIsAdfsWithTenantSpecified_ShouldNotDoInstanceDiscoveryAsync()
+        {
+            await BasicAdfsTestAsync(AdalTestConstants.AdfsAuthorityWithTenant).ConfigureAwait(false);
+        }
+
+        private async Task BasicAdfsTestAsync(string authority)
+        {
             using (var httpManager = new MockHttpManager())
             {
                 var serviceBundle = ServiceBundle.CreateWithCustomHttpManager(httpManager);
-                var authenticator = new Authenticator(serviceBundle, "https://login.contoso.com/adfs", false);
+                var authenticator = new Authenticator(serviceBundle, authority, false);
                 await authenticator.UpdateFromTemplateAsync(new RequestContext(null, new AdalLogger(new Guid()))).ConfigureAwait(false);
+                Assert.AreEqual(authority, authenticator.Authority);
+                Assert.AreEqual(AuthorityType.ADFS, authenticator.AuthorityType);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/authorize", authenticator.AuthorizationUri);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", authenticator.SelfSignedJwtAudience);
+                Assert.AreEqual("https://login.contoso.com/adfs/oauth2/token", authenticator.TokenUri);
             }
         }
 
