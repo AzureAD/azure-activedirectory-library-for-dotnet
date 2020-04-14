@@ -33,6 +33,8 @@ using Android.Widget;
 using Android.OS;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System.Text;
+using Android.Accounts;
+using Plugin.CurrentActivity;
 
 namespace AdalAndroidTestApp
 {
@@ -163,6 +165,28 @@ namespace AdalAndroidTestApp
 
         private async void acquireTokenInteractiveButton_Click(object sender, EventArgs e)
         {
+            string WORK_AND_SCHOOL_TYPE = "com.microsoft.workaccount";
+           
+
+            // this variable should now have all the accounts in the broker
+            AccountManager accManager = AccountManager.Get(Application.Context);
+            Account[] accounts = accManager.GetAccountsByType(WORK_AND_SCHOOL_TYPE);
+
+            // If there are no accounts or ADAL can't access them, you won't be able to use the broker.
+            // Most likely this a permission problem, which is resolved by displaying the account picker
+            if (accounts == null || accounts.Length == 0)
+            {
+                // This will pop-up a dialog with an account picker. 
+                // MSAL has a much better implementation of this, and does not require this dialog!
+                // See the Android docs for customizing the UI https://developers.google.com/android/reference/com/google/android/gms/common/AccountPicker                
+                Intent intent = AccountManager.NewChooseAccountIntent(
+                    null, null, new[] { WORK_AND_SCHOOL_TYPE }, null, null, null, null);
+                // Start an activity with this intent, e.g. 
+                this.StartActivity(intent);
+
+                // TODO: figure out a way to wait for the user to choose a value in the account picker
+            }
+
             string resource = GetResource();
 
 
