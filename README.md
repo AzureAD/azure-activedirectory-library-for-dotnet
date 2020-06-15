@@ -7,7 +7,7 @@ This library, ADAL for .NET, will no longer receive new feature improvements. In
   [MSAL for .NET docs](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki)
   for details about the scenarios, usage, and relevant concepts.
 * If your application is using the previous ADAL for .NET library, you can follow this
-  [migration guide for .NET apps](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration) and this [migration guide for brokered iOS Xamarin apps](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-ios-broker) to update to MSAL for .NET.
+  [migration guide for .NET apps](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration), this [migration guide for brokered iOS Xamarin apps](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-ios-broker), or this [migration guide for brokered Android Xamarin apps](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/How-to-migrate-from-using-Android-Broker-on-ADAL.NET-to-MSAL.NET).
 * Existing applications relying on ADAL for .NET will continue to work.
 
 ---
