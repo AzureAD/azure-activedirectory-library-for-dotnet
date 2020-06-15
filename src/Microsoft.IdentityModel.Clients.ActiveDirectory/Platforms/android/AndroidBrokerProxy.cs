@@ -274,9 +274,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
         // App needs to give permission to AccountManager to use broker.
         private bool VerifyManifestPermissions()
         {
-            return VerifyManifestPermission("android.permission.GET_ACCOUNTS") &&
-                   VerifyManifestPermission("android.permission.MANAGE_ACCOUNTS") &&
-                   VerifyManifestPermission("android.permission.USE_CREDENTIALS");
+            return VerifyManifestPermission("android.permission.GET_ACCOUNTS");
+                  // VerifyManifestPermission("android.permission.MANAGE_ACCOUNTS") &&
+                  // VerifyManifestPermission("android.permission.USE_CREDENTIALS");
         }
 
         private bool VerifyManifestPermission(string permission)

@@ -38,90 +38,147 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
     static class BrokerKeyHelper
     {
         private const string LocalSettingsContainerName = "ActiveDirectoryAuthenticationLibrary";
+        private const string KeyChainServiceBrokerKey = "Broker Key Service";
+        private const string KeyChainAccountBrokerKey = "Broker Key Account";
 
-        internal static String GetBase64UrlBrokerKey()
+        internal static byte[] GetOrCreateBrokerKey(ICoreLogger logger)
         {
-            return Base64UrlHelpers.Encode(GetRawBrokerKey());
+            if (TryGetBrokerKey(out byte[] brokerKey))
+            {
+                logger.Info("Found existing broker key");
+                return brokerKey;
+            }
+
+            brokerKey = CreateAndStoreBrokerKey(logger);
+
+            return brokerKey;
         }
 
-        internal static byte[] GetRawBrokerKey()
+        private static byte[] CreateAndStoreBrokerKey(ICoreLogger logger)
         {
-            byte[] brokerKey = null;
-            SecRecord record = new SecRecord(SecKind.GenericPassword)
+            logger.Info("Creating new broker key");
+
+            byte[] brokerKey;
+            byte[] rawBytes;
+            using (AesManaged algo = CreateSymmetricAlgorith(null))
+            {
+                algo.GenerateKey();
+                rawBytes = algo.Key;
+            }
+
+            NSData byteData = NSData.FromArray(rawBytes);
+
+            var recordToAdd = new SecRecord(SecKind.GenericPassword)
             {
                 Generic = NSData.FromString(LocalSettingsContainerName),
                 Service = "Broker Key Service",
                 Account = "Broker Key Account",
                 Label = "Broker Key Label",
                 Comment = "Broker Key Comment",
-                Description = "Storage for broker key"
+                Description = "Storage for broker key",
+                ValueData = byteData
+            };
+
+            var result = SecKeyChain.Add(recordToAdd);
+            
+            if (result == SecStatusCode.DuplicateItem)
+            {
+                logger.Info("Could not add the broker key, a key already exists. Trying to delete it first.");
+                var recordToRemove = new SecRecord(SecKind.GenericPassword)
+                {
+                    Service = "Broker Key Service",
+                    Account = "Broker Key Account",
+                };
+
+                var removeResult = SecKeyChain.Remove(recordToRemove);
+                logger.Info("Broker Key removal result: " + removeResult);
+
+                result = SecKeyChain.Add(recordToAdd);
+                logger.Info("Broker Key re-adding result: " + result);
+
+            }
+
+            if (result != SecStatusCode.Success)
+            {
+                throw new AdalException(
+                    AdalError.BrokerKeySaveFailed,
+                    AdalErrorMessage.BrokerKeySaveFailed(result.ToString()));
+            }
+
+            brokerKey = byteData.ToArray();
+            return brokerKey;
+        }
+
+        private static bool TryGetBrokerKey(out byte[] brokerKey)
+        {
+            SecRecord record = new SecRecord(SecKind.GenericPassword)
+            {
+                Generic = NSData.FromString(LocalSettingsContainerName),
+                Service = KeyChainServiceBrokerKey,
+                Account = KeyChainAccountBrokerKey,
             };
 
             NSData key = SecKeyChain.QueryAsData(record);
-            if (key == null)
-            {
-                AesManaged algo = new AesManaged();
-                algo.GenerateKey();
-                byte[] rawBytes = algo.Key;
-                NSData byteData = NSData.FromArray(rawBytes);
-                record = new SecRecord(SecKind.GenericPassword)
-                {
-                    Generic = NSData.FromString(LocalSettingsContainerName),
-                    Service = "Broker Key Service",
-                    Account = "Broker Key Account",
-                    Label = "Broker Key Label",
-                    Comment = "Broker Key Comment",
-                    Description = "Storage for broker key",
-                    ValueData = byteData
-                };
-
-                var result = SecKeyChain.Add(record);
-                if (result != SecStatusCode.Success)
-                {
-                    CoreLoggerBase.Default.Warning("Failed to save broker key. Security Keychain Status code: " + result);
-                }
-
-                brokerKey = byteData.ToArray();
-            }
-            else
+            if (key != null)
             {
                 brokerKey = key.ToArray();
+                return true;
             }
-        
-            return brokerKey;
+
+            brokerKey = null;
+            return false;
         }
-        
-        internal static String DecryptBrokerResponse(String encryptedBrokerResponse)
+
+        internal static string DecryptBrokerResponse(string encryptedBrokerResponse)
         {
             byte[] outputBytes = Base64UrlHelpers.DecodeToBytes(encryptedBrokerResponse);
             string plaintext = string.Empty;
-            
-            using (MemoryStream memoryStream = new MemoryStream(outputBytes))
-            {
-                byte[] key = GetRawBrokerKey();
 
-                AesManaged algo = GetCryptoAlgorithm(key);
-                using (CryptoStream cryptoStream = new CryptoStream(memoryStream, algo.CreateDecryptor(), CryptoStreamMode.Read))
+            if (TryGetBrokerKey(out byte[] key))
+            {
+                AesManaged algo = null;
+                CryptoStream cryptoStream = null;
+                MemoryStream memoryStream = null;
+                try
                 {
+                    memoryStream = new MemoryStream(outputBytes);
+                    algo = CreateSymmetricAlgorith(key);
+                    cryptoStream = new CryptoStream(
+                        memoryStream,
+                        algo.CreateDecryptor(),
+                        CryptoStreamMode.Read);
                     using (StreamReader srDecrypt = new StreamReader(cryptoStream))
                     {
                         plaintext = srDecrypt.ReadToEnd();
+                        return plaintext;
                     }
+                }
+                finally
+                {
+                    memoryStream?.Dispose();
+                    cryptoStream?.Dispose();
+                    algo?.Dispose();
                 }
             }
 
-            return plaintext;
+            throw new AdalException(
+                "broker_key_fetch_failed",
+                "Could not fetch the broker key after it was created. " +
+                $"Try to delete the KeyChain entry service {KeyChainServiceBrokerKey} account {KeyChainAccountBrokerKey}");
+
         }
-        
-        private static AesManaged GetCryptoAlgorithm(byte[] key)
+
+        private static AesManaged CreateSymmetricAlgorith(byte[] key)
         {
-            AesManaged algorithm = new AesManaged();
-         
-            //set the mode, padding and block size
-            algorithm.Padding = PaddingMode.PKCS7;
-            algorithm.Mode = CipherMode.CBC;
-            algorithm.KeySize = 256;
-            algorithm.BlockSize = 128;
+            AesManaged algorithm = new AesManaged
+            {
+                //set the mode, padding and block size
+                Padding = PaddingMode.PKCS7,
+                Mode = CipherMode.CBC,
+                KeySize = 256,
+                BlockSize = 128
+            };
+
             if (key != null)
             {
                 algorithm.Key = key;

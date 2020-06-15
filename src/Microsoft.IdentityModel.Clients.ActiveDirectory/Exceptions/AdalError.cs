@@ -362,5 +362,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// JSON Parse error.
         /// </summary>
         public const string JsonParseError = "json_parse_failed";
+
+        /// <summary>
+        /// <para>What happens?</para>ADAL uses a simple symmetric algorithm to encrypt communication with the iOS broker. The key could not be saved in the KeyChain.
+        /// <para>Mitigation</para> Make sure the app has permissions to write to the keychain group "com.microsoft.adalcache". Inspect the error message for more details.
+        /// </summary>
+        public const string BrokerKeySaveFailed = "broker_key_save_failed";
     }
 }

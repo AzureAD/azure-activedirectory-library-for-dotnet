@@ -120,15 +120,15 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             brokerResponseReady = new SemaphoreSlim(0);
 
             //call broker
-            string base64EncodedString = Base64UrlHelpers.Encode(BrokerKeyHelper.GetRawBrokerKey());
+            string base64EncodedString = Base64UrlHelpers.Encode(BrokerKeyHelper.GetOrCreateBrokerKey(_logger));
             brokerPayload["broker_key"] = base64EncodedString;
             brokerPayload["max_protocol_ver"] = "2";
 
-            if (brokerPayload.ContainsKey("claims"))
+            if (brokerPayload.TryGetValue("claims", out string claims) && !string.IsNullOrEmpty(claims))
             {
                 brokerPayload.Add("skip_cache", "YES");
-                string claims = EncodingHelper.UrlEncode(brokerPayload[BrokerParameter.Claims]);
-                brokerPayload[BrokerParameter.Claims] = claims;
+                string encodedClaims = EncodingHelper.UrlEncode(claims);
+                brokerPayload[BrokerParameter.Claims] = encodedClaims;
             }
 
             if (_brokerV3Installed)
@@ -146,26 +146,14 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
 
             if (brokerPayload.ContainsKey(BrokerParameter.BrokerInstallUrl))
             {
-                string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
-                Uri uri = new Uri(url);
-                string query = uri.Query;
-                if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
-                {
-                    query = query.Substring(1);
-                }
-
-                _logger.Info("Invoking the iOS broker app link");
-
-                Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
-                DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(new NSUrl(keyPair["app_link"])));
-
-                throw new AdalException(AdalErrorIOSEx.BrokerApplicationRequired, AdalErrorMessageIOSEx.BrokerApplicationRequired);
+                HandleInstallUrl(brokerPayload);
             }
-
             else
             {
-                _logger.Info("Invoking the iOS broker. ");
-                NSUrl url = new NSUrl("msauth://broker?" + brokerPayload.ToQueryParameter());
+                string queryParams = brokerPayload.ToQueryParameter();
+                _logger.InfoPii("Invoking the iOS broker " + queryParams,
+                    "Invoking the iOS broker. ");
+                NSUrl url = new NSUrl("msauth://broker?" + queryParams);
                 DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(url));
             }
 
@@ -174,11 +162,31 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             return ProcessBrokerResponse();
         }
 
+        private void HandleInstallUrl(IDictionary<string, string> brokerPayload)
+        {
+            string url = brokerPayload[BrokerParameter.BrokerInstallUrl];
+            Uri uri = new Uri(url);
+            string query = uri.Query;
+            if (query.StartsWith("?", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Substring(1);
+            }
+
+            _logger.Info("Invoking the iOS broker app link");
+
+            Dictionary<string, string> keyPair = EncodingHelper.ParseKeyValueList(query, '&', true, false, null);
+            DispatchQueue.MainQueue.DispatchAsync(() => UIApplication.SharedApplication.OpenUrl(new NSUrl(keyPair["app_link"])));
+
+            throw new AdalException(AdalErrorIOSEx.BrokerApplicationRequired, AdalErrorMessageIOSEx.BrokerApplicationRequired);
+        }
+
         private AdalResultWrapper ProcessBrokerResponse()
         {
-            string[] keyValuePairs = brokerResponse.Query.Split('&');
+            _logger.InfoPii(
+                "Processing reponse from iOS broker " + brokerResponse.Query, 
+                "Processing response from iOS Broker. ");
 
-            _logger.Info("Processing response from iOS Broker. ");
+            string[] keyValuePairs = brokerResponse.Query.Split('&');
 
             IDictionary<string, string> responseDictionary = new Dictionary<string, string>();
             foreach (string pair in keyValuePairs)

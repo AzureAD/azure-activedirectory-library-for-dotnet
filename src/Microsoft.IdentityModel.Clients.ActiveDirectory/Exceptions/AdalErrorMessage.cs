@@ -25,7 +25,6 @@
 //
 //------------------------------------------------------------------------------
 
-
 namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 {
     /// <summary>
@@ -58,6 +57,13 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
 
         public const string EmailAddressSuffixMismatch =
             "No identity provider email address suffix matches the provided address";
+
+        internal static string BrokerKeySaveFailed(string result)
+        {
+           return "A broker key was generated but it was not saved to the KeyChain. " +
+                "Make sure the app has permissions to write to the keychain group 'com.microsoft.adalcache' " +
+                "The error code from KeyChain was " + result;
+        }
 
         public const string EncodedTokenTooLong = "Encoded token size is beyond the upper limit";
         public const string FailedToAcquireTokenSilently = "Failed to acquire token silently as no token was found in the cache. Call method AcquireToken";
@@ -160,5 +166,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
         public const string NetStandardCustomWebUi = "For this framework, ADAL does not provide an way to perform interactive auth. You can do this by implementing ICustomWebUi";
 
         public const string AdalExceptionFailedToParse = "Attempted to deserialize an AdalException but the type was unknown.";
+
     }
 }
