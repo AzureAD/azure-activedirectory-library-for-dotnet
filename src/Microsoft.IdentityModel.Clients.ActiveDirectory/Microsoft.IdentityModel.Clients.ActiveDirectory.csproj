@@ -38,9 +38,9 @@
     <PackageProjectUrl>https://aka.ms/adalnet</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>
-      This package contains the binaries of the Active Directory Authentication Library (ADAL). ADAL provides easy to use authentication functionality for your .NET based client by taking advantage of Windows Server Active Directory and Azure Active Directory.
-      ADAL.NET enables you to acquire a security token to access protected Web APIs, for instance Microsoft Graph or your own Web API.
-      ADAL.NET is built against multiple platforms, including .net desktop, .net standard, .net core, UWP, Xamarin iOS and Xamarin Android. It can  be called from applications and Web APIs (ASP.NET, .NET Core, ASP.NET Core) that call other Web APIs in the name of a user, or without a user.
+      There is a newer version of this library available here: https://www.nuget.org/packages/Microsoft.Identity.Client/
+      Migration guide: https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration
+      ADAL will no longer receive new feature improvements.
     </Description>
     <PackageTags>Active Directory Authentication Library ADAL ActiveDirectory AD AAD Identity Authentication .NET Android iOS UWP NetCore Xamarin</PackageTags>
   </PropertyGroup>
@@ -104,11 +104,11 @@
     <Compile Include="Features\WinCommon\**\*.cs" />
     <Compile Include="Features\CertificateAssertion\**\*.cs" />
     <Compile Include="Features\Cache\**\*.cs" />
-    <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" SubType="Component" />
-    <Compile Update="Platforms\net45\CustomWebBrowser.cs" SubType="Component" />
-    <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" SubType="Form" />
-    <Compile Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" SubType="Form" />
-    <Compile Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" SubType="Form" />
+    <Compile Update="Platforms\net45\CustomWebBrowser.CustomWebBrowserEvent.cs" />
+    <Compile Update="Platforms\net45\CustomWebBrowser.cs" />
+    <Compile Update="Platforms\net45\WinFormWebAuthenticationDialog.cs" />
+    <Compile Update="Platforms\net45\WindowsFormsWebAuthenticationDialogBase.cs" />
+    <Compile Update="Platforms\net45\SilentWindowsFormsAuthenticationDialog.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
     <Compile Include="Features\Cache\**\*.cs" />
