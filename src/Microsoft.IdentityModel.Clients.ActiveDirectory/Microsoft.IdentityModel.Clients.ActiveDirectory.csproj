@@ -40,7 +40,7 @@
     <Description>
       There is a newer version of this library available here: https://www.nuget.org/packages/Microsoft.Identity.Client/
       Migration guide: https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration
-      ADAL will no longer receive new feature improvements.
+      ADAL no longer receives new feature improvements.
     </Description>
     <PackageTags>Active Directory Authentication Library ADAL ActiveDirectory AD AAD Identity Authentication .NET Android iOS UWP NetCore Xamarin</PackageTags>
   </PropertyGroup>
