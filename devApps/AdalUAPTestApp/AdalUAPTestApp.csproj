@@ -18,7 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>AdalUAPTestApp_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>B056F4F43E9184AC533C1341E867CD1C990F4E72</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>8BC62A17781AFFAC720558579829FC2F065D4805</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -146,11 +146,14 @@
   </ItemGroup>
   <ItemGroup Label="Dependency overrides due to security vulnerabilities">
     <!-- 4.3.0 has CVE-2019-0657 -->
-    <PackageReference Include="System.Private.Uri" Version="4.3.1"  />
+    <!-- 4.3.1 has CVE-2019-0981 -->
+    <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <!-- 4.1.3 has CVE-2018-0786 -->
-    <PackageReference Include="System.ServiceModel.Http" Version="4.4.1" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.1"  />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.4.1"  />
+    <!-- 4.4.1 has CVE-2018-8356 -->
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.4" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
