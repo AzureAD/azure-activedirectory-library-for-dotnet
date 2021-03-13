@@ -78,12 +78,6 @@ namespace Microsoft.Identity.Test.LabInfrastructure
             }
 
             LabUser[] userResponses = JsonConvert.DeserializeObject<LabUser[]>(result);
-            if (userResponses.Length > 1)
-            {
-                throw new InvalidOperationException(
-                    "Test Setup Error: Not expecting the lab to return multiple users for a query." +
-                    " Please have rewrite the query so that it returns a single user.");
-            }
 
             var user = userResponses[0];
 

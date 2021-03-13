@@ -18,7 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <PackageCertificateKeyFile>XFormsApp.UWP_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>1EFB4DF7AA1BBB0551E2F85738789E42B1845AD8</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>071A6EDD359052E944E102A002DCF852535EC344</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -146,12 +146,15 @@
     <PackageReference Include="Xamarin.Forms">
       <Version>2.5.0.91635</Version>
     </PackageReference>
-      <!-- 4.3.0 has CVE-2019-0657 -->
-      <PackageReference Include="System.Private.Uri" Version="4.3.1"  />
-      <!-- 4.1.3 has CVE-2018-0786 -->
-      <PackageReference Include="System.ServiceModel.Http" Version="4.4.1" />
-      <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.1"  />
-      <PackageReference Include="System.ServiceModel.Security" Version="4.4.1"  />
+    <!-- 4.3.0 has CVE-2019-0657 -->
+    <!-- 4.3.1 has CVE-2019-0981 -->
+    <PackageReference Include="System.Private.Uri" Version="4.3.2" />
+    <!-- 4.1.3 has CVE-2018-0786 -->
+    <!-- 4.4.1 has CVE-2018-8356 -->
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.4" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.IdentityModel.Clients.ActiveDirectory\Microsoft.IdentityModel.Clients.ActiveDirectory.csproj">
