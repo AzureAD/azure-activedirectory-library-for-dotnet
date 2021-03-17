@@ -683,7 +683,10 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal.Platform
             X509Chain chain = new X509Chain();
             chain.ChainPolicy = new X509ChainPolicy()
             {
+#pragma warning enable IA5352 // Cannot check for revocation of Authenticator certs
                 RevocationMode = X509RevocationMode.NoCheck
+#pragma warning disable IA5352 
+
             };
 
             chain.ChainPolicy.ExtraStore.AddRange(collection);

@@ -46,9 +46,10 @@ namespace Test.ADAL.NET.Integration
     [TestClass]
     public class UnifiedCacheTests
     {
-        private IPlatformParameters _platformParameters;
 
 #if !NET_CORE // interactive auth not supported on netcore
+        private IPlatformParameters _platformParameters;
+
         [TestInitialize]
         public void Initialize()
         {

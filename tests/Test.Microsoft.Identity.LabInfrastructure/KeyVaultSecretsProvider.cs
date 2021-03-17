@@ -14,26 +14,7 @@ namespace Microsoft.Identity.Test.LabInfrastructure
 {
     public class KeyVaultSecretsProvider : IDisposable
     {
-        /// <summary>
-        /// Token cache used by the test infrastructure when authenticating against KeyVault
-        /// </summary>
-        /// <remarks>We aren't using the default cache to make sure the tokens used by this
-        /// test infrastructure can't end up in the cache being used by the tests (the UI-less
-        /// Desktop test app runs in the same AppDomain as the infrastructure and uses the
-        /// default cache).</remarks>
-        private readonly static TokenCache keyVaultTokenCache = new TokenCache();
-
         private KeyVaultClient _keyVaultClient;
-
-        private ClientAssertionCertificate _assertionCert;
-
-        private readonly string _keyVaultClientID = "16dab2ba-145d-4b1b-8569-bf4b9aed4dc8";
-
-        private readonly string _keyVaultThumbPrint = "79FBCBEB5CD28994E50DAFF8035BACF764B14306";
-
-        private readonly string _dataFileName = "data.txt";
-
-        private AuthenticationResult _authResult;
 
         private const string _buildAutomationKeyVaultName = "https://buildautomation.vault.azure.net/";
         private const string _mSIDLabLabKeyVaultName = "https://msidlabs.vault.azure.net";

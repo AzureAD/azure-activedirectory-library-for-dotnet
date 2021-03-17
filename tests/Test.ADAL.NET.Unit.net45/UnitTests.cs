@@ -309,9 +309,11 @@ namespace Test.ADAL.NET.Unit
             string[] certs = { "valid_cert.pfx", "valid_cert2.pfx" };
             for (int i = 0; i < 2; i++)
             {
+#pragma warning disable IA5352 // not a password
                 X509Certificate2 x509Certificate = new X509Certificate2(
                        ResourceHelper.GetTestResourceRelativePath(certs[i]),
                        "password");
+#pragma warning restore IA5352
                 ClientAssertionCertificate cac = new ClientAssertionCertificate("some_id", x509Certificate);
                 byte[] signature = cac.Sign(Message);
                 Assert.IsNotNull(signature);

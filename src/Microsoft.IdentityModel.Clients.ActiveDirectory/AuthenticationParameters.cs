@@ -178,7 +178,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
             authenticateHeaderItems.TryGetValue(ResourceKey, out param);
             string resource = param;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             return new AuthenticationParameters(authority, resource);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private static AuthenticationParameters CreateFromUnauthorizedResponseCommon(IHttpWebResponse response)
