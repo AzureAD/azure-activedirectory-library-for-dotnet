@@ -1,8 +1,12 @@
+Version 5.2.9
+=============
+Enhancements:
+**This release updates some .NET dependencies to a newer version.**
+
 Version 5.2.7
 =============
 Bug Fixes:
 **Starting in ADAL.NET version 4.0.0, for ADFS, the string literal `/adfs/` was getting dropped from the authority url.** This caused the endpoints to be incorrect for ADFS. This [issue](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/issues/1693) has been resolved.
-
 
 Version 5.2.6
 =============
