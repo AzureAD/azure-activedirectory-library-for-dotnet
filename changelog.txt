@@ -1,7 +1,7 @@
 Version 5.2.9
 =============
 Enhancements:
-**This release updates some .NET libraries to a newer version.**
+**This release updates some .NET dependencies to a newer version.**
 
 Version 5.2.7
 =============
