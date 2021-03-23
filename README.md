@@ -14,8 +14,8 @@ This library, ADAL for .NET, will no longer receive new feature improvements. In
 
 # Active Directory Authentication Library (ADAL) for .NET, Windows Store, .NET Core, Xamarin iOS and Xamarin Android
 
-| [Conceptual documentation](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki#documentation) | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-dotnet) | [Reference Docs](https://docs.microsoft.com/active-directory/adal/microsoft.identitymodel.clients.activedirectory) | [Developer Guide](https://aka.ms/aaddev) | [API Reference](https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.clients.activedirectory?view=azure-dotnet) |
-| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| [Conceptual documentation](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki#documentation) | [Code Samples](https://github.com/azure-samples?utf8=✓&q=active-directory-dotnet) | [Reference Docs](https://docs.microsoft.com/active-directory/adal/microsoft.identitymodel.clients.activedirectory) | [Developer Guide](https://aka.ms/aaddev) | [API Reference](https://docs.microsoft.com/en-us/dotnet/api/microsoft.identitymodel.clients.activedirectory?view=azure-dotnet) | [Feedback](https://forms.office.com/r/W924Ee25e4)
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---|
 
 ## Update to MSAL.NET now!
 
@@ -77,6 +77,9 @@ We provide a full suite of [sample applications](https://github.com/Azure-Sample
 We leverage [Stack Overflow](http://stackoverflow.com/) to work with the community on supporting Azure Active Directory and its SDKs, including this one! We highly recommend you ask your questions on Stack Overflow (we're all on there!) Also browser existing issues to see if someone has had your question before.
 
 We recommend you use the "adal" tag so we can see it! Here is the latest Q&A on Stack Overflow for ADAL: [http://stackoverflow.com/questions/tagged/adal](http://stackoverflow.com/questions/tagged/adal)
+
+## Submit Feedback
+We'd like your thoughts on this library. Please complete [this short survey.](https://forms.office.com/r/W924Ee25e4)
 
 ## Security Reporting
 
