@@ -56,4 +56,4 @@ A clear and concise description of what happens, e.g. exception is thrown, UI fr
 <!--- Only if you have suggestions on a fix for the bug -->
 
 **Additional context/ Logs / Screenshots**
-Add any other context about the problem here, such as logs and screebshots. Logging is described at https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Logging-in-ADAL.Net. Don't post logs containing PII on GitHub!
+Add any other context about the problem here, such as logs and screenshots. Logging is described at https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/Logging-in-ADAL.Net. Don't post logs containing PII on GitHub!
