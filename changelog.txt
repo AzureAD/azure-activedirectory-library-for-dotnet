@@ -1,3 +1,9 @@
+Version 5.2.10
+=============
+Enhancements:
+- **Added sync overload for AuthenticationParameters.CreateFromUnauthorizedResponse().**
+- **Marked async overload AuthenticationParameters.CreateFromUnauthorizedResponseAsync() as obsolete.**
+
 Version 5.2.9
 =============
 Enhancements:
