@@ -78,7 +78,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to 
+        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to
         /// retrieve the authority and resource.
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
@@ -95,7 +95,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         }
 
         /// <summary>
-        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to 
+        /// Sends a GET request to the url provided with no Authenticate header. If a 401 Unauthorized is received, this helper will parse the WWW-Authenticate header to
         /// retrieve the authority and resource.
         /// </summary>
         /// <param name="resourceUrl">Address of the resource</param>
@@ -124,6 +124,11 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public static async Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
             HttpResponseMessage responseMessage)
         {
+            if (responseMessage == null)
+            {
+                throw new ArgumentNullException("responseMessage");
+            }
+
             return CreateFromUnauthorizedResponseCommon(await OAuthClient.CreateResponseAsync(responseMessage)
                 .ConfigureAwait(false));
         }
@@ -133,7 +138,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="authenticateHeader">Content of header WWW-Authenticate header</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
-        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>        
+        /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
         public static AuthenticationParameters CreateFromResponseAuthenticateHeader(string authenticateHeader)
         {
             if (string.IsNullOrWhiteSpace(authenticateHeader))
