@@ -40,6 +40,8 @@ namespace Test.ADAL.NET.Unit
     [TestClass]
     public class AuthenticationParametersTests
     {
+        private static readonly string Authority = AdalTestConstants.DefaultAuthorityCommonTenant + "/oauth2/authorize";
+        private const string  Resource = "test_resource";
         private const string AuthenticateHeader = "WWW-Authenticate";
 
         [TestInitialize]
@@ -53,19 +55,16 @@ namespace Test.ADAL.NET.Unit
         [Description("Tests for discovery via 401 challenge response using CreateFromResponseAuthenticateHeader()")]
         public void CreateFromResponseAuthenticateHeaderTest()
         {
-            string authority = AdalTestConstants.DefaultAuthorityCommonTenant + "/oauth2/authorize";
-            const string Resource = "test_resource";
-
-            AuthenticationParameters authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", authority, Resource));
-            Assert.AreEqual(authority, authParams.Authority);
+            AuthenticationParameters authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", Authority, Resource));
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.AreEqual(Resource, authParams.Resource);
 
-            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", authority, Resource));
-            Assert.AreEqual(authority, authParams.Authority);
+            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", Authority, Resource));
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.AreEqual(Resource, authParams.Resource);
 
-            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", authority));
-            Assert.AreEqual(authority, authParams.Authority);
+            authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", Authority));
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.IsNull(authParams.Resource);
 
             authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer resource_id=""{0}""", Resource));
@@ -79,7 +78,7 @@ namespace Test.ADAL.NET.Unit
 
             // Invalid format -> error
             var argEx = AssertException.Throws<ArgumentException>(() =>
-                AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", authority, Resource)));
+                AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource)));
             Assert.AreEqual(argEx.ParamName, "authenticateHeader");
             Assert.AreEqual(argEx.Message, AdalErrorMessage.InvalidAuthenticateHeaderFormat);
         }
@@ -88,22 +87,23 @@ namespace Test.ADAL.NET.Unit
         [Description("Tests for discovery via 401 challenge response using CreateFromUnauthorizedResponseAsync()")]
         public async Task CreateFromUnauthorizedResponseAsyncTestAsync()
         {
-            string authority = AdalTestConstants.DefaultAuthorityCommonTenant + "/oauth2/authorize";
-            const string Resource = "test_resource";
-
-            AuthenticationParameters authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", authority, Resource))).ConfigureAwait(false);
-            Assert.AreEqual(authority, authParams.Authority);
+            AuthenticationParameters authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", Authority, Resource))).ConfigureAwait(false);
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.AreEqual(Resource, authParams.Resource);
 
-            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", authority, Resource))).ConfigureAwait(false);
-            Assert.AreEqual(authority, authParams.Authority);
+            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", Authority, Resource))).ConfigureAwait(false);
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.AreEqual(Resource, authParams.Resource);
 
-            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", authority))).ConfigureAwait(false);
-            Assert.AreEqual(authority, authParams.Authority);
+            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", Authority))).ConfigureAwait(false);
+            Assert.AreEqual(Authority, authParams.Authority);
             Assert.IsNull(authParams.Resource);
 
-            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer resource_id=""{0}""", Resource))).ConfigureAwait(false);
+            authParams = await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"Bearer resource_id=""{0}""", Resource))).ConfigureAwait(false);
             Assert.AreEqual(Resource, authParams.Resource);
             Assert.IsNull(authParams.Authority);
 
@@ -114,13 +114,16 @@ namespace Test.ADAL.NET.Unit
 
             // Invalid format -> error
             var argEx = AssertException.TaskThrows<ArgumentException>(async () =>
-                await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", authority, Resource))).ConfigureAwait(false));
+                await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                    CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource))).ConfigureAwait(false));
             Assert.AreEqual(argEx.ParamName, "authenticateHeader");
             Assert.AreEqual(argEx.Message, AdalErrorMessage.InvalidAuthenticateHeaderFormat);
 
             // Invalid status code -> error
             argEx = AssertException.TaskThrows<ArgumentException>(async () =>
-                await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", authority, Resource), HttpStatusCode.Forbidden)).ConfigureAwait(false));
+                await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
+                    CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource),
+                                          HttpStatusCode.Forbidden)).ConfigureAwait(false));
             Assert.AreEqual(argEx.ParamName, "response");
             Assert.AreEqual(argEx.Message, AdalErrorMessage.UnauthorizedHttpStatusCodeExpected);
         }
