@@ -129,6 +129,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="responseMessage">Response received from the resource (e.g. via an http call using HttpClient).</param>
         /// <returns>AuthenticationParameters object containing authentication parameters</returns>
         /// <remarks>Most protected APIs, including those owned by Microsoft, no longer advertise a resource. Authentication should be done using MSAL, which uses scopes. See https://aka.ms/msal-net-migration-adal-msal </remarks>
+        [Obsolete("Please use the sync version of this method - CreateFromUnauthorizedResponse", false)]
         public static Task<AuthenticationParameters> CreateFromUnauthorizedResponseAsync(
             HttpResponseMessage responseMessage)
         {
