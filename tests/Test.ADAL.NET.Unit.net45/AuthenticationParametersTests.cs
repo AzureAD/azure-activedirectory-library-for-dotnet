@@ -80,7 +80,7 @@ namespace Test.ADAL.NET.Unit
             var argEx = AssertException.Throws<ArgumentException>(() =>
                 AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource)));
             Assert.AreEqual(argEx.ParamName, "authenticateHeader");
-            Assert.AreEqual(argEx.Message, AdalErrorMessage.InvalidAuthenticateHeaderFormat);
+            Assert.IsTrue(argEx.Message.Contains(AdalErrorMessage.InvalidAuthenticateHeaderFormat));
         }
 
         [TestMethod]
@@ -117,7 +117,7 @@ namespace Test.ADAL.NET.Unit
                 await AuthenticationParameters.CreateFromUnauthorizedResponseAsync(
                     CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource))).ConfigureAwait(false));
             Assert.AreEqual(argEx.ParamName, "authenticateHeader");
-            Assert.AreEqual(argEx.Message, AdalErrorMessage.InvalidAuthenticateHeaderFormat);
+            Assert.IsTrue(argEx.Message.Contains(AdalErrorMessage.InvalidAuthenticateHeaderFormat));
 
             // Invalid status code -> error
             argEx = AssertException.TaskThrows<ArgumentException>(async () =>
@@ -125,20 +125,18 @@ namespace Test.ADAL.NET.Unit
                     CreateResponseMessage(string.Format(CultureInfo.InvariantCulture, @"authorization_uri=""{0}"",Resource_id=""{1}""", Authority, Resource),
                                           HttpStatusCode.Forbidden)).ConfigureAwait(false));
             Assert.AreEqual(argEx.ParamName, "response");
-            Assert.AreEqual(argEx.Message, AdalErrorMessage.UnauthorizedHttpStatusCodeExpected);
+            Assert.IsTrue(argEx.Message.Contains(AdalErrorMessage.UnauthorizedHttpStatusCodeExpected));
         }
 
         private static HttpResponseMessage CreateResponseMessage(string authenticateHeader, HttpStatusCode statusCode = HttpStatusCode.Unauthorized)
         {
-            return new HttpResponseMessage
+            var responseMessage = new HttpResponseMessage
             {
                 StatusCode = statusCode,
-                Headers =
-                {
-                    { AuthenticateHeader, authenticateHeader }
-                },
                 Content = new StringContent(string.Empty)
             };
+            responseMessage.Headers.TryAddWithoutValidation(AuthenticateHeader, authenticateHeader);
+            return responseMessage;
         }
     }
 }
