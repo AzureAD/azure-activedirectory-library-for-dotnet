@@ -99,7 +99,8 @@ namespace Test.ADAL.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        //[Test] // Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.
+        [Test]
+        [Ignore("Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.")]
         public void AcquireTokenADFSv3FederatedInteractiveTest()
         {
             _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
@@ -110,7 +111,8 @@ namespace Test.ADAL.UIAutomation
         /// <summary>
         /// Runs through the standard acquire token flow
         /// </summary>
-        //[Test] // Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.
+        [Test]
+        [Ignore("Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.")]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
             _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
