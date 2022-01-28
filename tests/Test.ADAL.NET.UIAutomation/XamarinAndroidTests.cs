@@ -5,7 +5,6 @@ using Microsoft.Identity.Test.LabInfrastructure;
 using NUnit.Framework;
 using Test.Microsoft.Identity.Core.UIAutomation;
 using Xamarin.UITest;
-using Xamarin.UITest.Queries;
 
 //NOTICE! Inorder to run UI automation tests for xamarin locally, you may need to upgrade nunit to 3.0 and above for this project and the core ui Automation project.
 //It is set to 2.6.4 because that is the maximum version that appcenter can support.
@@ -82,7 +81,7 @@ namespace Test.ADAL.UIAutomation
         public void AcquireTokenADFSv4FederatedInteractiveTest()
         {
             _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
-                xamarinController, 
+                xamarinController,
                 LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV4).GetAwaiter().GetResult());
         }
 
@@ -101,10 +100,11 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
+        [Ignore("Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.")]
         public void AcquireTokenADFSv3FederatedInteractiveTest()
         {
             _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
-                xamarinController, 
+                xamarinController,
                 LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV3).GetAwaiter().GetResult());
         }
 
@@ -112,10 +112,11 @@ namespace Test.ADAL.UIAutomation
         /// Runs through the standard acquire token flow
         /// </summary>
         [Test]
+        [Ignore("Disabled, breaks because cannot get a correct test lab user because the lab API query is wrong.")]
         public void AcquireTokenInteractiveADFSv3NonFederatedTest()
         {
             _adalMobileTestHelper.AcquireTokenInteractiveTestHelper(
-                xamarinController, 
+                xamarinController,
                 LabUserHelper.GetAdfsUserAsync(FederationProvider.AdfsV3, false).GetAwaiter().GetResult());
         }
     }
