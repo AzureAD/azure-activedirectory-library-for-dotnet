@@ -144,6 +144,7 @@
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.4" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.4.4" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.4.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
@@ -174,7 +175,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncUsageAnalyzers" Version="1.0.0-alpha003" PrivateAssets="All" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <!-- 4.3.0 has CVE-2019-0657, CVE-2019-0980, CVE-2019-0981 -->
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
   </ItemGroup>
