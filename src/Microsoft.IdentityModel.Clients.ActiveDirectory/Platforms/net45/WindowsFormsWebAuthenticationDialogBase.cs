@@ -237,9 +237,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory.Internal
                 }
 
                 this.Result = new AuthorizationResult(AuthorizationStatus.Success, GetUrlFromDocument(url, ((CustomWebBrowser)sender).Document));
-                // Use v3.5.1 method if 4.x method fails.
-                if (this.Result.Status != AuthorizationStatus.Success)
-                    this.Result = new AuthorizationResult(AuthorizationStatus.Success, url.OriginalString);
                 canClose = true;
             }
 
