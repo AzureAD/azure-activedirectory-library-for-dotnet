@@ -39,6 +39,9 @@ using Microsoft.Identity.Json.Utilities.LinqBridge;
 using System.Linq;
 #endif
 using System.Runtime.Serialization;
+#if WINDOWS_APP
+using MemberTypes = Microsoft.Identity.Json.Utilities.MemberTypes;
+#endif
 
 namespace Microsoft.Identity.Json.Serialization
 {

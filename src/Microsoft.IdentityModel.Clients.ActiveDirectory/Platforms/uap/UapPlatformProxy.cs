@@ -41,6 +41,7 @@ using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.System;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System.Globalization;
 
 namespace Microsoft.Identity.Core
 {
@@ -175,7 +176,7 @@ namespace Microsoft.Identity.Core
         /// <returns>Name of the calling application</returns>
         public string GetCallingApplicationName()
         {
-            return Package.Current?.DisplayName?.ToString();
+            return Package.Current?.DisplayName?.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
