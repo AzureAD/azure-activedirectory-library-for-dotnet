@@ -55,18 +55,14 @@ namespace Test.ADAL.NET.Unit
 
             AuthenticationParameters authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}"",resource_id=""{1}""", authority, Resource));
             Assert.AreEqual(authority, authParams.Authority);
-            Assert.AreEqual(Resource, authParams.Resource);
 
             authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"bearer Authorization_uri=""{0}"",Resource_ID=""{1}""", authority, Resource));
             Assert.AreEqual(authority, authParams.Authority);
-            Assert.AreEqual(Resource, authParams.Resource);
 
             authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer authorization_uri=""{0}""", authority));
             Assert.AreEqual(authority, authParams.Authority);
-            Assert.IsNull(authParams.Resource);
 
             authParams = AuthenticationParameters.CreateFromResponseAuthenticateHeader(string.Format(CultureInfo.InvariantCulture, @"Bearer resource_id=""{0}""", Resource));
-            Assert.AreEqual(Resource, authParams.Resource);
             Assert.IsNull(authParams.Authority);
 
             // Null parameter -> error

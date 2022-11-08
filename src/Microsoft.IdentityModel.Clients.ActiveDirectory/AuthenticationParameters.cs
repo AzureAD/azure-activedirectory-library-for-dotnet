@@ -50,7 +50,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         private const string AuthenticateHeader = "WWW-Authenticate";
         private const string Bearer = "bearer";
         private const string AuthorityKey = "authorization_uri";
-        private const string ResourceKey = "resource_id";
 
         /// <summary>
         /// Gets or sets the address of the authority to issue token.
@@ -60,7 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
-        [Obsolete("The client apps must know in advance which resource / App ID uri it requests tokens for.", true)]
+        [Obsolete("The client apps must know in advance which resource it requests tokens for.", true)]
         public string Resource { get; set; }
 
         static AuthenticationParameters()
@@ -75,7 +74,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         public AuthenticationParameters(string authority, string resource)
         {
             Authority = authority;
-            Resource = resource;
         }
 
         /// <summary>
@@ -90,7 +88,6 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         {
             var result = await CreateFromUrlAsync(resourceUrl).ConfigureAwait(false);
             this.Authority = result.Authority;
-            this.Resource = result.Resource;
 
             return this;
         }
@@ -175,11 +172,9 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 
             string param;
             authenticateHeaderItems.TryGetValue(AuthorityKey, out param);
-            string authority = param;
-            authenticateHeaderItems.TryGetValue(ResourceKey, out param);
-            string resource = param;
+            string authority = param;           
 
-            return new AuthenticationParameters(authority, resource);
+            return new AuthenticationParameters(authority, null);
         }
 
         private static AuthenticationParameters CreateFromUnauthorizedResponseCommon(IHttpWebResponse response)

@@ -50,11 +50,7 @@ namespace Test.ADAL.Integration.SeleniumTests
                 .ConfigureAwait(false);
 
             // Authority might change, but should be a rare occurence
-            Assert.AreEqual(ap.Authority, "https://login.microsoftonline.com/common/oauth2/authorize");
-
-            // Graph does not provide a resource_id in the response header, probably because they want MSAL to access it
-            // I couldn't find protected APIs that advertise resources (tried Graph, AAD Graph, Dynamics...)
-            Assert.IsNull(ap.Resource);
+            Assert.AreEqual(ap.Authority, "https://login.microsoftonline.com/common/oauth2/authorize");            
         }
 
         [TestMethod]
@@ -70,10 +66,6 @@ namespace Test.ADAL.Integration.SeleniumTests
 
             // Authority might change, but should be a rare occurence
             Assert.AreEqual(ap.Authority, "https://login.microsoftonline.com/common/oauth2/authorize");
-
-            // Graph does not provide a resource_id in the response header, probably because they want MSAL to access it
-            // I couldn't find protected APIs that advertise resources (tried Graph, AAD Graph, Dynamics...)
-            Assert.IsNull(ap.Resource);
         }
     }
 }
