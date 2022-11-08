@@ -378,7 +378,6 @@ namespace Test.ADAL.NET.Unit
         {
             AuthenticationParameters parameters = AuthenticationParameters.CreateFromResponseAuthenticateHeader(authenticateHeader);
             Assert.AreEqual(expectedAuthority, parameters.Authority);
-            Assert.AreEqual(excepectedResource, parameters.Resource);
         }
 
         private static void RunAuthenticationParametersNegative(string authenticateHeader)
