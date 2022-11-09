@@ -39,7 +39,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Xamarin.UITest" Version="2.2.6" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="2.0.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />
