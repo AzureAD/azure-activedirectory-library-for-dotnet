@@ -735,7 +735,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
         [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/web-app and https://aka.ms/adal-to-msal-net/interactive\")]
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/web-app and https://aka.ms/adal-to-msal-net/interactive")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
             ClientAssertion clientAssertion, UserIdentifier userId)
