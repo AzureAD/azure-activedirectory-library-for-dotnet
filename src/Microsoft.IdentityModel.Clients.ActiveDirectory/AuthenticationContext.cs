@@ -234,8 +234,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <returns>It contains Device Code, its expiration time, User Code.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-            "To migrate an app using Device Code flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=devicecode")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Device Code flow, see https://aka.ms/adal-to-msal-net/device-code")]
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId)
         {
             return await AcquireDeviceCodeAsync(resource, clientId, null).ConfigureAwait(false);
@@ -248,8 +248,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>It contains Device Code, its expiration time, User Code.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-            "To migrate an app using Device Code flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=devicecode")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Device Code flow, see https://aka.ms/adal-to-msal-net/device-code")]
         public async Task<DeviceCodeResult> AcquireDeviceCodeAsync(string resource, string clientId,
             string extraQueryParameters)
         {
@@ -263,8 +263,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// </summary>
         /// <param name="deviceCodeResult">The device code result received from calling AcquireDeviceCodeAsync.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-            "To migrate an app using Device Code flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=devicecode")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Device Code flow, see https://aka.ms/adal-to-msal-net/device-code")]
         public Task<AuthenticationResult> AcquireTokenByDeviceCodeAsync(DeviceCodeResult deviceCodeResult)
         {
             return AcquireTokenByDeviceCodeAsync(deviceCodeResult, CancellationToken.None);
@@ -277,8 +277,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="deviceCodeResult">The device code result received from calling AcquireDeviceCodeAsync.</param>
         /// <param name="cancellationToken">A CancellationToken which can be triggered to cancel the operation in progress.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-            "To migrate an app using Device Code flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=devicecode")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Device Code flow, see https://aka.ms/adal-to-msal-net/device-code")]
         public async Task<AuthenticationResult> AcquireTokenByDeviceCodeAsync(
             DeviceCodeResult deviceCodeResult,
             CancellationToken cancellationToken)
@@ -317,8 +317,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="claims">Additional claims that are needed for authentication. Acquired from the AdalClaimChallengeException</param>
         /// <param name="synchronizationContext">Optional SynchronizationContext for ensuring interactive calls are executed on the UI thread.</param>
         /// <returns>It contains Access Token and the Access Token's expiration time.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-            "To migrate an app using Interactive flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=interactive")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Interactive flow, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenAsync(
             string resource, 
             string clientId, 
@@ -357,7 +357,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="resource">Identifier of the target resource that is the recipient of the requested token.</param>
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <returns>It contains Access Token, its expiration time, user information. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. To migrate, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration ")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource, string clientId)
         {
             return await AcquireTokenSilentAsync(resource, clientId, UserIdentifier.AnyUser).ConfigureAwait(false);
@@ -370,7 +371,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="clientId">Identifier of the client requesting the token.</param>
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <returns>It contains Access Token, its expiration time, user information. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. To migrate, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration ")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource, string clientId,
             UserIdentifier userId)
         {
@@ -386,7 +388,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="userId">Identifier of the user token is requested for. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <param name="parameters">Instance of PlatformParameters containing platform specific arguments and information.</param>
         /// <returns>It contains Access Token, its expiration time, user information. If acquiring token without user credential is not possible, the method throws AdalException.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. To migrate, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration ")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate, see https://aka.ms/adal-to-msal-net/interactive ")]
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource, string clientId,
             UserIdentifier userId, IPlatformParameters parameters)
         {
@@ -402,8 +405,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="redirectUri">Address to return to upon receiving a response from the authority.</param>
         /// <param name="parameters">An object of type PlatformParameters which may pass additional parameters used for authorization.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate an app using Interactive flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=interactive")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Interactive flow, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters)
         {
@@ -421,8 +424,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="userId">Identifier of the user token is requested for. If created from DisplayableId, this parameter will be used to pre-populate the username field in the authentication form. Please note that the end user can still edit the username field and authenticate as a different user.
         /// If you want to be notified of such change with an exception, create UserIdentifier with type RequiredDisplayableId. This parameter can be <see cref="UserIdentifier"/>.Any.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate an app using Interactive flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=interactive")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Interactive flow, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters, UserIdentifier userId)
         {
@@ -441,8 +444,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <param name="parameters">Parameters needed for interactive flow requesting authorization code. Pass an instance of PlatformParameters.</param>
         /// <param name="extraQueryParameters">This parameter will be appended as is to the query string in the HTTP authentication request to the authority. The parameter can be null.</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate an app using Interactive flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-public-client?tabs=interactive")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate an app using Interactive flow, see https://aka.ms/adal-to-msal-net/interactive")]
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId, Uri redirectUri,
             IPlatformParameters parameters, UserIdentifier userId, string extraQueryParameters)
         {
@@ -645,8 +648,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("This API should is only relevant for confidential client use in .NET Framework 4.5 and .NET Core. You should not use it to build against the chosen platform. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+            "To migrate a web application, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<Uri> GetAuthorizationRequestUrlAsync(string resource,
             string clientId, Uri redirectUri,
@@ -670,8 +673,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("This API should is only relevant for confidential client use in .NET Framework 4.5 and .NET Core. You should not use it to build against the chosen platform. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<Uri> GetAuthorizationRequestUrlAsync(string resource,
             string clientId, Uri redirectUri,
@@ -691,8 +694,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
             ClientCredential clientCredential, UserIdentifier userId)
@@ -711,8 +714,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
             IClientAssertionCertificate clientCertificate, UserIdentifier userId)
@@ -731,8 +734,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenSilentAsync(string resource,
             ClientAssertion clientAssertion, UserIdentifier userId)
@@ -752,8 +755,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, ClientCredential clientCredential)
@@ -774,8 +777,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, ClientCredential clientCredential, string resource)
@@ -795,8 +798,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, ClientAssertion clientAssertion)
@@ -818,8 +821,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, ClientAssertion clientAssertion, string resource)
@@ -845,8 +848,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// (either via portal or powershell/CLI operation)</param>
         /// <returns>It contains Access Token, its expiration time, user information.</returns>
 
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, IClientAssertionCertificate clientCertificate, string resource, bool sendX5c)
         {
@@ -866,8 +869,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, IClientAssertionCertificate clientCertificate)
@@ -888,8 +891,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenByAuthorizationCodeAsync(string authorizationCode,
             Uri redirectUri, IClientAssertionCertificate clientCertificate, string resource)
@@ -908,8 +911,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientCredential clientCredential,
             UserAssertion userAssertion)
@@ -929,8 +932,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, UserAssertion userAssertion)
@@ -955,8 +958,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, UserAssertion userAssertion, bool sendX5c)
@@ -975,8 +978,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientAssertion clientAssertion,
             UserAssertion userAssertion)
@@ -996,8 +999,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, string clientId,
             UserAssertion userAssertion)
@@ -1014,8 +1017,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a web application or a web api, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration#why-migrate-to-msalnet-or-microsoftidentityweb")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a web application or a web api, see https://aka.ms/adal-to-msal-net/msal-or-idweb")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate)
@@ -1037,8 +1040,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// This saves the application admin from the need to explicitly manage the certificate rollover
         /// (either via portal or powershell/CLI operation)</param>
         /// <returns>It contains Access Token and the Access Token's expiration time. Refresh Token property will be null for this overload.</returns>
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a service to service flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-confidential-client?tabs=daemon")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a service to service flow, see https://aka.ms/adal-to-msal-net/daemon")]
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource,
             IClientAssertionCertificate clientCertificate, bool sendX5c)
         {
@@ -1056,8 +1059,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")] 
 #else
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-"To migrate a service to service flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-confidential-client?tabs=daemon")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+"To migrate a service to service flow, see https://aka.ms/adal-to-msal-net/daemon")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientAssertion clientAssertion)
         {
@@ -1074,8 +1077,8 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
 #if ANDROID || iOS || WINDOWS_APP
         [Obsolete("As a security hygiene, this confidential flow API should not be used on this platform which only supports public client applications. For details please see https://aka.ms/AdalNetConfFlows")]
 #else        
-        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory has been deprecated and replaced with Microsoft.Identity.Client. " +
-    "To migrate a service to service flow, see https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-net-migration-confidential-client?tabs=daemon")]
+        [Obsolete("Microsoft.IdentityModel.Clients.ActiveDirectory is deprecated and replaced with Microsoft.Identity.Client. " +
+    "To migrate a service to service flow, see https://aka.ms/adal-to-msal-net/daemon")]
 #endif
         public async Task<AuthenticationResult> AcquireTokenAsync(string resource, ClientCredential clientCredential)
         {
