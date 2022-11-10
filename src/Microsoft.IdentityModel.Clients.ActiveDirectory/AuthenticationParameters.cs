@@ -59,7 +59,7 @@ namespace Microsoft.IdentityModel.Clients.ActiveDirectory
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
         /// </summary>
-        [Obsolete("The client apps must know in advance which resource it requests tokens for.", true)]
+        [Obsolete("The client apps must know in advance which resource the tokens are for.", true)]
         public string Resource { get; set; }
 
         static AuthenticationParameters()
